@@ -52,7 +52,7 @@ func TestNewQuotaEnforcer(t *testing.T) {
 	defer client.Close()
 
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	if enforcer == nil {
 		t.Fatal("NewQuotaEnforcer returned nil")
@@ -75,7 +75,7 @@ func TestCheckQuota_NoQuotaConfigured(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	// Create instance without quota
 	instance, _ := client.ServiceInstance.Create().
@@ -108,7 +108,7 @@ func TestCheckQuota_80PercentWarning(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	quotaBytes := int64(1000000) // 1MB
 	period := serviceinstance.QuotaPeriodDaily
@@ -155,7 +155,7 @@ func TestCheckQuota_90PercentWarning(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	quotaBytes := int64(1000000)
 
@@ -195,7 +195,7 @@ func TestCheckQuota_100PercentExceeded(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	quotaBytes := int64(1000000)
 
@@ -242,7 +242,7 @@ func TestResetQuota_Daily(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	instance, _ := client.ServiceInstance.Create().
 		SetID("test-instance").
@@ -295,7 +295,7 @@ func TestSetQuota(t *testing.T) {
 
 	ctx := context.Background()
 	eventBus := &quotaMockEventBus{}
-	enforcer := NewQuotaEnforcer(client, eventBus)
+	enforcer := NewQuotaEnforcer(client, eventBus, nil)
 
 	// Create instance without quota
 	instance, _ := client.ServiceInstance.Create().

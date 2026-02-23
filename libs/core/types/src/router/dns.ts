@@ -3,6 +3,8 @@
  *
  * This module contains TypeScript interfaces for DNS configuration and management.
  * Supports DNS server configuration, static DNS entries, and cache settings.
+ *
+ * @module @nasnet/core/types/router/dns
  */
 
 /**

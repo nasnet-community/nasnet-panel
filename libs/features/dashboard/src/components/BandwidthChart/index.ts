@@ -39,7 +39,7 @@ export {
 } from './utils';
 
 // GraphQL operations (for custom queries)
-export { BANDWIDTH_HISTORY_QUERY, BANDWIDTH_SUBSCRIPTION } from './graphql';
+export { GET_BANDWIDTH_HISTORY as BANDWIDTH_HISTORY_QUERY, BANDWIDTH_UPDATE as BANDWIDTH_SUBSCRIPTION } from './graphql';
 
 // TypeScript types
 export type {

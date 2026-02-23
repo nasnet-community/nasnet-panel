@@ -1,10 +1,12 @@
 /**
  * LogViewer Component
  * Main component for displaying system logs with all enhanced features
+ * @description Real-time system logs viewer with search, filtering, grouping, bookmarks, and detail panel
  * Epic 0.8: System Logs - Full Feature Set
  */
 
 import * as React from 'react';
+import { AlertCircle, List, Layers, Pin, RefreshCw } from 'lucide-react';
 import { useSystemLogs } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
@@ -29,26 +31,18 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { useAutoScroll } from '@nasnet/core/utils';
-import {
-  AlertCircle,
-  RefreshCw,
-  Layers,
-  List,
-  Pin,
-  Settings,
-  Bell,
-} from 'lucide-react';
 import type { LogTopic, LogSeverity, LogEntry as LogEntryType } from '@nasnet/core/types';
 import {
   useLogBookmarks,
   useLogCorrelation,
   useLogAlerts,
   useLogCache,
+  LogSettingsDialog,
+  AlertSettingsDialog,
 } from '@nasnet/features/logs';
-import { LogSettingsDialog } from '@nasnet/features/logs';
-import { AlertSettingsDialog } from '@nasnet/features/logs';
 
 export interface LogViewerProps {
   /**
@@ -79,7 +73,7 @@ export interface LogViewerProps {
  * - Real-time alerts
  * - Local caching
  */
-export function LogViewer({ className, limit = 100 }: LogViewerProps) {
+export const LogViewer = React.memo(function LogViewer({ className, limit = 100 }: LogViewerProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   // State
@@ -251,8 +245,8 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
     <div className={cn('flex flex-col h-full gap-3', className)}>
       {/* Offline Banner */}
       {isOffline && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-warning/10 border border-warning/20 rounded-card-sm text-sm text-warning">
-          <AlertCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2 px-3 py-2 bg-semantic-warning-bg border border-semantic-warning-border rounded-card-sm text-sm text-semantic-warning">
+          <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           <span>You're offline. Showing cached logs.</span>
         </div>
       )}
@@ -287,7 +281,7 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
               className="rounded-r-none"
               aria-label="Flat view"
             >
-              <List className="h-4 w-4" />
+              <Icon icon={List} className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant={viewMode === 'grouped' ? 'default' : 'ghost'}
@@ -296,7 +290,7 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
               className="rounded-none border-x"
               aria-label="Grouped view"
             >
-              <Layers className="h-4 w-4" />
+              <Icon icon={Layers} className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant={viewMode === 'bookmarked' ? 'default' : 'ghost'}
@@ -305,9 +299,9 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
               className="rounded-l-none"
               aria-label="Bookmarked"
             >
-              <Pin className="h-4 w-4" />
+              <Icon icon={Pin} className="h-4 w-4" aria-hidden="true" />
               {bookmarkedLogs.length > 0 && (
-                <span className="ml-1 text-xs">{bookmarkedLogs.length}</span>
+                <span className="ml-1 text-xs font-mono">{bookmarkedLogs.length}</span>
               )}
             </Button>
           </div>
@@ -354,13 +348,13 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 gap-2">
                 {viewMode === 'bookmarked' ? (
                   <>
-                    <Pin className="h-8 w-8 opacity-50" />
+                    <Icon icon={Pin} className="h-8 w-8 opacity-50" aria-hidden="true" />
                     <p>No bookmarked entries</p>
                     <p className="text-xs">Click the pin icon on any log entry to bookmark it</p>
                   </>
                 ) : searchTerm ? (
                   <>
-                    <p>No logs match "{searchTerm}"</p>
+                    <p>No logs match <span className="font-mono">"{searchTerm}"</span></p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -421,7 +415,9 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
       />
     </div>
   );
-}
+});
+
+LogViewer.displayName = 'LogViewer';
 
 /**
  * Skeleton loading state for LogViewer
@@ -448,12 +444,12 @@ interface LogViewerErrorProps {
   onRetry: () => void;
 }
 
-function LogViewerError({ error, onRetry }: LogViewerErrorProps) {
+const LogViewerError = React.memo(function LogViewerError({ error, onRetry }: LogViewerErrorProps) {
   return (
-    <Card className="border-destructive bg-destructive/10">
+    <Card className="border-semantic-error-border bg-semantic-error-bg">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-destructive text-base">
-          <AlertCircle className="h-4 w-4" />
+        <CardTitle className="flex items-center gap-2 text-semantic-error text-base">
+          <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           Failed to load logs
         </CardTitle>
       </CardHeader>
@@ -462,10 +458,12 @@ function LogViewerError({ error, onRetry }: LogViewerErrorProps) {
           {error?.message || 'An unknown error occurred'}
         </p>
         <Button variant="outline" size="sm" onClick={onRetry} className="w-fit">
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <Icon icon={RefreshCw} className="h-4 w-4 mr-2" aria-hidden="true" />
           Retry
         </Button>
       </CardContent>
     </Card>
   );
-}
+});
+
+LogViewerError.displayName = 'LogViewerError';

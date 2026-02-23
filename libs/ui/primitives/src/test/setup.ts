@@ -1,4 +1,19 @@
-import '@testing-library/jest-dom';
+/**
+ * Vitest Setup & Configuration
+ *
+ * Global test setup for all primitives tests:
+ * - Extends vitest with axe-core accessibility matchers
+ * - Sets up automatic cleanup after each test
+ * - Mocks browser APIs (matchMedia, ResizeObserver)
+ * - Provides React Testing Library matchers
+ *
+ * This file runs before all tests in the primitives package.
+ * See vitest.config.ts for setup configuration.
+ *
+ * @see {@link ../../../vitest.config.ts} For test configuration
+ */
+
+import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { expect, afterEach } from 'vitest';
 import * as matchers from 'vitest-axe/matchers';

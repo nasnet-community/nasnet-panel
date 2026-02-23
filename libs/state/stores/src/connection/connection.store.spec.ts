@@ -2,19 +2,24 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import { useConnectionStore } from './connection.store';
 
-describe('useConnectionStore', () => {
+describe('useConnectionStore Legacy API', () => {
   beforeEach(() => {
     // Reset store state before each test
     useConnectionStore.setState({
+      wsStatus: 'disconnected',
       state: 'disconnected',
       lastConnectedAt: null,
+      isReconnecting: false,
+      reconnectAttempts: 0,
+      wsError: null,
     });
   });
 
   describe('Initial State', () => {
     it('should initialize with disconnected state', () => {
-      const { state, lastConnectedAt } = useConnectionStore.getState();
+      const { state, lastConnectedAt, wsStatus } = useConnectionStore.getState();
       expect(state).toBe('disconnected');
+      expect(wsStatus).toBe('disconnected');
       expect(lastConnectedAt).toBeNull();
     });
   });
@@ -200,12 +205,9 @@ describe('useConnectionStore', () => {
     it('should allow selective subscription to state property', () => {
       let stateChanges = 0;
 
-      const unsubscribe = useConnectionStore.subscribe(
-        (state) => state.state,
-        () => {
-          stateChanges++;
-        }
-      );
+      const unsubscribe = useConnectionStore.subscribe(() => {
+        stateChanges++;
+      });
 
       useConnectionStore.getState().setConnected();
       expect(stateChanges).toBe(1);

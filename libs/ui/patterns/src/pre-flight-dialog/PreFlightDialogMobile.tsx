@@ -2,18 +2,23 @@
  * PreFlightDialog Mobile Presenter
  *
  * Bottom sheet presenter for mobile devices.
+ *
  * Features:
  * - Sheet (bottom drawer) instead of modal
  * - Swipe-to-dismiss gesture
  * - Large touch targets (44px)
  * - Vertical scrollable list
+ * - Semantic color tokens
+ * - WCAG AAA accessible
+ *
+ * @module @nasnet/ui/patterns/pre-flight-dialog
  */
 
+import * as React from 'react';
 import {
   AlertCircle,
   Check,
   CheckCircle,
-  ChevronDown,
   X,
   XCircle,
 } from 'lucide-react';
@@ -41,19 +46,38 @@ import type { PreFlightDialogProps } from './types';
  * Displays resource deficit dialog as a bottom sheet.
  * Optimized for touch interaction and small screens.
  */
-export function PreFlightDialogMobile(props: PreFlightDialogProps) {
+const PreFlightDialogMobileComponent = React.forwardRef<
+  HTMLDivElement,
+  PreFlightDialogProps
+>((props, ref) => {
   const { open, onOpenChange, serviceName, allowOverride = false, className } = props;
   const state = usePreFlightDialog(props);
+
+  const handleSelectAll = React.useCallback(() => {
+    state.selectAll();
+  }, [state]);
+
+  const handleClearAll = React.useCallback(() => {
+    state.clearAll();
+  }, [state]);
+
+  const handleToggleSelection = React.useCallback(
+    (serviceId: string) => {
+      state.toggleSelection(serviceId);
+    },
+    [state]
+  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
+        ref={ref}
         side="bottom"
         className={cn('max-h-[90vh] flex flex-col', className)}
       >
         <SheetHeader>
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-6 w-6 text-semantic-warning" />
+            <AlertCircle className="h-6 w-6 text-warning" aria-hidden="true" />
             <SheetTitle>Insufficient Memory</SheetTitle>
           </div>
           <SheetDescription>
@@ -63,7 +87,7 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
         </SheetHeader>
 
         {/* Resource Summary */}
-        <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+        <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/30">
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Required:</span>
@@ -71,13 +95,13 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Available:</span>
-              <span className="font-semibold text-semantic-error">
+              <span className="font-semibold text-destructive">
                 {state.availableText}
               </span>
             </div>
-            <div className="flex justify-between border-t border-amber-200 dark:border-amber-800 pt-2">
+            <div className="flex justify-between border-t border-warning/30 pt-2">
               <span className="text-muted-foreground">Needed:</span>
-              <span className="font-bold text-semantic-warning">{state.deficitText}</span>
+              <span className="font-bold text-warning">{state.deficitText}</span>
             </div>
           </div>
         </div>
@@ -87,21 +111,21 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
           className={cn(
             'mt-3 p-3 rounded-lg border-2 transition-colors',
             state.isSufficient
-              ? 'bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700'
-              : 'bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700'
+              ? 'bg-success/10 border-success/30'
+              : 'bg-muted/50 border-border'
           )}
         >
           <div className="flex items-center gap-2">
             {state.isSufficient ? (
               <>
-                <CheckCircle className="h-5 w-5 text-semantic-success" />
-                <span className="text-sm font-semibold text-semantic-success">
+                <CheckCircle className="h-5 w-5 text-success" aria-hidden="true" />
+                <span className="text-sm font-semibold text-success">
                   Sufficient! {state.totalFreedText} will be freed.
                 </span>
               </>
             ) : (
               <>
-                <XCircle className="h-5 w-5 text-gray-500" />
+                <XCircle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 <span className="text-sm font-semibold text-muted-foreground">
                   Need {state.remainingDeficitText} more
                 </span>
@@ -120,7 +144,7 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={state.selectAll}
+                onClick={handleSelectAll}
                 className="h-8 text-xs"
               >
                 Select All
@@ -128,7 +152,7 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={state.clearAll}
+                onClick={handleClearAll}
                 className="h-8 text-xs"
               >
                 Clear
@@ -152,8 +176,9 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
                 <Checkbox
                   id={`service-${suggestion.id}`}
                   checked={suggestion.selected}
-                  onCheckedChange={() => state.toggleSelection(suggestion.id)}
+                  onCheckedChange={() => handleToggleSelection(suggestion.id)}
                   className="h-6 w-6"
+                  aria-label={`Select ${suggestion.name}`}
                 />
                 <Label
                   htmlFor={`service-${suggestion.id}`}
@@ -221,10 +246,14 @@ export function PreFlightDialogMobile(props: PreFlightDialogProps) {
 
         {/* Swipe indicator */}
         <div
-          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"
+          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-muted rounded-full"
           aria-hidden="true"
         />
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+PreFlightDialogMobileComponent.displayName = 'PreFlightDialogMobile';
+
+export const PreFlightDialogMobile = React.memo(PreFlightDialogMobileComponent);

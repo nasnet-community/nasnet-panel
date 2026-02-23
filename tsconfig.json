@@ -7,34 +7,13 @@
       "path": "./shared"
     },
     {
-      "path": "./libs/star-context"
-    },
-    {
-      "path": "./libs/ros-cmd-generator"
-    },
-    {
-      "path": "./apps/star-setup-docker"
-    },
-    {
-      "path": "./apps/connectpoc-e2e"
-    },
-    {
-      "path": "./libs/core-ui-qwik"
-    },
-    {
-      "path": "./apps/connectpoc"
-    },
-    {
-      "path": "./libs/star-setup"
-    },
-    {
-      "path": "./apps/connect-e2e"
-    },
-    {
       "path": "./apps/connect"
     },
     {
       "path": "./libs/api-client/core"
+    },
+    {
+      "path": "./libs/api-client/queries"
     },
     {
       "path": "./libs/core/types"
@@ -46,6 +25,12 @@
       "path": "./libs/core/constants"
     },
     {
+      "path": "./libs/core/forms"
+    },
+    {
+      "path": "./libs/core/i18n"
+    },
+    {
       "path": "./libs/ui/primitives"
     },
     {
@@ -55,10 +40,43 @@
       "path": "./libs/ui/layouts"
     },
     {
-      "path": "./libs/features/firewall"
+      "path": "./libs/ui/tokens"
     },
     {
       "path": "./libs/state/stores"
+    },
+    {
+      "path": "./libs/state/machines"
+    },
+    {
+      "path": "./libs/features/firewall"
+    },
+    {
+      "path": "./libs/features/dashboard"
+    },
+    {
+      "path": "./libs/features/network"
+    },
+    {
+      "path": "./libs/features/wireless"
+    },
+    {
+      "path": "./libs/features/services"
+    },
+    {
+      "path": "./libs/features/alerts"
+    },
+    {
+      "path": "./libs/features/logs"
+    },
+    {
+      "path": "./libs/features/router-discovery"
+    },
+    {
+      "path": "./libs/features/configuration-import"
+    },
+    {
+      "path": "./libs/features/diagnostics"
     }
   ]
 }

@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 
 import { Activity, ArrowDown, ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type NetworkInterface } from '@nasnet/core/types';
 
@@ -15,6 +16,7 @@ interface TrafficOverviewCardProps {
 }
 
 export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ interfaces, isLoading }: TrafficOverviewCardProps) {
+  const { t } = useTranslation('network');
   const stats = useMemo(() => {
     const active = interfaces.filter((i) => i.status === 'running' && i.linkStatus === 'up');
     return { activeCount: active.length };
@@ -46,9 +48,9 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
-          <span className="text-muted-foreground text-xs uppercase tracking-wide">Traffic (last hour)</span>
+          <span className="text-muted-foreground text-xs uppercase tracking-wide">{t('traffic.title')}</span>
         </div>
-        <span className="text-xs text-muted-foreground" role="status">Live</span>
+        <span className="text-xs text-muted-foreground" role="status">{t('status.live', { ns: 'common' })}</span>
       </div>
 
       {/* Traffic Graph */}
@@ -56,7 +58,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
         {trafficBars.map((height, i) => (
           <div
             key={i}
-            className="flex-1 bg-gradient-to-t from-cyan-500/40 to-cyan-500/10 rounded-t transition-all duration-300 hover:from-cyan-500/60 hover:to-cyan-500/20"
+            className="flex-1 bg-gradient-to-t from-info/40 to-info/10 rounded-t transition-all duration-300 hover:from-info/60 hover:to-info/20"
             style={{ height: `${height}%` }}
           />
         ))}
@@ -70,20 +72,22 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-muted rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
-            <ArrowDown className="w-3.5 h-3.5 text-cyan-400" aria-hidden="true" />
-            <span className="text-muted-foreground text-xs">Download</span>
+            <ArrowDown className="w-3.5 h-3.5 text-info" aria-hidden="true" />
+            <span className="text-muted-foreground text-xs">{t('traffic.download')}</span>
           </div>
           <p className="text-foreground font-mono font-semibold">--</p>
-          <p className="text-muted-foreground text-xs mt-0.5">{stats.activeCount} active interfaces</p>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            {t('traffic.activeInterfaces', { count: stats.activeCount })}
+          </p>
         </div>
 
         <div className="bg-muted rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
-            <ArrowUp className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
-            <span className="text-muted-foreground text-xs">Upload</span>
+            <ArrowUp className="w-3.5 h-3.5 text-secondary" aria-hidden="true" />
+            <span className="text-muted-foreground text-xs">{t('traffic.upload')}</span>
           </div>
           <p className="text-foreground font-mono font-semibold">--</p>
-          <p className="text-muted-foreground text-xs mt-0.5">Real-time unavailable</p>
+          <p className="text-muted-foreground text-xs mt-0.5">{t('traffic.realtimeUnavailable')}</p>
         </div>
       </div>
     </div>

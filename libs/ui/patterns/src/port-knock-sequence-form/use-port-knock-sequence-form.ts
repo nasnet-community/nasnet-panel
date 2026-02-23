@@ -109,7 +109,7 @@ export function usePortKnockSequenceForm(
       protectedProtocol: 'tcp',
       accessTimeout: DEFAULT_DURATIONS.accessTimeout,
       knockTimeout: DEFAULT_DURATIONS.knockTimeout,
-      enabled: true,
+      isEnabled: true,
     },
     mode: 'onChange',
   });

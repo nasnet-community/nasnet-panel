@@ -7,7 +7,6 @@
  * @module @nasnet/features/firewall/components
  */
 
-import { fn } from '@storybook/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import type { RawRule } from '@nasnet/core/types';
@@ -142,7 +141,7 @@ export const WithRules: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -154,7 +153,7 @@ export const WithRules: Story = {
           disabled: false,
           packets: 0,
           bytes: 0,
-          position: 1,
+          order: 1,
         },
         {
           id: '*3',
@@ -166,20 +165,18 @@ export const WithRules: Story = {
           disabled: false,
           packets: 8523,
           bytes: 682400,
-          position: 2,
+          order: 2,
         },
         {
           id: '*4',
           chain: 'prerouting',
           action: 'drop',
           protocol: 'tcp',
-          tcpFlags: 'syn',
-          limit: '50/5s,100:packet',
           comment: 'Rate limit SYN packets (DDoS protection)',
           disabled: false,
           packets: 156,
           bytes: 9360,
-          position: 3,
+          order: 3,
         },
         {
           id: '*5',
@@ -190,7 +187,7 @@ export const WithRules: Story = {
           disabled: true,
           packets: 0,
           bytes: 0,
-          position: 4,
+          order: 4,
         },
       ] as RawRule[],
     },
@@ -219,7 +216,7 @@ export const OutputChain: Story = {
           disabled: false,
           packets: 15240,
           bytes: 1219200,
-          position: 0,
+          order: 0,
         },
         {
           id: '*7',
@@ -230,7 +227,7 @@ export const OutputChain: Story = {
           disabled: false,
           packets: 98452,
           bytes: 145872000,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
     },
@@ -275,7 +272,7 @@ export const WithDisabledRules: Story = {
           disabled: true,
           packets: 0,
           bytes: 0,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -287,7 +284,7 @@ export const WithDisabledRules: Story = {
           disabled: false,
           packets: 2341,
           bytes: 187280,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
     },
@@ -316,7 +313,7 @@ export const HighTrafficRules: Story = {
           disabled: false,
           packets: 18523456,
           bytes: 1481876480,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -328,7 +325,7 @@ export const HighTrafficRules: Story = {
           disabled: false,
           packets: 9234567,
           bytes: 738765360,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
     },
@@ -360,7 +357,7 @@ export const MobileView: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -372,7 +369,7 @@ export const MobileView: Story = {
           disabled: false,
           packets: 8523,
           bytes: 682400,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
     },
@@ -403,7 +400,7 @@ export const TabletView: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
       ] as RawRule[],
     },
@@ -431,7 +428,7 @@ export const WithUnusedRules: Story = {
           disabled: false,
           packets: 0,
           bytes: 0,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -442,7 +439,7 @@ export const WithUnusedRules: Story = {
           disabled: false,
           packets: 0,
           bytes: 0,
-          position: 1,
+          order: 1,
         },
         {
           id: '*3',
@@ -453,7 +450,7 @@ export const WithUnusedRules: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 2,
+          order: 2,
         },
       ] as RawRule[],
     },

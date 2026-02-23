@@ -1,13 +1,14 @@
 /**
- * VLAN Management Route
+ * VLAN Settings Route (NAS-8.18)
+ *
+ * VLAN pool configuration, allocation monitoring, and orphan cleanup.
  *
  * Route: /router/:id/vlans
- * Story: NAS-6.7 - Implement VLAN Management
  */
 
 import { createFileRoute } from '@tanstack/react-router';
 
-import { VlanManagementPage } from '@/app/pages/VlanManagementPage';
+import { VLANSettingsPage } from '@nasnet/features/services';
 
 export const Route = createFileRoute('/router/$id/vlans')({
   component: RouteComponent,
@@ -15,5 +16,5 @@ export const Route = createFileRoute('/router/$id/vlans')({
 
 function RouteComponent() {
   const { id: routerId } = Route.useParams();
-  return <VlanManagementPage routerId={routerId} />;
+  return <VLANSettingsPage routerID={routerId} />;
 }

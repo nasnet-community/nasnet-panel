@@ -4,10 +4,15 @@
  *
  * NAS-8.8: Implement Traffic Statistics and Quota Management
  *
+ * @description
+ * Provides business logic for service traffic monitoring without JSX.
+ * Handles real-time subscription updates, rate calculations with BigInt precision,
+ * and quota threshold detection.
+ *
  * @see service-traffic-panel.types.ts for type definitions
  */
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTrafficMonitoring } from '@nasnet/api-client/queries';
 import type { ServiceTrafficStats } from '@nasnet/api-client/generated';
 import type { ServiceTrafficState } from './service-traffic-panel.types';

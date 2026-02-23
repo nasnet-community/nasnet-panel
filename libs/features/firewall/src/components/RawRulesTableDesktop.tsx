@@ -15,9 +15,10 @@
  * @see NAS-7.X: Implement RAW Firewall Rules - Phase B - Task 10
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
+import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
   useRawRules,
@@ -28,8 +29,10 @@ import {
   useUpdateRawRule,
 } from '@nasnet/api-client/queries/firewall';
 import type { RawRule, RawRuleInput, RawChain } from '@nasnet/core/types';
-import { RawRuleEditor } from '@nasnet/ui/patterns';
-import { CounterCell } from '@nasnet/ui/patterns';
+import {
+  RawRuleEditor,
+  CounterCell,
+} from '@nasnet/ui/patterns';
 import {
   Table,
   TableBody,
@@ -68,12 +71,21 @@ import { Pencil, Copy, Trash2, GripVertical } from 'lucide-react';
 import { useCounterSettingsStore } from '@nasnet/features/firewall';
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+const HIGHLIGHT_SCROLL_DELAY_MS = 100;
+
+// ============================================================================
 // Action Badge Component
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
-  // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+/**
+ * Renders a status badge for RAW rule actions
+ * @description Maps action types to semantic color variants
+ */
+const ActionBadge = ({ action }: { action: string }) => {
+  const VARIANT_MAP: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
     drop: 'error',
     notrack: 'warning',
@@ -81,79 +93,99 @@ function ActionBadge({ action }: { action: string }) {
     jump: 'warning',
   };
 
-  const variant = variantMap[action] || 'default';
+  const variant = VARIANT_MAP[action] || 'default';
 
   return (
     <Badge variant={variant}>
       {action}
     </Badge>
   );
-}
+};
 
-// ============================================================================
-// Chain Badge Component
-// ============================================================================
+ActionBadge.displayName = 'ActionBadge';
 
-function ChainBadge({ chain }: { chain: string }) {
+/**
+ * Renders a badge for firewall chain names
+ * @description Uses font-mono for technical data display
+ */
+const ChainBadge = ({ chain }: { chain: string }) => {
   return (
     <Badge variant="secondary" className="font-mono text-xs">
       {chain}
     </Badge>
   );
-}
+};
 
-// ============================================================================
-// Matchers Summary Component
-// ============================================================================
+ChainBadge.displayName = 'ChainBadge';
 
-function MatchersSummary({ rule }: { rule: RawRule }) {
-  const matchers: string[] = [];
-
-  if (rule.protocol && rule.protocol !== 'all') matchers.push(`proto:${rule.protocol}`);
-  if (rule.srcAddress) matchers.push(`src:${rule.srcAddress}`);
-  if (rule.dstAddress) matchers.push(`dst:${rule.dstAddress}`);
-  if (rule.srcPort) matchers.push(`sport:${rule.srcPort}`);
-  if (rule.dstPort) matchers.push(`dport:${rule.dstPort}`);
-  if (rule.inInterface) matchers.push(`in:${rule.inInterface}`);
-  if (rule.outInterface) matchers.push(`out:${rule.outInterface}`);
-  if (rule.limit) {
-    matchers.push(`limit:${rule.limit.rate}`);
-  }
+/**
+ * Renders a summary of rule matchers
+ * @description Computes matcher display from rule properties and renders truncated view
+ */
+const MatchersSummary = ({ rule }: { rule: RawRule }) => {
+  const matchers = useMemo(() => {
+    const m: string[] = [];
+    if (rule.protocol && rule.protocol !== 'all') m.push(`proto:${rule.protocol}`);
+    if (rule.srcAddress) m.push(`src:${rule.srcAddress}`);
+    if (rule.dstAddress) m.push(`dst:${rule.dstAddress}`);
+    if (rule.srcPort) m.push(`sport:${rule.srcPort}`);
+    if (rule.dstPort) m.push(`dport:${rule.dstPort}`);
+    if (rule.inInterface) m.push(`in:${rule.inInterface}`);
+    if (rule.outInterface) m.push(`out:${rule.outInterface}`);
+    if (rule.limit) {
+      m.push(`limit:${rule.limit.rate}`);
+    }
+    return m;
+  }, [rule]);
 
   if (matchers.length === 0) {
-    return <span className="text-slate-500 dark:text-slate-400">any</span>;
+    return <span className="text-muted">any</span>;
   }
 
   if (matchers.length <= 2) {
-    return <span className="text-sm">{matchers.join(', ')}</span>;
+    return <span className="text-sm font-mono">{matchers.join(', ')}</span>;
   }
 
   return (
-    <span className="text-sm">
+    <span className="text-sm font-mono">
       {matchers.slice(0, 2).join(', ')}
       <Badge variant="outline" className="ml-2 text-xs">
         +{matchers.length - 2} more
       </Badge>
     </span>
   );
-}
+};
+
+MatchersSummary.displayName = 'MatchersSummary';
 
 // ============================================================================
 // Sortable Row Component
 // ============================================================================
 
 interface SortableRowProps {
+  /** Rule data to display */
   rule: RawRule;
+  /** Maximum bytes for relative bar calculation */
   maxBytes: number;
+  /** Callback when edit button clicked */
   onEdit: (rule: RawRule) => void;
+  /** Callback when duplicate button clicked */
   onDuplicate: (rule: RawRule) => void;
+  /** Callback when delete button clicked */
   onDelete: (rule: RawRule) => void;
+  /** Callback when toggle switch changed */
   onToggle: (rule: RawRule) => void;
+  /** Whether this row is highlighted */
   isHighlighted?: boolean;
+  /** Ref to highlight element for scroll-to-view */
   highlightRef?: React.RefObject<HTMLTableRowElement>;
 }
 
-function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isHighlighted, highlightRef }: SortableRowProps) {
+/**
+ * Renders a draggable table row for a RAW rule
+ * @description Uses dnd-kit for drag-drop, displays rule details and actions
+ */
+const SortableRow = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isHighlighted, highlightRef }: SortableRowProps) => {
   const {
     attributes,
     listeners,
@@ -185,7 +217,11 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
         }
       }}
       style={style}
-      className={`${rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
+      className={cn(
+        rule.disabled && 'opacity-50 bg-muted/50',
+        isUnused && 'bg-muted/40 opacity-60',
+        isHighlighted && 'animate-highlight bg-warning/20'
+      )}
     >
       {/* Drag handle */}
       <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
@@ -240,7 +276,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
             onClick={() => onEdit(rule)}
             aria-label="Edit rule"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -248,47 +284,55 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
             onClick={() => onDuplicate(rule)}
             aria-label="Duplicate rule"
           >
-            <Copy className="h-4 w-4" />
+            <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
+            className="text-destructive hover:text-destructive/80"
             aria-label="Delete rule"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </TableCell>
     </TableRow>
   );
-}
+};
+
+SortableRow.displayName = 'SortableRow';
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export interface RawRulesTableDesktopProps {
+  /** Optional className for styling */
   className?: string;
+  /** Optional chain filter */
   chain?: string;
 }
 
 /**
  * RawRulesTableDesktop Component
+ * @description Desktop presenter for RAW firewall rules with drag-drop reordering
  *
  * Features:
- * - Drag-drop reordering
+ * - Drag-drop reordering with dnd-kit
  * - Inline enable/disable toggle
  * - Edit/Duplicate/Delete actions
- * - Counter visualization (packets/bytes)
- * - Disabled rules styling
- * - Unused rules badge
+ * - Counter visualization (packets/bytes with relative bar)
+ * - Disabled rules styling (opacity-50)
+ * - Unused rules badge (zero packets)
+ * - Highlight scroll-to-view for recently created/edited rules
  *
- * @param props - Component props
- * @returns RAW rules table component
+ * @example
+ * ```tsx
+ * <RawRulesTableDesktop chain="forward" />
+ * ```
  */
-export function RawRulesTableDesktop({ className, chain }: RawRulesTableDesktopProps) {
+export const RawRulesTableDesktop = ({ className, chain }: RawRulesTableDesktopProps) => {
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const pollingInterval = useCounterSettingsStore((state) => state.pollingInterval);
@@ -329,8 +373,11 @@ export function RawRulesTableDesktop({ className, chain }: RawRulesTableDesktopP
     return Math.max(...sortedRules.map(r => r.bytes ?? 0));
   }, [sortedRules]);
 
-  // Handlers
-  const handleDragEnd = (event: DragEndEvent) => {
+  // ========================================================================
+  // Event Handlers
+  // ========================================================================
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -345,102 +392,109 @@ export function RawRulesTableDesktop({ className, chain }: RawRulesTableDesktopP
         });
       }
     }
-  };
+  }, [sortedRules, reorderRawRules]);
 
-  const handleEdit = (rule: RawRule) => {
+  const handleEdit = useCallback((rule: RawRule) => {
     setEditingRule(rule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleDuplicate = (rule: RawRule) => {
+  const handleDuplicate = useCallback((rule: RawRule) => {
     const duplicatedRule = { ...rule, id: undefined, order: undefined };
     setEditingRule(duplicatedRule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleSaveRule = async (ruleInput: RawRuleInput) => {
+  const handleSaveRule = useCallback(async (ruleInput: RawRuleInput) => {
     if (editingRule?.id) {
-      // Update existing rule
       await updateRawRule.mutateAsync({
         ruleId: editingRule.id,
         updates: ruleInput,
       });
     } else {
-      // Create new rule
       await createRawRule.mutateAsync(ruleInput);
     }
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, [editingRule, updateRawRule, createRawRule]);
 
-  const handleCloseEditor = () => {
+  const handleCloseEditor = useCallback(() => {
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, []);
 
-  const handleDelete = (rule: RawRule) => {
+  const handleDelete = useCallback((rule: RawRule) => {
     setDeleteConfirmRule(rule);
-  };
+  }, []);
 
-  const handleToggle = (rule: RawRule) => {
+  const handleToggle = useCallback((rule: RawRule) => {
     toggleRawRule.mutate({
       ruleId: rule.id!,
       disabled: !rule.disabled,
     });
-  };
+  }, [toggleRawRule]);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     if (deleteConfirmRule) {
       deleteRawRule.mutate(deleteConfirmRule.id!);
       setDeleteConfirmRule(null);
     }
-  };
+  }, [deleteConfirmRule, deleteRawRule]);
 
-  // Scroll to highlighted rule when highlight changes
+  // ========================================================================
+  // Effects
+  // ========================================================================
+
   useEffect(() => {
     if (highlightRuleId && highlightRef.current) {
-      // Wait for render to complete
       const timer = setTimeout(() => {
         highlightRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         });
-      }, 100);
+      }, HIGHLIGHT_SCROLL_DELAY_MS);
 
       return () => clearTimeout(timer);
     }
     return undefined;
   }, [highlightRuleId, sortedRules]);
 
-  // Loading state
+  // ========================================================================
+  // Render States
+  // ========================================================================
+
   if (isLoading) {
     return (
-      <div className={`p-4 ${className || ''}`}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        </div>
+      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+        <div className="h-10 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        {t('raw.notifications.error.loadRules', 'Error loading RAW rules')}: {error.message}
+      <div className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}>
+        <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
+        <p className="text-sm mt-1">{error.message}</p>
       </div>
     );
   }
 
-  // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
-        {chain
-          ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
-          : t('raw.emptyStates.noRules.title', 'No RAW rules found')}
+      <div className={cn('p-8 text-center space-y-2', className)}>
+        <p className="font-semibold text-foreground">
+          {chain
+            ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
+            : t('raw.emptyStates.noRules.title', 'No RAW rules found')}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {chain
+            ? t('raw.emptyStates.noRulesInChain.description', 'This chain has no rules configured.')
+            : t('raw.emptyStates.noRules.description', 'RAW rules process packets before connection tracking.')}
+        </p>
       </div>
     );
   }
@@ -524,7 +578,7 @@ export function RawRulesTableDesktop({ className, chain }: RawRulesTableDesktopP
             <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
               {t('raw.buttons.cancel', 'Cancel')}
             </Button>
-            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <Button onClick={confirmDelete} variant="destructive">
               {t('raw.buttons.delete', 'Delete Rule')}
             </Button>
           </DialogFooter>
@@ -532,4 +586,6 @@ export function RawRulesTableDesktop({ className, chain }: RawRulesTableDesktopP
       </Dialog>
     </>
   );
-}
+};
+
+RawRulesTableDesktop.displayName = 'RawRulesTableDesktop';

@@ -12,10 +12,11 @@
  * - Mobile (<640px): Card-based rows with bottom-sheet filters/actions
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { ServiceLogViewer } from './ServiceLogViewer';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data helpers

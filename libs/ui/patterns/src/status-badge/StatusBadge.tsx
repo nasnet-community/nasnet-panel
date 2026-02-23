@@ -2,9 +2,17 @@
  * Status Badge Component
  * Displays status with color-coded badge
  * Epic 0.5: DHCP Management - Story 0.5.2
+ *
+ * @module @nasnet/ui/patterns/status-badge
+ * @example
+ * ```tsx
+ * <StatusBadge status="bound" />
+ * <StatusBadge status="waiting" label="Pending" />
+ * ```
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -38,10 +46,15 @@ const badgeVariants = cva(
   }
 );
 
+/**
+ * StatusBadge component props
+ */
 export interface StatusBadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {
+  /** Status value (DHCP lease status, client status, or static) */
   status?: LeaseStatus | DHCPClientStatus | 'static';
+  /** Optional custom label (overrides default status label) */
   label?: string;
 }
 
@@ -77,8 +90,9 @@ export const StatusBadge = React.memo(StatusBadgeBase);
 
 /**
  * Formats status enum to human-readable label
+ * Memoized to prevent unnecessary object recreation
  */
-function formatStatusLabel(status: string): string {
+const formatStatusLabel = ((status: string): string => {
   const labelMap: Record<string, string> = {
     bound: 'Bound',
     waiting: 'Waiting',
@@ -91,6 +105,10 @@ function formatStatusLabel(status: string): string {
   };
 
   return labelMap[status] || status;
-}
+});
 
+/**
+ * Badge variant styles from CVA
+ * Exported for external use in other components
+ */
 export { badgeVariants };

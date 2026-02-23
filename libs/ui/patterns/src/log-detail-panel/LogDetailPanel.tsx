@@ -16,7 +16,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
- useToast } from '@nasnet/ui/primitives';
+  useToast,
+} from '@nasnet/ui/primitives';
 
 
 import { topicBadgeVariants } from '../log-entry';
@@ -67,7 +68,7 @@ function formatTopicLabel(topic: string): string {
 /**
  * LogDetailPanel Component
  */
-export function LogDetailPanel({
+function LogDetailPanelComponent({
   entry,
   isOpen,
   onClose,
@@ -79,9 +80,8 @@ export function LogDetailPanel({
 }: LogDetailPanelProps) {
   const { toast } = useToast();
 
-  if (!entry) return null;
-
-  const handleCopy = async () => {
+  const handleCopy = React.useCallback(async () => {
+    if (!entry) return;
     const text = `[${new Date(entry.timestamp).toISOString()}] [${entry.topic}] [${entry.severity}] ${entry.message}`;
     try {
       await navigator.clipboard.writeText(text);
@@ -96,9 +96,10 @@ export function LogDetailPanel({
         variant: 'destructive',
       });
     }
-  };
+  }, [entry, toast]);
 
-  const handleCopyLink = async () => {
+  const handleCopyLink = React.useCallback(async () => {
+    if (!entry) return;
     const url = `${window.location.href.split('#')[0]}#log-${entry.id}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -112,12 +113,18 @@ export function LogDetailPanel({
         variant: 'destructive',
       });
     }
-  };
+  }, [entry, toast]);
+
+  const handleClose = React.useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  if (!entry) return null;
 
   const timestamp = new Date(entry.timestamp);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-lg sm:max-w-xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -233,6 +240,9 @@ export function LogDetailPanel({
     </Dialog>
   );
 }
+
+export const LogDetailPanel = React.memo(LogDetailPanelComponent);
+LogDetailPanel.displayName = 'LogDetailPanel';
 
 
 

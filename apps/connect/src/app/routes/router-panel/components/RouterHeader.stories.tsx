@@ -10,7 +10,7 @@
 import { useEffect } from 'react';
 
 
-import { useRouterStore , useConnectionStore } from '@nasnet/state/stores';
+import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 
 import { RouterHeader } from './RouterHeader';
 
@@ -209,6 +209,30 @@ export const MobileLayout: Story = {
   args: { routerId: ROUTER_ID },
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
+  },
+  decorators: [
+    (Story) => {
+      const Seeder = withStoreState({
+        router: mockRouterFull,
+        connected: true,
+        routerIp: '192.168.88.1',
+      });
+      return (
+        <Seeder>
+          <Story />
+        </Seeder>
+      );
+    },
+  ],
+};
+
+/**
+ * Desktop layout – verifies header rendering on larger screens.
+ */
+export const Desktop: Story = {
+  args: { routerId: ROUTER_ID },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
   decorators: [
     (Story) => {

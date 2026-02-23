@@ -3,9 +3,12 @@
  * Quick-action toolbar for common network operations (refresh, diagnostics, settings)
  */
 
-import { RefreshCw, Stethoscope, Settings, Download } from 'lucide-react';
+import React from 'react';
 
-import { cn } from '@/lib/utils';
+import { RefreshCw, Stethoscope, Settings, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import { cn } from '@nasnet/ui/utils';
 
 export interface NetworkAction {
   /** Unique identifier used as the React key */
@@ -35,7 +38,7 @@ interface NetworkActionButtonsProps {
 
 const DEFAULT_ACTIONS: NetworkAction[] = [];
 
-export function NetworkActionButtons({
+export const NetworkActionButtons = React.memo(function NetworkActionButtons({
   actions = DEFAULT_ACTIONS,
   compact = false,
   className,
@@ -65,7 +68,7 @@ export function NetworkActionButtons({
             'disabled:pointer-events-none disabled:opacity-50',
             'min-h-[44px]',
             action.variant === 'destructive'
-              ? 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950 dark:text-red-400'
+              ? 'border-error bg-error/10 text-error hover:bg-error/15'
               : action.variant === 'outline'
                 ? 'border-border bg-transparent text-foreground hover:bg-accent'
                 : 'border-border bg-background text-foreground hover:bg-accent',
@@ -85,13 +88,56 @@ export function NetworkActionButtons({
       ))}
     </div>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Pre-built action factories (convenience helpers for consumers)
 // ---------------------------------------------------------------------------
 
+// Helper function to create localized network actions
+function useNetworkActions() {
+  const { t } = useTranslation('network');
+
+  return {
+    makeRefreshAction: (onClick: () => void, isLoading = false): NetworkAction => ({
+      id: 'refresh',
+      label: t('actions.refresh'),
+      icon: <RefreshCw className="w-4 h-4" />,
+      onClick,
+      isLoading,
+    }),
+
+    makeDiagnosticsAction: (onClick: () => void): NetworkAction => ({
+      id: 'diagnostics',
+      label: t('actions.diagnostics'),
+      icon: <Stethoscope className="w-4 h-4" />,
+      onClick,
+      variant: 'outline',
+    }),
+
+    makeSettingsAction: (onClick: () => void): NetworkAction => ({
+      id: 'settings',
+      label: t('actions.settings'),
+      icon: <Settings className="w-4 h-4" />,
+      onClick,
+      variant: 'outline',
+    }),
+
+    makeExportAction: (onClick: () => void, disabled = false): NetworkAction => ({
+      id: 'export',
+      label: t('actions.export'),
+      icon: <Download className="w-4 h-4" />,
+      onClick,
+      disabled,
+      variant: 'outline',
+    }),
+  };
+}
+
+// Legacy exports - functions that return actions with translations
 export function makeRefreshAction(onClick: () => void, isLoading = false): NetworkAction {
+  // This requires calling useNetworkActions() in the consumer component
+  // For now, provide a stub - consumers should use the hook-based approach
   return {
     id: 'refresh',
     label: 'Refresh',
@@ -131,3 +177,5 @@ export function makeExportAction(onClick: () => void, disabled = false): Network
     variant: 'outline',
   };
 }
+
+export { useNetworkActions };

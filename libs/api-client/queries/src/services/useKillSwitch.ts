@@ -59,7 +59,7 @@ import type {
   SetKillSwitchInput,
   DeviceRouting,
   DeviceRoutingEvent,
-} from '../../../generated/types';
+} from '@nasnet/api-client/generated/types';
 
 /**
  * Hook to fetch kill switch status for a device

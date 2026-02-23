@@ -106,6 +106,10 @@ import { CodeBlockCopy } from '@nasnet/ui/patterns';
       control: 'boolean',
       description: 'Show toast notification on copy',
     },
+    maxHeight: {
+      control: 'number',
+      description: 'Maximum height in pixels (enables scroll)',
+    },
   },
 };
 
@@ -268,6 +272,136 @@ export const MultipleBlocks: Story = {
     docs: {
       description: {
         story: 'Multiple code blocks in a step-by-step guide.',
+      },
+    },
+  },
+};
+
+/**
+ * Mobile viewport (375px)
+ */
+export const MobileViewport: Story = {
+  args: {
+    code: routerosFirewallRule,
+    language: 'routeros',
+    title: 'Firewall Rules',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Code block optimized for mobile viewport (375px).',
+      },
+    },
+  },
+};
+
+/**
+ * Tablet viewport (768px)
+ */
+export const TabletViewport: Story = {
+  args: {
+    code: routerosScript,
+    language: 'routeros',
+    title: 'VPN Auto-Connect Script',
+    showLineNumbers: true,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+    docs: {
+      description: {
+        story: 'Code block optimized for tablet viewport (768px).',
+      },
+    },
+  },
+};
+
+/**
+ * Desktop viewport (1280px)
+ */
+export const DesktopViewport: Story = {
+  args: {
+    code: routerosScript,
+    language: 'routeros',
+    title: 'VPN Auto-Connect Script',
+    showLineNumbers: true,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+    docs: {
+      description: {
+        story: 'Code block optimized for desktop viewport (1280px) with full details.',
+      },
+    },
+  },
+};
+
+/**
+ * Loading state skeleton
+ */
+export const LoadingState: Story = {
+  render: () => (
+    <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
+      <div className="animate-pulse h-6 bg-muted rounded w-1/3" />
+      <div className="animate-pulse h-40 bg-muted rounded" />
+      <div className="animate-pulse h-8 bg-muted rounded w-20" />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Loading state skeleton before code is loaded.',
+      },
+    },
+  },
+};
+
+/**
+ * Empty code state
+ */
+export const EmptyState: Story = {
+  args: {
+    code: '',
+    language: 'text',
+    title: 'No Configuration',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Code block with empty content.',
+      },
+    },
+  },
+};
+
+/**
+ * Error state - invalid JSON
+ */
+export const ErrorState: Story = {
+  render: () => (
+    <div className="p-4 border border-error/50 rounded-lg bg-error/5">
+      <div className="text-error text-sm font-medium mb-2">Failed to load code</div>
+      <p className="text-error/80 text-xs mb-3">Unable to parse configuration: Invalid JSON format</p>
+      <CodeBlockCopy
+        code={`{ invalid json content `}
+        language="json"
+        title="Configuration (Invalid)"
+      />
+      <button className="mt-3 text-xs text-error underline hover:no-underline">
+        Retry
+      </button>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Error state when code parsing fails.',
       },
     },
   },

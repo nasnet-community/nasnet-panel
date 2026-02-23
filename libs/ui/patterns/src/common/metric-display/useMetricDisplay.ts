@@ -60,6 +60,7 @@ function formatValue(value: string | number): string {
 
 /**
  * Gets trend indicator classes
+ * Uses semantic tokens for color consistency across themes
  */
 function getTrendClasses(trend: MetricTrend | undefined): string {
   switch (trend) {
@@ -69,7 +70,7 @@ function getTrendClasses(trend: MetricTrend | undefined): string {
       return 'text-error';
     case 'stable':
     default:
-      return 'text-slate-500 dark:text-slate-400';
+      return 'text-muted-foreground';
   }
 }
 

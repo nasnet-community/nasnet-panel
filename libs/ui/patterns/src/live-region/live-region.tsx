@@ -12,7 +12,7 @@
  * @see WCAG 4.1.3: Status Messages
  */
 
-import { useState, useCallback, useEffect, createContext, useContext, useRef, type ReactNode } from 'react';
+import { useState, useCallback, useEffect, createContext, useContext, useRef, memo, type ReactNode } from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -94,7 +94,7 @@ export interface LiveRegionProps {
  * }
  * ```
  */
-export function LiveRegion({
+function LiveRegionComponent({
   children,
   mode = 'polite',
   atomic = true,
@@ -117,6 +117,9 @@ export function LiveRegion({
     </div>
   );
 }
+
+export const LiveRegion = memo(LiveRegionComponent);
+LiveRegion.displayName = 'LiveRegion';
 
 /**
  * Return type for useAnnounce hook
@@ -267,7 +270,7 @@ export interface AnnouncerProviderProps {
  * }
  * ```
  */
-export function AnnouncerProvider({ children }: AnnouncerProviderProps) {
+function AnnouncerProviderComponent({ children }: AnnouncerProviderProps) {
   const { message, priority, announce } = useAnnounce();
 
   return (
@@ -277,6 +280,9 @@ export function AnnouncerProvider({ children }: AnnouncerProviderProps) {
     </AnnouncerContext.Provider>
   );
 }
+
+export const AnnouncerProvider = memo(AnnouncerProviderComponent);
+AnnouncerProvider.displayName = 'AnnouncerProvider';
 
 /**
  * useAnnouncer Hook
@@ -336,7 +342,7 @@ export interface VisuallyHiddenProps {
   className?: string;
 }
 
-export function VisuallyHidden({
+function VisuallyHiddenComponent({
   children,
   as: Component = 'span',
   className,
@@ -347,3 +353,6 @@ export function VisuallyHidden({
     </Component>
   );
 }
+
+export const VisuallyHidden = memo(VisuallyHiddenComponent);
+VisuallyHidden.displayName = 'VisuallyHidden';

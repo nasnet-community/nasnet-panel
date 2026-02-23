@@ -1,0 +1,78 @@
+{
+  "title": "WiFi",
+  "overview": "WiFi Overview",
+  "interfaces": {
+    "title": "Wireless Interfaces",
+    "name": "Interface",
+    "ssid": "SSID",
+    "band": "Band",
+    "channel": "Channel",
+    "frequency": "Frequency",
+    "width": "Channel Width",
+    "mode": "Mode",
+    "security": "Security",
+    "clients": "Connected Clients",
+    "txPower": "TX Power",
+    "noiseFloor": "Noise Floor",
+    "signalStrength": "Signal Strength",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable Interface",
+    "disable": "Disable Interface",
+    "noInterfaces": "No wireless interfaces found"
+  },
+  "clients": {
+    "title": "Connected Clients",
+    "macAddress": "MAC Address",
+    "hostname": "Hostname",
+    "signal": "Signal",
+    "txRate": "TX Rate",
+    "rxRate": "RX Rate",
+    "uptime": "Connected For",
+    "interface": "Interface",
+    "band": "Band",
+    "noClients": "No wireless clients connected"
+  },
+  "security": {
+    "title": "Security Summary",
+    "level": "Security Level",
+    "high": "High Security",
+    "medium": "Medium Security",
+    "low": "Low Security",
+    "none": "No Security",
+    "wpa3": "WPA3",
+    "wpa2": "WPA2",
+    "wpa": "WPA",
+    "wep": "WEP (Insecure)",
+    "open": "Open (No Encryption)",
+    "recommendation": "Security Recommendation"
+  },
+  "settings": {
+    "title": "WiFi Settings",
+    "ssid": "Network Name (SSID)",
+    "password": "Password",
+    "security": "Security Mode",
+    "channel": "Channel",
+    "channelWidth": "Channel Width",
+    "band": "Frequency Band",
+    "txPower": "Transmit Power",
+    "hideSSID": "Hide SSID",
+    "autoChannel": "Auto Channel",
+    "band2g": "2.4 GHz",
+    "band5g": "5 GHz",
+    "band6g": "6 GHz"
+  },
+  "status": {
+    "allInterfacesUp": "All wireless interfaces operational",
+    "someInterfacesDown": "{{count}} interface down",
+    "someInterfacesDown_other": "{{count}} interfaces down",
+    "noInterfacesConfigured": "No wireless interfaces configured",
+    "totalClients": "Total Clients"
+  },
+  "quickActions": {
+    "toggleInterface": "Toggle Interface",
+    "changePassword": "Change Password",
+    "scanChannels": "Scan Channels",
+    "viewClients": "View Clients"
+  }
+}

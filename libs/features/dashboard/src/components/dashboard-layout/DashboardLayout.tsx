@@ -14,9 +14,9 @@
  * @see Docs/design/ux-design/2-core-user-experience.md#Adaptive Layouts
  */
 
-import { memo, type ReactNode } from 'react';
+import { memo, useCallback, type ReactNode } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { Button } from '@nasnet/ui/primitives';
+import { Button, Icon } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { cn } from '@nasnet/ui/utils';
 
@@ -33,6 +33,7 @@ export interface DashboardLayoutProps {
 
 /**
  * DashboardLayout - Responsive grid layout for dashboard widgets
+ * @description Responsive CSS Grid layout that adapts to mobile, tablet, and desktop viewports
  *
  * Automatically adjusts grid columns based on viewport:
  * - Mobile: 1 column
@@ -59,12 +60,17 @@ export const DashboardLayout = memo(function DashboardLayout({
   // Calculate grid columns based on platform
   const gridColumns = getGridColumns(platform);
 
+  // Memoize refresh handler to prevent re-renders
+  const handleRefreshClick = useCallback(() => {
+    onRefresh?.();
+  }, [onRefresh]);
+
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Page Header */}
-      <header className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
+      <header className="flex items-center justify-between p-4 sm:p-6 border-b border-semantic-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Router health and network status at a glance
           </p>
@@ -75,12 +81,12 @@ export const DashboardLayout = memo(function DashboardLayout({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onRefresh}
+            onClick={handleRefreshClick}
             aria-label="Refresh router data"
             title="Refresh"
             className="h-12 w-12" // 48px for WCAG AAA touch target
           >
-            <RefreshCw className="h-5 w-5" aria-hidden="true" />
+            <Icon icon={RefreshCw} className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
       </header>

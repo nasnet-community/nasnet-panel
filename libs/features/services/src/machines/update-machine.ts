@@ -1,7 +1,12 @@
 /**
  * Service Update XState Machine (NAS-8.7)
  *
- * State machine for managing service instance update workflow with states:
+ * @description
+ * State machine for managing service instance update workflow with proper
+ * state transitions, progress tracking, rollback detection, and error handling.
+ * Ensures consistent update lifecycle management across the application.
+ *
+ * States:
  * - idle: Ready to start a new update
  * - updating: Update in progress, receiving progress events
  * - complete: Update completed successfully

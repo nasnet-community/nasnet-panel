@@ -4,7 +4,7 @@
  * Demonstrates FirewallLogStats component variants and use cases.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import type { FirewallLogEntry } from '@nasnet/core/types';
 
@@ -60,11 +60,13 @@ function generateRealisticLogs(count: number): FirewallLogEntry[] {
     logs.push(
       createFirewallLog({
         parsed: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           chain: ['input', 'forward', 'output'][Math.floor(Math.random() * 3)] as any,
           action,
           srcIp,
           dstIp: '10.0.0.1',
           dstPort,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           protocol: ['TCP', 'UDP'][Math.floor(Math.random() * 2)] as any,
           interfaceIn: 'ether1',
         },

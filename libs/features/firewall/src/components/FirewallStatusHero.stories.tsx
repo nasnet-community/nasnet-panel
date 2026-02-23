@@ -7,8 +7,9 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { FirewallStatusHero } from './FirewallStatusHero';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * FirewallStatusHero - Firewall overview stats grid

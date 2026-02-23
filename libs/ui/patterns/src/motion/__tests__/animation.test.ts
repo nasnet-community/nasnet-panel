@@ -133,12 +133,15 @@ describe('transitions', () => {
   });
 
   it('should have exit transition 25% faster than enter', () => {
-    expect(transitions.exit.duration).toBe(0.15); // 150ms in seconds
-    expect(transitions.enter.duration).toBe(0.2);
+    const exitTransition = transitions.exit as any;
+    const enterTransition = transitions.enter as any;
+    expect(exitTransition.duration).toBe(0.15); // 150ms in seconds
+    expect(enterTransition.duration).toBe(0.2);
   });
 
   it('should have instant transition with zero duration', () => {
-    expect(transitions.instant.duration).toBe(0);
+    const instantTransition = transitions.instant as any;
+    expect(instantTransition.duration).toBe(0);
   });
 
   it('should have spring transition', () => {
@@ -178,7 +181,7 @@ describe('utility functions', () => {
   describe('getReducedMotionTransition', () => {
     it('should return instant transition when reduced motion is enabled', () => {
       const result = getReducedMotionTransition(transitions.enter, true);
-      expect(result.duration).toBe(0);
+      expect((result as any).duration).toBe(0);
     });
 
     it('should return original transition when reduced motion is disabled', () => {
@@ -229,11 +232,11 @@ describe('Animation Presets', () => {
 
   describe('reducedMotionFade', () => {
     it('should have very short durations', () => {
-      const animateTransition = reducedMotionFade.animate as { transition: { duration: number } };
-      const exitTransition = reducedMotionFade.exit as { transition: { duration: number } };
+      const animate = reducedMotionFade.animate as any;
+      const exit = reducedMotionFade.exit as any;
 
-      expect(animateTransition.transition.duration).toBe(0.1);
-      expect(exitTransition.transition.duration).toBe(0.05);
+      expect(animate?.transition?.duration).toBe(0.1);
+      expect(exit?.transition?.duration).toBe(0.05);
     });
   });
 
@@ -284,6 +287,6 @@ describe('Performance Guidelines', () => {
   });
 
   it('should have exit animations 25% faster than enter', () => {
-    expect(transitions.exit.duration).toBe(transitions.enter.duration * 0.75);
+    expect((transitions.exit as any).duration).toBe((transitions.enter as any).duration * 0.75);
   });
 });

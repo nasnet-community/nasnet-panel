@@ -4,9 +4,9 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
-import { DnsServerList, type DnsServer } from './DnsServerList';
+import { DnsServerList } from './DnsServerList';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -53,7 +53,7 @@ const meta = {
 } satisfies Meta<typeof DnsServerList>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof DnsServerList>;
 
 // ===== Default Stories =====
 

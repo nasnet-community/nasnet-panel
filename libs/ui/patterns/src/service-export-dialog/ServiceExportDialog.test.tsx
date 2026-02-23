@@ -59,7 +59,7 @@ const mockInstance = {
   featureID: 'tor',
   instanceName: 'Tor Exit Node',
   routerID: 'router-1',
-  status: 'running' as const,
+  status: 'RUNNING' as const,
   vlanID: 100,
   bindIP: '10.200.100.2',
   ports: [9050, 9051],
@@ -157,7 +157,7 @@ describe('ServiceExportDialog', () => {
         />
       );
 
-      const redactToggle = screen.getByLabelText(/redact secrets/i);
+      const redactToggle = screen.getByLabelText(/redact secrets/i) as HTMLInputElement;
       expect(redactToggle).toBeInTheDocument();
 
       // Toggle the option
@@ -178,7 +178,7 @@ describe('ServiceExportDialog', () => {
         />
       );
 
-      const routingToggle = screen.getByLabelText(/include routing/i);
+      const routingToggle = screen.getByLabelText(/include routing/i) as HTMLInputElement;
       expect(routingToggle).toBeInTheDocument();
 
       await user.click(routingToggle);

@@ -8,24 +8,10 @@
  */
 
 import * as React from 'react';
-
-import {
-  Search,
-  Clock,
-  Sparkles,
-  Shield,
-  Wifi,
-  Network,
-  Activity,
-  Settings,
-  Terminal,
-  Globe,
-  AlertTriangle,
-  Zap,
-  WifiOff,
-} from 'lucide-react';
+import { Activity, Shield, Wifi, Network, Terminal, Globe, AlertTriangle, Zap, Settings, Clock, Sparkles, WifiOff } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
+import { Icon } from '@nasnet/ui/patterns';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -36,13 +22,21 @@ import type { Meta, StoryObj } from '@storybook/react';
 type CommandCategory = 'navigation' | 'action' | 'resource' | 'recent';
 
 interface MockCommand {
+  /** Unique identifier for the command */
   id: string;
+  /** Display label */
   label: string;
+  /** Brief description of what the command does */
   description?: string;
+  /** Icon component (from lucide-react) */
   icon: React.ElementType;
+  /** Command category for grouping */
   category: CommandCategory;
+  /** Keyboard shortcut (e.g., 'cmd+k' or 'g h') */
   shortcut?: string;
+  /** Whether this command requires network connectivity */
   requiresNetwork?: boolean;
+  /** Search keywords for matching */
   keywords?: string[];
 }
 
@@ -96,12 +90,18 @@ function MockCommandItem({
     <div
       role="option"
       aria-selected={selected}
+      tabIndex={0}
       className={cn(
         'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors',
         selected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground',
         isDisabled && 'cursor-not-allowed opacity-50'
       )}
       onClick={() => !isDisabled && onSelect()}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+          onSelect();
+        }
+      }}
     >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">
         <Icon className="h-4 w-4" aria-hidden="true" />
@@ -115,7 +115,7 @@ function MockCommandItem({
       </div>
 
       {command.requiresNetwork && !isOnline && (
-        <div className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive">
+        <div className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive" title="This command requires network connectivity">
           <WifiOff className="h-3 w-3" aria-hidden="true" />
           <span>Offline</span>
         </div>
@@ -171,7 +171,7 @@ function MockCommandPalette({
     );
   }, [commands, query]);
 
-  const isShowingRecent = !query.trim();
+  const isShowingRecent = mode === 'recent' || !query.trim();
   const hasResults = filtered.length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -198,9 +198,10 @@ function MockCommandPalette({
     >
       {/* Search Input */}
       <div className="flex items-center border-b border-border px-4">
-        <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <input
-          autoFocus
+        <Terminal className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        {/* Autofocus is acceptable here for Storybook demo; in production use useEffect */}
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+        <input autoFocus
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -400,6 +401,10 @@ const meta: Meta<typeof MockCommandPalette> = {
     },
   },
   argTypes: {
+    commands: {
+      description: 'Array of command definitions',
+      table: { disable: true },
+    },
     isOnline: {
       control: 'boolean',
       description: 'Simulate offline state – network-dependent commands are disabled',
@@ -410,7 +415,10 @@ const meta: Meta<typeof MockCommandPalette> = {
     },
     initialQuery: {
       control: 'text',
-      description: 'Pre-fill the search input',
+      description: 'Pre-fill the search input with query text',
+    },
+    mode: {
+      table: { disable: true },
     },
   },
 };
@@ -523,6 +531,60 @@ export const MobileWithSearch: Story = {
     docs: {
       description: {
         story: 'Mobile bottom sheet with a pre-filled search query showing the "Ping Host" result.',
+      },
+    },
+  },
+};
+
+export const MobileOfflineState: Story = {
+  name: 'Mobile – Offline',
+  args: {
+    commands: SAMPLE_COMMANDS,
+    initialQuery: '',
+    isOnline: false,
+    mobile: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Mobile bottom sheet with offline mode enabled. Network-dependent commands show the "Offline" badge and are disabled.',
+      },
+    },
+  },
+};
+
+export const KeyboardNavigation: Story = {
+  name: 'Keyboard Navigation Demo',
+  args: {
+    commands: SAMPLE_COMMANDS,
+    initialQuery: '',
+    isOnline: true,
+    mobile: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates keyboard navigation: Use arrow keys (↑↓) to navigate commands, Enter to select, Esc to close. Shortcut badges are displayed on desktop.',
+      },
+    },
+  },
+};
+
+export const AllCommandsDisabledOffline: Story = {
+  name: 'All Commands Disabled (Network-Only)',
+  args: {
+    commands: SAMPLE_COMMANDS.filter((c) => c.requiresNetwork),
+    initialQuery: '',
+    isOnline: false,
+    mobile: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Showing only network-dependent commands with offline mode enabled. All commands are disabled and show the "Offline" badge.',
       },
     },
   },

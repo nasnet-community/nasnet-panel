@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 
-import { within, userEvent, expect } from '@storybook/test';
+import { within, userEvent, expect } from 'storybook/test';
 
 import type { CustomServicePortInput } from '@nasnet/core/types';
 
@@ -91,7 +91,7 @@ export const AddMode: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   parameters: {
     docs: {
       description: {
@@ -115,7 +115,7 @@ export const EditMode: Story = {
       description: 'My custom application',
     },
   },
-  render: (args) => (
+  render: (_args) => (
     <AddServiceDialogInteractive
       editService={{
         port: 9999,
@@ -142,16 +142,16 @@ export const WithValidationErrors: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     // Clear required fields
-    const serviceInput = canvas.getByLabelText(/Service Name/i);
+    const serviceInput = canvas.getByLabelText(/Service Name/i) as HTMLInputElement;
     await userEvent.clear(serviceInput);
 
     // Set invalid port
-    const portInput = canvas.getByLabelText(/Port/i);
+    const portInput = canvas.getByLabelText(/Port/i) as HTMLInputElement;
     await userEvent.clear(portInput);
     await userEvent.type(portInput, '99999');
 
@@ -180,16 +180,16 @@ export const WithConflictError: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     // Fill form with conflicting service name
-    const serviceInput = canvas.getByLabelText(/Service Name/i);
+    const serviceInput = canvas.getByLabelText(/Service Name/i) as HTMLInputElement;
     await userEvent.clear(serviceInput);
     await userEvent.type(serviceInput, 'HTTP');
 
-    const portInput = canvas.getByLabelText(/Port/i);
+    const portInput = canvas.getByLabelText(/Port/i) as HTMLInputElement;
     await userEvent.clear(portInput);
     await userEvent.type(portInput, '8080');
 
@@ -219,7 +219,7 @@ export const UDPProtocol: Story = {
       description: 'Custom DNS server',
     },
   },
-  render: (args) => (
+  render: (_args) => (
     <AddServiceDialogInteractive
       editService={{
         port: 53,
@@ -252,7 +252,7 @@ export const BothProtocols: Story = {
       description: 'IPsec VPN',
     },
   },
-  render: (args) => (
+  render: (_args) => (
     <AddServiceDialogInteractive
       editService={{
         port: 500,
@@ -286,7 +286,7 @@ export const LongDescription: Story = {
         'This is a very long description for testing the maximum character limit. The description field accepts up to 500 characters to provide detailed information about the custom service. This helps administrators understand the purpose of each service, especially in complex network environments with many custom applications. You can describe the service purpose, usage, dependencies, and any special considerations here.',
     },
   },
-  render: (args) => (
+  render: (_args) => (
     <AddServiceDialogInteractive
       editService={{
         port: 8080,
@@ -321,7 +321,7 @@ export const Closed: Story = {
       },
     },
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
 };
 
 /**
@@ -332,7 +332,7 @@ export const Mobile: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   parameters: {
     viewport: {
       defaultViewport: 'mobile1',
@@ -353,7 +353,7 @@ export const Tablet: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   parameters: {
     viewport: {
       defaultViewport: 'tablet',
@@ -374,7 +374,7 @@ export const DarkMode: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   parameters: {
     backgrounds: { default: 'dark' },
     docs: {
@@ -393,7 +393,7 @@ export const KeyboardNavigation: Story = {
     open: true,
     onOpenChange: () => {},
   },
-  render: (args) => <AddServiceDialogInteractive />,
+  render: (_args) => <AddServiceDialogInteractive />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -408,7 +408,7 @@ export const KeyboardNavigation: Story = {
     await userEvent.tab(); // Add Service button
 
     // Verify focus is on submit button
-    const submitButton = canvas.getByRole('button', { name: /Add Service/i });
+    const submitButton = canvas.getByRole('button', { name: /Add Service|Update/i });
     await expect(submitButton).toHaveFocus();
   },
   parameters: {

@@ -34,7 +34,7 @@ const validTemplate: FirewallTemplate = {
       label: 'LAN Interface',
       type: 'INTERFACE',
       defaultValue: 'bridge1',
-      required: true,
+      isRequired: true,
       description: 'LAN network interface',
     },
     {
@@ -42,13 +42,13 @@ const validTemplate: FirewallTemplate = {
       label: 'LAN Subnet',
       type: 'SUBNET',
       defaultValue: '192.168.88.0/24',
-      required: true,
+      isRequired: true,
     },
     {
       name: 'OPTIONAL_PORT',
       label: 'Optional Port',
       type: 'PORT',
-      required: false,
+      isRequired: false,
     },
   ],
   rules: [
@@ -117,8 +117,8 @@ describe('validateTemplate', () => {
     const templateWithDuplicates = {
       ...validTemplate,
       variables: [
-        { name: 'VAR1', label: 'Var 1', type: 'STRING', required: false },
-        { name: 'VAR1', label: 'Var 1 Duplicate', type: 'STRING', required: false },
+        { name: 'VAR1', label: 'Var 1', type: 'STRING', isRequired: false },
+        { name: 'VAR1', label: 'Var 1 Duplicate', type: 'STRING', isRequired: false },
       ],
     };
 
@@ -155,7 +155,7 @@ describe('validateTemplate', () => {
     const templateWithUnusedVar = {
       ...validTemplate,
       variables: [
-        { name: 'UNUSED_VAR', label: 'Unused', type: 'STRING', required: false },
+        { name: 'UNUSED_VAR', label: 'Unused', type: 'STRING', isRequired: false },
       ],
       rules: [
         {
@@ -338,8 +338,8 @@ describe('getRequiredVariables', () => {
     const templateNoRequired = {
       ...validTemplate,
       variables: [
-        { name: 'OPT1', label: 'Optional 1', type: 'STRING' as const, required: false },
-        { name: 'OPT2', label: 'Optional 2', type: 'STRING' as const, required: false },
+        { name: 'OPT1', label: 'Optional 1', type: 'STRING' as const, isRequired: false },
+        { name: 'OPT2', label: 'Optional 2', type: 'STRING' as const, isRequired: false },
       ],
     };
 

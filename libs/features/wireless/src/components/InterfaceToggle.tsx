@@ -1,17 +1,17 @@
 /**
  * InterfaceToggle Component
- * Toggle switch for enabling/disabling wireless interfaces
+ * @description Toggle switch for enabling/disabling wireless interfaces with
+ * confirmation dialog and optimistic updates. Provides feedback for pending state.
  * Implements FR0-17: Enable/disable wireless interfaces
  */
 
 import * as React from 'react';
-import { useState } from 'react';
-import { Switch } from '@nasnet/ui/primitives';
+import { useCallback, useState } from 'react';
+import { Switch, cn } from '@nasnet/ui/primitives';
 import { ConfirmationDialog } from '@nasnet/ui/patterns';
 import { useToggleInterface } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import type { WirelessInterface } from '@nasnet/core/types';
-import { cn } from '@nasnet/ui/primitives';
 
 export interface InterfaceToggleProps {
   /** Wireless interface to control */
@@ -37,7 +37,7 @@ export interface InterfaceToggleProps {
  * />
  * ```
  */
-export function InterfaceToggle({
+export const InterfaceToggle = React.memo(function InterfaceToggle({
   interface: iface,
   className,
   onClick,
@@ -50,25 +50,28 @@ export function InterfaceToggle({
   /**
    * Handle switch click - show confirmation dialog
    */
-  const handleSwitchClick = (e: React.MouseEvent) => {
-    // Prevent event bubbling (e.g., when inside a clickable card)
-    e.stopPropagation();
+  const handleSwitchClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Prevent event bubbling (e.g., when inside a clickable card)
+      e.stopPropagation();
 
-    // Call optional onClick handler
-    if (onClick) {
-      onClick(e);
-    }
+      // Call optional onClick handler
+      if (onClick) {
+        onClick(e);
+      }
 
-    // Determine new state and show confirmation
-    const newDisabledState = !iface.disabled;
-    setPendingState(newDisabledState);
-    setShowConfirmation(true);
-  };
+      // Determine new state and show confirmation
+      const newDisabledState = !iface.disabled;
+      setPendingState(newDisabledState);
+      setShowConfirmation(true);
+    },
+    [iface.disabled, onClick]
+  );
 
   /**
    * Handle confirmation - execute the toggle mutation
    */
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (pendingState === null) return;
 
     toggleMutation.mutate({
@@ -80,15 +83,15 @@ export function InterfaceToggle({
 
     setShowConfirmation(false);
     setPendingState(null);
-  };
+  }, [pendingState, toggleMutation, routerIp, iface.id, iface.name]);
 
   /**
    * Handle cancel - close dialog without changes
    */
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setShowConfirmation(false);
     setPendingState(null);
-  };
+  }, []);
 
   // Determine dialog content based on pending action
   const dialogTitle = pendingState
@@ -147,4 +150,6 @@ export function InterfaceToggle({
       />
     </>
   );
-}
+});
+
+InterfaceToggle.displayName = 'InterfaceToggle';

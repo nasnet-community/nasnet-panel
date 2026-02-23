@@ -59,7 +59,7 @@ export const VALID_SEQUENCE_MINIMAL: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -72,7 +72,7 @@ export const VALID_SEQUENCE_SSH: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '10m',
   knockTimeout: '30s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -85,7 +85,7 @@ export const VALID_SEQUENCE_HTTP: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '1h',
   knockTimeout: '20s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -98,7 +98,7 @@ export const VALID_SEQUENCE_COMPLEX: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '2h',
   knockTimeout: '1m',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -111,7 +111,7 @@ export const VALID_SEQUENCE_DISABLED: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '30m',
   knockTimeout: '25s',
-  enabled: false,
+  isEnabled: false,
 };
 
 /**
@@ -125,7 +125,7 @@ export const COMPLETE_SEQUENCE: PortKnockSequence = {
   protectedProtocol: 'tcp',
   accessTimeout: '10m',
   knockTimeout: '30s',
-  enabled: true,
+  isEnabled: true,
   routerId: 'router-456-def',
   createdAt: '2026-02-07T10:00:00Z',
   updatedAt: '2026-02-07T10:00:00Z',
@@ -147,7 +147,7 @@ export const INVALID_NAME_SPACES: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -160,7 +160,7 @@ export const INVALID_NAME_SPECIAL_CHARS: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -173,7 +173,7 @@ export const INVALID_NAME_TOO_LONG: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -186,7 +186,7 @@ export const INVALID_NAME_EMPTY: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -199,7 +199,7 @@ export const INVALID_KNOCK_PORTS_TOO_FEW: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -222,7 +222,7 @@ export const INVALID_KNOCK_PORTS_TOO_MANY: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -239,7 +239,7 @@ export const INVALID_KNOCK_PORTS_DUPLICATES: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -279,7 +279,7 @@ export const INVALID_TIMEOUT_NO_UNIT: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '300', // Missing unit (s/m/h/d)
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -292,7 +292,7 @@ export const INVALID_TIMEOUT_BAD_UNIT: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15x', // Invalid unit
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -305,7 +305,7 @@ export const INVALID_PROTECTED_PORT_ZERO: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
@@ -318,7 +318,7 @@ export const INVALID_PROTECTED_PORT_TOO_HIGH: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 // =============================================================================
@@ -438,11 +438,12 @@ export const BOUNDARY_NAME_MAX_LENGTH: Partial<PortKnockSequence> = {
   protectedProtocol: 'tcp',
   accessTimeout: '5m',
   knockTimeout: '15s',
-  enabled: true,
+  isEnabled: true,
 };
 
 /**
- * Valid timeout formats
+ * Valid timeout formats for testing
+ * Covers all supported units: seconds (s), minutes (m), hours (h), days (d)
  */
 export const VALID_TIMEOUT_FORMATS = {
   seconds: '15s',
@@ -450,7 +451,7 @@ export const VALID_TIMEOUT_FORMATS = {
   hours: '2h',
   days: '1d',
   large: '999d',
-};
+} as const;
 
 /**
  * Edge case: Port 1 (minimum valid port)
@@ -474,6 +475,10 @@ export const BOUNDARY_PORT_MAX: KnockPort = {
 // Common Service Ports (for suggestions)
 // =============================================================================
 
+/**
+ * Common service ports used for port knock protection
+ * Provides quick-select suggestions for operators
+ */
 export const COMMON_PROTECTED_PORTS = {
   ssh: { port: 22, protocol: 'tcp' as const, name: 'SSH' },
   http: { port: 80, protocol: 'tcp' as const, name: 'HTTP' },
@@ -498,7 +503,7 @@ export const MOCK_SEQUENCES: PortKnockSequence[] = [
     id: 'seq-1',
     name: 'ssh_knock',
     protectedPort: 22,
-    enabled: true,
+    isEnabled: true,
     recentAccessCount: 5,
   },
   {
@@ -507,7 +512,7 @@ export const MOCK_SEQUENCES: PortKnockSequence[] = [
     name: 'web_knock',
     knockPorts: VALID_KNOCK_PORTS_4,
     protectedPort: 80,
-    enabled: true,
+    isEnabled: true,
     recentAccessCount: 12,
   },
   {
@@ -515,7 +520,7 @@ export const MOCK_SEQUENCES: PortKnockSequence[] = [
     id: 'seq-3',
     name: 'rdp_knock',
     protectedPort: 3389,
-    enabled: false,
+    isEnabled: false,
     recentAccessCount: 0,
   },
   {
@@ -524,7 +529,7 @@ export const MOCK_SEQUENCES: PortKnockSequence[] = [
     name: 'secure_knock_123',
     knockPorts: VALID_KNOCK_PORTS_8,
     protectedPort: 443,
-    enabled: true,
+    isEnabled: true,
     recentAccessCount: 23,
   },
 ];

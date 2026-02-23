@@ -3,9 +3,11 @@
  * Detailed view with tabs: Overview, Leases, Static Bindings, Settings
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
+ *
+ * @description Page for viewing and managing individual DHCP server configuration, leases, and static bindings.
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useDHCPServer, useDHCPLeases, useMakeLeaseStatic, useUpdateDHCPServer } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -15,6 +17,8 @@ import {
   ConfirmationDialog,
   SafetyConfirmation,
   FormSection,
+  IPInput,
+  MACInput,
 } from '@nasnet/ui/patterns';
 import {
   Button,
@@ -36,7 +40,6 @@ import {
   SelectValue,
   toast,
 } from '@nasnet/ui/primitives';
-import { IPInput, MACInput } from '@nasnet/ui/patterns';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -103,7 +106,7 @@ export function DHCPServerDetail() {
   });
 
   // Handle make lease static
-  const handleMakeStatic = async () => {
+  const handleMakeStatic = useCallback(async () => {
     if (!selectedLease) return;
 
     try {
@@ -125,10 +128,10 @@ export function DHCPServerDetail() {
         description: error instanceof Error ? error.message : 'An error occurred',
       });
     }
-  };
+  }, [selectedLease, makeStaticMutation]);
 
   // Handle server settings update
-  const handleUpdateSettings = async (data: any) => {
+  const handleUpdateSettings = useCallback(async (data: any) => {
     try {
       await updateServerMutation.mutateAsync({
         serverId,
@@ -145,10 +148,10 @@ export function DHCPServerDetail() {
         description: error instanceof Error ? error.message : 'An error occurred',
       });
     }
-  };
+  }, [serverId, updateServerMutation]);
 
   // Handle add static binding
-  const handleAddStaticBinding = async (data: StaticBindingFormData) => {
+  const handleAddStaticBinding = useCallback(async (data: StaticBindingFormData) => {
     try {
       // Call mutation to add static binding
       toast({
@@ -163,7 +166,7 @@ export function DHCPServerDetail() {
         description: error instanceof Error ? error.message : 'An error occurred',
       });
     }
-  };
+  }, [bindingForm]);
 
   if (serverLoading) {
     return (
@@ -198,8 +201,9 @@ export function DHCPServerDetail() {
           size="sm"
           onClick={() => navigate({ to: '/network/dhcp' })}
           className="mb-4"
+          aria-label="Back to DHCP servers"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
           Back to DHCP Servers
         </Button>
         <h1 className="text-3xl font-bold">{server.name}</h1>
@@ -231,28 +235,28 @@ export function DHCPServerDetail() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <Label className="text-muted-foreground">Address Pool</Label>
-                  <p className="font-mono">{server.addressPool}</p>
+                  <p className="font-mono text-sm">{server.addressPool}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Active Leases</Label>
-                  <p className="font-medium">{(server as any).activeLeases || 0}</p>
+                  <p className="font-medium tabular-nums">{(server as any).activeLeases || 0}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Gateway</Label>
-                  <p className="font-mono">{(server as any).gateway}</p>
+                  <p className="font-mono text-sm">{(server as any).gateway}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">DNS Servers</Label>
-                  <p className="font-mono">{(server as any).dnsServers?.join(', ')}</p>
+                  <p className="font-mono text-sm">{(server as any).dnsServers?.join(', ')}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Lease Time</Label>
-                  <p className="font-mono">{server.leaseTime}</p>
+                  <p className="font-mono text-sm">{server.leaseTime}</p>
                 </div>
                 {(server as any).domain && (
                   <div>
                     <Label className="text-muted-foreground">Domain</Label>
-                    <p className="font-mono">{(server as any).domain}</p>
+                    <p className="font-mono text-sm">{(server as any).domain}</p>
                   </div>
                 )}
               </div>
@@ -436,7 +440,7 @@ export function DHCPServerDetail() {
 
                 <div className="flex gap-3">
                   <Button type="submit" disabled={updateServerMutation.isPending as boolean}>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="h-4 w-4 mr-2" aria-hidden="true" />
                     {updateServerMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                   <Button

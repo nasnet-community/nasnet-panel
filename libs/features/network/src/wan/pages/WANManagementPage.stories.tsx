@@ -11,8 +11,9 @@
  * For interactive E2E testing see the Playwright test suite.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { WANManagementPage } from './WANManagementPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data mirrors the built-in mockWANs constant inside WANManagementPage

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { cn } from '@nasnet/ui/primitives';
 
 import { ResourceHealthBadge } from '../resource-health-indicator';
@@ -11,7 +13,7 @@ import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
  * Shows full badge with health indicator, metrics, and status text.
  * Provides detailed health information for power users.
  */
-export function ServiceHealthBadgeDesktop({
+function ServiceHealthBadgeDesktopComponent({
   health,
   loading,
   animate,
@@ -124,3 +126,9 @@ export function ServiceHealthBadgeDesktop({
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const ServiceHealthBadgeDesktop = memo(ServiceHealthBadgeDesktopComponent);
+
+// Set display name for React DevTools
+ServiceHealthBadgeDesktop.displayName = 'ServiceHealthBadgeDesktop';

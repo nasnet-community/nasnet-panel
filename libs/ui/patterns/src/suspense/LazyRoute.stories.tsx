@@ -157,12 +157,12 @@ function LazyErrorFallbackDemo() {
     );
   }
 
-  const ErrorBoundaryFallback = route.errorComponent;
+  const ErrorComponent = route.errorComponent;
 
   return (
     <React.Suspense fallback={route.pendingComponent()}>
-      {ErrorBoundaryFallback ? (
-        <ErrorBoundaryFallback error={new Error('Failed to load module')} />
+      {ErrorComponent ? (
+        ErrorComponent(new Error('Failed to load module'))
       ) : null}
     </React.Suspense>
   );

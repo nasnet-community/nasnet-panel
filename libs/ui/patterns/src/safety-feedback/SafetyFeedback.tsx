@@ -94,19 +94,19 @@ function getFeedbackConfig(type: FeedbackType) {
 
 /**
  * SafetyFeedback Component
- * 
+ *
  * Displays important feedback about configuration changes:
  * - Rollback confirmations
  * - Validation errors
  * - Success messages
  * - Warnings
- * 
+ *
  * Features:
  * - Expandable details section
  * - Custom action buttons
  * - Auto-dismiss option
  * - Slide-in animation
- * 
+ *
  * @example
  * ```tsx
  * <SafetyFeedback
@@ -120,7 +120,7 @@ function getFeedbackConfig(type: FeedbackType) {
  * />
  * ```
  */
-export function SafetyFeedback({
+function SafetyFeedbackComponent({
   type,
   message,
   details,
@@ -132,20 +132,29 @@ export function SafetyFeedback({
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(true);
 
-  const config = getFeedbackConfig(type);
-  const Icon = config.icon;
+  const config = React.useMemo(() => getFeedbackConfig(type), [type]);
+  const Icon = React.useMemo(() => config.icon, [config]);
+
+  // Memoized action handlers
+  const handleActionClick = React.useCallback((onClick: () => void) => {
+    return () => onClick();
+  }, []);
+
+  const handleDismiss = React.useCallback(() => {
+    setIsVisible(false);
+    onDismiss?.();
+  }, [onDismiss]);
 
   // Auto-dismiss timer
   React.useEffect(() => {
     if (autoDismiss > 0 && type === 'success') {
       const timer = setTimeout(() => {
-        setIsVisible(false);
-        onDismiss?.();
+        handleDismiss();
       }, autoDismiss);
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [autoDismiss, type, onDismiss]);
+  }, [autoDismiss, type, handleDismiss]);
 
   if (!isVisible) return null;
 
@@ -224,7 +233,7 @@ export function SafetyFeedback({
                   key={index}
                   variant={action.variant || 'outline'}
                   size="sm"
-                  onClick={action.onClick}
+                  onClick={handleActionClick(action.onClick)}
                 >
                   {action.label}
                 </Button>
@@ -236,3 +245,10 @@ export function SafetyFeedback({
     </div>
   );
 }
+
+SafetyFeedbackComponent.displayName = 'SafetyFeedback';
+
+/**
+ * Memoized SafetyFeedback component
+ */
+export const SafetyFeedback = React.memo(SafetyFeedbackComponent);

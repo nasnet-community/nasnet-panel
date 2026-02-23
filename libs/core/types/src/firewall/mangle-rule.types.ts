@@ -77,9 +77,15 @@ export const ConnectionNatStateSchema = z.enum([
 export type ConnectionNatState = z.infer<typeof ConnectionNatStateSchema>;
 
 /**
- * Mark name validation - alphanumeric, underscore, hyphen; max 63 chars
+ * Mark name validation regex - alphanumeric, underscore, hyphen
+ * @internal
  */
 const markNameRegex = /^[a-zA-Z0-9_-]+$/;
+
+/**
+ * Zod schema for mark name validation (alphanumeric, underscore, hyphen; max 63 chars)
+ * @internal
+ */
 const MarkNameSchema = z
   .string()
   .max(63, 'Mark name must be 63 characters or less')
@@ -87,7 +93,8 @@ const MarkNameSchema = z
   .optional();
 
 /**
- * DSCP value - Differentiated Services Code Point (0-63)
+ * Zod schema for DSCP value (Differentiated Services Code Point, 0-63)
+ * @internal
  */
 const DscpSchema = z
   .number()
@@ -205,16 +212,30 @@ export type MangleRuleInput = z.input<typeof MangleRuleSchema>;
 // ============================================================================
 
 /**
- * DSCP (Differentiated Services Code Point) Classes
+ * DSCP Class Metadata - Information about a Differentiated Services Code Point
  *
- * Standard QoS classes for traffic prioritization.
- * Values range from 0-63.
+ * Used for QoS configuration, stores both the numeric DSCP value and
+ * human-friendly names for different traffic classes (0-63).
+ *
+ * @example
+ * ```ts
+ * const ef: DscpClass = {
+ *   value: 46,
+ *   name: 'EF',
+ *   description: 'Expedited Forwarding',
+ *   useCase: 'VoIP audio (priority)',
+ * };
+ * ```
  */
 export interface DscpClass {
-  value: number;
-  name: string;
-  description: string;
-  useCase: string;
+  /** Numeric DSCP value (0-63) */
+  readonly value: number;
+  /** DSCP class name (e.g., 'EF', 'AF11', 'CS5') */
+  readonly name: string;
+  /** Human-readable description of the DSCP class */
+  readonly description: string;
+  /** Common use cases for this DSCP value */
+  readonly useCase: string;
 }
 
 /**
@@ -285,14 +306,33 @@ export function getDscpDescription(value: number): string {
 // ============================================================================
 
 /**
- * Mark Type metadata
+ * Mark Type Metadata - Information about packet marking strategies
+ *
+ * Defines different ways to mark packets and connections for routing,
+ * QoS, and traffic shaping operations.
+ *
+ * @example
+ * ```ts
+ * const connMark: MarkType = {
+ *   name: 'Connection Mark',
+ *   action: 'mark-connection',
+ *   field: 'newConnectionMark',
+ *   persistence: 'All packets in connection',
+ *   useCase: 'QoS queue trees, routing policies',
+ * };
+ * ```
  */
 export interface MarkType {
-  name: string;
-  action: MangleAction;
-  field: 'newConnectionMark' | 'newPacketMark' | 'newRoutingMark';
-  persistence: string;
-  useCase: string;
+  /** Human-readable name of the mark type */
+  readonly name: string;
+  /** Action used to create this type of mark */
+  readonly action: MangleAction;
+  /** Field name in MangleRule where this mark is stored */
+  readonly field: 'newConnectionMark' | 'newPacketMark' | 'newRoutingMark';
+  /** How long the mark persists (connection, packet, or routing decision) */
+  readonly persistence: string;
+  /** Common use cases for this mark type */
+  readonly useCase: string;
 }
 
 /**

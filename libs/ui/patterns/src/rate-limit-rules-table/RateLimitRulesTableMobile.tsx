@@ -83,7 +83,7 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
 
   return (
     <Card
-      className={`${rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50' : ''}`}
+      className={`${rule.isDisabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50' : ''}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -103,9 +103,9 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
             </div>
           </div>
           <Switch
-            checked={!rule.disabled}
+            checked={!rule.isDisabled}
             onCheckedChange={() => onToggle(rule)}
-            aria-label={rule.disabled ? 'Enable rule' : 'Disable rule'}
+            aria-label={rule.isDisabled ? 'Enable rule' : 'Disable rule'}
             className="ml-2"
           />
         </div>

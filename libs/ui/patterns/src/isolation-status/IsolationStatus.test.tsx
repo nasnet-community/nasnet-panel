@@ -40,7 +40,7 @@ describe('IsolationStatus', () => {
 
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -63,7 +63,7 @@ describe('IsolationStatus', () => {
 
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -85,7 +85,7 @@ describe('IsolationStatus', () => {
 
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -107,7 +107,7 @@ describe('IsolationStatus', () => {
 
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -130,7 +130,7 @@ describe('IsolationStatus', () => {
 
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -199,6 +199,7 @@ describe('IsolationStatus', () => {
                   layer: 'IP Binding',
                   severity: IsolationSeverity.Error,
                   message: 'Wildcard bind IP detected',
+                  timestamp: new Date().toISOString(),
                 },
                 color: 'destructive',
                 icon: 'Network',
@@ -238,7 +239,7 @@ describe('IsolationStatus', () => {
               applied: true,
               cpuPercent: 50,
               memoryMB: 128,
-            },
+            } as any,
             isSaving: false,
             handleSaveLimits: vi.fn(),
             handleRefresh: vi.fn(),
@@ -334,6 +335,7 @@ describe('IsolationStatus', () => {
                   layer: 'IP Binding',
                   severity: IsolationSeverity.Error,
                   message: 'Wildcard bind IP detected',
+                  timestamp: new Date().toISOString(),
                 },
                 color: 'destructive',
                 icon: 'Network',
@@ -344,6 +346,7 @@ describe('IsolationStatus', () => {
                   layer: 'Port Registry',
                   severity: IsolationSeverity.Warning,
                   message: 'Port not allocated in registry',
+                  timestamp: new Date().toISOString(),
                 },
                 color: 'warning',
                 icon: 'Webhook',
@@ -384,7 +387,7 @@ describe('IsolationStatus', () => {
               applied: true,
               cpuPercent: 50,
               memoryMB: 128,
-            },
+            } as any,
             isSaving: false,
             handleSaveLimits: vi.fn(),
             handleRefresh: vi.fn(),
@@ -411,6 +414,7 @@ describe('IsolationStatus', () => {
           layer: `Layer ${i}`,
           severity: IsolationSeverity.Warning,
           message: `Violation message ${i}`,
+          timestamp: new Date().toISOString(),
         },
         color: 'warning' as const,
         icon: 'AlertCircle',
@@ -452,7 +456,7 @@ describe('IsolationStatus', () => {
     it('should have proper ARIA labels', () => {
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -476,8 +480,9 @@ describe('IsolationStatus', () => {
             layer: 'IP Binding',
             severity: IsolationSeverity.Error,
             message: 'Wildcard bind IP detected',
+            timestamp: new Date().toISOString(),
           },
-        ],
+        ] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -495,7 +500,7 @@ describe('IsolationStatus', () => {
     it('should render with custom id for aria-describedby', () => {
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -517,7 +522,7 @@ describe('IsolationStatus', () => {
     it('should render small size variant', () => {
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -537,7 +542,7 @@ describe('IsolationStatus', () => {
     it('should render medium size variant', () => {
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 
@@ -557,7 +562,7 @@ describe('IsolationStatus', () => {
     it('should render large size variant', () => {
       const isolation: GraphQLIsolationStatus = {
         lastVerified: '2026-02-13T10:00:00Z',
-        violations: [],
+        violations: [] as ReadonlyArray<any>,
         resourceLimits: null,
       };
 

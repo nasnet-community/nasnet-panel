@@ -8,13 +8,14 @@
 
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
-import { DeviceTypeIcon } from './device-type-icon';
 import type {
   FingerprintDeviceType,
   FingerprintDeviceCategory,
 } from '@nasnet/core/types';
+
+import { DeviceTypeIcon } from './device-type-icon';
 
 const meta: Meta<typeof DeviceTypeIcon> = {
   title: 'Features/Network/DHCP/DeviceTypeIcon',

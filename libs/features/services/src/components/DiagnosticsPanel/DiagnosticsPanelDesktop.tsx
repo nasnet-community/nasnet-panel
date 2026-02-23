@@ -3,22 +3,23 @@
  *
  * Desktop-optimized presenter for DiagnosticsPanel pattern.
  * Displays diagnostic test results with pass/fail indicators.
+ * Provides full details visibility with expandable test results.
+ *
+ * @description
+ * Features:
+ * - Pass/fail indicators with color coding
+ * - Expandable test result details
+ * - Progress bar during test execution
+ * - Startup failure alerts
+ * - Diagnostic history
  *
  * @see NAS-8.12: Service Logs & Diagnostics
  * @see ADR-018: Headless Platform Presenters
  */
 
 import * as React from 'react';
-import {
-  Check,
-  X,
-  AlertTriangle,
-  Minus,
-  Play,
-  RefreshCw,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+import { Play, RefreshCw, Check, X, AlertTriangle, ChevronDown, ChevronRight, Minus } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import {
   Button,
@@ -34,7 +35,9 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import {
   useDiagnosticsPanel,
@@ -43,26 +46,17 @@ import {
 import type { DiagnosticResult, StartupDiagnostics } from '@nasnet/api-client/queries';
 
 /**
- * Icon map for test status
- */
-const StatusIcon = {
-  check: Check,
-  x: X,
-  alert: AlertTriangle,
-  minus: Minus,
-};
-
-/**
- * Desktop presenter for DiagnosticsPanel
+ * DiagnosticsPanelDesktop component
  *
- * Features:
- * - Pass/fail indicators with color coding
- * - Expandable test result details
- * - Progress bar during test execution
- * - Startup failure alerts
- * - Diagnostic history
+ * @description
+ * Desktop presenter for DiagnosticsPanel with full detail visibility.
+ * Displays test results in expandable collapsibles with complete metadata.
+ * Shows startup failure alerts and historical diagnostic runs.
+ *
+ * @param props - Component props
+ * @returns Rendered desktop diagnostics panel
  */
-export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
+function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
   const { className } = props;
 
   const {
@@ -89,7 +83,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
     new Set(latestRun ? [latestRun.runGroupID] : [])
   );
 
-  const toggleTest = (testId: string) => {
+  const toggleTest = React.useCallback((testId: string) => {
     setExpandedTests((prev) => {
       const next = new Set(prev);
       if (next.has(testId)) {
@@ -99,9 +93,9 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
       }
       return next;
     });
-  };
+  }, []);
 
-  const toggleRun = (runId: string) => {
+  const toggleRun = React.useCallback((runId: string) => {
     setExpandedRuns((prev) => {
       const next = new Set(prev);
       if (next.has(runId)) {
@@ -111,11 +105,12 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
       }
       return next;
     });
-  };
+  }, []);
 
-  const renderTestResult = (result: DiagnosticResult) => {
-    const Icon = StatusIcon[getStatusIcon(result.status)];
+  const renderTestResult = React.useCallback((result: DiagnosticResult) => {
+    const iconName = getStatusIcon(result.status);
     const isExpanded = expandedTests.has(result.id);
+    const statusIcon = getStatusIconComponent(iconName);
 
     return (
       <Collapsible
@@ -124,7 +119,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
         onOpenChange={() => toggleTest(result.id)}
       >
         <div className="flex items-center gap-3 p-3 hover:bg-accent/50 rounded-md transition-colors">
-          <Icon className={`h-5 w-5 ${getStatusColor(result.status)}`} />
+          <Icon icon={statusIcon as LucideIcon} className={cn('h-5 w-5', getStatusColor(result.status))} aria-hidden="true" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-medium">{result.testName}</span>
@@ -172,9 +167,9 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
         </CollapsibleContent>
       </Collapsible>
     );
-  };
+  }, [expandedTests, getStatusIcon, getStatusColor, toggleTest]);
 
-  const renderDiagnosticRun = (run: StartupDiagnostics) => {
+  const renderDiagnosticRun = React.useCallback((run: StartupDiagnostics) => {
     const isExpanded = expandedRuns.has(run.runGroupID);
     const timestamp = new Date(run.timestamp).toLocaleString();
 
@@ -188,11 +183,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between p-4 hover:bg-accent/50 cursor-pointer">
               <div className="flex items-center gap-3">
-                {isExpanded ? (
-                  <ChevronDown className="h-5 w-5" />
-                ) : (
-                  <ChevronRight className="h-5 w-5" />
-                )}
+                <Icon icon={isExpanded ? ChevronDown : ChevronRight} className="h-5 w-5" aria-hidden="true" />
                 <div>
                   <div className="font-medium">{timestamp}</div>
                   <div className="text-sm text-muted-foreground">
@@ -217,7 +208,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
         </div>
       </Collapsible>
     );
-  };
+  }, [expandedRuns, toggleRun, renderTestResult]);
 
   return (
     <Card className={className}>
@@ -231,7 +222,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
               onClick={refreshHistory}
               disabled={isLoadingHistory}
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingHistory ? 'animate-spin' : ''}`} />
+              <Icon icon={RefreshCw} className={cn('mr-2 h-4 w-4', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
               Refresh
             </Button>
             <Button
@@ -240,7 +231,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
               onClick={runDiagnostics}
               disabled={isRunning}
             >
-              <Play className="mr-2 h-4 w-4" />
+              <Icon icon={Play} className="mr-2 h-4 w-4" aria-hidden="true" />
               {isRunning ? 'Running...' : 'Run Diagnostics'}
             </Button>
           </div>
@@ -251,7 +242,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
         {/* Startup failure alert */}
         {latestRun && hasLatestFailures && (
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
+            <Icon icon={AlertTriangle} className="h-4 w-4" aria-hidden="true" />
             <AlertTitle>Startup Failures Detected</AlertTitle>
             <AlertDescription>
               {latestRun.failedCount} diagnostic test(s) failed during service startup.
@@ -263,7 +254,7 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
         {/* Error state */}
         {(runError || historyError) && (
           <Alert variant="destructive">
-            <X className="h-4 w-4" />
+            <Icon icon={X} className="h-4 w-4" aria-hidden="true" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
               {runError?.message || historyError?.message}
@@ -313,3 +304,17 @@ export function DiagnosticsPanelDesktop(props: DiagnosticsPanelProps) {
     </Card>
   );
 }
+
+// Helper function to map status to icon components
+function getStatusIconComponent(status: 'check' | 'x' | 'alert' | 'minus'): React.ComponentType<any> {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    check: Check,
+    x: X,
+    alert: AlertTriangle,
+    minus: Minus,
+  };
+  return iconMap[status] || Minus;
+}
+
+export const DiagnosticsPanelDesktop = React.memo(DiagnosticsPanelDesktopComponent);
+DiagnosticsPanelDesktop.displayName = 'DiagnosticsPanel.Desktop';

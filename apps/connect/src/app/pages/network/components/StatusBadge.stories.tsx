@@ -159,3 +159,17 @@ export const InContext: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  ...Running,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Running,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

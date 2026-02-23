@@ -50,7 +50,7 @@ describe('useConnectionStore', () => {
 
       const state = useConnectionStore.getState();
       expect(state.wsStatus).toBe('connecting');
-      expect(state.state).toBe('connecting'); // Legacy field
+      expect(state.state).toBe('reconnecting'); // Legacy field maps connecting -> reconnecting
     });
 
     it('should update wsStatus to connected and set lastConnectedAt', () => {
@@ -97,20 +97,19 @@ describe('useConnectionStore', () => {
   });
 
   describe('Reconnection Management', () => {
-    it('should start reconnection', () => {
-      const { startReconnection } = useConnectionStore.getState();
+    it('should increment reconnect attempts', () => {
+      const { incrementReconnectAttempts } = useConnectionStore.getState();
 
-      startReconnection();
+      incrementReconnectAttempts();
 
       const state = useConnectionStore.getState();
-      expect(state.isReconnecting).toBe(true);
       expect(state.reconnectAttempts).toBe(1);
     });
 
-    it('should increment reconnect attempts', () => {
-      const { startReconnection, incrementReconnectAttempts } = useConnectionStore.getState();
+    it('should increment reconnect attempts multiple times', () => {
+      const { incrementReconnectAttempts } = useConnectionStore.getState();
 
-      startReconnection();
+      incrementReconnectAttempts();
       incrementReconnectAttempts();
 
       const state = useConnectionStore.getState();
@@ -118,10 +117,10 @@ describe('useConnectionStore', () => {
     });
 
     it('should reset reconnection state', () => {
-      const { startReconnection, incrementReconnectAttempts, resetReconnection } =
+      const { incrementReconnectAttempts, resetReconnection, setWsStatus } =
         useConnectionStore.getState();
 
-      startReconnection();
+      setWsStatus('connecting');
       incrementReconnectAttempts();
       incrementReconnectAttempts();
 
@@ -133,18 +132,19 @@ describe('useConnectionStore', () => {
     });
 
     it('should detect when max attempts reached', () => {
-      const { startReconnection, incrementReconnectAttempts } = useConnectionStore.getState();
+      const { incrementReconnectAttempts, hasExceededMaxAttempts } = useConnectionStore.getState();
 
       // Set max to 3 for easier testing
       useConnectionStore.setState({ maxReconnectAttempts: 3 });
 
-      startReconnection(); // attempt 1
+      incrementReconnectAttempts(); // attempt 1
       incrementReconnectAttempts(); // attempt 2
       incrementReconnectAttempts(); // attempt 3
 
       const state = useConnectionStore.getState();
       expect(state.reconnectAttempts).toBe(3);
       expect(state.reconnectAttempts >= state.maxReconnectAttempts).toBe(true);
+      expect(hasExceededMaxAttempts()).toBe(true);
     });
   });
 
@@ -158,10 +158,10 @@ describe('useConnectionStore', () => {
       expect(state.activeRouterId).toBe('router-1');
     });
 
-    it('should update router connection state', () => {
-      const { updateRouterConnection } = useConnectionStore.getState();
+    it('should set router connection state', () => {
+      const { setRouterConnection } = useConnectionStore.getState();
 
-      updateRouterConnection('router-1', {
+      setRouterConnection('router-1', {
         status: 'connected',
         protocol: 'api',
         latencyMs: 50,
@@ -175,17 +175,17 @@ describe('useConnectionStore', () => {
     });
 
     it('should merge router connection updates', () => {
-      const { updateRouterConnection } = useConnectionStore.getState();
+      const { setRouterConnection } = useConnectionStore.getState();
 
       // Initial update
-      updateRouterConnection('router-1', {
+      setRouterConnection('router-1', {
         status: 'connected',
         protocol: 'api',
         latencyMs: 50,
       });
 
       // Partial update
-      updateRouterConnection('router-1', {
+      setRouterConnection('router-1', {
         latencyMs: 75,
       });
 
@@ -195,78 +195,92 @@ describe('useConnectionStore', () => {
       expect(state.routers['router-1'].latencyMs).toBe(75);
     });
 
-    it('should remove router connection', () => {
-      const { updateRouterConnection, removeRouterConnection } = useConnectionStore.getState();
+    it('should update latency for a router', () => {
+      const { setRouterConnection, updateLatency } = useConnectionStore.getState();
 
-      updateRouterConnection('router-1', {
+      setRouterConnection('router-1', {
         status: 'connected',
         protocol: 'api',
+        latencyMs: 50,
       });
 
-      removeRouterConnection('router-1');
+      updateLatency('router-1', 100);
 
       const state = useConnectionStore.getState();
-      expect(state.routers['router-1']).toBeUndefined();
+      expect(state.routers['router-1'].latencyMs).toBe(100);
     });
 
-    it('should clear active router if removed', () => {
-      const { setActiveRouter, updateRouterConnection, removeRouterConnection } =
-        useConnectionStore.getState();
+    it('should clear active router when setting to null', () => {
+      const { setActiveRouter, setRouterConnection } = useConnectionStore.getState();
 
-      updateRouterConnection('router-1', { status: 'connected' });
+      setRouterConnection('router-1', { status: 'connected' });
       setActiveRouter('router-1');
+      expect(useConnectionStore.getState().activeRouterId).toBe('router-1');
 
-      removeRouterConnection('router-1');
+      setActiveRouter(null);
 
       const state = useConnectionStore.getState();
       expect(state.activeRouterId).toBeNull();
     });
-
-    it('should not clear active router if different router removed', () => {
-      const { setActiveRouter, updateRouterConnection, removeRouterConnection } =
-        useConnectionStore.getState();
-
-      updateRouterConnection('router-1', { status: 'connected' });
-      updateRouterConnection('router-2', { status: 'connected' });
-      setActiveRouter('router-1');
-
-      removeRouterConnection('router-2');
-
-      const state = useConnectionStore.getState();
-      expect(state.activeRouterId).toBe('router-1');
-    });
   });
 
   describe('Legacy API Compatibility', () => {
-    it('should support connect() method', () => {
-      const { connect } = useConnectionStore.getState();
+    it('should support setConnected() method', () => {
+      const { setConnected } = useConnectionStore.getState();
 
-      connect();
+      setConnected();
 
       const state = useConnectionStore.getState();
       expect(state.state).toBe('connected');
       expect(state.wsStatus).toBe('connected');
+      expect(state.lastConnectedAt).toBeInstanceOf(Date);
     });
 
-    it('should support disconnect() method', () => {
-      const { connect, disconnect } = useConnectionStore.getState();
+    it('should support setDisconnected() method', () => {
+      const { setConnected, setDisconnected } = useConnectionStore.getState();
 
-      connect();
-      disconnect();
+      setConnected();
+      setDisconnected();
 
       const state = useConnectionStore.getState();
       expect(state.state).toBe('disconnected');
       expect(state.wsStatus).toBe('disconnected');
     });
 
-    it('should support reconnect() method', () => {
-      const { reconnect } = useConnectionStore.getState();
+    it('should support setReconnecting() method', () => {
+      const { setReconnecting } = useConnectionStore.getState();
 
-      reconnect();
+      setReconnecting();
 
       const state = useConnectionStore.getState();
       expect(state.state).toBe('reconnecting');
+      expect(state.wsStatus).toBe('connecting');
       expect(state.isReconnecting).toBe(true);
+    });
+
+    it('should support setCurrentRouter() method', () => {
+      const { setCurrentRouter } = useConnectionStore.getState();
+
+      setCurrentRouter('router-1', '192.168.1.1');
+
+      const state = useConnectionStore.getState();
+      expect(state.currentRouterId).toBe('router-1');
+      expect(state.currentRouterIp).toBe('192.168.1.1');
+      expect(state.activeRouterId).toBe('router-1');
+      expect(state.wsStatus).toBe('connected');
+    });
+
+    it('should support clearCurrentRouter() method', () => {
+      const { setCurrentRouter, clearCurrentRouter } = useConnectionStore.getState();
+
+      setCurrentRouter('router-1', '192.168.1.1');
+      clearCurrentRouter();
+
+      const state = useConnectionStore.getState();
+      expect(state.currentRouterId).toBeNull();
+      expect(state.currentRouterIp).toBeNull();
+      expect(state.activeRouterId).toBeNull();
+      expect(state.wsStatus).toBe('disconnected');
     });
   });
 
@@ -285,10 +299,10 @@ describe('useConnectionStore', () => {
     });
 
     it('should NOT persist sensitive connection state', () => {
-      const { setWsStatus, updateRouterConnection } = useConnectionStore.getState();
+      const { setWsStatus, setRouterConnection } = useConnectionStore.getState();
 
       setWsStatus('connected');
-      updateRouterConnection('router-1', {
+      setRouterConnection('router-1', {
         status: 'connected',
         protocol: 'api',
         latencyMs: 50,
@@ -304,32 +318,36 @@ describe('useConnectionStore', () => {
     });
   });
 
-  describe('Reset', () => {
-    it('should reset all connection state', () => {
+  describe('State Management', () => {
+    it('should properly manage complex connection flow', () => {
       const {
         setWsStatus,
-        startReconnection,
+        setRouterConnection,
         setActiveRouter,
-        updateRouterConnection,
-        reset,
+        incrementReconnectAttempts,
+        resetReconnection,
       } = useConnectionStore.getState();
 
       // Setup state
-      setWsStatus('connected');
-      startReconnection();
+      setWsStatus('connecting');
+      incrementReconnectAttempts();
+      setRouterConnection('router-1', { status: 'connecting' });
       setActiveRouter('router-1');
-      updateRouterConnection('router-1', { status: 'connected' });
 
-      // Reset
-      reset();
+      let state = useConnectionStore.getState();
+      expect(state.wsStatus).toBe('connecting');
+      expect(state.reconnectAttempts).toBe(1);
+      expect(state.activeRouterId).toBe('router-1');
 
-      const state = useConnectionStore.getState();
-      expect(state.wsStatus).toBe('disconnected');
-      expect(state.isReconnecting).toBe(false);
+      // Transition to connected
+      setWsStatus('connected');
+      setRouterConnection('router-1', { status: 'connected' });
+      resetReconnection();
+
+      state = useConnectionStore.getState();
+      expect(state.wsStatus).toBe('connected');
       expect(state.reconnectAttempts).toBe(0);
-      expect(state.lastConnectedAt).toBeNull();
-      expect(state.activeRouterId).toBeNull();
-      expect(state.routers).toEqual({});
+      expect(state.isReconnecting).toBe(false);
     });
   });
 });

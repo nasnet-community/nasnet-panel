@@ -1,6 +1,11 @@
 /**
  * Counter Settings Store
- * Manages UI state for firewall rule counter visualization
+ *
+ * Manages UI state for firewall rule counter visualization including polling
+ * intervals and display preferences. Persists to localStorage via Zustand.
+ *
+ * @description Provides selector hooks for optimized component access, preventing
+ * unnecessary re-renders by selecting only needed state slices.
  *
  * Story: Counter Visualization Feature
  * @see libs/ui/patterns/src/counter-cell - Counter visualization components
@@ -8,6 +13,23 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+/** Polling interval options in milliseconds */
+const POLLING_INTERVALS = {
+  NONE: null,
+  HIGH: 5000,
+  MODERATE: 10000,
+  LOW: 30000,
+  MINIMAL: 60000,
+} as const;
+
+// ============================================
+// TYPES
+// ============================================
 
 /**
  * Polling interval options (milliseconds)
@@ -24,14 +46,14 @@ export type PollingInterval = 5000 | 10000 | 30000 | 60000 | null;
  */
 export interface CounterSettingsState {
   // Polling configuration
-  /** Polling interval in milliseconds, null = no auto-polling */
+  /** Polling interval in milliseconds (null = no auto-polling) */
   pollingInterval: PollingInterval;
 
   // Display preferences
-  /** Show relative size bar in counter cell */
+  /** Whether to show relative size bar in counter cell */
   showRelativeBar: boolean;
 
-  /** Show rate calculations (packets/s, bytes/s) */
+  /** Whether to show rate calculations (packets/s, bytes/s) */
   showRate: boolean;
 
   // Actions
@@ -39,10 +61,10 @@ export interface CounterSettingsState {
   setPollingInterval: (interval: PollingInterval) => void;
 
   /** Toggle relative size bar display */
-  setShowRelativeBar: (show: boolean) => void;
+  setShowRelativeBar: (shouldShow: boolean) => void;
 
   /** Toggle rate calculation display */
-  setShowRate: (show: boolean) => void;
+  setShowRate: (shouldShow: boolean) => void;
 
   /** Reset all settings to defaults */
   reset: () => void;
@@ -51,39 +73,62 @@ export interface CounterSettingsState {
 /**
  * Initial state values
  */
-const initialState = {
-  pollingInterval: null as PollingInterval, // Default: no auto-polling
+const INITIAL_STATE: CounterSettingsState = {
+  pollingInterval: POLLING_INTERVALS.NONE, // Default: no auto-polling
   showRelativeBar: true,
   showRate: true,
+  setPollingInterval: () => {},
+  setShowRelativeBar: () => {},
+  setShowRate: () => {},
+  reset: () => {},
 };
 
 /**
  * Counter Settings Store
  *
- * Persists user preferences for counter visualization:
+ * Persists user preferences for counter visualization via localStorage:
  * - Polling interval (how often to refresh counters)
  * - Display options (relative bar, rate calculations)
  *
- * Storage: localStorage via Zustand persist middleware
+ * Storage: localStorage with JSON serialization via Zustand persist middleware
  */
 export const useCounterSettingsStore = create<CounterSettingsState>()(
   persist(
-    (set) => ({
-      ...initialState,
+    (set) => {
+      const baseState: Omit<CounterSettingsState, 'setPollingInterval' | 'setShowRelativeBar' | 'setShowRate' | 'reset'> = {
+        pollingInterval: null,
+        showRelativeBar: true,
+        showRate: true,
+      };
 
-      // Actions
-      setPollingInterval: (interval) => set({ pollingInterval: interval }),
+      return {
+        ...baseState,
 
-      setShowRelativeBar: (show) => set({ showRelativeBar: show }),
+        // ============================================
+        // ACTIONS
+        // ============================================
 
-      setShowRate: (show) => set({ showRate: show }),
+        setPollingInterval: (interval: PollingInterval) =>
+          set({ pollingInterval: interval }),
 
-      reset: () => set(initialState),
-    }),
+        setShowRelativeBar: (shouldShow: boolean) =>
+          set({ showRelativeBar: shouldShow }),
+
+        setShowRate: (shouldShow: boolean) =>
+          set({ showRate: shouldShow }),
+
+        reset: () =>
+          set({
+            pollingInterval: baseState.pollingInterval,
+            showRelativeBar: baseState.showRelativeBar,
+            showRate: baseState.showRate,
+          }),
+      };
+    },
     {
       name: 'nasnet-counter-settings',
       storage: createJSONStorage(() => localStorage),
-      // Persist all settings
+      // Persist all settings to localStorage
       partialize: (state) => ({
         pollingInterval: state.pollingInterval,
         showRelativeBar: state.showRelativeBar,
@@ -93,15 +138,33 @@ export const useCounterSettingsStore = create<CounterSettingsState>()(
   )
 );
 
+// ============================================
+// SELECTOR HOOKS (For Optimized Component Access)
+// ============================================
+
 /**
- * Selector hooks for optimized access
- * Use these to prevent unnecessary re-renders in components
+ * Get the current polling interval setting
+ *
+ * @example
+ * const interval = usePollingInterval();
  */
 export const usePollingInterval = () =>
   useCounterSettingsStore((state) => state.pollingInterval);
 
+/**
+ * Get whether to show relative size bar
+ *
+ * @example
+ * const shouldShow = useShowRelativeBar();
+ */
 export const useShowRelativeBar = () =>
   useCounterSettingsStore((state) => state.showRelativeBar);
 
+/**
+ * Get whether to show rate calculations
+ *
+ * @example
+ * const shouldShow = useShowRate();
+ */
 export const useShowRate = () =>
   useCounterSettingsStore((state) => state.showRate);

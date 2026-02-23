@@ -6,7 +6,7 @@
  * Story: NAS-6.7 - Implement VLAN Management
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { usePlatform } from '@nasnet/ui/layouts';
@@ -17,6 +17,7 @@ import { VlanFormMobile } from './VlanFormMobile';
 
 /**
  * VLAN Form Props
+ * @interface VlanFormProps
  */
 export interface VlanFormProps {
   /** Router ID */
@@ -30,7 +31,7 @@ export interface VlanFormProps {
   /** Callback to cancel */
   onCancel: () => void;
   /** Whether submit operation is in progress */
-  loading?: boolean;
+  isLoading?: boolean;
   /** Form mode */
   mode?: 'create' | 'edit';
 }
@@ -64,7 +65,7 @@ export function VlanForm({
   currentVlanId,
   onSubmit,
   onCancel,
-  loading = false,
+  isLoading = false,
   mode = 'create',
 }: VlanFormProps) {
   const platform = usePlatform();
@@ -95,7 +96,7 @@ export function VlanForm({
 
     const timeout = setTimeout(() => {
       setCheckDuplicateEnabled(true);
-    }, 300);
+    }, DUPLICATE_CHECK_DELAY_MS);
 
     return () => {
       clearTimeout(timeout);
@@ -129,20 +130,32 @@ export function VlanForm({
   }, [checkDuplicateEnabled, checkingDuplicate, isAvailable, watchedVlanId, watchedInterface, form]);
 
   // Get validation warnings (non-blocking)
-  const warnings = form.watch() ? getVlanWarnings(form.getValues()) : [];
+  const warnings = useMemo(
+    () => (form.watch() ? getVlanWarnings(form.getValues()) : []),
+    [form]
+  );
+
+  // Memoized submit handler
+  const handleSubmit = useCallback(
+    form.handleSubmit(onSubmit),
+    [form, onSubmit]
+  );
 
   // Shared props for both presenters
-  const sharedProps = {
-    form,
-    routerId,
-    onSubmit: form.handleSubmit(onSubmit),
-    onCancel,
-    loading,
-    mode,
-    warnings,
-    checkingDuplicate,
-    isDuplicateVlanId: !isAvailable && checkDuplicateEnabled,
-  };
+  const sharedProps = useMemo(
+    () => ({
+      form,
+      routerId,
+      onSubmit: handleSubmit,
+      onCancel,
+      isLoading,
+      mode,
+      warnings,
+      checkingDuplicate,
+      isDuplicateVlanId: !isAvailable && checkDuplicateEnabled,
+    }),
+    [form, routerId, handleSubmit, onCancel, isLoading, mode, warnings, checkingDuplicate, isAvailable, checkDuplicateEnabled]
+  );
 
   return platform === 'mobile' ? (
     <VlanFormMobile {...sharedProps} />
@@ -150,3 +163,6 @@ export function VlanForm({
     <VlanFormDesktop {...sharedProps} />
   );
 }
+
+/** Debounce delay for duplicate VLAN ID checking (ms) */
+const DUPLICATE_CHECK_DELAY_MS = 300;

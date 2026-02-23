@@ -6,3 +6,6 @@
 
 // Schedule types
 export * from './schedule.types.js';
+
+// Update stage types
+export * from './update-stage.js';

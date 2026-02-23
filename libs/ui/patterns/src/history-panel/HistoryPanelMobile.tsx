@@ -124,7 +124,7 @@ function HistoryItemMobile({
  * - Condensed action list
  * - Touch-friendly interactions
  */
-export function HistoryPanelMobile({
+export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
   className,
   onClose,
   maxHeight = 300,
@@ -234,4 +234,6 @@ export function HistoryPanelMobile({
       )}
     </div>
   );
-}
+});
+
+HistoryPanelMobile.displayName = 'HistoryPanelMobile';

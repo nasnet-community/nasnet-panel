@@ -3,13 +3,18 @@
  *
  * Desktop/tablet optimized view with data table layout.
  *
+ * @description
+ * Displays static DNS entries in a sortable data table with edit/delete actions.
+ * Shows hostname, IP address, TTL, and optional comment for each entry.
+ *
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { useMemo, useState } from 'react';
-import { Button } from '@nasnet/ui/primitives';
+import { useMemo, useState, useCallback } from 'react';
+import { Button, Icon } from '@nasnet/ui/primitives';
 import { DataTable, EmptyState, ConfirmationDialog } from '@nasnet/ui/patterns';
 import { Edit2, Trash2, Plus, FileText } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import { formatTTL } from '../../utils';
 import type { DnsStaticEntriesListProps } from './DnsStaticEntriesList';
 import type { DNSStaticEntry } from '@nasnet/core/types';
@@ -25,7 +30,7 @@ export function DnsStaticEntriesListDesktop({
   onEdit,
   onDelete,
   onAdd,
-  loading = false,
+  isLoading = false,
 }: DnsStaticEntriesListProps) {
   const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(
     null
@@ -35,6 +40,18 @@ export function DnsStaticEntriesListDesktop({
   const sortedEntries = useMemo(() => {
     return [...entries].sort((a, b) => a.name.localeCompare(b.name));
   }, [entries]);
+
+  // Memoized handler callbacks
+  const handleEdit = useCallback(
+    (entry: DNSStaticEntry) => {
+      onEdit(entry);
+    },
+    [onEdit]
+  );
+
+  const handleDeleteClick = useCallback((entry: DNSStaticEntry) => {
+    setEntryToDelete(entry);
+  }, []);
 
   // Table columns configuration
   const columns = useMemo(
@@ -85,37 +102,41 @@ export function DnsStaticEntriesListDesktop({
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => onEdit(entry)}
-              disabled={loading}
+              onClick={() => handleEdit(entry)}
+              disabled={isLoading}
               aria-label={`Edit ${entry.name}`}
               title="Edit entry"
             >
-              <Edit2 className="h-4 w-4" />
+              <Icon icon={Edit2} className="h-4 w-4" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => setEntryToDelete(entry)}
-              disabled={loading}
+              onClick={() => handleDeleteClick(entry)}
+              disabled={isLoading}
               aria-label={`Delete ${entry.name}`}
               title="Delete entry"
             >
-              <Trash2 className="h-4 w-4" />
+              <Icon icon={Trash2} className="h-4 w-4" />
             </Button>
           </div>
         ),
       },
     ],
-    [onEdit, loading]
+    [handleEdit, handleDeleteClick, isLoading]
   );
 
   // Handle delete confirmation
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (entryToDelete) {
       onDelete(entryToDelete['.id']);
       setEntryToDelete(null);
     }
-  };
+  }, [entryToDelete, onDelete]);
+
+  const handleCancelDelete = useCallback(() => {
+    setEntryToDelete(null);
+  }, []);
 
   if (entries.length === 0) {
     return (
@@ -141,12 +162,12 @@ export function DnsStaticEntriesListDesktop({
         <DataTable
           columns={columns}
           data={sortedEntries as any[]}
-          isLoading={loading}
+          isLoading={isLoading}
         />
 
         {/* Add Entry Button */}
         <Button onClick={onAdd} variant="outline" className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
+          <Icon icon={Plus} className="h-4 w-4 mr-2" aria-hidden="true" />
           Add Static Entry
         </Button>
       </div>
@@ -154,7 +175,7 @@ export function DnsStaticEntriesListDesktop({
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
         open={!!entryToDelete}
-        onOpenChange={(open) => !open && setEntryToDelete(null)}
+        onOpenChange={(open) => !open && handleCancelDelete()}
         title="Delete Static DNS Entry"
         description={
           entryToDelete
@@ -165,7 +186,7 @@ export function DnsStaticEntriesListDesktop({
         cancelLabel="Cancel"
         variant="destructive"
         onConfirm={handleConfirmDelete}
-        onCancel={() => setEntryToDelete(null)}
+        onCancel={handleCancelDelete}
       />
     </>
   );

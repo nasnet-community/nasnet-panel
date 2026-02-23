@@ -1,9 +1,18 @@
 /**
- * AlertTemplateBrowser Component
+ * AlertTemplateBrowserNew Component
  * NAS-18.12: Alert Rule Templates Feature
  *
- * Platform router that delegates to Desktop or Mobile presenters.
+ * @description Platform router that delegates to Desktop or Mobile presenters.
  * Automatically detects viewport size and renders appropriate UI.
+ *
+ * @example
+ * ```tsx
+ * <AlertTemplateBrowserNew
+ *   onApply={(template) => openApplyDialog(template)}
+ *   onViewDetail={(template) => openDetailPanel(template)}
+ *   initialCategory="NETWORK"
+ * />
+ * ```
  *
  * @see ADR-018: Headless Platform Presenters
  */
@@ -21,17 +30,20 @@ import type { AlertRuleTemplate } from '../../schemas/alert-rule-template.schema
 // Props Interface
 // =============================================================================
 
+/**
+ * Props for AlertTemplateBrowserNew component
+ */
 export interface AlertTemplateBrowserNewProps {
-  /** Callback when template is applied (opens preview/variable input dialog) */
+  /** @description Callback when template is applied (opens preview/variable input dialog) */
   onApply?: (template: AlertRuleTemplate) => void;
 
-  /** Callback when template detail is viewed */
+  /** @description Callback when template detail is viewed */
   onViewDetail?: (template: AlertRuleTemplate) => void;
 
-  /** Optional initial category filter */
+  /** @description Optional initial category filter */
   initialCategory?: string;
 
-  /** Container className */
+  /** @description Container className for responsive styling */
   className?: string;
 }
 
@@ -40,36 +52,16 @@ export interface AlertTemplateBrowserNewProps {
 // =============================================================================
 
 /**
- * AlertTemplateBrowser - Browse and apply alert rule templates
+ * AlertTemplateBrowserNew - Browse and apply alert rule templates
  *
- * Features:
- * - Automatic platform detection (Mobile <640px, Desktop ≥640px)
- * - Filter by 7 categories (Network, Security, Resources, VPN, DHCP, System, Custom)
- * - Filter by severity (Critical, Warning, Info)
- * - Search by template name or description
- * - Sort by name, severity, category, or date
- * - Built-in and custom template filtering
- * - Apply template to create alert rule
- * - View template details
- *
- * Architecture:
- * - Headless hook (useTemplateBrowser) contains all business logic
- * - Desktop presenter for >640px (sidebar filters, grid layout)
- * - Mobile presenter for <640px (bottom sheet filters, list layout)
- * - Platform-agnostic state and actions
+ * @description Provides platform-aware template browsing with filtering, search, and sorting.
+ * Features automatic platform detection and responsive layout (Mobile/Desktop).
  *
  * @param props - Component props
- *
- * @example
- * ```tsx
- * <AlertTemplateBrowser
- *   onApply={(template) => openApplyDialog(template)}
- *   onViewDetail={(template) => openDetailPanel(template)}
- *   initialCategory="NETWORK"
- * />
- * ```
+ * @returns React component
  */
-export function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
+export const AlertTemplateBrowserNew = React.memo(
+  function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
   const { onApply, onViewDetail, initialCategory, className } = props;
 
   // Detect platform (mobile <640px, desktop ≥640px)
@@ -82,7 +74,17 @@ export function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
 
   const templates = data?.alertRuleTemplates || [];
 
-  // Initialize headless browser hook
+  // Initialize headless browser hook with memoized callbacks
+  const handleApply = React.useCallback(
+    (template: AlertRuleTemplate) => {
+      if (onApply) {
+        onApply(template);
+      }
+    },
+    [onApply]
+  );
+
+  // Call hook at component level (not inside useMemo)
   const browser = useTemplateBrowser({
     templates,
     initialFilter: {
@@ -90,14 +92,8 @@ export function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
     },
     onSelect: (template) => {
       // Template selected - can be used for analytics or side effects
-      console.log('Template selected:', template?.name);
     },
-    onApply: (template) => {
-      // Trigger apply callback
-      if (onApply) {
-        onApply(template);
-      }
-    },
+    onApply: handleApply,
   });
 
   // Handle errors
@@ -126,4 +122,7 @@ export function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
   ) : (
     <AlertTemplateBrowserMobile {...sharedProps} />
   );
-}
+  }
+);
+
+AlertTemplateBrowserNew.displayName = 'AlertTemplateBrowserNew';

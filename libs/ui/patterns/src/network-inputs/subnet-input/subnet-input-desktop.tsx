@@ -11,6 +11,7 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import { cn, Input, Label } from '@nasnet/ui/primitives';
@@ -25,7 +26,7 @@ import type { SubnetInputPresenterProps } from './subnet-input.types';
  * Desktop presenter for SubnetInput
  * Shows IP input, prefix selector, and calculations panel inline
  */
-export function SubnetInputDesktop({
+export const SubnetInputDesktop = memo(function SubnetInputDesktop({
   state,
   label,
   helpText,
@@ -136,6 +137,6 @@ export function SubnetInputDesktop({
       )}
     </div>
   );
-}
+});
 
 SubnetInputDesktop.displayName = 'SubnetInputDesktop';

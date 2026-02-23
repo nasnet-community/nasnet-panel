@@ -75,7 +75,7 @@ vi.mock('react-i18next', () => ({
         'mangle.dialogs.deleteRule.title': 'Delete Mangle Rule?',
         'mangle.dialogs.deleteRule.description': 'This action cannot be undone.',
         'mangle.dialogs.deleteRule.warning': 'This will:',
-        'mangle.dialogs.deleteRule.consequences': ['Remove the rule', 'Reorder subsequent rules', 'Take effect immediately'],
+        'mangle.dialogs.deleteRule.consequences': 'Remove the rule, Reorder subsequent rules, Take effect immediately',
         'button.cancel': 'Cancel',
         'button.delete': 'Delete',
       };
@@ -110,6 +110,7 @@ const mockRules: MangleRule[] = [
     comment: 'Mark VoIP traffic',
     packets: 1500,
     bytes: 750000,
+    passthrough: true,
   },
   {
     id: '*2',
@@ -124,6 +125,7 @@ const mockRules: MangleRule[] = [
     comment: 'Mark gaming traffic',
     packets: 5000,
     bytes: 2500000,
+    passthrough: true,
   },
   {
     id: '*3',
@@ -137,6 +139,7 @@ const mockRules: MangleRule[] = [
     comment: 'Block SMTP (disabled)',
     packets: 0,
     bytes: 0,
+    passthrough: true,
   },
 ];
 

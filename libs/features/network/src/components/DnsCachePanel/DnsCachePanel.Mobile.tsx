@@ -2,7 +2,8 @@
  * DNS Cache Panel - Mobile Presenter
  * NAS-6.12: DNS Cache & Diagnostics - Task 6.4
  *
- * Mobile layout (<640px) with compact card layout
+ * @description Mobile layout (<640px) with compact card layout for DNS cache statistics and flush controls.
+ * Displays cache usage, hit rate, top domains, and flush button with confirmation dialog.
  */
 
 import * as React from 'react';
@@ -19,11 +20,17 @@ import {
   DialogTitle,
 } from '@nasnet/ui/primitives/dialog';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Database, Trash2, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives/icon';
+import { AlertCircle, Database, TrendingUp, Trash2, CheckCircle2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import { useDnsCachePanel } from './useDnsCachePanel';
 import type { DnsCachePanelProps } from './types';
 
-export function DnsCachePanelMobile({
+/**
+ * DnsCachePanelMobile component
+ * Renders mobile-optimized DNS cache panel with statistics and flush functionality.
+ */
+const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
   deviceId,
   enablePolling = true,
   onFlushSuccess,
@@ -53,11 +60,13 @@ export function DnsCachePanelMobile({
 
   if (isError) {
     return (
-      <Card className={className}>
+      <Card className={cn('', className)}>
         <CardContent className="pt-6">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-sm">{error || 'Failed to load cache statistics'}</AlertDescription>
+            <Icon icon={AlertCircle} className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              {error || 'Failed to load DNS cache statistics. Please try again.'}
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -66,7 +75,7 @@ export function DnsCachePanelMobile({
 
   return (
     <>
-      <Card className={className}>
+      <Card className={cn('', className)}>
         <CardHeader>
           <CardTitle className="text-lg">DNS Cache</CardTitle>
           <CardDescription className="text-sm">Monitor and manage DNS cache</CardDescription>
@@ -79,11 +88,11 @@ export function DnsCachePanelMobile({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Database className="h-5 w-5 text-muted-foreground" />
+                    <Icon icon={Database} className="h-5 w-5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Total Entries</span>
                   </div>
-                  <div className="text-xl font-bold">
-                    {isLoading ? '...' : cacheStats?.totalEntries?.toLocaleString() || '0'}
+                  <div className="text-xl font-bold font-mono">
+                    {isLoading ? '…' : cacheStats?.totalEntries?.toLocaleString() || '0'}
                   </div>
                 </div>
               </CardContent>
@@ -94,12 +103,12 @@ export function DnsCachePanelMobile({
               <CardContent className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Cache Usage</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {isLoading ? '...' : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
+                  <Badge variant="secondary" className="text-xs font-mono">
+                    {isLoading ? '…' : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
                   </Badge>
                 </div>
                 <Progress value={cacheStats?.cacheUsagePercent || 0} className="h-2" />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="flex justify-between text-xs text-muted-foreground font-mono">
                   <span>{cacheUsedFormatted}</span>
                   <span>{cacheMaxFormatted}</span>
                 </div>
@@ -111,10 +120,10 @@ export function DnsCachePanelMobile({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-semantic-success" />
+                    <Icon icon={TrendingUp} className="h-5 w-5 text-success" />
                     <span className="text-sm text-muted-foreground">Hit Rate</span>
                   </div>
-                  <div className="text-xl font-bold text-semantic-success">{hitRateFormatted}</div>
+                  <div className="text-xl font-bold text-success font-mono">{hitRateFormatted}</div>
                 </div>
               </CardContent>
             </Card>
@@ -134,9 +143,9 @@ export function DnsCachePanelMobile({
                       <Badge variant="outline" className="font-mono text-xs flex-shrink-0">
                         #{index + 1}
                       </Badge>
-                      <span className="text-sm font-medium break-all">{domain.domain}</span>
+                      <span className="text-sm font-medium font-mono break-all">{domain.domain}</span>
                     </div>
-                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    <div className="text-xs text-muted-foreground whitespace-nowrap font-mono">
                       {domain.queryCount}
                     </div>
                   </div>
@@ -153,7 +162,7 @@ export function DnsCachePanelMobile({
             className="w-full gap-2 h-11"
             size="lg"
           >
-            <Trash2 className="h-5 w-5" />
+            <Icon icon={Trash2} className="h-5 w-5" />
             Flush Cache
           </Button>
         </CardContent>
@@ -173,18 +182,18 @@ export function DnsCachePanelMobile({
           {cacheStats && !flushResult && (
             <div className="space-y-2 p-3 bg-muted rounded-md">
               <div className="text-sm font-medium">Current Cache:</div>
-              <div className="space-y-1 text-sm">
+              <div className="space-y-1 text-sm font-mono">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Entries:</span>
-                  <span className="font-mono">{cacheStats.totalEntries}</span>
+                  <span>{cacheStats.totalEntries}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Size:</span>
-                  <span className="font-mono">{cacheUsedFormatted}</span>
+                  <span>{cacheUsedFormatted}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Usage:</span>
-                  <span className="font-mono">{cacheStats.cacheUsagePercent.toFixed(1)}%</span>
+                  <span>{cacheStats.cacheUsagePercent.toFixed(1)}%</span>
                 </div>
               </div>
             </div>
@@ -192,10 +201,10 @@ export function DnsCachePanelMobile({
 
           {/* Success Message */}
           {flushResult && (
-            <Alert variant="default" className="border-semantic-success">
-              <CheckCircle2 className="h-4 w-4 text-semantic-success" />
+            <Alert variant="default" className="border-success">
+              <Icon icon={CheckCircle2} className="h-4 w-4 text-success" />
               <AlertDescription className="text-sm">
-                Flushed {flushResult.entriesRemoved} entries
+                Flushed {flushResult.entriesRemoved} entries successfully
               </AlertDescription>
             </Alert>
           )}
@@ -212,13 +221,18 @@ export function DnsCachePanelMobile({
             <Button
               onClick={confirmFlush}
               disabled={isFlushing || !!flushResult}
-              className="bg-semantic-error hover:bg-semantic-error/90 w-full sm:w-auto"
+              variant="destructive"
+              className="w-full sm:w-auto"
             >
-              {isFlushing ? 'Flushing...' : 'Flush Cache'}
+              {isFlushing ? 'Flushing…' : 'Flush Cache'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
-}
+});
+
+DnsCachePanelMobileComponent.displayName = 'DnsCachePanelMobile';
+
+export { DnsCachePanelMobileComponent as DnsCachePanelMobile };

@@ -30,7 +30,7 @@ export function DnsStaticEntriesListMobile({
   onEdit,
   onDelete,
   onAdd,
-  loading = false,
+  isLoading = false,
 }: DnsStaticEntriesListProps) {
   const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(
     null
@@ -102,7 +102,7 @@ export function DnsStaticEntriesListMobile({
                       variant="outline"
                       size="sm"
                       onClick={() => onEdit(entry)}
-                      disabled={loading}
+                      disabled={isLoading}
                       className="flex-1 h-11"
                       aria-label={`Edit DNS entry ${entry.name}`}
                     >
@@ -113,7 +113,7 @@ export function DnsStaticEntriesListMobile({
                       variant="outline"
                       size="sm"
                       onClick={() => setEntryToDelete(entry)}
-                      disabled={loading}
+                      disabled={isLoading}
                       className="flex-1 h-11"
                       aria-label={`Delete DNS entry ${entry.name}`}
                     >

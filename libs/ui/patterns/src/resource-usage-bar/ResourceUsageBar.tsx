@@ -12,6 +12,8 @@
  * - Icon + color indicators (not color alone)
  */
 
+import * as React from 'react';
+
 import { ResourceUsageBarDesktop } from './ResourceUsageBarDesktop';
 import { ResourceUsageBarMobile } from './ResourceUsageBarMobile';
 
@@ -68,7 +70,7 @@ import type { ResourceUsageBarProps } from './types';
  * />
  * ```
  */
-export function ResourceUsageBar(props: ResourceUsageBarProps) {
+function ResourceUsageBarBase(props: ResourceUsageBarProps) {
   const { variant } = props;
 
   // Determine which presenter to use
@@ -96,6 +98,10 @@ export function ResourceUsageBar(props: ResourceUsageBarProps) {
     </>
   );
 }
+
+export const ResourceUsageBar = React.memo(ResourceUsageBarBase);
+
+ResourceUsageBar.displayName = 'ResourceUsageBar';
 
 // ===== Exports =====
 

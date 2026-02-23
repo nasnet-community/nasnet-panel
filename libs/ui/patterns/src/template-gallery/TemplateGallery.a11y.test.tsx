@@ -18,18 +18,19 @@
 
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { axe } from 'jest-axe';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { TemplateGallery } from './TemplateGallery';
+import { useTemplateGallery } from './use-template-gallery';
 import {
   mockAllTemplates,
   mockBasicSecurityTemplate,
   mockHomeNetworkTemplate,
 } from '../__test-utils__/firewall-templates/template-fixtures';
 
-// Extend expect with jest-axe matchers
-expect.extend(toHaveNoViolations);
+// jest-axe augments expect type with toHaveNoViolations method
+// (no need to extend manually)
 
 describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
   const mockOnSelect = vi.fn();
@@ -38,14 +39,15 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
     mockOnSelect.mockReset();
   });
 
-  const renderGallery = () => {
-    return render(
-      <TemplateGallery
-        templates={mockAllTemplates}
-        onSelect={mockOnSelect}
-      />
-    );
-  };
+  function TestGallery() {
+    const gallery = useTemplateGallery({
+      templates: mockAllTemplates,
+      onSelect: mockOnSelect,
+    });
+    return <TemplateGallery gallery={gallery} onApplyTemplate={mockOnSelect} />;
+  }
+
+  const renderGallery = () => render(<TestGallery />);
 
   describe('Automated Accessibility Testing (axe)', () => {
     it('should have no accessibility violations', async () => {
@@ -442,12 +444,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
 
   describe('Error States and Messages', () => {
     it('should announce errors to screen readers', () => {
-      render(
-        <TemplateGallery
-          templates={[]}
-          onSelect={mockOnSelect}
-        />
-      );
+      const gallery = useTemplateGallery({
+        templates: [],
+        onSelect: mockOnSelect,
+      });
+
+      render(<TemplateGallery gallery={gallery} />);
 
       // No templates message should be in a role="status" region
       const emptyMessage = screen.getByText(/no templates found/i);
@@ -456,12 +458,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
     });
 
     it('should have descriptive error messages', () => {
-      render(
-        <TemplateGallery
-          templates={[]}
-          onSelect={mockOnSelect}
-        />
-      );
+      const gallery = useTemplateGallery({
+        templates: [],
+        onSelect: mockOnSelect,
+      });
+
+      render(<TemplateGallery gallery={gallery} />);
 
       const emptyMessage = screen.getByText(/no templates found/i);
       expect(emptyMessage).toBeInTheDocument();
@@ -471,13 +473,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
 
   describe('Loading States', () => {
     it('should announce loading state to screen readers', () => {
-      render(
-        <TemplateGallery
-          templates={[]}
-          isLoading={true}
-          onSelect={mockOnSelect}
-        />
-      );
+      const gallery = useTemplateGallery({
+        templates: [],
+        onSelect: mockOnSelect,
+      });
+
+      render(<TemplateGallery gallery={gallery} loading={true} />);
 
       const loadingIndicator = screen.getByRole('status');
       expect(loadingIndicator).toHaveAttribute('aria-live', 'polite');
@@ -485,13 +486,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
     });
 
     it('should have accessible loading spinner', () => {
-      render(
-        <TemplateGallery
-          templates={[]}
-          isLoading={true}
-          onSelect={mockOnSelect}
-        />
-      );
+      const gallery = useTemplateGallery({
+        templates: [],
+        onSelect: mockOnSelect,
+      });
+
+      render(<TemplateGallery gallery={gallery} loading={true} />);
 
       const spinner = screen.getByRole('status');
       expect(spinner).toHaveAccessibleName(/loading/i);

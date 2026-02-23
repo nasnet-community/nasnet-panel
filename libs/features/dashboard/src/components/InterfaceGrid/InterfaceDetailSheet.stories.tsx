@@ -6,7 +6,7 @@
  * status, comment, link partner, and last-seen timestamp.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { InterfaceDetailSheet } from './InterfaceDetailSheet';
 

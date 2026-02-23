@@ -8,8 +8,9 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ServicePortsPage } from './ServicePortsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * ServicePortsPage — service ports and service groups management

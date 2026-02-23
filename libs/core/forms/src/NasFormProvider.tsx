@@ -46,10 +46,21 @@ export function useNasFormContext(): NasFormContextValue {
 }
 
 /**
+ * Props for NasFormProvider component.
+ */
+interface NasFormProviderComponentProps<T extends ZodSchema>
+  extends NasFormProviderProps<T> {}
+
+/**
  * Form provider component that integrates React Hook Form with Zod
  * and the validation pipeline.
  *
+ * Wraps React Hook Form with automatic validation pipeline integration,
+ * error handling, and context-based state sharing.
+ *
  * @template T - Zod schema type
+ * @param props - Component props
+ * @returns Rendered form provider with children
  *
  * @example
  * ```tsx
@@ -78,7 +89,7 @@ export function useNasFormContext(): NasFormContextValue {
  * }
  * ```
  */
-export function NasFormProvider<T extends ZodSchema>({
+function NasFormProviderComponent<T extends ZodSchema>({
   schema,
   defaultValues,
   onSubmit,
@@ -86,7 +97,7 @@ export function NasFormProvider<T extends ZodSchema>({
   validationStrategy = 'medium',
   resourceUuid,
   children,
-}: NasFormProviderProps<T>): React.ReactElement {
+}: NasFormProviderComponentProps<T>): React.ReactElement {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [validationResult, setValidationResult] =
     React.useState<ValidationResult | null>(null);
@@ -182,4 +193,7 @@ export function NasFormProvider<T extends ZodSchema>({
   );
 }
 
-export default NasFormProvider;
+/**
+ * Memoized form provider to prevent unnecessary re-renders.
+ */
+export const NasFormProvider = React.memo(NasFormProviderComponent) as typeof NasFormProviderComponent;

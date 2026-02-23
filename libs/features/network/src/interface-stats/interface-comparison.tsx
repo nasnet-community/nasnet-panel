@@ -2,17 +2,26 @@
  * InterfaceComparison Component
  * Side-by-side comparison of multiple interface statistics
  *
+ * @description
+ * Displays a comparison table of interfaces with real-time statistics and enables
+ * side-by-side bandwidth chart comparison for up to 3 selected interfaces.
+ * Identifies "hotspot" interfaces (top 3 by total bandwidth) for easy identification.
+ *
  * NAS-6.9: Implement Interface Traffic Statistics (Task 6 - AC4)
  */
 
-import { useState, useMemo } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
+
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Checkbox } from '@nasnet/ui/primitives';
-import { DataTable } from '@nasnet/ui/patterns';
-import { BandwidthChart } from './bandwidth-chart';
-import { useInterfaceStatsSubscription } from '@nasnet/api-client/queries';
-import type { TimeRangePreset } from './time-range-selector';
+
 import type { StatsTimeRangeInput } from '@nasnet/api-client/generated';
+import { DataTable } from '@nasnet/ui/patterns';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Checkbox } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
+
+import { BandwidthChart } from './bandwidth-chart';
+import type { TimeRangePreset } from './time-range-selector';
+
 
 export interface InterfaceInfo {
   id: string;
@@ -29,6 +38,8 @@ export interface InterfaceComparisonProps {
   timeRange?: TimeRangePreset;
   /** Polling interval */
   interval?: string;
+  /** Optional className for styling */
+  className?: string;
 }
 
 interface InterfaceStats {
@@ -42,50 +53,40 @@ interface InterfaceStats {
 }
 
 /**
- * Format bytes per second to human-readable string
+ * Format bytes per second to human-readable bandwidth string
+ * @param bytesPerSec - Bytes per second value
+ * @returns Formatted bandwidth string (e.g., "1.23 MB/s")
  */
 function formatBandwidth(bytesPerSec: number): string {
   if (bytesPerSec === 0) return '0 B/s';
-  const k = 1024;
-  const sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s'];
-  const i = Math.floor(Math.log(bytesPerSec) / Math.log(k));
-  return `${(bytesPerSec / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  const K_BYTES = 1024;
+  const UNITS = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s'];
+  const unitIndex = Math.floor(Math.log(bytesPerSec) / Math.log(K_BYTES));
+  return `${(bytesPerSec / Math.pow(K_BYTES, unitIndex)).toFixed(2)} ${UNITS[unitIndex]}`;
 }
 
 /**
  * Convert time range preset string to StatsTimeRangeInput with ISO timestamps
+ * @param timeRange - Time range preset ('1h', '6h', '24h', '7d', '30d')
+ * @returns StatsTimeRangeInput with ISO-formatted start and end timestamps
  */
 function convertTimeRangeToInput(timeRange: TimeRangePreset): StatsTimeRangeInput {
   const now = new Date();
   const end = now.toISOString();
 
-  let start: Date;
-  switch (timeRange) {
-    case '1h':
-      start = new Date(now.getTime() - 1 * 60 * 60 * 1000);
-      break;
-    case '6h':
-      start = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-      break;
-    case '24h':
-      start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      break;
-    case '7d':
-      start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      break;
-    case '30d':
-      start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      break;
-    default:
-      // TypeScript exhaustiveness check - this should never happen
-      const _exhaustive: never = timeRange;
-      return _exhaustive;
-  }
-
-  return {
-    start: start.toISOString(),
-    end,
+  // Time range offset calculations in milliseconds
+  const TIME_RANGES: Record<TimeRangePreset, number> = {
+    '1h': 1 * 60 * 60 * 1000,
+    '6h': 6 * 60 * 60 * 1000,
+    '24h': 24 * 60 * 60 * 1000,
+    '7d': 7 * 24 * 60 * 60 * 1000,
+    '30d': 30 * 24 * 60 * 60 * 1000,
   };
+
+  const offset = TIME_RANGES[timeRange];
+  const start = new Date(now.getTime() - offset).toISOString();
+
+  return { start, end };
 }
 
 /**
@@ -108,11 +109,12 @@ function convertTimeRangeToInput(timeRange: TimeRangePreset): StatsTimeRangeInpu
  * />
  * ```
  */
-export function InterfaceComparison({
+export const InterfaceComparison = memo(function InterfaceComparison({
   routerId,
   interfaces,
   timeRange = '24h' as const,
   interval = '5s',
+  className,
 }: InterfaceComparisonProps) {
   const [selectedInterfaces, setSelectedInterfaces] = useState<string[]>([]);
 
@@ -149,28 +151,28 @@ export function InterfaceComparison({
   }, [interfaces]);
 
   // Toggle interface selection (max 3)
-  const toggleInterfaceSelection = (interfaceId: string) => {
+  const handleToggleInterfaceSelection = useCallback((interfaceId: string) => {
     setSelectedInterfaces((prev) => {
       if (prev.includes(interfaceId)) {
         return prev.filter((id) => id !== interfaceId);
-      } else if (prev.length < 3) {
-        return [...prev, interfaceId];
-      } else {
-        // Replace the first selected interface if already at max
-        return [...prev.slice(1), interfaceId];
       }
+      if (prev.length < 3) {
+        return [...prev, interfaceId];
+      }
+      // Replace the first selected interface if already at max
+      return [...prev.slice(1), interfaceId];
     });
-  };
+  }, []);
 
-  // Table columns
-  const columns = [
+  // Table columns (memoized for stable reference)
+  const columns = useMemo(() => [
     {
       id: 'select',
       header: '',
       cell: (row: InterfaceStats) => (
         <Checkbox
           checked={selectedInterfaces.includes(row.id)}
-          onCheckedChange={() => toggleInterfaceSelection(row.id)}
+          onCheckedChange={() => handleToggleInterfaceSelection(row.id)}
           aria-label={`Select ${row.name}`}
         />
       ),
@@ -197,8 +199,8 @@ export function InterfaceComparison({
       header: 'TX Rate',
       cell: (row: InterfaceStats) => (
         <div className="flex items-center gap-1 text-chart-1">
-          <ArrowUp className="h-4 w-4" />
-          <span>{formatBandwidth(row.txRate)}</span>
+          <ArrowUp className="h-4 w-4" aria-hidden="true" />
+          <span className="font-mono">{formatBandwidth(row.txRate)}</span>
         </div>
       ),
       sortable: true,
@@ -209,8 +211,8 @@ export function InterfaceComparison({
       header: 'RX Rate',
       cell: (row: InterfaceStats) => (
         <div className="flex items-center gap-1 text-chart-2">
-          <ArrowDown className="h-4 w-4" />
-          <span>{formatBandwidth(row.rxRate)}</span>
+          <ArrowDown className="h-4 w-4" aria-hidden="true" />
+          <span className="font-mono">{formatBandwidth(row.rxRate)}</span>
         </div>
       ),
       sortable: true,
@@ -220,7 +222,10 @@ export function InterfaceComparison({
       id: 'errors',
       header: 'Errors',
       cell: (row: InterfaceStats) => (
-        <span className={row.totalErrors > 0 ? 'text-destructive' : 'text-muted-foreground'}>
+        <span className={cn(
+          row.totalErrors > 0 ? 'text-destructive' : 'text-muted-foreground',
+          'font-mono'
+        )}>
           {row.totalErrors}
         </span>
       ),
@@ -231,24 +236,24 @@ export function InterfaceComparison({
       id: 'status',
       header: 'Status',
       cell: (row: InterfaceStats) => {
-        const statusVariants = {
+        const STATUS_VARIANTS = {
           online: 'success' as const,
           offline: 'error' as const,
           degraded: 'warning' as const,
         };
-        return <Badge variant={statusVariants[row.status]}>{row.status}</Badge>;
+        return <Badge variant={STATUS_VARIANTS[row.status]}>{row.status}</Badge>;
       },
       sortable: true,
       sortFn: (a: InterfaceStats, b: InterfaceStats) => a.status.localeCompare(b.status),
     },
-  ];
+  ], [selectedInterfaces, handleToggleInterfaceSelection]);
 
   const selectedInterfaceDetails = selectedInterfaces
     .map((id) => interfaces.find((iface) => iface.id === id))
     .filter((iface): iface is InterfaceInfo => iface !== undefined);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       {/* Comparison Table */}
       <Card>
         <CardHeader>
@@ -261,7 +266,7 @@ export function InterfaceComparison({
             emptyMessage="No interfaces available"
           />
           {selectedInterfaces.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-2" role="status" aria-live="polite">
               {selectedInterfaces.length} interface{selectedInterfaces.length > 1 ? 's' : ''} selected
               (max 3 for comparison charts)
             </p>
@@ -302,4 +307,6 @@ export function InterfaceComparison({
       )}
     </div>
   );
-}
+});
+
+InterfaceComparison.displayName = 'InterfaceComparison';

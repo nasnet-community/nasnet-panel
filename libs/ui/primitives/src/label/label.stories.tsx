@@ -4,28 +4,31 @@ import { Label } from './label';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Label> = {
   title: 'Primitives/Label',
   component: Label,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'An accessible label component built on Radix UI Label primitive. Automatically associates with form controls via the `htmlFor` prop, and applies disabled styling when paired with a disabled peer input.',
+          'An accessible label component built on Radix UI Label primitive. Automatically associates with form controls via the `htmlFor` prop, and applies disabled styling when paired with a disabled peer input. Uses semantic color tokens and supports both light and dark themes.',
       },
     },
   },
   argTypes: {
+    children: {
+      control: 'text',
+      description: 'Label text content.',
+    },
     htmlFor: {
       control: 'text',
       description: 'The id of the associated form control.',
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes to apply.',
+      description: 'Additional CSS classes to apply to the label.',
     },
   },
 };
@@ -33,12 +36,18 @@ const meta: Meta<typeof Label> = {
 export default meta;
 type Story = StoryObj<typeof Label>;
 
+/**
+ * Default label story showing basic usage
+ */
 export const Default: Story = {
   args: {
     children: 'Router Hostname',
   },
 };
 
+/**
+ * Label associated with a text input field
+ */
 export const AssociatedWithInput: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-64">
@@ -53,6 +62,10 @@ export const AssociatedWithInput: Story = {
   ),
 };
 
+/**
+ * Label paired with a disabled input field
+ * Demonstrates peer-disabled styling (reduced opacity, not-allowed cursor)
+ */
 export const DisabledState: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-64">
@@ -68,6 +81,10 @@ export const DisabledState: Story = {
   ),
 };
 
+/**
+ * Label with required field indicator
+ * Shows how to mark fields as required with the error color accent
+ */
 export const RequiredField: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-64">
@@ -85,6 +102,9 @@ export const RequiredField: Story = {
   ),
 };
 
+/**
+ * Group of labels with associated form fields
+ */
 export const FormGroup: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-72">
@@ -117,4 +137,64 @@ export const FormGroup: Story = {
       </div>
     </div>
   ),
+};
+
+/**
+ * Long label text (tests text wrapping and typography)
+ */
+export const LongLabelText: Story = {
+  render: () => (
+    <div className="flex flex-col gap-2 w-72">
+      <Label htmlFor="long-input">
+        Enter the fully qualified domain name (FQDN) of your router for certificate validation
+      </Label>
+      <input
+        id="long-input"
+        type="text"
+        placeholder="router.example.com"
+        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </div>
+  ),
+};
+
+/**
+ * Dark mode - Default label in dark theme
+ * Tests 7:1 contrast ratio in dark mode
+ */
+export const DarkModeDefault: Story = {
+  args: {
+    children: 'Router Hostname',
+  },
+  decorators: [
+    (Story) => (
+      <div data-theme="dark" className="bg-slate-950 p-8 rounded-lg">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/**
+ * Dark mode - With associated input
+ */
+export const DarkModeWithInput: Story = {
+  render: () => (
+    <div className="flex flex-col gap-2 w-64">
+      <Label htmlFor="dark-hostname">Router Hostname</Label>
+      <input
+        id="dark-hostname"
+        type="text"
+        placeholder="192.168.88.1"
+        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </div>
+  ),
+  decorators: [
+    (Story) => (
+      <div data-theme="dark" className="bg-slate-950 p-8 rounded-lg">
+        <Story />
+      </div>
+    ),
+  ],
 };

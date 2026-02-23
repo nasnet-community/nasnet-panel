@@ -23,7 +23,7 @@ import type { ColumnDef } from '@tanstack/react-table';
  * - Maintain 60fps scroll
  * - Memory efficient rendering
  */
-const meta: Meta<typeof VirtualizedTable> = {
+const meta: Meta = {
   title: 'Performance/VirtualizedTable',
   component: VirtualizedTable,
   parameters: {
@@ -39,7 +39,7 @@ const meta: Meta<typeof VirtualizedTable> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof VirtualizedTable>;
+type Story = StoryObj;
 
 // Mock data interfaces
 interface FirewallRule {
@@ -100,7 +100,7 @@ function generateDHCPLeases(count: number): DHCPLease[] {
 }
 
 // Column definitions
-const firewallColumns: ColumnDef<FirewallRule, unknown>[] = [
+const firewallColumns = [
   createTextColumn('id', '#', { size: 60 }),
   createTextColumn('chain', 'Chain'),
   createTextColumn('action', 'Action'),
@@ -109,16 +109,16 @@ const firewallColumns: ColumnDef<FirewallRule, unknown>[] = [
   createTextColumn('protocol', 'Protocol'),
   createTextColumn('dstPort', 'Port'),
   createTextColumn('comment', 'Comment'),
-];
+] as ColumnDef<FirewallRule, unknown>[];
 
-const dhcpColumns: ColumnDef<DHCPLease, unknown>[] = [
+const dhcpColumns = [
   createTextColumn('address', 'IP Address'),
   createTextColumn('macAddress', 'MAC Address'),
   createTextColumn('hostname', 'Hostname'),
   createTextColumn('status', 'Status'),
   createTextColumn('expiresAfter', 'Expires'),
   createTextColumn('server', 'Server'),
-];
+] as ColumnDef<DHCPLease, unknown>[];
 
 /**
  * Firewall rules table with 1000 rows. Try sorting by clicking column headers.
@@ -126,7 +126,7 @@ const dhcpColumns: ColumnDef<DHCPLease, unknown>[] = [
 export const FirewallRules: Story = {
   args: {
     data: generateFirewallRules(1000),
-    columns: firewallColumns,
+    columns: firewallColumns as ColumnDef<FirewallRule, unknown>[],
     height: 500,
     enableSorting: true,
   },
@@ -146,7 +146,7 @@ export const FirewallRules: Story = {
 export const DHCPLeases: Story = {
   args: {
     data: generateDHCPLeases(500),
-    columns: [createSelectionColumn<DHCPLease>(), ...dhcpColumns],
+    columns: [createSelectionColumn<DHCPLease>(), ...dhcpColumns] as ColumnDef<DHCPLease, unknown>[],
     height: 500,
     enableSorting: true,
   },
@@ -165,7 +165,7 @@ export const DHCPLeases: Story = {
 export const LargeDataset: Story = {
   args: {
     data: generateFirewallRules(10000),
-    columns: firewallColumns,
+    columns: firewallColumns as ColumnDef<FirewallRule, unknown>[],
     height: 600,
     enableSorting: true,
     forceVirtualization: true,
@@ -186,10 +186,10 @@ export const LargeDataset: Story = {
 export const CompactRows: Story = {
   args: {
     data: generateFirewallRules(500),
-    columns: firewallColumns,
+    columns: firewallColumns as ColumnDef<FirewallRule, unknown>[],
     height: 500,
     enableSorting: true,
-    rowSize: 'compact',
+    estimateRowHeight: 32,
   },
   parameters: {
     docs: {
@@ -206,10 +206,10 @@ export const CompactRows: Story = {
 export const ComfortableRows: Story = {
   args: {
     data: generateDHCPLeases(200),
-    columns: dhcpColumns,
+    columns: dhcpColumns as ColumnDef<DHCPLease, unknown>[],
     height: 500,
     enableSorting: true,
-    rowSize: 'comfortable',
+    estimateRowHeight: 56,
   },
   parameters: {
     docs: {
@@ -254,7 +254,7 @@ export const WithFiltering: Story = {
         </div>
         <VirtualizedTable
           data={filteredData}
-          columns={dhcpColumns}
+          columns={dhcpColumns as ColumnDef<DHCPLease, unknown>[]}
           height={400}
           enableSorting
         />
@@ -277,7 +277,7 @@ export const WithFiltering: Story = {
 export const SmallDataset: Story = {
   args: {
     data: generateDHCPLeases(20),
-    columns: dhcpColumns,
+    columns: dhcpColumns as ColumnDef<DHCPLease, unknown>[],
     height: 400,
     enableSorting: true,
   },
@@ -297,10 +297,10 @@ export const SmallDataset: Story = {
 export const EmptyState: Story = {
   args: {
     data: [],
-    columns: dhcpColumns,
+    columns: dhcpColumns as ColumnDef<DHCPLease, unknown>[],
     height: 400,
     enableSorting: true,
-    emptyMessage: 'No DHCP leases found',
+    emptyContent: <div className="text-center">No DHCP leases found</div>,
   },
   parameters: {
     docs: {
@@ -317,9 +317,9 @@ export const EmptyState: Story = {
 export const LoadingState: Story = {
   args: {
     data: [],
-    columns: dhcpColumns,
+    columns: dhcpColumns as ColumnDef<DHCPLease, unknown>[],
     height: 400,
-    isLoading: true,
+    loading: true,
   },
   parameters: {
     docs: {

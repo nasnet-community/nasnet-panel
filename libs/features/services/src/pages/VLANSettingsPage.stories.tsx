@@ -13,8 +13,9 @@
  * VLANPoolConfig) are tested in their own story files.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { VLANSettingsPage } from './VLANSettingsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Meta

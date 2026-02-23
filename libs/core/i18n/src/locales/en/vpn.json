@@ -1,0 +1,60 @@
+{
+  "title": "VPN",
+  "overview": "VPN Overview",
+  "servers": {
+    "title": "VPN Servers",
+    "name": "Server Name",
+    "type": "Protocol",
+    "status": "Status",
+    "port": "Port",
+    "connectedClients": "Connected Clients",
+    "maxClients": "Max Clients",
+    "running": "Running",
+    "stopped": "Stopped",
+    "addServer": "Add Server",
+    "editServer": "Edit Server",
+    "deleteServer": "Delete Server",
+    "startServer": "Start Server",
+    "stopServer": "Stop Server",
+    "noServers": "No VPN servers configured"
+  },
+  "clients": {
+    "title": "VPN Clients",
+    "name": "Client Name",
+    "server": "Server",
+    "status": "Status",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting",
+    "uptime": "Uptime",
+    "bytesIn": "Bytes In",
+    "bytesOut": "Bytes Out",
+    "remoteAddress": "Remote Address",
+    "localAddress": "Local Address",
+    "encoding": "Encoding",
+    "noClients": "No VPN clients connected"
+  },
+  "protocols": {
+    "wireguard": "WireGuard",
+    "openvpn": "OpenVPN",
+    "l2tp": "L2TP",
+    "pptp": "PPTP",
+    "sstp": "SSTP",
+    "ipsec": "IPsec",
+    "ikev2": "IKEv2"
+  },
+  "status": {
+    "allServersUp": "All VPN servers operational",
+    "someServersDown": "{{count}} server down",
+    "someServersDown_other": "{{count}} servers down",
+    "noServersConfigured": "No VPN servers configured",
+    "totalConnections": "Total Connections",
+    "activeConnections": "Active Connections"
+  },
+  "actions": {
+    "generateConfig": "Generate Config",
+    "downloadConfig": "Download Config",
+    "exportPeers": "Export Peers",
+    "viewLogs": "View Logs"
+  }
+}

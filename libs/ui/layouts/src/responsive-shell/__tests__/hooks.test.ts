@@ -1,5 +1,13 @@
 /**
  * Tests for Responsive Shell Hooks
+ *
+ * Comprehensive unit tests for all breakpoint and platform detection hooks.
+ * Tests both hook functionality and edge cases including:
+ * - Breakpoint detection (xs, sm, md, lg, xl)
+ * - Platform detection (mobile, tablet, desktop)
+ * - Motion preferences (reduced motion support)
+ * - Boolean helper hooks
+ *
  * @see NAS-4.3: Build Responsive Layout System
  */
 

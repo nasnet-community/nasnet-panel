@@ -8,6 +8,7 @@
  * - Undo functionality with UndoFloatingButton
  * - Error handling and recovery
  *
+ * @description Manages the complete firewall template application workflow with safety confirmations
  * @module @nasnet/features/firewall/components
  */
 
@@ -33,7 +34,7 @@ import { useTemplatePreview } from '@nasnet/ui/patterns/template-preview';
 import { createTemplateApplyMachine } from '../machines/template-apply.machine';
 import { UndoFloatingButton } from './UndoFloatingButton';
 import type { FirewallTemplate } from '../schemas/templateSchemas';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 
 // ============================================
 // COMPONENT PROPS
@@ -71,13 +72,19 @@ export interface TemplateApplyFlowProps {
 
   /** Callback on rollback complete */
   onRollbackComplete?: () => void;
+
+  /** Optional CSS class name */
+  className?: string;
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-export function TemplateApplyFlow({
+/**
+ * @description Orchestrates the firewall template application workflow with XState
+ */
+export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   routerId,
   template,
   onPreview,
@@ -87,9 +94,9 @@ export function TemplateApplyFlow({
   onCancel,
   onRollbackComplete,
 }: TemplateApplyFlowProps) {
-  const [acknowledged, setAcknowledged] = useState(false);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
 
-  // Create XState machine
+  // Create XState machine using useMemo for stable reference
   const machine = useMemo(
     () =>
       createTemplateApplyMachine({
@@ -106,14 +113,14 @@ export function TemplateApplyFlow({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [state, send] = useMachine(machine) as unknown as [any, any];
 
-  // Initialize template preview hook
+  // Initialize template preview hook with useCallback
   const preview = useTemplatePreview({
     template: template || ({} as FirewallTemplate),
-    onGeneratePreview: async (variables) => {
+    onGeneratePreview: useCallback(async (variables: Record<string, string>) => {
       // Trigger XState machine to preview
       send({ type: 'PREVIEW' });
       return state.context.previewResult;
-    },
+    }, [send, state.context.previewResult]),
   });
 
   const handleCancel = useCallback(() => {
@@ -139,10 +146,10 @@ export function TemplateApplyFlow({
   }, [send]);
 
   const handleAcknowledge = useCallback(() => {
-    if (acknowledged) {
+    if (isAcknowledged) {
       send({ type: 'ACKNOWLEDGED' });
     }
-  }, [acknowledged, send]);
+  }, [isAcknowledged, send]);
 
   const handleRollbackClick = useCallback(async () => {
     send({ type: 'ROLLBACK' });
@@ -179,7 +186,7 @@ export function TemplateApplyFlow({
   // PREVIEWING STATE
   if (state.matches('previewing')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Generating template preview">
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Generating template preview" aria-live="polite">
         <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
         <p className="text-lg font-medium">Generating preview...</p>
         <p className="text-sm text-muted-foreground">
@@ -223,8 +230,8 @@ export function TemplateApplyFlow({
 
             {/* Conflicts */}
             {previewResult.conflicts.length > 0 && (
-              <Alert variant="default">
-                <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
+              <Alert variant="destructive" role="alert" aria-live="assertive">
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 <AlertTitle>Conflicts Detected</AlertTitle>
                 <AlertDescription>
                   <ul className="mt-2 list-inside list-disc space-y-1">
@@ -240,7 +247,7 @@ export function TemplateApplyFlow({
 
             {/* Warnings */}
             {previewResult.impactAnalysis.warnings.length > 0 && (
-              <Alert variant="default">
+              <Alert variant="default" role="alert" aria-live="polite">
                 <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
                 <AlertTitle>Warnings</AlertTitle>
                 <AlertDescription>
@@ -343,18 +350,19 @@ export function TemplateApplyFlow({
               {/* Acknowledgment Checkbox */}
               <div className="flex items-start space-x-3 rounded-lg border bg-muted p-4">
                 <Checkbox
-                  id="acknowledge"
-                  checked={acknowledged}
-                  onCheckedChange={(checked) => setAcknowledged(checked as boolean)}
+                  id="acknowledge-risks"
+                  checked={isAcknowledged}
+                  onCheckedChange={(checked) => setIsAcknowledged(checked as boolean)}
+                  aria-describedby="acknowledge-help"
                 />
                 <div className="space-y-1">
                   <Label
-                    htmlFor="acknowledge"
+                    htmlFor="acknowledge-risks"
                     className="cursor-pointer text-base font-medium leading-none"
                   >
                     I understand this will modify my firewall rules
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground" id="acknowledge-help">
                     You can undo these changes within 5 minutes after applying.
                   </p>
                 </div>
@@ -369,7 +377,7 @@ export function TemplateApplyFlow({
             <Button
               variant="destructive"
               onClick={handleAcknowledge}
-              disabled={!acknowledged}
+              disabled={!isAcknowledged}
               aria-label="Acknowledge risks and apply template"
             >
               <ShieldAlert className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -384,7 +392,7 @@ export function TemplateApplyFlow({
   // APPLYING STATE
   if (state.matches('applying')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Applying template">
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Applying template" aria-live="assertive">
         <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
         <p className="text-lg font-medium">Applying template...</p>
         <p className="text-sm text-muted-foreground">
@@ -430,7 +438,7 @@ export function TemplateApplyFlow({
   // ROLLING_BACK STATE
   if (state.matches('rollingBack')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Rolling back changes">
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Rolling back changes" aria-live="assertive">
         <Loader2 className="h-12 w-12 animate-spin text-warning" aria-hidden="true" />
         <p className="text-lg font-medium">Rolling back changes...</p>
         <p className="text-sm text-muted-foreground">
@@ -488,4 +496,6 @@ export function TemplateApplyFlow({
 
   // IDLE STATE
   return null;
-}
+});
+
+TemplateApplyFlow.displayName = 'TemplateApplyFlow';

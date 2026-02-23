@@ -4,7 +4,7 @@
  * Follows ADR-018 (Headless + Platform Presenters pattern)
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -30,34 +30,44 @@ import {
   BandwidthChartEmpty,
 } from './BandwidthChartSkeleton';
 import { formatBitrate, formatXAxis, formatYAxis } from './utils';
-import type { BandwidthChartPresenterProps } from './types';
+import type { BandwidthChartPresenterProps, TimeRange } from './types';
 
 /**
- * Chart configuration constants
+ * Chart configuration constants using semantic design tokens
  */
 const CHART_HEIGHT = 300;
-const TX_COLOR = '#3B82F6'; // Blue for upload
-const RX_COLOR = '#22C55E'; // Green for download
+// Using semantic tokens: primary for TX (upload), success for RX (download)
+const TX_COLOR = 'hsl(var(--primary))'; // Golden Amber for upload emphasis
+const RX_COLOR = 'hsl(var(--success))'; // Green for download/received data
 
 /**
  * BandwidthChartDesktop component
  *
- * Desktop presenter with:
- * - 300px chart height
- * - Full controls visible in header
- * - Hover tooltips
- * - Reduced-motion support
- * - Screen reader accessible data table
+ * @description
+ * Desktop presenter with 300px chart height, full controls always visible,
+ * hover-activated tooltips, and screen reader accessible data table.
+ * Memoized to prevent unnecessary re-renders.
  *
- * @param props - Component props
+ * @param props - Component props with optional hook override for testing
  */
 export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
   ({ deviceId, className, hookOverride }) => {
     const prefersReducedMotion = useReducedMotion();
 
-    // Get chart preferences from Zustand store
+    // Get chart preferences from Zustand store with memoized callbacks
     const { timeRange, interfaceId, setTimeRange, setInterfaceId } =
       useChartPreferencesStore();
+
+    // Memoize callback handlers to maintain referential equality
+    const handleTimeRangeChange = useCallback(
+      (range: TimeRange) => setTimeRange(range),
+      [setTimeRange]
+    );
+
+    const handleInterfaceChange = useCallback(
+      (id: string) => setInterfaceId(id),
+      [setInterfaceId]
+    );
 
     // Fetch bandwidth data (or use hook override for testing)
     const hookData = useBandwidthHistory({
@@ -97,36 +107,42 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
           <div className="flex items-center justify-between">
             <CardTitle>Bandwidth Usage</CardTitle>
             <div className="flex items-center gap-2">
-              <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+              <TimeRangeSelector
+                value={timeRange}
+                onChange={handleTimeRangeChange}
+              />
               <InterfaceFilter
                 routerId={deviceId}
                 value={interfaceId}
-                onChange={setInterfaceId}
+                onChange={(id: string | null) => setInterfaceId(id)}
               />
             </div>
           </div>
 
-          {/* Current rates display */}
-          <div className="mt-2 flex items-center gap-4 text-sm">
+          {/* Current rates display with live region for announcements */}
+          <div
+            className="mt-2 flex items-center gap-4 text-sm"
+            role="region"
+            aria-live="polite"
+            aria-label="Current bandwidth rates"
+          >
             <div className="flex items-center gap-2">
               <div
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: TX_COLOR }}
+                className="h-3 w-3 rounded-full bg-primary"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">TX:</span>
-              <span className="font-medium tabular-nums">
+              <span className="font-medium font-mono">
                 {formatBitrate(currentRates.tx)}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: RX_COLOR }}
+                className="h-3 w-3 rounded-full bg-success"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">RX:</span>
-              <span className="font-medium tabular-nums">
+              <span className="font-medium font-mono">
                 {formatBitrate(currentRates.rx)}
               </span>
             </div>
@@ -202,6 +218,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
           <BandwidthDataTable
             dataPoints={dataPoints}
             timeRange={timeRange}
+            className="mt-4"
           />
         </CardContent>
       </Card>

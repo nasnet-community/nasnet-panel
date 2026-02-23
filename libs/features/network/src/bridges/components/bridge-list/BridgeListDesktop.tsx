@@ -3,11 +3,12 @@ import {
   DataTable,
   DataTableColumn,
   DataTableToolbar,
+  SafetyConfirmation,
 } from '@nasnet/ui/patterns';
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
 import {
+  Button,
+  Badge,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -17,7 +18,6 @@ import {
 import { Plus, Search, Filter } from 'lucide-react';
 import type { UseBridgeListReturn } from '../../hooks/use-bridge-list';
 import type { Bridge } from '@nasnet/api-client/generated';
-import { SafetyConfirmation } from '@nasnet/ui/patterns';
 
 export interface BridgeListDesktopProps extends UseBridgeListReturn {
   routerId: string;
@@ -25,12 +25,12 @@ export interface BridgeListDesktopProps extends UseBridgeListReturn {
 
 export const BridgeListDesktop = memo(function BridgeListDesktop({
   bridges,
-  loading,
-  error,
+  isLoading,
+  hasError,
   selectedIds,
-  toggleSelection,
-  selectAll,
-  clearSelection,
+  handleToggleSelection,
+  handleSelectAll,
+  handleClearSelection,
   searchQuery,
   setSearchQuery,
   protocolFilter,
@@ -226,7 +226,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
       <DataTable<Bridge & Record<string, unknown>>
         columns={columns as DataTableColumn<Bridge & Record<string, unknown>>[]}
         data={bridges as (Bridge & Record<string, unknown>)[]}
-        isLoading={loading}
+        isLoading={isLoading}
         emptyMessage="No bridges configured"
         onRowClick={(row) => setSelectedBridgeId(row.id)}
       />

@@ -10,7 +10,7 @@ import { createActor } from 'xstate';
 import { createWizardMachine } from '../wizardMachine';
 
 // Test data type
-interface TestWizardData {
+interface TestWizardData extends Record<string, unknown> {
   name: string;
   email: string;
   age: number;
@@ -33,7 +33,7 @@ describe('Wizard Machine', () => {
   describe('Initial State', () => {
     it('should start at step 1', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().context.currentStep).toBe(1);
@@ -41,7 +41,7 @@ describe('Wizard Machine', () => {
 
     it('should start in step state', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().matches('step')).toBe(true);
@@ -49,7 +49,7 @@ describe('Wizard Machine', () => {
 
     it('should have empty data initially', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().context.data).toEqual({});
@@ -57,7 +57,7 @@ describe('Wizard Machine', () => {
 
     it('should have empty errors initially', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().context.errors).toEqual({});
@@ -65,7 +65,7 @@ describe('Wizard Machine', () => {
 
     it('should have a session ID', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().context.sessionId).toBeDefined();
@@ -76,7 +76,7 @@ describe('Wizard Machine', () => {
   describe('Navigation - Back', () => {
     it('should prevent going back from step 1', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'BACK' });
@@ -86,7 +86,7 @@ describe('Wizard Machine', () => {
 
     it('should go back from step 2 to step 1', async () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       // Advance to step 2
@@ -103,7 +103,7 @@ describe('Wizard Machine', () => {
 
     it('should preserve data when going back', async () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       // Set data and advance
@@ -123,7 +123,7 @@ describe('Wizard Machine', () => {
   describe('Navigation - Next', () => {
     it('should transition to validating on NEXT', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test' } });
@@ -133,7 +133,7 @@ describe('Wizard Machine', () => {
 
     it('should merge data on NEXT', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test' } });
@@ -144,7 +144,7 @@ describe('Wizard Machine', () => {
     it('should advance step on successful validation', async () => {
       const validateStep = vi.fn().mockResolvedValue({ valid: true });
       const machine = createTestMachine({ validateStep });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test' } });
@@ -158,7 +158,7 @@ describe('Wizard Machine', () => {
     it('should call validateStep with correct arguments', async () => {
       const validateStep = vi.fn().mockResolvedValue({ valid: true });
       const machine = createTestMachine({ validateStep });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test' } });
@@ -177,7 +177,7 @@ describe('Wizard Machine', () => {
         errors: { name: 'Name is required' },
       });
       const machine = createTestMachine({ validateStep });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT' });
@@ -195,7 +195,7 @@ describe('Wizard Machine', () => {
         errors: { name: 'Name is required' },
       });
       const machine = createTestMachine({ validateStep });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT' });
@@ -210,7 +210,7 @@ describe('Wizard Machine', () => {
   describe('Data Management', () => {
     it('should set data without advancing via SET_DATA', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'SET_DATA', data: { email: 'test@example.com' } });
@@ -221,7 +221,7 @@ describe('Wizard Machine', () => {
 
     it('should merge multiple data updates', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'SET_DATA', data: { name: 'Test' } });
@@ -241,7 +241,7 @@ describe('Wizard Machine', () => {
         errors: { name: 'Required' },
       });
       const machine = createTestMachine({ validateStep });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT' });
@@ -259,7 +259,7 @@ describe('Wizard Machine', () => {
   describe('Cancellation', () => {
     it('should transition to cancelled state on CANCEL', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'CANCEL' });
@@ -269,7 +269,7 @@ describe('Wizard Machine', () => {
 
     it('should be a final state', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'CANCEL' });
@@ -287,7 +287,7 @@ describe('Wizard Machine', () => {
         validateStep: async () => ({ valid: true }),
         onSubmit,
       });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test', email: 'test@test.com', age: 25 } });
@@ -305,7 +305,7 @@ describe('Wizard Machine', () => {
         validateStep: async () => ({ valid: true }),
         onSubmit: async () => {},
       });
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       actor.send({ type: 'NEXT', data: { name: 'Test', email: 'test@test.com', age: 25 } });
@@ -320,7 +320,7 @@ describe('Wizard Machine', () => {
   describe('Session Restoration', () => {
     it('should restore context from saved state', () => {
       const machine = createTestMachine();
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       const savedContext = {

@@ -29,6 +29,7 @@ func initOrchestrator(
 		storage.PathResolver,
 		vif.GatewayManager,
 		vif.BridgeOrchestrator,
+		vif.NetworkVLANAllocator,
 		routerPort,
 		logger,
 	)

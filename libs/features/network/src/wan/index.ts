@@ -58,7 +58,7 @@ export type {
 // Schemas
 export {
   dhcpClientSchema,
-  dhcpClientDefaultValues,
+  DHCP_CLIENT_DEFAULT_VALUES,
   type DhcpClientFormValues,
 } from './schemas/dhcp-client.schema';
 
@@ -67,6 +67,7 @@ export {
   pppoeCredentialsStepSchema,
   pppoeOptionsStepSchema,
   pppoeClientSchema,
+  PPPOE_CLIENT_DEFAULT_VALUES,
   MTU_PRESETS,
   type PppoeInterfaceStepFormValues,
   type PppoeCredentialsStepFormValues,
@@ -76,7 +77,7 @@ export {
 
 export {
   staticIPSchema,
-  staticIPDefaultValues,
+  STATIC_IP_DEFAULT_VALUES,
   DNS_PRESETS,
   SUBNET_PRESETS,
   type StaticIPFormValues,
@@ -84,7 +85,7 @@ export {
 
 export {
   healthCheckSchema,
-  healthCheckDefaultValues,
+  HEALTH_CHECK_DEFAULT_VALUES,
   HEALTH_CHECK_TARGETS,
   INTERVAL_PRESETS,
   validateTimeoutInterval,
@@ -93,7 +94,7 @@ export {
 
 export {
   lteModemSchema,
-  lteModemDefaultValues,
+  LTE_MODEM_DEFAULT_VALUES,
   APN_PRESETS,
   SIGNAL_STRENGTH_RANGES,
   LTE_NETWORK_MODES,

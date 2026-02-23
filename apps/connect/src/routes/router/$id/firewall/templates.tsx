@@ -26,7 +26,7 @@ const LazyTemplatesPage = lazy(() =>
  */
 function TemplatesPageSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading firewall templates">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64" />
@@ -59,7 +59,11 @@ function TemplatesPageSkeleton() {
 /**
  * Route configuration
  */
-function TemplatesRoute() {
+export const Route = createFileRoute('/router/$id/firewall/templates')({
+  component: TemplatesRoute,
+});
+
+export function TemplatesRoute() {
   const { id } = Route.useParams();
   return (
     <LazyBoundary fallback={<TemplatesPageSkeleton />}>
@@ -67,7 +71,3 @@ function TemplatesRoute() {
     </LazyBoundary>
   );
 }
-
-export const Route = createFileRoute('/router/$id/firewall/templates')({
-  component: TemplatesRoute,
-});

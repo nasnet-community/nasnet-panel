@@ -1,8 +1,7 @@
 /**
  * QuietHoursConfig Mobile Presenter
  *
- * Mobile-optimized layout for quiet hours configuration.
- * Features: Single column, large touch targets (44px), bottom sheet style.
+ * @description Mobile-optimized layout for quiet hours configuration with single column, large 44px touch targets, and bottom sheet style.
  */
 
 import { memo } from 'react';

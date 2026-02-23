@@ -45,11 +45,11 @@ async function fetchSSTPInterfaces(routerIp: string): Promise<SSSTPInterface[]> 
     id: iface['.id'],
     name: iface.name,
     type: 'sstp' as const,
-    disabled: iface.disabled === 'true' || iface.disabled === true,
-    running: iface.running === 'true' || iface.running === true,
+    isDisabled: iface.disabled === 'true' || iface.disabled === true,
+    isRunning: iface.running === 'true' || iface.running === true,
     connectTo: iface['connect-to'] || '',
     user: iface.user,
-    verifyServerCertificate:
+    shouldVerifyServerCertificate:
       iface['verify-server-certificate'] === 'true' ||
       iface['verify-server-certificate'] === true,
     comment: iface.comment,

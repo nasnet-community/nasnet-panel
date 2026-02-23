@@ -13,7 +13,7 @@
  * @see Story 4.4: Apollo Client Setup
  */
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { RouterHealthData, HealthStatus, HealthColor } from '../../types/dashboard.types';
 import {
   computeHealthStatus,
@@ -77,6 +77,9 @@ export interface UseRouterHealthCardReturn {
  *
  * Provides computed state and actions for router health display.
  * This hook will integrate with GraphQL queries and subscriptions in Task 4.
+ *
+ * @description Computes router health status, cache staleness, and provides refetch action.
+ * Uses useMemo to stabilize derived state and useCallback for stable action references.
  *
  * @example
  * ```tsx
@@ -154,11 +157,11 @@ export function useRouterHealthCard({
     ? 'Data is too old (>5 minutes). Reconnect to router first.'
     : null;
 
-  // Refetch function
-  const refetch = async () => {
+  // Refetch function - memoized to prevent unnecessary callback updates
+  const refetch = useCallback(async () => {
     // TODO (Task 4): Implement actual refetch with Apollo
     console.log('Refetching router health data for:', routerId);
-  };
+  }, [routerId]);
 
   return {
     // Data

@@ -203,16 +203,39 @@ export interface CategoryAccentProviderProps {
 }
 
 /**
- * CategoryAccentProvider
+ * CategoryAccentProvider Component
  *
  * Provides category accent context for contextual theming of feature areas.
  * Components within a category context can use the accent color for visual distinction.
  *
- * Usage:
+ * Each of the 14 categories (security, monitoring, networking, vpn, wifi, firewall, system,
+ * dhcp, routing, tunnels, qos, hotspot, logging, backup) has a distinct color that can be
+ * used to visually identify feature sections.
+ *
+ * @param {React.ReactNode} children - Child components that can access the category context
+ * @param {Category} [defaultCategory] - Optional initial category to set
+ *
+ * @see {@link useCategoryAccent} - Hook to access the current category context
+ * @see {@link getCategoryMeta} - Function to get metadata for a specific category
+ * @see {@link CATEGORY_META} - Record of all category metadata
+ *
+ * @example Basic usage
  * ```tsx
  * <CategoryAccentProvider defaultCategory="vpn">
  *   <VPNFeature />
  * </CategoryAccentProvider>
+ * ```
+ *
+ * @example Using the hook
+ * ```tsx
+ * function VPNFeature() {
+ *   const { category, meta, setCategory } = useCategoryAccent();
+ *   return (
+ *     <div className={cn('p-4', meta?.bgClass)}>
+ *       Current category: {category}
+ *     </div>
+ *   );
+ * }
  * ```
  */
 export function CategoryAccentProvider({
@@ -247,12 +270,18 @@ export function CategoryAccentProvider({
   );
 }
 
+CategoryAccentProvider.displayName = 'CategoryAccentProvider';
+
 /**
  * useCategoryAccent Hook
  *
  * Access the current category accent context.
+ * Must be used within a CategoryAccentProvider.
  *
- * Usage:
+ * @throws {Error} If used outside of CategoryAccentProvider
+ * @returns {CategoryAccentContextValue} The current category context value
+ *
+ * @example
  * ```tsx
  * const { category, meta, setCategory } = useCategoryAccent();
  *
@@ -263,12 +292,18 @@ export function CategoryAccentProvider({
 export function useCategoryAccent(): CategoryAccentContextValue {
   const context = useContext(CategoryAccentContext);
 
-  if (!context) {
-    throw new Error('useCategoryAccent must be used within a CategoryAccentProvider');
+  if (context === undefined) {
+    throw new Error(
+      'useCategoryAccent must be used within a <CategoryAccentProvider>. ' +
+      'Ensure the component is wrapped with <CategoryAccentProvider>.'
+    );
   }
 
   return context;
 }
+
+// Set display name for debugging
+useCategoryAccent.displayName = 'useCategoryAccent';
 
 /**
  * Get category metadata without context (for use outside provider)

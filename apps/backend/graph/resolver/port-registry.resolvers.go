@@ -7,26 +7,178 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/network"
 	"context"
 	"fmt"
+	"time"
 )
 
+// portEntityExtended is an optional interface that PortAllocationEntity implementations
+// may satisfy to expose additional fields not in the base interface.
+type portEntityExtended interface {
+	network.PortAllocationEntity
+	GetServiceType() string
+	GetNotes() string
+	GetAllocatedAt() time.Time
+}
+
+// entityToPortAllocation converts a PortAllocationEntity into a GraphQL PortAllocation model.
+// It uses the base interface for required fields and portEntityExtended for optional extras.
+func entityToPortAllocation(entity network.PortAllocationEntity) *graphql1.PortAllocation {
+	alloc := &graphql1.PortAllocation{
+		ID:          entity.GetID(),
+		RouterID:    entity.GetRouterID(),
+		Port:        entity.GetPort(),
+		Protocol:    graphql1.PortProtocol(entity.GetProtocol()),
+		InstanceID:  entity.GetInstanceID(),
+		AllocatedAt: time.Now(),
+	}
+
+	if ext, ok := entity.(portEntityExtended); ok {
+		alloc.ServiceType = ext.GetServiceType()
+		alloc.AllocatedAt = ext.GetAllocatedAt()
+		if notes := ext.GetNotes(); notes != "" {
+			n := notes
+			alloc.Notes = &n
+		}
+	}
+
+	return alloc
+}
+
 // CleanupOrphanedPorts is the resolver for the cleanupOrphanedPorts field.
-func (r *mutationResolver) CleanupOrphanedPorts(_ context.Context, input graphql1.CleanupOrphanedPortsInput) (*graphql1.OrphanCleanupPayload, error) {
-	panic(fmt.Errorf("not implemented: CleanupOrphanedPorts - cleanupOrphanedPorts"))
+func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graphql1.CleanupOrphanedPortsInput) (*graphql1.OrphanCleanupPayload, error) {
+	if r.PortRegistry == nil {
+		return nil, fmt.Errorf("port registry not available")
+	}
+
+	routerID := ""
+	if input.RouterID.IsSet() && input.RouterID.Value() != nil {
+		routerID = *input.RouterID.Value()
+	}
+
+	if routerID == "" {
+		// No routerID: not supported by PortRegistry.DetectOrphans/CleanupOrphans directly.
+		// Return an empty payload rather than error.
+		return &graphql1.OrphanCleanupPayload{
+			CleanedCount:         0,
+			DeletedAllocationIDs: []string{},
+		}, nil
+	}
+
+	// Detect orphans first to collect IDs before deletion
+	orphans, err := r.PortRegistry.DetectOrphans(ctx, routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to detect orphaned ports: %w", err)
+	}
+
+	var deletedIDs []string
+	for _, o := range orphans {
+		deletedIDs = append(deletedIDs, o.GetID())
+	}
+
+	cleaned, err := r.PortRegistry.CleanupOrphans(ctx, routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to cleanup orphaned ports: %w", err)
+	}
+
+	if deletedIDs == nil {
+		deletedIDs = []string{}
+	}
+
+	return &graphql1.OrphanCleanupPayload{
+		CleanedCount:         cleaned,
+		DeletedAllocationIDs: deletedIDs,
+	}, nil
 }
 
 // PortAllocations is the resolver for the portAllocations field.
-func (r *queryResolver) PortAllocations(_ context.Context, routerID *string, protocol *graphql1.PortProtocol, serviceType *string) ([]*graphql1.PortAllocation, error) {
-	panic(fmt.Errorf("not implemented: PortAllocations - portAllocations"))
+func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, protocol *graphql1.PortProtocol, serviceType *string) ([]*graphql1.PortAllocation, error) {
+	if r.PortRegistry == nil {
+		return nil, fmt.Errorf("port registry not available")
+	}
+
+	if routerID == nil || *routerID == "" {
+		// PortRegistry only supports per-router queries; return empty without routerID.
+		return []*graphql1.PortAllocation{}, nil
+	}
+
+	entities, err := r.PortRegistry.GetAllocationsByRouter(ctx, *routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list port allocations: %w", err)
+	}
+
+	results := make([]*graphql1.PortAllocation, 0, len(entities))
+	for _, entity := range entities {
+		// Apply protocol filter
+		if protocol != nil && graphql1.PortProtocol(entity.GetProtocol()) != *protocol {
+			continue
+		}
+
+		alloc := entityToPortAllocation(entity)
+
+		// Apply serviceType filter using the extended interface if available
+		if serviceType != nil {
+			if ext, ok := entity.(portEntityExtended); ok {
+				if ext.GetServiceType() != *serviceType {
+					continue
+				}
+			}
+			// If extended interface not available and filter is requested, skip
+		}
+
+		results = append(results, alloc)
+	}
+
+	return results, nil
 }
 
 // IsPortAvailable is the resolver for the isPortAvailable field.
-func (r *queryResolver) IsPortAvailable(_ context.Context, input graphql1.CheckPortAvailabilityInput) (*graphql1.PortAvailability, error) {
-	panic(fmt.Errorf("not implemented: IsPortAvailable - isPortAvailable"))
+func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.CheckPortAvailabilityInput) (*graphql1.PortAvailability, error) {
+	if r.PortRegistry == nil {
+		return nil, fmt.Errorf("port registry not available")
+	}
+
+	protocol := string(input.Protocol)
+	available := r.PortRegistry.IsPortAvailable(ctx, input.RouterID, input.Port, protocol)
+
+	result := &graphql1.PortAvailability{
+		Port:      input.Port,
+		Protocol:  input.Protocol,
+		Available: available,
+	}
+
+	if !available {
+		reason := fmt.Sprintf("port %d/%s is already allocated or reserved", input.Port, protocol)
+		result.Reason = &reason
+	}
+
+	return result, nil
 }
 
 // DetectOrphanedPorts is the resolver for the detectOrphanedPorts field.
-func (r *queryResolver) DetectOrphanedPorts(_ context.Context, routerID *string) ([]*graphql1.OrphanedPort, error) {
-	panic(fmt.Errorf("not implemented: DetectOrphanedPorts - detectOrphanedPorts"))
+func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *string) ([]*graphql1.OrphanedPort, error) {
+	if r.PortRegistry == nil {
+		return nil, fmt.Errorf("port registry not available")
+	}
+
+	rid := ""
+	if routerID != nil {
+		rid = *routerID
+	}
+
+	orphans, err := r.PortRegistry.DetectOrphans(ctx, rid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to detect orphaned ports: %w", err)
+	}
+
+	results := make([]*graphql1.OrphanedPort, 0, len(orphans))
+	for _, orphan := range orphans {
+		results = append(results, &graphql1.OrphanedPort{
+			Allocation: entityToPortAllocation(orphan),
+			Reason:     "service instance not found or is being deleted",
+		})
+	}
+
+	return results, nil
 }

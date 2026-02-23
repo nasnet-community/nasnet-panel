@@ -337,3 +337,15 @@ export const EmptyState: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

@@ -14,6 +14,8 @@
  * - WCAG AAA accessible
  */
 
+import React from 'react';
+
 import { ResourceBudgetPanelDesktop } from './ResourceBudgetPanelDesktop';
 import { ResourceBudgetPanelMobile } from './ResourceBudgetPanelMobile';
 
@@ -71,7 +73,9 @@ import type { ResourceBudgetPanelProps } from './types';
  * />
  * ```
  */
-export function ResourceBudgetPanel(props: ResourceBudgetPanelProps) {
+export const ResourceBudgetPanel = React.memo(function ResourceBudgetPanel(
+  props: ResourceBudgetPanelProps
+) {
   const { variant } = props;
 
   // Determine which presenter to use
@@ -97,7 +101,9 @@ export function ResourceBudgetPanel(props: ResourceBudgetPanelProps) {
       </div>
     </>
   );
-}
+});
+
+ResourceBudgetPanel.displayName = 'ResourceBudgetPanel';
 
 // ===== Exports =====
 

@@ -9,6 +9,7 @@
  */
 
 import * as React from 'react';
+import { useCallback, useState } from 'react';
 import { Search, X, Filter, Copy, RefreshCw, Trash2 } from 'lucide-react';
 
 import {
@@ -36,6 +37,7 @@ import {
   type ServiceLogViewerProps,
 } from './useServiceLogViewer';
 import type { LogLevel, LogEntry } from '@nasnet/api-client/queries';
+import { cn } from '@nasnet/ui/utils';
 
 /**
  * Mobile presenter for ServiceLogViewer
@@ -46,6 +48,8 @@ import type { LogLevel, LogEntry } from '@nasnet/api-client/queries';
  * - Simplified layout for small screens
  * - Auto-scroll support
  * - JetBrains Mono font for logs
+ *
+ * @description Touch-first interface with bottom sheets for filters and actions
  */
 function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
   const { className, onEntryClick } = props;
@@ -68,11 +72,11 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
     totalEntries,
   } = useServiceLogViewer(props);
 
-  const [copySuccess, setCopySuccess] = React.useState(false);
-  const [filterSheetOpen, setFilterSheetOpen] = React.useState(false);
-  const [actionsSheetOpen, setActionsSheetOpen] = React.useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [actionsSheetOpen, setActionsSheetOpen] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await copyToClipboard();
       setCopySuccess(true);
@@ -81,16 +85,26 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
     } catch (err) {
       console.error('Copy failed:', err);
     }
-  };
+  }, [copyToClipboard]);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setSearchQuery('');
-  };
+  }, [setSearchQuery]);
 
-  const handleLevelSelect = (level: LogLevel | null) => {
-    setLevelFilter(level);
-    setFilterSheetOpen(false);
-  };
+  const handleLevelSelect = useCallback(
+    (level: LogLevel | null) => {
+      setLevelFilter(level);
+      setFilterSheetOpen(false);
+    },
+    [setLevelFilter]
+  );
+
+  const handleEntryClick = useCallback(
+    (entry: LogEntry) => {
+      onEntryClick?.(entry);
+    },
+    [onEntryClick]
+  );
 
   return (
     <Card className={className}>
@@ -257,14 +271,14 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
               return (
                 <div
                   key={`${entry.timestamp}-${index}`}
-                  className={`
-                    p-3 border-b border-border
-                    font-mono text-xs
-                    active:bg-accent
-                    min-h-[44px]
-                    ${bgColor}
-                  `}
-                  onClick={() => onEntryClick?.(entry)}
+                  className={cn(
+                    'p-3 border-b border-border',
+                    'font-mono text-xs',
+                    'active:bg-accent',
+                    'min-h-[44px]',
+                    bgColor
+                  )}
+                  onClick={() => handleEntryClick(entry)}
                   role="button"
                   tabIndex={0}
                   aria-label={`Log entry: ${entry.level} - ${entry.message}`}

@@ -1,5 +1,8 @@
+import React from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ROUTES } from '@nasnet/core/constants';
 import { Button } from '@nasnet/ui/primitives';
@@ -28,7 +31,8 @@ import { Button } from '@nasnet/ui/primitives';
  * - Epic 0.1: Router Discovery & Connection
  * - Story 0.9.6: Return to Router List
  */
-export function RouterListPage() {
+export const RouterListPage = React.memo(function RouterListPage() {
+  const { t } = useTranslation('router');
   const navigate = useNavigate();
 
   // Placeholder: Router list will come from Epic 0.1 credential persistence
@@ -45,14 +49,14 @@ export function RouterListPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold">My Routers</h1>
+            <h1 className="text-2xl md:text-3xl font-semibold">{t('list.title')}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage and connect to your MikroTik routers
+              {t('list.subtitle')}
             </p>
           </div>
-          <Button onClick={handleAddRouter} className="gap-2" aria-label="Add router">
+          <Button onClick={handleAddRouter} className="gap-2" aria-label={t('list.addButton')}>
             <Plus className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Add Router</span>
+            <span className="hidden sm:inline">{t('list.addButton')}</span>
           </Button>
         </div>
 
@@ -65,17 +69,16 @@ export function RouterListPage() {
               aria-hidden="true"
               className="w-20 h-20 rounded-2xl shadow-md mb-6"
             />
-            <h2 className="text-xl md:text-2xl font-semibold mb-2">No routers yet</h2>
+            <h2 className="text-xl md:text-2xl font-semibold mb-2">{t('list.noRoutersYet')}</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
-              Get started by adding your first MikroTik router. You can scan your
-              network automatically or add one manually.
+              {t('list.emptyStateDescription')}
             </p>
             <Button onClick={handleAddRouter} size="lg" className="gap-2">
               <Plus className="h-5 w-5" aria-hidden="true" />
-              Add Your First Router
+              {t('list.addFirstRouter')}
             </Button>
             <p className="text-xs text-muted-foreground mt-6 opacity-70">
-              Router discovery and connection features available in Epic 0.1
+              {t('list.epicNote')}
             </p>
           </div>
         ) : (
@@ -87,4 +90,5 @@ export function RouterListPage() {
       </div>
     </div>
   );
-}
+});
+RouterListPage.displayName = 'RouterListPage';

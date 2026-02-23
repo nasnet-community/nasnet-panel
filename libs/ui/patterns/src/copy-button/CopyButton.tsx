@@ -27,7 +27,7 @@ import * as React from 'react';
 
 import { Copy, Check } from 'lucide-react';
 
-import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@nasnet/ui/primitives';
+import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, cn } from '@nasnet/ui/primitives';
 
 import { useClipboard } from '../hooks';
 import { useToast } from '../hooks/useToast';
@@ -121,7 +121,7 @@ export interface CopyButtonProps {
  * Provides copy-to-clipboard functionality with visual feedback.
  * Accessible via keyboard (Tab, Enter/Space) and screen readers.
  */
-export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
+const CopyButtonComponent = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
   (
     {
       value,
@@ -163,17 +163,23 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
       },
     });
 
-    const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation(); // Prevent click from bubbling to parent elements
-      await copy(value);
-    };
+    const handleClick = React.useCallback(
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation(); // Prevent click from bubbling to parent elements
+        await copy(value);
+      },
+      [copy, value]
+    );
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        copy(value);
-      }
-    };
+    const handleKeyDown = React.useCallback(
+      (e: React.KeyboardEvent<HTMLButtonElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          copy(value);
+        }
+      },
+      [copy, value]
+    );
 
     // Determine effective aria-label
     const effectiveAriaLabel = copied
@@ -184,7 +190,7 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
     const IconComponent = copied ? Check : Copy;
     const iconClassName = copied
       ? 'h-4 w-4 text-success'
-      : 'h-4 w-4 text-slate-500 dark:text-slate-400';
+      : 'h-4 w-4 text-muted-foreground';
 
     // Render inline variant (icon only)
     if (variant === 'inline') {
@@ -193,7 +199,7 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
           ref={ref}
           variant="ghost"
           size="icon"
-          className={`h-8 w-8 rounded-button hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${className ?? ''}`}
+          className={cn('h-8 w-8 rounded-button hover:bg-muted transition-colors', className)}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           aria-label={effectiveAriaLabel}
@@ -225,13 +231,13 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
         ref={ref}
         variant="outline"
         size="sm"
-        className={`rounded-button ${className ?? ''}`}
+        className={cn('rounded-button', className)}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         aria-label={effectiveAriaLabel}
         disabled={disabled}
       >
-        <IconComponent className={`${iconClassName} mr-1`} />
+        <IconComponent className={cn(iconClassName, 'mr-1')} />
         {copied ? 'Copied' : 'Copy'}
       </Button>
     );
@@ -253,4 +259,6 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
   }
 );
 
-CopyButton.displayName = 'CopyButton';
+CopyButtonComponent.displayName = 'CopyButton';
+
+export const CopyButton = React.memo(CopyButtonComponent) as typeof CopyButtonComponent;

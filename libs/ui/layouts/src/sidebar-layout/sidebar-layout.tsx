@@ -2,12 +2,21 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
+/**
+ * Props for SidebarLayout component
+ */
 export interface SidebarLayoutProps {
+  /** Main content area */
   children: React.ReactNode;
+  /** Sidebar content */
   sidebar: React.ReactNode;
+  /** Sidebar width (default: 16rem) */
   sidebarWidth?: string;
+  /** Sidebar position (default: 'left') */
   sidebarPosition?: 'left' | 'right';
+  /** Gap between sidebar and content (default: 'md') */
   gap?: 'none' | 'sm' | 'md' | 'lg';
+  /** Additional class names */
   className?: string;
 }
 
@@ -18,7 +27,32 @@ const gapClasses = {
   lg: 'gap-4 md:gap-6',
 };
 
-const SidebarLayout = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
+/**
+ * SidebarLayout Component
+ *
+ * A two-column layout with a flexible sidebar.
+ * Stacks vertically on mobile, side-by-side on tablet/desktop.
+ *
+ * Features:
+ * - Responsive: stacks on mobile, side-by-side on tablet/desktop
+ * - Configurable sidebar width and position (left/right)
+ * - Gap size variants (none, sm, md, lg)
+ * - Smooth transitions
+ * - Semantic HTML with proper landmarks
+ *
+ * @example
+ * ```tsx
+ * <SidebarLayout
+ *   sidebar={<FilterPanel />}
+ *   sidebarPosition="left"
+ * >
+ *   <MainContent />
+ * </SidebarLayout>
+ * ```
+ *
+ * @see {@link SidebarLayoutProps} for prop interface
+ */
+const SidebarLayoutImpl = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
   (
     {
       children,
@@ -32,26 +66,31 @@ const SidebarLayout = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
   ) => {
     const sidebarElement = (
       <aside
-        className="shrink-0 surface-secondary border-default transition-all duration-200 ease-in-out"
+        className="shrink-0 bg-card border-border transition-all duration-200 ease-in-out"
         style={{ width: sidebarWidth }}
       >
         {sidebar}
       </aside>
     );
 
-    return (
-      <div
-        ref={ref}
-        className={cn('flex flex-col md:flex-row', gapClasses[gap], className)}
-      >
-        {sidebarPosition === 'left' && sidebarElement}
-        <div className="min-w-0 flex-1">{children}</div>
-        {sidebarPosition === 'right' && sidebarElement}
-      </div>
-    );
+      return (
+        <section
+          ref={ref}
+          className={cn('flex flex-col md:flex-row', gapClasses[gap], className)}
+        >
+          {sidebarPosition === 'left' && sidebarElement}
+          <main className="min-w-0 flex-1">{children}</main>
+          {sidebarPosition === 'right' && sidebarElement}
+        </section>
+      );
   }
 );
 
-SidebarLayout.displayName = 'SidebarLayout';
+SidebarLayoutImpl.displayName = 'SidebarLayout';
+
+/**
+ * SidebarLayout - Two-column layout with flexible sidebar
+ */
+const SidebarLayout = React.memo(SidebarLayoutImpl);
 
 export { SidebarLayout };

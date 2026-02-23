@@ -1,0 +1,80 @@
+{
+  "title": "Router",
+  "discovery": {
+    "title": "Router Discovery",
+    "scanning": "Scanning network...",
+    "found": "{{count}} router found",
+    "found_other": "{{count}} routers found",
+    "noRouters": "No routers found",
+    "addManually": "Add Manually",
+    "scanAgain": "Scan Again",
+    "credential": {
+      "title": "Router Credentials",
+      "username": "Username",
+      "password": "Password",
+      "port": "Port",
+      "save": "Save Credentials",
+      "test": "Test Connection"
+    }
+  },
+  "list": {
+    "title": "Routers",
+    "name": "Router Name",
+    "address": "Address",
+    "model": "Model",
+    "version": "RouterOS Version",
+    "status": "Status",
+    "lastSeen": "Last Seen",
+    "noRouters": "No routers added"
+  },
+  "panel": {
+    "title": "Router Details",
+    "overview": "Overview",
+    "network": "Network",
+    "firewall": "Firewall",
+    "dhcp": "DHCP",
+    "dns": "DNS",
+    "vpn": "VPN",
+    "wifi": "WiFi",
+    "services": "Services",
+    "logs": "Logs",
+    "plugins": "Plugins",
+    "routing": "Routing",
+    "vlans": "VLANs"
+  },
+  "overview": {
+    "title": "Router Overview",
+    "identity": "Identity",
+    "model": "Model",
+    "serialNumber": "Serial Number",
+    "routerOS": "RouterOS",
+    "firmware": "Firmware",
+    "cpu": "CPU",
+    "cpuCount": "CPU Count",
+    "cpuFrequency": "CPU Frequency",
+    "cpuLoad": "CPU Load",
+    "totalMemory": "Total Memory",
+    "freeMemory": "Free Memory",
+    "totalStorage": "Total Storage",
+    "freeStorage": "Free Storage",
+    "uptime": "Uptime",
+    "boardName": "Board Name",
+    "architecture": "Architecture"
+  },
+  "actions": {
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "reboot": "Reboot",
+    "backup": "Backup",
+    "restore": "Restore",
+    "update": "Check Updates",
+    "terminal": "Open Terminal"
+  },
+  "health": {
+    "title": "Router Health",
+    "voltage": "Voltage",
+    "temperature": "Temperature",
+    "fanSpeed": "Fan Speed",
+    "powerConsumption": "Power Consumption"
+  }
+}

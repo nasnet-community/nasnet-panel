@@ -1,0 +1,24 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { BridgeListDesktop } from './BridgeListDesktop';
+import { BridgeListMobile } from './BridgeListMobile';
+declare const metaDesktop: Meta<typeof BridgeListDesktop>;
+export default metaDesktop;
+type StoryDesktop = StoryObj<typeof BridgeListDesktop>;
+export declare const Default: StoryDesktop;
+export declare const Loading: StoryDesktop;
+export declare const Empty: StoryDesktop;
+export declare const ErrorState: StoryDesktop;
+export declare const WithSelection: StoryDesktop;
+export declare const Filtered: StoryDesktop;
+export declare const SingleBridge: StoryDesktop;
+export declare const ManyBridges: StoryDesktop;
+declare const metaMobile: Meta<typeof BridgeListMobile>;
+type StoryMobile = StoryObj<typeof BridgeListMobile>;
+export declare const MobileDefault: StoryMobile;
+export declare const MobileLoading: StoryMobile;
+export declare const MobileEmpty: StoryMobile;
+export declare const MobileErrorState: StoryMobile;
+export declare const MobileSingleBridge: StoryMobile;
+export declare const MobileLongList: StoryMobile;
+export { metaMobile };
+//# sourceMappingURL=BridgeList.stories.d.ts.map

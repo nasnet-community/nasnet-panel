@@ -37,7 +37,7 @@ describe('FilterRuleSchema', () => {
         dstPort: '22',
         inInterface: 'ether1',
         outInterface: 'ether2',
-        connectionState: ['new', 'established'],
+        connectionState: ['new', 'established'] as ('established' | 'new' | 'related' | 'invalid' | 'untracked')[],
         comment: 'Block SSH from internal network',
         disabled: false,
         log: true,
@@ -189,9 +189,7 @@ describe('FilterRuleSchema', () => {
 
       const result = FilterRuleSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('outInterface');
-      }
+      expect(result.error?.issues[0].path).toContain('outInterface');
     });
 
     it('should reject outInterfaceList on input chain', () => {
@@ -225,9 +223,7 @@ describe('FilterRuleSchema', () => {
 
       const result = FilterRuleSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('inInterface');
-      }
+      expect(result.error?.issues[0].path).toContain('inInterface');
     });
 
     it('should reject inInterfaceList on output chain', () => {
@@ -252,9 +248,7 @@ describe('FilterRuleSchema', () => {
 
       const result = FilterRuleSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('logPrefix');
-      }
+      expect(result.error?.issues[0].path).toContain('logPrefix');
     });
 
     it('should accept logPrefix when log is enabled', () => {
@@ -505,7 +499,7 @@ describe('Display helper functions', () => {
     it('should generate preview with connection state', () => {
       const rule = {
         action: 'accept' as const,
-        connectionState: ['established', 'related'],
+        connectionState: ['established', 'related'] as ('established' | 'new' | 'related' | 'invalid' | 'untracked')[],
       };
 
       const preview = generateRulePreview(rule);

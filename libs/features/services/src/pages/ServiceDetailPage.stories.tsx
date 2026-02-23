@@ -9,8 +9,9 @@
  * @module @nasnet/features/services/pages
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ServiceDetailPage } from './ServiceDetailPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * ServiceDetailPage — detailed view for a single service instance

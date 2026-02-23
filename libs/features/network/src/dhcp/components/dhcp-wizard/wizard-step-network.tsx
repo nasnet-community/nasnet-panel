@@ -1,25 +1,36 @@
 /**
  * DHCP Wizard - Step 3: Network Settings
- * Configure gateway, DNS servers, lease time, and optional settings
+ * Configure gateway, DNS servers, lease time, and optional network parameters.
+ *
+ * @description Guides users through essential and optional DHCP network configuration.
+ * Allows flexible DNS server configuration (1-3 servers), gateway selection, lease time,
+ * domain name, and NTP server settings. Real-time validation ensures proper IP format
+ * and configuration relationships. Field-level help available for each setting.
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IPInput } from '@nasnet/ui/patterns';
-import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
-import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@nasnet/ui/primitives';
 import { Plus, Trash2 } from 'lucide-react';
+import { IPInput, FormSection, FieldHelp } from '@nasnet/ui/patterns';
+import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Icon } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
 import { networkStepSchema, type NetworkStepFormData, LEASE_TIME_OPTIONS } from './dhcp-wizard.schema';
 
 interface WizardStepNetworkProps {
+  /** Stepper instance providing access to wizard step data */
   stepper: UseStepperReturn;
+  /** Optional CSS class names to apply to root container */
+  className?: string;
 }
 
-export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
+/**
+ * Network settings step component
+ */
+function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkProps) {
   const interfaceData = stepper.getStepData('interface') as { interfaceIP?: string };
   const defaultGateway = interfaceData?.interfaceIP?.split('/')[0] || '';
 
@@ -39,6 +50,36 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
     name: 'dnsServers' as never,
   });
 
+  // Memoized remove handler
+  const handleRemoveDNS = useCallback((index: number) => {
+    remove(index);
+  }, [remove]);
+
+  // Memoized add handler
+  const handleAddDNS = useCallback(() => {
+    append('');
+  }, [append]);
+
+  // Memoized gateway change handler
+  const handleGatewayChange = useCallback((value: string) => {
+    form.setValue('gateway', value);
+  }, [form]);
+
+  // Memoized DNS field change handler
+  const handleDNSChange = useCallback((index: number, value: string) => {
+    form.setValue(`dnsServers.${index}`, value);
+  }, [form]);
+
+  // Memoized lease time change handler
+  const handleLeaseTimeChange = useCallback((value: string) => {
+    form.setValue('leaseTime', value as any);
+  }, [form]);
+
+  // Memoized NTP server change handler
+  const handleNTPChange = useCallback((value: string) => {
+    form.setValue('ntpServer', value);
+  }, [form]);
+
   // Save form data when proceeding
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -48,9 +89,10 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
   }, [form, stepper]);
 
   const canAddDNS = fields.length < 3;
+  const MAX_DNS_SERVERS = 3;
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="Gateway Configuration"
         description="Set the default gateway for DHCP clients"
@@ -62,15 +104,16 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
           </Label>
           <IPInput
             value={form.watch('gateway') || ''}
-            onChange={(value: string) => form.setValue('gateway', value)}
+            onChange={handleGatewayChange}
             placeholder="e.g., 192.168.1.1"
+            id="gateway"
           />
         </div>
       </FormSection>
 
       <FormSection
         title="DNS Servers"
-        description="Configure DNS servers for DHCP clients (1-3 servers)"
+        description={`Configure DNS servers for DHCP clients (1-${MAX_DNS_SERVERS} servers)`}
       >
         <div className="space-y-3">
           {fields.map((field, index) => (
@@ -80,8 +123,9 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
                   DNS Server {index + 1}
                 </Label>
                 <IPInput
+                  id={`dns-${index}`}
                   value={form.watch(`dnsServers.${index}`) || ''}
-                  onChange={(value: string) => form.setValue(`dnsServers.${index}`, value)}
+                  onChange={(value: string) => handleDNSChange(index, value)}
                   placeholder="e.g., 8.8.8.8"
                 />
               </div>
@@ -90,11 +134,11 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => remove(index)}
+                  onClick={() => handleRemoveDNS(index)}
                   className="mt-8"
                   aria-label={`Remove DNS server ${index + 1}`}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Icon icon={Trash2} size="sm" />
                 </Button>
               )}
             </div>
@@ -105,10 +149,11 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append('')}
+              onClick={handleAddDNS}
+              aria-label={`Add DNS server (${fields.length}/${MAX_DNS_SERVERS})`}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add DNS Server
+              <Icon icon={Plus} size="sm" />
+              <span className="ml-2">Add DNS Server</span>
             </Button>
           )}
 
@@ -131,7 +176,7 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
           </Label>
           <Select
             value={form.watch('leaseTime')}
-            onValueChange={(value) => form.setValue('leaseTime', value as any)}
+            onValueChange={handleLeaseTimeChange}
           >
             <SelectTrigger id="lease-time">
               <SelectValue placeholder="Select lease time" />
@@ -175,8 +220,9 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
               <FieldHelp field="dhcp.ntpServer" />
             </Label>
             <IPInput
+              id="ntp-server"
               value={form.watch('ntpServer') || ''}
-              onChange={(value: string) => form.setValue('ntpServer', value)}
+              onChange={handleNTPChange}
               placeholder="e.g., pool.ntp.org or IP address"
             />
           </div>
@@ -185,3 +231,10 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
     </div>
   );
 }
+
+WizardStepNetworkComponent.displayName = 'WizardStepNetwork';
+
+/**
+ * Exported network settings step component
+ */
+export const WizardStepNetwork = WizardStepNetworkComponent;

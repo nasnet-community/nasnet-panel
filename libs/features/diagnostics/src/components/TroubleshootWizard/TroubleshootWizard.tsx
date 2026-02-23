@@ -22,16 +22,29 @@ export interface TroubleshootWizardProps {
  *
  * Runs automated diagnostic steps and provides fix suggestions for common
  * internet connectivity issues. Auto-selects between Desktop and Mobile
- * presenters based on viewport size.
+ * presenters based on viewport size (desktop >1024px, mobile <1024px).
+ *
+ * Follows responsive design pattern with platform-aware presenters.
+ * All business logic delegated to `useTroubleshootWizard` hook.
  *
  * @example
  * ```tsx
+ * // Auto-detect platform
  * <TroubleshootWizard
  *   routerId="router-123"
  *   autoStart={true}
  *   onClose={() => navigate('/dashboard')}
  * />
+ *
+ * // With ISP contact info
+ * <TroubleshootWizard
+ *   routerId="router-123"
+ *   ispInfo={{ name: 'Comcast', supportPhone: '1-800-123-4567' }}
+ * />
  * ```
+ *
+ * @see DiagnosticStep for individual step rendering
+ * @see useTroubleshootWizard for hook logic
  */
 export const TroubleshootWizard = memo(function TroubleshootWizard({
   routerId,
@@ -64,3 +77,5 @@ export const TroubleshootWizard = memo(function TroubleshootWizard({
     </div>
   );
 });
+
+TroubleshootWizard.displayName = 'TroubleshootWizard';

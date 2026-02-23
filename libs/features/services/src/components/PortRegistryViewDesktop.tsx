@@ -16,24 +16,17 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
-import * as React from 'react';
-import { useMemo } from 'react';
-import {
-  Network,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  RefreshCw,
-} from 'lucide-react';
+import React, { useCallback, useMemo } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Network, RefreshCw } from 'lucide-react';
 
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
   Badge,
   Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Select,
   SelectContent,
   SelectItem,
@@ -61,6 +54,8 @@ export interface PortRegistryViewDesktopProps {
 
 /**
  * Format timestamp to relative time (e.g., "2 hours ago")
+ * @param timestamp ISO 8601 timestamp string
+ * @returns Human-readable relative time string
  */
 function formatRelativeTime(timestamp: string): string {
   const date = new Date(timestamp);
@@ -104,31 +99,45 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
     return Array.from(types).sort();
   }, [sortedAllocations]);
 
-  // Toggle sort direction or change field
-  const handleSort = (field: 'port' | 'serviceType' | 'allocatedAt') => {
-    if (sort.field === field) {
-      // Toggle direction if same field
-      setSort({
-        field,
-        direction: sort.direction === 'asc' ? 'desc' : 'asc',
-      });
-    } else {
-      // Change field, default to ascending
-      setSort({ field, direction: 'asc' });
-    }
-  };
+  /**
+   * Toggle sort direction or change field
+   * Stable reference via useCallback to prevent unnecessary column re-renders
+   */
+  const handleSort = useCallback(
+    (field: 'port' | 'serviceType' | 'allocatedAt') => {
+      if (sort.field === field) {
+        // Toggle direction if same field
+        setSort({
+          field,
+          direction: sort.direction === 'asc' ? 'desc' : 'asc',
+        });
+      } else {
+        // Change field, default to ascending
+        setSort({ field, direction: 'asc' });
+      }
+    },
+    [sort.field, sort.direction, setSort]
+  );
 
-  // Render sort icon
-  const renderSortIcon = (field: 'port' | 'serviceType' | 'allocatedAt') => {
-    if (sort.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" aria-hidden="true" />;
-    }
-    return sort.direction === 'asc' ? (
-      <ArrowUp className="h-4 w-4 ml-1" aria-hidden="true" />
-    ) : (
-      <ArrowDown className="h-4 w-4 ml-1" aria-hidden="true" />
-    );
-  };
+  /**
+   * Render sort icon based on current sort state
+   * Indicates sort direction: none/neutral, ascending, descending
+   */
+  const renderSortIcon = useCallback(
+    (field: 'port' | 'serviceType' | 'allocatedAt') => {
+      if (sort.field !== field) {
+        return (
+          <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" aria-hidden="true" />
+        );
+      }
+      return sort.direction === 'asc' ? (
+        <ArrowUp className="h-4 w-4 ml-1" aria-hidden="true" />
+      ) : (
+        <ArrowDown className="h-4 w-4 ml-1" aria-hidden="true" />
+      );
+    },
+    [sort.field, sort.direction]
+  );
 
   // Define DataTable columns
   const columns: DataTableColumn<PortAllocation>[] = useMemo(
@@ -146,7 +155,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
           </button>
         ),
         cell: (item) => (
-          <Badge variant="outline" className="font-mono font-semibold">
+          <Badge variant="outline" className="font-mono font-semibold text-sm">
             {item.port}
           </Badge>
         ),
@@ -186,7 +195,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         cell: (item) => (
           <div>
             <div className="font-medium text-sm">Instance {item.instanceID.slice(-6)}</div>
-            <div className="text-xs text-muted-foreground font-mono">
+            <div className="text-xs text-muted-foreground font-mono break-all">
               {item.instanceID}
             </div>
           </div>
@@ -330,9 +339,15 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
             </div>
           ) : error ? (
             <div className="p-12 text-center">
-              <div className="text-destructive mb-2">Failed to load port allocations</div>
-              <p className="text-sm text-muted-foreground">{error.message}</p>
-              <Button variant="outline" onClick={() => refetch()} className="mt-4">
+              <div className="text-destructive font-medium mb-2">
+                Failed to load port allocations
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
+              <Button
+                variant="outline"
+                onClick={() => refetch()}
+                aria-label="Retry loading port allocations"
+              >
                 Retry
               </Button>
             </div>
@@ -351,7 +366,21 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
       {/* Empty State */}
       {!loading && sortedAllocations.length === 0 && !error && (
         <div className="text-center py-12">
-          <Network className="h-16 w-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+          <div className="text-muted-foreground mx-auto mb-4 flex justify-center">
+            <svg
+              className="h-16 w-16 stroke-1"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.007H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.007H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.007H3.75v-.007zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+              />
+            </svg>
+          </div>
           <h3 className="text-lg font-semibold mb-2">No Port Allocations</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             No ports have been allocated for this router yet. Ports will appear here

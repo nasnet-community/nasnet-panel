@@ -7,6 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import {
@@ -65,7 +66,7 @@ function getStatusVariant(status: string): BadgeVariant {
  * - Bulk selection with checkboxes
  * - Hover states and actions
  */
-export function InstanceManagerDesktop(props: InstanceManagerProps) {
+function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
   const { loading, error, showMetrics, emptyState, className, viewMode = 'list' } = props;
 
   const {
@@ -352,3 +353,9 @@ export function InstanceManagerDesktop(props: InstanceManagerProps) {
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const InstanceManagerDesktop = memo(InstanceManagerDesktopComponent);
+
+// Set display name for React DevTools
+InstanceManagerDesktop.displayName = 'InstanceManagerDesktop';

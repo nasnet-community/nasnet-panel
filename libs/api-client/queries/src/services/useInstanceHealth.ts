@@ -1,5 +1,4 @@
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 
 /**

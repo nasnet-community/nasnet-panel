@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-
 import { Button } from '../button';
 import { Input } from '../input';
 import { Label } from '../label';
@@ -17,7 +16,7 @@ const meta: Meta<typeof Popover> = {
     docs: {
       description: {
         component:
-          'A popover component built on Radix UI Popover primitive. Renders floating content anchored to a trigger element. Supports alignment (start, center, end) and side placement. Portals to document body to avoid overflow clipping.',
+          'A popover component built on Radix UI Popover primitive. Renders floating content anchored to a trigger element. Supports alignment (start, center, end) and side placement. Portals to document body to avoid overflow clipping. Fully keyboard accessible with Escape to close and Tab navigation support.',
       },
     },
   },
@@ -27,6 +26,13 @@ export default meta;
 type Story = StoryObj<typeof Popover>;
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Basic popover with simple text content. Click the button to open/close.',
+      },
+    },
+  },
   render: () => (
     <Popover>
       <PopoverTrigger asChild>
@@ -42,6 +48,13 @@ export const Default: Story = {
 };
 
 export const RouterQuickSettings: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Popover with form controls for router settings. Demonstrates content with multiple input fields and labels.',
+      },
+    },
+  },
   render: () => (
     <Popover>
       <PopoverTrigger asChild>
@@ -95,6 +108,13 @@ export const RouterQuickSettings: Story = {
 };
 
 export const AlignmentVariants: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates different alignment options for popover content relative to trigger: start, center, and end.',
+      },
+    },
+  },
   render: () => (
     <div className="flex gap-4">
       <Popover>
@@ -128,6 +148,13 @@ export const AlignmentVariants: Story = {
 };
 
 export const FilterPopover: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Interactive filter popover with checkboxes. Demonstrates stateful content with selection badge on trigger.',
+      },
+    },
+  },
   render: function FilterDemo() {
     const [selected, setSelected] = React.useState<string[]>([]);
     const interfaces = ['ether1', 'ether2', 'wlan1', 'bridge1', 'vlan10'];
@@ -181,6 +208,13 @@ export const FilterPopover: Story = {
 };
 
 export const SidePlacements: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates side placement options for popover: top, bottom, left, and right positioning relative to trigger.',
+      },
+    },
+  },
   render: () => (
     <div className="grid grid-cols-2 gap-8 p-16">
       <Popover>
@@ -216,6 +250,101 @@ export const SidePlacements: Story = {
         </PopoverTrigger>
         <PopoverContent side="right" className="w-48">
           <p className="text-sm">Opens to the right.</p>
+        </PopoverContent>
+      </Popover>
+    </div>
+  ),
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Popover on mobile viewport (375px). Content adapts with touch-friendly spacing and sizing.',
+      },
+    },
+  },
+  render: () => (
+    <div className="p-4">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-full">
+            Open Settings
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full max-w-xs">
+          <div className="space-y-2">
+            <h4 className="font-semibold">Quick Settings</h4>
+            <p className="text-sm text-muted-foreground">Adjust your preferences here.</p>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  ),
+};
+
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+    docs: {
+      description: {
+        story: 'Popover on tablet viewport (768px). Demonstrates balanced information density for tablet devices.',
+      },
+    },
+  },
+  render: () => (
+    <div className="p-6">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline">Options</Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-72">
+          <div className="space-y-3">
+            <h4 className="font-semibold">Advanced Options</h4>
+            <p className="text-sm text-muted-foreground">Configure advanced settings for your device.</p>
+            <Button size="sm" className="w-full">Apply</Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  ),
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+    docs: {
+      description: {
+        story: 'Popover on desktop viewport (1280px). Shows full dense content layout with multiple controls.',
+      },
+    },
+  },
+  render: () => (
+    <div className="p-8">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button>Configuration Menu</Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-96">
+          <div className="grid gap-4">
+            <div>
+              <h4 className="font-semibold leading-none mb-2">Configuration</h4>
+              <p className="text-sm text-muted-foreground">Manage your router configuration settings.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" size="sm">Save</Button>
+              <Button variant="outline" size="sm">Export</Button>
+              <Button variant="outline" size="sm">Reset</Button>
+              <Button variant="outline" size="sm">Help</Button>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

@@ -1,14 +1,17 @@
 /**
  * SearchFAB Component
- * Floating Action Button for mobile command palette access
+ * Floating Action Button for mobile and tablet command palette access
  *
  * Features:
  * - Fixed position at bottom of screen
- * - 44x44px touch target (WCAG AAA)
+ * - 56x56px button (14x14px icon = 44px touch target)
+ * - Spring animation entrance/exit
  * - Opens command palette on tap
- * - Only visible on mobile platforms
+ * - Visible on mobile and tablet platforms (hidden on desktop for Cmd+K)
+ * - Customizable position via bottom/right props
  *
  * @see NAS-4.10: Implement Navigation & Command Palette
+ * @see Adaptive Design: Mobile (<640px) + Tablet (640-1024px)
  */
 
 import * as React from 'react';
@@ -59,8 +62,8 @@ export function SearchFAB({
   const platform = usePlatform();
   const { openCommandPalette } = useUIStore();
 
-  // Only show on mobile
-  if (platform !== 'mobile') {
+  // Only show on mobile and tablet (no desktop keyboard accessibility)
+  if (platform === 'desktop') {
     return null;
   }
 
@@ -72,14 +75,15 @@ export function SearchFAB({
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       onClick={openCommandPalette}
-      style={{ bottom, right }}
+      style={{ bottom: `${bottom}px`, right: `${right}px` }}
       className={cn(
         'fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg',
         'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         'active:bg-primary/90',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
-      aria-label="Search commands"
+      aria-label="Open command search"
     >
       <Search className="h-6 w-6" aria-hidden="true" />
     </motion.button>

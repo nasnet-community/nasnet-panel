@@ -1,13 +1,18 @@
 /**
  * StorageSettings Component
- * Platform-agnostic storage configuration UI
+ * @description Platform-agnostic root component for external storage configuration.
+ * Auto-detects viewport size and renders Mobile or Desktop presenter with optimized UX.
  *
- * Auto-detects platform and renders appropriate presenter:
- * - Mobile (<640px): Stacked vertical layout, 44px touch targets
- * - Desktop (>1024px): Two-column layout, dense data tables
+ * @features
+ * - Mobile (<640px): Stacked vertical layout, full-width buttons, 44px touch targets
+ * - Desktop (>1024px): Two-column layout, dense tables, inline controls with hover states
+ * - Progressive disclosure: Essential → Common (service breakdown) → Advanced (mount details)
+ * - Real-time storage status and usage metrics
+ * - Service-aware configuration (lists affected services on disconnect)
  *
  * @see NAS-8.20: External Storage Management
  * @see ADR-018: Headless + Platform Presenters Pattern
+ * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
 import * as React from 'react';
@@ -18,16 +23,18 @@ import { StorageSettingsMobile } from './StorageSettingsMobile';
 import { StorageSettingsDesktop } from './StorageSettingsDesktop';
 
 /**
- * StorageSettings props
+ * StorageSettings component props
  */
 export interface StorageSettingsProps {
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 }
 
 /**
  * StorageSettings component
- * Auto-selects platform-specific presenter based on viewport
+ * @description Auto-selects appropriate platform presenter (Mobile or Desktop) based on viewport
+ * @param {StorageSettingsProps} props - Component props
+ * @returns {React.ReactNode} Rendered storage settings presenter for active platform
  */
 function StorageSettingsComponent({ className }: StorageSettingsProps) {
   const platform = usePlatform();

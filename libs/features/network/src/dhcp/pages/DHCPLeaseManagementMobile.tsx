@@ -9,9 +9,12 @@
  * - Status/server filter buttons (horizontal scroll)
  * - LeaseCard list with LeaseCardSkeleton during loading
  * - Floating action button for export (bottom-right)
+ *
+ * @description Responsive mobile presenter for DHCP lease management with search, filtering, and bulk operations.
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 import type { DHCPLease } from '@nasnet/core/types';
 import { Button, Input } from '@nasnet/ui/primitives';
 import { LeaseCard } from '../components/lease-card/LeaseCard';
@@ -58,7 +61,7 @@ export interface DHCPLeaseManagementMobileProps {
  * - 44px minimum touch targets (WCAG AAA)
  * - Optimized for one-handed use
  */
-export function DHCPLeaseManagementMobile({
+export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagementMobile({
   leases,
   servers,
   newLeaseIds,
@@ -78,6 +81,41 @@ export function DHCPLeaseManagementMobile({
     setLeaseServerFilter,
   } = useDHCPUIStore();
 
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLeaseSearch(e.target.value);
+    },
+    [setLeaseSearch]
+  );
+
+  const handleStatusFilterChange = useCallback(
+    (status: 'all' | 'bound' | 'waiting' | 'static') => {
+      setLeaseStatusFilter(status);
+    },
+    [setLeaseStatusFilter]
+  );
+
+  const handleServerFilterChange = useCallback(
+    (server: string) => {
+      setLeaseServerFilter(server);
+    },
+    [setLeaseServerFilter]
+  );
+
+  const handleMakeStatic = useCallback(
+    async (leaseId: string, lease: DHCPLease) => {
+      await makeAllStatic([leaseId], [lease]);
+    },
+    [makeAllStatic]
+  );
+
+  const handleDelete = useCallback(
+    async (leaseId: string) => {
+      await deleteMultiple([leaseId]);
+    },
+    [deleteMultiple]
+  );
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -88,12 +126,12 @@ export function DHCPLeaseManagementMobile({
       {/* Search Bar */}
       <div className="border-b px-4 py-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             type="search"
             placeholder="Search IP, MAC, or hostname..."
             value={leaseSearch}
-            onChange={(e) => setLeaseSearch(e.target.value)}
+            onChange={handleSearchChange}
             className="pl-9"
             aria-label="Search DHCP leases"
           />
@@ -110,7 +148,7 @@ export function DHCPLeaseManagementMobile({
                 key={status}
                 variant={leaseStatusFilter === status ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setLeaseStatusFilter(status)}
+                onClick={() => handleStatusFilterChange(status)}
                 className="min-w-[80px]"
               >
                 {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -126,7 +164,7 @@ export function DHCPLeaseManagementMobile({
                 <Button
                   variant={leaseServerFilter === 'all' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setLeaseServerFilter('all')}
+                  onClick={() => handleServerFilterChange('all')}
                   className="min-w-[80px]"
                 >
                   All Servers
@@ -136,7 +174,7 @@ export function DHCPLeaseManagementMobile({
                     key={server}
                     variant={leaseServerFilter === server ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setLeaseServerFilter(server)}
+                    onClick={() => handleServerFilterChange(server)}
                     className="min-w-[80px]"
                   >
                     {server}
@@ -178,12 +216,8 @@ export function DHCPLeaseManagementMobile({
               key={lease.id}
               lease={lease}
               isNew={newLeaseIds.has(lease.id)}
-              onMakeStatic={async () => {
-                await makeAllStatic([lease.id], [lease]);
-              }}
-              onDelete={async () => {
-                await deleteMultiple([lease.id]);
-              }}
+              onMakeStatic={() => handleMakeStatic(lease.id, lease)}
+              onDelete={() => handleDelete(lease.id)}
             />
           ))}
 
@@ -210,12 +244,10 @@ export function DHCPLeaseManagementMobile({
             className="h-14 w-14 rounded-full shadow-lg"
             aria-label="Export leases to CSV"
           >
-            <Download className="h-5 w-5" />
+            <Download className="h-5 w-5" aria-hidden="true" />
           </Button>
         </div>
       )}
     </div>
   );
-}
-
-DHCPLeaseManagementMobile.displayName = 'DHCPLeaseManagementMobile';
+});

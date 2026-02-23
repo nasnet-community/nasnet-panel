@@ -209,3 +209,39 @@ export const Loading: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    interfaces: [
+      makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
+      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 2 }),
+    ],
+    clients: [
+      makeClient({ id: 'c1', macAddress: '11:22:33:44:55:66', signalStrength: -52 }),
+      makeClient({ id: 'c2', macAddress: '22:33:44:55:66:77', signalStrength: -58, interface: 'wlan2' }),
+      makeClient({ id: 'c3', macAddress: '33:44:55:66:77:88', signalStrength: -61, interface: 'wlan2' }),
+    ],
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    interfaces: [
+      makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
+      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 2 }),
+    ],
+    clients: [
+      makeClient({ id: 'c1', macAddress: '11:22:33:44:55:66', signalStrength: -52 }),
+      makeClient({ id: 'c2', macAddress: '22:33:44:55:66:77', signalStrength: -58, interface: 'wlan2' }),
+      makeClient({ id: 'c3', macAddress: '33:44:55:66:77:88', signalStrength: -61, interface: 'wlan2' }),
+    ],
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

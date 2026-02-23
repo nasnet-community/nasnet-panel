@@ -5,9 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Alert,
+  AlertDescription,
+  Skeleton,
 } from '@nasnet/ui/primitives';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
 import { AlertCircle } from 'lucide-react';
 import type { Bridge } from '@nasnet/api-client/generated';
 import { BridgeForm, type BridgeFormData } from './bridge-form';

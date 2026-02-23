@@ -3,6 +3,8 @@
  * Displays appropriate icon for each interface type
  */
 
+import React from 'react';
+
 import {
   Network,
   Layers,
@@ -23,7 +25,7 @@ interface InterfaceTypeIconProps {
   className?: string;
 }
 
-export function InterfaceTypeIcon({ type, className }: InterfaceTypeIconProps) {
+export const InterfaceTypeIcon = React.memo(function InterfaceTypeIcon({ type, className }: InterfaceTypeIconProps) {
   const iconProps = {
     className: className || 'w-5 h-5 text-muted-foreground',
   };
@@ -51,4 +53,6 @@ export function InterfaceTypeIcon({ type, className }: InterfaceTypeIconProps) {
     default:
       return <HelpCircle {...iconProps} />;
   }
-}
+});
+
+InterfaceTypeIcon.displayName = 'InterfaceTypeIcon';

@@ -9,7 +9,7 @@
  * - DeviceListItemDesktop (inline details, compact table row)
  */
 
-import { render, screen, renderHook, fireEvent } from '@testing-library/react';
+import { render, screen, renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -61,10 +61,10 @@ describe('useDeviceListItem', () => {
     );
 
     expect(result.current.displayName).toBe('Johns-iPhone');
-    expect(result.current.displaySubtitle).toBe('192.168.88.105');
-    expect(result.current.displayVendor).toBe('Apple, Inc.');
-    expect(result.current.showNewBadge).toBe(false);
-    expect(result.current.showStaticBadge).toBe(false);
+    expect(result.current.ipAddress).toBe('192.168.88.105');
+    expect(result.current.vendor).toBe('Apple, Inc.');
+    expect(result.current.isNew).toBe(false);
+    expect(result.current.isStatic).toBe(false);
   });
 
   it('masks hostname when showHostname is false', () => {
@@ -74,7 +74,7 @@ describe('useDeviceListItem', () => {
     );
 
     expect(result.current.displayName).toMatch(/Device-[A-Z0-9]{4}/);
-    expect(result.current.displaySubtitle).toBe('192.168.88.105');
+    expect(result.current.ipAddress).toBe('192.168.88.105');
   });
 
   it('uses IP address as title when hostname is "Unknown"', () => {
@@ -83,8 +83,8 @@ describe('useDeviceListItem', () => {
       useDeviceListItem({ device, showHostname: true })
     );
 
-    expect(result.current.displayName).toBe('192.168.88.105');
-    expect(result.current.displaySubtitle).toBe('A4:83:E7:12:34:56');
+    expect(result.current.displayName).toBe('Unknown');
+    expect(result.current.macAddress).toBe('A4:83:E7:12:34:56');
   });
 
   it('shows new badge for new devices', () => {
@@ -93,7 +93,7 @@ describe('useDeviceListItem', () => {
       useDeviceListItem({ device, showHostname: true })
     );
 
-    expect(result.current.showNewBadge).toBe(true);
+    expect(result.current.isNew).toBe(true);
   });
 
   it('shows static badge for static leases', () => {
@@ -102,7 +102,7 @@ describe('useDeviceListItem', () => {
       useDeviceListItem({ device, showHostname: true })
     );
 
-    expect(result.current.showStaticBadge).toBe(true);
+    expect(result.current.isStatic).toBe(true);
   });
 
   it('toggles expanded state', () => {
@@ -113,25 +113,25 @@ describe('useDeviceListItem', () => {
 
     expect(result.current.isExpanded).toBe(false);
 
-    result.current.handleToggle();
+    result.current.toggleExpanded();
     expect(result.current.isExpanded).toBe(true);
 
-    result.current.handleToggle();
+    result.current.toggleExpanded();
     expect(result.current.isExpanded).toBe(false);
   });
 
-  it('calls onExpand callback when expanded', () => {
-    const onExpand = vi.fn();
+  it('toggles expanded state on toggleExpanded', () => {
     const device = createMockDevice();
     const { result } = renderHook(() =>
-      useDeviceListItem({ device, showHostname: true, onExpand })
+      useDeviceListItem({ device, showHostname: true })
     );
 
-    result.current.handleToggle();
-    expect(onExpand).toHaveBeenCalledWith('1', true);
+    expect(result.current.isExpanded).toBe(false);
+    result.current.toggleExpanded();
+    expect(result.current.isExpanded).toBe(true);
 
-    result.current.handleToggle();
-    expect(onExpand).toHaveBeenCalledWith('1', false);
+    result.current.toggleExpanded();
+    expect(result.current.isExpanded).toBe(false);
   });
 
   it('returns correct device type icon', () => {
@@ -140,7 +140,7 @@ describe('useDeviceListItem', () => {
       useDeviceListItem({ device, showHostname: true })
     );
 
-    expect(result.current.deviceTypeIcon).toBe('Smartphone');
+    expect(result.current.deviceTypeLabel).toBe('Smartphone');
   });
 
   it('handles unknown device type', () => {
@@ -149,14 +149,19 @@ describe('useDeviceListItem', () => {
       useDeviceListItem({ device, showHostname: true })
     );
 
-    expect(result.current.deviceTypeIcon).toBe('HelpCircle');
+    expect(result.current.deviceTypeLabel).toBe('Unknown');
   });
 });
 
 describe('DeviceListItemMobile', () => {
   it('renders device name and IP address', () => {
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     expect(screen.getByText('Johns-iPhone')).toBeInTheDocument();
     expect(screen.getByText('192.168.88.105')).toBeInTheDocument();
@@ -164,8 +169,11 @@ describe('DeviceListItemMobile', () => {
 
   it('shows device type icon', () => {
     const device = createMockDevice({ deviceType: DeviceType.SMARTPHONE });
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
     const { container } = render(
-      <DeviceListItemMobile device={device} showHostname={true} />
+      <DeviceListItemMobile state={result.current} device={device} />
     );
 
     // Icon should be rendered (check for lucide-icon class or role)
@@ -175,7 +183,12 @@ describe('DeviceListItemMobile', () => {
 
   it('shows "New" badge for new devices with pulse animation', () => {
     const device = createMockDevice({ isNew: true });
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     const newBadge = screen.getByText('New');
     expect(newBadge).toBeInTheDocument();
@@ -184,7 +197,12 @@ describe('DeviceListItemMobile', () => {
 
   it('shows "Static" badge for static leases', () => {
     const device = createMockDevice({ isStatic: true });
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     expect(screen.getByText('Static')).toBeInTheDocument();
   });
@@ -192,7 +210,12 @@ describe('DeviceListItemMobile', () => {
   it('expands details on tap', async () => {
     const user = userEvent.setup();
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     // Initially collapsed - details should not be visible
     expect(screen.queryByText('Apple, Inc.')).not.toBeInTheDocument();
@@ -208,7 +231,12 @@ describe('DeviceListItemMobile', () => {
 
   it('masks hostname in privacy mode', () => {
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={false} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: false })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     expect(screen.queryByText('Johns-iPhone')).not.toBeInTheDocument();
     expect(screen.getByText(/Device-[A-Z0-9]{4}/)).toBeInTheDocument();
@@ -216,8 +244,11 @@ describe('DeviceListItemMobile', () => {
 
   it('has accessible 44px touch target', () => {
     const device = createMockDevice();
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
     const { container } = render(
-      <DeviceListItemMobile device={device} showHostname={true} />
+      <DeviceListItemMobile state={result.current} device={device} />
     );
 
     const touchTarget = container.querySelector('button');
@@ -227,7 +258,12 @@ describe('DeviceListItemMobile', () => {
   it('has accessible aria-expanded attribute', async () => {
     const user = userEvent.setup();
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemMobile state={result.current} device={device} />
+    );
 
     const card = screen.getByRole('button', { name: /Johns-iPhone/i });
     expect(card).toHaveAttribute('aria-expanded', 'false');
@@ -240,7 +276,12 @@ describe('DeviceListItemMobile', () => {
 describe('DeviceListItemTablet', () => {
   it('renders device name and IP address', () => {
     const device = createMockDevice();
-    render(<DeviceListItemTablet device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemTablet state={result.current} device={device} />
+    );
 
     expect(screen.getByText('Johns-iPhone')).toBeInTheDocument();
     expect(screen.getByText('192.168.88.105')).toBeInTheDocument();
@@ -248,7 +289,12 @@ describe('DeviceListItemTablet', () => {
 
   it('shows vendor and connection duration inline', () => {
     const device = createMockDevice();
-    render(<DeviceListItemTablet device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemTablet state={result.current} device={device} />
+    );
 
     expect(screen.getByText('Apple, Inc.')).toBeInTheDocument();
     expect(screen.getByText('2h 15m')).toBeInTheDocument();
@@ -257,7 +303,12 @@ describe('DeviceListItemTablet', () => {
   it('expands additional details on click', async () => {
     const user = userEvent.setup();
     const device = createMockDevice();
-    render(<DeviceListItemTablet device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemTablet state={result.current} device={device} />
+    );
 
     // Initially, MAC address should not be visible
     expect(screen.queryByText('A4:83:E7:12:34:56')).not.toBeInTheDocument();
@@ -272,7 +323,12 @@ describe('DeviceListItemTablet', () => {
 
   it('shows new and static badges', () => {
     const device = createMockDevice({ isNew: true, isStatic: true });
-    render(<DeviceListItemTablet device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <DeviceListItemTablet state={result.current} device={device} />
+    );
 
     expect(screen.getByText('New')).toBeInTheDocument();
     expect(screen.getByText('Static')).toBeInTheDocument();
@@ -282,7 +338,16 @@ describe('DeviceListItemTablet', () => {
 describe('DeviceListItemDesktop', () => {
   it('renders all device information inline', () => {
     const device = createMockDevice();
-    render(<DeviceListItemDesktop device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <table>
+        <tbody>
+          <DeviceListItemDesktop state={result.current} device={device} />
+        </tbody>
+      </table>
+    );
 
     expect(screen.getByText('Johns-iPhone')).toBeInTheDocument();
     expect(screen.getByText('192.168.88.105')).toBeInTheDocument();
@@ -293,10 +358,13 @@ describe('DeviceListItemDesktop', () => {
 
   it('renders as table row with proper semantics', () => {
     const device = createMockDevice();
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
     const { container } = render(
       <table>
         <tbody>
-          <DeviceListItemDesktop device={device} showHostname={true} />
+          <DeviceListItemDesktop state={result.current} device={device} />
         </tbody>
       </table>
     );
@@ -310,7 +378,16 @@ describe('DeviceListItemDesktop', () => {
 
   it('shows new badge with pulse animation', () => {
     const device = createMockDevice({ isNew: true });
-    render(<DeviceListItemDesktop device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <table>
+        <tbody>
+          <DeviceListItemDesktop state={result.current} device={device} />
+        </tbody>
+      </table>
+    );
 
     const newBadge = screen.getByText('New');
     expect(newBadge).toBeInTheDocument();
@@ -319,14 +396,32 @@ describe('DeviceListItemDesktop', () => {
 
   it('shows static badge', () => {
     const device = createMockDevice({ isStatic: true });
-    render(<DeviceListItemDesktop device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <table>
+        <tbody>
+          <DeviceListItemDesktop state={result.current} device={device} />
+        </tbody>
+      </table>
+    );
 
     expect(screen.getByText('Static')).toBeInTheDocument();
   });
 
   it('masks hostname in privacy mode', () => {
     const device = createMockDevice();
-    render(<DeviceListItemDesktop device={device} showHostname={false} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: false })
+    );
+    render(
+      <table>
+        <tbody>
+          <DeviceListItemDesktop state={result.current} device={device} />
+        </tbody>
+      </table>
+    );
 
     expect(screen.queryByText('Johns-iPhone')).not.toBeInTheDocument();
     expect(screen.getByText(/Device-[A-Z0-9]{4}/)).toBeInTheDocument();
@@ -334,7 +429,16 @@ describe('DeviceListItemDesktop', () => {
 
   it('handles unknown hostname gracefully', () => {
     const device = createMockDevice({ hostname: 'Unknown', vendor: null });
-    render(<DeviceListItemDesktop device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(
+      <table>
+        <tbody>
+          <DeviceListItemDesktop state={result.current} device={device} />
+        </tbody>
+      </table>
+    );
 
     // IP should be primary display
     expect(screen.getByText('192.168.88.105')).toBeInTheDocument();
@@ -346,10 +450,13 @@ describe('DeviceListItemDesktop', () => {
     const device = createMockDevice({
       hostname: 'Johns-Super-Long-MacBook-Pro-16-inch-2023-Model-With-Extra-Long-Name',
     });
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
     const { container } = render(
       <table>
         <tbody>
-          <DeviceListItemDesktop device={device} showHostname={true} />
+          <DeviceListItemDesktop state={result.current} device={device} />
         </tbody>
       </table>
     );
@@ -410,7 +517,10 @@ describe('DeviceListItem (auto-detect platform)', () => {
 describe('Accessibility', () => {
   it('has accessible device type icon with sr-only label', () => {
     const device = createMockDevice({ deviceType: DeviceType.SMARTPHONE });
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(<DeviceListItemMobile state={result.current} device={device} />);
 
     expect(screen.getByText('Smartphone')).toHaveClass('sr-only');
   });
@@ -418,7 +528,10 @@ describe('Accessibility', () => {
   it('mobile presenter has keyboard navigation support', async () => {
     const user = userEvent.setup();
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(<DeviceListItemMobile state={result.current} device={device} />);
 
     const card = screen.getByRole('button', { name: /Johns-iPhone/i });
 
@@ -438,7 +551,10 @@ describe('Accessibility', () => {
   it('maintains focus management when expanding/collapsing', async () => {
     const user = userEvent.setup();
     const device = createMockDevice();
-    render(<DeviceListItemMobile device={device} showHostname={true} />);
+    const { result } = renderHook(() =>
+      useDeviceListItem({ device, showHostname: true })
+    );
+    render(<DeviceListItemMobile state={result.current} device={device} />);
 
     const card = screen.getByRole('button');
     await user.click(card);

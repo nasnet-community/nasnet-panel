@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-
 import {
   Toast,
   ToastAction,
@@ -19,12 +18,19 @@ const meta: Meta<typeof Toast> = {
   component: Toast,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'A toast notification component built on Radix UI Toast primitive. Supports multiple variants (default, success, warning, error, info) with swipe-to-dismiss and auto-close functionality.',
+          'A toast notification component built on Radix UI Toast primitive. Supports multiple variants (default, success, warning, error, info) with swipe-to-dismiss and auto-close functionality. Toasts appear at the top of the screen and auto-dismiss after a configurable duration. Supports keyboard dismiss (Escape) and swipe-to-close on touch devices.',
       },
+    },
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['default', 'success', 'warning', 'error', 'info', 'destructive'],
+      description: 'Visual variant indicating the type of notification',
     },
   },
   decorators: [
@@ -53,6 +59,10 @@ export const Default: Story = {
 };
 
 export const Success: Story = {
+  args: {
+    variant: 'success',
+    open: true,
+  },
   render: () => (
     <Toast variant="success" open>
       <div className="grid gap-1">
@@ -67,6 +77,10 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
+  args: {
+    variant: 'warning',
+    open: true,
+  },
   render: () => (
     <Toast variant="warning" open>
       <div className="grid gap-1">
@@ -81,6 +95,10 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
+  args: {
+    variant: 'error',
+    open: true,
+  },
   render: () => (
     <Toast variant="error" open>
       <div className="grid gap-1">
@@ -95,6 +113,10 @@ export const Error: Story = {
 };
 
 export const Info: Story = {
+  args: {
+    variant: 'info',
+    open: true,
+  },
   render: () => (
     <Toast variant="info" open>
       <div className="grid gap-1">
@@ -109,6 +131,9 @@ export const Info: Story = {
 };
 
 export const WithAction: Story = {
+  args: {
+    open: true,
+  },
   render: () => (
     <Toast open>
       <div className="grid gap-1">
@@ -183,28 +208,28 @@ export const InteractiveDemo: Story = {
           </Button>
           <Button
             variant="outline"
-            className="text-success"
+            className="text-semantic-success"
             onClick={() => addToast('success')}
           >
             Success
           </Button>
           <Button
             variant="outline"
-            className="text-warning"
+            className="text-semantic-warning"
             onClick={() => addToast('warning')}
           >
             Warning
           </Button>
           <Button
             variant="outline"
-            className="text-error"
+            className="text-semantic-error"
             onClick={() => addToast('error')}
           >
             Error
           </Button>
           <Button
             variant="outline"
-            className="text-info"
+            className="text-semantic-info"
             onClick={() => addToast('info')}
           >
             Info

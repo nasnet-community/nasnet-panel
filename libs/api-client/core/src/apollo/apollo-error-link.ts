@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Apollo Error Handling Link
  *
@@ -143,23 +145,25 @@ export const errorLink = onError(
 
         // Handle specific error codes with legacy support
         switch (errorCode) {
-          case 'FORBIDDEN':
+          case 'FORBIDDEN': {
             useNotificationStore.getState().addNotification({
               type: 'error',
               title: 'Access denied',
               message: 'You do not have permission to perform this action.',
             });
             break;
+          }
 
-          case 'NOT_FOUND':
+          case 'NOT_FOUND': {
             useNotificationStore.getState().addNotification({
               type: 'warning',
               title: 'Not found',
               message: message || 'The requested resource was not found.',
             });
             break;
+          }
 
-          default:
+          default: {
             // Use error message mapping for user-friendly messages
             const errorInfo = getErrorInfo(errorCode, message);
             useNotificationStore.getState().addNotification({
@@ -167,6 +171,7 @@ export const errorLink = onError(
               title: errorInfo.message,
               message: errorInfo.action,
             });
+          }
         }
       }
     }

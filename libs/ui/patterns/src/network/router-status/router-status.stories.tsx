@@ -11,6 +11,8 @@
 import { useState } from 'react';
 
 import { MockedProvider } from '@apollo/client/testing';
+import type { MockedResponse } from '@apollo/client/testing';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { RouterStatus } from './router-status';
 import { RouterStatusDesktop } from './router-status-desktop';
@@ -19,8 +21,6 @@ import { StatusIndicator } from './status-indicator';
 import { ROUTER_STATUS_CHANGED_SUBSCRIPTION } from './use-router-status-subscription';
 
 import type { ConnectionStatus, RouterStatusData, UseRouterStatusReturn } from './types';
-import type { MockedResponse } from '@apollo/client/testing';
-import type { Meta, StoryObj } from '@storybook/react';
 
 // ===== Mock Data =====
 
@@ -107,13 +107,13 @@ const meta: Meta<typeof RouterStatus> = {
   component: RouterStatus,
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
+    (StoryComponent) => (
       <MockedProvider
         mocks={[createSubscriptionMock('router-1', 'CONNECTED')]}
         addTypename={false}
       >
         <div className="p-4 max-w-md">
-          <Story />
+          <StoryComponent />
         </div>
       </MockedProvider>
     ),
@@ -214,7 +214,7 @@ export const Reconnecting: Story = {
 /**
  * Error state with retry button
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   render: () => {
     const state = createMockState('ERROR', {
       error: new Error('Connection timeout'),
@@ -289,9 +289,9 @@ export const MobileReconnecting: Story = {
  */
 export const DarkMode: Story = {
   decorators: [
-    (Story) => (
+    (StoryComponent) => (
       <div className="dark bg-gray-900 p-4 rounded-lg">
-        <Story />
+        <StoryComponent />
       </div>
     ),
   ],

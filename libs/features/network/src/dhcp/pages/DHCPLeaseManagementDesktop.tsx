@@ -8,9 +8,12 @@
  * - LeaseFilters component (status/server dropdowns)
  * - LeaseTableWithSelection component
  * - BulkActionsToolbar (shows when items selected)
+ *
+ * @description Desktop presenter for DHCP lease management with advanced filtering, table selection, and bulk operations.
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 import type { DHCPLease } from '@nasnet/core/types';
 import { Button } from '@nasnet/ui/primitives';
 import { LeaseFilters } from '../components/lease-filters/LeaseFilters';
@@ -59,7 +62,7 @@ export interface DHCPLeaseManagementDesktopProps {
  * - Keyboard navigation support
  * - Screen reader announcements for selection
  */
-export function DHCPLeaseManagementDesktop({
+export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagementDesktop({
   leases,
   servers,
   newLeaseIds,
@@ -72,6 +75,14 @@ export function DHCPLeaseManagementDesktop({
   deleteMultiple,
   exportToCSV,
 }: DHCPLeaseManagementDesktopProps) {
+  const handleMakeStatic = useCallback(async () => {
+    const leasesToConvert = leases.filter((l) => selectedLeases.includes(l.id));
+    await makeAllStatic(selectedLeases, leasesToConvert);
+  }, [selectedLeases, leases, makeAllStatic]);
+
+  const handleDelete = useCallback(async () => {
+    await deleteMultiple(selectedLeases);
+  }, [selectedLeases, deleteMultiple]);
   return (
     <div className="flex h-full flex-col gap-6 p-6">
       {/* Page Header */}
@@ -91,7 +102,7 @@ export function DHCPLeaseManagementDesktop({
           disabled={isLoading || leases.length === 0}
           aria-label="Export leases to CSV"
         >
-          <Download className="mr-2 h-4 w-4" />
+          <Download className="mr-2 h-4 w-4" aria-hidden="true" />
           Export CSV
         </Button>
       </div>
@@ -103,8 +114,8 @@ export function DHCPLeaseManagementDesktop({
       {selectedLeases.length > 0 && (
         <BulkActionsToolbar
           selectedCount={selectedLeases.length}
-          onMakeStatic={() => makeAllStatic(selectedLeases, leases)}
-          onDelete={() => deleteMultiple(selectedLeases)}
+          onMakeStatic={handleMakeStatic}
+          onDelete={handleDelete}
           onClear={clearSelection}
         />
       )}
@@ -150,6 +161,4 @@ export function DHCPLeaseManagementDesktop({
       )}
     </div>
   );
-}
-
-DHCPLeaseManagementDesktop.displayName = 'DHCPLeaseManagementDesktop';
+});

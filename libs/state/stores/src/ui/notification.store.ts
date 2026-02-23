@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Notification State Store
  * Manages toast/notification queue with deduplication
@@ -329,7 +331,7 @@ export const useNotificationStore = create<
     }),
     {
       name: 'notification-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

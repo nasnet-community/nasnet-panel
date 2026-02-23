@@ -5,7 +5,7 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { CHECK_VLAN_ID_AVAILABLE } from '@nasnet/api-client/queries';
 
@@ -87,7 +87,7 @@ export const CreateMode: Story = {
     mode: 'create',
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (
@@ -118,7 +118,7 @@ export const EditMode: Story = {
     },
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (
@@ -140,7 +140,7 @@ export const Loading: Story = {
     mode: 'create',
     onSubmit: fn(),
     onCancel: fn(),
-    loading: true,
+    isLoading: true,
   },
   decorators: [
     (Story) => (
@@ -167,7 +167,7 @@ export const DuplicateVlanId: Story = {
     },
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (
@@ -194,7 +194,7 @@ export const Vlan1Warning: Story = {
     },
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (
@@ -221,7 +221,7 @@ export const Vlan4095Warning: Story = {
     },
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (
@@ -243,7 +243,7 @@ export const Mobile: Story = {
     mode: 'create',
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   parameters: {
     viewport: {
@@ -277,7 +277,7 @@ export const JumboFrames: Story = {
     },
     onSubmit: fn(),
     onCancel: fn(),
-    loading: false,
+    isLoading: false,
   },
   decorators: [
     (Story) => (

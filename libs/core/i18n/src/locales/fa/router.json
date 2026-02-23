@@ -1,0 +1,80 @@
+{
+  "title": "روتر",
+  "discovery": {
+    "title": "کشف روتر",
+    "scanning": "در حال اسکن شبکه...",
+    "found": "{{count}} روتر یافت شد",
+    "found_other": "{{count}} روتر یافت شد",
+    "noRouters": "روتری یافت نشد",
+    "addManually": "افزودن دستی",
+    "scanAgain": "اسکن مجدد",
+    "credential": {
+      "title": "اطلاعات ورود روتر",
+      "username": "نام کاربری",
+      "password": "رمز عبور",
+      "port": "پورت",
+      "save": "ذخیره اطلاعات",
+      "test": "تست اتصال"
+    }
+  },
+  "list": {
+    "title": "روترها",
+    "name": "نام روتر",
+    "address": "آدرس",
+    "model": "مدل",
+    "version": "نسخه RouterOS",
+    "status": "وضعیت",
+    "lastSeen": "آخرین مشاهده",
+    "noRouters": "روتری اضافه نشده"
+  },
+  "panel": {
+    "title": "جزئیات روتر",
+    "overview": "نمای کلی",
+    "network": "شبکه",
+    "firewall": "دیوار آتش",
+    "dhcp": "DHCP",
+    "dns": "DNS",
+    "vpn": "VPN",
+    "wifi": "وای‌فای",
+    "services": "سرویس‌ها",
+    "logs": "لاگ‌ها",
+    "plugins": "افزونه‌ها",
+    "routing": "مسیریابی",
+    "vlans": "VLANها"
+  },
+  "overview": {
+    "title": "نمای کلی روتر",
+    "identity": "هویت",
+    "model": "مدل",
+    "serialNumber": "شماره سریال",
+    "routerOS": "RouterOS",
+    "firmware": "فریمور",
+    "cpu": "CPU",
+    "cpuCount": "تعداد CPU",
+    "cpuFrequency": "فرکانس CPU",
+    "cpuLoad": "بار CPU",
+    "totalMemory": "کل حافظه",
+    "freeMemory": "حافظه آزاد",
+    "totalStorage": "کل فضای ذخیره‌سازی",
+    "freeStorage": "فضای ذخیره‌سازی آزاد",
+    "uptime": "مدت فعالیت",
+    "boardName": "نام برد",
+    "architecture": "معماری"
+  },
+  "actions": {
+    "connect": "اتصال",
+    "disconnect": "قطع اتصال",
+    "reboot": "راه‌اندازی مجدد",
+    "backup": "پشتیبان‌گیری",
+    "restore": "بازیابی",
+    "update": "بررسی به‌روزرسانی",
+    "terminal": "ترمینال"
+  },
+  "health": {
+    "title": "سلامت روتر",
+    "voltage": "ولتاژ",
+    "temperature": "دما",
+    "fanSpeed": "سرعت فن",
+    "powerConsumption": "مصرف برق"
+  }
+}

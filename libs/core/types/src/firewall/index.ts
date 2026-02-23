@@ -280,3 +280,23 @@ export {
   TemplatePreviewResultSchema,
   FirewallTemplateResultSchema,
 } from './template.types';
+
+// Legacy Firewall Types (from router/firewall.ts - maintained for backward compatibility)
+// These are re-exported here to break circular dependency with firewall-log.types.ts
+export type {
+  FirewallChain,
+  FirewallAction,
+  FirewallProtocol,
+  FirewallRule,
+  FirewallFilters,
+  ChainSummary,
+  NATRule,
+  RouteEntry,
+  RoutingTable,
+  AddressList,
+  RouterService,
+  Connection,
+  ConnectionFilters,
+  ConnectionTrackingState,
+  ConnectionTrackingSettings,
+} from '../router/firewall';

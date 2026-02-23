@@ -16,7 +16,7 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RateLimitRulesTable } from './RateLimitRulesTable';
 import {
@@ -103,37 +103,23 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    rules: {
-      control: 'object',
-      description: 'Array of rate limit rules to display',
+    actionFilter: {
+      control: 'text',
+      description: 'Filter by action type (drop/tarpit/add-to-list)',
     },
-    loading: {
-      control: 'boolean',
-      description: 'Is table loading',
+    statusFilter: {
+      control: 'select',
+      options: ['all', 'enabled', 'disabled'],
+      description: 'Filter by enabled/disabled status',
     },
-    sortable: {
-      control: 'boolean',
-      description: 'Enable drag-and-drop sorting',
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes',
     },
-    showCounters: {
-      control: 'boolean',
-      description: 'Show packet/byte counters',
-    },
-    onToggle: { action: 'toggled' },
-    onEdit: { action: 'edited' },
-    onDelete: { action: 'deleted' },
-    onDuplicate: { action: 'duplicated' },
-    onReorder: { action: 'reordered' },
   },
   args: {
-    loading: false,
-    sortable: true,
-    showCounters: true,
-    onToggle: fn(),
-    onEdit: fn(),
-    onDelete: fn(),
-    onDuplicate: fn(),
-    onReorder: fn(),
+    actionFilter: undefined,
+    statusFilter: 'all',
   },
 } satisfies Meta<typeof RateLimitRulesTable>;
 
@@ -152,7 +138,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    rules: mockRateLimitRules,
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -176,7 +162,7 @@ export const Default: Story = {
  */
 export const Empty: Story = {
   args: {
-    rules: [],
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -199,8 +185,7 @@ export const Empty: Story = {
  */
 export const Loading: Story = {
   args: {
-    rules: [],
-    loading: true,
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -223,12 +208,8 @@ export const Loading: Story = {
  */
 export const DropRulesOnly: Story = {
   args: {
-    rules: generateMockRules(5, (i) => ({
-      action: 'drop',
-      comment: `Drop rule ${i + 1}`,
-      connectionLimit: 100 - i * 10,
-      timeWindow: i % 2 === 0 ? 'per-second' : 'per-minute',
-    })),
+    actionFilter: 'drop',
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -252,13 +233,8 @@ export const DropRulesOnly: Story = {
  */
 export const TarpitRules: Story = {
   args: {
-    rules: generateMockRules(4, (i) => ({
-      action: 'tarpit',
-      comment: `Tarpit suspicious traffic ${i + 1}`,
-      srcAddress: `192.168.${i + 1}.0/24`,
-      connectionLimit: 50 + i * 10,
-      timeWindow: 'per-second',
-    })),
+    actionFilter: 'tarpit',
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -282,14 +258,8 @@ export const TarpitRules: Story = {
  */
 export const AddToListRules: Story = {
   args: {
-    rules: generateMockRules(3, (i) => ({
-      action: 'add-to-list',
-      addressList: 'rate-limited',
-      addressListTimeout: ['1h', '6h', '1d'][i],
-      comment: `Block violators for ${['1 hour', '6 hours', '1 day'][i]}`,
-      connectionLimit: 200 - i * 50,
-      timeWindow: 'per-minute',
-    })),
+    actionFilter: 'add-to-list',
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -313,8 +283,7 @@ export const AddToListRules: Story = {
  */
 export const WithFilters: Story = {
   args: {
-    rules: mockRateLimitRules,
-    showFilters: true,
+    statusFilter: 'enabled',
   },
   parameters: {
     docs: {
@@ -338,13 +307,7 @@ export const WithFilters: Story = {
  */
 export const ManyRules: Story = {
   args: {
-    rules: generateMockRules(150, (i) => ({
-      action: ['drop', 'tarpit', 'add-to-list'][i % 3] as any,
-      comment: `Generated rule ${i + 1}`,
-      connectionLimit: 50 + (i % 10) * 10,
-      timeWindow: i % 2 === 0 ? 'per-second' : 'per-minute',
-      disabled: i % 10 === 0,
-    })),
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -368,7 +331,7 @@ export const ManyRules: Story = {
  */
 export const MobileView: Story = {
   args: {
-    rules: mockRateLimitRules,
+    statusFilter: 'all',
   },
   parameters: {
     viewport: {
@@ -395,7 +358,7 @@ export const MobileView: Story = {
  */
 export const DesktopView: Story = {
   args: {
-    rules: mockRateLimitRules,
+    statusFilter: 'all',
   },
   parameters: {
     viewport: {
@@ -422,23 +385,7 @@ export const DesktopView: Story = {
  */
 export const WithHighTraffic: Story = {
   args: {
-    rules: [
-      {
-        ...mockDropRule,
-        packets: 1234567,
-        bytes: 987654321,
-      },
-      {
-        ...mockTarpitRule,
-        packets: 567890,
-        bytes: 234567890,
-      },
-      {
-        ...mockAddToListRule,
-        packets: 9876543,
-        bytes: 4567890123,
-      },
-    ],
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -462,8 +409,7 @@ export const WithHighTraffic: Story = {
  */
 export const NonSortable: Story = {
   args: {
-    rules: mockRateLimitRules,
-    sortable: false,
+    statusFilter: 'all',
   },
   parameters: {
     docs: {
@@ -486,7 +432,7 @@ export const NonSortable: Story = {
  */
 export const AccessibilityTest: Story = {
   args: {
-    rules: mockRateLimitRules,
+    statusFilter: 'all',
   },
   parameters: {
     a11y: {

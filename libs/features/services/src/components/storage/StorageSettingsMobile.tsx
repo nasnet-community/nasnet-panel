@@ -1,18 +1,23 @@
 /**
  * StorageSettingsMobile Component
- * Mobile presenter for storage configuration (<640px)
+ * @description Mobile presenter for external storage configuration (<640px viewport).
+ * Provides touch-first experience with full-width buttons and minimal scrolling.
  *
- * Features:
- * - Stacked vertical layout
- * - 44px touch targets (h-11 class)
- * - Full-width buttons
- * - Progressive disclosure (Essential → Common → Advanced)
+ * @features
+ * - Single-column stacked layout for mobile users
+ * - 44x44px minimum touch targets (h-11 class on all interactive elements)
+ * - Full-width buttons and selects for easy tapping
+ * - Progressive disclosure: Essential (config) + Common (services) + Advanced (mount details)
+ * - Touch-friendly cards with large typography
+ * - Disconnection alert with affected services
  *
  * @see NAS-8.20: External Storage Management
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
+ * @see Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md - section 2 (Mobile design)
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import {
   ChevronDown,
@@ -46,15 +51,17 @@ import { StorageUsageBar } from './StorageUsageBar';
 import { StorageDisconnectBanner } from './StorageDisconnectBanner';
 
 /**
- * StorageSettingsMobile props
+ * StorageSettingsMobile component props
  */
 export interface StorageSettingsMobileProps {
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 }
 
 /**
- * Format bytes to human-readable string
+ * Format bytes to human-readable string using BigInt for large values
+ * @param {string} bytes - Bytes value as serialized uint64 string
+ * @returns {string} Formatted value with unit (B, KB, MB, GB, TB)
  */
 function formatBytes(bytes: string): string {
   const num = BigInt(bytes);
@@ -72,7 +79,9 @@ function formatBytes(bytes: string): string {
 
 /**
  * StorageSettingsMobile component
- * Mobile-optimized storage settings UI
+ * @description Mobile-optimized storage settings with full-width controls and 44px touch targets
+ * @param {StorageSettingsMobileProps} props - Component props
+ * @returns {React.ReactNode} Rendered mobile storage settings UI
  */
 export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({ className }: StorageSettingsMobileProps) {
   const {
@@ -110,6 +119,22 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
     }
   }, [externalMounts, selectedMount]);
 
+  const handleStorageToggle = useCallback((enabled: boolean) => {
+    if (enabled && selectedMount) {
+      handleEnableStorage(selectedMount);
+    } else {
+      handleDisableStorage(false);
+    }
+  }, [selectedMount, handleEnableStorage, handleDisableStorage]);
+
+  const handleMountSelect = useCallback((value: string) => setSelectedMount(value), []);
+
+  const handleScan = useCallback(() => handleScanStorage(), [handleScanStorage]);
+
+  const handleCommonToggle = useCallback((open: boolean) => setShowCommon(open), [setShowCommon]);
+
+  const handleAdvancedToggle = useCallback((open: boolean) => setShowAdvanced(open), [setShowAdvanced]);
+
   return (
     <div className={cn('flex flex-col gap-4 p-4', className)}>
       {/* Disconnect Warning Banner */}
@@ -127,7 +152,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Status Badge */}
+          {/* Status Badge: Shows current configuration state */}
           <div className="flex items-center justify-between">
             <Label>Status</Label>
             <Badge
@@ -148,7 +173,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             </Badge>
           </div>
 
-          {/* Detection Status */}
+          {/* Detection Alert: Shown when no external storage found */}
           {!isStorageDetected && (
             <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
               <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
@@ -158,7 +183,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             </div>
           )}
 
-          {/* Enable/Disable Toggle */}
+          {/* Enable/Disable Toggle: 44px touch target for mobile */}
           <div className="flex items-center justify-between h-11">
             <Label htmlFor="storage-enabled">Enable External Storage</Label>
             <Switch
@@ -166,23 +191,17 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
               checked={isStorageConfigured}
               disabled={!isStorageDetected || configuring}
               aria-label="Enable external storage"
-              onCheckedChange={(enabled) => {
-                if (enabled && selectedMount) {
-                  handleEnableStorage(selectedMount);
-                } else {
-                  handleDisableStorage(false);
-                }
-              }}
+              onCheckedChange={handleStorageToggle}
             />
           </div>
 
-          {/* Mount Point Selector */}
+          {/* Mount Point Selector: Full-width dropdown for touch */}
           {isStorageDetected && (
             <div className="space-y-2">
               <Label htmlFor="mount-select">Storage Location</Label>
               <Select
                 value={selectedMount}
-                onValueChange={setSelectedMount}
+                onValueChange={handleMountSelect}
                 disabled={!isStorageDetected || configuring}
               >
                 <SelectTrigger id="mount-select" className="h-11">
@@ -191,7 +210,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                 <SelectContent>
                   {externalMounts.map((mount) => (
                     <SelectItem key={mount.path} value={mount.path}>
-                      {mount.path} - {formatBytes(mount.availableBytes)} free
+                      <span className="font-mono">{mount.path}</span> - {formatBytes(mount.availableBytes)} free
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -199,7 +218,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             </div>
           )}
 
-          {/* Usage Bar (if configured) */}
+          {/* External Storage Usage Bar: Shown when storage is configured */}
           {isStorageConfigured && config?.storageInfo && (
             <div className="space-y-2">
               <Label>Storage Usage</Label>
@@ -212,7 +231,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             </div>
           )}
 
-          {/* Flash Usage (always show) */}
+          {/* Flash Memory Usage Bar: Always displayed */}
           {flashStorage && (
             <div className="space-y-2">
               <Label>Flash Memory Usage</Label>
@@ -227,8 +246,8 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
         </CardContent>
       </Card>
 
-      {/* Common Section: Service Breakdown */}
-      <Collapsible.Root open={showCommon} onOpenChange={setShowCommon}>
+      {/* Common Section: Service Breakdown (collapsed by default) */}
+      <Collapsible.Root open={showCommon} onOpenChange={handleCommonToggle}>
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -251,15 +270,17 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
               {usage?.features && usage.features.length > 0 ? (
                 usage.features.map((feature) => (
                   <div key={feature.featureId} className="space-y-2">
+                    {/* Service Name and Total Size */}
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">
                         {feature.featureName}
                       </span>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="font-mono">
                         {formatBytes(feature.totalSize)}
                       </Badge>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    {/* Storage Breakdown: Technical data in monospace */}
+                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground font-mono">
                       <div>Binary: {formatBytes(feature.binarySize)}</div>
                       <div>Data: {formatBytes(feature.dataSize)}</div>
                       <div>Config: {formatBytes(feature.configSize)}</div>
@@ -278,8 +299,8 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
         </Collapsible.Content>
       </Collapsible.Root>
 
-      {/* Advanced Section: Technical Details */}
-      <Collapsible.Root open={showAdvanced} onOpenChange={setShowAdvanced}>
+      {/* Advanced Section: Technical Details (collapsed by default) */}
+      <Collapsible.Root open={showAdvanced} onOpenChange={handleAdvancedToggle}>
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -299,11 +320,11 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
         <Collapsible.Content className="mt-2">
           <Card>
             <CardContent className="pt-6 space-y-4">
-              {/* Mount Point Details */}
+              {/* Mount Point Details: Technical data in monospace */}
               {externalMounts.map((mount) => (
                 <div key={mount.path} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{mount.path}</span>
+                    <span className="text-sm font-medium font-mono">{mount.path}</span>
                     <Badge
                       variant={mount.mounted ? 'default' : 'secondary'}
                       className="text-xs"
@@ -311,7 +332,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                       {mount.mounted ? 'Mounted' : 'Unmounted'}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground font-mono">
                     <div>Total: {formatBytes(mount.totalBytes)}</div>
                     <div>Free: {formatBytes(mount.availableBytes)}</div>
                     <div>Type: {mount.filesystem}</div>
@@ -321,11 +342,11 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                 </div>
               ))}
 
-              {/* Manual Scan Button */}
+              {/* Manual Scan Button: 44px touch target */}
               <Button
                 variant="outline"
                 className="w-full h-11"
-                onClick={handleScanStorage}
+                onClick={handleScan}
                 disabled={scanning}
                 aria-label={scanning ? 'Scanning for storage devices' : 'Scan for storage devices'}
               >

@@ -9,8 +9,8 @@ import (
 	"backend/internal/orchestrator/resources"
 )
 
-//nolint:unused,exhaustive // may be used in logs_diagnostics.resolvers.go, default handles enum
 func convertLogLevel(level resources.LogLevel) model.LogLevel {
+	//nolint:exhaustive // default handles remaining cases
 	switch level {
 	case resources.LogLevelDebug:
 		return model.LogLevelDebug

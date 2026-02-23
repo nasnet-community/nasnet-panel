@@ -1,6 +1,12 @@
 /**
  * TimeRangeSelector - Accessible segmented control for time range selection
  * WCAG AAA compliant with 44px touch targets, keyboard navigation, and ARIA support
+ * @description
+ * Renders a radio group styled as a segmented control for bandwidth time range selection.
+ * Supports keyboard navigation (arrow keys, Home/End), roving tabindex pattern, and
+ * screen reader announcements. Touch targets are 44px minimum for mobile accessibility.
+ * @example
+ * <TimeRangeSelector value="5m" onChange={(range) => setRange(range)} />
  */
 
 import { memo, useCallback, useEffect, useRef } from 'react';
@@ -11,13 +17,17 @@ import type { TimeRange, TimeRangeSelectorProps } from './types';
  * Time range option configuration
  */
 interface TimeRangeOption {
+  /** Time range value key */
   value: TimeRange;
+  /** Human-readable label for button */
   label: string;
+  /** Descriptive text for screen readers and tooltips */
   description: string;
 }
 
 /**
  * Available time range options
+ * Order determines keyboard navigation (left=previous, right=next)
  */
 const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
   {
@@ -38,15 +48,18 @@ const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
 ];
 
 /**
- * TimeRangeSelector component
+ * TimeRangeSelector component - Accessible radio group for time range selection
  *
  * Implements segmented control pattern with:
- * - WCAG AAA compliance (7:1 contrast, 44px touch targets)
- * - Full keyboard navigation (Tab, Arrow keys, Enter/Space)
- * - Screen reader support with proper ARIA attributes
- * - Focus indicators (3px ring)
+ * - WCAG AAA compliance: 7:1 contrast, 44px minimum touch targets (8px spacing between)
+ * - Full keyboard navigation: Tab, Arrow keys (wrap around), Enter/Space, Home, End
+ * - Roving tabindex pattern: only selected option focusable
+ * - Screen reader support: role="radiogroup", aria-checked, aria-label with descriptions
+ * - Focus indicators: 3px ring with 2px offset
+ * - Touch-friendly: minimum 44px height, adequate padding
  *
- * @param props - Component props
+ * @param props - Component props (value, onChange, className)
+ * @returns Accessible segmented control element
  */
 export const TimeRangeSelector = memo<TimeRangeSelectorProps>(
   ({ value, onChange, className }) => {

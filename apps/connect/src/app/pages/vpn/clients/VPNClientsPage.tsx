@@ -6,8 +6,9 @@
 
 import * as React from 'react';
 
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { RefreshCw, Plus, Monitor } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { 
   useWireGuardPeers,
@@ -28,8 +29,8 @@ import {
   ProtocolIconBadge,
   getProtocolLabel,
 } from '@nasnet/ui/patterns';
-import { 
-  Button, 
+import {
+  Button,
   Skeleton,
   Tabs,
   TabsList,
@@ -37,16 +38,15 @@ import {
   TabsContent,
 } from '@nasnet/ui/primitives';
 
-import { Route } from '@/routes/router/$id/vpn/clients';
-
 const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2'];
 
 /**
  * VPN Clients Page Component
  */
-export function VPNClientsPage() {
+export const VPNClientsPage = React.memo(function VPNClientsPage() {
+  const { t } = useTranslation('vpn');
   const navigate = useNavigate();
-  const { id: routerId } = Route.useParams();
+  const { id: routerId } = useParams({ from: '/router/$id/vpn/clients' });
   const search = useSearch({ from: '/router/$id/vpn/clients' });
   const initialProtocol = (search as { protocol?: VPNProtocol }).protocol || null;
   const [activeTab, setActiveTab] = React.useState<VPNProtocol | 'all'>(initialProtocol || 'all');
@@ -125,7 +125,7 @@ export function VPNClientsPage() {
   const sstpClients = sstpClientsQuery.data || [];
   
   // IPsec Peers (clients = non-passive mode)
-  const ipsecClientPeers = ipsecPeersQuery.data?.filter(p => !p.passive) || [];
+  const ipsecClientPeers = ipsecPeersQuery.data?.filter(p => !p.isPassive) || [];
 
   // Render client section based on protocol
   const renderProtocolSection = (protocol: VPNProtocol) => {
@@ -145,8 +145,8 @@ export function VPNClientsPage() {
                     id={peer.id}
                     name={`${peer.interface}-peer`}
                     protocol="wireguard"
-                    disabled={peer.disabled || false}
-                    running={!!peer.lastHandshake}
+                    isDisabled={peer.isDisabled || false}
+                    isRunning={!!peer.lastHandshake}
                     connectTo={peer.endpoint || ''}
                     rx={peer.rx}
                     tx={peer.tx}
@@ -179,8 +179,8 @@ export function VPNClientsPage() {
                     id={client.id}
                     name={client.name}
                     protocol="openvpn"
-                    disabled={client.disabled}
-                    running={client.running}
+                    isDisabled={client.isDisabled}
+                    isRunning={client.isRunning}
                     connectTo={client.connectTo}
                     port={client.port}
                     user={client.user}
@@ -216,8 +216,8 @@ export function VPNClientsPage() {
                     id={client.id}
                     name={client.name}
                     protocol="l2tp"
-                    disabled={client.disabled}
-                    running={client.running}
+                    isDisabled={client.isDisabled}
+                    isRunning={client.isRunning}
                     connectTo={client.connectTo}
                     user={client.user}
                     uptime={client.uptime}
@@ -254,8 +254,8 @@ export function VPNClientsPage() {
                     id={client.id}
                     name={client.name}
                     protocol="pptp"
-                    disabled={client.disabled}
-                    running={client.running}
+                    isDisabled={client.isDisabled}
+                    isRunning={client.isRunning}
                     connectTo={client.connectTo}
                     user={client.user}
                     uptime={client.uptime}
@@ -292,8 +292,8 @@ export function VPNClientsPage() {
                     id={client.id}
                     name={client.name}
                     protocol="sstp"
-                    disabled={client.disabled}
-                    running={client.running}
+                    isDisabled={client.isDisabled}
+                    isRunning={client.isRunning}
                     connectTo={client.connectTo}
                     port={client.port}
                     user={client.user}
@@ -333,8 +333,8 @@ export function VPNClientsPage() {
                       id={peer.id}
                       name={peer.name}
                       protocol="ikev2"
-                      disabled={peer.disabled}
-                      running={!!activeConn}
+                      isDisabled={peer.isDisabled}
+                      isRunning={!!activeConn}
                       connectTo={peer.address}
                       port={peer.port}
                       uptime={activeConn?.uptime}
@@ -371,10 +371,10 @@ export function VPNClientsPage() {
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                VPN Clients
+                {t('clients.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Configure and manage outgoing VPN connections
+                {t('clients.overview')}
               </p>
             </div>
           </div>
@@ -386,7 +386,7 @@ export function VPNClientsPage() {
               disabled={isLoading || isFetching}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
             </Button>
           </div>
         </div>
@@ -405,12 +405,12 @@ export function VPNClientsPage() {
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}>
             {/* Protocol Tabs */}
             <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
-              <TabsTrigger 
+              <TabsTrigger
                 value="all"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <Monitor className="h-4 w-4 mr-2" />
-                All
+                {t('button.all', { ns: 'common' })}
               </TabsTrigger>
               {ALL_PROTOCOLS.map((protocol) => (
                 <TabsTrigger 
@@ -444,7 +444,9 @@ export function VPNClientsPage() {
       </div>
     </div>
   );
-}
+});
+
+VPNClientsPage.displayName = 'VPNClientsPage';
 
 /**
  * Empty State Component
@@ -455,18 +457,19 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ protocol, onAdd }: EmptyStateProps) {
+  const { t } = useTranslation('vpn');
   return (
     <div className="text-center py-8 bg-muted/30 rounded-xl">
       <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        No {getProtocolLabel(protocol)} clients configured
+        {t('clients.noClientsConfigured', { protocol: getProtocolLabel(protocol) })}
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Get started by adding your first {getProtocolLabel(protocol)} client connection
+        {t('clients.getStartedAddFirst', { protocol: getProtocolLabel(protocol) })}
       </p>
       <Button onClick={onAdd}>
         <Plus className="h-4 w-4 mr-2" />
-        Add {getProtocolLabel(protocol)} Client
+        {t('clients.addClient', { protocol: getProtocolLabel(protocol) })}
       </Button>
     </div>
   );

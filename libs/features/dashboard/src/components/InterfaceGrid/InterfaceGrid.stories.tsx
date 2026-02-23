@@ -224,7 +224,7 @@ export const Loading: Story = {
   ],
 };
 
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     deviceId: 'router-1',
   },

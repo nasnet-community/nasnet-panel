@@ -2,10 +2,13 @@
  * DNS Benchmark - Desktop Presenter
  * NAS-6.12: DNS Cache & Diagnostics - Task 5.3
  *
- * Desktop layout (>=640px) with data table sorted by response time
+ * @description Desktop layout (>=640px) with data table sorted by response time.
+ * Provides detailed DNS server benchmark results with status indicators and
+ * response time metrics.
  */
 
 import * as React from 'react';
+import { Trophy, PlayCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives/card';
 import {
@@ -18,17 +21,30 @@ import {
 } from '@nasnet/ui/primitives/table';
 import { Badge } from '@nasnet/ui/primitives/badge';
 import { Progress } from '@nasnet/ui/primitives/progress';
-import { AlertCircle, PlayCircle, Trophy } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives/icon';
+import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
+import { cn } from '@nasnet/ui/utils';
 import { useDnsBenchmark } from './useDnsBenchmark';
 import type { DnsBenchmarkProps } from './types';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
 
-export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onError, className }: DnsBenchmarkProps) {
-  const { isLoading, isSuccess, isError, result, error, progress, runBenchmark, reset } = useDnsBenchmark({
-    deviceId,
-    onSuccess,
-    onError,
-  });
+/**
+ * Desktop presenter for DNS Benchmark component
+ *
+ * @internal Platform presenter - use DnsBenchmark wrapper for auto-detection
+ */
+function DnsBenchmarkDesktopComponent({
+  deviceId,
+  autoRun = false,
+  onSuccess,
+  onError,
+  className,
+}: DnsBenchmarkProps) {
+  const { isLoading, isSuccess, isError, result, error, progress, runBenchmark, reset } =
+    useDnsBenchmark({
+      deviceId,
+      onSuccess,
+      onError,
+    });
 
   // Auto-run on mount if enabled
   React.useEffect(() => {
@@ -37,54 +53,67 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
     }
   }, [autoRun, runBenchmark]);
 
-  const getStatusBadge = (status: string, isFastest: boolean) => {
-    if (isFastest) {
-      return (
-        <Badge variant="success" className="gap-1">
-          <Trophy className="h-3 w-3" />
-          Fastest
-        </Badge>
-      );
-    }
+  const getStatusBadge = React.useCallback(
+    (status: string, isFastest: boolean) => {
+      if (isFastest) {
+        return (
+          <Badge variant="success" className="gap-1">
+            <Trophy className="h-3 w-3" aria-hidden />
+            Fastest
+          </Badge>
+        );
+      }
 
-    switch (status) {
-      case 'GOOD':
-        return <Badge variant="info">Good</Badge>;
-      case 'SLOW':
-        return <Badge variant="warning">Slow</Badge>;
-      case 'UNREACHABLE':
-        return <Badge variant="error">Unreachable</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+      switch (status) {
+        case 'GOOD':
+          return <Badge variant="info">Good</Badge>;
+        case 'SLOW':
+          return <Badge variant="warning">Slow</Badge>;
+        case 'UNREACHABLE':
+          return <Badge variant="error">Unreachable</Badge>;
+        default:
+          return <Badge variant="secondary">{status}</Badge>;
+      }
+    },
+    []
+  );
 
-  const formatTime = (ms: number) => {
+  const formatTime = React.useCallback((ms: number) => {
     if (ms < 0) return 'N/A';
     return `${ms}ms`;
-  };
+  }, []);
+
+  const handleRunBenchmark = React.useCallback(() => {
+    runBenchmark();
+  }, [runBenchmark]);
+
+  const handleReset = React.useCallback(() => {
+    reset();
+  }, [reset]);
 
   return (
-    <Card className={className}>
+    <Card className={cn('', className)}>
       <CardHeader>
         <CardTitle>DNS Server Benchmark</CardTitle>
-        <CardDescription>
-          Test response times of all configured DNS servers
-        </CardDescription>
+        <CardDescription>Test response times of all configured DNS servers</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
           <Button
-            onClick={runBenchmark}
+            onClick={handleRunBenchmark}
             disabled={isLoading}
             className="gap-2"
             aria-label="Run DNS server benchmark"
           >
-            <PlayCircle className="h-4 w-4" />
+            <PlayCircle className="h-4 w-4" aria-hidden />
             {isLoading ? 'Running...' : 'Run Benchmark'}
           </Button>
           {result && !isLoading && (
-            <Button variant="outline" onClick={reset} aria-label="Clear benchmark results">
+            <Button
+              variant="outline"
+              onClick={handleReset}
+              aria-label="Clear benchmark results"
+            >
               Clear Results
             </Button>
           )}
@@ -92,14 +121,18 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
 
         {isLoading && (
           <div className="space-y-2" role="status" aria-live="polite">
-            <Progress value={progress} className="w-full" aria-label={`Benchmark progress: ${progress}%`} />
+            <Progress
+              value={progress}
+              className="w-full"
+              aria-label={`Benchmark progress: ${progress}%`}
+            />
             <p className="text-sm text-info">Testing DNS servers...</p>
           </div>
         )}
 
         {isError && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" aria-hidden />
             <AlertDescription>{error || 'Failed to run benchmark'}</AlertDescription>
           </Alert>
         )}
@@ -107,7 +140,9 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
         {isSuccess && result && (
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground">
-              Tested with: <span className="font-medium">{result.testHostname}</span> • Total time: {result.totalTimeMs}ms
+              Tested with:{' '}
+              <span className="font-mono font-medium">{result.testHostname}</span> •
+              Total time: <span className="font-mono">{result.totalTimeMs}ms</span>
             </div>
 
             <Table>
@@ -122,11 +157,14 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
               <TableBody>
                 {result.serverResults.map((server, index) => (
                   <TableRow key={server.server}>
-                    <TableCell className="font-mono text-sm">
-                      {server.server}
-                    </TableCell>
+                    <TableCell className="font-mono text-sm">{server.server}</TableCell>
                     <TableCell>
-                      <span className={server.success ? 'text-success font-medium' : 'text-muted-foreground'}>
+                      <span
+                        className={cn(
+                          server.success ? 'text-success font-medium' : 'text-muted-foreground',
+                          'font-mono'
+                        )}
+                      >
                         {formatTime(server.responseTimeMs)}
                       </span>
                     </TableCell>
@@ -149,3 +187,6 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
   );
 }
 
+DnsBenchmarkDesktopComponent.displayName = 'DnsBenchmarkDesktop';
+
+export const DnsBenchmarkDesktop = React.memo(DnsBenchmarkDesktopComponent);

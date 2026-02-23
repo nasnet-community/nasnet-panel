@@ -8,12 +8,13 @@
 
 import { useState } from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { InterfaceType, InterfaceStatus } from '@nasnet/api-client/generated';
 
 import { InterfaceListFilters } from './InterfaceListFilters';
+
 import type { InterfaceFilters } from './InterfaceList';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Meta

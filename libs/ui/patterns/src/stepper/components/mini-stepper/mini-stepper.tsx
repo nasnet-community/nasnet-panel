@@ -105,7 +105,7 @@ function StepAnnouncer({
  * @param props - MiniStepper props
  * @returns MiniStepper element
  */
-export function MiniStepper({
+function MiniStepperComponent({
   stepper,
   stepContent,
   className,
@@ -326,5 +326,12 @@ export function MiniStepper({
     </div>
   );
 }
+
+MiniStepperComponent.displayName = 'MiniStepper';
+
+/**
+ * Memoized MiniStepper to prevent unnecessary re-renders
+ */
+export const MiniStepper = React.memo(MiniStepperComponent);
 
 MiniStepper.displayName = 'MiniStepper';

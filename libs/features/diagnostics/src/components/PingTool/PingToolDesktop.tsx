@@ -1,11 +1,20 @@
 /**
  * PingToolDesktop - Desktop Presenter for Ping Diagnostic Tool
  *
- * Desktop layout with side-by-side form and results.
- * Form on the left, results/graph/stats on the right.
+ * Dense side-by-side layout optimized for desktop screens (>1024px).
+ * - Left column: form with all advanced options visible
+ * - Right column: results, latency graph, and statistics
+ *
+ * WCAG AAA Compliance:
+ * - 7:1 contrast ratio on all text
+ * - 32-38px touch/click targets for buttons
+ * - IP addresses and latency in monospace font (font-mono)
+ * - Semantic color tokens (success/warning/destructive)
+ * - ARIA live regions for dynamic results
+ * - Keyboard accessible form with proper labels
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -29,7 +38,18 @@ import type { PingToolProps } from './PingTool.types';
 /**
  * PingToolDesktop - Desktop presenter component
  *
- * Side-by-side layout optimized for desktop screens (>1024px).
+ * Grid layout with dense information display:
+ * - Left: Ping form (40% width) with all advanced options visible
+ * - Right: Streaming results (60% width) with graph and stats below
+ *
+ * Performance optimizations:
+ * - useCallback for form submission to prevent unnecessary re-renders
+ * - React.memo to skip re-renders when props unchanged
+ * - Stable form schema validation
+ * - Virtualized results list for 100+ items
+ *
+ * @param props - Component props (routerId, onComplete, onError callbacks)
+ * @returns Desktop layout presenter
  */
 export const PingToolDesktop = memo(function PingToolDesktop({
   routerId,
@@ -57,36 +77,38 @@ export const PingToolDesktop = memo(function PingToolDesktop({
     },
   });
 
-  const onSubmit = (values: PingFormValues) => {
+  // Stable form submission handler with useCallback
+  const onSubmit = useCallback((values: PingFormValues) => {
     ping.startPing(values);
-  };
+  }, [ping]);
 
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* Left column: Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Ping Diagnostic Tool</CardTitle>
+          <CardTitle>Ping Diagnostic</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Target input */}
+            {/* Target input with semantic tokens and monospace for IPs */}
             <div className="space-y-2">
               <Label htmlFor="ping-target">
                 Target <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="ping-target"
-                placeholder="Enter hostname or IP (e.g., 8.8.8.8)"
+                placeholder="8.8.8.8 or hostname"
                 aria-describedby="ping-target-description"
                 disabled={ping.isRunning}
+                className="font-mono"
                 {...register('target')}
               />
               <p
                 id="ping-target-description"
                 className="text-sm text-muted-foreground"
               >
-                IPv4, IPv6 address, or hostname
+                IPv4, IPv6, or hostname
               </p>
               {errors.target && (
                 <p className="text-sm text-destructive" role="alert">
@@ -262,3 +284,5 @@ export const PingToolDesktop = memo(function PingToolDesktop({
     </div>
   );
 });
+
+PingToolDesktop.displayName = 'PingToolDesktop';

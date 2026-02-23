@@ -1,21 +1,18 @@
 /**
- * Port Knock Log Viewer
- *
- * Displays port knock attempt log with infinite scroll and filtering.
- * Uses TanStack Virtual for performance with large datasets.
+ * Port Knock Log Viewer Component
+ * @description Displays port knock attempt log with filtering and export
  *
  * Features:
  * - Infinite scroll pagination
- * - Filter by status, IP, date range, sequence
- * - Status badges (success, failed, partial)
- * - "Block IP" action (adds to address list)
- * - Export CSV
+ * - Filter by status (all/success/failed/partial) and IP address
+ * - Status badges with semantic colors
+ * - "Block IP" action for failed attempts
+ * - Export to CSV
  * - Auto-refresh toggle
- *
- * Story: NAS-7.12 - Implement Port Knocking - Task 4
+ * - Professional error and empty states
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore, usePortKnockStore } from '@nasnet/state/stores';
@@ -63,45 +60,59 @@ export interface PortKnockLogViewerProps {
   className?: string;
 }
 
-// ============================================================================
-// Status Badge Component
-// ============================================================================
-
-function StatusBadge({ status }: { status: string }) {
-  const variantMap: Record<string, { variant: 'success' | 'error' | 'warning'; icon: typeof CheckCircle }> = {
+/**
+ * Renders a semantic badge for port knock attempt status
+ * @description Maps status to color variant and icon
+ */
+const StatusBadge = ({ status }: { status: string }) => {
+  const VARIANT_MAP: Record<string, { variant: 'success' | 'error' | 'warning'; icon: typeof CheckCircle }> = {
     success: { variant: 'success', icon: CheckCircle },
     failed: { variant: 'error', icon: XCircle },
     partial: { variant: 'warning', icon: AlertTriangle },
   };
 
-  const config = variantMap[status] || variantMap.failed;
+  const config = VARIANT_MAP[status] || VARIANT_MAP.failed;
   const Icon = config.icon;
 
   return (
     <Badge variant={config.variant} className="text-xs">
-      <Icon className="h-3 w-3 mr-1" />
+      <Icon className="h-3 w-3 mr-1" aria-hidden="true" />
       {status}
     </Badge>
   );
-}
+};
+
+StatusBadge.displayName = 'StatusBadge';
 
 // ============================================================================
 // Filter Bar Component
 // ============================================================================
 
+/** Type guard for knock status filter values */
 type KnockStatusFilter = 'all' | 'partial' | 'success' | 'failed';
 
 interface FilterBarProps {
+  /** Current status filter value */
   statusFilter: string;
+  /** Callback when status filter changes */
   onStatusFilterChange: (status: KnockStatusFilter) => void;
+  /** Current IP filter value */
   ipFilter: string;
+  /** Callback when IP filter changes */
   onIpFilterChange: (ip: string) => void;
+  /** Whether auto-refresh is enabled */
   autoRefresh: boolean;
+  /** Callback when auto-refresh toggle changes */
   onAutoRefreshChange: (enabled: boolean) => void;
+  /** Callback for CSV export */
   onExport: () => void;
 }
 
-function FilterBar({
+/**
+ * Renders filter controls for the port knock log
+ * @description Status filter, IP search, auto-refresh toggle, and export button
+ */
+const FilterBar = ({
   statusFilter,
   onStatusFilterChange,
   ipFilter,
@@ -109,7 +120,7 @@ function FilterBar({
   autoRefresh,
   onAutoRefreshChange,
   onExport,
-}: FilterBarProps) {
+}: FilterBarProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-4">
       <div className="flex-1">
@@ -145,19 +156,26 @@ function FilterBar({
           Auto-refresh
         </Label>
       </div>
-      <Button variant="outline" size="sm" onClick={onExport}>
-        <Download className="h-4 w-4 mr-2" />
+      <Button variant="outline" size="sm" onClick={onExport} aria-label="Export log to CSV">
+        <Download className="h-4 w-4 mr-2" aria-hidden="true" />
         Export CSV
       </Button>
     </div>
   );
-}
+};
 
-// ============================================================================
-// Main Component
-// ============================================================================
+FilterBar.displayName = 'FilterBar';
 
-export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
+/**
+ * PortKnockLogViewer Component
+ * @description Displays and manages port knock attempt logs with filtering
+ *
+ * @example
+ * ```tsx
+ * <PortKnockLogViewer />
+ * ```
+ */
+export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
   const { t } = useTranslation('firewall');
   const { activeRouterId } = useConnectionStore();
   const {
@@ -190,9 +208,8 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
     return data.pages.flatMap((page) => page.attempts);
   }, [data]);
 
-  const handleExport = () => {
-    // Convert attempts to CSV
-    const headers = ['Timestamp', 'Sequence', 'Source IP', 'Status', 'Progress', 'Ports Hit'];
+  const handleExport = useCallback(() => {
+    const CSV_HEADERS = ['Timestamp', 'Sequence', 'Source IP', 'Status', 'Progress', 'Ports Hit'];
     const rows = attempts.map((attempt) => [
       new Date(attempt.timestamp).toISOString(),
       attempt.sequenceName,
@@ -202,28 +219,29 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
       attempt.portsHit.join(' → '),
     ]);
 
-    const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const csv = [CSV_HEADERS.join(','), ...rows.map((row) => row.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `port-knock-log-${Date.now()}.csv`;
-    a.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `port-knock-log-${Date.now()}.csv`;
+    link.click();
     URL.revokeObjectURL(url);
-  };
+  }, [attempts]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-muted-foreground">Loading log...</div>
+      <div className={cn('flex items-center justify-center py-12', className)}>
+        <div className="animate-pulse text-muted-foreground">Loading port knock log...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-destructive">Error loading log: {error.message}</div>
+      <div className={cn('p-4 rounded-lg bg-destructive/10', className)}>
+        <p className="font-medium text-destructive">Error loading port knock log</p>
+        <p className="text-sm text-destructive/80 mt-1">{error.message}</p>
       </div>
     );
   }
@@ -273,12 +291,12 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                   </TableCell>
 
                   <TableCell>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="font-mono text-xs">
                       {attempt.sequenceName}
                     </Badge>
                   </TableCell>
 
-                  <TableCell className="font-mono text-sm">
+                  <TableCell className="font-mono">
                     {attempt.sourceIP}
                   </TableCell>
 
@@ -291,14 +309,15 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                       <div className="w-20 bg-muted rounded-full h-2">
                         <div
                           className={cn(
-                            'h-full rounded-full',
-                            attempt.status === 'success' ? 'bg-green-500' :
-                            attempt.status === 'failed' ? 'bg-red-500' :
-                            'bg-amber-500'
+                            'h-full rounded-full transition-all',
+                            attempt.status === 'success' && 'bg-success',
+                            attempt.status === 'failed' && 'bg-destructive',
+                            attempt.status === 'partial' && 'bg-warning'
                           )}
                           style={{
                             width: `${(() => { const parts = attempt.progress.split('/'); return parts.length === 2 ? (parseInt(parts[0]) / parseInt(parts[1])) * 100 : 0; })()}%`,
                           }}
+                          aria-hidden="true"
                         />
                       </div>
                       <span className="text-xs text-muted-foreground font-mono">
@@ -310,7 +329,7 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                   <TableCell>
                     <div className="flex gap-1">
                       {attempt.portsHit.map((port, index) => (
-                        <Badge key={index} variant="outline" className="font-mono text-xs">
+                        <Badge key={`port-${index}`} variant="outline" className="font-mono text-xs">
                           {port}
                         </Badge>
                       ))}
@@ -328,9 +347,9 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        title="Block this IP"
+                        aria-label="Block this IP address"
                       >
-                        <Ban className="h-4 w-4 text-destructive" />
+                        <Ban className="h-4 w-4 text-destructive" aria-hidden="true" />
                       </Button>
                     )}
                   </TableCell>
@@ -345,10 +364,11 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                 variant="outline"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
+                aria-label={isFetchingNextPage ? 'Loading more entries' : 'Load more entries'}
               >
                 {isFetchingNextPage ? (
                   <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                     Loading...
                   </>
                 ) : (
@@ -361,6 +381,8 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
       )}
     </div>
   );
-}
+};
+
+PortKnockLogViewer.displayName = 'PortKnockLogViewer';
 
 PortKnockLogViewer.displayName = 'PortKnockLogViewer';

@@ -15,6 +15,7 @@ import { z } from 'zod';
 
 /**
  * Variable types supported in templates
+ * Different variable types for template parameterization
  */
 export const VariableTypeSchema = z.enum([
   'INTERFACE',
@@ -28,10 +29,16 @@ export const VariableTypeSchema = z.enum([
   'BOOLEAN',
 ]);
 
+/**
+ * Type for template variable types
+ * @example
+ * const varType: VariableType = 'IP';
+ */
 export type VariableType = z.infer<typeof VariableTypeSchema>;
 
 /**
  * Template categories
+ * Organizes templates by use case or network context
  */
 export const TemplateCategorySchema = z.enum([
   'BASIC',
@@ -44,24 +51,42 @@ export const TemplateCategorySchema = z.enum([
   'CUSTOM',
 ]);
 
+/**
+ * Type for template category
+ * @example
+ * const category: TemplateCategory = 'SECURITY';
+ */
 export type TemplateCategory = z.infer<typeof TemplateCategorySchema>;
 
 /**
  * Template complexity levels
+ * Indicates the sophistication and difficulty of a template
  */
 export const TemplateComplexitySchema = z.enum(['SIMPLE', 'MODERATE', 'ADVANCED', 'EXPERT']);
 
+/**
+ * Type for template complexity level
+ * @example
+ * const complexity: TemplateComplexity = 'ADVANCED';
+ */
 export type TemplateComplexity = z.infer<typeof TemplateComplexitySchema>;
 
 /**
  * Firewall table types
+ * Different MikroTik firewall tables where rules can be applied
  */
 export const FirewallTableSchema = z.enum(['FILTER', 'NAT', 'MANGLE', 'RAW']);
 
+/**
+ * Type for firewall table
+ * @example
+ * const table: FirewallTable = 'FILTER';
+ */
 export type FirewallTable = z.infer<typeof FirewallTableSchema>;
 
 /**
  * Template conflict types for template preview
+ * Indicates what kind of conflict was detected with existing rules
  */
 export const TemplateConflictTypeSchema = z.enum([
   'DUPLICATE_RULE',
@@ -71,6 +96,11 @@ export const TemplateConflictTypeSchema = z.enum([
   'PORT_CONFLICT',
 ]);
 
+/**
+ * Type for template conflict type
+ * @example
+ * const conflictType: TemplateConflictType = 'DUPLICATE_RULE';
+ */
 export type TemplateConflictType = z.infer<typeof TemplateConflictTypeSchema>;
 
 // ============================================================================
@@ -79,6 +109,8 @@ export type TemplateConflictType = z.infer<typeof TemplateConflictTypeSchema>;
 
 /**
  * Template variable definition
+ * Defines a parameterizable variable within a template that can be substituted
+ * at template application time
  */
 export const TemplateVariableSchema = z.object({
   name: z
@@ -89,11 +121,16 @@ export const TemplateVariableSchema = z.object({
   label: z.string().min(1, 'Label is required').max(100, 'Label must be 100 characters or less'),
   type: VariableTypeSchema,
   defaultValue: z.string().optional(),
-  required: z.boolean(),
+  isRequired: z.boolean(),
   description: z.string().max(500, 'Description must be 500 characters or less').optional(),
   options: z.array(z.string()).optional(),
 });
 
+/**
+ * Type for a template variable definition
+ * @example
+ * const variable: TemplateVariable = { name: 'LAN_INTERFACE', label: 'LAN Interface', ... };
+ */
 export type TemplateVariable = z.infer<typeof TemplateVariableSchema>;
 
 // ============================================================================
@@ -102,6 +139,8 @@ export type TemplateVariable = z.infer<typeof TemplateVariableSchema>;
 
 /**
  * Template rule definition
+ * Represents a single firewall rule within a template with optional variable substitution
+ * Properties field stores rule-specific MikroTik attributes (e.g., src-address, dst-port)
  */
 export const TemplateRuleSchema = z.object({
   table: FirewallTableSchema,
@@ -109,9 +148,14 @@ export const TemplateRuleSchema = z.object({
   action: z.string().min(1, 'Action is required'),
   comment: z.string().max(200, 'Comment must be 200 characters or less').optional(),
   position: z.number().int().nonnegative().nullable(),
-  properties: z.record(z.unknown()),
+  properties: z.record(z.string(), z.unknown()),
 });
 
+/**
+ * Type for a template rule definition
+ * @example
+ * const rule: TemplateRule = { table: 'FILTER', chain: 'forward', action: 'accept', ... };
+ */
 export type TemplateRule = z.infer<typeof TemplateRuleSchema>;
 
 // ============================================================================
@@ -120,6 +164,7 @@ export type TemplateRule = z.infer<typeof TemplateRuleSchema>;
 
 /**
  * Template conflict detected during preview
+ * Identifies conflicts between proposed template rules and existing configuration
  */
 export const TemplateConflictSchema = z.object({
   type: TemplateConflictTypeSchema,
@@ -128,6 +173,11 @@ export const TemplateConflictSchema = z.object({
   proposedRule: TemplateRuleSchema.optional(),
 });
 
+/**
+ * Type for a template conflict detected during preview
+ * @example
+ * const conflict: TemplateConflict = { type: 'DUPLICATE_RULE', message: '...', ... };
+ */
 export type TemplateConflict = z.infer<typeof TemplateConflictSchema>;
 
 // ============================================================================
@@ -136,14 +186,20 @@ export type TemplateConflict = z.infer<typeof TemplateConflictSchema>;
 
 /**
  * Impact analysis for template application
+ * Provides metrics on the consequences of applying a template to the firewall configuration
  */
 export const ImpactAnalysisSchema = z.object({
   newRulesCount: z.number().int().nonnegative(),
-  affectedChains: z.array(z.string()),
+  affectedChains: z.array(z.string()).readonly(),
   estimatedApplyTime: z.number().positive(),
-  warnings: z.array(z.string()),
+  warnings: z.array(z.string()).readonly(),
 });
 
+/**
+ * Type for template impact analysis results
+ * @example
+ * const analysis: ImpactAnalysis = { newRulesCount: 5, affectedChains: ['forward'], ... };
+ */
 export type ImpactAnalysis = z.infer<typeof ImpactAnalysisSchema>;
 
 // ============================================================================
@@ -152,6 +208,7 @@ export type ImpactAnalysis = z.infer<typeof ImpactAnalysisSchema>;
 
 /**
  * Firewall template with variables and rules
+ * Complete template definition including all metadata, variables, and rules needed for deployment
  */
 export const FirewallTemplateSchema = z.object({
   id: z.string().min(1, 'Template ID is required'),
@@ -163,14 +220,19 @@ export const FirewallTemplateSchema = z.object({
   category: TemplateCategorySchema,
   complexity: TemplateComplexitySchema,
   ruleCount: z.number().int().nonnegative(),
-  variables: z.array(TemplateVariableSchema),
-  rules: z.array(TemplateRuleSchema).min(1, 'At least one rule is required'),
+  variables: z.array(TemplateVariableSchema).readonly(),
+  rules: z.array(TemplateRuleSchema).min(1, 'At least one rule is required').readonly(),
   isBuiltIn: z.boolean(),
   version: z.string().regex(/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/, 'Version must be in semver format (e.g., 1.0.0)'),
   createdAt: z.date().nullable().optional(),
   updatedAt: z.date().nullable().optional(),
 });
 
+/**
+ * Type for a complete firewall template
+ * @example
+ * const template: FirewallTemplate = { id: 'tpl-1', name: 'Web Server', ... };
+ */
 export type FirewallTemplate = z.infer<typeof FirewallTemplateSchema>;
 
 // ============================================================================
@@ -179,14 +241,21 @@ export type FirewallTemplate = z.infer<typeof FirewallTemplateSchema>;
 
 /**
  * Result of template preview operation
+ * Contains the template with resolved rules, any detected conflicts, and impact analysis
+ * without actually applying the template to the firewall
  */
 export const TemplatePreviewResultSchema = z.object({
   template: FirewallTemplateSchema,
-  resolvedRules: z.array(TemplateRuleSchema),
-  conflicts: z.array(TemplateConflictSchema),
+  resolvedRules: z.array(TemplateRuleSchema).readonly(),
+  conflicts: z.array(TemplateConflictSchema).readonly(),
   impactAnalysis: ImpactAnalysisSchema,
 });
 
+/**
+ * Type for template preview result
+ * @example
+ * const preview: TemplatePreviewResult = { template: {...}, resolvedRules: [...], ... };
+ */
 export type TemplatePreviewResult = z.infer<typeof TemplatePreviewResultSchema>;
 
 // ============================================================================
@@ -195,12 +264,18 @@ export type TemplatePreviewResult = z.infer<typeof TemplatePreviewResultSchema>;
 
 /**
  * Result of template apply operation
+ * Reports the outcome of applying a template to the firewall including success status and rollback info
  */
 export const FirewallTemplateResultSchema = z.object({
-  success: z.boolean(),
+  isSuccessful: z.boolean(),
   appliedRulesCount: z.number().int().nonnegative(),
   rollbackId: z.string(),
-  errors: z.array(z.string()),
+  errors: z.array(z.string()).readonly(),
 });
 
+/**
+ * Type for firewall template application result
+ * @example
+ * const result: FirewallTemplateResult = { isSuccessful: true, appliedRulesCount: 5, rollbackId: '...', errors: [] };
+ */
 export type FirewallTemplateResult = z.infer<typeof FirewallTemplateResultSchema>;

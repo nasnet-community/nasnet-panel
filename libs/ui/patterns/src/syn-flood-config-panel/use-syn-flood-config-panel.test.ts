@@ -16,11 +16,12 @@ import {
   mockSynFloodTarpit,
   mockSynFloodDisabled,
   mockSynFloodStrict,
+  type SynFloodConfig,
 } from '../__test-utils__/rate-limit-fixtures';
 
 describe('useSynFloodConfigPanel', () => {
-  const mockOnSubmit = vi.fn();
-  const mockOnReset = vi.fn();
+  const mockOnSubmit = vi.fn<[config: SynFloodConfig], Promise<void>>();
+  const mockOnReset = vi.fn<[], Promise<void>>();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,7 +37,7 @@ describe('useSynFloodConfigPanel', () => {
       );
 
       const values = result.current.form.getValues();
-      expect(values.enabled).toBe(mockSynFloodDrop.enabled);
+      expect(values.enabled).toBe(mockSynFloodDrop.isEnabled);
       expect(values.synLimit).toBe(String(mockSynFloodDrop.synLimit));
       expect(values.burst).toBe(String(mockSynFloodDrop.burst));
       expect(values.action).toBe(mockSynFloodDrop.action);
@@ -273,7 +274,7 @@ describe('useSynFloodConfigPanel', () => {
 
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          enabled: mockSynFloodDrop.enabled,
+          isEnabled: mockSynFloodDrop.isEnabled,
           synLimit: mockSynFloodDrop.synLimit,
           burst: mockSynFloodDrop.burst,
           action: mockSynFloodDrop.action,
@@ -364,7 +365,7 @@ describe('useSynFloodConfigPanel', () => {
       const formValues = result.current.configToForm(mockSynFloodTarpit);
 
       expect(formValues).toEqual({
-        enabled: mockSynFloodTarpit.enabled,
+        enabled: mockSynFloodTarpit.isEnabled,
         synLimit: String(mockSynFloodTarpit.synLimit),
         burst: String(mockSynFloodTarpit.burst),
         action: mockSynFloodTarpit.action,
@@ -389,7 +390,7 @@ describe('useSynFloodConfigPanel', () => {
       const config = result.current.formToConfig(formValues);
 
       expect(config).toEqual({
-        enabled: true,
+        isEnabled: true,
         synLimit: 150,
         burst: 10,
         action: 'drop',
@@ -457,9 +458,7 @@ describe('useSynFloodConfigPanel', () => {
     });
 
     it('should track submitting state', async () => {
-      const slowSubmit = vi.fn(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
-      );
+      const slowSubmit = vi.fn(() => new Promise<void>((resolve) => setTimeout(resolve, 100)));
 
       const { result } = renderHook(() =>
         useSynFloodConfigPanel({

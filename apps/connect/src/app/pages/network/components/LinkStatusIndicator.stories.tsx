@@ -86,15 +86,15 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-slate-500">ether1:</span>
+        <span className="w-24 text-xs text-muted-foreground">ether1:</span>
         <LinkStatusIndicator linkStatus="up" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-slate-500">ether2:</span>
+        <span className="w-24 text-xs text-muted-foreground">ether2:</span>
         <LinkStatusIndicator linkStatus="down" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-slate-500">wlan1:</span>
+        <span className="w-24 text-xs text-muted-foreground">wlan1:</span>
         <LinkStatusIndicator linkStatus="unknown" />
       </div>
     </div>
@@ -131,13 +131,13 @@ export const InTableCell: Story = {
   render: () => (
     <table className="text-sm border-collapse">
       <thead>
-        <tr className="text-left text-slate-500">
+        <tr className="text-left text-muted-foreground">
           <th className="pr-8 pb-2 font-medium">Interface</th>
           <th className="pr-8 pb-2 font-medium">Type</th>
           <th className="pb-2 font-medium">Link</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-slate-100">
+      <tbody className="divide-y divide-border">
         {[
           { name: 'ether1', type: 'Ethernet', status: 'up' as const },
           { name: 'ether2', type: 'Ethernet', status: 'down' as const },
@@ -146,7 +146,7 @@ export const InTableCell: Story = {
         ].map((row) => (
           <tr key={row.name}>
             <td className="py-2 pr-8 font-mono text-xs">{row.name}</td>
-            <td className="py-2 pr-8 text-slate-600">{row.type}</td>
+            <td className="py-2 pr-8 text-muted-foreground">{row.type}</td>
             <td className="py-2">
               <LinkStatusIndicator linkStatus={row.status} />
             </td>
@@ -164,5 +164,17 @@ export const InTableCell: Story = {
           'LinkStatusIndicator appears alongside interface name and type columns.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

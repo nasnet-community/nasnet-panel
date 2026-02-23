@@ -23,7 +23,7 @@ export interface DependencyNode {
   /**
    * IDs of nodes this node depends on
    */
-  dependencies: string[];
+  dependencies: readonly string[];
 }
 
 /**
@@ -125,7 +125,7 @@ export interface DependencyAnalysis {
  * // result.sortedIds = ['bridge', 'dhcp', 'firewall'] or ['bridge', 'firewall', 'dhcp']
  * ```
  */
-export function topologicalSort(nodes: DependencyNode[]): TopologicalSortResult {
+export function topologicalSort(nodes: ReadonlyArray<DependencyNode>): TopologicalSortResult {
   if (nodes.length === 0) {
     return {
       success: true,
@@ -211,8 +211,16 @@ export function topologicalSort(nodes: DependencyNode[]): TopologicalSortResult 
 
 /**
  * Find a cycle in the dependency graph using DFS
+ *
+ * Uses depth-first search with recursion stack to detect circular dependencies.
+ * Returns the cycle path as an array of node IDs, or null if no cycle exists.
+ *
+ * @param nodes - Array of nodes to search for cycles
+ * @returns Array of node IDs forming a cycle, or null if no cycle found
+ *
+ * @internal Used internally by topologicalSort and detectCycles
  */
-function findCycle(nodes: DependencyNode[]): string[] | null {
+function findCycle(nodes: ReadonlyArray<DependencyNode>): string[] | null {
   const nodeMap = new Map<string, DependencyNode>(
     nodes.map((n) => [n.id, n])
   );
@@ -277,10 +285,25 @@ export function reverseOrder(sortedIds: string[]): string[] {
 /**
  * Detect all cycles in the dependency graph
  *
+ * Uses depth-first search to find all circular dependencies in the graph.
+ * Returns a result indicating whether cycles exist and all cycles found.
+ *
  * @param nodes - Array of nodes with dependencies
- * @returns All cycles found in the graph
+ * @returns Detection result with hasCycle flag and all cycles found
+ *
+ * @example
+ * ```ts
+ * const nodes = [
+ *   { id: 'a', dependencies: ['b'] },
+ *   { id: 'b', dependencies: ['a'] },
+ * ];
+ *
+ * const result = detectCycles(nodes);
+ * // result.hasCycle = true
+ * // result.cycles = [['a', 'b']]
+ * ```
  */
-export function detectCycles(nodes: DependencyNode[]): CycleDetectionResult {
+export function detectCycles(nodes: ReadonlyArray<DependencyNode>): CycleDetectionResult {
   const nodeMap = new Map<string, DependencyNode>(
     nodes.map((n) => [n.id, n])
   );
@@ -333,10 +356,29 @@ export function detectCycles(nodes: DependencyNode[]): CycleDetectionResult {
 /**
  * Analyze the dependency graph structure
  *
+ * Computes graph properties including root nodes (no dependencies),
+ * leaf nodes (no dependents), maximum depth, processing levels for
+ * parallel execution, and any missing dependencies.
+ *
  * @param nodes - Array of nodes with dependencies
- * @returns Analysis of the graph structure
+ * @returns Analysis object with graph structure information
+ *
+ * @example
+ * ```ts
+ * const nodes = [
+ *   { id: 'bridge', dependencies: [] },
+ *   { id: 'dhcp', dependencies: ['bridge'] },
+ *   { id: 'firewall', dependencies: ['bridge'] },
+ * ];
+ *
+ * const analysis = analyzeDependencies(nodes);
+ * // analysis.roots = ['bridge']
+ * // analysis.leaves = ['dhcp', 'firewall']
+ * // analysis.maxDepth = 1
+ * // analysis.levels = [['bridge'], ['dhcp', 'firewall']]
+ * ```
  */
-export function analyzeDependencies(nodes: DependencyNode[]): DependencyAnalysis {
+export function analyzeDependencies(nodes: ReadonlyArray<DependencyNode>): DependencyAnalysis {
   const nodeSet = new Set(nodes.map((n) => n.id));
   const dependents = new Map<string, Set<string>>();
 
@@ -425,12 +467,27 @@ export function analyzeDependencies(nodes: DependencyNode[]): DependencyAnalysis
 /**
  * Get nodes that can be applied in parallel at the current state
  *
- * @param nodes - All nodes
+ * Identifies all nodes whose dependencies have been satisfied,
+ * making them safe to apply concurrently.
+ *
+ * @param nodes - All nodes in the dependency graph
  * @param appliedIds - Set of already applied node IDs
  * @returns Node IDs that can be applied next (all dependencies satisfied)
+ *
+ * @example
+ * ```ts
+ * const nodes = [
+ *   { id: 'a', dependencies: [] },
+ *   { id: 'b', dependencies: ['a'] },
+ *   { id: 'c', dependencies: ['a'] },
+ * ];
+ *
+ * const applicableNow = getParallelApplicableNodes(nodes, new Set(['a']));
+ * // applicableNow = ['b', 'c']
+ * ```
  */
 export function getParallelApplicableNodes(
-  nodes: DependencyNode[],
+  nodes: ReadonlyArray<DependencyNode>,
   appliedIds: Set<string>
 ): string[] {
   return nodes
@@ -445,19 +502,46 @@ export function getParallelApplicableNodes(
 }
 
 /**
- * Validate that a dependency graph is valid for application
+ * Result of validating a dependency graph
  *
- * @param nodes - Array of nodes with dependencies
- * @returns Validation result with any issues found
+ * Indicates whether the graph is valid and lists any errors or warnings found.
  */
 export interface DependencyValidationResult {
+  /** Whether the graph is valid (no errors) */
   valid: boolean;
+
+  /** List of validation errors (circular dependencies, duplicates, etc.) */
   errors: string[];
+
+  /** List of validation warnings (missing dependencies, etc.) */
   warnings: string[];
 }
 
+/**
+ * Validate that a dependency graph is valid for application
+ *
+ * Checks for duplicate node IDs, self-references, circular dependencies,
+ * and missing dependencies. Returns errors for critical issues and
+ * warnings for non-critical problems.
+ *
+ * @param nodes - Array of nodes with dependencies
+ * @returns Validation result with any issues found
+ *
+ * @example
+ * ```ts
+ * const nodes = [
+ *   { id: 'a', dependencies: [] },
+ *   { id: 'b', dependencies: ['a'] },
+ * ];
+ *
+ * const result = validateDependencyGraph(nodes);
+ * // result.valid = true
+ * // result.errors = []
+ * // result.warnings = []
+ * ```
+ */
 export function validateDependencyGraph(
-  nodes: DependencyNode[]
+  nodes: ReadonlyArray<DependencyNode>
 ): DependencyValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -511,25 +595,53 @@ export function validateDependencyGraph(
 /**
  * Build a dependency graph from change set items
  *
+ * Converts items with id and dependencies properties into DependencyNode objects.
+ * This is useful for preparing data from different sources for graph analysis.
+ *
  * @param items - Items with id and dependencies array
  * @returns Array of dependency nodes
+ *
+ * @example
+ * ```ts
+ * const items = [
+ *   { id: 'bridge', dependencies: [] },
+ *   { id: 'dhcp', dependencies: ['bridge'] },
+ * ];
+ *
+ * const graph = buildDependencyGraph(items);
+ * ```
  */
-export function buildDependencyGraph<T extends { id: string; dependencies: string[] }>(
+export function buildDependencyGraph<T extends { id: string; dependencies: readonly string[] }>(
   items: T[]
 ): DependencyNode[] {
   return items.map((item) => ({
     id: item.id,
-    dependencies: item.dependencies,
+    dependencies: [...item.dependencies],
   }));
 }
 
 /**
  * Compute apply order for each item based on topological sort
  *
- * @param items - Items to compute order for
- * @returns Map of item ID to apply order (0-indexed)
+ * Returns a map of node ID to its position in the execution order.
+ * Used for determining which operations should execute first.
+ *
+ * @param nodes - Nodes to compute order for
+ * @returns Map of node ID to apply order (0-indexed), empty if cycles detected
+ *
+ * @example
+ * ```ts
+ * const nodes = [
+ *   { id: 'bridge', dependencies: [] },
+ *   { id: 'dhcp', dependencies: ['bridge'] },
+ * ];
+ *
+ * const orderMap = computeApplyOrder(nodes);
+ * // orderMap.get('bridge') = 0
+ * // orderMap.get('dhcp') = 1
+ * ```
  */
-export function computeApplyOrder(nodes: DependencyNode[]): Map<string, number> {
+export function computeApplyOrder(nodes: ReadonlyArray<DependencyNode>): Map<string, number> {
   const result = topologicalSort(nodes);
   const orderMap = new Map<string, number>();
 

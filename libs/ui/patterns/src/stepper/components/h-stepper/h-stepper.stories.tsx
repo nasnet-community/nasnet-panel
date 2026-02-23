@@ -201,7 +201,7 @@ export const Default: Story = {
  * Progress at various stages
  */
 export const ProgressStages: Story = {
-  render: (args) => {
+  render: (_args) => {
     function ProgressDemo() {
       const [stage, setStage] = React.useState(0);
       const stepper = useStepper({
@@ -218,7 +218,7 @@ export const ProgressStages: Story = {
           }
         };
         advanceToStage();
-      }, [stage]);
+      }, [stage, stepper]);
 
       return (
         <div className="min-h-screen bg-muted/30">
@@ -266,7 +266,7 @@ export const ProgressStages: Story = {
  * With completed steps
  */
 export const WithCompletedSteps: Story = {
-  render: (args) => {
+  render: (_args) => {
     function PreAdvancedStepper() {
       const stepper = useStepper({
         steps: basicSteps,
@@ -281,7 +281,7 @@ export const WithCompletedSteps: Story = {
           await stepper.next(); // Complete step 2, go to 3
         };
         advanceSteps();
-      }, []);
+      }, [stepper]);
 
       return (
         <div className="min-h-screen bg-muted/30">
@@ -326,7 +326,7 @@ export const WithCompletedSteps: Story = {
  * With error state
  */
 export const WithErrorState: Story = {
-  render: (args) => {
+  render: (_args) => {
     function ErrorStateStepper() {
       const stepper = useStepper({
         steps: [
@@ -351,7 +351,7 @@ export const WithErrorState: Story = {
       // Trigger validation error on mount
       React.useEffect(() => {
         stepper.next();
-      }, []);
+      }, [stepper]);
 
       return (
         <div className="min-h-screen bg-muted/30">
@@ -397,7 +397,7 @@ export const WithErrorState: Story = {
  * Responsive behavior - test at different viewport sizes
  */
 export const Responsive: Story = {
-  render: (args) => (
+  render: (_args) => (
     <StepperWrapper steps={basicSteps} initialStep={2}>
       {(stepper) => (
         <div className="min-h-screen bg-muted/30">
@@ -595,7 +595,7 @@ export const DarkTheme: Story = {
  * With menu button
  */
 export const WithMenuButton: Story = {
-  render: (args) => {
+  render: (_args) => {
     const [menuOpen, setMenuOpen] = React.useState(false);
 
     return (
@@ -656,7 +656,7 @@ export const WithMenuButton: Story = {
  * Non-sticky header
  */
 export const NonSticky: Story = {
-  render: (args) => (
+  render: (_args) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="min-h-[200vh] bg-muted/30">
@@ -694,7 +694,7 @@ export const NonSticky: Story = {
  * Allow skip steps - click any step
  */
 export const AllowSkipSteps: Story = {
-  render: (args) => (
+  render: (_args) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="min-h-screen bg-muted/30">
@@ -733,7 +733,7 @@ export const AllowSkipSteps: Story = {
  * 3 steps - minimal wizard
  */
 export const ThreeSteps: Story = {
-  render: (args) => (
+  render: (_args) => (
     <StepperWrapper steps={threeSteps}>
       {(stepper) => (
         <div className="min-h-screen bg-muted/30">

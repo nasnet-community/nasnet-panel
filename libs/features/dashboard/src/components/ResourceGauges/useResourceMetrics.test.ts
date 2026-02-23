@@ -4,6 +4,7 @@
  * Story 5.2: Real-Time Resource Utilization Display
  */
 
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
@@ -67,13 +68,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     // Initially loading
     expect(result.current.loading).toBe(true);
@@ -121,13 +123,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     // Wait for query data
     await waitFor(() => {
@@ -160,13 +163,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     await waitFor(() => {
       expect(result.current.metrics).not.toBeNull();
@@ -194,13 +198,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     await waitFor(() => {
       expect(result.current.metrics).not.toBeNull();
@@ -226,13 +231,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     await waitFor(() => {
       expect(result.current.metrics).not.toBeNull();
@@ -258,13 +264,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     await waitFor(() => {
       expect(result.current.raw).not.toBeNull();
@@ -299,13 +306,14 @@ describe('useResourceMetrics', () => {
       },
     ];
 
-    const { result } = renderHook(() => useResourceMetrics(deviceId), {
-      wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
-      ),
-    });
+    function Wrapper({ children }: any) {
+      return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
+    }
+
+    const { result } = renderHook(
+      () => useResourceMetrics(deviceId),
+      { wrapper: Wrapper }
+    );
 
     await waitFor(() => {
       expect(result.current.metrics).not.toBeNull();

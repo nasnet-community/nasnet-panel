@@ -27,7 +27,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { getServiceByPort } from '@nasnet/core/constants';
 import type { FirewallLogEntry } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
-import { cn, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -167,7 +167,7 @@ function useFirewallLogStats(logs: FirewallLogEntry[]): ComputedStats {
 // Desktop Presenter (>=640px)
 // ============================================================================
 
-function FirewallLogStatsDesktop({
+const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
   logs,
   onAddToBlocklist,
   loading,
@@ -355,13 +355,14 @@ function FirewallLogStatsDesktop({
       </div>
     </div>
   );
-}
+});
+FirewallLogStatsDesktop.displayName = 'FirewallLogStatsDesktop';
 
 // ============================================================================
 // Mobile Presenter (<640px)
 // ============================================================================
 
-function FirewallLogStatsMobile({
+const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
   logs,
   onAddToBlocklist,
   loading,
@@ -540,7 +541,20 @@ function FirewallLogStatsMobile({
       </Card>
     </div>
   );
-}
+});
+FirewallLogStatsMobile.displayName = 'FirewallLogStatsMobile';
+
+// ============================================================================
+// Tablet Presenter (640-1024px)
+// ============================================================================
+
+const FirewallLogStatsTablet = memo(function FirewallLogStatsTablet(
+  props: FirewallLogStatsProps
+) {
+  // Tablet uses a hybrid layout - similar to desktop but with some responsive adjustments
+  return <FirewallLogStatsDesktop {...props} />;
+});
+FirewallLogStatsTablet.displayName = 'FirewallLogStatsTablet';
 
 // ============================================================================
 // Main Component (Auto-detecting Platform)
@@ -566,6 +580,7 @@ function FirewallLogStatsComponent(props: FirewallLogStatsProps) {
     case 'mobile':
       return <FirewallLogStatsMobile {...props} />;
     case 'tablet':
+      return <FirewallLogStatsTablet {...props} />;
     case 'desktop':
     default:
       return <FirewallLogStatsDesktop {...props} />;

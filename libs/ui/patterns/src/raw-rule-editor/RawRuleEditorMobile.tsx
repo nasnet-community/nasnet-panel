@@ -7,7 +7,7 @@
  * @module @nasnet/ui/patterns/raw-rule-editor
  */
 
-import { memo } from 'react';
+import { forwardRef, memo } from 'react';
 
 import {
   Zap,
@@ -17,6 +17,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Controller, FormProvider } from 'react-hook-form';
+
+import { cn } from '@nasnet/ui/utils';
 
 import {
   RawChainSchema,

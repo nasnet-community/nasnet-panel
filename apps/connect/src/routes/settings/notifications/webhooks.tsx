@@ -10,6 +10,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Webhook as WebhookIcon } from 'lucide-react';
 
 import type { Webhook } from '@nasnet/api-client/queries/notifications';
+import { useTranslation } from '@nasnet/core/i18n';
 import { WebhookConfigForm } from '@nasnet/features/alerts';
 import { Button } from '@nasnet/ui/primitives';
 
@@ -30,7 +31,8 @@ export const Route = createFileRoute('/settings/notifications/webhooks')({
  * - One-time signing secret display
  * - Platform Presenter pattern (auto-detects mobile/desktop)
  */
-function WebhooksPage() {
+export function WebhooksPage() {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
 
   const handleSuccess = (webhook: Webhook, signingSecret?: string) => {
@@ -62,7 +64,7 @@ function WebhooksPage() {
           className="gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Notification Settings
+          {t('webhook.backToNotifications')}
         </Button>
 
         <div className="flex items-start gap-4">
@@ -70,9 +72,9 @@ function WebhooksPage() {
             <WebhookIcon className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">Webhook Configuration</h1>
+            <h1 className="text-3xl font-bold">{t('webhook.title')}</h1>
             <p className="text-muted-foreground mt-2">
-              Configure webhook endpoints to receive alert notifications via HTTP POST requests.
+              {t('webhook.description')}
             </p>
           </div>
         </div>
@@ -82,14 +84,14 @@ function WebhooksPage() {
       <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
         <h3 className="font-semibold flex items-center gap-2">
           <span>💡</span>
-          About Webhooks
+          {t('webhook.aboutWebhooks')}
         </h3>
         <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-          <li>Webhooks send alert notifications to your custom HTTP endpoints</li>
-          <li>Only HTTPS URLs are allowed for security (HTTP is rejected)</li>
-          <li>Choose from preset templates (Slack, Discord, Teams) or create custom JSON</li>
-          <li>Optional HMAC signing with secret for request verification</li>
-          <li>Test your webhook before saving to verify connectivity</li>
+          <li>{t('webhook.info1')}</li>
+          <li>{t('webhook.info2')}</li>
+          <li>{t('webhook.info3')}</li>
+          <li>{t('webhook.info4')}</li>
+          <li>{t('webhook.info5')}</li>
         </ul>
       </div>
 
@@ -102,11 +104,9 @@ function WebhooksPage() {
       </div>
 
       {/* Security Note */}
-      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-        <p className="text-sm text-amber-900 dark:text-amber-200">
-          <span className="font-semibold">🔒 Security Note:</span> Your signing secret will only be
-          shown once after creation. Save it securely - it cannot be retrieved later. You can
-          regenerate a new secret by updating the webhook configuration.
+      <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
+        <p className="text-sm text-warning-foreground">
+          <span className="font-semibold">🔒 {t('webhook.securityNoteTitle')}</span> {t('webhook.securityNoteText')}
         </p>
       </div>
     </div>

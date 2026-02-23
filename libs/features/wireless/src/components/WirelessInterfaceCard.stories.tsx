@@ -11,10 +11,13 @@
  * visual states driven by the `interface` prop are fully exercised here.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { WirelessInterfaceCard } from './WirelessInterfaceCard';
+import { fn } from 'storybook/test';
+
 import type { WirelessInterface } from '@nasnet/core/types';
+
+import { WirelessInterfaceCard } from './WirelessInterfaceCard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof WirelessInterfaceCard> = {
   title: 'Features/Wireless/WirelessInterfaceCard',

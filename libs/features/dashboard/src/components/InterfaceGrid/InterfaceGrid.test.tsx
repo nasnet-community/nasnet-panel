@@ -9,6 +9,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
+import 'vitest-axe/extend-expect';
+
+declare module 'vitest' {
+  interface Assertion {
+    toHaveNoViolations(): void;
+  }
+}
 import { MockedProvider } from '@apollo/client/testing';
 import { InterfaceGrid } from './InterfaceGrid';
 import { InterfaceGridDesktop } from './InterfaceGrid.Desktop';

@@ -15,8 +15,6 @@ import { Input } from '@nasnet/ui/primitives';
 
 import {
   ConfidenceIndicator,
-  ConfidenceIndicatorDesktop,
-  ConfidenceIndicatorMobile,
   ConfidenceIndicatorBase,
   ConfidenceIndicatorDot,
   useConfidenceIndicator,
@@ -248,16 +246,11 @@ export const DarkTheme: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg">
+      <div className="dark bg-slate-950 p-8 rounded-lg">
         <Story />
       </div>
     ),
   ],
-  globals: {
-    backgrounds: {
-      value: "dark"
-    }
-  },
 };
 
 // ============================================================================

@@ -1,7 +1,6 @@
 package bootstrap
 
 import (
-	"context"
 	"log"
 	"log/slog"
 
@@ -16,7 +15,6 @@ import (
 	"backend/internal/orchestrator/lifecycle"
 	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/supervisor"
-	"backend/internal/services"
 	"backend/internal/vif"
 
 	"backend/internal/events"
@@ -40,45 +38,28 @@ type OrchestratorComponents struct {
 	BootSequenceManager *boot.BootSequenceManager
 }
 
-// vlanServiceAdapter adapts services.VlanService to network.VlanServicePort interface.
-type vlanServiceAdapter struct {
-	svc *services.VlanService
-}
-
-func (a *vlanServiceAdapter) ListVlans(ctx context.Context, routerID string, filter *network.VlanFilter) ([]*network.Vlan, error) {
-	vlans, err := a.svc.ListVlans(ctx, routerID, nil)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]*network.Vlan, len(vlans))
-	for i, v := range vlans {
-		result[i] = &network.Vlan{
-			VlanID: v.VlanID,
-			Name:   v.Name,
-		}
-	}
-	return result, nil
-}
-
 // InitializeOrchestrator creates and initializes the service instance orchestrator.
 // This includes:
 // - Feature registry (loads service manifests)
 // - Download manager (handles binary downloads)
 // - Process supervisor (manages service processes)
 // - Port registry (prevents port conflicts)
-// - VLAN allocator (allocates VLANs for isolation)
 // - Config validator (validates service configs)
 // - Isolation verifier (4-layer isolation defense)
 // - Resource limiter (cgroups v2 memory limits)
 // - Instance manager (orchestrates service lifecycle)
 // - Dependency manager (manages service dependencies)
 // - Boot sequence manager (orchestrates boot startup)
+//
+// vlanAllocator is pre-created by InitializeVIF and passed here to avoid
+// creating a second DB-backed allocator for the same pool.
 func InitializeOrchestrator(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
 	pathResolver storage.PathResolverPort,
 	gatewayManager lifecycle.GatewayPort,
 	bridgeOrchestrator *vif.BridgeOrchestrator,
+	vlanAllocator *network.VLANAllocator,
 	routerPort *router.MockAdapter,
 	logger zerolog.Logger,
 ) (*OrchestratorComponents, error) {
@@ -114,16 +95,8 @@ func InitializeOrchestrator(
 	}
 	log.Printf("Port registry initialized")
 
-	// 5. VLAN Allocator - allocates VLANs for virtual interface isolation
-	vlanAllocator, err := network.NewVLANAllocator(network.VLANAllocatorConfig{
-		Store:       networkStore,
-		VlanService: &vlanServiceAdapter{svc: services.NewVlanService(routerPort)},
-		Logger:      slog.Default(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("VLAN allocator initialized")
+	// VLAN allocator is passed in (created by InitializeVIF) - no need to re-create.
+	log.Printf("VLAN allocator received (DB-backed, shared with VIF)")
 
 	// 6. Config Validator Adapter - validates service-specific config bindings
 	configValidator := isolation.NewConfigValidatorAdapter(logger)

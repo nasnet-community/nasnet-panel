@@ -37,9 +37,9 @@ func (m *KillSwitchManager) Activate(ctx context.Context, routingID string) erro
 		return nil
 	}
 
-	// Step 4: Enable the firewall filter rule (set disabled=no)
-	if enableErr := m.enableFilterRule(ctx, routing.KillSwitchRuleID); enableErr != nil {
-		return fmt.Errorf("failed to enable filter rule: %w", enableErr)
+	// Step 4: Enable the kill switch rule (set disabled=no)
+	if enableErr := m.enableKillSwitchRule(ctx, routing.KillSwitchRuleID, KillSwitchMode(routing.KillSwitchMode)); enableErr != nil {
+		return fmt.Errorf("failed to enable kill switch rule: %w", enableErr)
 	}
 
 	// Step 5: Update database active status
@@ -51,7 +51,7 @@ func (m *KillSwitchManager) Activate(ctx context.Context, routingID string) erro
 		Save(ctx)
 	if err != nil {
 		// Rollback: Disable the rule we just enabled
-		_ = m.disableFilterRule(ctx, routing.KillSwitchRuleID) //nolint:errcheck // best-effort rollback after DB update failure
+		_ = m.disableKillSwitchRule(ctx, routing.KillSwitchRuleID, KillSwitchMode(routing.KillSwitchMode)) //nolint:errcheck // best-effort rollback after DB update failure
 		return fmt.Errorf("failed to update database: %w", err)
 	}
 
@@ -98,9 +98,9 @@ func (m *KillSwitchManager) Deactivate(ctx context.Context, routingID string) er
 		return nil
 	}
 
-	// Step 4: Disable the firewall filter rule (set disabled=yes)
-	if disErr := m.disableFilterRule(ctx, routing.KillSwitchRuleID); disErr != nil {
-		return fmt.Errorf("failed to disable filter rule: %w", disErr)
+	// Step 4: Disable the kill switch rule (set disabled=yes)
+	if disErr := m.disableKillSwitchRule(ctx, routing.KillSwitchRuleID, KillSwitchMode(routing.KillSwitchMode)); disErr != nil {
+		return fmt.Errorf("failed to disable kill switch rule: %w", disErr)
 	}
 
 	// Step 5: Update database active status
@@ -110,7 +110,7 @@ func (m *KillSwitchManager) Deactivate(ctx context.Context, routingID string) er
 		Save(ctx)
 	if err != nil {
 		// Rollback: Enable the rule we just disabled
-		_ = m.enableFilterRule(ctx, routing.KillSwitchRuleID) //nolint:errcheck // best-effort enable
+		_ = m.enableKillSwitchRule(ctx, routing.KillSwitchRuleID, KillSwitchMode(routing.KillSwitchMode)) //nolint:errcheck // best-effort enable
 		return fmt.Errorf("failed to update database: %w", err)
 	}
 

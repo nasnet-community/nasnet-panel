@@ -182,18 +182,24 @@ ResourceHealthIndicator.displayName = 'ResourceHealthIndicator';
 /**
  * Inline health indicator with dot and label
  */
-export const ResourceHealthBadge: React.FC<
-  Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>
-> = (props) => <ResourceHealthIndicator {...props} showLabel direction="row" />;
+export const ResourceHealthBadge = React.memo(
+  (props: Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>) => (
+    <ResourceHealthIndicator {...props} showLabel direction="row" />
+  )
+);
+
+ResourceHealthBadge.displayName = 'ResourceHealthBadge';
 
 /**
  * Compact health dot only
  */
-export const ResourceHealthDot: React.FC<
-  Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>
-> = (props) => (
-  <ResourceHealthIndicator {...props} showLabel={false} direction="row" />
+export const ResourceHealthDot = React.memo(
+  (props: Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>) => (
+    <ResourceHealthIndicator {...props} showLabel={false} direction="row" />
+  )
 );
+
+ResourceHealthDot.displayName = 'ResourceHealthDot';
 
 export { healthDotVariants, healthLabelVariants };
 export default ResourceHealthIndicator;

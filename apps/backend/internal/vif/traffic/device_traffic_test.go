@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 
 	"backend/internal/router"
 )
@@ -307,7 +307,7 @@ func TestParseCounter(t *testing.T) {
 
 // TestSortByTotalBytes tests the sorting function
 func TestSortByTotalBytes(t *testing.T) {
-	devices := []*graphql.DeviceTrafficBreakdown{
+	devices := []*model.DeviceTrafficBreakdown{
 		{DeviceID: "device-3", TotalBytes: 1000},
 		{DeviceID: "device-1", TotalBytes: 5000},
 		{DeviceID: "device-2", TotalBytes: 3000},

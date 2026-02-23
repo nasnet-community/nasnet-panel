@@ -11,6 +11,8 @@
  * - Keyboard navigation support (arrow keys, Home, End)
  * - Loading placeholders for scroll boundaries
  * - Platform-aware row heights (44px minimum on mobile)
+ * - WCAG AAA accessible (full keyboard navigation)
+ * - TypeScript generic for type-safe items
  *
  * @example
  * ```tsx
@@ -26,6 +28,8 @@
  *   )}
  * />
  * ```
+ *
+ * @see https://tanstack.com/virtual/latest for TanStack Virtual documentation
  */
 
 import React, {
@@ -108,8 +112,13 @@ interface VirtualizedListComponent {
 
 /**
  * A high-performance virtualized list component
+ *
+ * @template T - Item data type
+ * @param props - Component props
+ * @param ref - Forwarded ref to container div
+ * @returns Virtualized list element
  */
-export const VirtualizedList = forwardRef(function VirtualizedList<T>(
+const VirtualizedListInner = forwardRef(function VirtualizedList<T>(
   {
     items,
     renderItem,
@@ -372,6 +381,13 @@ export const VirtualizedList = forwardRef(function VirtualizedList<T>(
     </div>
   );
 }) as VirtualizedListComponent;
+
+VirtualizedListInner.displayName = 'VirtualizedList';
+
+/**
+ * Memoized VirtualizedList to prevent unnecessary re-renders
+ */
+export const VirtualizedList = React.memo(VirtualizedListInner) as VirtualizedListComponent;
 
 VirtualizedList.displayName = 'VirtualizedList';
 

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 import { usePlatform } from '@nasnet/ui/layouts';
 
@@ -44,7 +46,7 @@ export interface ServiceHealthBadgeProps {
  * />
  * ```
  */
-export function ServiceHealthBadge(props: ServiceHealthBadgeProps) {
+function ServiceHealthBadgeComponent(props: ServiceHealthBadgeProps) {
   const platform = usePlatform();
 
   // Mobile: Compact dot only
@@ -55,3 +57,9 @@ export function ServiceHealthBadge(props: ServiceHealthBadgeProps) {
   // Desktop/Tablet: Full badge with metrics
   return <ServiceHealthBadgeDesktop {...props} />;
 }
+
+// Wrap with memo for performance optimization
+export const ServiceHealthBadge = memo(ServiceHealthBadgeComponent);
+
+// Set display name for React DevTools
+ServiceHealthBadge.displayName = 'ServiceHealthBadge';

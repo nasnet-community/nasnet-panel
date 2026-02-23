@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Network Scanning Service
  * Handles router discovery via backend network scanning (Epic 0.1, Story 0-1-1)
@@ -39,14 +41,15 @@ interface ScanStatusResponse {
 /**
  * Configuration for scan service
  */
-const SCAN_CONFIG = {
-  backendUrl: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080',
-  pollInterval: 500, // Poll every 500ms
-  maxPollAttempts: 600, // Max 5 minutes (600 * 500ms)
-} as const;
+const SCAN_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const SCAN_POLL_INTERVAL_MS = 500; // Poll every 500ms
+const SCAN_MAX_POLL_ATTEMPTS = 600; // Max 5 minutes (600 * 500ms)
 
 /**
  * Starts a network scan for MikroTik routers
+ *
+ * @description Initiates a subnet scan via backend API and polls for results. Calls optional
+ * progress callback on each poll cycle to report scanned hosts and discovered routers.
  *
  * @param subnet - Subnet to scan (e.g., "192.168.88.0/24")
  * @param onProgress - Optional callback for progress updates
@@ -68,7 +71,7 @@ export async function startNetworkScan(
 ): Promise<ScanResult[]> {
   try {
     // Initiate scan on backend
-    const response = await fetch(`${SCAN_CONFIG.backendUrl}/api/scan`, {
+    const response = await fetch(`${SCAN_BACKEND_URL}/api/scan`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,7 +82,7 @@ export async function startNetworkScan(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new ScanError(
-        `Failed to start scan: ${errorData.message || response.statusText}`,
+        `Failed to start network scan on backend: ${errorData.message || response.statusText}`,
         'SCAN_START_FAILED'
       );
     }
@@ -87,7 +90,7 @@ export async function startNetworkScan(
     const { task_id } = (await response.json()) as ScanResponse;
 
     if (!task_id) {
-      throw new ScanError('No task ID returned from scan endpoint', 'INVALID_RESPONSE');
+      throw new ScanError('Backend returned invalid response: missing task ID', 'INVALID_RESPONSE');
     }
 
     // Poll for results
@@ -99,7 +102,7 @@ export async function startNetworkScan(
 
     // Network error or other fetch failure
     throw new ScanError(
-      `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Network scanning failed: ${error instanceof Error ? error.message : 'Unknown error during scan initiation'}`,
       'NETWORK_ERROR'
     );
   }
@@ -108,9 +111,13 @@ export async function startNetworkScan(
 /**
  * Polls backend for scan status and results
  *
+ * @description Internal function that polls the backend scan API until scan completes or timeout.
+ * Calls onProgress callback on each successful poll with latest progress data.
+ *
  * @param taskId - Task ID returned from scan initiation
  * @param onProgress - Optional callback for progress updates
  * @returns Promise resolving to scan results
+ * @throws {ScanError} If scan fails, times out, or encounters polling errors
  */
 async function pollScanStatus(
   taskId: string,
@@ -118,15 +125,15 @@ async function pollScanStatus(
 ): Promise<ScanResult[]> {
   let attempts = 0;
 
-  while (attempts < SCAN_CONFIG.maxPollAttempts) {
+  while (attempts < SCAN_MAX_POLL_ATTEMPTS) {
     try {
       const response = await fetch(
-        `${SCAN_CONFIG.backendUrl}/api/scan/${taskId}`
+        `${SCAN_BACKEND_URL}/api/scan/${taskId}`
       );
 
       if (!response.ok) {
         throw new ScanError(
-          `Failed to fetch scan status: ${response.statusText}`,
+          `Backend returned error while polling scan status: ${response.statusText}`,
           'POLL_FAILED'
         );
       }
@@ -151,13 +158,13 @@ async function pollScanStatus(
 
       if (statusData.status === 'failed') {
         throw new ScanError(
-          statusData.error || 'Scan failed on backend',
+          `Network scan failed on backend: ${statusData.error || 'No error details available'}`,
           'SCAN_FAILED'
         );
       }
 
       // Still running, wait before next poll
-      await sleep(SCAN_CONFIG.pollInterval);
+      await sleep(SCAN_POLL_INTERVAL_MS);
       attempts++;
     } catch (error) {
       if (error instanceof ScanError) {
@@ -165,20 +172,23 @@ async function pollScanStatus(
       }
 
       throw new ScanError(
-        `Polling error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Error polling scan status: ${error instanceof Error ? error.message : 'Unknown polling error'}`,
         'POLL_ERROR'
       );
     }
   }
 
   throw new ScanError(
-    'Scan timeout: Maximum polling attempts reached',
+    `Network scan timed out after ${SCAN_MAX_POLL_ATTEMPTS * SCAN_POLL_INTERVAL_MS / 1000}s. Scan may still be running on the backend.`,
     'TIMEOUT'
   );
 }
 
 /**
  * Transforms backend scan results to frontend ScanResult format
+ *
+ * @description Converts backend snake_case response format to frontend camelCase format.
+ * Internal helper function.
  */
 function transformScanResults(
   backendResults: ScanStatusResponse['results']
@@ -199,6 +209,9 @@ function transformScanResults(
 /**
  * Converts ScanResult to Router object for storage
  *
+ * @description Transforms a single scan result into a Router object ready for persistence.
+ * Uses model name as router name if available, otherwise generates name from IP address.
+ *
  * @param scanResult - Scan result from network scan
  * @returns Router object ready for storage
  */
@@ -217,8 +230,11 @@ export function scanResultToRouter(scanResult: ScanResult): Omit<Router, 'id' | 
 /**
  * Validates subnet format (simple IPv4 CIDR validation)
  *
- * @param subnet - Subnet string to validate
- * @returns True if valid subnet format
+ * @description Validates IPv4 CIDR notation format. Checks that the input matches CIDR regex,
+ * all octets are in range 0-255, and CIDR mask is in range 0-32.
+ *
+ * @param subnet - Subnet string to validate (e.g., "192.168.88.0/24")
+ * @returns True if valid subnet format, false otherwise
  *
  * @example
  * ```typescript
@@ -253,7 +269,11 @@ export function validateSubnet(subnet: string): boolean {
 
 /**
  * Gets default subnet based on common MikroTik configurations
- * Returns MikroTik default: 192.168.88.0/24
+ *
+ * @description Returns the standard MikroTik default LAN subnet (192.168.88.0/24).
+ * Most MikroTik routers ship with this default network configuration.
+ *
+ * @returns Default MikroTik subnet: 192.168.88.0/24
  */
 export function getDefaultSubnet(): string {
   return '192.168.88.0/24';
@@ -261,6 +281,9 @@ export function getDefaultSubnet(): string {
 
 /**
  * Custom error class for scan operations
+ *
+ * @description Error class for network scanning operations. Includes structured error code
+ * for error handling and differentiation between failure types (start, network, polling, timeout).
  */
 export class ScanError extends Error {
   constructor(
@@ -281,6 +304,12 @@ export class ScanError extends Error {
 
 /**
  * Helper to sleep for specified milliseconds
+ *
+ * @description Utility function for delaying execution. Used between polling attempts.
+ * Internal helper function.
+ *
+ * @param ms - Milliseconds to sleep
+ * @returns Promise that resolves after specified delay
  */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

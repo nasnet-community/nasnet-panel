@@ -139,7 +139,7 @@ export const EditSSHProtection: Story = {
       protectedProtocol: 'tcp',
       accessTimeout: '1h',
       knockTimeout: '10s',
-      enabled: true,
+      isEnabled: true,
     },
   },
   parameters: {
@@ -174,7 +174,7 @@ export const RDPProtection: Story = {
       protectedProtocol: 'tcp',
       accessTimeout: '2h',
       knockTimeout: '15s',
-      enabled: true,
+      isEnabled: true,
     },
   },
   parameters: {
@@ -212,7 +212,7 @@ export const MaximumPorts: Story = {
       protectedProtocol: 'tcp',
       accessTimeout: '4h',
       knockTimeout: '20s',
-      enabled: true,
+      isEnabled: true,
     },
   },
   parameters: {
@@ -247,7 +247,7 @@ export const MixedProtocols: Story = {
       protectedProtocol: 'tcp',
       accessTimeout: '30m',
       knockTimeout: '8s',
-      enabled: true,
+      isEnabled: true,
     },
   },
   parameters: {
@@ -280,7 +280,7 @@ export const SubmittingState: Story = {
       protectedProtocol: 'tcp',
       accessTimeout: '1h',
       knockTimeout: '10s',
-      enabled: true,
+      isEnabled: true,
     },
   },
   parameters: {

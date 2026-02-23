@@ -114,7 +114,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
     <TableRow
       ref={setNodeRef}
       style={style}
-      className={`${rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''}`}
+      className={`${rule.isDisabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''}`}
     >
       {/* Drag handle */}
       <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
@@ -175,9 +175,9 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
       {/* Enabled Toggle */}
       <TableCell>
         <Switch
-          checked={!rule.disabled}
+          checked={!rule.isDisabled}
           onCheckedChange={() => onToggle(rule)}
-          aria-label={rule.disabled ? 'Enable rule' : 'Disable rule'}
+          aria-label={rule.isDisabled ? 'Enable rule' : 'Disable rule'}
         />
       </TableCell>
 

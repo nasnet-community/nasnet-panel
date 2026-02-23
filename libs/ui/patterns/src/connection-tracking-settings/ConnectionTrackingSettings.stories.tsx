@@ -14,15 +14,24 @@
  * Story: NAS-7.4 - Implement Connection Tracking
  */
 
-import { ConnectionTrackingSettings, useConnectionTrackingSettings } from './ConnectionTrackingSettings';
-import {
-  mockDefaultSettings,
-  mockModifiedSettings,
-  mockDisabledSettings,
-} from '../__test-utils__/connection-tracking-fixtures';
+import { ConnectionTrackingSettings, useConnectionTrackingSettings } from './index';
+import { DEFAULT_SETTINGS } from './types';
 
 import type { ConnectionTrackingSettings as SettingsType } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
+
+// Mock data for different states
+const mockDefaultSettings = DEFAULT_SETTINGS;
+const mockModifiedSettings: SettingsType = {
+  ...DEFAULT_SETTINGS,
+  tcpEstablishedTimeout: 43200, // 12 hours
+  tcpTimeWaitTimeout: 30, // 30s
+  maxEntries: 65536,
+};
+const mockDisabledSettings: SettingsType = {
+  ...DEFAULT_SETTINGS,
+  enabled: false,
+};
 
 // Wrapper component to use the hook
 function ConnectionTrackingSettingsWrapper({
@@ -53,7 +62,7 @@ function ConnectionTrackingSettingsWrapper({
 }
 
 const meta: Meta<typeof ConnectionTrackingSettingsWrapper> = {
-  title: 'Patterns/Connection Tracking/ConnectionTrackingSettings',
+  title: 'Patterns/Common/ConnectionTrackingSettings',
   component: ConnectionTrackingSettingsWrapper,
   parameters: {
     layout: 'padded',
@@ -65,6 +74,20 @@ const meta: Meta<typeof ConnectionTrackingSettingsWrapper> = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    initialSettings: {
+      description: 'Initial connection tracking settings',
+      control: { type: 'object' },
+    },
+    onSubmit: {
+      description: 'Callback when settings are submitted',
+      action: 'submitSettings',
+    },
+    loading: {
+      description: 'Loading state while fetching settings',
+      control: 'boolean',
+    },
+  },
 };
 
 export default meta;

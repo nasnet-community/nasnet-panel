@@ -11,10 +11,19 @@ export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
  * Quiet hours configuration data
  */
 export interface QuietHoursConfig {
-  startTime: string; // HH:MM format
-  endTime: string; // HH:MM format
-  timezone: string; // IANA timezone
+  /** Start time in HH:MM format (24-hour) */
+  startTime: string;
+
+  /** End time in HH:MM format (24-hour). Can cross midnight (e.g., 22:00 to 08:00) */
+  endTime: string;
+
+  /** IANA timezone identifier (e.g., 'America/New_York', 'Europe/London') */
+  timezone: string;
+
+  /** Whether to bypass quiet hours for critical-severity alerts */
   bypassCritical: boolean;
+
+  /** Days of week when quiet hours apply (0=Sunday through 6=Saturday) */
   daysOfWeek: DayOfWeek[];
 }
 

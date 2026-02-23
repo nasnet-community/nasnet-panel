@@ -19,7 +19,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 /**
  * Mock interface data for stories.
  */
-const MOCK_INTERFACES: RouterInterface[] = [
+const _MOCK_INTERFACES: RouterInterface[] = [
   { id: 'eth1', name: 'ether1', type: 'ethernet', status: 'up', ip: '192.168.1.1', usedBy: [] },
   { id: 'eth2', name: 'ether2', type: 'ethernet', status: 'up', ip: '192.168.2.1', usedBy: [] },
   { id: 'eth3', name: 'ether3', type: 'ethernet', status: 'down', usedBy: [] },

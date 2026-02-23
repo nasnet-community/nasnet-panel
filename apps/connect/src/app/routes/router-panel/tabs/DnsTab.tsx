@@ -20,3 +20,5 @@ import { DnsPage } from '@nasnet/features/network';
 export function DnsTab() {
   return <DnsPage />;
 }
+
+DnsTab.displayName = 'DnsTab';

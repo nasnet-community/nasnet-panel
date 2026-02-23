@@ -4,8 +4,9 @@
  * Shows progress bar, command list, and status indicators
  */
 
-import { memo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import {
   CheckCircle,
   XCircle,
@@ -46,6 +47,11 @@ export interface ExecutionProgressProps {
    * Whether cancel is in progress
    */
   isCancelling?: boolean;
+
+  /**
+   * Optional className for styling
+   */
+  className?: string;
 }
 
 /**
@@ -124,7 +130,22 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   onCancel,
   onRetry,
   isCancelling = false,
+  className,
 }: ExecutionProgressProps) {
+  // Memoize status checks (MUST be before early returns)
+  const isTerminal = useMemo(
+    () => job ? ['completed', 'failed', 'cancelled', 'rolled_back'].includes(job.status) : false,
+    [job]
+  );
+  const isRunning = useMemo(
+    () => job ? (job.status === 'running' || job.status === 'pending') : false,
+    [job]
+  );
+
+  // Memoize handlers (MUST be before early returns)
+  const handleCancel = useCallback(() => onCancel?.(), [onCancel]);
+  const handleRetry = useCallback(() => onRetry?.(), [onRetry]);
+
   // If still loading initial data
   if (isLoading && !job) {
     return (
@@ -150,7 +171,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
         </p>
         {onRetry && (
           <button
-            onClick={onRetry}
+            onClick={handleRetry}
             aria-label="Retry tracking the batch job"
             className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
@@ -167,13 +188,9 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 
   const statusConfig = STATUS_CONFIG[job.status];
   const StatusIcon = statusConfig.icon;
-  const isTerminal = ['completed', 'failed', 'cancelled', 'rolled_back'].includes(
-    job.status
-  );
-  const isRunning = job.status === 'running' || job.status === 'pending';
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       {/* Status Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -291,7 +308,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
       <div className="flex justify-end gap-3">
         {isRunning && onCancel && (
           <button
-            onClick={onCancel}
+            onClick={handleCancel}
             disabled={isCancelling}
             aria-label={isCancelling ? 'Cancelling job' : 'Cancel running job'}
             className="min-h-[44px] btn-destructive px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -309,7 +326,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 
         {isTerminal && job.status === 'failed' && onRetry && (
           <button
-            onClick={onRetry}
+            onClick={handleRetry}
             aria-label="Retry applying configuration"
             className="min-h-[44px] btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
@@ -321,4 +338,6 @@ export const ExecutionProgress = memo(function ExecutionProgress({
     </div>
   );
 });
+
+ExecutionProgress.displayName = 'ExecutionProgress';
 

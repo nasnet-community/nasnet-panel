@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 
 	"backend/internal/router"
 )
@@ -31,7 +31,7 @@ func NewDeviceTrafficTracker(routerPort router.RouterPort) *DeviceTrafficTracker
 func (t *DeviceTrafficTracker) GetDeviceBreakdown(
 	ctx context.Context,
 	instanceID string,
-) ([]*graphql.DeviceTrafficBreakdown, error) {
+) ([]*model.DeviceTrafficBreakdown, error) {
 	// Query mangle rules with stats for this instance
 	// Comment format: nnc-routing-{instanceID}-{deviceID}
 	// Example: nnc-routing-01J5K3VQRM-aa:bb:cc:dd:ee:ff
@@ -49,7 +49,7 @@ func (t *DeviceTrafficTracker) GetDeviceBreakdown(
 	}
 
 	// Parse mangle rules and extract device traffic
-	devices := make(map[string]*graphql.DeviceTrafficBreakdown)
+	devices := make(map[string]*model.DeviceTrafficBreakdown)
 
 	for _, rule := range result.Resources {
 		comment, ok := rule["comment"]
@@ -85,7 +85,7 @@ func (t *DeviceTrafficTracker) GetDeviceBreakdown(
 			// Query device name from DHCP leases or ARP table (if available)
 			deviceName := t.queryDeviceName(ctx, macAddress, ipAddress)
 
-			devices[deviceID] = &graphql.DeviceTrafficBreakdown{
+			devices[deviceID] = &model.DeviceTrafficBreakdown{
 				DeviceID:       deviceID,
 				MacAddress:     stringToPtr(macAddress),
 				IPAddress:      stringToPtr(ipAddress),
@@ -99,7 +99,7 @@ func (t *DeviceTrafficTracker) GetDeviceBreakdown(
 	}
 
 	// Convert map to slice
-	breakdown := make([]*graphql.DeviceTrafficBreakdown, 0, len(devices))
+	breakdown := make([]*model.DeviceTrafficBreakdown, 0, len(devices))
 	var grandTotal int64
 	for _, device := range devices {
 		breakdown = append(breakdown, device)
@@ -205,7 +205,7 @@ func stringToPtr(s string) *string {
 }
 
 // sortByTotalBytes sorts device breakdown by total bytes (descending)
-func sortByTotalBytes(devices []*graphql.DeviceTrafficBreakdown) {
+func sortByTotalBytes(devices []*model.DeviceTrafficBreakdown) {
 	// Simple bubble sort (sufficient for small datasets, typically <100 devices)
 	n := len(devices)
 	for i := 0; i < n-1; i++ {

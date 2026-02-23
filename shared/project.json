@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:shared"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["shared/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {

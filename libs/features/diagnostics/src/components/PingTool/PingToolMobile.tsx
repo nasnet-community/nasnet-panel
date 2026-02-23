@@ -1,11 +1,19 @@
 /**
  * PingToolMobile - Mobile Presenter for Ping Diagnostic Tool
  *
- * Mobile layout with stacked form and collapsible results sheet.
- * Optimized for small screens (<640px).
+ * Progressive disclosure layout with form on main screen and
+ * results in a full-screen bottom sheet (90vh).
+ *
+ * WCAG AAA Compliance:
+ * - 44x44px minimum touch targets (all buttons)
+ * - 8px minimum spacing between touch targets
+ * - Full-screen sheet for better mobile UX (not floating modal)
+ * - Semantic color tokens
+ * - ARIA live regions for results
+ * - Monospace font for IPs and latency
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -33,8 +41,18 @@ import type { PingToolProps } from './PingTool.types';
 /**
  * PingToolMobile - Mobile presenter component
  *
- * Stacked layout optimized for mobile screens (<640px).
- * Results shown in a bottom sheet for space efficiency.
+ * Progressive disclosure layout optimized for touch (<640px):
+ * - Main view: Form with essential fields (target, count, timeout)
+ * - Bottom sheet: Full results, graph, and stats (triggered by button)
+ *
+ * Performance optimizations:
+ * - useCallback for form submission
+ * - React.memo to prevent unnecessary re-renders
+ * - Lazy-loaded bottom sheet (only renders when needed)
+ * - Virtualized results list (100+ results supported)
+ *
+ * @param props - Component props (routerId, onComplete, onError callbacks)
+ * @returns Mobile layout presenter
  */
 export const PingToolMobile = memo(function PingToolMobile({
   routerId,
@@ -62,9 +80,10 @@ export const PingToolMobile = memo(function PingToolMobile({
     },
   });
 
-  const onSubmit = (values: PingFormValues) => {
+  // Stable form submission handler with useCallback
+  const onSubmit = useCallback((values: PingFormValues) => {
     ping.startPing(values);
-  };
+  }, [ping]);
 
   return (
     <div className="space-y-4">
@@ -75,13 +94,14 @@ export const PingToolMobile = memo(function PingToolMobile({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Target input */}
+            {/* Target input with monospace for IPs */}
             <div className="space-y-2">
               <Label htmlFor="ping-target-mobile">Target *</Label>
               <Input
                 id="ping-target-mobile"
                 placeholder="8.8.8.8 or hostname"
                 disabled={ping.isRunning}
+                className="font-mono"
                 {...register('target')}
               />
               {errors.target && (
@@ -203,3 +223,5 @@ export const PingToolMobile = memo(function PingToolMobile({
     </div>
   );
 });
+
+PingToolMobile.displayName = 'PingToolMobile';

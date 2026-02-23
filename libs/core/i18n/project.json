@@ -21,12 +21,20 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/core/i18n/**/*.{ts,tsx,js,jsx}"]
+      }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p libs/core/i18n/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/core/i18n/tsconfig.lib.json",
+          "tsc --noEmit --project libs/core/i18n/tsconfig.spec.json",
+          "tsc --noEmit --project libs/core/i18n/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     }
   }

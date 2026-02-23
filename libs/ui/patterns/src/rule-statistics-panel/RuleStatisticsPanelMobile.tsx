@@ -4,7 +4,7 @@
  * Mobile presenter for rule statistics (full-screen sheet from bottom).
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 
 import { Download, X } from 'lucide-react';
 
@@ -50,7 +50,7 @@ function formatBytes(bytes: number): string {
 /**
  * RuleStatisticsPanelMobile - Mobile layout (full-screen bottom sheet)
  */
-export function RuleStatisticsPanelMobile({
+export const RuleStatisticsPanelMobile = memo(function RuleStatisticsPanelMobile({
   isOpen,
   onClose,
   rule,
@@ -155,4 +155,6 @@ export function RuleStatisticsPanelMobile({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+RuleStatisticsPanelMobile.displayName = 'RuleStatisticsPanelMobile';

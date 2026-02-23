@@ -7,7 +7,7 @@
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "composite": false,
+    "composite": true,
     "declarationMap": false,
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -27,7 +27,9 @@
     "src/**/*.test.js",
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
-    "src/**/*.spec.jsx"
+    "src/**/*.spec.jsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
   ],
   "references": []
 }

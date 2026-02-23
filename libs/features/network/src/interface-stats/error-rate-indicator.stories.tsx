@@ -8,8 +8,9 @@
  * required, so all stories can render fully without a mock layer.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ErrorRateIndicator } from './error-rate-indicator';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ErrorRateIndicator> = {
   title: 'Features/Network/InterfaceStats/ErrorRateIndicator',

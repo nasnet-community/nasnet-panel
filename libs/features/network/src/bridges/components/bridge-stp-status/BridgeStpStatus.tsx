@@ -1,8 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { AlertCircle, Network, Shield, Activity } from 'lucide-react';
+import { memo, useMemo } from 'react';
+import {
+  Alert,
+  AlertDescription,
+  Badge,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Icon,
+  Skeleton,
+} from '@nasnet/ui/primitives';
+import { AlertCircle, Shield, Network, Activity } from 'lucide-react';
 import { useBridgeDetail, useBridgeStpStatus } from '@nasnet/api-client/queries';
 import { StpPortTable } from './StpPortTable';
 import { format } from 'date-fns';
@@ -14,13 +22,18 @@ import { format } from 'date-fns';
  * - Per-port STP table (role, state, cost, edge)
  * - Real-time updates via GraphQL subscription
  *
+ * @description Shows real-time spanning tree protocol status including root bridge ID,
+ * path cost, and per-port role/state information.
+ *
  * @param bridgeId - Bridge UUID
+ * @param className - Optional CSS class for styling
  */
 export interface BridgeStpStatusProps {
   bridgeId: string;
+  className?: string;
 }
 
-export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
+function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps) {
   // Fetch bridge detail with STP status
   const { bridge, loading, error } = useBridgeDetail(bridgeId);
 
@@ -28,10 +41,10 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
   const { stpStatus: liveStpStatus } = useBridgeStpStatus(bridgeId);
 
   // Use live status if available, otherwise use bridge data
-  const stpStatus = liveStpStatus || bridge?.stpStatus;
+  const stpStatus = useMemo(() => liveStpStatus || bridge?.stpStatus, [liveStpStatus, bridge?.stpStatus]);
 
   // Check if STP is enabled
-  const stpEnabled = bridge?.protocol && bridge.protocol !== 'none';
+  const stpEnabled = useMemo(() => bridge?.protocol && bridge.protocol !== 'none', [bridge?.protocol]);
 
   if (loading) {
     return (
@@ -45,7 +58,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
         <AlertDescription>
           Failed to load STP status: {error.message}
         </AlertDescription>
@@ -56,7 +69,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
   if (!bridge) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" />
+        <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
         <AlertDescription>Bridge not found</AlertDescription>
       </Alert>
     );
@@ -67,13 +80,13 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <Icon icon={Shield} className="h-5 w-5" aria-hidden="true" />
             Spanning Tree Protocol
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Alert>
-            <AlertCircle className="h-4 w-4" />
+            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>
               STP is disabled for this bridge. Set the protocol to STP, RSTP, or MSTP to enable
               spanning tree.
@@ -85,14 +98,14 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className || ''}`}>
       {/* Bridge-Level STP Info */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <Icon icon={Shield} className="h-5 w-5" aria-hidden="true" />
             Spanning Tree Status
-            <Badge variant="info" className="ml-auto">
+            <Badge variant="info" className="ml-auto font-mono text-xs">
               {bridge.protocol.toUpperCase()}
             </Badge>
           </CardTitle>
@@ -106,7 +119,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
                   stpStatus?.rootBridge ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
                 }`}
               >
-                <Network className="h-5 w-5" />
+                <Icon icon={Network} className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-sm font-medium">Root Bridge</p>
@@ -126,9 +139,9 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
           {stpStatus?.rootBridgeId && (
             <div className="space-y-1">
               <p className="text-sm font-medium">Root Bridge ID</p>
-              <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
+              <div className="font-mono text-xs bg-muted px-2 py-1 rounded break-all">
                 {stpStatus.rootBridgeId}
-              </code>
+              </div>
             </div>
           )}
 
@@ -136,7 +149,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
           {!stpStatus?.rootBridge && stpStatus?.rootPort && (
             <div className="space-y-1">
               <p className="text-sm font-medium">Root Port</p>
-              <Badge variant="info">{stpStatus.rootPort}</Badge>
+              <Badge variant="info" className="font-mono">{stpStatus.rootPort}</Badge>
             </div>
           )}
 
@@ -144,9 +157,9 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
           {!stpStatus?.rootBridge && stpStatus?.rootPathCost !== undefined && (
             <div className="space-y-1">
               <p className="text-sm font-medium">Root Path Cost</p>
-              <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
+              <div className="font-mono text-xs bg-muted px-2 py-1 rounded">
                 {stpStatus.rootPathCost}
-              </code>
+              </div>
             </div>
           )}
 
@@ -154,7 +167,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
           <div className="flex items-center justify-between p-4 rounded-lg border">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Activity className="h-5 w-5" />
+                <Icon icon={Activity} className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-sm font-medium">Topology Changes</p>
@@ -167,7 +180,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
                 )}
               </div>
             </div>
-            <Badge variant="secondary" className="font-mono">
+            <Badge variant="secondary" className="font-mono text-xs">
               {stpStatus?.topologyChangeCount || 0}
             </Badge>
           </div>
@@ -186,3 +199,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
     </div>
   );
 }
+
+BridgeStpStatusComponent.displayName = 'BridgeStpStatus';
+
+export const BridgeStpStatus = memo(BridgeStpStatusComponent);

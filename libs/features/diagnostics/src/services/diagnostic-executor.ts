@@ -1,18 +1,18 @@
 // libs/features/diagnostics/src/services/diagnostic-executor.ts
 import { apolloClient } from '@nasnet/api-client/core';
-import { RUN_TROUBLESHOOT_STEP } from '@nasnet/api-client/queries';
-import { TroubleshootStepType } from '@nasnet/api-client/queries';
+import { RUN_TROUBLESHOOT_STEP, TroubleshootStepType } from '@nasnet/api-client/queries';
 import type { DiagnosticResult } from '../types/troubleshoot.types';
 
 /**
- * Execute a diagnostic step based on step ID
- * This service coordinates the execution of different diagnostic checks
- * by calling the backend GraphQL API which executes commands on the router.
+ * @description Execute a diagnostic step based on step ID by coordinating with the backend GraphQL API.
+ * This service triggers different diagnostic checks (WAN, gateway, internet, DNS, NAT) on the router
+ * through the RUN_TROUBLESHOOT_STEP mutation and returns structured results.
  *
- * @param stepId - The diagnostic step to execute (wan, gateway, internet, dns, nat)
- * @param routerId - The router to diagnose
- * @param sessionId - The troubleshooting session ID (created by the backend)
- * @returns DiagnosticResult with success/failure status and details
+ * @param stepId - The diagnostic step to execute ('wan', 'gateway', 'internet', 'dns', 'nat')
+ * @param routerId - The router UUID to diagnose
+ * @param sessionId - The troubleshooting session ID created by the backend
+ * @returns Promise<DiagnosticResult> with success/failure status, message, and details
+ * @throws Returns error result (never throws) with actionable error message
  */
 export async function executeDiagnosticStep(
   stepId: string,
@@ -23,7 +23,7 @@ export async function executeDiagnosticStep(
 
   try {
     // Map step ID to GraphQL enum
-    const stepTypeMap: Record<string, TroubleshootStepType> = {
+    const STEP_TYPE_MAP: Record<string, TroubleshootStepType> = {
       wan: TroubleshootStepType.WAN,
       gateway: TroubleshootStepType.GATEWAY,
       internet: TroubleshootStepType.INTERNET,
@@ -31,9 +31,9 @@ export async function executeDiagnosticStep(
       nat: TroubleshootStepType.NAT,
     };
 
-    const stepType = stepTypeMap[stepId];
+    const stepType = STEP_TYPE_MAP[stepId];
     if (!stepType) {
-      throw new Error(`Unknown diagnostic step: ${stepId}`);
+      throw new Error(`Unsupported diagnostic step "${stepId}". Supported steps: wan, gateway, internet, dns, nat`);
     }
 
     // Execute the diagnostic step via GraphQL
@@ -46,7 +46,7 @@ export async function executeDiagnosticStep(
     });
 
     if (!data?.runTroubleshootStep?.step?.result) {
-      throw new Error('No result returned from diagnostic step');
+      throw new Error('Diagnostic step failed to return a result. The backend may be overloaded or the router connection may have been lost.');
     }
 
     const result = data.runTroubleshootStep.step.result;
@@ -61,9 +61,10 @@ export async function executeDiagnosticStep(
     } as DiagnosticResult;
   } catch (error) {
     const executionTimeMs = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Diagnostic step execution failed. Please check your router connection and try again.';
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Diagnostic failed',
+      message: errorMessage,
       executionTimeMs,
     };
   }

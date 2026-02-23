@@ -21,9 +21,10 @@
 
 import * as React from 'react';
 
-import { Copy, Check } from 'lucide-react';
+import { memo, useMemo, useCallback } from 'react';
 
-import { cn, Button } from '@nasnet/ui/primitives';
+import { Check, Copy } from 'lucide-react';
+import { cn, Button, Icon } from '@nasnet/ui/primitives';
 
 import { useClipboard } from '../hooks';
 import { useToast } from '../hooks/useToast';
@@ -40,64 +41,74 @@ export type CodeBlockLanguage =
 
 /**
  * Props for CodeBlockCopy component
+ * Displays code/configuration blocks with copy-to-clipboard functionality
  */
 export interface CodeBlockCopyProps {
   /**
    * The code/configuration to display
+   * Preserves all whitespace and formatting
    */
   code: string;
 
   /**
    * Language for syntax hints (does not enable full highlighting)
+   * Used for display badge and styling hints
    * @default 'text'
    */
   language?: CodeBlockLanguage;
 
   /**
    * Title to display above the code block
+   * Optional header text to identify the code content
    */
   title?: string;
 
   /**
-   * Show line numbers
+   * Show line numbers alongside code
+   * Useful for long scripts or configuration blocks
    * @default false
    */
   showLineNumbers?: boolean;
 
   /**
-   * Maximum height with scroll
+   * Maximum height with vertical scroll
+   * Can be a pixel value (number) or CSS length (string like '300px', '50vh')
    */
   maxHeight?: number | string;
 
   /**
-   * Show toast notification on copy
+   * Show toast notification on successful copy
    * @default true
    */
   showToast?: boolean;
 
   /**
-   * Custom toast title
+   * Custom toast title shown on copy success
    * @default 'Copied!'
    */
   toastTitle?: string;
 
   /**
-   * Custom toast description
+   * Custom toast description shown on copy success
    */
   toastDescription?: string;
 
   /**
-   * Additional CSS classes for the container
+   * Additional CSS classes for the outer container
+   * Use for layout/spacing customization
    */
   className?: string;
 
   /**
    * Additional CSS classes for the code element
+   * Use for font, color, or text styling
    */
   codeClassName?: string;
 
   /**
    * Callback fired on successful copy
+   * Called after code is copied to clipboard
+   * @param code The code that was copied
    */
   onCopy?: (code: string) => void;
 }
@@ -126,7 +137,7 @@ function getLanguageLabel(language: CodeBlockLanguage): string {
  * Displays code/config blocks with a copy button in the top-right corner.
  * Preserves all formatting including whitespace and comments.
  */
-export function CodeBlockCopy({
+function CodeBlockCopyComponent({
   code,
   language = 'text',
   title,
@@ -159,42 +170,47 @@ export function CodeBlockCopy({
     },
   });
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     await copy(code);
-  };
+  }, [copy, code]);
 
-  // Split code into lines for line numbers
-  const lines = code.split('\n');
-  const lineNumberWidth = String(lines.length).length;
-
-  // Determine max height style
-  const maxHeightStyle = maxHeight
-    ? typeof maxHeight === 'number'
-      ? { maxHeight: `${maxHeight}px` }
-      : { maxHeight }
-    : undefined;
-
-  const languageLabel = getLanguageLabel(language);
+  // Memoize computed values for performance
+  const { lines, lineNumberWidth, maxHeightStyle, languageLabel } = useMemo(() => {
+    const codeLines = code.split('\n');
+    const numberWidth = String(codeLines.length).length;
+    const heightStyle = maxHeight
+      ? typeof maxHeight === 'number'
+        ? { maxHeight: `${maxHeight}px` }
+        : { maxHeight }
+      : undefined;
+    const label = getLanguageLabel(language);
+    return {
+      lines: codeLines,
+      lineNumberWidth: numberWidth,
+      maxHeightStyle: heightStyle,
+      languageLabel: label,
+    };
+  }, [code, maxHeight, language]);
 
   return (
     <div
       className={cn(
         'relative rounded-card-sm overflow-hidden',
-        'bg-slate-100 dark:bg-slate-800',
-        'border border-slate-200 dark:border-slate-700',
+        'bg-muted',
+        'border border-border',
         className
       )}
     >
       {/* Header with title, language label, and copy button */}
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-200/50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border">
         <div className="flex items-center gap-2">
           {title && (
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <span className="text-sm font-medium text-foreground">
               {title}
             </span>
           )}
           {languageLabel && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-300/50 dark:bg-slate-600/50 text-slate-600 dark:text-slate-400">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
               {languageLabel}
             </span>
           )}
@@ -203,18 +219,19 @@ export function CodeBlockCopy({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-3 rounded-button hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+          className="h-8 px-3 rounded-button hover:bg-muted/80 transition-colors"
           onClick={handleCopy}
-          aria-label={copied ? 'Copied' : 'Copy code'}
+          aria-label={copied ? 'Code copied to clipboard' : 'Copy code to clipboard'}
+          title={copied ? 'Copied!' : 'Copy code'}
         >
           {copied ? (
             <>
-              <Check className="h-4 w-4 mr-1.5 text-success" />
+              <Icon icon={Check} size="sm" className="mr-1.5 text-success" />
               <span className="text-xs font-medium">Copied</span>
             </>
           ) : (
             <>
-              <Copy className="h-4 w-4 mr-1.5 text-slate-600 dark:text-slate-400" />
+              <Icon icon={Copy} size="sm" className="mr-1.5 text-muted-foreground" />
               <span className="text-xs font-medium">Copy</span>
             </>
           )}
@@ -229,7 +246,7 @@ export function CodeBlockCopy({
         <pre className="p-4 m-0">
           <code
             className={cn(
-              'block font-mono text-sm text-slate-900 dark:text-slate-50',
+              'block font-mono text-sm text-foreground',
               'whitespace-pre',
               codeClassName
             )}
@@ -238,14 +255,14 @@ export function CodeBlockCopy({
               <table className="w-full border-collapse">
                 <tbody>
                   {lines.map((line, index) => (
-                    <tr key={index} className="hover:bg-slate-200/30 dark:hover:bg-slate-700/30">
+                    <tr key={index} className="hover:bg-muted/40">
                       <td
-                        className="pr-4 text-right select-none text-slate-400 dark:text-slate-500"
+                        className="pr-4 text-right select-none text-muted-foreground"
                         style={{ width: `${lineNumberWidth + 1}ch` }}
                       >
                         {index + 1}
                       </td>
-                      <td className="pl-4 border-l border-slate-300 dark:border-slate-600">
+                      <td className="pl-4 border-l border-border">
                         {line || ' '}
                       </td>
                     </tr>
@@ -262,4 +279,6 @@ export function CodeBlockCopy({
   );
 }
 
-CodeBlockCopy.displayName = 'CodeBlockCopy';
+CodeBlockCopyComponent.displayName = 'CodeBlockCopy';
+
+export const CodeBlockCopy = memo(CodeBlockCopyComponent);

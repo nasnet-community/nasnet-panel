@@ -4,7 +4,7 @@
  * Follows Direction 6 (Guided Flow) from design spec
  */
 
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  cn,
 } from '@nasnet/ui/primitives';
 import {
   Settings,
@@ -64,6 +65,11 @@ export interface ConfigurationImportWizardProps {
    * Callback when user skips the wizard
    */
   onSkip?: () => void;
+
+  /**
+   * Optional className for styling
+   */
+  className?: string;
 }
 
 type WizardStep = 'input' | 'protocol' | 'execute' | 'complete';
@@ -152,6 +158,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
   credentials,
   onSuccess,
   onSkip,
+  className,
 }: ConfigurationImportWizardProps) {
   // Wizard state
   const [step, setStep] = useState<WizardStep>('input');
@@ -270,24 +277,30 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
     }
   }, [step, job?.status, onClose]);
 
-  // Check if next button should be enabled
-  const canProceed =
-    step === 'input'
-      ? configuration.trim().length > 0
-      : step === 'protocol'
-      ? selectedProtocol !== null
-      : false;
+  // Check if next button should be enabled (memoized)
+  const canProceed = useMemo(
+    () =>
+      step === 'input'
+        ? configuration.trim().length > 0
+        : step === 'protocol'
+          ? selectedProtocol !== null
+          : false,
+    [step, configuration, selectedProtocol]
+  );
 
-  // Is job finished?
-  const isJobComplete = job?.status === 'completed';
-  const isJobFailed =
-    job?.status === 'failed' ||
-    job?.status === 'rolled_back' ||
-    job?.status === 'cancelled';
+  // Is job finished? (memoized)
+  const isJobComplete = useMemo(() => job?.status === 'completed', [job?.status]);
+  const isJobFailed = useMemo(
+    () =>
+      job?.status === 'failed' ||
+      job?.status === 'rolled_back' ||
+      job?.status === 'cancelled',
+    [job?.status]
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[540px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn('sm:max-w-[540px] max-h-[90vh] overflow-y-auto', className)}>
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -300,9 +313,9 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
                 {step === 'protocol' && 'Choose connection method'}
                 {step === 'execute' &&
                   (isJobComplete
-                    ? 'Configuration applied!'
+                    ? 'Configuration applied successfully'
                     : isJobFailed
-                    ? 'Something went wrong'
+                    ? 'Configuration application failed'
                     : 'Applying configuration...')}
               </DialogDescription>
             </div>
@@ -467,4 +480,6 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
     </Dialog>
   );
 });
+
+ConfigurationImportWizard.displayName = 'ConfigurationImportWizard';
 

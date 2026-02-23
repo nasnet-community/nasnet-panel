@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useBridgeList } from '../../hooks/use-bridge-list';
 import { BridgeListDesktop } from './BridgeListDesktop';
@@ -13,19 +14,28 @@ import { BridgeDetail } from '../bridge-detail';
  * - Mobile: Card-based layout with 44px touch targets
  *
  * @param routerId - Router ID to fetch bridges for
+ * @param className - Optional CSS class for styling
+ * @description Platform-responsive bridge list with automatic presenter selection
  */
 export interface BridgeListProps {
   routerId: string;
+  className?: string;
 }
 
-export function BridgeList({ routerId }: BridgeListProps) {
+export const BridgeList = memo(function BridgeList({ routerId, className }: BridgeListProps) {
   const platform = usePlatform();
   const bridgeListState = useBridgeList(routerId);
+
+  // Memoized close handler
+  const handleCloseBridgeDetail = useCallback(() => {
+    bridgeListState.setSelectedBridgeId(null);
+  }, [bridgeListState]);
 
   // Shared props for both presenters
   const sharedProps = {
     ...bridgeListState,
     routerId,
+    className,
   };
 
   return (
@@ -41,8 +51,10 @@ export function BridgeList({ routerId }: BridgeListProps) {
         routerId={routerId}
         bridgeId={bridgeListState.selectedBridgeId}
         open={bridgeListState.selectedBridgeId !== null}
-        onClose={() => bridgeListState.setSelectedBridgeId(null)}
+        onClose={handleCloseBridgeDetail}
       />
     </>
   );
-}
+});
+
+BridgeList.displayName = 'BridgeList';

@@ -13,6 +13,7 @@
  * - Navigation to Network section
  */
 
+import React, { useCallback, useMemo } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -35,6 +36,12 @@ import type { InterfaceDetailSheetProps } from './types';
  * Shows MAC, MTU, running status, comment, link partner.
  * Uses Dialog on desktop, Sheet on mobile/tablet.
  *
+ * @description
+ * Adaptive component that renders as a dialog on desktop screens and
+ * a bottom sheet on mobile/tablet for better touch interaction.
+ * Displays complete interface details including MAC address (font-mono),
+ * IP address (font-mono), MTU, link speed, and operational status.
+ *
  * @example
  * <InterfaceDetailSheet
  *   interface={selectedInterface}
@@ -42,7 +49,7 @@ import type { InterfaceDetailSheetProps } from './types';
  *   onOpenChange={(open) => !open && setSelectedInterface(null)}
  * />
  */
-export function InterfaceDetailSheet({
+const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
   interface: iface,
   open,
   onOpenChange,
@@ -50,81 +57,95 @@ export function InterfaceDetailSheet({
   const platform = usePlatform();
   const isDesktop = platform === 'desktop';
 
-  if (!iface) return null;
-
-  const content = (
-    <div className="space-y-4">
-      {/* Interface header */}
-      <div className="flex items-center gap-3">
-        <InterfaceTypeIcon type={iface.type} className="h-8 w-8" />
-        <div>
-          <p className="font-semibold text-lg">{iface.name}</p>
-          <p className="text-sm text-muted-foreground capitalize">
-            {iface.type}
-          </p>
-        </div>
-      </div>
-
-      {/* Details grid */}
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <dt className="text-muted-foreground">MAC Address</dt>
-        <dd className="font-mono">{iface.mac || 'N/A'}</dd>
-
-        <dt className="text-muted-foreground">IP Address</dt>
-        <dd className="font-mono">{iface.ip || 'Not assigned'}</dd>
-
-        <dt className="text-muted-foreground">MTU</dt>
-        <dd>{iface.mtu}</dd>
-
-        <dt className="text-muted-foreground">Link Speed</dt>
-        <dd>{iface.linkSpeed || 'N/A'}</dd>
-
-        <dt className="text-muted-foreground">Running</dt>
-        <dd>{iface.running ? 'Yes' : 'No'}</dd>
-
-        <dt className="text-muted-foreground">Status</dt>
-        <dd className="capitalize">{iface.status}</dd>
-
-        {iface.linkPartner && (
-          <>
-            <dt className="text-muted-foreground">Link Partner</dt>
-            <dd>{iface.linkPartner}</dd>
-          </>
-        )}
-
-        {iface.comment && (
-          <>
-            <dt className="text-muted-foreground">Comment</dt>
-            <dd className="col-span-2">{iface.comment}</dd>
-          </>
-        )}
-
-        {iface.lastSeen && iface.status === 'down' && (
-          <>
-            <dt className="text-muted-foreground">Last Seen</dt>
-            <dd>{new Date(iface.lastSeen).toLocaleString()}</dd>
-          </>
-        )}
-      </dl>
-
-      {/* Navigation link */}
-      <Link
-        to="/network/interfaces/$interfaceId"
-        params={{ interfaceId: iface.id }}
-        className="inline-flex items-center gap-2 text-primary hover:underline mt-4"
-      >
-        <Button variant="outline" size="sm" className="gap-2">
-          View in Network
-          <ExternalLink className="h-4 w-4" />
-        </Button>
-      </Link>
-    </div>
+  // Memoize openChange callback
+  const memoizedOnOpenChange = useCallback(
+    (newOpen: boolean) => {
+      onOpenChange(newOpen);
+    },
+    [onOpenChange]
   );
+
+  const content = useMemo(() => {
+    if (!iface) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* Interface header */}
+        <div className="flex items-center gap-3">
+          <InterfaceTypeIcon type={iface.type} className="h-8 w-8" />
+          <div>
+            <p className="font-semibold text-lg">{iface.name}</p>
+            <p className="text-sm text-muted-foreground capitalize">
+              {iface.type}
+            </p>
+          </div>
+        </div>
+
+        {/* Details grid - MAC and IP use font-mono for technical data (WCAG AAA) */}
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <dt className="text-muted-foreground">MAC Address</dt>
+          <dd className="font-mono text-xs break-all">{iface.mac || 'N/A'}</dd>
+
+          <dt className="text-muted-foreground">IP Address</dt>
+          <dd className="font-mono text-xs break-all">
+            {iface.ip || 'Not assigned'}
+          </dd>
+
+          <dt className="text-muted-foreground">MTU</dt>
+          <dd>{iface.mtu}</dd>
+
+          <dt className="text-muted-foreground">Link Speed</dt>
+          <dd>{iface.linkSpeed || 'N/A'}</dd>
+
+          <dt className="text-muted-foreground">Running</dt>
+          <dd>{iface.running ? 'Yes' : 'No'}</dd>
+
+          <dt className="text-muted-foreground">Status</dt>
+          <dd className="capitalize">{iface.status}</dd>
+
+          {iface.linkPartner && (
+            <>
+              <dt className="text-muted-foreground">Link Partner</dt>
+              <dd>{iface.linkPartner}</dd>
+            </>
+          )}
+
+          {iface.comment && (
+            <>
+              <dt className="text-muted-foreground">Comment</dt>
+              <dd className="col-span-2">{iface.comment}</dd>
+            </>
+          )}
+
+          {iface.lastSeen && iface.status === 'down' && (
+            <>
+              <dt className="text-muted-foreground">Last Seen</dt>
+              <dd>{new Date(iface.lastSeen).toLocaleString()}</dd>
+            </>
+          )}
+        </dl>
+
+        {/* Navigation link */}
+        <Link
+          to="/network/interfaces/$interfaceId"
+          params={{ interfaceId: iface.id }}
+          className="inline-flex items-center gap-2 text-primary hover:underline mt-4"
+        >
+          <Button variant="outline" size="sm" className="gap-2">
+            View in Network
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }, [iface]);
+
+  if (!content) return null;
 
   // Desktop: use Dialog
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={memoizedOnOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Interface Details</DialogTitle>
@@ -137,7 +158,7 @@ export function InterfaceDetailSheet({
 
   // Mobile/Tablet: use Sheet
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={memoizedOnOpenChange}>
       <SheetContent side="bottom" className="h-auto max-h-[80vh]">
         <SheetHeader>
           <SheetTitle>Interface Details</SheetTitle>
@@ -146,4 +167,8 @@ export function InterfaceDetailSheet({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+InterfaceDetailSheetComponent.displayName = 'InterfaceDetailSheet';
+
+export { InterfaceDetailSheetComponent as InterfaceDetailSheet };

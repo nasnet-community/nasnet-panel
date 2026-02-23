@@ -5,12 +5,13 @@
  * RECONNECTING) plus edge-case stories (no optional fields, long reason text).
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import {
   ConnectionEventCard,
   ConnectionEventCardCompact,
 } from './ConnectionEventCard';
+
 import type { ConnectionEventData } from '../../types/wan.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock data

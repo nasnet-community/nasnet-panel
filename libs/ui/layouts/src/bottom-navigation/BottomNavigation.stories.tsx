@@ -1,15 +1,5 @@
 import { useState } from 'react';
 
-import {
-  Home,
-  Shield,
-  Activity,
-  Settings,
-  Wifi,
-  Bell,
-  Network,
-} from 'lucide-react';
-
 import { BottomNavigation, type NavItem } from './BottomNavigation';
 
 import type { Meta, StoryObj } from '@storybook/react';
@@ -20,21 +10,34 @@ const meta: Meta<typeof BottomNavigation> = {
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
-    // Render against a light background that makes the fixed bar visible
     backgrounds: { default: 'light' },
     docs: {
       description: {
         component:
-          'Mobile-first fixed bottom navigation bar. Hidden on md+ screens (`md:hidden`). ' +
-          'Use `forcePlatform` in stories by wrapping in a constrained viewport.',
+          'Mobile-first fixed bottom navigation bar for touch-first interfaces. ' +
+          'Hidden on md+ screens (`md:hidden`). Provides 44px minimum touch targets for WCAG AAA compliance. ' +
+          'Supports 4-5 navigation items with optional notification badges.',
       },
+    },
+  },
+  argTypes: {
+    activeId: {
+      control: 'select',
+      options: ['home', 'network', 'wifi', 'vpn', 'settings', 'monitor', 'alerts'],
+      description: 'ID of the currently active navigation item',
+    },
+    items: {
+      description: 'Array of navigation items to display',
+    },
+    className: {
+      control: 'text',
+      description: 'Optional custom className for the nav element',
     },
   },
   decorators: [
     (Story) => (
-      // Constrain to a mobile-sized container so the `fixed` bar is visible
       <div className="relative" style={{ height: '100vh', maxWidth: 390, margin: '0 auto', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <div className="p-4 pb-24 text-sm text-muted-foreground">
+        <div className="p-4 pb-24 text-sm text-muted-foreground overflow-y-auto">
           Page content goes here. The bottom navigation is pinned to the bottom of this viewport.
         </div>
         <Story />
@@ -49,69 +52,121 @@ type Story = StoryObj<typeof BottomNavigation>;
 // Stories
 // ---------------------------------------------------------------------------
 
+/**
+ * Default state with home active and 4 core navigation items
+ */
 export const Default: Story = {
   args: {
     activeId: 'home',
-  },
-};
-
-export const VPNActive: Story = {
-  args: {
-    activeId: 'vpn',
-  },
-};
-
-export const MonitorActive: Story = {
-  args: {
-    activeId: 'monitor',
-  },
-};
-
-export const WithBadges: Story = {
-  args: {
-    activeId: 'home',
     items: [
-      { id: 'home', label: 'Home', icon: Home },
-      { id: 'vpn', label: 'VPN', icon: Shield, badge: 2 },
-      { id: 'monitor', label: 'Monitor', icon: Activity, badge: 99 },
-      { id: 'alerts', label: 'Alerts', icon: Bell, badge: 142 },
-      { id: 'settings', label: 'Settings', icon: Settings },
-    ] satisfies NavItem[],
-  },
-};
-
-export const FiveItems: Story = {
-  args: {
-    activeId: 'network',
-    items: [
-      { id: 'home', label: 'Home', icon: Home },
-      { id: 'network', label: 'Network', icon: Network },
-      { id: 'wifi', label: 'WiFi', icon: Wifi },
-      { id: 'vpn', label: 'VPN', icon: Shield },
-      { id: 'settings', label: 'Settings', icon: Settings },
+      { id: 'home', label: 'Home', icon: 'lucide:home' },
+      { id: 'network', label: 'Network', icon: 'lucide:network' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield' },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
     ] satisfies NavItem[],
   },
 };
 
 /**
- * Interactive story with local state so the active tab actually changes on click.
+ * Mobile viewport (375px) - typical phone size
+ */
+export const Mobile: Story = {
+  args: {
+    activeId: 'home',
+    items: [
+      { id: 'home', label: 'Home', icon: 'lucide:home' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield' },
+      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity' },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
+    ] satisfies NavItem[],
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'iphone12',
+    },
+  },
+};
+
+/**
+ * With notification badges showing different counts
+ */
+export const WithBadges: Story = {
+  args: {
+    activeId: 'home',
+    items: [
+      { id: 'home', label: 'Home', icon: 'lucide:home' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield', badge: 2 },
+      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity', badge: 99 },
+      { id: 'alerts', label: 'Alerts', icon: 'lucide:bell', badge: 142 },
+    ] satisfies NavItem[],
+  },
+};
+
+/**
+ * Five navigation items (secondary item overflows)
+ */
+export const FiveItems: Story = {
+  args: {
+    activeId: 'network',
+    items: [
+      { id: 'home', label: 'Home', icon: 'lucide:home' },
+      { id: 'network', label: 'Network', icon: 'lucide:network' },
+      { id: 'wifi', label: 'WiFi', icon: 'lucide:wifi' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield' },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
+    ] satisfies NavItem[],
+  },
+};
+
+/**
+ * Active VPN tab with badge
+ */
+export const VPNActive: Story = {
+  args: {
+    activeId: 'vpn',
+    items: [
+      { id: 'home', label: 'Home', icon: 'lucide:home' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield', badge: 1 },
+      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity' },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
+    ] satisfies NavItem[],
+  },
+};
+
+/**
+ * Interactive story with local state - tab changes on click
  */
 export const Interactive: Story = {
   render: () => {
     const [activeId, setActiveId] = useState('home');
     const items: NavItem[] = [
-      { id: 'home', label: 'Home', icon: Home, onClick: () => setActiveId('home') },
-      { id: 'vpn', label: 'VPN', icon: Shield, onClick: () => setActiveId('vpn'), badge: 1 },
-      { id: 'monitor', label: 'Monitor', icon: Activity, onClick: () => setActiveId('monitor') },
-      { id: 'settings', label: 'Settings', icon: Settings, onClick: () => setActiveId('settings') },
+      { id: 'home', label: 'Home', icon: 'lucide:home', onClick: () => setActiveId('home') },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield', onClick: () => setActiveId('vpn'), badge: 1 },
+      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity', onClick: () => setActiveId('monitor') },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings', onClick: () => setActiveId('settings') },
     ];
     return (
       <div className="relative" style={{ height: '100vh', maxWidth: 390, margin: '0 auto', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
         <div className="p-4 pb-24 text-sm text-muted-foreground">
-          Active tab: <strong>{activeId}</strong>. Tap the nav items below.
+          Active tab: <strong>{activeId}</strong>. Tap nav items to change active state.
         </div>
         <BottomNavigation activeId={activeId} items={items} />
       </div>
     );
+  },
+};
+
+/**
+ * With links instead of onClick handlers
+ */
+export const WithLinks: Story = {
+  args: {
+    activeId: 'home',
+    items: [
+      { id: 'home', label: 'Home', icon: 'lucide:home', href: '/' },
+      { id: 'vpn', label: 'VPN', icon: 'lucide:shield', href: '/vpn' },
+      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity', href: '/monitor' },
+      { id: 'settings', label: 'Settings', icon: 'lucide:settings', href: '/settings' },
+    ] satisfies NavItem[],
   },
 };

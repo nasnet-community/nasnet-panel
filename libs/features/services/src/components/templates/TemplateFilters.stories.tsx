@@ -7,10 +7,12 @@
  */
 
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import { TemplateFilters } from './TemplateFilters';
+
 import type { TemplateBrowserFilters } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Default filter values (mirrors the exported constant)
@@ -135,6 +137,7 @@ export const WithSearchQuery: Story = {
 export const CategorySelected: Story = {
   render: () => (
     <FiltersWrapper
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       initialFilters={{ ...DEFAULT_FILTERS, category: 'PRIVACY' as any }}
     />
   ),
@@ -148,7 +151,9 @@ export const MultipleActiveFilters: Story = {
     <FiltersWrapper
       initialFilters={{
         searchQuery: 'vpn',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         category: 'SECURITY' as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         scope: 'CHAIN' as any,
         showBuiltIn: true,
         showCustom: false,

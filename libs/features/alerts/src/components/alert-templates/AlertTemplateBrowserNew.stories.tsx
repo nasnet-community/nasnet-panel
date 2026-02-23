@@ -14,11 +14,15 @@
  * - Mobile viewport
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { MockedProvider } from '@apollo/client/testing';
-import { AlertTemplateBrowserNew } from './AlertTemplateBrowserNew';
+import { fn } from 'storybook/test';
+
 import { GET_ALERT_RULE_TEMPLATES } from '@nasnet/api-client/queries';
+
+import { AlertTemplateBrowserNew } from './AlertTemplateBrowserNew';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

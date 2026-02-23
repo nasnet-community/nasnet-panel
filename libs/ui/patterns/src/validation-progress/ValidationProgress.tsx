@@ -82,7 +82,7 @@ export interface ValidationProgressProps {
  * />
  * ```
  */
-export function ValidationProgress({
+export const ValidationProgress = React.memo(function ValidationProgress({
   stages: providedStages,
   visibleStages = STAGE_ORDER,
   currentStage,
@@ -288,7 +288,7 @@ export function ValidationProgress({
       )}
     </div>
   );
-}
+});
 
 ValidationProgress.displayName = 'ValidationProgress';
 

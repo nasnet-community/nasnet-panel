@@ -15,9 +15,10 @@
  * @see NAS-7.5: Implement Mangle Rules - Task 5
  */
 
-import { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { cn } from '@nasnet/ui/utils';
 import {
   useMangleRules,
   useDeleteMangleRule,
@@ -72,73 +73,92 @@ import { Pencil, Copy, Trash2, GripVertical } from 'lucide-react';
 // Action Badge Component
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
-  const colors: Record<string, string> = {
+/**
+ * ActionBadge Component
+ * Displays mangle action type with semantic color coding
+ */
+const ActionBadge = React.memo(function ActionBadgeComponent({ action }: { action: string }) {
+  ActionBadge.displayName = 'ActionBadge';
+
+  const ACTION_COLORS: Record<string, string> = {
     'mark-connection': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     'mark-packet': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     'mark-routing': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     'change-dscp': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
     'change-ttl': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
     'change-mss': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-    'accept': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    'drop': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    'accept': 'bg-success/10 text-success dark:bg-success/20',
+    'drop': 'bg-destructive/10 text-destructive dark:bg-destructive/20',
     'jump': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
     'log': 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200',
   };
 
-  const colorClass = colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const colorClass = ACTION_COLORS[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
 
   return (
     <Badge variant="outline" className={colorClass}>
       {action}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Chain Badge Component
 // ============================================================================
 
-function ChainBadge({ chain }: { chain: string }) {
+/**
+ * ChainBadge Component
+ * Displays mangle chain name with monospace formatting
+ */
+const ChainBadge = React.memo(function ChainBadgeComponent({ chain }: { chain: string }) {
+  ChainBadge.displayName = 'ChainBadge';
   return (
-    <Badge variant="secondary" className="font-mono text-xs">
+    <Badge variant="secondary" className="font-mono tabular-nums text-xs">
       {chain}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Matchers Summary Component
 // ============================================================================
 
-function MatchersSummary({ rule }: { rule: MangleRule }) {
-  const matchers: string[] = [];
+/**
+ * MatchersSummary Component
+ * Displays a compact summary of rule matchers with overflow indicator
+ */
+const MatchersSummary = React.memo(function MatchersSummaryComponent({ rule }: { rule: MangleRule }) {
+  MatchersSummary.displayName = 'MatchersSummary';
 
-  if (rule.protocol) matchers.push(`proto:${rule.protocol}`);
-  if (rule.srcAddress) matchers.push(`src:${rule.srcAddress}`);
-  if (rule.dstAddress) matchers.push(`dst:${rule.dstAddress}`);
-  if (rule.srcPort) matchers.push(`sport:${rule.srcPort}`);
-  if (rule.dstPort) matchers.push(`dport:${rule.dstPort}`);
-  if (rule.inInterface) matchers.push(`in:${rule.inInterface}`);
-  if (rule.outInterface) matchers.push(`out:${rule.outInterface}`);
+  const matchers = useMemo(() => {
+    const result: string[] = [];
+    if (rule.protocol) result.push(`proto:${rule.protocol}`);
+    if (rule.srcAddress) result.push(`src:${rule.srcAddress}`);
+    if (rule.dstAddress) result.push(`dst:${rule.dstAddress}`);
+    if (rule.srcPort) result.push(`sport:${rule.srcPort}`);
+    if (rule.dstPort) result.push(`dport:${rule.dstPort}`);
+    if (rule.inInterface) result.push(`in:${rule.inInterface}`);
+    if (rule.outInterface) result.push(`out:${rule.outInterface}`);
+    return result;
+  }, [rule]);
 
   if (matchers.length === 0) {
-    return <span className="text-slate-500 dark:text-slate-400">any</span>;
+    return <span className="text-muted-foreground text-sm">any</span>;
   }
 
   if (matchers.length <= 2) {
-    return <span className="text-sm">{matchers.join(', ')}</span>;
+    return <span className="text-sm font-mono">{matchers.join(', ')}</span>;
   }
 
   return (
     <span className="text-sm">
-      {matchers.slice(0, 2).join(', ')}
+      <span className="font-mono">{matchers.slice(0, 2).join(', ')}</span>
       <Badge variant="outline" className="ml-2 text-xs">
         +{matchers.length - 2} more
       </Badge>
     </span>
   );
-}
+});
 
 // ============================================================================
 // Sortable Row Component
@@ -150,9 +170,22 @@ interface SortableRowProps {
   onDuplicate: (rule: MangleRule) => void;
   onDelete: (rule: MangleRule) => void;
   onToggle: (rule: MangleRule) => void;
+  className?: string;
 }
 
-function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: SortableRowProps) {
+/**
+ * SortableRow Component
+ * Draggable table row for mangle rules with action buttons
+ */
+const SortableRow = React.memo(function SortableRowComponent({
+  rule,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onToggle,
+  className,
+}: SortableRowProps) {
+  SortableRow.displayName = 'SortableRow';
   const {
     attributes,
     listeners,
@@ -183,7 +216,7 @@ function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: Sortable
       </TableCell>
 
       {/* Position */}
-      <TableCell className="font-mono text-xs">{rule.position ?? '-'}</TableCell>
+      <TableCell className="font-mono tabular-nums text-xs">{rule.position ?? '-'}</TableCell>
 
       {/* Chain */}
       <TableCell>
@@ -196,7 +229,7 @@ function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: Sortable
       </TableCell>
 
       {/* Mark Value */}
-      <TableCell className="font-mono text-sm">{markValue}</TableCell>
+      <TableCell className="font-mono tabular-nums text-sm">{markValue}</TableCell>
 
       {/* Matchers */}
       <TableCell>
@@ -204,9 +237,9 @@ function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: Sortable
       </TableCell>
 
       {/* Packets */}
-      <TableCell className="font-mono text-sm">
+      <TableCell className="font-mono tabular-nums text-sm">
         {isUnused ? (
-          <Badge variant="outline" className="text-xs text-slate-500">
+          <Badge variant="outline" className="text-xs text-muted-foreground">
             unused
           </Badge>
         ) : (
@@ -215,7 +248,7 @@ function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: Sortable
       </TableCell>
 
       {/* Bytes */}
-      <TableCell className="font-mono text-sm">
+      <TableCell className="font-mono tabular-nums text-sm">
         {(rule.bytes ?? 0).toLocaleString()}
       </TableCell>
 
@@ -260,7 +293,7 @@ function SortableRow({ rule, onEdit, onDuplicate, onDelete, onToggle }: Sortable
       </TableCell>
     </TableRow>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -274,6 +307,9 @@ export interface MangleRulesTableDesktopProps {
 /**
  * MangleRulesTableDesktop Component
  *
+ * @description Desktop-optimized dense table for mangle rules with
+ * drag-drop reordering and inline actions.
+ *
  * Features:
  * - Drag-drop reordering
  * - Inline enable/disable toggle
@@ -282,10 +318,19 @@ export interface MangleRulesTableDesktopProps {
  * - Disabled rules styling
  * - Unused rules badge
  *
- * @param props - Component props
- * @returns Mangle rules table component
+ * @example
+ * ```tsx
+ * <MangleRulesTableDesktop
+ *   chain="forward"
+ *   className="rounded-lg border"
+ * />
+ * ```
  */
-export function MangleRulesTableDesktop({ className, chain }: MangleRulesTableDesktopProps) {
+export const MangleRulesTableDesktop = React.memo(function MangleRulesTableDesktopComponent({
+  className,
+  chain,
+}: MangleRulesTableDesktopProps) {
+  MangleRulesTableDesktop.displayName = 'MangleRulesTableDesktop';
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
@@ -361,11 +406,11 @@ export function MangleRulesTableDesktop({ className, chain }: MangleRulesTableDe
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 ${className || ''}`}>
+      <div className={cn('p-4', className)}>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-10 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
         </div>
       </div>
     );
@@ -374,8 +419,9 @@ export function MangleRulesTableDesktop({ className, chain }: MangleRulesTableDe
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        {t('mangle.notifications.error.load')}: {error.message}
+      <div className={cn('p-4 text-destructive', className)} role="alert">
+        <p className="font-semibold mb-1">{t('mangle.notifications.error.load')}</p>
+        <p className="text-sm">{error.message}</p>
       </div>
     );
   }
@@ -383,8 +429,10 @@ export function MangleRulesTableDesktop({ className, chain }: MangleRulesTableDe
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
-        {chain ? t('mangle.table.noRulesInChain') : t('mangle.table.noRules')}
+      <div className={cn('p-8 text-center', className)}>
+        <p className="text-muted-foreground">
+          {chain ? t('mangle.table.noRulesInChain') : t('mangle.table.noRules')}
+        </p>
       </div>
     );
   }
@@ -485,4 +533,4 @@ export function MangleRulesTableDesktop({ className, chain }: MangleRulesTableDe
       </Dialog>
     </>
   );
-}
+});

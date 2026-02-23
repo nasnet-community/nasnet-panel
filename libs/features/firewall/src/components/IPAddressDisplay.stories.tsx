@@ -10,7 +10,7 @@
  * for static stories and leave it enabled for interaction stories.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { IPAddressDisplay } from './IPAddressDisplay';
 

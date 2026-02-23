@@ -2,8 +2,7 @@
  * Hook for managing alert rules
  * Per Task 4: Uses Apollo Client for alert rule CRUD operations
  */
-import { useQuery, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, useMutation, gql, type MutationResult } from '@apollo/client';
 import type { AlertRuleFormData } from '../schemas/alert-rule.schema';
 
 // GraphQL queries and mutations
@@ -131,7 +130,18 @@ const DELETE_ALERT_RULE = gql`
 `;
 
 /**
- * Hook to fetch all alert rules
+ * Hook to fetch all alert rules.
+ *
+ * @description Fetches all alert rules for an optional device, using
+ * cache-and-network policy for fresh data on every load.
+ *
+ * @param deviceId - Optional device ID to filter rules
+ * @returns Apollo query result with alert rules array
+ *
+ * @example
+ * ```tsx
+ * const { data, loading, error } = useAlertRules(routerId);
+ * ```
  */
 export function useAlertRules(deviceId?: string) {
   return useQuery(GET_ALERT_RULES, {
@@ -141,7 +151,17 @@ export function useAlertRules(deviceId?: string) {
 }
 
 /**
- * Hook to fetch a single alert rule
+ * Hook to fetch a single alert rule by ID.
+ *
+ * @description Fetches a specific alert rule. Query is skipped if ID is not provided.
+ *
+ * @param id - Alert rule ID (skips query if falsy)
+ * @returns Apollo query result with single alert rule
+ *
+ * @example
+ * ```tsx
+ * const { data, loading } = useAlertRule(selectedRuleId);
+ * ```
  */
 export function useAlertRule(id: string) {
   return useQuery(GET_ALERT_RULE, {
@@ -151,10 +171,21 @@ export function useAlertRule(id: string) {
 }
 
 /**
- * Hook to create an alert rule
+ * Hook to create an alert rule.
+ *
+ * @description Provides mutation function to create a new alert rule.
+ * Automatically refetches all alert rules after successful creation.
+ *
+ * @returns Object with createRule function and mutation result state
+ *
+ * @example
+ * ```tsx
+ * const { createRule, loading, error } = useCreateAlertRule();
+ * await createRule(formData);
+ * ```
  */
 export function useCreateAlertRule() {
-  const [mutate, result] = useMutation(CREATE_ALERT_RULE, {
+  const [mutate, result] = useMutation<any, any>(CREATE_ALERT_RULE, {
     refetchQueries: [{ query: GET_ALERT_RULES }],
   });
 
@@ -177,10 +208,21 @@ export function useCreateAlertRule() {
 }
 
 /**
- * Hook to update an alert rule
+ * Hook to update an alert rule.
+ *
+ * @description Provides mutation function to update an existing alert rule.
+ * Automatically refetches all alert rules after successful update.
+ *
+ * @returns Object with updateRule function and mutation result state
+ *
+ * @example
+ * ```tsx
+ * const { updateRule, loading, error } = useUpdateAlertRule();
+ * await updateRule(ruleId, updatedFormData);
+ * ```
  */
 export function useUpdateAlertRule() {
-  const [mutate, result] = useMutation(UPDATE_ALERT_RULE, {
+  const [mutate, result] = useMutation<any, any>(UPDATE_ALERT_RULE, {
     refetchQueries: [{ query: GET_ALERT_RULES }],
   });
 
@@ -203,10 +245,21 @@ export function useUpdateAlertRule() {
 }
 
 /**
- * Hook to delete an alert rule
+ * Hook to delete an alert rule.
+ *
+ * @description Provides mutation function to delete an alert rule.
+ * Automatically refetches all alert rules after successful deletion.
+ *
+ * @returns Object with deleteRule function and mutation result state
+ *
+ * @example
+ * ```tsx
+ * const { deleteRule, loading, error } = useDeleteAlertRule();
+ * await deleteRule(ruleId);
+ * ```
  */
 export function useDeleteAlertRule() {
-  const [mutate, result] = useMutation(DELETE_ALERT_RULE, {
+  const [mutate, result] = useMutation<any, any>(DELETE_ALERT_RULE, {
     refetchQueries: [{ query: GET_ALERT_RULES }],
   });
 

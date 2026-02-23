@@ -71,7 +71,7 @@ export interface InlineErrorCardProps {
  * />
  * ```
  */
-export function InlineErrorCard({
+function InlineErrorCardComponent({
   error,
   reset,
   componentName,
@@ -79,6 +79,11 @@ export function InlineErrorCard({
   minimal = false,
 }: InlineErrorCardProps) {
   const [showDetails, setShowDetails] = React.useState(false);
+
+  // Memoized reset handler
+  const handleReset = React.useCallback(() => {
+    reset?.();
+  }, [reset]);
 
   if (minimal) {
     return (
@@ -96,7 +101,7 @@ export function InlineErrorCard({
         </span>
         {reset && (
           <button
-            onClick={reset}
+            onClick={handleReset}
             className="text-error hover:text-error/80 p-1 rounded"
             aria-label="Retry loading"
           >
@@ -134,7 +139,7 @@ export function InlineErrorCard({
             {/* Actions */}
             <div className="flex items-center gap-3 mt-3">
               {reset && (
-                <Button size="sm" variant="outline" onClick={reset}>
+                <Button size="sm" variant="outline" onClick={handleReset}>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
                   Retry
                 </Button>
@@ -176,6 +181,13 @@ export function InlineErrorCard({
     </Card>
   );
 }
+
+InlineErrorCardComponent.displayName = 'InlineErrorCard';
+
+/**
+ * Memoized InlineErrorCard component
+ */
+export const InlineErrorCard = React.memo(InlineErrorCardComponent);
 
 /**
  * Default fallback for ComponentErrorBoundary

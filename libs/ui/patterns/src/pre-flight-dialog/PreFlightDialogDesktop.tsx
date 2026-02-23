@@ -2,13 +2,19 @@
  * PreFlightDialog Desktop Presenter
  *
  * Modal dialog presenter for desktop devices.
+ *
  * Features:
  * - Center modal dialog with backdrop
  * - Information-dense layout
  * - Keyboard navigation support
  * - Compact vertical spacing
+ * - Semantic color tokens
+ * - WCAG AAA accessible
+ *
+ * @module @nasnet/ui/patterns/pre-flight-dialog
  */
 
+import * as React from 'react';
 import {
   AlertCircle,
   Check,
@@ -41,16 +47,38 @@ import type { PreFlightDialogProps } from './types';
  * Displays resource deficit dialog as a centered modal.
  * Optimized for keyboard navigation and larger screens.
  */
-export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
+const PreFlightDialogDesktopComponent = React.forwardRef<
+  HTMLDivElement,
+  PreFlightDialogProps
+>((props, ref) => {
   const { open, onOpenChange, serviceName, allowOverride = false, className } = props;
   const state = usePreFlightDialog(props);
 
+  const handleSelectAll = React.useCallback(() => {
+    state.selectAll();
+  }, [state]);
+
+  const handleClearAll = React.useCallback(() => {
+    state.clearAll();
+  }, [state]);
+
+  const handleToggleSelection = React.useCallback(
+    (serviceId: string) => {
+      state.toggleSelection(serviceId);
+    },
+    [state]
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl max-h-[80vh] flex flex-col', className)}>
+      <DialogContent
+        ref={ref}
+        className={cn('max-w-2xl max-h-[80vh] flex flex-col', className)}
+        role="alertdialog"
+      >
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-semantic-warning" />
+            <AlertCircle className="h-5 w-5 text-warning" aria-hidden="true" />
             <DialogTitle>Insufficient Memory</DialogTitle>
           </div>
           <DialogDescription>
@@ -60,7 +88,7 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
         </DialogHeader>
 
         {/* Resource Summary */}
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+        <div className="p-4 bg-warning/10 rounded-lg border border-warning/30">
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground mb-1">Required</span>
@@ -68,13 +96,13 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground mb-1">Available</span>
-              <span className="font-semibold text-semantic-error">
+              <span className="font-semibold text-destructive">
                 {state.availableText}
               </span>
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground mb-1">Needed</span>
-              <span className="font-bold text-semantic-warning">{state.deficitText}</span>
+              <span className="font-bold text-warning">{state.deficitText}</span>
             </div>
           </div>
         </div>
@@ -84,22 +112,22 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
           className={cn(
             'p-3 rounded-lg border-2 transition-colors',
             state.isSufficient
-              ? 'bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700'
-              : 'bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700'
+              ? 'bg-success/10 border-success/30'
+              : 'bg-muted/50 border-border'
           )}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {state.isSufficient ? (
                 <>
-                  <CheckCircle className="h-4 w-4 text-semantic-success" />
-                  <span className="text-sm font-semibold text-semantic-success">
+                  <CheckCircle className="h-4 w-4 text-success" aria-hidden="true" />
+                  <span className="text-sm font-semibold text-success">
                     Sufficient resources selected
                   </span>
                 </>
               ) : (
                 <>
-                  <XCircle className="h-4 w-4 text-gray-500" />
+                  <XCircle className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   <span className="text-sm font-semibold text-muted-foreground">
                     Insufficient resources selected
                   </span>
@@ -108,7 +136,7 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
             </div>
             <div className="text-sm">
               {state.isSufficient ? (
-                <span className="font-semibold text-semantic-success">
+                <span className="font-semibold text-success">
                   {state.totalFreedText} will be freed
                 </span>
               ) : (
@@ -130,7 +158,7 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={state.selectAll}
+                onClick={handleSelectAll}
                 className="h-8 text-xs"
               >
                 Select All
@@ -138,7 +166,7 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={state.clearAll}
+                onClick={handleClearAll}
                 className="h-8 text-xs"
               >
                 Clear All
@@ -162,7 +190,8 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
                   <Checkbox
                     id={`service-${suggestion.id}`}
                     checked={suggestion.selected}
-                    onCheckedChange={() => state.toggleSelection(suggestion.id)}
+                    onCheckedChange={() => handleToggleSelection(suggestion.id)}
+                    aria-label={`Select ${suggestion.name}`}
                   />
                   <Label
                     htmlFor={`service-${suggestion.id}`}
@@ -213,7 +242,7 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
 
         {/* Keyboard hint */}
         <div className="text-xs text-muted-foreground text-center">
-          Press <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded">
+          Press <kbd className="px-1.5 py-0.5 bg-muted rounded">
             Esc
           </kbd>{' '}
           to close
@@ -221,4 +250,8 @@ export function PreFlightDialogDesktop(props: PreFlightDialogProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+PreFlightDialogDesktopComponent.displayName = 'PreFlightDialogDesktop';
+
+export const PreFlightDialogDesktop = React.memo(PreFlightDialogDesktopComponent);

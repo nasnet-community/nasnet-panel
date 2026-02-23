@@ -8,7 +8,7 @@
  * @see NAS-7.3: Implement Address Lists
  */
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, memo, useCallback } from 'react';
 
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronDown, ChevronRight, Shield, Trash2 } from 'lucide-react';
@@ -46,7 +46,7 @@ export interface AddressListManagerDesktopProps
  * - Dropdown menus for actions
  * - Dense layout optimized for desktop
  */
-export function AddressListManagerDesktop(
+export const AddressListManagerDesktop = memo(function AddressListManagerDesktop(
   props: AddressListManagerDesktopProps
 ) {
   const {
@@ -108,19 +108,19 @@ export function AddressListManagerDesktop(
     enabled: enableVirtualization && sortedLists.length > 50,
   });
 
-  // Handle sort
-  const handleSort = (field: SortConfig['field']) => {
+  // Handle sort with useCallback to prevent unnecessary re-renders
+  const handleSort = useCallback((field: SortConfig['field']) => {
     setSortConfig((prev) => ({
       field,
       direction:
         prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
-  };
+  }, []);
 
   // Loading state
   if (isLoading) {
     return (
-      <Card className={cn('p-6', className)}>
+      <Card className={cn('p-6', className)} role="status" aria-live="polite">
         <div className="flex items-center justify-center">
           <div className="text-muted-foreground">Loading address lists...</div>
         </div>
@@ -131,7 +131,11 @@ export function AddressListManagerDesktop(
   // Error state
   if (error) {
     return (
-      <Card className={cn('p-6 border-error', className)}>
+      <Card
+        className={cn('p-6 border-error', className)}
+        role="alert"
+        aria-live="assertive"
+      >
         <div className="flex items-center justify-center text-error">
           Error loading address lists: {error.message}
         </div>
@@ -144,7 +148,10 @@ export function AddressListManagerDesktop(
     return (
       <Card className={cn('p-12', className)}>
         <div className="flex flex-col items-center justify-center space-y-4">
-          <Shield className="h-12 w-12 text-muted-foreground" />
+          <Shield
+            className="h-12 w-12 text-muted-foreground"
+            aria-hidden="true"
+          />
           <p className="text-muted-foreground text-center">{emptyMessage}</p>
           {emptyAction}
         </div>
@@ -156,14 +163,18 @@ export function AddressListManagerDesktop(
   const useVirtualization = enableVirtualization && sortedLists.length > 50;
 
   return (
-    <Card className={cn('overflow-hidden border-category-firewall', className)}>
+    <Card
+      className={cn('overflow-hidden border-l-4 border-l-category-firewall', className)}
+      role="region"
+      aria-label="Address lists manager"
+    >
       <div
         ref={parentRef}
         className={cn('overflow-auto', useVirtualization && 'h-[600px]')}
       >
-        <Table>
+        <Table role="presentation">
           <TableHeader className="sticky top-0 z-10 bg-background">
-            <TableRow>
+            <TableRow role="row">
               <TableHead className="w-[40px]"></TableHead>
               <TableHead
                 className="cursor-pointer hover:bg-muted/50"
@@ -287,7 +298,7 @@ export function AddressListManagerDesktop(
       </div>
     </Card>
   );
-}
+});
 
 /**
  * Individual list row component
@@ -421,3 +432,6 @@ function ListRow({
     </>
   );
 }
+
+AddressListManagerDesktop.displayName = 'AddressListManagerDesktop';
+ListRow.displayName = 'ListRow';

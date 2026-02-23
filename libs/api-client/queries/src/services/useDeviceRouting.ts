@@ -85,7 +85,7 @@ import type {
   BulkRoutingResult,
   DeviceRoutingEvent,
   RoutingMode,
-} from '../../../generated/types';
+} from '@nasnet/api-client/generated/types';
 
 /**
  * Filters for querying device routings

@@ -18,9 +18,10 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { usePlatform } from '@nasnet/ui/patterns';
 import {
   useAddressLists,
   useCreateAddressListEntry,
@@ -52,33 +53,24 @@ import {
   AlertDescription,
 } from '@nasnet/ui/primitives';
 import { Plus, Upload, AlertCircle } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import type { AddressListEntryFormData } from '../schemas/addressListSchemas';
 import type { BulkAddressInput } from '@nasnet/api-client/queries/firewall';
-
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-function usePlatform() {
-  if (typeof window !== 'undefined') {
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  }
-  return 'desktop';
-}
 
 // ============================================================================
 // Empty State Component
 // ============================================================================
 
+/**
+ * EmptyState Component
+ * @description Displays when no address lists are available
+ */
 interface EmptyStateProps {
   onAddEntry: () => void;
   onImport: () => void;
 }
 
-function EmptyState({ onAddEntry, onImport }: EmptyStateProps) {
+const EmptyState = memo(function EmptyState({ onAddEntry, onImport }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   return (
@@ -90,24 +82,28 @@ function EmptyState({ onAddEntry, onImport }: EmptyStateProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center gap-2">
-        <Button onClick={onAddEntry} aria-label="Create new address list entry">
+        <Button onClick={onAddEntry} aria-label={t('addressLists.emptyStates.noLists.actions.create')}>
           <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.create')}
         </Button>
-        <Button variant="outline" onClick={onImport} aria-label="Import address list">
+        <Button variant="outline" onClick={onImport} aria-label={t('addressLists.emptyStates.noLists.actions.import')}>
           <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.import')}
         </Button>
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Loading Skeleton Component
 // ============================================================================
 
-function LoadingSkeleton() {
+/**
+ * LoadingSkeleton Component
+ * @description Skeleton loader for address list content
+ */
+const LoadingSkeleton = memo(function LoadingSkeleton() {
   return (
     <div className="space-y-4">
       <div className="animate-pulse space-y-4">
@@ -117,7 +113,7 @@ function LoadingSkeleton() {
       </div>
     </div>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -125,12 +121,11 @@ function LoadingSkeleton() {
 
 /**
  * AddressListView Component
- *
- * Main page for address list management with CRUD operations.
+ * @description Main page for address list management with CRUD operations
  *
  * @returns Address list view page component
  */
-export function AddressListView() {
+export const AddressListView = memo(function AddressListView() {
   const { t } = useTranslation('firewall');
   const platform = usePlatform();
   const isMobile = platform === 'mobile';
@@ -155,19 +150,19 @@ export function AddressListView() {
   // Event Handlers
   // ========================================
 
-  const handleAddEntry = () => {
+  const handleAddEntry = useCallback(() => {
     setShowAddEntry(true);
-  };
+  }, []);
 
-  const handleImport = () => {
+  const handleImport = useCallback(() => {
     setShowImport(true);
-  };
+  }, []);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     setShowExport(true);
-  };
+  }, []);
 
-  const handleCreateEntry = async (data: AddressListEntryFormData) => {
+  const handleCreateEntry = useCallback(async (data: AddressListEntryFormData) => {
     await createEntry.mutateAsync({
       list: data.list,
       address: data.address,
@@ -175,13 +170,13 @@ export function AddressListView() {
       timeout: data.timeout,
     });
     setShowAddEntry(false);
-  };
+  }, [createEntry]);
 
-  const handleDeleteEntry = async (entryId: string, listName: string) => {
+  const handleDeleteEntry = useCallback(async (entryId: string, listName: string) => {
     await deleteEntry.mutateAsync({ id: entryId, listName });
-  };
+  }, [deleteEntry]);
 
-  const handleBulkImport = async (listName: string, entries: BulkAddressInput[]) => {
+  const handleBulkImport = useCallback(async (listName: string, entries: BulkAddressInput[]) => {
     const result = await bulkCreate.mutateAsync({
       listName,
       entries,
@@ -189,7 +184,7 @@ export function AddressListView() {
 
     setShowImport(false);
     return result;
-  };
+  }, [bulkCreate]);
 
   // Extract unique list names for the form
   const existingLists = lists?.map((list) => list.name) || [];
@@ -212,11 +207,11 @@ export function AddressListView() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleImport} aria-label="Import address list entries">
+            <Button variant="outline" onClick={handleImport} aria-label={t('addressLists.buttons.import')}>
               <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.import')}
             </Button>
-            <Button onClick={handleAddEntry} className="bg-category-firewall hover:bg-category-firewall/90" aria-label="Add new address list entry">
+            <Button onClick={handleAddEntry} className="bg-primary hover:bg-primary/90" aria-label={t('addressLists.buttons.addEntry')}>
               <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.addEntry')}
             </Button>
@@ -318,9 +313,6 @@ export function AddressListView() {
       </Dialog>
     </div>
   );
-}
+});
 
-/**
- * Export for route configuration
- */
-export default AddressListView;
+AddressListView.displayName = 'AddressListView';

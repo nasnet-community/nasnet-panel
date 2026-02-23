@@ -14,7 +14,7 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RateLimitStatsOverview } from './RateLimitStatsOverview';
 import {
@@ -104,40 +104,17 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    stats: {
-      control: 'object',
-      description: 'Rate limit statistics data',
+    routerId: {
+      control: 'text',
+      description: 'Router ID for fetching stats',
     },
-    loading: {
-      control: 'boolean',
-      description: 'Is stats panel loading',
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes',
     },
-    pollingInterval: {
-      control: 'select',
-      options: [5000, 10000, 30000, 60000, 300000, 0],
-      description: 'Auto-refresh interval in milliseconds (0 = manual)',
-    },
-    showChart: {
-      control: 'boolean',
-      description: 'Show 24-hour activity chart',
-    },
-    timeRange: {
-      control: 'select',
-      options: ['1h', '6h', '12h', '24h'],
-      description: 'Time range for chart',
-    },
-    onExport: { action: 'exported' },
-    onRefresh: { action: 'refreshed' },
-    onPollingIntervalChange: { action: 'polling-interval-changed' },
   },
   args: {
-    loading: false,
-    pollingInterval: 30000,
-    showChart: true,
-    timeRange: '24h',
-    onExport: fn(),
-    onRefresh: fn(),
-    onPollingIntervalChange: fn(),
+    routerId: '192.168.1.1',
   },
 } satisfies Meta<typeof RateLimitStatsOverview>;
 
@@ -156,7 +133,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    stats: mockStatsWithActivity,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -180,7 +157,7 @@ export const Default: Story = {
  */
 export const Empty: Story = {
   args: {
-    stats: mockStatsEmpty,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -204,7 +181,7 @@ export const Empty: Story = {
  */
 export const RecentActivity: Story = {
   args: {
-    stats: mockStatsRecent,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -227,41 +204,7 @@ export const RecentActivity: Story = {
  */
 export const HighActivity: Story = {
   args: {
-    stats: {
-      totalBlocked: 5000,
-      topBlockedIPs: [
-        {
-          address: '203.0.113.50',
-          list: 'ddos-attackers',
-          blockCount: 2500,
-          firstBlocked: new Date('2025-01-10T12:00:00Z'),
-          lastBlocked: new Date('2025-01-10T16:00:00Z'),
-          timeout: '1w',
-          dynamic: true,
-        },
-        {
-          address: '198.51.100.25',
-          list: 'rate-limited',
-          blockCount: 1200,
-          firstBlocked: new Date('2025-01-10T13:00:00Z'),
-          lastBlocked: new Date('2025-01-10T16:00:00Z'),
-          timeout: '1d',
-          dynamic: true,
-        },
-        {
-          address: '192.0.2.100',
-          list: 'ddos-attackers',
-          blockCount: 800,
-          firstBlocked: new Date('2025-01-10T14:00:00Z'),
-          lastBlocked: new Date('2025-01-10T16:00:00Z'),
-          timeout: '1w',
-          dynamic: true,
-        },
-      ],
-      triggerEvents: generateTriggerEvents(24, 'peak'),
-      lastUpdated: new Date(),
-    },
-    pollingInterval: 5000, // Fast polling during attack
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -285,12 +228,7 @@ export const HighActivity: Story = {
  */
 export const IncreasingActivity: Story = {
   args: {
-    stats: {
-      totalBlocked: 1200,
-      topBlockedIPs: mockStatsWithActivity.topBlockedIPs,
-      triggerEvents: generateTriggerEvents(24, 'increasing'),
-      lastUpdated: new Date(),
-    },
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -314,12 +252,7 @@ export const IncreasingActivity: Story = {
  */
 export const DecreasingActivity: Story = {
   args: {
-    stats: {
-      totalBlocked: 800,
-      topBlockedIPs: mockStatsWithActivity.topBlockedIPs.slice(0, 3),
-      triggerEvents: generateTriggerEvents(24, 'decreasing'),
-      lastUpdated: new Date(),
-    },
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -341,8 +274,7 @@ export const DecreasingActivity: Story = {
  */
 export const Loading: Story = {
   args: {
-    stats: mockStatsEmpty,
-    loading: true,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -365,8 +297,7 @@ export const Loading: Story = {
  */
 export const WithChart: Story = {
   args: {
-    stats: mockStatsWithActivity,
-    showChart: true,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -390,8 +321,7 @@ export const WithChart: Story = {
  */
 export const WithoutChart: Story = {
   args: {
-    stats: mockStatsWithActivity,
-    showChart: false,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -414,8 +344,7 @@ export const WithoutChart: Story = {
  */
 export const OneHourRange: Story = {
   args: {
-    stats: mockStatsWithActivity,
-    timeRange: '1h',
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -438,8 +367,7 @@ export const OneHourRange: Story = {
  */
 export const FastPolling: Story = {
   args: {
-    stats: mockStatsWithActivity,
-    pollingInterval: 5000,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -463,8 +391,7 @@ export const FastPolling: Story = {
  */
 export const ManualRefresh: Story = {
   args: {
-    stats: mockStatsWithActivity,
-    pollingInterval: 0,
+    routerId: '192.168.1.1',
   },
   parameters: {
     docs: {
@@ -487,7 +414,7 @@ export const ManualRefresh: Story = {
  */
 export const MobileView: Story = {
   args: {
-    stats: mockStatsWithActivity,
+    routerId: '192.168.1.1',
   },
   parameters: {
     viewport: {
@@ -514,7 +441,7 @@ export const MobileView: Story = {
  */
 export const DesktopView: Story = {
   args: {
-    stats: mockStatsWithActivity,
+    routerId: '192.168.1.1',
   },
   parameters: {
     viewport: {
@@ -541,7 +468,7 @@ export const DesktopView: Story = {
  */
 export const AccessibilityTest: Story = {
   args: {
-    stats: mockStatsWithActivity,
+    routerId: '192.168.1.1',
   },
   parameters: {
     a11y: {

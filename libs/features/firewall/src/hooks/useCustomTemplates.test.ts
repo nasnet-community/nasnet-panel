@@ -57,7 +57,7 @@ const mockTemplate1: FirewallTemplate = {
       name: 'VPN_PORT',
       label: 'VPN Port',
       type: 'PORT',
-      required: true,
+      isRequired: true,
     },
   ],
   rules: [

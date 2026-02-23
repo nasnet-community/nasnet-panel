@@ -26,6 +26,15 @@ const (
 
 	// WarningCooldownMinutes is the cooldown period between warnings for the same instance (5 minutes)
 	WarningCooldownMinutes = 5
+
+	// trendSampleCount is the number of recent samples kept for trend detection
+	trendSampleCount = 10
+
+	// trendRisingFactor means current > average * 1.1 → RISING
+	trendRisingFactor = 1.1
+
+	// trendFallingFactor means current < average * 0.9 → FALLING
+	trendFallingFactor = 0.9
 )
 
 // MonitoredInstance represents a service instance being monitored for resource usage
@@ -37,6 +46,11 @@ type MonitoredInstance struct {
 	MemoryLimitMB  int
 	LastWarningAt  time.Time // Last time warning was emitted
 	InWarningState bool      // Whether currently in warning state (for hysteresis)
+
+	// Circular buffer for trend detection (last trendSampleCount memory samples in MB)
+	memorySamples [trendSampleCount]uint64
+	sampleIndex   int  // Next write position in the circular buffer
+	sampleCount   int  // How many samples have been written (capped at trendSampleCount)
 }
 
 // ResourcePollerConfig configures the ResourcePoller
@@ -229,6 +243,10 @@ func (rp *ResourcePoller) pollInstance(inst *MonitoredInstance) {
 	// Calculate usage percentage
 	usagePercent := float64(usage.MemoryMB) / float64(inst.MemoryLimitMB) * 100
 
+	// Record sample every poll so the trend buffer is always up to date,
+	// regardless of whether a warning is emitted this cycle.
+	rp.recordSample(inst, usage.MemoryMB)
+
 	rp.logger.Debug().
 		Str("instance_id", inst.InstanceID).
 		Uint64("memory_mb", usage.MemoryMB).
@@ -305,7 +323,7 @@ func (rp *ResourcePoller) emitResourceWarning(inst *MonitoredInstance, usage *Re
 		usage.Time.Format(time.RFC3339),          // DetectedAt
 		fmt.Sprintf("Consider stopping or reducing memory limit for %s", inst.InstanceName), // RecommendedAction
 		"",                                   // CgroupPath
-		rp.detectTrend(inst, usage.MemoryMB), // TrendDirection
+		rp.computeTrend(inst, usage.MemoryMB), // TrendDirection
 		"resource-poller",
 		int(WarningThresholdPercent), // ThresholdPercent
 		usagePercent,                 // UsagePercent
@@ -325,12 +343,41 @@ func (rp *ResourcePoller) emitResourceWarning(inst *MonitoredInstance, usage *Re
 	}
 }
 
-// detectTrend detects the trend direction of memory usage
-// This is a simplified version - a real implementation would track history
-func (rp *ResourcePoller) detectTrend(inst *MonitoredInstance, currentMB uint64) string {
-	// TODO: Track historical usage to determine actual trend
-	// For now, return "stable" as a safe default
-	return "stable"
+// recordSample appends currentMB into inst's circular buffer.
+// Called on every poll cycle so the buffer is always current.
+func (rp *ResourcePoller) recordSample(inst *MonitoredInstance, currentMB uint64) {
+	inst.memorySamples[inst.sampleIndex] = currentMB
+	inst.sampleIndex = (inst.sampleIndex + 1) % trendSampleCount
+	if inst.sampleCount < trendSampleCount {
+		inst.sampleCount++
+	}
+}
+
+// computeTrend returns the trend direction for inst based on its sample buffer:
+//
+//	"rising"  – current > average * 1.1
+//	"falling" – current < average * 0.9
+//	"stable"  – otherwise (including when fewer than 2 samples exist)
+func (rp *ResourcePoller) computeTrend(inst *MonitoredInstance, currentMB uint64) string {
+	if inst.sampleCount < 2 {
+		return "stable"
+	}
+
+	var sum uint64
+	for i := 0; i < inst.sampleCount; i++ {
+		sum += inst.memorySamples[i]
+	}
+	avg := float64(sum) / float64(inst.sampleCount)
+	current := float64(currentMB)
+
+	switch {
+	case current > avg*trendRisingFactor:
+		return "rising"
+	case current < avg*trendFallingFactor:
+		return "falling"
+	default:
+		return "stable"
+	}
 }
 
 // GetMonitoredInstances returns a copy of currently monitored instances

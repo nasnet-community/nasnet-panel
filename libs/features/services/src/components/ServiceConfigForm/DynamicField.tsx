@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import type { ConfigSchemaField } from '@nasnet/api-client/generated';
 import {
@@ -8,6 +8,7 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
+  cn,
 } from '@nasnet/ui/primitives';
 import {
   TextField,
@@ -22,6 +23,7 @@ import {
 
 /**
  * Props for DynamicField component
+ * @interface DynamicFieldProps
  */
 export interface DynamicFieldProps {
   /** Field definition from ConfigSchema */
@@ -32,6 +34,9 @@ export interface DynamicFieldProps {
 
   /** Whether the field is disabled */
   disabled?: boolean;
+
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
@@ -51,21 +56,46 @@ export interface DynamicFieldProps {
  *   <DynamicField key={field.name} field={field} form={form} />
  * ))}
  * ```
+ *
+ * @param props - DynamicField component props
+ * @returns Rendered form field with appropriate input component
  */
-export const DynamicField = React.memo(function DynamicField({ field, form, disabled }: DynamicFieldProps) {
+export const DynamicField = React.memo(function DynamicField({
+  field,
+  form,
+  disabled,
+  className,
+}: DynamicFieldProps) {
+  // Memoize rendered input to prevent unnecessary re-renders
+  const renderedInput = useMemo(
+    () => renderFieldInput(field, form.watch(field.name), disabled),
+    [field, form, disabled]
+  );
+
   return (
     <FormField
       control={form.control}
       name={field.name}
       render={({ field: formField, fieldState }) => (
-        <FormItem>
+        <FormItem className={className}>
           <FormLabel>
             {field.label}
-            {field.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
-            {field.required && <span className="sr-only">(required)</span>}
+            {field.required && (
+              <>
+                <span className="text-destructive ml-1" aria-hidden="true">
+                  *
+                </span>
+                <span className="sr-only">(required)</span>
+              </>
+            )}
           </FormLabel>
           <FormControl>
-            {renderFieldInput(field, formField, disabled, !!fieldState.error)}
+            {renderFieldInputWithContext(
+              field,
+              formField,
+              disabled,
+              !!fieldState.error
+            )}
           </FormControl>
           {field.description && (
             <FormDescription>{field.description}</FormDescription>
@@ -77,10 +107,35 @@ export const DynamicField = React.memo(function DynamicField({ field, form, disa
   );
 });
 
+DynamicField.displayName = 'DynamicField';
+
 /**
  * Renders the appropriate input component based on field type
+ * @internal
  */
 function renderFieldInput(
+  field: ConfigSchemaField,
+  value: any,
+  disabled?: boolean
+) {
+  // This helper determines which component to use
+  const fieldType = (field.type as string) || 'TEXT';
+
+  return {
+    fieldType,
+    value,
+    options: (field as any).options || [],
+    min: (field as any).min,
+    max: (field as any).max,
+    pattern: (field as any).pattern,
+  };
+}
+
+/**
+ * Renders the actual input component with form context
+ * @internal
+ */
+function renderFieldInputWithContext(
   field: ConfigSchemaField,
   formField: any,
   disabled?: boolean,
@@ -93,7 +148,9 @@ function renderFieldInput(
     'aria-invalid': hasError || undefined,
   };
 
-  switch (field.type as string) {
+  const fieldType = (field.type as string) || 'TEXT';
+
+  switch (fieldType) {
     case 'TEXT':
     case 'EMAIL':
     case 'URL':
@@ -102,8 +159,8 @@ function renderFieldInput(
       return (
         <TextField
           {...commonProps}
-          type={field.type === 'EMAIL' ? 'email' : 'text'}
-          sensitive={field.sensitive}
+          type={fieldType === 'EMAIL' ? 'email' : 'text'}
+          sensitive={(field as any).sensitive}
         />
       );
 
@@ -118,8 +175,8 @@ function renderFieldInput(
       return (
         <NumberField
           {...commonProps}
-          min={field.min as number | undefined}
-          max={field.max as number | undefined}
+          min={(field as any).min as number | undefined}
+          max={(field as any).max as number | undefined}
         />
       );
 
@@ -136,7 +193,7 @@ function renderFieldInput(
       return (
         <Select
           {...commonProps}
-          options={field.options || []}
+          options={(field as any).options || []}
           value={formField.value}
           onValueChange={formField.onChange}
         />
@@ -146,7 +203,7 @@ function renderFieldInput(
       return (
         <MultiSelect
           {...commonProps}
-          options={field.options || []}
+          options={(field as any).options || []}
           value={formField.value}
           onChange={formField.onChange}
         />

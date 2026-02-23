@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "composite": false,
+    "declaration": true,
+    "baseUrl": ".",
+    "rootDir": "../..",
+    "paths": {
+      "@nasnet/ui/*": ["../*/src"],
+      "@nasnet/core/*": ["../../core/*/src"],
+      "@nasnet/state/*": ["../../state/*/src"],
+      "@nasnet/api-client/*": ["../../api-client/*/src"],
+      "@nasnet/features/*": ["../../features/*/src"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.tsx"
+  ]
+}

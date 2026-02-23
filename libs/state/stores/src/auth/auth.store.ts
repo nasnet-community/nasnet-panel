@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Authentication State Store
  *
@@ -380,7 +382,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     ),
     {
       name: 'auth-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

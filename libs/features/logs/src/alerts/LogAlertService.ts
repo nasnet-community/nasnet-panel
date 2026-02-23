@@ -1,6 +1,6 @@
 /**
- * Log Alert Service
- * Manages real-time alerts and notifications for log entries
+ * @description Log Alert Service - Manages real-time alerts and notifications for log entries
+ * Handles rule matching, rate limiting, browser notifications, in-app toasts, and alert sounds.
  * Epic 0.8: System Logs - Real-time Alerts/Notifications
  */
 
@@ -70,9 +70,10 @@ const defaultSettings: AlertSettings = {
 };
 
 /**
- * Log Alert Service class
+ * Log Alert Service class for managing log entry alerts and notifications
  */
 export class LogAlertService {
+  // JSDoc for class-level documentation
   private settings: AlertSettings;
   private lastAlertTime: Map<string, number> = new Map();
   private notificationPermission: NotificationPermission = 'default';
@@ -378,7 +379,7 @@ export class LogAlertService {
 let alertServiceInstance: LogAlertService | null = null;
 
 /**
- * Get the shared alert service instance
+ * Get the shared alert service instance (singleton)
  */
 export function getLogAlertService(): LogAlertService {
   if (!alertServiceInstance) {

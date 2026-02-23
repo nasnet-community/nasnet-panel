@@ -55,25 +55,25 @@ export const conditionOperatorSchema = z.enum(
 
 /**
  * Alert rule template variable schema
- * Defines a variable that can be customized when applying a template
+ * @description Defines a variable that can be customized when applying a template
  */
 export const alertRuleTemplateVariableSchema = z.object({
   name: z
     .string()
-    .min(1, 'Variable name is required')
-    .max(50, 'Variable name must be 50 characters or less')
-    .regex(/^[A-Z][A-Z0-9_]*$/, 'Variable name must be uppercase with underscores (e.g., CPU_THRESHOLD)'),
+    .min(1, 'Variable name is required (must be provided)')
+    .max(50, 'Variable name must not exceed 50 characters')
+    .regex(/^[A-Z][A-Z0-9_]*$/, 'Variable name must be uppercase with underscores, starting with a letter (e.g., CPU_THRESHOLD)'),
   label: z
     .string()
-    .min(1, 'Variable label is required')
-    .max(100, 'Variable label must be 100 characters or less'),
+    .min(1, 'Variable label is required (must be provided)')
+    .max(100, 'Variable label must not exceed 100 characters'),
   type: alertRuleTemplateVariableTypeSchema,
   required: z.boolean().default(true),
   defaultValue: z.string().optional(),
   min: z.number().int().optional(),
   max: z.number().int().optional(),
-  unit: z.string().max(20, 'Unit must be 20 characters or less').optional(),
-  description: z.string().max(500, 'Description must be 500 characters or less').optional(),
+  unit: z.string().max(20, 'Unit must not exceed 20 characters').optional(),
+  description: z.string().max(500, 'Description must not exceed 500 characters').optional(),
 });
 
 /**
@@ -91,19 +91,21 @@ export const templateVariableValuesSchema = z.record(
 
 /**
  * Alert condition schema
+ * @description Defines a single condition with field, operator, and value
  */
 export const alertConditionSchema = z.object({
-  field: z.string().min(1, 'Field is required'),
+  field: z.string().min(1, 'Field is required (select a field to proceed)'),
   operator: conditionOperatorSchema,
-  value: z.string().min(1, 'Value is required'),
+  value: z.string().min(1, 'Value is required (enter a value to proceed)'),
 });
 
 /**
  * Throttle configuration schema
+ * @description Limits alert frequency to prevent notification spam
  */
 export const throttleConfigSchema = z.object({
-  maxAlerts: z.number().int().min(1, 'Max alerts must be at least 1'),
-  periodSeconds: z.number().int().min(1, 'Period must be at least 1 second'),
+  maxAlerts: z.number().int().min(1, 'Maximum alerts must be at least 1 per period'),
+  periodSeconds: z.number().int().min(1, 'Throttle period must be at least 1 second'),
   groupByField: z.string().optional(),
 });
 
@@ -113,29 +115,29 @@ export const throttleConfigSchema = z.object({
 
 /**
  * Alert rule template schema
- * Core template structure with all fields
+ * @description Core template structure with all fields
  */
 export const alertRuleTemplateSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().min(1, 'Template ID is required'),
   name: z
     .string()
-    .min(1, 'Template name is required')
-    .max(100, 'Template name must be 100 characters or less'),
+    .min(1, 'Template name is required (must be provided)')
+    .max(100, 'Template name must not exceed 100 characters'),
   description: z
     .string()
-    .min(1, 'Description is required')
-    .max(500, 'Description must be 500 characters or less'),
+    .min(1, 'Description is required (must be provided)')
+    .max(500, 'Description must not exceed 500 characters'),
   category: alertRuleTemplateCategorySchema,
   eventType: z
     .string()
-    .min(1, 'Event type is required')
-    .regex(/^[a-z]+\.[a-z_]+$/, 'Event type must match pattern: category.event_name'),
+    .min(1, 'Event type is required (must be provided)')
+    .regex(/^[a-z]+\.[a-z_]+$/, 'Event type must use format "category.event_name" with lowercase letters, numbers, and underscores'),
   severity: alertSeveritySchema,
-  conditions: z.array(alertConditionSchema).min(1, 'At least one condition is required'),
+  conditions: z.array(alertConditionSchema).min(1, 'At least one condition is required (add a condition to proceed)'),
   channels: z
-    .array(z.string().min(1))
-    .min(1, 'At least one channel is required')
-    .max(5, 'Maximum 5 channels allowed'),
+    .array(z.string().min(1, 'Channel must not be empty'))
+    .min(1, 'At least one notification channel is required (select a channel to proceed)')
+    .max(5, 'Maximum 5 notification channels allowed'),
   throttle: throttleConfigSchema.optional(),
   variables: z.array(alertRuleTemplateVariableSchema).default([]),
   isBuiltIn: z.boolean().default(false),
@@ -170,7 +172,7 @@ export const alertRuleTemplatePreviewSchema = z.object({
 
 /**
  * Input for saving a custom template
- * Used with the saveCustomAlertRuleTemplate mutation
+ * @description Used with the saveCustomAlertRuleTemplate mutation to create and update custom alert rule templates
  */
 export const customAlertRuleTemplateInputSchema = z
   .object({
@@ -246,7 +248,9 @@ export const alertRuleTemplateImportSchema = alertRuleTemplateSchema.omit({
 
 /**
  * Extract variable names from alert conditions
- * Matches patterns like {{VARIABLE_NAME}}
+ * @description Matches patterns like {{VARIABLE_NAME}} in condition values
+ * @param conditions Array of alert conditions to scan
+ * @returns Array of extracted variable names found in conditions
  */
 function extractVariablesFromConditions(conditions: z.infer<typeof alertConditionSchema>[]): string[] {
   const regex = /\{\{([A-Z][A-Z0-9_]*)\}\}/g;

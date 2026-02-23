@@ -9,10 +9,13 @@
  * renders its built-in empty-state UI.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { BandwidthChart } from './bandwidth-chart';
+
 import { GET_INTERFACE_STATS_HISTORY } from '@nasnet/api-client/queries';
+
+import { BandwidthChart } from './bandwidth-chart';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Helpers

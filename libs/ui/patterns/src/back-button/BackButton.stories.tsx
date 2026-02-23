@@ -1,8 +1,7 @@
 import * as React from 'react';
-
 import { ArrowLeft, ChevronLeft } from 'lucide-react';
 
-import { Button } from '@nasnet/ui/primitives';
+import { Button, Icon } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -33,10 +32,10 @@ function MockBackButton({
       variant="ghost"
       size="icon"
       onClick={handleClick}
-      className={`rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${className}`}
+      className={`rounded-full hover:bg-muted transition-colors ${className}`}
       aria-label={ariaLabel}
     >
-      <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+      <Icon icon={ArrowLeft} className="h-5 w-5 text-muted-foreground" />
     </Button>
   );
 }
@@ -154,10 +153,10 @@ export const Variants: Story = {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="rounded-full hover:bg-muted"
           aria-label="Go back"
         >
-          <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+          <Icon icon={ChevronLeft} className="h-5 w-5 text-muted-foreground" />
         </Button>
         <span className="text-sm text-muted-foreground">Alternative (ChevronLeft icon)</span>
       </div>
@@ -168,7 +167,7 @@ export const Variants: Story = {
           className="gap-1"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Icon icon={ArrowLeft} className="h-4 w-4" />
           Back
         </Button>
         <span className="text-sm text-muted-foreground">With label</span>

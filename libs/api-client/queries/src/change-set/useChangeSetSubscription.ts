@@ -20,6 +20,7 @@ import {
   CHANGE_SET_PROGRESS_EVENT_FRAGMENT,
   CHANGE_SET_STATUS_EVENT_FRAGMENT,
 } from './fragments';
+import { useApplyChangeSet } from './useChangeSetMutations';
 
 // ============================================================================
 // Types
@@ -398,8 +399,7 @@ export function useApplyWithProgress(
   const isCompleteRef = useRef(false);
   const errorRef = useRef<ChangeSetError | ApolloError | undefined>(undefined);
 
-  // Import mutation dynamically to avoid circular deps
-  const { useApplyChangeSet } = require('./useChangeSetMutations');
+  // Use imported mutation hook
   const { mutate: applyMutation, loading: applyLoading, error: mutationError } = useApplyChangeSet();
 
   // Subscribe to progress

@@ -4,7 +4,17 @@
  * Visual indicator showing where an item will be dropped.
  * Appears between items during drag operations.
  *
+ * Features:
+ * - Animated appearance/disappearance
+ * - Positioned before or after items
+ * - Accessible (aria-hidden for decorative element)
+ *
  * @see NAS-4.21: Implement Drag & Drop System
+ *
+ * @example
+ * ```tsx
+ * <DropZoneIndicator visible={isOverItem} position="before" />
+ * ```
  */
 
 import * as React from 'react';
@@ -19,7 +29,10 @@ import type { DropZoneIndicatorProps } from '../types';
 // Component
 // ============================================================================
 
-export const DropZoneIndicator: React.FC<DropZoneIndicatorProps> = ({
+/**
+ * Drop zone visual indicator
+ */
+const DropZoneIndicatorInner: React.FC<DropZoneIndicatorProps> = ({
   visible,
   position,
   className,
@@ -50,18 +63,31 @@ export const DropZoneIndicator: React.FC<DropZoneIndicatorProps> = ({
   );
 };
 
+/**
+ * Memoized DropZoneIndicator to prevent unnecessary re-renders
+ */
+export const DropZoneIndicator = React.memo(DropZoneIndicatorInner);
+
 DropZoneIndicator.displayName = 'DropZoneIndicator';
 
 // ============================================================================
 // Insertion Line Component (Alternative Style)
 // ============================================================================
 
+/**
+ * Props for InsertionLine component
+ */
 export interface InsertionLineProps {
+  /** Whether the line is visible */
   visible: boolean;
+  /** Optional CSS class name */
   className?: string;
 }
 
-export const InsertionLine: React.FC<InsertionLineProps> = ({ visible, className }) => {
+/**
+ * Alternative insertion line indicator with dashed border and end dots
+ */
+const InsertionLineInner: React.FC<InsertionLineProps> = ({ visible, className }) => {
   return (
     <AnimatePresence>
       {visible && (
@@ -88,6 +114,11 @@ export const InsertionLine: React.FC<InsertionLineProps> = ({ visible, className
     </AnimatePresence>
   );
 };
+
+/**
+ * Memoized InsertionLine to prevent unnecessary re-renders
+ */
+export const InsertionLine = React.memo(InsertionLineInner);
 
 InsertionLine.displayName = 'InsertionLine';
 

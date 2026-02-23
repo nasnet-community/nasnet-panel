@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * API Client Factory
  * Creates and configures Axios instances with authentication and error handling

@@ -108,6 +108,7 @@ describe('useMangleRules', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: [mockRawRule],
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123'), {
@@ -129,6 +130,7 @@ describe('useMangleRules', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: [mockRawRule, forwardRule],
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123', { chain: 'prerouting' }), {
@@ -145,6 +147,7 @@ describe('useMangleRules', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: [],
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123'), {
@@ -160,6 +163,7 @@ describe('useMangleRules', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: false,
       error: 'Connection failed',
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123'), {
@@ -203,6 +207,7 @@ describe('useMangleRules', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: [rawRuleWithAllFields],
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123'), {
@@ -227,11 +232,12 @@ describe('useMangleRules', () => {
 
   it('defaults passthrough to true when undefined', async () => {
     const ruleWithoutPassthrough = { ...mockRawRule };
-    delete ruleWithoutPassthrough.passthrough;
+    delete (ruleWithoutPassthrough as any).passthrough;
 
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: [ruleWithoutPassthrough],
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMangleRules('router-123'), {
@@ -253,6 +259,7 @@ describe('useCreateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: { ret: '*2' },
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useCreateMangleRule('router-123'), {
@@ -287,6 +294,7 @@ describe('useCreateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useCreateMangleRule('router-123'), {
@@ -317,6 +325,7 @@ describe('useCreateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: false,
       error: 'Invalid chain',
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useCreateMangleRule('router-123'), {
@@ -344,6 +353,7 @@ describe('useCreateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const wrapper = ({ children }: { children: ReactNode }) =>
@@ -371,6 +381,7 @@ describe('useUpdateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useUpdateMangleRule('router-123'), {
@@ -403,6 +414,7 @@ describe('useUpdateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: false,
       error: 'Rule not found',
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useUpdateMangleRule('router-123'), {
@@ -430,6 +442,7 @@ describe('useUpdateMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const wrapper = ({ children }: { children: ReactNode }) =>
@@ -457,6 +470,7 @@ describe('useDeleteMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useDeleteMangleRule('router-123'), {
@@ -479,6 +493,7 @@ describe('useDeleteMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: false,
       error: 'Cannot delete rule',
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useDeleteMangleRule('router-123'), {
@@ -501,6 +516,7 @@ describe('useDeleteMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const wrapper = ({ children }: { children: ReactNode }) =>
@@ -525,6 +541,7 @@ describe('useMoveMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMoveMangleRule('router-123'), {
@@ -553,6 +570,7 @@ describe('useMoveMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: false,
       error: 'Invalid destination',
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useMoveMangleRule('router-123'), {
@@ -580,6 +598,7 @@ describe('useMoveMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const wrapper = ({ children }: { children: ReactNode }) =>
@@ -607,6 +626,7 @@ describe('useToggleMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useToggleMangleRule('router-123'), {
@@ -635,6 +655,7 @@ describe('useToggleMangleRule', () => {
     mockMakeRouterOSRequest.mockResolvedValue({
       success: true,
       data: {},
+      timestamp: Date.now(),
     });
 
     const { result } = renderHook(() => useToggleMangleRule('router-123'), {

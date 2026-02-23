@@ -6,22 +6,23 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing';
+import { vi } from 'vitest';
 import { BandwidthChart } from './BandwidthChart';
 import { BandwidthChartDesktop } from './BandwidthChartDesktop';
 import { BandwidthChartMobile } from './BandwidthChartMobile';
-import { BANDWIDTH_HISTORY_QUERY } from './graphql';
+import { GET_BANDWIDTH_HISTORY, BANDWIDTH_HISTORY_QUERY } from './graphql';
 import { GraphQLTimeRange, GraphQLAggregationType } from './types';
 import type { ReactNode } from 'react';
 
 // Mock the platform hook
-jest.mock('@nasnet/ui/layouts', () => ({
-  usePlatform: jest.fn(() => 'desktop'),
-  useReducedMotion: jest.fn(() => false),
+vi.mock('@nasnet/ui/layouts', () => ({
+  usePlatform: vi.fn(() => 'desktop'),
+  useReducedMotion: vi.fn(() => false),
 }));
 
 // Mock Recharts to avoid canvas rendering issues in tests
-jest.mock('recharts', () => {
-  const OriginalModule = jest.requireActual('recharts');
+vi.mock('recharts', async () => {
+  const OriginalModule = await vi.importActual('recharts');
   return {
     ...OriginalModule,
     ResponsiveContainer: ({ children }: { children: ReactNode }) => (
@@ -59,7 +60,7 @@ describe('BandwidthChart', () => {
   const defaultMocks = [
     {
       request: {
-        query: BANDWIDTH_HISTORY_QUERY,
+        query: GET_BANDWIDTH_HISTORY,
         variables: {
           deviceId: 'router-1',
           interfaceId: null,
@@ -131,7 +132,7 @@ describe('BandwidthChart', () => {
       const user = userEvent.setup();
       const oneHourMock = {
         request: {
-          query: BANDWIDTH_HISTORY_QUERY,
+          query: GET_BANDWIDTH_HISTORY,
           variables: {
             deviceId: 'router-1',
             interfaceId: null,
@@ -229,7 +230,7 @@ describe('BandwidthChart', () => {
       const errorMocks = [
         {
           request: {
-            query: BANDWIDTH_HISTORY_QUERY,
+            query: GET_BANDWIDTH_HISTORY,
             variables: {
               deviceId: 'router-1',
               interfaceId: null,
@@ -259,7 +260,7 @@ describe('BandwidthChart', () => {
       const errorMocks = [
         {
           request: {
-            query: BANDWIDTH_HISTORY_QUERY,
+            query: GET_BANDWIDTH_HISTORY,
             variables: {
               deviceId: 'router-1',
               interfaceId: null,
@@ -293,7 +294,7 @@ describe('BandwidthChart', () => {
       const emptyMocks = [
         {
           request: {
-            query: BANDWIDTH_HISTORY_QUERY,
+            query: GET_BANDWIDTH_HISTORY,
             variables: {
               deviceId: 'router-1',
               interfaceId: null,
@@ -381,7 +382,7 @@ describe('BandwidthChart', () => {
   describe('Platform Detection', () => {
     it('should render desktop presenter on desktop', () => {
       const { usePlatform } = require('@nasnet/ui/layouts');
-      usePlatform.mockReturnValue('desktop');
+      vi.mocked(usePlatform).mockReturnValue('desktop');
 
       const { container } = render(
         <BandwidthChart deviceId="router-1" />,
@@ -395,7 +396,7 @@ describe('BandwidthChart', () => {
 
     it('should render mobile presenter on mobile', () => {
       const { usePlatform } = require('@nasnet/ui/layouts');
-      usePlatform.mockReturnValue('mobile');
+      vi.mocked(usePlatform).mockReturnValue('mobile');
 
       const { container } = render(
         <BandwidthChart deviceId="router-1" />,
@@ -410,7 +411,7 @@ describe('BandwidthChart', () => {
   describe('Reduced Motion Support', () => {
     it('should disable animations when prefers-reduced-motion is set', () => {
       const { useReducedMotion } = require('@nasnet/ui/layouts');
-      useReducedMotion.mockReturnValue(true);
+      vi.mocked(useReducedMotion).mockReturnValue(true);
 
       render(
         <BandwidthChartDesktop deviceId="router-1" />,

@@ -1,0 +1,126 @@
+{
+  "title": "سرویس‌ها",
+  "overview": "نمای کلی سرویس‌ها",
+  "marketplace": {
+    "title": "بازار ویژگی‌ها",
+    "browse": "مرور سرویس‌ها",
+    "installed": "نصب شده",
+    "available": "موجود",
+    "updates": "به‌روزرسانی موجود"
+  },
+  "service": {
+    "name": "نام سرویس",
+    "version": "نسخه",
+    "status": "وضعیت",
+    "running": "در حال اجرا",
+    "stopped": "متوقف",
+    "installing": "در حال نصب",
+    "updating": "در حال به‌روزرسانی",
+    "error": "خطا",
+    "description": "توضیحات",
+    "category": "دسته‌بندی",
+    "size": "اندازه",
+    "author": "نویسنده",
+    "lastUpdated": "آخرین به‌روزرسانی",
+    "dependencies": "وابستگی‌ها"
+  },
+  "actions": {
+    "install": "نصب",
+    "uninstall": "حذف",
+    "start": "شروع",
+    "stop": "توقف",
+    "restart": "راه‌اندازی مجدد",
+    "update": "به‌روزرسانی",
+    "configure": "پیکربندی",
+    "viewLogs": "مشاهده لاگ‌ها",
+    "checkDiagnostics": "تشخیص"
+  },
+  "config": {
+    "title": "پیکربندی سرویس",
+    "general": "عمومی",
+    "advanced": "پیشرفته",
+    "resources": "محدودیت منابع",
+    "cpuLimit": "محدودیت CPU",
+    "memoryLimit": "محدودیت حافظه",
+    "storageLimit": "محدودیت فضای ذخیره‌سازی"
+  },
+  "tabs": {
+    "instances": "نمونه‌ها",
+    "templates": "قالب‌ها",
+    "instancesDescription": "مدیریت نمونه‌های سرویس فردی",
+    "templatesDescription": "نصب بسته‌های سرویس متعدد"
+  },
+  "templates": {
+    "title": "قالب‌های سرویس",
+    "browse": "مرور قالب‌ها",
+    "install": "نصب از قالب",
+    "noTemplates": "قالبی موجود نیست",
+    "installSuccess": "قالب نصب شد",
+    "installSuccessMessage": "{{count}} سرویس از قالب \"{{templateName}}\" با موفقیت نصب شد",
+    "installSuccessMessage_other": "{{count}} سرویس از قالب \"{{templateName}}\" با موفقیت نصب شد"
+  },
+  "traffic": {
+    "title": "ترافیک سرویس",
+    "quota": "سهمیه ترافیک",
+    "used": "استفاده شده",
+    "remaining": "باقی‌مانده",
+    "unlimited": "نامحدود",
+    "setQuota": "تنظیم سهمیه"
+  },
+  "deviceRouting": {
+    "title": "مسیریابی دستگاه",
+    "noRouting": "مسیریابی دستگاه پیکربندی نشده"
+  },
+  "storage": {
+    "title": "فضای ذخیره‌سازی",
+    "usage": "میزان استفاده",
+    "total": "مجموع",
+    "used": "استفاده شده",
+    "free": "آزاد",
+    "disconnected": "فضای ذخیره‌سازی قطع شده",
+    "reconnect": "اتصال مجدد"
+  },
+  "diagnostics": {
+    "title": "تشخیص سرویس",
+    "health": "بررسی سلامت",
+    "logs": "لاگ‌های سرویس",
+    "ports": "رجیستری پورت"
+  },
+  "alerts": {
+    "title": "هشدارهای سرویس",
+    "noAlerts": "هشداری برای این سرویس وجود ندارد"
+  },
+  "status": {
+    "allRunning": "تمام سرویس‌ها در حال اجرا",
+    "someStopped": "{{count}} سرویس متوقف",
+    "someStopped_other": "{{count}} سرویس متوقف",
+    "noServices": "سرویسی نصب نشده"
+  },
+  "portRegistry": {
+    "title": "رجیستری پورت",
+    "port": "پورت",
+    "protocol": "پروتکل",
+    "service": "سرویس",
+    "status": "وضعیت",
+    "allocated": "اختصاص داده شده",
+    "available": "موجود",
+    "conflict": "تداخل"
+  },
+  "updateAll": {
+    "title": "به‌روزرسانی تمام سرویس‌ها",
+    "checking": "بررسی به‌روزرسانی‌ها...",
+    "upToDate": "تمام سرویس‌ها به‌روز هستند",
+    "available": "{{count}} به‌روزرسانی موجود",
+    "available_other": "{{count}} به‌روزرسانی موجود"
+  },
+  "changelog": {
+    "title": "تاریخچه تغییرات",
+    "version": "نسخه {{version}}",
+    "noChanges": "تغییری ثبت نشده"
+  },
+  "stopDependents": {
+    "title": "توقف سرویس‌های وابسته",
+    "message": "توقف این سرویس سرویس‌های وابسته زیر را نیز متوقف خواهد کرد:",
+    "confirm": "توقف همه"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "title": "Services",
+  "overview": "Services Overview",
+  "marketplace": {
+    "title": "Feature Marketplace",
+    "browse": "Browse Services",
+    "installed": "Installed",
+    "available": "Available",
+    "updates": "Updates Available"
+  },
+  "service": {
+    "name": "Service Name",
+    "version": "Version",
+    "status": "Status",
+    "running": "Running",
+    "stopped": "Stopped",
+    "installing": "Installing",
+    "updating": "Updating",
+    "error": "Error",
+    "description": "Description",
+    "category": "Category",
+    "size": "Size",
+    "author": "Author",
+    "lastUpdated": "Last Updated",
+    "dependencies": "Dependencies"
+  },
+  "actions": {
+    "install": "Install",
+    "uninstall": "Uninstall",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "update": "Update",
+    "configure": "Configure",
+    "viewLogs": "View Logs",
+    "checkDiagnostics": "Diagnostics"
+  },
+  "config": {
+    "title": "Service Configuration",
+    "general": "General",
+    "advanced": "Advanced",
+    "resources": "Resource Limits",
+    "cpuLimit": "CPU Limit",
+    "memoryLimit": "Memory Limit",
+    "storageLimit": "Storage Limit"
+  },
+  "tabs": {
+    "instances": "Instances",
+    "templates": "Templates",
+    "instancesDescription": "Manage individual service instances",
+    "templatesDescription": "Install multi-service bundles"
+  },
+  "templates": {
+    "title": "Service Templates",
+    "browse": "Browse Templates",
+    "install": "Install from Template",
+    "noTemplates": "No templates available",
+    "installSuccess": "Template Installed",
+    "installSuccessMessage": "Successfully installed {{count}} service from template \"{{templateName}}\"",
+    "installSuccessMessage_other": "Successfully installed {{count}} services from template \"{{templateName}}\""
+  },
+  "traffic": {
+    "title": "Service Traffic",
+    "quota": "Traffic Quota",
+    "used": "Used",
+    "remaining": "Remaining",
+    "unlimited": "Unlimited",
+    "setQuota": "Set Quota"
+  },
+  "deviceRouting": {
+    "title": "Device Routing",
+    "noRouting": "No device routing configured"
+  },
+  "storage": {
+    "title": "Storage",
+    "usage": "Storage Usage",
+    "total": "Total",
+    "used": "Used",
+    "free": "Free",
+    "disconnected": "Storage Disconnected",
+    "reconnect": "Reconnect"
+  },
+  "diagnostics": {
+    "title": "Service Diagnostics",
+    "health": "Health Check",
+    "logs": "Service Logs",
+    "ports": "Port Registry"
+  },
+  "alerts": {
+    "title": "Service Alerts",
+    "noAlerts": "No alerts for this service"
+  },
+  "status": {
+    "allRunning": "All services running",
+    "someStopped": "{{count}} service stopped",
+    "someStopped_other": "{{count}} services stopped",
+    "noServices": "No services installed"
+  },
+  "portRegistry": {
+    "title": "Port Registry",
+    "port": "Port",
+    "protocol": "Protocol",
+    "service": "Service",
+    "status": "Status",
+    "allocated": "Allocated",
+    "available": "Available",
+    "conflict": "Conflict"
+  },
+  "updateAll": {
+    "title": "Update All Services",
+    "checking": "Checking for updates...",
+    "upToDate": "All services up to date",
+    "available": "{{count}} update available",
+    "available_other": "{{count}} updates available"
+  },
+  "changelog": {
+    "title": "Changelog",
+    "version": "Version {{version}}",
+    "noChanges": "No changes listed"
+  },
+  "stopDependents": {
+    "title": "Stop Dependent Services",
+    "message": "Stopping this service will also stop the following dependent services:",
+    "confirm": "Stop All"
+  }
+}

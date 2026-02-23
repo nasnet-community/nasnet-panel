@@ -1,0 +1,15 @@
+{
+  "name": "ui-utils",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/utils/src",
+  "projectType": "library",
+  "tags": ["scope:ui", "scope:ui-utils", "type:lib"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/ui/utils/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

@@ -194,7 +194,7 @@ export function createTemplateVariablesSchema(
     const baseSchema = getVariableSchema(variable.type);
 
     // Make optional if not required
-    shape[variable.name] = variable.required
+    shape[variable.name] = variable.isRequired
       ? baseSchema
       : baseSchema.optional();
   });

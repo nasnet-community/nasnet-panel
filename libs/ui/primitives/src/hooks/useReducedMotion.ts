@@ -4,18 +4,11 @@
  * Detects user's preference for reduced motion from system settings.
  * Used to disable animations for accessibility (WCAG 2.1 SC 2.3.3).
  *
+ * Respects the `prefers-reduced-motion` media query, which is set in
+ * operating system accessibility settings. Returns a boolean that updates
+ * when the user changes their preference while the app is running.
+ *
  * @module @nasnet/ui/primitives/hooks
- */
-
-import { useState, useEffect } from 'react';
-
-/**
- * Hook to detect if user prefers reduced motion.
- *
- * Respects the prefers-reduced-motion media query, which users
- * can set in their operating system accessibility settings.
- *
- * @returns {boolean} true if user prefers reduced motion
  *
  * @example
  * ```tsx
@@ -24,28 +17,33 @@ import { useState, useEffect } from 'react';
  *
  *   return (
  *     <div className={prefersReducedMotion ? '' : 'animate-pulse'}>
- *       Content
+ *       Content animates only if motion is not reduced
  *     </div>
  *   );
  * }
  * ```
+ *
+ * @returns {boolean} true if user prefers reduced motion, false otherwise
  */
-export function useReducedMotion(): boolean {
-  // Default to false during SSR
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  useEffect(() => {
-    // Check if the media query API is available
+import React from 'react';
+
+export function useReducedMotion(): boolean {
+  // Default to false during SSR to avoid hydration mismatch
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
+
+  React.useEffect(() => {
+    // Check if the media query API is available (SSR safety)
     if (typeof window === 'undefined' || !window.matchMedia) {
       return;
     }
 
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // Set initial value
+    // Set initial value based on current user preference
     setPrefersReducedMotion(mediaQuery.matches);
 
-    // Listen for changes
+    // Listen for changes to the preference
     const handler = (event: MediaQueryListEvent) => {
       setPrefersReducedMotion(event.matches);
     };

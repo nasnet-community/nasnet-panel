@@ -50,31 +50,38 @@ const SIZE_CONFIG = {
  * - Keyboard accessible
  * - WCAG AAA compliant
  */
-export function VerificationBadgeDesktop({
-  state,
-  size,
-  showLabel,
-  className,
-  id,
-}: VerificationBadgePresenterProps) {
+const VerificationBadgeDesktopComponent = React.forwardRef<
+  HTMLDivElement,
+  VerificationBadgePresenterProps
+>(
+  (
+    {
+      state,
+      size,
+      showLabel,
+      className,
+      id,
+    },
+    ref
+  ) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   // Handle re-verification - close tooltip after action
-  const handleReverify = async () => {
+  const handleReverify = React.useCallback(async () => {
     await state.handleReverify();
     setIsOpen(false);
-  };
+  }, [state]);
 
   // Handle keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = React.useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      setIsOpen(!isOpen);
+      setIsOpen((prev) => !prev);
     }
     if (event.key === 'Escape') {
       setIsOpen(false);
     }
-  };
+  }, []);
 
   const Icon = STATUS_ICONS[state.iconName];
   const sizeClasses = SIZE_CONFIG[size];
@@ -84,6 +91,7 @@ export function VerificationBadgeDesktop({
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>
           <div
+            ref={ref}
             className={cn(
               'inline-flex items-center gap-2',
               'focus-visible:outline-none',
@@ -183,4 +191,8 @@ export function VerificationBadgeDesktop({
       </Tooltip>
     </TooltipProvider>
   );
-}
+});
+
+VerificationBadgeDesktopComponent.displayName = 'VerificationBadgeDesktop';
+
+export const VerificationBadgeDesktop = React.memo(VerificationBadgeDesktopComponent);

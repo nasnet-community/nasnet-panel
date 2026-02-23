@@ -5,7 +5,6 @@
 
 import { FixSuggestion } from './FixSuggestion';
 
-import type { FixSuggestion as FixSuggestionType } from '../../types/troubleshoot.types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof FixSuggestion> = {
@@ -31,7 +30,7 @@ const meta: Meta<typeof FixSuggestion> = {
   argTypes: {
     status: {
       control: 'select',
-      options: ['available', 'applying', 'applied', 'failed', 'issue_persists'],
+      options: ['idle', 'applying', 'applied', 'failed'],
       description: 'Current status of the fix application',
     },
   },
@@ -46,7 +45,7 @@ export const HighConfidenceAutomated: Story = {
     fix: {
       issueCode: 'WAN_DISABLED',
       title: 'Enable WAN Interface',
-      explanation:
+      description:
         'Your WAN interface is currently disabled. We can enable it for you automatically.',
       confidence: 'high',
       requiresConfirmation: true,
@@ -54,7 +53,7 @@ export const HighConfidenceAutomated: Story = {
       command: '/interface/enable [find where name~"ether1"]',
       rollbackCommand: '/interface/disable [find where name~"ether1"]',
     },
-    status: 'available',
+    status: 'idle',
     onApply: () => console.log('Apply fix'),
     onSkip: () => console.log('Skip fix'),
   },
@@ -73,14 +72,14 @@ export const MediumConfidenceAutomated: Story = {
     fix: {
       issueCode: 'GATEWAY_UNREACHABLE',
       title: 'Reset DHCP Client',
-      explanation:
+      description:
         'Your DHCP lease may have expired. Renewing it might restore gateway connectivity.',
       confidence: 'medium',
       requiresConfirmation: true,
       isManualFix: false,
       command: '/ip/dhcp-client/renew [find where interface~"ether1"]',
     },
-    status: 'available',
+    status: 'idle',
     onApply: () => console.log('Apply fix'),
     onSkip: () => console.log('Skip fix'),
   },
@@ -99,11 +98,12 @@ export const ManualFixWithISP: Story = {
     fix: {
       issueCode: 'WAN_LINK_DOWN',
       title: 'Check Physical Connection',
-      explanation:
+      description:
         'The cable to your internet provider appears disconnected. This requires manual intervention.',
       confidence: 'high',
       requiresConfirmation: false,
       isManualFix: true,
+      command: null,
       manualSteps: [
         'Check that the ethernet cable from your ISP is firmly plugged into the WAN port',
         'Look for a green link light on the WAN port (usually labeled "ether1" or "WAN")',
@@ -111,12 +111,14 @@ export const ManualFixWithISP: Story = {
         'Try unplugging and re-plugging the cable to reseat the connection',
       ],
     },
-    status: 'available',
+    status: 'idle',
     ispInfo: {
       name: 'Comcast Xfinity',
       supportPhone: '1-800-934-6489',
       supportUrl: 'https://www.xfinity.com/support',
+      detected: true,
     },
+    onApply: () => console.log('Apply fix'),
     onSkip: () => console.log('Skip fix'),
   },
   parameters: {
@@ -134,14 +136,14 @@ export const DNSManualFix: Story = {
     fix: {
       issueCode: 'DNS_FAILED',
       title: 'Configure DNS Servers',
-      explanation:
+      description:
         'Your router needs to be configured with working DNS servers to resolve domain names.',
       confidence: 'high',
       requiresConfirmation: true,
       isManualFix: false,
       command: '/ip/dns/set servers=8.8.8.8,8.8.4.4',
     },
-    status: 'available',
+    status: 'idle',
     onApply: () => console.log('Apply fix'),
     onSkip: () => console.log('Skip fix'),
   },
@@ -160,7 +162,7 @@ export const Applying: Story = {
     fix: {
       issueCode: 'NAT_DISABLED',
       title: 'Enable NAT Masquerade',
-      explanation: 'Enabling the NAT masquerade rule to allow internet access from LAN devices.',
+      description: 'Enabling the NAT masquerade rule to allow internet access from LAN devices.',
       confidence: 'high',
       requiresConfirmation: true,
       isManualFix: false,
@@ -183,10 +185,11 @@ export const Applied: Story = {
     fix: {
       issueCode: 'WAN_DISABLED',
       title: 'Enable WAN Interface',
-      explanation: 'WAN interface has been enabled successfully.',
+      description: 'WAN interface has been enabled successfully.',
       confidence: 'high',
       requiresConfirmation: true,
       isManualFix: false,
+      command: '/interface/enable [find where name~"ether1"]',
     },
     status: 'applied',
   },
@@ -205,10 +208,11 @@ export const Failed: Story = {
     fix: {
       issueCode: 'DNS_FAILED',
       title: 'Configure DNS Servers',
-      explanation: 'Failed to apply DNS configuration. You may need to configure it manually.',
+      description: 'Failed to apply DNS configuration. You may need to configure it manually.',
       confidence: 'high',
       requiresConfirmation: true,
       isManualFix: false,
+      command: '/ip/dns/set servers=8.8.8.8,8.8.4.4',
     },
     status: 'failed',
     onApply: () => console.log('Retry fix'),
@@ -229,17 +233,19 @@ export const IssuePersists: Story = {
     fix: {
       issueCode: 'GATEWAY_UNREACHABLE',
       title: 'Reset DHCP Client',
-      explanation:
+      description:
         'The DHCP client was reset, but the gateway is still unreachable. This may indicate a more serious network issue.',
       confidence: 'medium',
       requiresConfirmation: true,
       isManualFix: false,
+      command: '/ip/dhcp-client/renew [find where interface~"ether1"]',
     },
-    status: 'issue_persists',
+    status: 'failed',
     ispInfo: {
       name: 'Spectrum',
       supportPhone: '1-833-267-6094',
       supportUrl: 'https://www.spectrum.com/contact-us',
+      detected: true,
     },
     onSkip: () => console.log('Skip to next step'),
   },
@@ -259,14 +265,14 @@ export const LowConfidence: Story = {
     fix: {
       issueCode: 'INTERNET_TIMEOUT',
       title: 'Adjust MTU Settings',
-      explanation:
+      description:
         'Lowering the MTU size might help with slow internet, but this is unlikely to be the root cause.',
       confidence: 'low',
       requiresConfirmation: true,
       isManualFix: false,
       command: '/interface/set [find where name~"ether1"] mtu=1400',
     },
-    status: 'available',
+    status: 'idle',
     onApply: () => console.log('Apply fix'),
     onSkip: () => console.log('Skip fix'),
   },
@@ -284,17 +290,18 @@ export const AllStates: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Available (High Confidence)</h3>
+        <h3 className="text-sm font-medium mb-2">Idle (High Confidence)</h3>
         <FixSuggestion
           fix={{
             issueCode: 'WAN_DISABLED',
             title: 'Enable WAN Interface',
-            explanation: 'Your WAN interface is currently disabled.',
+            description: 'Your WAN interface is currently disabled.',
             confidence: 'high',
             requiresConfirmation: true,
             isManualFix: false,
+            command: '/interface/enable [find where name~"ether1"]',
           }}
-          status="available"
+          status="idle"
           onApply={() => {}}
           onSkip={() => {}}
         />
@@ -305,12 +312,15 @@ export const AllStates: Story = {
           fix={{
             issueCode: 'NAT_DISABLED',
             title: 'Enable NAT',
-            explanation: 'Enabling NAT masquerade rule.',
+            description: 'Enabling NAT masquerade rule.',
             confidence: 'high',
             requiresConfirmation: true,
             isManualFix: false,
+            command: '/ip/firewall/nat/enable [find where action=masquerade]',
           }}
           status="applying"
+          onApply={() => {}}
+          onSkip={() => {}}
         />
       </div>
       <div>
@@ -319,12 +329,15 @@ export const AllStates: Story = {
           fix={{
             issueCode: 'DNS_FAILED',
             title: 'Configure DNS',
-            explanation: 'DNS servers configured successfully.',
+            description: 'DNS servers configured successfully.',
             confidence: 'high',
             requiresConfirmation: true,
             isManualFix: false,
+            command: '/ip/dns/set servers=8.8.8.8,8.8.4.4',
           }}
           status="applied"
+          onApply={() => {}}
+          onSkip={() => {}}
         />
       </div>
       <div>
@@ -333,10 +346,11 @@ export const AllStates: Story = {
           fix={{
             issueCode: 'GATEWAY_UNREACHABLE',
             title: 'Reset DHCP',
-            explanation: 'Failed to reset DHCP client.',
+            description: 'Failed to reset DHCP client.',
             confidence: 'medium',
             requiresConfirmation: true,
             isManualFix: false,
+            command: '/ip/dhcp-client/renew [find where interface~"ether1"]',
           }}
           status="failed"
           onApply={() => {}}

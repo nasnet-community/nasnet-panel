@@ -3,7 +3,7 @@
 // =============================================================================
 // Mobile presenter for device scanning with bottom sheet detail view
 
-import { memo, useState } from 'react';
+import { memo, useState, useCallback, useMemo } from 'react';
 import { Button, Progress, Card, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
 import { InterfaceSelector, SubnetInput } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
@@ -16,26 +16,47 @@ import type { DiscoveredDevice, ScanStats, ScanStatus } from './types';
 // Props Interface
 // -----------------------------------------------------------------------------
 
+/**
+ * Props for DeviceScanMobile component
+ *
+ * Combines scan state, actions, and presentation options for mobile layout.
+ * All state properties are derived from {@link useDeviceScan} hook.
+ */
 export interface DeviceScanMobileProps {
   // State from hook
+  /** Current scan state (idle|scanning|complete|error|cancelled) */
   status: ScanStatus;
+  /** Progress percentage (0-100) for current scan */
   progress: number;
+  /** Array of discovered devices */
   devices: DiscoveredDevice[];
+  /** Error message if scan failed (null if no error) */
   error: string | null;
+  /** Scan statistics (duration, counts, etc) */
   stats: ScanStats;
+  /** True when scan is actively running */
   isScanning: boolean;
+  /** True when scan completed normally */
   isComplete: boolean;
+  /** True when user cancelled the scan */
   isCancelled: boolean;
+  /** True when no scan has started yet */
   isIdle: boolean;
+  /** True when scan failed with error */
   hasError: boolean;
 
   // Actions from hook
+  /** Start a new scan on given subnet (optional interface filter) */
   startScan: (subnet: string, interfaceName?: string) => Promise<void>;
+  /** Stop the currently running scan */
   stopScan: () => Promise<void>;
+  /** Reset to idle state for new scan */
   reset: () => void;
 
   // Router context
+  /** Router ID for API context (required for interface selector) */
   routerId?: string | null;
+  /** Optional CSS class name for root container */
   className?: string;
 }
 
@@ -43,6 +64,20 @@ export interface DeviceScanMobileProps {
 // Component
 // -----------------------------------------------------------------------------
 
+/**
+ * Mobile presenter for device scan tool
+ *
+ * Displays ARP scan UI optimized for touch:
+ * - Single-column card layout
+ * - Bottom sheet detail view (not inline)
+ * - Large touch targets (44px minimum)
+ * - Simplified controls (stacked vertically)
+ *
+ * Detail panel opens in a bottom sheet when device is selected.
+ *
+ * @see {@link DeviceScanTool} for auto-detecting wrapper
+ * @see {@link DeviceScanDesktop} for desktop layout
+ */
 export const DeviceScanMobile = memo(function DeviceScanMobile({
   status,
   progress,
@@ -63,15 +98,27 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
   const [selectedDevice, setSelectedDevice] = useState<DiscoveredDevice | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Handlers
-  const handleStartScan = () => {
-    startScan(selectedSubnet, selectedInterface);
-  };
+  // Stable callback for interface selector change
+  const handleInterfaceChange = useCallback((value: string | string[]) => {
+    setSelectedInterface(Array.isArray(value) ? value[0] : value);
+  }, []);
 
-  const handleSelectDevice = (device: DiscoveredDevice | null) => {
+  // Stable callback for starting scan
+  const handleStartScan = useCallback(() => {
+    startScan(selectedSubnet, selectedInterface);
+  }, [selectedSubnet, selectedInterface, startScan]);
+
+  // Stable callback for selecting device
+  const handleSelectDevice = useCallback((device: DiscoveredDevice | null) => {
     setSelectedDevice(device);
     setIsDetailOpen(device !== null);
-  };
+  }, []);
+
+  // Memoized progress label for accessibility
+  const progressLabel = useMemo(
+    () => `Device scan progress: ${progress}% complete`,
+    [progress]
+  );
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -88,7 +135,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
         <InterfaceSelector
           routerId={routerId || ''}
           value={selectedInterface}
-          onChange={(value: string | string[]) => setSelectedInterface(Array.isArray(value) ? value[0] : value)}
+          onChange={handleInterfaceChange}
           disabled={isScanning || !routerId}
           label="Interface (optional)"
         />
@@ -107,7 +154,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
               onClick={stopScan}
               className="flex-1"
               size="lg"
-              aria-label="Stop device scan"
+              aria-label="Stop the currently running device scan"
             >
               Stop Scan
             </Button>
@@ -117,13 +164,18 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
               disabled={!routerId}
               className="flex-1"
               size="lg"
-              aria-label="Start device scan"
+              aria-label="Start ARP device scan on the selected subnet"
             >
               Start Scan
             </Button>
           )}
           {isComplete && (
-            <Button variant="outline" onClick={reset} size="lg" aria-label="Start a new scan">
+            <Button
+              variant="outline"
+              onClick={reset}
+              size="lg"
+              aria-label="Reset and start a new device scan"
+            >
               New Scan
             </Button>
           )}
@@ -139,19 +191,24 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
             aria-valuenow={progress}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`Device scan progress: ${progress}% complete`}
+            aria-label={progressLabel}
           />
           <p className="text-sm text-muted-foreground text-center">
-            {stats.scannedCount} of {stats.totalCount} IPs ({progress}%)
+            <span className="font-mono">{stats.scannedCount}</span> of{' '}
+            <span className="font-mono">{stats.totalCount}</span> IPs ({progress}%)
           </p>
         </Card>
       )}
 
       {/* Error State */}
       {error && (
-        <Card className="p-4 bg-destructive/10" role="alert">
+        <Card
+          className="p-4 bg-destructive/10 border border-destructive/30"
+          role="alert"
+          aria-live="assertive"
+        >
           <p className="font-medium text-destructive">Scan failed</p>
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive mt-1">{error}</p>
         </Card>
       )}
 
@@ -171,8 +228,8 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
 
       {/* Empty State */}
       {isComplete && devices.length === 0 && (
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">No devices found</p>
+        <Card className="p-8 text-center border-dashed">
+          <p className="text-muted-foreground font-medium">No devices found</p>
           <p className="text-sm text-muted-foreground mt-2">
             Try a different subnet
           </p>

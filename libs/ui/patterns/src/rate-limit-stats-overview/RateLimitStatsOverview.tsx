@@ -7,6 +7,8 @@
  * NAS-7.11: Implement Connection Rate Limiting
  */
 
+import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { RateLimitStatsOverviewDesktop } from './RateLimitStatsOverviewDesktop';
@@ -34,7 +36,7 @@ import type { RateLimitStatsOverviewProps } from './types';
  * <RateLimitStatsOverview routerId="192.168.1.1" />
  * ```
  */
-export function RateLimitStatsOverview(props: RateLimitStatsOverviewProps) {
+export const RateLimitStatsOverview = memo(function RateLimitStatsOverview(props: RateLimitStatsOverviewProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -42,7 +44,9 @@ export function RateLimitStatsOverview(props: RateLimitStatsOverviewProps) {
   ) : (
     <RateLimitStatsOverviewDesktop {...props} />
   );
-}
+});
+
+RateLimitStatsOverview.displayName = 'RateLimitStatsOverview';
 
 // Re-export presenters for direct usage
 export { RateLimitStatsOverviewDesktop, RateLimitStatsOverviewMobile };

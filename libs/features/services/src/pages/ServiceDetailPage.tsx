@@ -8,8 +8,8 @@
  */
 
 import * as React from 'react';
-import { useServiceInstance, useGatewayStatus, GatewayState, useInstanceIsolation, useInstanceHealth } from '@nasnet/api-client/queries';
-import { ServiceCard, VirtualInterfaceBridge, IsolationStatus, ServiceExportDialog, ServiceHealthBadge } from '@nasnet/ui/patterns';
+import { useServiceInstance, useGatewayStatus, GatewayState, useInstanceIsolation, useInstanceHealth, useFeatureVerification, useAvailableUpdates } from '@nasnet/api-client/queries';
+import { ServiceCard, VirtualInterfaceBridge, IsolationStatus, ServiceExportDialog, ServiceHealthBadge, VerificationBadge, UpdateIndicator } from '@nasnet/ui/patterns';
 import { Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@nasnet/ui/primitives';
 import { Loader2, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import { ServiceLogViewer } from '../components/ServiceLogViewer';
 import { DiagnosticsPanel } from '../components/DiagnosticsPanel';
 import { ServiceTrafficPanel, QuotaSettingsForm } from '../components/service-traffic';
 import { ServiceConfigForm } from '../components/ServiceConfigForm';
+import { ServiceAlertsTab } from '../components/ServiceAlertsTab';
 import { useServiceConfigForm } from '../hooks/useServiceConfigForm';
 
 /**
@@ -77,6 +78,23 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
     pollInterval: 30000, // Poll every 30s as fallback if subscription fails
   });
 
+  // Fetch binary verification status (NAS-8.22)
+  const { data: verificationData } = useFeatureVerification(routerId, instanceId, {
+    skip: !instanceId,
+  });
+
+  // Fetch available updates for this instance (NAS-8.7)
+  const { updates } = useAvailableUpdates(
+    { routerId },
+    { skip: !routerId }
+  );
+
+  // Find update for this instance
+  const instanceUpdate = React.useMemo(() => {
+    if (!updates) return null;
+    return updates.find((u) => u.instanceId === instanceId) || null;
+  }, [updates, instanceId]);
+
   // Service configuration form (NAS-8.5)
   const configFormState = useServiceConfigForm({
     serviceType: instance?.featureID || '',
@@ -96,10 +114,10 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]" role="status">
+      <div className="flex items-center justify-center min-h-[400px]" role="status" aria-label={t('common.loading')}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-          <p className="text-sm text-muted-foreground">Loading service instance...</p>
+          <p className="text-sm text-muted-foreground">{t('services.detail.loading')}</p>
         </div>
       </div>
     );
@@ -111,10 +129,19 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
       <div className="p-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-destructive">Error Loading Service Instance</CardTitle>
+            <CardTitle className="text-destructive">{t('services.detail.errorLoadingTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">{error.message}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+              aria-label={t('common.retry')}
+            >
+              {t('common.retry')}
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -127,11 +154,11 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
       <div className="p-6">
         <Card>
           <CardHeader>
-            <CardTitle>Service Instance Not Found</CardTitle>
+            <CardTitle>{t('services.detail.notFoundTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              The requested service instance could not be found.
+              {t('services.detail.notFoundMessage')}
             </p>
           </CardContent>
         </Card>
@@ -178,6 +205,28 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               animate
             />
           )}
+          {/* Binary verification badge (NAS-8.22) */}
+          <VerificationBadge
+            verification={verificationData?.serviceInstance?.verification}
+            instanceId={instanceId}
+          />
+          {/* Update indicator (NAS-8.7) */}
+          {instanceUpdate && (
+            <UpdateIndicator
+              instanceId={instanceUpdate.instanceId}
+              instanceName={instanceUpdate.instanceName}
+              currentVersion={instanceUpdate.currentVersion}
+              latestVersion={instanceUpdate.latestVersion}
+              updateAvailable={instanceUpdate.updateAvailable}
+              severity={instanceUpdate.severity}
+              requiresRestart={instanceUpdate.requiresRestart}
+              breakingChanges={instanceUpdate.breakingChanges}
+              securityFixes={instanceUpdate.securityFixes}
+              changelogUrl={instanceUpdate.changelogUrl}
+              releaseDate={instanceUpdate.releaseDate}
+              binarySize={instanceUpdate.binarySize}
+            />
+          )}
         </div>
         {canExport && (
           <Button
@@ -196,11 +245,12 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           {/* Tab navigation */}
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="config">Configuration</TabsTrigger>
-            <TabsTrigger value="traffic">Traffic</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
+            <TabsTrigger value="overview">{t('services.detail.tabs.overview')}</TabsTrigger>
+            <TabsTrigger value="config">{t('services.detail.tabs.configuration')}</TabsTrigger>
+            <TabsTrigger value="traffic">{t('services.detail.tabs.traffic')}</TabsTrigger>
+            <TabsTrigger value="logs">{t('services.detail.tabs.logs')}</TabsTrigger>
+            <TabsTrigger value="alerts">{t('services.detail.tabs.alerts')}</TabsTrigger>
+            <TabsTrigger value="diagnostics">{t('services.detail.tabs.diagnostics')}</TabsTrigger>
           </TabsList>
 
           {/* Overview tab */}
@@ -209,8 +259,8 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             <ServiceCard
               service={service as any}
               onClick={() => {
-                // TODO: Implement actions (start, stop, restart, delete)
-                console.log('Card clicked for instance:', instance.id);
+                // Card click - typically used for status/detail view
+                // Individual action buttons (start, stop, etc.) handled separately
               }}
             />
 
@@ -228,12 +278,14 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               instanceId={instance.id}
               currentLimits={isolationData?.instanceIsolation?.resourceLimits}
               onSuccess={() => {
-                // Optionally show a toast notification
-                console.log('Resource limits updated successfully');
+                toast.success(t('services.resourceLimits.success'));
               }}
               onError={(error) => {
-                // Optionally show an error toast notification
-                console.error('Failed to update resource limits:', error);
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t('services.resourceLimits.error')
+                );
               }}
             />
 
@@ -282,10 +334,14 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               routerID={routerId}
               instanceID={instance.id}
               onSuccess={() => {
-                console.log('Quota settings updated successfully');
+                toast.success(t('services.quota.success'));
               }}
               onError={(error) => {
-                console.error('Failed to update quota settings:', error);
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t('services.quota.error')
+                );
               }}
             />
           </TabsContent>
@@ -298,8 +354,16 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               maxHistoricalLines={100}
               autoScroll={true}
               onEntryClick={(entry) => {
-                console.log('Log entry clicked:', entry);
+                // Log entry selected - could be used for copying, searching, etc.
               }}
+            />
+          </TabsContent>
+
+          {/* Alerts tab (NAS-8.17) */}
+          <TabsContent value="alerts">
+            <ServiceAlertsTab
+              routerId={routerId}
+              instanceId={instanceId}
             />
           </TabsContent>
 
@@ -311,7 +375,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               serviceName={instance.featureID}
               maxHistory={10}
               onDiagnosticsComplete={(results) => {
-                console.log('Diagnostics completed:', results);
+                // Diagnostics completed - results are displayed in the panel
               }}
             />
           </TabsContent>

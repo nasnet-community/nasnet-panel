@@ -25,7 +25,7 @@ export function DnsServerListMobile({
   onReorder,
   onRemove,
   onAdd,
-  loading = false,
+  isLoading = false,
 }: DnsServerListProps) {
   return (
     <div className="space-y-3">
@@ -74,7 +74,7 @@ export function DnsServerListMobile({
                       size="icon"
                       variant="ghost"
                       onClick={() => onRemove(server.id)}
-                      disabled={loading}
+                      disabled={isLoading}
                       aria-label={`Remove DNS server ${server.address}`}
                       className="flex-shrink-0 h-11 w-11" // 44px touch target
                     >
@@ -106,7 +106,7 @@ export function DnsServerListMobile({
         onClick={onAdd}
         variant="outline"
         className="w-full h-11"
-        disabled={loading}
+        disabled={isLoading}
         aria-label="Add a new DNS server"
       >
         <Plus className="h-5 w-5 mr-2" />

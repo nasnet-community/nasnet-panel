@@ -4,14 +4,22 @@
  * Epic 0.6 Enhancement: Dashboard Overview
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useFilterRules } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import type { FirewallRule } from '@nasnet/core/types';
+import { cn } from '@nasnet/ui/utils';
 
-interface FirewallQuickStatsProps {
+export interface FirewallQuickStatsProps {
   className?: string;
 }
+
+const CHAIN_ORDER = ['input', 'forward', 'output'] as const;
+const CHAIN_COLOR_MAP: Record<string, string> = {
+  input: 'bg-info',
+  forward: 'bg-warning',
+  output: 'bg-success',
+};
 
 interface ChainStats {
   chain: string;
@@ -23,16 +31,16 @@ interface ChainStats {
   color: string;
 }
 
-function getChainColor(chain: string): string {
-  const colors: Record<string, string> = {
-    input: 'bg-blue-500',
-    forward: 'bg-purple-500',
-    output: 'bg-amber-500',
-  };
-  return colors[chain] || 'bg-slate-500';
-}
-
-export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
+/**
+ * FirewallQuickStats Component
+ *
+ * Compact summary of firewall chain and action distribution.
+ * Displays rule counts per chain and overall action breakdown.
+ *
+ * @param props - Component props
+ * @returns Quick stats component
+ */
+function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: rules, isLoading } = useFilterRules(routerIp);
 
@@ -50,7 +58,7 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
           drop: 0,
           reject: 0,
           disabled: 0,
-          color: getChainColor(rule.chain),
+          color: CHAIN_COLOR_MAP[rule.chain] || 'bg-muted',
         };
       }
 
@@ -64,10 +72,9 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
       }
     });
 
-    const order = ['input', 'forward', 'output'];
     return Object.values(stats).sort((a, b) => {
-      const aIndex = order.indexOf(a.chain);
-      const bIndex = order.indexOf(b.chain);
+      const aIndex = CHAIN_ORDER.indexOf(a.chain as any);
+      const bIndex = CHAIN_ORDER.indexOf(b.chain as any);
       if (aIndex === -1 && bIndex === -1) return a.chain.localeCompare(b.chain);
       if (aIndex === -1) return 1;
       if (bIndex === -1) return -1;
@@ -96,14 +103,14 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
 
   if (isLoading) {
     return (
-      <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 ${className || ''}`}>
+      <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+          <div className="h-4 bg-muted rounded w-24" />
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-16" />
-                <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-3 bg-muted rounded w-16" />
+                <div className="h-2 bg-muted rounded-full" />
               </div>
             ))}
           </div>
@@ -114,36 +121,36 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 ${className || ''}`}>
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
-          Rule Distribution
+      <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
+        <h3 className="text-sm font-semibold text-foreground mb-3">
+          Firewall Rules
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          No firewall rules configured
+        <p className="text-sm text-muted-foreground">
+          No firewall rules configured. Create rules to manage traffic filtering.
         </p>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 ${className || ''}`}>
-      <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
+    <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
+      <h3 className="text-sm font-semibold text-foreground mb-3">
         Rules by Chain
       </h3>
       <div className="space-y-3 mb-6">
         {chainStats.map((stat) => (
           <div key={stat.chain}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
+              <span className="text-xs font-medium text-foreground uppercase">
                 {stat.chain}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-500">
+              <span className="text-xs text-muted-foreground font-mono">
                 {stat.total}
               </span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div
-                className={`${stat.color} h-2 rounded-full transition-all duration-300`}
+                className={cn(stat.color, 'h-2 rounded-full transition-all duration-300')}
                 style={{ width: `${(stat.total / maxChainCount) * 100}%` }}
               />
             </div>
@@ -151,28 +158,32 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
         ))}
       </div>
 
-      <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
-        Actions
+      <h3 className="text-sm font-semibold text-foreground mb-3">
+        Action Totals
       </h3>
       <div className="flex items-center gap-2 mb-2">
-        <div className="flex-1 flex h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+        <div
+          className="flex-1 flex h-3 rounded-full overflow-hidden bg-muted"
+          role="img"
+          aria-label={`Action distribution: ${actionTotals.accept} accept, ${actionTotals.drop} drop, ${actionTotals.reject} reject`}
+        >
           {totalActive > 0 && (
             <>
               {actionTotals.accept > 0 && (
                 <div
-                  className="bg-green-500"
+                  className="bg-success"
                   style={{ width: `${(actionTotals.accept / totalActive) * 100}%` }}
                 />
               )}
               {actionTotals.drop > 0 && (
                 <div
-                  className="bg-red-500"
+                  className="bg-destructive"
                   style={{ width: `${(actionTotals.drop / totalActive) * 100}%` }}
                 />
               )}
               {actionTotals.reject > 0 && (
                 <div
-                  className="bg-orange-500"
+                  className="bg-warning"
                   style={{ width: `${(actionTotals.reject / totalActive) * 100}%` }}
                 />
               )}
@@ -183,20 +194,20 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
 
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-          <span className="text-slate-600 dark:text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-success" aria-hidden="true" />
+          <span className="text-muted-foreground">
             Accept <span className="font-medium">{actionTotals.accept}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-          <span className="text-slate-600 dark:text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-destructive" aria-hidden="true" />
+          <span className="text-muted-foreground">
             Drop <span className="font-medium">{actionTotals.drop}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
-          <span className="text-slate-600 dark:text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-warning" aria-hidden="true" />
+          <span className="text-muted-foreground">
             Reject <span className="font-medium">{actionTotals.reject}</span>
           </span>
         </div>
@@ -204,6 +215,9 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
     </div>
   );
 }
+
+export const FirewallQuickStats = React.memo(FirewallQuickStatsContent);
+FirewallQuickStats.displayName = 'FirewallQuickStats';
 
 
 

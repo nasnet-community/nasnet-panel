@@ -4,11 +4,26 @@
  * IMPORTANT: This is a stub implementation for Epic 18 Alert integration.
  * Replace this with actual Epic 18 notification system when available.
  *
+ * @description Provides alert notification for rate-limit triggered events. Console-based
+ * logging in stub mode with cooldown tracking to prevent alert spam. Full integration with
+ * Epic 18 notification system pending.
+ *
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-11-implement-connection-rate-limiting.md
  * @see Epic 18 - Notification & Alert Engine
  */
 
 import type { RateLimitTriggeredEvent } from '@nasnet/core/types';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+const DEFAULT_COOLDOWN_MINUTES = 5;
+const MILLISECONDS_PER_MINUTE = 60 * 1000;
+
+// ============================================
+// TYPES
+// ============================================
 
 /**
  * Alert Severity Levels
@@ -19,11 +34,17 @@ export type AlertSeverity = 'info' | 'warning' | 'critical';
  * Rate Limit Alert Configuration
  */
 export interface RateLimitAlertConfig {
+  /** Whether alert service is enabled */
   enabled: boolean;
+  /** Alert severity level (info|warning|critical) */
   severity: AlertSeverity;
+  /** Emit alert when IP is blocked */
   notifyOnBlock: boolean;
+  /** Emit alert when IP is whitelisted */
   notifyOnWhitelist: boolean;
+  /** Minimum blocks before emitting alert */
   minBlocksBeforeAlert: number;
+  /** Cooldown period in minutes between alerts for same rule */
   cooldownMinutes: number;
 }
 
@@ -36,7 +57,7 @@ export const DEFAULT_ALERT_CONFIG: RateLimitAlertConfig = {
   notifyOnBlock: true,
   notifyOnWhitelist: false,
   minBlocksBeforeAlert: 1,
-  cooldownMinutes: 5,
+  cooldownMinutes: DEFAULT_COOLDOWN_MINUTES,
 };
 
 /**
@@ -170,7 +191,7 @@ export class RateLimitAlertService {
       return true;
     }
 
-    const cooldownMs = this.config.cooldownMinutes * 60 * 1000;
+    const cooldownMs = this.config.cooldownMinutes * MILLISECONDS_PER_MINUTE;
     const timeSinceLastAlert = Date.now() - lastAlert;
 
     return timeSinceLastAlert >= cooldownMs;
@@ -187,19 +208,22 @@ export class RateLimitAlertService {
    * Format alert message for display
    */
   private formatAlertMessage(event: RateLimitTriggeredEvent): string {
-    const actionText = {
+    const ACTION_TEXT_MAP: Record<string, string> = {
       drop: 'dropped',
       tarpit: 'tarpitted',
       'add-to-list': `added to list '${event.addressList}'`,
-    }[event.action];
+    };
 
-    const timeWindowText = {
+    const TIME_WINDOW_TEXT_MAP: Record<string, string> = {
       'per-second': 'per second',
       'per-minute': 'per minute',
       'per-hour': 'per hour',
-    }[event.timeWindow];
+    };
 
-    return `IP ${event.blockedIP} exceeded rate limit (${event.connectionLimit} connections ${timeWindowText}) and was ${actionText}`;
+    const actionText = ACTION_TEXT_MAP[event.action] || 'processed';
+    const timeWindowText = TIME_WINDOW_TEXT_MAP[event.timeWindow] || 'per minute';
+
+    return `IP ${event.blockedIP} exceeded rate limit (${event.connectionLimit} connections ${timeWindowText}) and was ${actionText}.`;
   }
 }
 

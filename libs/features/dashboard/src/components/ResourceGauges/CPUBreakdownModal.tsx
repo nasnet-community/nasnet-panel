@@ -6,8 +6,20 @@
  * - Shows horizontal bar chart for each core
  * - Displays core frequency if available
  * - Accessible modal with focus trap and ESC to close
+ *
+ * @example
+ * ```tsx
+ * <CPUBreakdownModal
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   perCoreUsage={[45, 52, 48, 51]}
+ *   overallUsage={49}
+ *   frequency={2400}
+ * />
+ * ```
  */
 
+import React, { useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
@@ -25,6 +37,8 @@ export interface CPUBreakdownModalProps {
   overallUsage: number;
   /** CPU frequency in MHz (optional) */
   frequency?: number;
+  /** Additional CSS classes */
+  className?: string;
 }
 
 /**
@@ -34,30 +48,45 @@ export interface CPUBreakdownModalProps {
  * - Per-core CPU usage as horizontal bars
  * - Overall CPU usage summary
  * - CPU frequency if available
+ *
+ * WCAG AAA compliant:
+ * - 7:1 contrast ratio maintained
+ * - Role="meter" ARIA attributes on progress bars
+ * - Keyboard accessible (ESC to close)
+ * - Screen reader support for core metrics
  */
-export function CPUBreakdownModal({
+const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
   open,
   onOpenChange,
   perCoreUsage,
   overallUsage,
   frequency,
+  className,
 }: CPUBreakdownModalProps) {
   const coreCount = perCoreUsage.length;
 
+  // Memoize close handler
+  const handleClose = useCallback(
+    (newOpen: boolean) => {
+      onOpenChange(newOpen);
+    },
+    [onOpenChange]
+  );
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className={cn('max-w-md', className)}>
         <DialogHeader>
-          <DialogTitle>CPU Core Breakdown</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">CPU Core Breakdown</DialogTitle>
         </DialogHeader>
 
         {/* Overall CPU usage summary */}
         <div className="mb-4 p-4 rounded-lg bg-muted">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium">Overall Usage</span>
-            <span className="text-2xl font-bold">{overallUsage}%</span>
+            <span className="text-sm font-medium text-foreground">Overall Usage</span>
+            <span className="text-2xl font-bold text-foreground">{overallUsage}%</span>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             {coreCount} core{coreCount > 1 ? 's' : ''}
             {frequency && ` @ ${(frequency / 1000).toFixed(2)} GHz`}
           </div>
@@ -66,9 +95,9 @@ export function CPUBreakdownModal({
         {/* Per-core usage bars */}
         <div className="space-y-3">
           {perCoreUsage.map((usage, index) => (
-            <div key={index} className="space-y-1">
+            <div key={`core-${index}`} className="space-y-1">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Core {index + 1}</span>
+                <span className="font-medium text-foreground">Core {index + 1}</span>
                 <span className="text-muted-foreground">{usage}%</span>
               </div>
 
@@ -80,8 +109,8 @@ export function CPUBreakdownModal({
                     usage >= 90
                       ? 'bg-error'
                       : usage >= 70
-                      ? 'bg-warning'
-                      : 'bg-success'
+                        ? 'bg-warning'
+                        : 'bg-success'
                   )}
                   style={{ width: `${Math.min(100, Math.max(0, usage))}%` }}
                   role="meter"
@@ -102,4 +131,8 @@ export function CPUBreakdownModal({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+CPUBreakdownModal.displayName = 'CPUBreakdownModal';
+
+export { CPUBreakdownModal };

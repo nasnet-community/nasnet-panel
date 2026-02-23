@@ -1,8 +1,26 @@
 /**
  * Application Routes
- * Defines all available routes in the NasNetConnect application
+ *
+ * Defines all available routes in the NasNetConnect application.
+ * Used for navigation, route matching, and link generation across the frontend.
+ *
+ * Routes are organized by feature:
+ * - Main navigation (HOME, DASHBOARD)
+ * - Router management (ROUTER_LIST, ROUTER_DETAIL, ROUTER_PANEL, etc.)
+ * - Network configuration (WAN, LAN, FIREWALL, ROUTING, NAT, QOS)
+ * - Wireless management (WIFI, WIFI_DETAIL)
+ * - VPN management (VPN, VPN_SERVERS, VPN_CLIENTS, etc.)
+ * - DHCP management (DHCP, DHCP_SERVER, DHCP_CLIENTS)
+ * - Monitoring (STATUS, MONITOR, NETWORK, LOGS, METRICS)
+ * - System settings (SETTINGS, SYSTEM_SETTINGS, BACKUP, RESTORE)
+ * - User management (PROFILE, ACCOUNT, LOGOUT)
+ * - Error pages (NOT_FOUND, UNAUTHORIZED, FORBIDDEN, SERVER_ERROR)
+ *
+ * @example
+ * import { ROUTES } from '@nasnet/core/constants';
+ * navigate(ROUTES.ROUTER_LIST);
+ * const url = ROUTES.ROUTER_DETAIL('router-1');
  */
-
 export const ROUTES = {
   // Main navigation
   HOME: '/',
@@ -78,4 +96,15 @@ export const ROUTES = {
   SERVER_ERROR: '/500'
 } as const;
 
+/**
+ * Type representing any valid application route.
+ *
+ * Extracted from ROUTES constant to provide type-safe route values.
+ * Use for function parameters that accept route strings.
+ *
+ * @example
+ * function navigateTo(route: Route) {
+ *   router.push(route);
+ * }
+ */
 export type Route = typeof ROUTES[keyof typeof ROUTES];

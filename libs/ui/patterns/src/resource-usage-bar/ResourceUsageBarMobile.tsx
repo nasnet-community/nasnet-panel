@@ -9,6 +9,8 @@
  * - Vertical layout for values
  */
 
+import * as React from 'react';
+
 import { AlertCircle, AlertTriangle, Check, Circle, HelpCircle } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
@@ -85,7 +87,7 @@ const STATUS_COLORS: Record<
  * Optimized for touch interaction and small screens.
  * Uses vertical layout with larger text and icons.
  */
-export function ResourceUsageBarMobile(props: ResourceUsageBarProps) {
+function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
   const { showValues = true, showPercentage = true, className } = props;
   const state = useResourceUsageBar(props);
 
@@ -167,3 +169,7 @@ export function ResourceUsageBarMobile(props: ResourceUsageBarProps) {
     </div>
   );
 }
+
+export const ResourceUsageBarMobile = React.memo(ResourceUsageBarMobileBase);
+
+ResourceUsageBarMobile.displayName = 'ResourceUsageBarMobile';

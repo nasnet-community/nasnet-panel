@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   DataTable,
   DataTableColumn,
   DataTableToolbar,
+  SafetyConfirmation,
 } from '@nasnet/ui/patterns';
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
 import {
+  Button,
+  Badge,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -16,9 +18,11 @@ import {
 } from '@nasnet/ui/primitives';
 import { Plus, Search, Filter, Trash2, Edit } from 'lucide-react';
 import type { UseVlanListReturn } from '../../hooks/use-vlan-list';
-import { SafetyConfirmation } from '@nasnet/ui/patterns';
 
-// Type for VLAN from GraphQL
+/**
+ * Type for VLAN from GraphQL.
+ * Represents a Virtual LAN (VLAN) on a network interface.
+ */
 interface Vlan {
   id: string;
   name: string;
@@ -38,10 +42,17 @@ export interface VlanListDesktopProps extends UseVlanListReturn {
   routerId: string;
 }
 
+/**
+ * VlanListDesktop - Desktop-optimized presenter for VLAN list.
+ * Displays VLANs in a dense DataTable with full details visible.
+ * Desktop: fixed sidebar (never horizontal scroll), all columns visible.
+ *
+ * @param props - Component props from useVlanList hook and parent
+ */
 export function VlanListDesktop({
   vlans,
-  loading,
-  error,
+  loading: isLoading,
+  error: hasError,
   selectedIds,
   toggleSelection,
   selectAll,
@@ -58,9 +69,9 @@ export function VlanListDesktop({
   refetch,
   allVlans,
 }: VlanListDesktopProps) {
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [vlanToDelete, setVlanToDelete] = useState<Vlan | null>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Get unique parent interfaces for filter dropdown
   const parentInterfaces = useMemo(() => {
@@ -95,7 +106,7 @@ export function VlanListDesktop({
         key: 'vlanId',
         header: 'VLAN ID',
         cell: (vlan) => (
-          <Badge variant="outline" className="font-mono">
+          <Badge variant="outline" className="font-mono tabular-nums">
             {vlan.vlanId}
           </Badge>
         ),
@@ -116,7 +127,7 @@ export function VlanListDesktop({
         key: 'mtu',
         header: 'MTU',
         cell: (vlan) => (
-          <span className="font-mono text-sm">
+          <span className="font-mono text-sm tabular-nums">
             {vlan.mtu || <span className="text-muted-foreground">default</span>}
           </span>
         ),
@@ -146,7 +157,7 @@ export function VlanListDesktop({
               onClick={() => setSelectedVlanId(vlan.id)}
               aria-label={`Edit VLAN ${vlan.name}`}
             >
-              <Edit className="h-4 w-4" />
+              <Edit className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant="ghost"
@@ -157,7 +168,7 @@ export function VlanListDesktop({
               }}
               aria-label={`Delete VLAN ${vlan.name}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         ),
@@ -167,13 +178,13 @@ export function VlanListDesktop({
   );
 
   // Handle confirmed deletion
-  const handleConfirmedDelete = async () => {
+  const handleConfirmedDelete = useCallback(async () => {
     if (vlanToDelete) {
       await handleDelete(vlanToDelete.id);
       setDeleteConfirmOpen(false);
       setVlanToDelete(null);
     }
-  };
+  }, [vlanToDelete, handleDelete]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -229,14 +240,14 @@ export function VlanListDesktop({
       <DataTable<Vlan & Record<string, unknown>>
         columns={columns as DataTableColumn<Vlan & Record<string, unknown>>[]}
         data={vlans as (Vlan & Record<string, unknown>)[]}
-        isLoading={loading}
+        isLoading={isLoading}
         emptyMessage="No VLANs found"
         onRowClick={(vlan) => setSelectedVlanId(vlan.id)}
       />
 
       {/* Delete Confirmation Dialog */}
       <SafetyConfirmation
-        open={deleteConfirmOpen}
+        open={isDeleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title="Delete VLAN"
         description={
@@ -251,3 +262,5 @@ export function VlanListDesktop({
     </div>
   );
 }
+
+VlanListDesktop.displayName = 'VlanListDesktop';

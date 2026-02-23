@@ -1,12 +1,12 @@
 /**
- * AlertTemplateDetailPanel Component (Enhanced)
+ * AlertTemplateDetailPanel Component
  * NAS-18.12: Alert Rule Templates Feature
  *
- * Displays detailed information about an alert rule template.
- * Shows conditions, variables, channels, throttling, and metadata.
- * Includes interactive variable input form for customization.
+ * @description Displays detailed information about an alert rule template.
+ * Shows conditions, variables, channels, throttling, and metadata with
+ * interactive variable input form for customization.
  *
- * Responsive: Desktop uses drawer/panel, Mobile uses bottom sheet.
+ * @see ADR-018: Headless Platform Presenters
  */
 
 import * as React from 'react';
@@ -34,8 +34,8 @@ import {
   TabsList,
   TabsTrigger,
   cn,
+  useMediaQuery,
 } from '@nasnet/ui/primitives';
-import { useMediaQuery } from '@nasnet/ui/primitives';
 
 import {
   getCategoryMeta,
@@ -51,26 +51,29 @@ import {
 // Props Interface
 // =============================================================================
 
+/**
+ * Props for AlertTemplateDetailPanel component
+ */
 export interface AlertTemplateDetailPanelProps {
-  /** Template to display (null to close panel) */
+  /** @description Template to display (null to close panel) */
   template: AlertRuleTemplate | null;
 
-  /** Callback when panel is closed */
+  /** @description Callback when panel is closed */
   onClose: () => void;
 
-  /** Callback when Apply button is clicked with variable values */
+  /** @description Callback when Apply button is clicked with variable values */
   onApply?: (template: AlertRuleTemplate, variables: VariableValues) => void;
 
-  /** Callback when Export button is clicked */
+  /** @description Callback when Export button is clicked */
   onExport?: (template: AlertRuleTemplate) => void;
 
-  /** Callback when Delete button is clicked (custom templates only) */
+  /** @description Callback when Delete button is clicked (custom templates only) */
   onDelete?: (template: AlertRuleTemplate) => void;
 
-  /** Open state (controlled) */
+  /** @description Open state (controlled) */
   open?: boolean;
 
-  /** Whether form is submitting */
+  /** @description Whether form is submitting */
   isSubmitting?: boolean;
 }
 
@@ -78,15 +81,26 @@ export interface AlertTemplateDetailPanelProps {
 // Detail Content Component
 // =============================================================================
 
+/**
+ * Props for DetailContent component
+ */
 interface DetailContentProps {
+  /** @description Template to display */
   template: AlertRuleTemplate;
+  /** @description Callback when template is applied */
   onApply?: (template: AlertRuleTemplate, variables: VariableValues) => void;
+  /** @description Callback when template is exported */
   onExport?: (template: AlertRuleTemplate) => void;
+  /** @description Callback when template is deleted */
   onDelete?: (template: AlertRuleTemplate) => void;
+  /** @description Whether content is submitting */
   isSubmitting?: boolean;
 }
 
-function DetailContent({
+/**
+ * DetailContent - Template details and configuration UI
+ */
+const DetailContent = React.memo(function DetailContent({
   template,
   onApply,
   onExport,
@@ -96,27 +110,30 @@ function DetailContent({
   const categoryMeta = getCategoryMeta(template.category);
   const [activeTab, setActiveTab] = React.useState<'details' | 'configure'>('details');
 
-  const severityColors = {
-    CRITICAL: 'bg-destructive/10 text-destructive',
-    WARNING: 'bg-warning/10 text-warning',
-    INFO: 'bg-info/10 text-info',
-  };
+  const severityColors = React.useMemo(() => ({
+    CRITICAL: 'bg-semantic-error/10 text-semantic-error',
+    WARNING: 'bg-semantic-warning/10 text-semantic-warning',
+    INFO: 'bg-semantic-info/10 text-semantic-info',
+  }), []);
 
-  const operatorLabels: Record<string, string> = {
+  const operatorLabels = React.useMemo(() => ({
     EQUALS: '=',
     NOT_EQUALS: '≠',
     GREATER_THAN: '>',
     LESS_THAN: '<',
     CONTAINS: 'contains',
     REGEX: 'matches regex',
-  };
+  }), []);
 
   // Handle form submission from variable input form
-  const handleVariableSubmit = (values: VariableValues) => {
-    if (onApply) {
-      onApply(template, values);
-    }
-  };
+  const handleVariableSubmit = React.useCallback(
+    (values: VariableValues) => {
+      if (onApply) {
+        onApply(template, values);
+      }
+    },
+    [template, onApply]
+  );
 
   // If template has variables, use tabs, otherwise show details only
   const hasVariables = template.variables.length > 0;
@@ -167,11 +184,11 @@ function DetailContent({
             <Card key={index} className="bg-muted/50">
               <CardContent className="p-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <code className="font-medium text-xs">{condition.field}</code>
+                  <code className="font-mono text-xs">{condition.field}</code>
                   <Badge variant="outline" className="text-xs">
                     {operatorLabels[condition.operator] || condition.operator}
                   </Badge>
-                  <code className="text-xs bg-background px-2 py-1 rounded">
+                  <code className="font-mono text-xs bg-background px-2 py-1 rounded">
                     {condition.value}
                   </code>
                 </div>
@@ -223,7 +240,7 @@ function DetailContent({
                       </div>
                     </div>
                     <CardDescription className="text-xs">
-                      Variable: <code className="text-xs">{`{{${variable.name}}}`}</code>
+                      Variable: <code className="font-mono text-xs">{`{{${variable.name}}}`}</code>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pb-3">
@@ -233,7 +250,7 @@ function DetailContent({
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       {variable.defaultValue && (
                         <div>
-                          Default: <code className="text-xs">{variable.defaultValue}</code>
+                          Default: <code className="font-mono text-xs">{variable.defaultValue}</code>
                         </div>
                       )}
                       {variable.min !== undefined && <div>Min: {variable.min}</div>}
@@ -268,7 +285,7 @@ function DetailContent({
                   {template.throttle.groupByField && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Group By:</span>
-                      <code className="text-xs">{template.throttle.groupByField}</code>
+                      <code className="font-mono text-xs">{template.throttle.groupByField}</code>
                     </div>
                   )}
                 </div>
@@ -387,7 +404,9 @@ function DetailContent({
       </TabsContent>
     </Tabs>
   );
-}
+});
+
+DetailContent.displayName = 'DetailContent';
 
 // =============================================================================
 // Main Component
@@ -396,20 +415,14 @@ function DetailContent({
 /**
  * AlertTemplateDetailPanel - Display template details with interactive configuration
  *
- * Features:
- * - Responsive (Desktop: Dialog, Mobile: Sheet)
- * - Shows all template metadata (category, severity, version)
- * - Displays conditions with operator labels
- * - Lists notification channels
- * - Shows variables with constraints and defaults
- * - Interactive variable input form with validation
- * - Displays throttle configuration
- * - Apply, Export, and Delete actions
- * - WCAG AAA compliant
+ * @description Responsive detail view for alert templates with multi-tab layout
+ * showing conditions, variables, channels, and actions.
  *
  * @param props - Component props
+ * @returns React component
  */
-export function AlertTemplateDetailPanel(props: AlertTemplateDetailPanelProps) {
+export const AlertTemplateDetailPanel = React.memo(
+  function AlertTemplateDetailPanel(props: AlertTemplateDetailPanelProps) {
   const { template, onClose, onApply, onExport, onDelete, open, isSubmitting } = props;
 
   const isDesktop = useMediaQuery('(min-width: 640px)');
@@ -454,4 +467,7 @@ export function AlertTemplateDetailPanel(props: AlertTemplateDetailPanelProps) {
       </SheetContent>
     </Sheet>
   );
-}
+  }
+);
+
+AlertTemplateDetailPanel.displayName = 'AlertTemplateDetailPanel';

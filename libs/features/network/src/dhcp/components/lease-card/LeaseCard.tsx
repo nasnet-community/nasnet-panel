@@ -16,7 +16,7 @@
  */
 
 import * as React from 'react';
-import { ChevronDown, Trash2, Pin } from 'lucide-react';
+import { ChevronDown, Trash2, Pin, X } from 'lucide-react';
 
 import type { DHCPLease } from '@nasnet/core/types';
 import { formatMACAddress, formatExpirationTime } from '@nasnet/core/utils';
@@ -30,6 +30,7 @@ import {
   SheetTitle,
   SheetDescription,
   Button,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { StatusBadge } from '@nasnet/ui/patterns';
 
@@ -144,13 +145,14 @@ export const LeaseCard = React.memo(function LeaseCard({
           <div
             className={cn(
               'absolute left-0 top-0 bottom-0 flex items-center justify-start px-4',
-              'bg-accent text-accent-foreground',
+              'bg-primary text-primary-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
             )}
             style={{ width: Math.abs(swipeOffset) }}
+            aria-hidden="true"
           >
-            <Pin className="h-5 w-5" />
+            <Icon icon={Pin} size="md" className="text-primary-foreground" />
           </div>
         )}
 
@@ -159,13 +161,14 @@ export const LeaseCard = React.memo(function LeaseCard({
           <div
             className={cn(
               'absolute right-0 top-0 bottom-0 flex items-center justify-end px-4',
-              'bg-error/20 text-error-dark',
+              'bg-destructive/20 text-destructive-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
             )}
             style={{ width: Math.abs(swipeOffset) }}
+            aria-hidden="true"
           >
-            <Trash2 className="h-5 w-5" />
+            <Icon icon={Trash2} size="md" className="text-destructive-foreground" />
           </div>
         )}
 
@@ -247,12 +250,13 @@ export const LeaseCard = React.memo(function LeaseCard({
             </div>
 
             {/* Expand indicator */}
-            <ChevronDown
+            <Icon
+              icon={ChevronDown}
+              size="md"
               className={cn(
-                'h-5 w-5 text-muted-foreground flex-shrink-0 mt-1',
+                'text-muted-foreground',
                 'transition-transform duration-200'
               )}
-              aria-hidden="true"
             />
           </button>
         </Card>
@@ -328,7 +332,7 @@ export const LeaseCard = React.memo(function LeaseCard({
                     setIsExpanded(false);
                   }}
                 >
-                  <Pin className="h-4 w-4 mr-2" />
+                  <Icon icon={Pin} size="sm" className="mr-2" />
                   Make Static
                 </Button>
               )}
@@ -342,7 +346,7 @@ export const LeaseCard = React.memo(function LeaseCard({
                     setIsExpanded(false);
                   }}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Icon icon={Trash2} size="sm" className="mr-2" />
                   Delete Lease
                 </Button>
               )}

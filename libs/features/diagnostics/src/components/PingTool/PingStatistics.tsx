@@ -59,6 +59,7 @@ function formatRtt(rtt: number | null): string {
  *
  * Semantic component using dl/dt/dd for accessibility.
  * Color-codes packet loss based on severity.
+ * Shows RTT values in monospace font for technical readability.
  *
  * @example
  * ```tsx
@@ -136,25 +137,25 @@ export const PingStatistics = memo(function PingStatistics({
         {/* Min RTT */}
         <div className="space-y-1">
           <dt className="text-sm text-muted-foreground">Min RTT</dt>
-          <dd className="text-lg font-semibold">{formatRtt(minRtt)}</dd>
+          <dd className="text-lg font-semibold font-mono">{formatRtt(minRtt)}</dd>
         </div>
 
         {/* Avg RTT */}
         <div className="space-y-1">
           <dt className="text-sm text-muted-foreground">Avg RTT</dt>
-          <dd className="text-lg font-semibold">{formatRtt(avgRtt)}</dd>
+          <dd className="text-lg font-semibold font-mono">{formatRtt(avgRtt)}</dd>
         </div>
 
         {/* Max RTT */}
         <div className="space-y-1">
           <dt className="text-sm text-muted-foreground">Max RTT</dt>
-          <dd className="text-lg font-semibold">{formatRtt(maxRtt)}</dd>
+          <dd className="text-lg font-semibold font-mono">{formatRtt(maxRtt)}</dd>
         </div>
 
         {/* Std Dev */}
         <div className="space-y-1">
           <dt className="text-sm text-muted-foreground">Std Dev</dt>
-          <dd className="text-lg font-semibold text-muted-foreground">
+          <dd className="text-lg font-semibold font-mono text-muted-foreground">
             {formatRtt(stdDev)}
           </dd>
         </div>
@@ -162,3 +163,5 @@ export const PingStatistics = memo(function PingStatistics({
     </div>
   );
 });
+
+PingStatistics.displayName = 'PingStatistics';

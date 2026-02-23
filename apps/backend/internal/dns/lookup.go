@@ -10,8 +10,12 @@ import (
 	"backend/internal/router"
 )
 
-// lookupViaRouterOS uses RouterOS /tool/dns-lookup for A/AAAA records
-func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]Record, error) {
+// lookupViaRouterOS uses RouterOS /tool/dns-lookup for A/AAAA records.
+// It returns records, an authoritative flag, and any error.
+// The authoritative flag is true when RouterOS resolves the name from its own
+// static DNS entries (type=static in the response), meaning the router itself
+// is the authoritative source for this record rather than a forwarded answer.
+func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]Record, bool, error) {
 	// Build command for RouterOS
 	cmd := router.Command{
 		Path: "/tool/dns-lookup",
@@ -32,11 +36,22 @@ func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]
 	// Execute command
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
+	// Detect authoritative flag: RouterOS marks static DNS entries with "type=static"
+	// in the dns-lookup response. A static entry means the router is the authoritative
+	// source (it owns the record), as opposed to a cached forwarded answer.
+	authoritative := strings.Contains(result.RawOutput, "type=static") ||
+		strings.Contains(result.RawOutput, "type: static")
+
 	// Parse RouterOS response
-	return parseRouterOSResponse(result.RawOutput, input.RecordType)
+	records, err := parseRouterOSResponse(result.RawOutput, input.RecordType)
+	if err != nil {
+		return nil, false, err
+	}
+
+	return records, authoritative, nil
 }
 
 // lookupViaGoResolver uses Go's net package for non-A/AAAA record types

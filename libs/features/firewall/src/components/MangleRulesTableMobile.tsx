@@ -15,9 +15,10 @@
  * @see NAS-7.5: Implement Mangle Rules - Task 7
  */
 
-import { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { cn } from '@nasnet/ui/utils';
 import {
   useMangleRules,
   useDeleteMangleRule,
@@ -51,28 +52,34 @@ import { Pencil, Copy, Trash2 } from 'lucide-react';
 // Action Badge Component
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
-  const colors: Record<string, string> = {
+/**
+ * ActionBadge Component
+ * Displays mangle action type with semantic color coding
+ */
+const ActionBadge = React.memo(function ActionBadgeComponent({ action }: { action: string }) {
+  ActionBadge.displayName = 'ActionBadge';
+
+  const ACTION_COLORS: Record<string, string> = {
     'mark-connection': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     'mark-packet': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     'mark-routing': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     'change-dscp': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
     'change-ttl': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
     'change-mss': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-    'accept': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    'drop': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    'accept': 'bg-success/10 text-success dark:bg-success/20',
+    'drop': 'bg-destructive/10 text-destructive dark:bg-destructive/20',
     'jump': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
     'log': 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200',
   };
 
-  const colorClass = colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const colorClass = ACTION_COLORS[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
 
   return (
-    <Badge variant="outline" className={`${colorClass} text-xs`}>
+    <Badge variant="outline" className={cn(colorClass, 'text-xs')}>
       {action}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Rule Card Component
@@ -84,12 +91,29 @@ interface RuleCardProps {
   onDuplicate: (rule: MangleRule) => void;
   onDelete: (rule: MangleRule) => void;
   onToggle: (rule: MangleRule) => void;
+  className?: string;
 }
 
-function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle }: RuleCardProps) {
+/**
+ * RuleCard Component
+ * Mobile-optimized card for displaying a single mangle rule
+ */
+const RuleCard = React.memo(function RuleCardComponent({
+  rule,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onToggle,
+  className,
+}: RuleCardProps) {
+  RuleCard.displayName = 'RuleCard';
   const { t } = useTranslation('firewall');
-  const isUnused = (rule.packets ?? 0) === 0;
-  const markValue = rule.newConnectionMark || rule.newPacketMark || rule.newRoutingMark;
+
+  const isUnused = useMemo(() => (rule.packets ?? 0) === 0, [rule.packets]);
+  const markValue = useMemo(
+    () => rule.newConnectionMark || rule.newPacketMark || rule.newRoutingMark,
+    [rule.newConnectionMark, rule.newPacketMark, rule.newRoutingMark]
+  );
 
   const matchers: string[] = [];
   if (rule.protocol) matchers.push(`${rule.protocol}`);
@@ -103,14 +127,14 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle }: RuleCardPro
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs text-slate-500">#{rule.position}</span>
-              <Badge variant="secondary" className="text-xs">
+              <span className="font-mono tabular-nums text-xs text-muted-foreground">#{rule.position}</span>
+              <Badge variant="secondary" className="text-xs font-mono">
                 {rule.chain}
               </Badge>
               <ActionBadge action={rule.action} />
             </div>
             {markValue && (
-              <div className="font-mono text-sm font-semibold mt-1">
+              <div className="font-mono tabular-nums text-sm font-semibold mt-1">
                 {markValue}
               </div>
             )}
@@ -132,61 +156,65 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle }: RuleCardPro
         )}
 
         {/* Counters */}
-        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-3">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
           <div className="flex items-center gap-1">
             <span className="font-semibold">{t('mangle.table.columns.packets')}:</span>
             {isUnused ? (
-              <Badge variant="outline" className="text-xs text-slate-500">
+              <Badge variant="outline" className="text-xs text-muted-foreground">
                 {t('mangle.table.unused')}
               </Badge>
             ) : (
-              <span className="font-mono">{(rule.packets ?? 0).toLocaleString()}</span>
+              <span className="font-mono tabular-nums">{(rule.packets ?? 0).toLocaleString()}</span>
             )}
           </div>
           <div className="flex items-center gap-1">
             <span className="font-semibold">{t('mangle.table.columns.bytes')}:</span>
-            <span className="font-mono">{(rule.bytes ?? 0).toLocaleString()}</span>
+            <span className="font-mono tabular-nums">{(rule.bytes ?? 0).toLocaleString()}</span>
           </div>
         </div>
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 italic mb-3">
+          <div className="text-sm text-muted-foreground italic mb-3">
             {rule.comment}
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions - 44px minimum touch targets */}
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
-            className="flex-1"
+            className="flex-1 min-h-[44px]"
+            aria-label={`Edit rule ${rule.position}`}
           >
-            <Pencil className="h-4 w-4 mr-1" />
+            <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
             {t('mangle.buttons.edit')}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDuplicate(rule)}
+            className="min-h-[44px] px-3"
+            aria-label={`Duplicate rule ${rule.position}`}
           >
-            <Copy className="h-4 w-4" />
+            <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
+            className="min-h-[44px] px-3 text-destructive hover:text-destructive/90"
+            aria-label={`Delete rule ${rule.position}`}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -200,7 +228,8 @@ export interface MangleRulesTableMobileProps {
 /**
  * MangleRulesTableMobile Component
  *
- * Mobile-optimized card-based layout for mangle rules.
+ * @description Mobile-optimized card-based layout for mangle rules
+ * with touch-friendly interactions and 44px minimum touch targets.
  *
  * Features:
  * - Touch-friendly card layout
@@ -208,10 +237,19 @@ export interface MangleRulesTableMobileProps {
  * - Enable/disable toggle
  * - Compact counter display
  *
- * @param props - Component props
- * @returns Mobile mangle rules table component
+ * @example
+ * ```tsx
+ * <MangleRulesTableMobile
+ *   chain="forward"
+ *   className="space-y-3"
+ * />
+ * ```
  */
-export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMobileProps) {
+export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobileComponent({
+  className,
+  chain,
+}: MangleRulesTableMobileProps) {
+  MangleRulesTableMobile.displayName = 'MangleRulesTableMobile';
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
@@ -261,11 +299,11 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 space-y-4 ${className || ''}`}>
+      <div className={cn('p-4 space-y-4', className)}>
         <div className="animate-pulse space-y-4">
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-32 bg-muted rounded" />
+          <div className="h-32 bg-muted rounded" />
+          <div className="h-32 bg-muted rounded" />
         </div>
       </div>
     );
@@ -274,8 +312,9 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        {t('mangle.notifications.error.load')}: {error.message}
+      <div className={cn('p-4 text-destructive', className)} role="alert">
+        <p className="font-semibold mb-1">{t('mangle.notifications.error.load')}</p>
+        <p className="text-sm">{error.message}</p>
       </div>
     );
   }
@@ -283,15 +322,17 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
-        {chain ? t('mangle.table.noRulesInChain') : t('mangle.table.noRules')}
+      <div className={cn('p-8 text-center', className)}>
+        <p className="text-muted-foreground">
+          {chain ? t('mangle.table.noRulesInChain') : t('mangle.table.noRules')}
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      <div className={`space-y-3 ${className || ''}`}>
+      <div className={cn('space-y-3', className)}>
         {sortedRules.map((rule) => (
           <RuleCard
             key={rule.id}
@@ -354,7 +395,7 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
             </Button>
             <Button
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 min-h-[44px]"
+              className="bg-destructive hover:bg-destructive/90 min-h-[44px]"
             >
               {t('button.delete', { ns: 'common' })}
             </Button>
@@ -363,4 +404,4 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
       </Dialog>
     </>
   );
-}
+});

@@ -28,15 +28,30 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/connect/**/*.ts", "apps/connect/**/*.tsx"]
+        "lintFilePatterns": [
+          "apps/connect/**/*.{ts,tsx,js,jsx}",
+          "apps/connect/.storybook/**/*.{ts,tsx}"
+        ]
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project apps/connect/tsconfig.app.json"
+        "commands": [
+          "tsc --noEmit --project apps/connect/tsconfig.app.json",
+          "tsc --noEmit --project apps/connect/tsconfig.spec.json",
+          "tsc --noEmit --project apps/connect/tsconfig.storybook.json",
+          "tsc --noEmit --project apps/connect/.storybook/tsconfig.json"
+        ],
+        "parallel": true
       }
     },
+    "typecheck:storybook": {
+  "executor": "nx:run-commands",
+  "options": {
+    "command": "tsc --noEmit --project apps/connect/.storybook/tsconfig.json"
+  }
+},
     "check": {
       "executor": "nx:run-commands",
       "options": {
@@ -44,7 +59,22 @@
           "nx run connect:typecheck",
           "nx run connect:lint"
         ],
-        "parallel": false
+        "parallel": true
+      }
+    },
+    "storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "storybook dev -p 4402 --config-dir apps/connect/.storybook",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/storybook/connect"],
+      "options": {
+        "command": "storybook build --config-dir apps/connect/.storybook --output-dir dist/storybook/connect",
+        "cwd": "{workspaceRoot}"
       }
     }
   },

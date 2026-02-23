@@ -33,6 +33,7 @@ import {
   getOperationLabel,
 } from '@nasnet/core/types';
 import { cn, Button } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 
 // =============================================================================
@@ -99,6 +100,9 @@ export interface ChangeSetItemCardProps
 
   /** Dependency names for display */
   dependencyNames?: Record<string, string>;
+
+  /** Manual platform presenter override: 'mobile' | 'tablet' | 'desktop' */
+  presenter?: 'mobile' | 'tablet' | 'desktop';
 }
 
 // =============================================================================
@@ -124,6 +128,8 @@ const OperationIcon = React.memo(function OperationIcon({
   const Icon = icons[operation] || Pencil;
   return <Icon className={className} />;
 });
+
+OperationIcon.displayName = 'OperationIcon';
 
 /**
  * Status icon based on item status
@@ -155,8 +161,10 @@ const StatusIcon = React.memo(function StatusIcon({
   }
 });
 
+StatusIcon.displayName = 'StatusIcon';
+
 /**
- * Status label
+ * Status label (i18n-ready structure)
  */
 function getStatusLabel(status: ChangeSetItemStatus): string {
   const labels: Record<ChangeSetItemStatus, string> = {
@@ -172,20 +180,57 @@ function getStatusLabel(status: ChangeSetItemStatus): string {
 }
 
 /**
- * Change Set Item Card Component
- *
- * @example
- * ```tsx
- * <ChangeSetItemCard
- *   item={changeSetItem}
- *   expanded={isExpanded}
- *   onToggleExpand={() => setIsExpanded(!isExpanded)}
- *   onRemove={() => removeItem(item.id)}
- *   removable
- * />
- * ```
+ * Headless hook: handles all business logic for ChangeSetItemCard
  */
-const ChangeSetItemCardBase = React.forwardRef<
+export function useChangeSetItemCard(
+  item: ChangeSetItem,
+  {
+    expanded = false,
+    onToggleExpand,
+    onRemove,
+    removable = false,
+    showDependencies = true,
+    dependencyNames = {},
+  }: Omit<ChangeSetItemCardProps, 'className' | 'item'>
+) {
+  const canRemove = React.useMemo(
+    () => removable && item.status === 'PENDING',
+    [removable, item.status]
+  );
+
+  const handleRemove = React.useCallback(() => {
+    if (onRemove) {
+      onRemove();
+    }
+  }, [onRemove]);
+
+  const handleToggleExpand = React.useCallback(() => {
+    if (onToggleExpand) {
+      onToggleExpand();
+    }
+  }, [onToggleExpand]);
+
+  const statusLabel = React.useMemo(
+    () => getStatusLabel(item.status),
+    [item.status]
+  );
+
+  return {
+    canRemove,
+    handleRemove,
+    handleToggleExpand,
+    statusLabel,
+    expanded,
+    item,
+    showDependencies,
+    dependencyNames,
+  };
+}
+
+/**
+ * Desktop presenter for ChangeSetItemCard
+ */
+const ChangeSetItemCardDesktop = React.forwardRef<
   HTMLDivElement,
   ChangeSetItemCardProps
 >(
@@ -356,8 +401,71 @@ const ChangeSetItemCardBase = React.forwardRef<
   }
 );
 
-ChangeSetItemCardBase.displayName = 'ChangeSetItemCard';
+ChangeSetItemCardDesktop.displayName = 'ChangeSetItemCardDesktop';
 
-export const ChangeSetItemCard = React.memo(ChangeSetItemCardBase);
+/**
+ * Mobile presenter for ChangeSetItemCard
+ */
+const ChangeSetItemCardMobile = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
+  (props, ref) => (
+    <ChangeSetItemCardDesktop ref={ref} {...props} />
+  )
+);
+
+ChangeSetItemCardMobile.displayName = 'ChangeSetItemCardMobile';
+
+/**
+ * Tablet presenter for ChangeSetItemCard
+ */
+const ChangeSetItemCardTablet = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
+  (props, ref) => (
+    <ChangeSetItemCardDesktop ref={ref} {...props} />
+  )
+);
+
+ChangeSetItemCardTablet.displayName = 'ChangeSetItemCardTablet';
+
+/**
+ * Auto-detecting wrapper component with platform presenter selection
+ *
+ * @example
+ * ```tsx
+ * <ChangeSetItemCard
+ *   item={changeSetItem}
+ *   expanded={isExpanded}
+ *   onToggleExpand={() => setIsExpanded(!isExpanded)}
+ *   onRemove={() => removeItem(item.id)}
+ *   removable
+ * />
+ * ```
+ */
+const ChangeSetItemCardRoot = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
+  ({ presenter, ...props }, ref) => {
+    const platform = usePlatform();
+    const selectedPresenter = presenter || platform;
+
+    const PresenterComponent = React.useMemo(() => {
+      switch (selectedPresenter) {
+        case 'mobile':
+          return ChangeSetItemCardMobile;
+        case 'tablet':
+          return ChangeSetItemCardTablet;
+        case 'desktop':
+        default:
+          return ChangeSetItemCardDesktop;
+      }
+    }, [selectedPresenter]);
+
+    return (
+      <React.Suspense fallback={<div className="animate-pulse h-20 bg-muted rounded-lg" />}>
+        <PresenterComponent ref={ref} {...props} />
+      </React.Suspense>
+    );
+  }
+);
+
+ChangeSetItemCardRoot.displayName = 'ChangeSetItemCard';
+
+export const ChangeSetItemCard = React.memo(ChangeSetItemCardRoot);
 
 export { cardVariants, operationIndicatorVariants };

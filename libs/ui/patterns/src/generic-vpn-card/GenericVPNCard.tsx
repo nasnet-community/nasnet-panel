@@ -36,11 +36,11 @@ export interface GenericVPNCardProps {
  */
 function GenericVPNCardComponent({ vpnInterface, onClick }: GenericVPNCardProps) {
   // Determine status for display
-  const status = vpnInterface.disabled ? 'offline' : vpnInterface.running ? 'online' : 'warning';
+  const status = vpnInterface.isDisabled ? 'offline' : vpnInterface.isRunning ? 'online' : 'warning';
 
-  const statusLabel = vpnInterface.disabled
+  const statusLabel = vpnInterface.isDisabled
     ? 'Disabled'
-    : vpnInterface.running
+    : vpnInterface.isRunning
     ? 'Connected'
     : 'Disconnected';
 

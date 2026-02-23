@@ -3,8 +3,18 @@
  *
  * Headless hook containing all business logic for DiagnosticsPanel.
  * Manages diagnostic test execution, history, and progress monitoring.
+ * Provides all state and action methods needed by platform presenters.
+ *
+ * @description
+ * Features:
+ * - Display diagnostic history with pass/fail indicators
+ * - Run manual diagnostics with progress tracking
+ * - Show startup failure alerts
+ * - Real-time progress updates via subscription
+ * - Status color and icon mapping
  *
  * @see NAS-8.12: Service Logs & Diagnostics
+ * @see ADR-018: Headless Platform Presenters Pattern
  */
 
 import { useState, useCallback, useMemo } from 'react';
@@ -21,12 +31,14 @@ import {
 
 /**
  * Props for DiagnosticsPanel component
+ *
+ * @interface DiagnosticsPanelProps
  */
 export interface DiagnosticsPanelProps {
-  /** Router ID */
+  /** Router ID to run diagnostics for */
   routerId: string;
 
-  /** Service instance ID */
+  /** Service instance ID to run diagnostics for */
   instanceId: string;
 
   /** Service name for fetching available tests */
@@ -35,10 +47,10 @@ export interface DiagnosticsPanelProps {
   /** Maximum history entries to fetch (default 10) */
   maxHistory?: number;
 
-  /** Callback when diagnostics complete */
+  /** Callback when diagnostics complete - receives test results */
   onDiagnosticsComplete?: (results: DiagnosticResult[]) => void;
 
-  /** Additional CSS class */
+  /** Optional CSS class for custom styling */
   className?: string;
 }
 
@@ -79,11 +91,24 @@ export interface UseDiagnosticsPanelReturn {
 /**
  * Headless hook for DiagnosticsPanel
  *
- * Features:
- * - Display diagnostic history with pass/fail indicators
- * - Run manual diagnostics with progress tracking
- * - Show startup failure alerts
- * - Real-time progress updates via subscription
+ * @description
+ * Manages all business logic for the DiagnosticsPanel component.
+ * Handles test execution, history fetching, progress tracking, and result formatting.
+ * All state and computed values are provided to platform presenters.
+ *
+ * @param props - Component configuration
+ * @returns Object with all state, actions, and helper methods
+ *
+ * @example
+ * ```tsx
+ * const diagnostics = useDiagnosticsPanel({
+ *   routerId: 'router-123',
+ *   instanceId: 'instance-456',
+ *   serviceName: 'openvpn'
+ * });
+ *
+ * return <DiagnosticsPanelDesktop {...diagnostics} />;
+ * ```
  */
 export function useDiagnosticsPanel(
   props: DiagnosticsPanelProps
@@ -151,17 +176,17 @@ export function useDiagnosticsPanel(
     setLocalError(undefined);
   }, []);
 
-  // Get status color
+  // Get status color - uses semantic tokens for consistency
   const getStatusColor = useCallback((status: DiagnosticStatus): string => {
     switch (status) {
       case 'PASS':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-success';
       case 'FAIL':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-destructive';
       case 'WARNING':
-        return 'text-amber-600 dark:text-amber-400';
+        return 'text-warning';
       case 'SKIPPED':
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-muted-foreground';
       default:
         return 'text-muted-foreground';
     }

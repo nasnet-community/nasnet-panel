@@ -18,9 +18,8 @@
  * ```
  */
 
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 import { useMemo, useState, useCallback } from 'react';
-import { gql } from '@apollo/client';
 
 import type {
   PortAllocation,

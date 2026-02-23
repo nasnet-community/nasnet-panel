@@ -13,31 +13,44 @@ import { z } from 'zod';
 // VALIDATION PATTERNS
 // ============================================
 
-/**
- * IPv4 address pattern (e.g., 192.168.1.1)
- */
-const ipv4Pattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+// ============================================
+// VALIDATION PATTERNS
+// ============================================
 
 /**
- * CIDR notation pattern (e.g., 192.168.1.0/24)
+ * IPv4 address pattern
+ * @description Matches IPv4 addresses (e.g., 192.168.1.1)
  */
-const cidrPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
- * IP range pattern (e.g., 192.168.1.1-192.168.1.100)
+ * CIDR notation pattern
+ * @description Matches CIDR notation (e.g., 192.168.1.0/24)
  */
-const ipRangePattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const CIDR_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
- * Duration pattern for timeout (e.g., "1d", "12h", "30m", "60s")
- * Units: s (seconds), m (minutes), h (hours), d (days), w (weeks)
+ * IP range pattern
+ * @description Matches IP ranges (e.g., 192.168.1.1-192.168.1.100)
  */
-const durationPattern = /^\d+[smhdw]$/;
+const IP_RANGE_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
- * List name pattern - alphanumeric, underscores, and hyphens only
+ * Duration pattern for timeout
+ * @description Matches duration format with units: s (seconds), m (minutes), h (hours), d (days), w (weeks)
+ * Examples: "1d", "12h", "30m", "60s"
  */
-const listNamePattern = /^[a-zA-Z0-9_-]+$/;
+const DURATION_PATTERN = /^\d+[smhdw]$/;
+
+/**
+ * List name pattern
+ * @description Matches alphanumeric names with underscores and hyphens (no spaces or special chars)
+ */
+const LIST_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+// ============================================
+// VALIDATION FUNCTIONS
+// ============================================
 
 // ============================================
 // VALIDATION FUNCTIONS
@@ -46,19 +59,19 @@ const listNamePattern = /^[a-zA-Z0-9_-]+$/;
 /**
  * Validates IP address, CIDR notation, or IP range
  * @param val - Value to validate
- * @returns true if valid IP, CIDR, or range
+ * @returns true if valid IP, CIDR, or range format
  */
 function validateIPOrCIDR(val: string): boolean {
-  return ipv4Pattern.test(val) || cidrPattern.test(val) || ipRangePattern.test(val);
+  return IPV4_PATTERN.test(val) || CIDR_PATTERN.test(val) || IP_RANGE_PATTERN.test(val);
 }
 
 /**
  * Validates IP range format and ensures start < end
  * @param val - IP range string (e.g., "192.168.1.1-192.168.1.100")
- * @returns true if valid range with start < end
+ * @returns true if valid range with start address less than end address
  */
 function validateIPRange(val: string): boolean {
-  if (!ipRangePattern.test(val)) {
+  if (!IP_RANGE_PATTERN.test(val)) {
     return false;
   }
 
@@ -84,8 +97,13 @@ function validateIPRange(val: string): boolean {
 // SCHEMAS
 // ============================================
 
+// ============================================
+// SCHEMAS
+// ============================================
+
 /**
  * Address list entry creation schema
+ * @description Validates individual address list entry with optional comment and timeout
  *
  * @example
  * ```ts
@@ -102,7 +120,7 @@ export const addressListEntrySchema = z.object({
     .string()
     .min(1, 'List name is required')
     .max(64, 'List name must be 64 characters or less')
-    .regex(listNamePattern, 'List name can only contain letters, numbers, underscores, and hyphens'),
+    .regex(LIST_NAME_PATTERN, 'List name can only contain letters, numbers, underscores, and hyphens'),
   address: z
     .string()
     .min(1, 'Address is required')
@@ -124,7 +142,7 @@ export const addressListEntrySchema = z.object({
   comment: z.string().max(200, 'Comment must be 200 characters or less').optional().or(z.literal('')),
   timeout: z
     .string()
-    .regex(durationPattern, 'Timeout must be a valid duration (e.g., "1d", "12h", "30m")')
+    .regex(DURATION_PATTERN, 'Timeout must be a valid duration (e.g., "1d", "12h", "30m")')
     .optional()
     .or(z.literal('')),
 });
@@ -133,6 +151,7 @@ export type AddressListEntryFormData = z.infer<typeof addressListEntrySchema>;
 
 /**
  * Bulk address input schema for import validation
+ * @description Validates array of address entries for batch import operations
  *
  * @example
  * ```ts
@@ -146,7 +165,7 @@ export const bulkAddressImportSchema = z.array(
   z.object({
     address: z.string().refine(validateIPOrCIDR, 'Invalid IP format'),
     comment: z.string().max(200).optional(),
-    timeout: z.string().regex(durationPattern).optional(),
+    timeout: z.string().regex(DURATION_PATTERN).optional(),
   })
 );
 
@@ -156,12 +175,25 @@ export type BulkAddressImportData = z.infer<typeof bulkAddressImportSchema>;
 // EXPORTS
 // ============================================
 
+// ============================================
+// PATTERN EXPORTS
+// ============================================
+
 export {
-  ipv4Pattern,
-  cidrPattern,
-  ipRangePattern,
-  durationPattern,
-  listNamePattern,
+  IPV4_PATTERN as ipv4Pattern,
+  CIDR_PATTERN as cidrPattern,
+  IP_RANGE_PATTERN as ipRangePattern,
+  DURATION_PATTERN as durationPattern,
+  LIST_NAME_PATTERN as listNamePattern,
   validateIPOrCIDR,
   validateIPRange,
+};
+
+// Also export with new naming convention for new code
+export {
+  IPV4_PATTERN,
+  CIDR_PATTERN,
+  IP_RANGE_PATTERN,
+  DURATION_PATTERN,
+  LIST_NAME_PATTERN,
 };

@@ -4,9 +4,12 @@
  * (total interfaces, active count, IP addresses, connected devices, etc.)
  */
 
-import { type LucideIcon } from 'lucide-react';
+import React from 'react';
 
-import { cn } from '@/lib/utils';
+import { type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import { cn } from '@nasnet/ui/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,24 +42,25 @@ interface NetworkQuickStatsProps {
 // ---------------------------------------------------------------------------
 
 const ICON_BG: Record<NonNullable<QuickStat['variant']>, string> = {
-  cyan: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400',
-  emerald: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-  amber: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-  red: 'bg-red-500/15 text-red-600 dark:text-red-400',
-  purple: 'bg-purple-500/15 text-purple-600 dark:text-purple-400',
-  blue: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
-  slate: 'bg-slate-500/15 text-slate-600 dark:text-slate-400',
+  cyan: 'bg-info/15 text-info',
+  emerald: 'bg-success/15 text-success',
+  amber: 'bg-warning/15 text-warning',
+  red: 'bg-error/15 text-error',
+  purple: 'bg-category-monitoring/15 text-category-monitoring',
+  blue: 'bg-info/15 text-info',
+  slate: 'bg-muted/15 text-muted-foreground',
 };
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function NetworkQuickStats({
+export const NetworkQuickStats = React.memo(function NetworkQuickStats({
   stats,
   isLoading = false,
   className,
 }: NetworkQuickStatsProps) {
+  const { t } = useTranslation('network');
   if (isLoading) {
     return (
       <div
@@ -65,16 +69,16 @@ export function NetworkQuickStats({
           className,
         )}
         aria-busy="true"
-        aria-label="Loading network statistics"
+        aria-label={t('status.loading')}
       >
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
+            className="animate-pulse bg-card rounded-xl border border-border p-4"
           >
-            <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 mb-3" />
-            <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-12 mb-1" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20" />
+            <div className="w-8 h-8 rounded-lg bg-muted mb-3" />
+            <div className="h-6 bg-muted rounded w-12 mb-1" />
+            <div className="h-3 bg-muted rounded w-20" />
           </div>
         ))}
       </div>
@@ -88,7 +92,7 @@ export function NetworkQuickStats({
         className,
       )}
       role="list"
-      aria-label="Network quick stats"
+      aria-label={t('status.quickStats')}
     >
       {stats.map((stat, idx) => {
         const Icon = stat.icon;
@@ -98,21 +102,23 @@ export function NetworkQuickStats({
           <div
             key={idx}
             role="listitem"
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4"
+            className="bg-card rounded-xl border border-border p-4"
           >
             <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center mb-3', iconClass)}>
               <Icon className="w-4 h-4" aria-hidden="true" />
             </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white leading-none mb-1">
+            <p className="text-2xl font-bold text-foreground leading-none mb-1">
               {stat.value}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</p>
+            <p className="text-xs text-muted-foreground">{stat.label}</p>
             {stat.subLabel && (
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{stat.subLabel}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{stat.subLabel}</p>
             )}
           </div>
         );
       })}
     </div>
   );
-}
+});
+
+NetworkQuickStats.displayName = 'NetworkQuickStats';

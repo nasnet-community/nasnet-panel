@@ -408,3 +408,17 @@ export const ErrorState: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  ...Healthy,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Healthy,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

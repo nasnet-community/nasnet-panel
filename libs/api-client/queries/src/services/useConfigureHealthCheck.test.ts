@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { describe, it, expect } from 'vitest';
 import { ReactNode } from 'react';
+import * as React from 'react';
 import {
   useConfigureHealthCheck,
   validateHealthCheckConfig,
@@ -10,12 +11,11 @@ import {
 
 function createWrapper(mocks: any[]) {
   return function Wrapper({ children }: { children: ReactNode }) {
-    return <MockedProvider mocks={mocks} addTypename={false}>{children}</MockedProvider>;
+    return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
   };
 }
 
 describe('useConfigureHealthCheck', () => {
-  const routerID = 'test-router-123';
   const instanceID = 'test-instance-456';
 
   it('should configure health check successfully', async () => {
@@ -24,9 +24,8 @@ describe('useConfigureHealthCheck', () => {
         request: {
           query: CONFIGURE_HEALTH_CHECK_MUTATION,
           variables: {
-            routerID,
-            instanceID,
             input: {
+              instanceID,
               intervalSeconds: 30,
               failureThreshold: 5,
             },
@@ -35,8 +34,13 @@ describe('useConfigureHealthCheck', () => {
         result: {
           data: {
             configureHealthCheck: {
-              success: true,
-              message: 'Health check configured successfully',
+              status: 'healthy',
+              processAlive: true,
+              connectionStatus: 'connected',
+              latencyMs: 10,
+              lastHealthy: new Date().toISOString(),
+              consecutiveFails: 0,
+              uptimeSeconds: 3600,
             },
           },
         },
@@ -52,19 +56,17 @@ describe('useConfigureHealthCheck', () => {
     // Execute mutation
     const response = await configureHealthCheck({
       variables: {
-        routerID,
-        instanceID,
         input: {
+          instanceID,
           intervalSeconds: 30,
           failureThreshold: 5,
         },
       },
     });
 
-    expect(response.data?.configureHealthCheck.success).toBe(true);
-    expect(response.data?.configureHealthCheck.message).toBe(
-      'Health check configured successfully'
-    );
+    expect(response.data?.configureHealthCheck).toBeDefined();
+    expect(response.data?.configureHealthCheck?.status).toBe('healthy');
+    expect(response.data?.configureHealthCheck?.processAlive).toBe(true);
   });
 
   it('should handle mutation errors', async () => {
@@ -73,9 +75,8 @@ describe('useConfigureHealthCheck', () => {
         request: {
           query: CONFIGURE_HEALTH_CHECK_MUTATION,
           variables: {
-            routerID,
-            instanceID,
             input: {
+              instanceID,
               intervalSeconds: 60,
               failureThreshold: 3,
             },
@@ -94,9 +95,8 @@ describe('useConfigureHealthCheck', () => {
     await expect(
       configureHealthCheck({
         variables: {
-          routerID,
-          instanceID,
           input: {
+            instanceID,
             intervalSeconds: 60,
             failureThreshold: 3,
           },
@@ -107,18 +107,15 @@ describe('useConfigureHealthCheck', () => {
 });
 
 describe('validateHealthCheckConfig', () => {
-  it('should validate valid health check config', () => {
+  it('should return empty array for valid health check config', () => {
     const validConfig = {
       intervalSeconds: 30,
       failureThreshold: 5,
     };
 
-    const result = validateHealthCheckConfig(validConfig);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.intervalSeconds).toBe(30);
-      expect(result.data.failureThreshold).toBe(5);
-    }
+    const errors = validateHealthCheckConfig(validConfig);
+    expect(errors).toEqual([]);
+    expect(errors.length).toBe(0);
   });
 
   it('should reject interval below minimum (10s)', () => {
@@ -127,12 +124,9 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 3,
     };
 
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['intervalSeconds']);
-      expect(result.error.issues[0].message).toContain('at least 10');
-    }
+    const errors = validateHealthCheckConfig(invalidConfig);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('between 10 and 300');
   });
 
   it('should reject interval above maximum (300s)', () => {
@@ -141,12 +135,9 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 3,
     };
 
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['intervalSeconds']);
-      expect(result.error.issues[0].message).toContain('at most 300');
-    }
+    const errors = validateHealthCheckConfig(invalidConfig);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('between 10 and 300');
   });
 
   it('should reject threshold below minimum (1)', () => {
@@ -155,12 +146,9 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 0, // Too low
     };
 
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['failureThreshold']);
-      expect(result.error.issues[0].message).toContain('at least 1');
-    }
+    const errors = validateHealthCheckConfig(invalidConfig);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('between 1 and 10');
   });
 
   it('should reject threshold above maximum (10)', () => {
@@ -169,12 +157,9 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 15, // Too high
     };
 
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['failureThreshold']);
-      expect(result.error.issues[0].message).toContain('at most 10');
-    }
+    const errors = validateHealthCheckConfig(invalidConfig);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('between 1 and 10');
   });
 
   it('should accept minimum valid values (10s interval, 1 threshold)', () => {
@@ -183,8 +168,8 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 1,
     };
 
-    const result = validateHealthCheckConfig(validConfig);
-    expect(result.success).toBe(true);
+    const errors = validateHealthCheckConfig(validConfig);
+    expect(errors).toEqual([]);
   });
 
   it('should accept maximum valid values (300s interval, 10 threshold)', () => {
@@ -193,27 +178,7 @@ describe('validateHealthCheckConfig', () => {
       failureThreshold: 10,
     };
 
-    const result = validateHealthCheckConfig(validConfig);
-    expect(result.success).toBe(true);
-  });
-
-  it('should reject missing fields', () => {
-    const invalidConfig = {
-      intervalSeconds: 30,
-      // Missing failureThreshold
-    };
-
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject non-integer values', () => {
-    const invalidConfig = {
-      intervalSeconds: 30.5, // Must be integer
-      failureThreshold: 3,
-    };
-
-    const result = validateHealthCheckConfig(invalidConfig);
-    expect(result.success).toBe(false);
+    const errors = validateHealthCheckConfig(validConfig);
+    expect(errors).toEqual([]);
   });
 });

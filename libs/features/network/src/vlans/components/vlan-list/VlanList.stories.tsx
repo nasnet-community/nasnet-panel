@@ -4,13 +4,12 @@
  * Demonstrates VLAN list in various states and configurations.
  */
 
+import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-
-import { GET_VLANS, VLAN_CHANGED } from '@nasnet/api-client/queries';
-
+import { GET_VLANS } from '@nasnet/api-client/queries';
 import { VlanList } from './VlanList';
 
-import type { Meta, StoryObj } from '@storybook/react';
+type Story = StoryObj<typeof VlanList>;
 
 const meta: Meta<typeof VlanList> = {
   title: 'Features/Network/VlanList',
@@ -28,7 +27,6 @@ const meta: Meta<typeof VlanList> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof VlanList>;
 
 // Mock VLAN data
 const mockVlans = [
@@ -103,7 +101,7 @@ const mockEmpty = [
   },
 ];
 
-const mockError = [
+const mockErrorResponse = [
   {
     request: {
       query: GET_VLANS,
@@ -152,13 +150,13 @@ export const Empty: Story = {
 /**
  * Error state - failed to load VLANs
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     routerId: 'router-1',
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockError} addTypename={false}>
+      <MockedProvider mocks={mockErrorResponse} addTypename={false}>
         <div className="p-6">
           <Story />
         </div>

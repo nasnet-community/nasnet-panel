@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 
-import { expect, within, userEvent } from '@storybook/test';
+import { expect, within, userEvent } from 'storybook/test';
 
 import type { ServiceInstance } from '@nasnet/api-client/queries/services';
 
@@ -20,7 +20,7 @@ const mockInstance: ServiceInstance = {
   featureID: 'tor',
   instanceName: 'Tor Exit Node US',
   routerID: 'router-1',
-  status: 'running' as const,
+  status: 'RUNNING' as const,
   vlanID: 100,
   bindIP: '10.200.100.2',
   ports: [9050, 9051],
@@ -274,7 +274,7 @@ export const ExportFlowInteraction: Story = {
     await expect(jsonRadio).toBeChecked();
 
     // Step 2: Toggle "Redact secrets" OFF to include secrets
-    const redactToggle = canvas.getByLabelText(/redact secrets/i);
+    const redactToggle = canvas.getByLabelText(/redact secrets/i) as HTMLInputElement;
     if (redactToggle.checked) {
       await user.click(redactToggle);
     }

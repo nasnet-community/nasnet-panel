@@ -252,7 +252,7 @@ describe('ServiceConfigForm - Platform Presenters & Integration', () => {
       );
 
       // Initially mobile - simple div
-      let errorDiv = container.querySelector('.p-4');
+      const errorDiv = container.querySelector('.p-4');
       expect(errorDiv).toBeInTheDocument();
 
       // Switch to desktop

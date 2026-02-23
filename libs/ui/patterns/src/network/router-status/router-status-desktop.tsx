@@ -41,6 +41,8 @@ const PROTOCOL_LABELS = {
 
 // ===== Component =====
 
+import { memo } from 'react';
+
 /**
  * Desktop presenter for Router Status component.
  *
@@ -56,7 +58,7 @@ const PROTOCOL_LABELS = {
  * <RouterStatusDesktop state={state} />
  * ```
  */
-export function RouterStatusDesktop({ state, className }: RouterStatusPresenterProps) {
+function RouterStatusDesktopComponent({ state, className }: RouterStatusPresenterProps) {
   const { data, loading, error, isOnline, statusLabel, lastSeenRelative } = state;
 
   // Loading state
@@ -282,3 +284,9 @@ export function RouterStatusDesktop({ state, className }: RouterStatusPresenterP
     </Card>
   );
 }
+
+/**
+ * Memoized RouterStatusDesktop component
+ */
+export const RouterStatusDesktop = memo(RouterStatusDesktopComponent);
+RouterStatusDesktop.displayName = 'RouterStatusDesktop';

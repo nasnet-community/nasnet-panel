@@ -162,7 +162,7 @@ function MockVPNClientsSummary({
 }
 
 const meta: Meta<typeof MockVPNClientsSummary> = {
-  title: 'Patterns/VPNClientsSummary',
+  title: 'Patterns/VPN/VPNClientsSummary',
   component: MockVPNClientsSummary,
   tags: ['autodocs'],
   parameters: {

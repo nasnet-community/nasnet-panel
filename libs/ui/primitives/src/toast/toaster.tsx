@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Toast,
   ToastClose,
@@ -8,7 +10,24 @@ import {
 } from './toast';
 import { useToast } from './use-toast';
 
-export function Toaster() {
+/**
+ * Toaster component - Container and renderer for toast notifications
+ *
+ * Manages the display of all active toast notifications using the useToast hook.
+ * Automatically renders toasts with their content, actions, and close buttons.
+ *
+ * Should be placed at the root level of your application after all providers.
+ *
+ * @example
+ * ```tsx
+ * // In your app root
+ * <Root>
+ *   <App />
+ *   <Toaster />
+ * </Root>
+ * ```
+ */
+const Toaster = React.memo(function ToasterComponent() {
   const { toasts } = useToast();
 
   return (
@@ -30,4 +49,8 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   );
-}
+});
+
+Toaster.displayName = 'Toaster';
+
+export { Toaster };

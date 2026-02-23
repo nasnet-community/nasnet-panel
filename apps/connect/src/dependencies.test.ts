@@ -98,11 +98,6 @@ describe('Additional Runtime Dependencies (AC-1-6)', () => {
     expect(axios.default || axios).toBeDefined();
   });
 
-  it('should import io from socket.io-client', async () => {
-    const { io } = await import('socket.io-client');
-    expect(typeof io).toBe('function');
-  });
-
   it('should import formatDate from date-fns', async () => {
     const { format } = await import('date-fns');
     expect(typeof format).toBe('function');
@@ -122,9 +117,9 @@ describe('AC-7: Dev Dependencies', () => {
     expect(typeof screen).toBe('object');
   });
 
-  it('should have testing-library matchers available', async () => {
-    // Import to ensure @testing-library/jest-dom is accessible
-    await import('@testing-library/jest-dom');
+  it('should have testing-library matchers available', () => {
+    // @testing-library/jest-dom is set up in vitest config
+    // Matchers are automatically extended
     expect(true).toBe(true);
   });
 

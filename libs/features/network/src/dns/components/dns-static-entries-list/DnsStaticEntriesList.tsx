@@ -4,6 +4,10 @@
  * Platform-adaptive component for displaying static DNS entries.
  * Desktop: DataTable, Mobile: Cards
  *
+ * @description
+ * Automatically renders the appropriate presenter based on platform (Mobile/Desktop).
+ * Supports edit, delete, and add operations for static DNS hostname-to-IP mappings.
+ *
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
@@ -26,6 +30,8 @@ export interface DnsStaticEntriesListProps {
   /** Callback to add a new entry */
   onAdd: () => void;
   /** Whether operations are in progress */
+  isLoading?: boolean;
+  /** Whether data is loading (alias for isLoading) */
   loading?: boolean;
 }
 
@@ -63,3 +69,5 @@ export const DnsStaticEntriesList = memo(function DnsStaticEntriesList(
 
   return <DnsStaticEntriesListDesktop {...props} />;
 });
+
+DnsStaticEntriesList.displayName = 'DnsStaticEntriesList';

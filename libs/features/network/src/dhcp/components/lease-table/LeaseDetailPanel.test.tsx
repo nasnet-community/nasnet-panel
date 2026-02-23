@@ -192,7 +192,7 @@ describe('LeaseDetailPanel', () => {
     });
 
     it('should display "N/A" when client ID is unavailable', () => {
-      const lease = createMockLease({ activeClientId: undefined });
+      const lease = createMockLease({ clientId: undefined });
       render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
 
       expect(screen.getByText('N/A')).toBeInTheDocument();

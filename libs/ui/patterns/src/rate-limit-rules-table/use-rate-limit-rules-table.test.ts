@@ -15,6 +15,8 @@ import {
   useDeleteRateLimitRule,
   useToggleRateLimitRule,
 } from '@nasnet/api-client/queries/firewall';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type { RateLimitRule } from '@nasnet/core/types';
 
 import { useRateLimitRulesTable } from './use-rate-limit-rules-table';
 import {
@@ -49,13 +51,19 @@ describe('useRateLimitRulesTable', () => {
       data: mockRateLimitRules,
       isLoading: false,
       error: null,
-    });
+    } as any as UseQueryResult<typeof mockRateLimitRules>);
     mockUseDeleteRateLimitRule.mockReturnValue({
-      mutate: vi.fn(),
-    });
+      mutate: vi.fn<any>(),
+      data: undefined,
+      error: null,
+      isPending: false,
+    } as any);
     mockUseToggleRateLimitRule.mockReturnValue({
-      mutate: vi.fn(),
-    });
+      mutate: vi.fn<any>(),
+      data: undefined,
+      error: null,
+      isPending: false,
+    } as any);
   });
 
   afterEach(() => {
@@ -75,10 +83,10 @@ describe('useRateLimitRulesTable', () => {
 
     it('should handle loading state', () => {
       mockUseRateLimitRules.mockReturnValue({
-        data: null,
+        data: undefined,
         isLoading: true,
         error: null,
-      });
+      } as any as UseQueryResult<typeof mockRateLimitRules>);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -91,10 +99,10 @@ describe('useRateLimitRulesTable', () => {
     it('should handle error state', () => {
       const mockError = new Error('Failed to fetch rules');
       mockUseRateLimitRules.mockReturnValue({
-        data: null,
+        data: undefined,
         isLoading: false,
         error: mockError,
-      });
+      } as any as UseQueryResult<typeof mockRateLimitRules>);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -159,9 +167,9 @@ describe('useRateLimitRulesTable', () => {
         useRateLimitRulesTable({ statusFilter: 'enabled' })
       );
 
-      const enabledRules = mockRateLimitRules.filter((r) => !r.disabled);
+      const enabledRules = mockRateLimitRules.filter((r) => !r.isDisabled);
       expect(result.current.rules).toHaveLength(enabledRules.length);
-      expect(result.current.rules.every((r) => !r.disabled)).toBe(true);
+      expect(result.current.rules.every((r) => !r.isDisabled)).toBe(true);
     });
 
     it('should filter disabled rules', () => {
@@ -169,9 +177,9 @@ describe('useRateLimitRulesTable', () => {
         useRateLimitRulesTable({ statusFilter: 'disabled' })
       );
 
-      const disabledRules = mockRateLimitRules.filter((r) => r.disabled);
+      const disabledRules = mockRateLimitRules.filter((r) => r.isDisabled);
       expect(result.current.rules).toHaveLength(disabledRules.length);
-      expect(result.current.rules.every((r) => r.disabled)).toBe(true);
+      expect(result.current.rules.every((r) => r.isDisabled)).toBe(true);
     });
   });
 
@@ -182,7 +190,7 @@ describe('useRateLimitRulesTable', () => {
       );
 
       const filtered = mockRateLimitRules.filter(
-        (r) => r.action === 'drop' && !r.disabled
+        (r) => r.action === 'drop' && !r.isDisabled
       );
       expect(result.current.rules).toHaveLength(filtered.length);
     });
@@ -203,7 +211,7 @@ describe('useRateLimitRulesTable', () => {
         data: [],
         isLoading: false,
         error: null,
-      });
+      } as any as UseQueryResult<typeof mockRateLimitRules>);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -306,8 +314,13 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should confirm delete and call mutation', () => {
-      const deleteMutate = vi.fn();
-      mockUseDeleteRateLimitRule.mockReturnValue({ mutate: deleteMutate });
+      const deleteMutate = vi.fn<any>();
+      mockUseDeleteRateLimitRule.mockReturnValue({
+        mutate: deleteMutate,
+        data: undefined,
+        error: null,
+        isPending: false,
+      } as any);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -326,8 +339,13 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should not delete if rule has no ID', () => {
-      const deleteMutate = vi.fn();
-      mockUseDeleteRateLimitRule.mockReturnValue({ mutate: deleteMutate });
+      const deleteMutate = vi.fn<any>();
+      mockUseDeleteRateLimitRule.mockReturnValue({
+        mutate: deleteMutate,
+        data: undefined,
+        error: null,
+        isPending: false,
+      } as any);
 
       const ruleWithoutId = { ...mockDropRule, id: undefined };
       const { result } = renderHook(() =>
@@ -346,8 +364,13 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should toggle rule enabled/disabled state', () => {
-      const toggleMutate = vi.fn();
-      mockUseToggleRateLimitRule.mockReturnValue({ mutate: toggleMutate });
+      const toggleMutate = vi.fn<any>();
+      mockUseToggleRateLimitRule.mockReturnValue({
+        mutate: toggleMutate,
+        data: undefined,
+        error: null,
+        isPending: false,
+      } as any);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -359,13 +382,18 @@ describe('useRateLimitRulesTable', () => {
 
       expect(toggleMutate).toHaveBeenCalledWith({
         ruleId: mockDropRule.id,
-        disabled: !mockDropRule.disabled,
+        isDisabled: !mockDropRule.isDisabled,
       });
     });
 
     it('should not toggle if rule has no ID', () => {
-      const toggleMutate = vi.fn();
-      mockUseToggleRateLimitRule.mockReturnValue({ mutate: toggleMutate });
+      const toggleMutate = vi.fn<any>();
+      mockUseToggleRateLimitRule.mockReturnValue({
+        mutate: toggleMutate,
+        data: undefined,
+        error: null,
+        isPending: false,
+      } as any);
 
       const ruleWithoutId = { ...mockDropRule, id: undefined };
       const { result } = renderHook(() =>
@@ -416,7 +444,7 @@ describe('useRateLimitRulesTable', () => {
         data: [],
         isLoading: false,
         error: null,
-      });
+      } as any as UseQueryResult<typeof mockRateLimitRules>);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })
@@ -431,7 +459,7 @@ describe('useRateLimitRulesTable', () => {
         data: undefined,
         isLoading: false,
         error: null,
-      });
+      } as any as UseQueryResult<typeof mockRateLimitRules>);
 
       const { result } = renderHook(() =>
         useRateLimitRulesTable({ statusFilter: 'all' })

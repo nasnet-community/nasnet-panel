@@ -13,43 +13,54 @@ import { cn } from '@nasnet/ui/utils';
 import { Clock, Server, AlertCircle } from 'lucide-react';
 import type { TracerouteHop } from './TracerouteTool.types';
 
+/**
+ * Props for TracerouteHopsList component
+ */
 interface TracerouteHopsListProps {
-  /** List of discovered hops */
+  /** List of discovered hops from traceroute execution */
   hops: TracerouteHop[];
-  /** Whether traceroute is currently running */
+  /** Whether traceroute is currently running (shows loading state for next hop) */
   isRunning: boolean;
 }
 
 /**
  * Get latency color class based on average latency
+ * Uses semantic status tokens: success (green), warning (amber), error (red)
  */
 function getLatencyColorClass(avgLatencyMs: number | null | undefined): string {
   if (avgLatencyMs === null || avgLatencyMs === undefined) {
     return 'text-muted-foreground'; // Timeout/no response
   }
   if (avgLatencyMs < 50) {
-    return 'text-green-600 dark:text-green-400'; // Excellent
+    return 'text-success'; // Excellent (semantic token: green)
   }
   if (avgLatencyMs < 150) {
-    return 'text-yellow-600 dark:text-yellow-400'; // Acceptable
+    return 'text-warning'; // Acceptable (semantic token: amber)
   }
-  return 'text-red-600 dark:text-red-400'; // Poor
+  return 'text-error'; // Poor (semantic token: red)
 }
 
 /**
- * Format latency for display
+ * Format latency for display (uses monospace font for technical data)
  */
 function formatLatency(latencyMs: number | null | undefined): string {
   if (latencyMs === null || latencyMs === undefined) {
     return '* * *'; // Timeout
   }
-  return `${latencyMs.toFixed(1)} ms`;
+  return `${latencyMs.toFixed(1)}ms`;
 }
 
 /**
  * TracerouteHopsList component
  *
  * Displays hops in a scrollable list with latency color-coding.
+ * Uses semantic color tokens for latency indicators (success/warning/error).
+ * IP addresses and technical data rendered in monospace font (JetBrains Mono).
+ *
+ * @example
+ * ```tsx
+ * <TracerouteHopsList hops={hops} isRunning={false} />
+ * ```
  */
 export const TracerouteHopsList = memo(function TracerouteHopsList({
   hops,

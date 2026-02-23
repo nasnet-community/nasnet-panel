@@ -6,11 +6,12 @@
 import React, { useState, useMemo } from 'react';
 
 import { ChevronUp, ChevronDown, ChevronsUpDown, Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type ARPEntry } from '@nasnet/core/types';
 import { compareIPv4, formatMACAddress } from '@nasnet/core/utils';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 import { SectionHeader } from './SectionHeader';
 
@@ -24,6 +25,7 @@ type SortColumn = 'ip' | 'mac' | 'interface' | 'status';
 type SortDirection = 'asc' | 'desc' | null;
 
 export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed = false, className }: ARPTableProps) {
+  const { t } = useTranslation('network');
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -89,16 +91,16 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
   const getStatusBadge = (status: ARPEntry['status']) => {
     const config: Record<ARPEntry['status'], { label: string; className: string }> = {
       complete: {
-        label: 'Complete',
-        className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        label: t('arp.statusComplete'),
+        className: 'bg-success/20 text-success',
       },
       incomplete: {
-        label: 'Incomplete',
-        className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+        label: t('arp.statusIncomplete'),
+        className: 'bg-warning/20 text-warning',
       },
       failed: {
-        label: 'Failed',
-        className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+        label: t('arp.statusFailed'),
+        className: 'bg-destructive/20 text-destructive',
       },
     };
 
@@ -115,7 +117,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
     return (
       <div className="space-y-3">
         <SectionHeader
-          title="ARP Table"
+          title={t('arp.title')}
           count={0}
           isCollapsed={isCollapsed}
           onToggle={() => setIsCollapsed(!isCollapsed)}
@@ -126,7 +128,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
               <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
             </div>
             <p className="text-muted-foreground text-sm">
-              No ARP entries found
+              {t('arp.noEntries')}
             </p>
           </div>
         )}
@@ -137,9 +139,9 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
   return (
     <div className={cn('space-y-3', className)}>
       <SectionHeader
-        title="ARP Table"
+        title={t('arp.title')}
         count={entries.length}
-        subtitle="IP to MAC mappings"
+        subtitle={t('arp.subtitle')}
         isCollapsed={isCollapsed}
         onToggle={() => setIsCollapsed(!isCollapsed)}
       />
@@ -147,16 +149,16 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
       {!isCollapsed && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full" aria-label="ARP table entries">
+            <table className="w-full" aria-label={t('arp.title')}>
               <thead>
                 <tr className="border-b border-border bg-muted">
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('ip')}
                       className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-                      aria-label={`Sort by IP Address${sortColumn === 'ip' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
+                      aria-label={`${t('arp.ipAddress')}${sortColumn === 'ip' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
-                      IP Address
+                      {t('arp.ipAddress')}
                       <SortIcon column="ip" />
                     </button>
                   </th>
@@ -164,9 +166,9 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                     <button
                       onClick={() => handleSort('mac')}
                       className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-                      aria-label={`Sort by MAC Address${sortColumn === 'mac' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
+                      aria-label={`${t('arp.macAddress')}${sortColumn === 'mac' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
-                      MAC Address
+                      {t('arp.macAddress')}
                       <SortIcon column="mac" />
                     </button>
                   </th>
@@ -174,9 +176,9 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                     <button
                       onClick={() => handleSort('interface')}
                       className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-                      aria-label={`Sort by Interface${sortColumn === 'interface' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
+                      aria-label={`${t('arp.interface')}${sortColumn === 'interface' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
-                      Interface
+                      {t('arp.interface')}
                       <SortIcon column="interface" />
                     </button>
                   </th>
@@ -184,9 +186,9 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                     <button
                       onClick={() => handleSort('status')}
                       className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-                      aria-label={`Sort by Status${sortColumn === 'status' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
+                      aria-label={`${t('arp.status')}${sortColumn === 'status' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
-                      Status
+                      {t('arp.status')}
                       <SortIcon column="status" />
                     </button>
                   </th>

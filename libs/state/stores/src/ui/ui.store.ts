@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * UI State Store
  * Manages global UI preferences and transient UI state
@@ -230,7 +232,7 @@ export const useUIStore = create<UIState & UIActions>()(
     ),
     {
       name: 'ui-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

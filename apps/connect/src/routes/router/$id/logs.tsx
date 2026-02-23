@@ -16,7 +16,7 @@ import { LazyLogsTab } from '@/app/routes/router-panel/tabs/lazy';
  */
 function LogsTabSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading logs">
       <div className="flex gap-4">
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-10 w-32" />

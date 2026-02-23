@@ -243,14 +243,14 @@ export const firewallRuleWizard: StepConfig[] = [
  * Creates mock onStepChange callback for testing.
  */
 export function createOnStepChange() {
-  return vi.fn<[number, number], void>();
+  return vi.fn<[from: number, to: number], void>();
 }
 
 /**
  * Creates mock onComplete callback for testing.
  */
 export function createOnComplete() {
-  return vi.fn<[Map<string, unknown>], void>();
+  return vi.fn<[data: Map<string, unknown>], void>();
 }
 
 /**
@@ -259,8 +259,8 @@ export function createOnComplete() {
 export function createFullConfig(
   steps: StepConfig[] = basicSteps
 ): StepperConfig & {
-  onStepChange: ReturnType<typeof vi.fn>;
-  onComplete: ReturnType<typeof vi.fn>;
+  onStepChange: ReturnType<typeof createOnStepChange>;
+  onComplete: ReturnType<typeof createOnComplete>;
 } {
   const onStepChange = createOnStepChange();
   const onComplete = createOnComplete();

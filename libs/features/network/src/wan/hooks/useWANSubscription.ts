@@ -6,8 +6,7 @@
  */
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useSubscription, gql } from '@apollo/client';
 
 // GraphQL subscription for WAN status changes
 const WAN_STATUS_CHANGED_SUBSCRIPTION = gql`
@@ -102,6 +101,9 @@ export interface UseWANHealthSubscriptionOptions {
 /**
  * Hook to subscribe to WAN status changes
  *
+ * Manages real-time subscriptions to WAN interface status updates.
+ * Automatically cleans up subscription on unmount.
+ *
  * @example
  * ```tsx
  * const { data, loading, error } = useWANStatusSubscription({
@@ -146,8 +148,13 @@ export function useWANStatusSubscription({
   };
 }
 
+useWANStatusSubscription.displayName = 'useWANStatusSubscription';
+
 /**
  * Hook to subscribe to WAN health changes
+ *
+ * Manages real-time subscriptions to WAN health monitoring updates.
+ * Includes latency, packet loss, and connectivity checks.
  *
  * @example
  * ```tsx
@@ -194,8 +201,12 @@ export function useWANHealthSubscription({
   };
 }
 
+useWANHealthSubscription.displayName = 'useWANHealthSubscription';
+
 /**
  * Combined hook for both status and health subscriptions
+ *
+ * Convenience hook that subscribes to both WAN status and health events simultaneously.
  *
  * @example
  * ```tsx
@@ -234,8 +245,13 @@ export function useWANSubscription({
   };
 }
 
+useWANSubscription.displayName = 'useWANSubscription';
+
 /**
- * Health status badge color helper
+ * Get semantic color token for health status
+ * @description Maps health status strings to design system color tokens
+ * @param status Health status value (HEALTHY, DEGRADED, DOWN, UNKNOWN)
+ * @returns Semantic color token (success, warning, destructive, muted)
  */
 export const getHealthStatusColor = (status: string): string => {
   switch (status.toUpperCase()) {
@@ -244,15 +260,20 @@ export const getHealthStatusColor = (status: string): string => {
     case 'DEGRADED':
       return 'warning';
     case 'DOWN':
-      return 'error';
+      return 'destructive';
     case 'UNKNOWN':
     default:
       return 'muted';
   }
 };
 
+getHealthStatusColor.displayName = 'getHealthStatusColor';
+
 /**
- * Connection status badge color helper
+ * Get semantic color token for connection status
+ * @description Maps connection status strings to design system color tokens
+ * @param status Connection status value (CONNECTED, CONNECTING, DISCONNECTED, ERROR, DISABLED)
+ * @returns Semantic color token (success, warning, destructive, muted)
  */
 export const getConnectionStatusColor = (status: string): string => {
   switch (status.toUpperCase()) {
@@ -262,9 +283,11 @@ export const getConnectionStatusColor = (status: string): string => {
       return 'warning';
     case 'DISCONNECTED':
     case 'ERROR':
-      return 'error';
+      return 'destructive';
     case 'DISABLED':
     default:
       return 'muted';
   }
 };
+
+getConnectionStatusColor.displayName = 'getConnectionStatusColor';

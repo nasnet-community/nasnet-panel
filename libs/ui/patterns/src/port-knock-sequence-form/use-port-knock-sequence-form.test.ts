@@ -52,14 +52,14 @@ describe('usePortKnockSequenceForm', () => {
       expect(result.current.form.getValues('protectedProtocol')).toBe('tcp');
       expect(result.current.form.getValues('accessTimeout')).toBe('5m');
       expect(result.current.form.getValues('knockTimeout')).toBe('15s');
-      expect(result.current.form.getValues('enabled')).toBe(true);
+      expect(result.current.form.getValues('isEnabled')).toBe(true);
     });
 
     it('initializes with provided initial sequence', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -73,7 +73,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -147,7 +147,7 @@ describe('usePortKnockSequenceForm', () => {
 
       // Valid (2 ports)
       await act(async () => {
-        result.current.form.setValue('knockPorts', VALID_SEQUENCE_MINIMAL.knockPorts);
+        result.current.form.setValue('knockPorts', VALID_SEQUENCE_MINIMAL.knockPorts!);
         await result.current.form.trigger('knockPorts');
       });
       expect(result.current.form.formState.errors.knockPorts).toBeUndefined();
@@ -158,12 +158,12 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() => usePortKnockSequenceForm({ onSubmit }));
 
       await act(async () => {
-        result.current.form.setValue('knockPorts', INVALID_KNOCK_PORTS_DUPLICATES.knockPorts);
+        result.current.form.setValue('knockPorts', INVALID_KNOCK_PORTS_DUPLICATES.knockPorts!);
         await result.current.form.trigger('knockPorts');
       });
 
       expect(result.current.form.formState.errors.knockPorts).toBeDefined();
-      expect(result.current.form.formState.errors.knockPorts?.message).toContain('unique');
+      expect(result.current.form.formState.errors.knockPorts!.message).toContain('unique');
     });
   });
 
@@ -190,7 +190,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -208,7 +208,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -231,7 +231,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_MINIMAL,
+          initialValues: VALID_SEQUENCE_MINIMAL as any,
           onSubmit
         })
       );
@@ -256,7 +256,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -268,7 +268,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_HTTP,
+          initialValues: VALID_SEQUENCE_HTTP as any,
           onSubmit
         })
       );
@@ -286,7 +286,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -302,7 +302,7 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit
         })
       );
@@ -372,13 +372,13 @@ describe('usePortKnockSequenceForm', () => {
       const onSubmit = vi.fn();
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
-          initialValues: VALID_SEQUENCE_SSH,
+          initialValues: VALID_SEQUENCE_SSH as any,
           onSubmit,
         })
       );
 
       await act(async () => {
-        await result.current.onSubmit();
+        await result.current.onSubmit(result.current.form.getValues());
       });
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -399,7 +399,7 @@ describe('usePortKnockSequenceForm', () => {
       });
 
       await act(async () => {
-        await result.current.onSubmit();
+        await result.current.onSubmit(result.current.form.getValues());
       });
 
       // After handleSubmit with invalid data, onSubmit should not be called

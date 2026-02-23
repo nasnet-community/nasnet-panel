@@ -1,12 +1,13 @@
 // apps/connect/src/routes/dashboard.troubleshoot.tsx
 import { useEffect, useState } from 'react';
 
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
+import { useTranslation } from '@nasnet/core/i18n';
 import { TroubleshootWizard } from '@nasnet/features/diagnostics';
 
 // Route search params
-interface TroubleshootSearch {
+export interface TroubleshootSearch {
   routerId?: string;
   autoStart?: boolean;
 }
@@ -21,9 +22,10 @@ export const Route = createFileRoute('/dashboard/troubleshoot')({
   },
 });
 
-function TroubleshootPage() {
+export function TroubleshootPage() {
+  const { t } = useTranslation('diagnostics');
   const navigate = useNavigate();
-  const search = useSearch({ from: '/dashboard/troubleshoot' });
+  const search = Route.useSearch();
   const [routerId, setRouterId] = useState<string | undefined>(search.routerId);
 
   // Get router ID from search params or local storage
@@ -45,16 +47,17 @@ function TroubleshootPage() {
   if (!routerId) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full bg-error/10 border border-error/20 rounded-lg p-6 text-center">
-          <h2 className="text-lg font-semibold text-error mb-2">No Router Selected</h2>
+        <div className="max-w-md w-full bg-error/10 border border-error/20 rounded-lg p-6 text-center" role="alert">
+          <h2 className="text-lg font-semibold text-error mb-2">{t("troubleshoot.noRouterSelected")}</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Please select a router before running diagnostics.
+            {t('troubleshoot.selectRouterMessage')}
           </p>
           <button
             onClick={handleClose}
+            aria-label={t('troubleshoot.returnToDashboard')}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
-            Return to Dashboard
+            {t('troubleshoot.returnToDashboard')}
           </button>
         </div>
       </div>

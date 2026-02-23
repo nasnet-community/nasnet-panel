@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { useTranslation } from '@nasnet/core/i18n';
 import { useConnectionStore, type ConnectionState, type ConnectionActions } from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 
@@ -26,6 +27,7 @@ import { useToast } from '@nasnet/ui/primitives';
  * - Requires shadcn/ui Toast provider to be configured
  */
 export function useConnectionToast() {
+  const { t } = useTranslation('common');
   const state = useConnectionStore((store: ConnectionState & ConnectionActions) => store.state);
   const { toast } = useToast();
   const previousStateRef = useRef(state);
@@ -36,8 +38,8 @@ export function useConnectionToast() {
     // Show success toast when transitioning from reconnecting to connected
     if (previousState === 'reconnecting' && state === 'connected') {
       toast({
-        title: 'Reconnected',
-        description: 'Successfully reconnected to router',
+        title: t('status.reconnected'),
+        description: t('status.reconnectedDescription'),
         variant: 'default',
         duration: 3000,
       });
@@ -45,5 +47,5 @@ export function useConnectionToast() {
 
     // Update previous state ref
     previousStateRef.current = state;
-  }, [state, toast]);
+  }, [state, toast, t]);
 }

@@ -18,7 +18,11 @@ describe('LeaseFilters', () => {
     setLeaseServerFilter: vi.fn(),
   };
 
-  const servers = ['LAN DHCP', 'Guest DHCP', 'IoT DHCP'];
+  const servers = [
+    { id: 'server-1', name: 'LAN DHCP' },
+    { id: 'server-2', name: 'Guest DHCP' },
+    { id: 'server-3', name: 'IoT DHCP' },
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -118,7 +122,7 @@ describe('LeaseFilters', () => {
     it('should display current server filter', () => {
       (useDHCPUIStore as any).mockReturnValue({
         ...mockStore,
-        leaseServerFilter: 'LAN DHCP',
+        leaseServerFilter: 'server-1',
       });
 
       render(<LeaseFilters servers={servers} />);
@@ -163,7 +167,7 @@ describe('LeaseFilters', () => {
       const lanOption = await screen.findByText('LAN DHCP');
       await user.click(lanOption);
 
-      expect(mockStore.setLeaseServerFilter).toHaveBeenCalledWith('LAN DHCP');
+      expect(mockStore.setLeaseServerFilter).toHaveBeenCalledWith('server-1');
     });
 
     it('should close dropdown after selection', async () => {

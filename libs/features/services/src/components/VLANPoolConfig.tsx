@@ -3,9 +3,20 @@
  *
  * VLAN pool configuration form with React Hook Form + Zod validation.
  * Allows configuring the allocatable VLAN range (1-4094).
+ *
+ * @example
+ * ```tsx
+ * <VLANPoolConfig
+ *   poolStart={10}
+ *   poolEnd={4000}
+ *   allocatedCount={25}
+ *   onSuccess={() => refetchPool()}
+ * />
+ * ```
  */
 
 import type React from 'react';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,6 +29,7 @@ import {
   Button,
   Input,
   toast,
+  cn,
 } from '@nasnet/ui/primitives';
 import { RHFFormField } from '@nasnet/ui/patterns';
 import { useUpdateVLANPoolConfig } from '@nasnet/api-client/queries';
@@ -90,7 +102,7 @@ export function VLANPoolConfig({
   const wouldExcludeCurrent =
     watchedStart > poolStart || watchedEnd < poolEnd;
 
-  const onSubmit = async (values: VLANPoolConfigFormValues) => {
+  const handleSubmit = useCallback(async (values: VLANPoolConfigFormValues) => {
     try {
       // Warn if shrinking pool
       if (isShrinking) {
@@ -103,7 +115,10 @@ export function VLANPoolConfig({
       }
 
       await updatePoolConfig(values);
-      toast({ title: 'VLAN pool configuration updated successfully', variant: 'default' });
+      toast({
+        title: 'VLAN pool configuration updated successfully',
+        variant: 'default',
+      });
       onSuccess?.();
     } catch (error) {
       toast({
@@ -114,7 +129,11 @@ export function VLANPoolConfig({
         variant: 'destructive',
       });
     }
-  };
+  }, [isShrinking, currentSize, newSize, allocatedCount, updatePoolConfig, onSuccess]);
+
+  const handleReset = useCallback(() => {
+    form.reset();
+  }, [form]);
 
   return (
     <Card>
@@ -126,7 +145,7 @@ export function VLANPoolConfig({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           {/* Pool Start */}
           <RHFFormField
             control={form.control as any}
@@ -169,10 +188,15 @@ export function VLANPoolConfig({
           <div className="p-3 bg-muted rounded-md">
             <div className="text-sm font-medium mb-1">Pool Size Preview</div>
             <div className="text-xs text-muted-foreground">
-              Current: {currentSize} VLANs ({poolStart} - {poolEnd})
+              Current: {currentSize} VLANs (
+              {/* VLAN IDs are technical data - use monospace */}
+              <code className="font-mono bg-background px-1 rounded">{poolStart} - {poolEnd}</code>)
               <br />
-              New: {newSize} VLANs ({watchedStart || poolStart} -{' '}
-              {watchedEnd || poolEnd})
+              New: {newSize} VLANs (
+              <code className="font-mono bg-background px-1 rounded">
+                {watchedStart || poolStart} - {watchedEnd || poolEnd}
+              </code>
+              )
             </div>
           </div>
 
@@ -182,18 +206,19 @@ export function VLANPoolConfig({
             <div className="text-xs text-muted-foreground">
               Each VLAN will be assigned a subnet:
               <br />
-              <code className="bg-background px-1 py-0.5 rounded">
+              <code className="bg-background px-1 py-0.5 rounded font-mono">
                 10.{'{VLAN_ID}'}.0.0/24
               </code>
             </div>
             <div className="text-xs text-muted-foreground mt-2">
-              Example: VLAN 100 → <code className="bg-background px-1 py-0.5 rounded">10.100.0.0/24</code>
+              Example: VLAN 100 →{' '}
+              <code className="bg-background px-1 py-0.5 rounded font-mono">10.100.0.0/24</code>
             </div>
           </div>
 
           {/* Warnings */}
           {isShrinking && (
-            <div className="p-3 bg-warning/10 border border-warning rounded-md">
+            <div className="p-3 bg-warning/10 border border-warning rounded-md" role="alert" aria-live="polite">
               <div className="text-sm font-medium text-warning mb-1">
                 Warning: Pool Size Reduction
               </div>
@@ -206,7 +231,7 @@ export function VLANPoolConfig({
           )}
 
           {wouldExcludeCurrent && allocatedCount > 0 && (
-            <div className="p-3 bg-error/10 border border-error rounded-md">
+            <div className="p-3 bg-error/10 border border-error rounded-md" role="alert" aria-live="polite">
               <div className="text-sm font-medium text-error mb-1">
                 Warning: Range Change
               </div>
@@ -219,14 +244,21 @@ export function VLANPoolConfig({
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button type="submit" disabled={loading || !form.formState.isDirty}>
+            <Button
+              type="submit"
+              disabled={loading || !form.formState.isDirty}
+              className="min-h-[44px] min-w-[120px]"
+              aria-label={loading ? 'Saving VLAN pool configuration' : 'Save VLAN pool configuration'}
+            >
               {loading ? 'Saving...' : 'Save Configuration'}
             </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={handleReset}
               disabled={!form.formState.isDirty}
+              className="min-h-[44px]"
+              aria-label="Reset to original values"
             >
               Reset
             </Button>

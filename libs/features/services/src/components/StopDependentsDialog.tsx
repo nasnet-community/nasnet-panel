@@ -8,9 +8,9 @@
  */
 
 import * as React from 'react';
-import { AlertTriangle } from 'lucide-react';
-
+import { useCallback } from 'react';
 import {
+  Icon,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,6 +24,7 @@ import {
   Label,
   ScrollArea,
 } from '@nasnet/ui/primitives';
+import { AlertTriangle as AlertTriangleIcon } from 'lucide-react';
 
 import { StatusBadge } from '@nasnet/ui/patterns';
 import type { ServiceDependency } from '@nasnet/api-client/queries';
@@ -81,13 +82,17 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
 }: StopDependentsDialogProps) {
   const [stopMode, setStopMode] = React.useState<StopMode>('stop-dependents-first');
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     onConfirm(stopMode);
-  };
+  }, [onConfirm, stopMode]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onOpenChange(false);
-  };
+  }, [onOpenChange]);
+
+  const handleStopModeChange = useCallback((value: string) => {
+    setStopMode(value as StopMode);
+  }, []);
 
   // Reset to default mode when dialog opens
   React.useEffect(() => {
@@ -104,7 +109,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/10">
-              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
+              <Icon icon={AlertTriangleIcon} className="h-5 w-5 text-warning" aria-hidden="true" />
             </div>
             <div className="flex-1">
               <DialogTitle className="text-lg font-semibold">
@@ -167,7 +172,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
           {/* Stop mode selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">How would you like to proceed?</Label>
-            <RadioGroup value={stopMode} onValueChange={(value) => setStopMode(value as StopMode)}>
+            <RadioGroup value={stopMode} onValueChange={handleStopModeChange}>
               <div className="space-y-2">
                 {/* Option 1: Stop dependents first (recommended) */}
                 <label
@@ -225,14 +230,14 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isLoading} className="min-h-[44px]">
+          <Button variant="outline" onClick={handleCancel} disabled={isLoading} className="min-h-[44px] min-w-[100px]">
             Cancel
           </Button>
           <Button
             variant={stopMode === 'force-stop' ? 'destructive' : 'default'}
             onClick={handleConfirm}
             disabled={isLoading}
-            aria-label={isLoading ? 'Stopping service' : 'Stop service'}
+            aria-label={isLoading ? 'Stopping service' : `Stop service with ${stopMode === 'force-stop' ? 'force' : 'graceful'} mode`}
             className={cn(
               'min-w-[100px] min-h-[44px]',
               stopMode === 'force-stop' && 'focus-visible:ring-destructive'

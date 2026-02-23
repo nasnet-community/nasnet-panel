@@ -212,7 +212,7 @@ export function useWizardPersistence<
       setWasRestored(true);
       onRestore?.(restored);
     }
-  }, []); // Only on mount
+  }, [restoreState, onRestore]); // Dependencies for proper cleanup
 
   // Persist state to storage
   const persistState = React.useCallback(
@@ -389,5 +389,3 @@ export function useWizardPersistence<
     setMetadata,
   };
 }
-
-export default useWizardPersistence;

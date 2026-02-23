@@ -2,7 +2,7 @@
  * AlertTemplateVariableInputForm Component
  * NAS-18.12: Alert Rule Templates Feature
  *
- * Form for entering variable values when applying a template.
+ * @description Form for entering variable values when applying a template.
  * Provides type-specific inputs with validation based on variable constraints.
  */
 
@@ -30,21 +30,27 @@ import type {
 // Types
 // =============================================================================
 
+/**
+ * Variable values map
+ */
 export interface VariableValues {
   [variableName: string]: string | number;
 }
 
+/**
+ * Props for AlertTemplateVariableInputForm component
+ */
 export interface AlertTemplateVariableInputFormProps {
-  /** Template with variables to collect */
+  /** @description Template with variables to collect */
   template: AlertRuleTemplate;
 
-  /** Callback when form is submitted with variable values */
+  /** @description Callback when form is submitted with variable values */
   onSubmit: (values: VariableValues) => void;
 
-  /** Callback when form is cancelled */
+  /** @description Callback when form is cancelled */
   onCancel?: () => void;
 
-  /** Whether the form is submitting */
+  /** @description Whether the form is submitting */
   isSubmitting?: boolean;
 }
 
@@ -156,15 +162,26 @@ function generateDefaultValues(
 // Variable Input Components
 // =============================================================================
 
+/**
+ * Props for VariableInput component
+ */
 interface VariableInputProps {
+  /** @description Variable definition */
   variable: AlertRuleTemplateVariable;
+  /** @description Current value */
   value: string | number;
+  /** @description Callback when value changes */
   onChange: (value: string | number) => void;
+  /** @description Callback when input loses focus */
   onBlur: () => void;
+  /** @description Validation error message */
   error?: string;
 }
 
-function VariableInput({
+/**
+ * VariableInput - Type-specific input field for template variable
+ */
+const VariableInput = React.memo(function VariableInput({
   variable,
   value,
   onChange,
@@ -223,7 +240,9 @@ function VariableInput({
       )}
     </div>
   );
-}
+});
+
+VariableInput.displayName = 'VariableInput';
 
 // =============================================================================
 // Main Component
@@ -232,20 +251,19 @@ function VariableInput({
 /**
  * AlertTemplateVariableInputForm - Collect variable values for template
  *
- * Features:
- * - Dynamic Zod schema generation based on variable constraints
- * - Type-specific inputs (number, text)
- * - Real-time validation with min/max constraints
- * - Default values pre-filled
- * - Clear error messages
- * - WCAG AAA compliant
+ * @description Dynamic form for collecting template variable values with
+ * type-specific inputs and real-time validation.
+ *
+ * @param props - Component props
+ * @returns React component
  */
-export function AlertTemplateVariableInputForm({
-  template,
-  onSubmit,
-  onCancel,
-  isSubmitting = false,
-}: AlertTemplateVariableInputFormProps) {
+export const AlertTemplateVariableInputForm = React.memo(
+  function AlertTemplateVariableInputForm({
+    template,
+    onSubmit,
+    onCancel,
+    isSubmitting = false,
+  }: AlertTemplateVariableInputFormProps) {
   // Generate schema and defaults
   const schema = React.useMemo(
     () => generateVariableSchema(template.variables),
@@ -383,4 +401,7 @@ export function AlertTemplateVariableInputForm({
       </div>
     </form>
   );
-}
+  }
+);
+
+AlertTemplateVariableInputForm.displayName = 'AlertTemplateVariableInputForm';

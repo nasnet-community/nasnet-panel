@@ -11,6 +11,8 @@ import (
 	"backend/internal/router"
 )
 
+const routerBoolYes = "yes"
+
 // KillSwitchReconcileResult contains statistics from a kill switch reconciliation operation.
 type KillSwitchReconcileResult struct {
 	OrphanedRules    int      // Rules on router but not in DB
@@ -71,6 +73,7 @@ func (m *KillSwitchManager) ReconcileRouter(ctx context.Context, routerID string
 }
 
 // reconcileOrphanedRules removes rules on the router that have no matching DB record.
+// It uses the rule comment to determine whether to remove from filter or mangle table.
 func (m *KillSwitchManager) reconcileOrphanedRules(
 	ctx context.Context,
 	routerRulesByID map[string]map[string]string,
@@ -78,14 +81,23 @@ func (m *KillSwitchManager) reconcileOrphanedRules(
 	result *KillSwitchReconcileResult,
 ) {
 
-	for ruleID := range routerRulesByID {
-		if _, exists := dbRulesByID[ruleID]; !exists {
-			result.OrphanedRules++
-			if err := m.removeFilterRule(ctx, ruleID); err != nil {
-				result.Errors = append(result.Errors, fmt.Sprintf("failed to remove orphaned rule %s: %v", ruleID, err))
-			} else {
-				result.Removed++
-			}
+	for ruleID, rule := range routerRulesByID {
+		if _, exists := dbRulesByID[ruleID]; exists {
+			continue
+		}
+		result.OrphanedRules++
+		// Determine removal path from comment: fallback rules are in mangle table
+		comment := rule["comment"]
+		var err error
+		if len(comment) > 24 && comment[:24] == "nnc-killswitch-fallback-" {
+			err = m.removeMangleRule(ctx, ruleID)
+		} else {
+			err = m.removeFilterRule(ctx, ruleID)
+		}
+		if err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("failed to remove orphaned rule %s: %v", ruleID, err))
+		} else {
+			result.Removed++
 		}
 	}
 }
@@ -133,7 +145,7 @@ func (m *KillSwitchManager) recreateMissingRule(ctx context.Context, routing *en
 		Save(ctx)
 	if err != nil {
 		result.Errors = append(result.Errors, fmt.Sprintf("failed to update DB for routing %s: %v", routing.ID, err))
-		_ = m.removeFilterRule(ctx, newRuleID) //nolint:errcheck // best-effort rule removal
+		_ = m.removeKillSwitchRule(ctx, newRuleID, KillSwitchMode(routing.KillSwitchMode)) //nolint:errcheck // best-effort rule removal
 	} else {
 		result.Recreated++
 	}
@@ -143,19 +155,20 @@ func (m *KillSwitchManager) recreateMissingRule(ctx context.Context, routing *en
 //
 //nolint:nestif // reconciliation state logic
 func (m *KillSwitchManager) fixStateMismatch(ctx context.Context, routing *ent.DeviceRouting, routerRule map[string]string, result *KillSwitchReconcileResult) {
-	routerDisabled := routerRule["disabled"] == "true" || routerRule["disabled"] == "yes"
+	routerDisabled := routerRule["disabled"] == "true" || routerRule["disabled"] == routerBoolYes
 	dbWantsEnabled := routing.KillSwitchActive
 
+	mode := KillSwitchMode(routing.KillSwitchMode)
 	if dbWantsEnabled && routerDisabled {
 		result.StateMismatches++
-		if err := m.enableFilterRule(ctx, routing.KillSwitchRuleID); err != nil {
+		if err := m.enableKillSwitchRule(ctx, routing.KillSwitchRuleID, mode); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("failed to enable rule for routing %s: %v", routing.ID, err))
 		} else {
 			result.Fixed++
 		}
 	} else if !dbWantsEnabled && !routerDisabled {
 		result.StateMismatches++
-		if err := m.disableFilterRule(ctx, routing.KillSwitchRuleID); err != nil {
+		if err := m.disableKillSwitchRule(ctx, routing.KillSwitchRuleID, mode); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("failed to disable rule for routing %s: %v", routing.ID, err))
 		} else {
 			result.Fixed++
@@ -178,31 +191,49 @@ func (m *KillSwitchManager) emitReconcileEvent(ctx context.Context) {
 	_ = m.publisher.Publish(ctx, &event)
 }
 
-// fetchAllKillSwitchRules fetches all firewall filter rules with nnc-killswitch-* comment pattern.
+// fetchAllKillSwitchRules fetches all kill switch rules from both filter and mangle tables.
+// Filter rules use comment prefix "nnc-killswitch-" (block_all and allow_direct modes).
+// Mangle rules use comment prefix "nnc-killswitch-fallback-" (fallback_service mode).
 func (m *KillSwitchManager) fetchAllKillSwitchRules(ctx context.Context) ([]map[string]string, error) {
-	query := router.StateQuery{
+	filterQuery := router.StateQuery{
 		Path:   "/ip/firewall/filter",
 		Fields: []string{".id", "comment", "disabled", "src-mac-address", "action"},
-		Filter: map[string]string{
-			// Router adapter should support wildcard filtering
-			// For now, we'll fetch all and filter in code
-		},
+		Filter: map[string]string{},
 	}
 
-	result, err := m.routerPort.QueryState(ctx, query)
+	filterResult, err := m.routerPort.QueryState(ctx, filterQuery)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query filter rules: %w", err)
 	}
 
-	// Filter for nnc-killswitch-* comments
+	mangleQuery := router.StateQuery{
+		Path:   "/ip/firewall/mangle",
+		Fields: []string{".id", "comment", "disabled", "src-mac-address", "new-routing-mark"},
+		Filter: map[string]string{},
+	}
+
+	mangleResult, err := m.routerPort.QueryState(ctx, mangleQuery)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query mangle rules: %w", err)
+	}
+
+	// Filter for nnc-killswitch-* comments from both tables
 	var filtered []map[string]string
-	for _, rule := range result.Resources {
+	for _, rule := range filterResult.Resources {
 		comment, ok := rule["comment"]
 		if !ok {
 			continue
 		}
-		// Check if comment starts with "nnc-killswitch-"
 		if len(comment) > 15 && comment[:15] == "nnc-killswitch-" {
+			filtered = append(filtered, rule)
+		}
+	}
+	for _, rule := range mangleResult.Resources {
+		comment, ok := rule["comment"]
+		if !ok {
+			continue
+		}
+		if len(comment) > 24 && comment[:24] == "nnc-killswitch-fallback-" {
 			filtered = append(filtered, rule)
 		}
 	}

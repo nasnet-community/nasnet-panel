@@ -7,9 +7,7 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import { fn } from '@storybook/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, Route, Routes } from '@tanstack/react-router';
 
 import type { RawRule } from '@nasnet/core/types';
 
@@ -142,7 +140,7 @@ export const WithRulesPrerouting: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -154,7 +152,7 @@ export const WithRulesPrerouting: Story = {
           disabled: false,
           packets: 0,
           bytes: 0,
-          position: 1,
+          order: 1,
         },
         {
           id: '*3',
@@ -166,20 +164,18 @@ export const WithRulesPrerouting: Story = {
           disabled: false,
           packets: 8523,
           bytes: 682400,
-          position: 2,
+          order: 2,
         },
         {
           id: '*4',
           chain: 'prerouting',
           action: 'drop',
           protocol: 'tcp',
-          tcpFlags: 'syn',
-          limit: '50/5s,100:packet',
           comment: 'Rate limit SYN packets (DDoS protection)',
           disabled: false,
           packets: 156,
           bytes: 9360,
-          position: 3,
+          order: 3,
         },
       ] as RawRule[],
       isLoading: false,
@@ -207,7 +203,7 @@ export const WithRulesOutput: Story = {
           disabled: false,
           packets: 15240,
           bytes: 1219200,
-          position: 0,
+          order: 0,
         },
         {
           id: '*7',
@@ -218,7 +214,7 @@ export const WithRulesOutput: Story = {
           disabled: false,
           packets: 98452,
           bytes: 145872000,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
       isLoading: false,
@@ -261,7 +257,7 @@ export const PerformanceSectionExpanded: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
       ] as RawRule[],
       isLoading: false,
@@ -290,7 +286,7 @@ export const HighTrafficScenario: Story = {
           disabled: false,
           packets: 18523456,
           bytes: 1481876480,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -302,20 +298,18 @@ export const HighTrafficScenario: Story = {
           disabled: false,
           packets: 9234567,
           bytes: 738765360,
-          position: 1,
+          order: 1,
         },
         {
           id: '*3',
           chain: 'prerouting',
           action: 'drop',
           protocol: 'tcp',
-          tcpFlags: 'syn',
-          limit: '50/5s,100:packet',
           comment: 'SYN flood protection',
           disabled: false,
           packets: 452156,
           bytes: 27129360,
-          position: 2,
+          order: 2,
         },
       ] as RawRule[],
       isLoading: false,
@@ -346,7 +340,7 @@ export const MobileView: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -358,7 +352,7 @@ export const MobileView: Story = {
           disabled: false,
           packets: 8523,
           bytes: 682400,
-          position: 1,
+          order: 1,
         },
       ] as RawRule[],
       isLoading: false,
@@ -388,7 +382,7 @@ export const TabletView: Story = {
           disabled: false,
           packets: 42185,
           bytes: 3374800,
-          position: 0,
+          order: 0,
         },
       ] as RawRule[],
       isLoading: false,
@@ -416,7 +410,7 @@ export const WithDisabledRules: Story = {
           disabled: true,
           packets: 0,
           bytes: 0,
-          position: 0,
+          order: 0,
         },
         {
           id: '*2',
@@ -428,7 +422,7 @@ export const WithDisabledRules: Story = {
           disabled: false,
           packets: 2341,
           bytes: 187280,
-          position: 1,
+          order: 1,
         },
         {
           id: '*3',
@@ -440,7 +434,7 @@ export const WithDisabledRules: Story = {
           disabled: true,
           packets: 0,
           bytes: 0,
-          position: 2,
+          order: 2,
         },
       ] as RawRule[],
       isLoading: false,

@@ -3,7 +3,7 @@
  * NAS-18.12: Alert Rule Templates Feature
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { AlertTemplateVariableInputForm } from './AlertTemplateVariableInputForm';
 
@@ -160,7 +160,7 @@ const templateWithMixedVariables: AlertRuleTemplate = {
       description: 'Regex pattern for API endpoints to monitor',
     },
   ],
-  throttle: null,
+  throttle: undefined,
   isBuiltIn: true,
   version: '1.0.0',
   createdAt: '2024-01-01T00:00:00Z',
@@ -193,7 +193,7 @@ const templateWithStringVariables: AlertRuleTemplate = {
       description: 'Regex pattern to match in event message',
     },
   ],
-  throttle: null,
+  throttle: undefined,
   isBuiltIn: false,
   version: '1.0.0',
   createdAt: '2024-01-01T00:00:00Z',
@@ -216,7 +216,7 @@ const templateNoVariables: AlertRuleTemplate = {
   ],
   channels: ['email', 'inapp'],
   variables: [],
-  throttle: null,
+  throttle: undefined,
   isBuiltIn: true,
   version: '1.0.0',
   createdAt: '2024-01-01T00:00:00Z',

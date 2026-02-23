@@ -46,15 +46,15 @@ let _idCounter = 1;
 const makeIP = (
   address: string,
   iface: string,
-  dynamic = false,
-  disabled = false,
+  isDynamic = false,
+  isDisabled = false,
 ): IPAddress => ({
   id: String(_idCounter++),
   address,
   network: address.split('/')[0].replace(/\.\d+$/, '.0'),
   interface: iface,
-  dynamic,
-  disabled,
+  isDynamic,
+  isDisabled,
 });
 
 // ---------------------------------------------------------------------------
@@ -195,5 +195,19 @@ export const EmptyState: Story = {
           'When no IP addresses are configured the component renders a centred Globe icon with a "No IP addresses configured" message.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

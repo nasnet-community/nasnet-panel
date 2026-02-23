@@ -1,20 +1,24 @@
 /**
  * Firewall Status Hero Component
- * Dashboard Pro style stats grid showing firewall security metrics
- * Epic 0.6 Enhancement: Dashboard Overview
+ *
+ * @description Dashboard Pro style stats grid showing firewall security metrics (protection status, rule counts, active/disabled breakdown, last updated timestamp).
+ * Epic 0.6 Enhancement: Dashboard Overview.
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { Shield, ShieldCheck, ShieldAlert, FileText, Clock, RefreshCw } from 'lucide-react';
 import { useFilterRules, useNATRules } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 
+/**
+ * @description Props for FirewallStatusHero component
+ */
 interface FirewallStatusHeroProps {
   className?: string;
 }
 
 /**
- * Determine protection status based on firewall rules
+ * @description Determine protection status based on firewall rules configuration
  */
 function getProtectionStatus(
   filterRulesCount: number,
@@ -97,10 +101,41 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
     return new Date(timestamp);
   }, [filterUpdatedAt, natUpdatedAt]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     refetchFilter();
     refetchNAT();
-  };
+  }, [refetchFilter, refetchNAT]);
+
+  // Status display configuration (using semantic token variants)
+  const statusConfig = useMemo(() => ({
+    protected: {
+      icon: ShieldCheck,
+      label: 'Protected',
+      description: 'Firewall active',
+      bgColor: 'bg-success/10',
+      borderColor: 'border-success',
+      iconColor: 'text-success',
+      textColor: 'text-success',
+    },
+    warning: {
+      icon: ShieldAlert,
+      label: 'Warning',
+      description: 'No drop rules',
+      bgColor: 'bg-warning/10',
+      borderColor: 'border-warning',
+      iconColor: 'text-warning',
+      textColor: 'text-warning',
+    },
+    minimal: {
+      icon: Shield,
+      label: 'Minimal',
+      description: 'No filter rules',
+      bgColor: 'bg-muted',
+      borderColor: 'border-border',
+      iconColor: 'text-muted-foreground',
+      textColor: 'text-muted-foreground',
+    },
+  }), []);
 
   if (isLoading) {
     return (
@@ -119,37 +154,6 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
     );
   }
 
-  // Status display configuration
-  const statusConfig = {
-    protected: {
-      icon: ShieldCheck,
-      label: 'Protected',
-      description: 'Firewall active',
-      bgColor: 'bg-success/10',
-      borderColor: 'border-success/30',
-      iconColor: 'text-success',
-      textColor: 'text-success',
-    },
-    warning: {
-      icon: ShieldAlert,
-      label: 'Warning',
-      description: 'No drop rules',
-      bgColor: 'bg-warning/10',
-      borderColor: 'border-warning/30',
-      iconColor: 'text-warning',
-      textColor: 'text-warning',
-    },
-    minimal: {
-      icon: Shield,
-      label: 'Minimal',
-      description: 'No filter rules',
-      bgColor: 'bg-muted',
-      borderColor: 'border-border',
-      iconColor: 'text-muted-foreground',
-      textColor: 'text-muted-foreground',
-    },
-  };
-
   const currentStatus = statusConfig[stats.status];
   const StatusIcon = currentStatus.icon;
 
@@ -161,7 +165,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       >
         <div className="flex items-center gap-2 mb-1">
           <StatusIcon className={`w-4 h-4 ${currentStatus.iconColor}`} aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Status
           </p>
         </div>
@@ -177,7 +181,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       <div className="bg-card rounded-xl border border-border p-4">
         <div className="flex items-center gap-2 mb-1">
           <FileText className="w-4 h-4 text-secondary" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Total Rules
           </p>
         </div>
@@ -193,7 +197,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       <div className="bg-card rounded-xl border border-border p-4">
         <div className="flex items-center gap-2 mb-1">
           <Shield className="w-4 h-4 text-success" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Active
           </p>
         </div>
@@ -215,7 +219,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               Updated
             </p>
           </div>
@@ -223,7 +227,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
             onClick={handleRefresh}
             disabled={isFetching}
             className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Refresh firewall data"
+            aria-label={isFetching ? 'Refreshing firewall data' : 'Refresh firewall data'}
           >
             <RefreshCw
               className={`w-3.5 h-3.5 text-muted-foreground ${isFetching ? 'animate-spin' : ''}`}
@@ -252,10 +256,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
   );
 });
 
-
-
-
-
+FirewallStatusHero.displayName = 'FirewallStatusHero';
 
 
 

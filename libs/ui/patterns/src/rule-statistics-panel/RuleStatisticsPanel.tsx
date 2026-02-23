@@ -5,6 +5,8 @@
  * Implements Headless + Platform Presenters pattern.
  */
 
+import React from 'react';
+
 import { useMediaQuery } from '@nasnet/ui/primitives';
 
 import { RuleStatisticsPanelDesktop } from './RuleStatisticsPanelDesktop';
@@ -31,7 +33,7 @@ import type { RuleStatisticsPanelProps } from './types';
  * />
  * ```
  */
-export function RuleStatisticsPanel(props: RuleStatisticsPanelProps) {
+function RuleStatisticsPanelComponent(props: RuleStatisticsPanelProps) {
   // Platform detection: mobile (<640px) vs desktop (>=640px)
   const isMobile = useMediaQuery('(max-width: 639px)');
 
@@ -42,3 +44,6 @@ export function RuleStatisticsPanel(props: RuleStatisticsPanelProps) {
     <RuleStatisticsPanelDesktop {...props} />
   );
 }
+
+export const RuleStatisticsPanel = React.memo(RuleStatisticsPanelComponent);
+RuleStatisticsPanel.displayName = 'RuleStatisticsPanel';

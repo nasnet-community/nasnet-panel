@@ -1,6 +1,6 @@
 /**
  * Alert Template Categories
- * NAS-18.12: Alert Rule Templates Feature
+ * @description NAS-18.12: Alert Rule Templates Feature
  *
  * Provides metadata for alert rule template categories including
  * icons, colors, and descriptions for the 7 template categories.
@@ -12,6 +12,10 @@ import type { AlertRuleTemplateCategory } from '../schemas/alert-rule-template.s
 // Category Metadata Types
 // =============================================================================
 
+/**
+ * Alert template category metadata
+ * @description Defines the display properties and styling for a category
+ */
 export interface AlertTemplateCategoryMeta {
   id: AlertRuleTemplateCategory;
   label: string;
@@ -28,7 +32,7 @@ export interface AlertTemplateCategoryMeta {
 
 /**
  * Alert template category metadata
- * Maps each category to its visual representation and description
+ * @description Maps each category to its visual representation and description
  */
 export const ALERT_TEMPLATE_CATEGORIES: Record<AlertRuleTemplateCategory, AlertTemplateCategoryMeta> = {
   NETWORK: {
@@ -98,6 +102,9 @@ export const ALERT_TEMPLATE_CATEGORIES: Record<AlertRuleTemplateCategory, AlertT
 
 /**
  * Get category metadata by category ID
+ * @description Retrieves the visual and descriptive metadata for a specific category
+ * @param category The category ID to look up
+ * @returns Category metadata including label, description, color, and icons
  */
 export function getCategoryMeta(category: AlertRuleTemplateCategory): AlertTemplateCategoryMeta {
   return ALERT_TEMPLATE_CATEGORIES[category];
@@ -105,6 +112,8 @@ export function getCategoryMeta(category: AlertRuleTemplateCategory): AlertTempl
 
 /**
  * Get all categories as an array
+ * @description Retrieves metadata for all available alert template categories
+ * @returns Array of category metadata objects in defined order
  */
 export function getAllCategories(): AlertTemplateCategoryMeta[] {
   return Object.values(ALERT_TEMPLATE_CATEGORIES);
@@ -112,6 +121,9 @@ export function getAllCategories(): AlertTemplateCategoryMeta[] {
 
 /**
  * Get category count labels for filter display
+ * @description Retrieves the human-readable label for a specific category
+ * @param category The category ID to get the label for
+ * @returns Display label for the category (e.g., "Network", "Security")
  */
 export function getCategoryLabel(category: AlertRuleTemplateCategory): string {
   return ALERT_TEMPLATE_CATEGORIES[category].label;

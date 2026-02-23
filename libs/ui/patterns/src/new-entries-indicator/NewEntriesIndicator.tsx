@@ -47,7 +47,7 @@ export interface NewEntriesIndicatorProps extends React.HTMLAttributes<HTMLButto
  * />
  * ```
  */
-export function NewEntriesIndicator({
+function NewEntriesIndicatorComponent({
   count,
   onClick,
   className,
@@ -63,7 +63,7 @@ export function NewEntriesIndicator({
       className={cn(
         'fixed bottom-20 left-1/2 -translate-x-1/2 z-50',
         'shadow-lg hover:shadow-xl animate-in slide-in-from-bottom-2 fade-in-0',
-        'gap-2 rounded-full bg-primary-500 hover:bg-primary-600 text-slate-900',
+        'gap-2 rounded-full bg-primary hover:bg-primary text-primary-foreground',
         'transition-all duration-200',
         className
       )}
@@ -76,3 +76,8 @@ export function NewEntriesIndicator({
     </Button>
   );
 }
+
+const NewEntriesIndicator = NewEntriesIndicatorComponent;
+(NewEntriesIndicator as React.FC<any>).displayName = 'NewEntriesIndicator';
+
+export { NewEntriesIndicator };

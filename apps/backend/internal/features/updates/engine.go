@@ -2,10 +2,14 @@ package updates
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"backend/internal/events"
@@ -97,6 +101,13 @@ func (e *UpdateEngine) resolveBinaryPath(featureID, _ string) string {
 	return filepath.Join(e.config.BaseDir, "features", featureID, "bin", featureID)
 }
 
+func (e *UpdateEngine) resolveConfigPath(featureID string) string {
+	if e.config.PathResolver != nil {
+		return e.config.PathResolver.ConfigPath(featureID)
+	}
+	return filepath.Join(e.config.BaseDir, "features", featureID, "config", featureID+".json")
+}
+
 // ApplyUpdate executes the 6-phase atomic update process
 func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, currentVersion, targetVersion, downloadURL, checksumURL string) error {
 	e.logger.Info().
@@ -171,7 +182,7 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 
 	// Download binary to staging directory
 	stagingDir := e.resolveStagingPath(featureID, targetVersion)
-	_ = filepath.Join(stagingDir, featureID) // stagingBinary - TODO: use in Download call
+	stagingBinary := filepath.Join(stagingDir, featureID)
 
 	// Create staging directory
 	if err := os.MkdirAll(stagingDir, 0o755); err != nil {
@@ -179,19 +190,19 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 		return fmt.Errorf("failed to create staging dir: %w", err)
 	}
 
-	// Download binary (includes SHA256 verification)
-	// Assuming checksumURL points to a file containing the expected checksum
-	expectedChecksum := "" // In a real implementation, fetch this from checksumURL
+	// Fetch expected checksum from checksum URL
+	expectedChecksum, checksumErr := fetchChecksum(ctx, checksumURL, featureID)
+	if checksumErr != nil {
+		e.logger.Warn().Err(checksumErr).Msg("failed to fetch checksum, proceeding without verification")
+		expectedChecksum = "" // Proceed without verification if checksum unavailable
+	}
+
 	if err := e.config.DownloadManager.Download(ctx, featureID, downloadURL, expectedChecksum); err != nil {
 		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseStaging, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("download failed: %w", err)
 	}
 
-	// Additional verification using Verifier (Story 8.22)
-	// Note: VerifyArchive signature: (ctx, archivePath, checksumURL, version, spec)
-	// For now, we'll skip this as it requires more context
-	// In a real implementation, integrate with the Verifier properly
-	_ = checksumURL // Avoid unused variable warning
+	e.logger.Debug().Str("stagingBinary", stagingBinary).Msg("download completed to staging")
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseStaging) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "STAGING").Msg("STAGING phase completed")
@@ -224,7 +235,13 @@ func (e *UpdateEngine) phaseBackup(ctx context.Context, instanceID, featureID, c
 		return fmt.Errorf("failed to backup binary: %w", err)
 	}
 
-	// TODO: Backup configuration files
+	// Backup configuration files
+	configDir := e.resolveConfigPath(featureID)
+	backupConfigDir := filepath.Join(backupDir, "config")
+	if err := copyDir(configDir, backupConfigDir); err != nil {
+		e.logger.Warn().Err(err).Msg("config backup skipped (no config directory or copy failed)")
+		// Non-fatal: some features may not have config files
+	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseBackup) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "BACKUP").Msg("BACKUP phase completed")
@@ -281,6 +298,8 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 }
 
 // phaseMigration runs configuration migrations
+//
+//nolint:nestif // sequential error handling requires nesting
 func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
 	e.logger.Info().Str("phase", "MIGRATION").Msg("Starting MIGRATION phase")
 
@@ -300,7 +319,48 @@ func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID
 		return fmt.Errorf(errFormat, currentVersion, targetVersion)
 	}
 
-	// TODO: Load current config, run migration, save new config
+	// Load current config
+	configPath := e.resolveConfigPath(featureID)
+	configData, readErr := os.ReadFile(configPath)
+	if readErr != nil {
+		if os.IsNotExist(readErr) {
+			e.logger.Info().Msg("no config file found, skipping migration")
+		} else {
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, readErr.Error()) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf("failed to read config: %w", readErr)
+		}
+	} else {
+		// Parse config
+		var configMap map[string]interface{}
+		if err := json.Unmarshal(configData, &configMap); err != nil {
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, err.Error()) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf("failed to parse config: %w", err)
+		}
+
+		// Run migration
+		migratedConfig, err := migrator.Migrate(ctx, currentVersion, targetVersion, configMap)
+		if err != nil {
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, err.Error()) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf("config migration failed: %w", err)
+		}
+
+		// Write migrated config
+		migratedData, err := json.MarshalIndent(migratedConfig, "", "  ")
+		if err != nil {
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, err.Error()) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf("failed to serialize migrated config: %w", err)
+		}
+
+		if err := os.WriteFile(configPath, migratedData, 0o644); err != nil {
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, err.Error()) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf("failed to write migrated config: %w", err)
+		}
+
+		e.logger.Info().
+			Str("from", currentVersion).
+			Str("to", targetVersion).
+			Msg("config migration completed")
+	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseMigration) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "MIGRATION").Msg("MIGRATION phase completed")
@@ -386,6 +446,13 @@ func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, curr
 		return fmt.Errorf("failed to restore backup: %w", err)
 	}
 
+	// Restore configuration from backup
+	backupConfigDir := filepath.Join(e.resolveBackupPath(featureID, instanceID, currentVersion), "config")
+	configDir := e.resolveConfigPath(featureID)
+	if err := copyDir(backupConfigDir, configDir); err != nil {
+		e.logger.Warn().Err(err).Msg("config restore skipped during rollback")
+	}
+
 	// Restart instance
 	if e.config.InstanceStarter != nil {
 		_ = e.config.InstanceStarter.Start(ctx, instanceID) //nolint:errcheck // best-effort rollback
@@ -434,4 +501,86 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.WriteFile(dst, data, 0o644)
+}
+
+// copyDir recursively copies a directory from src to dst.
+func copyDir(src, dst string) error {
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // Source dir doesn't exist, nothing to copy
+		}
+		return err
+	}
+
+	if err := os.MkdirAll(dst, 0o755); err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			if err := copyDir(srcPath, dstPath); err != nil {
+				return err
+			}
+		} else {
+			if err := copyFile(srcPath, dstPath); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// fetchChecksum fetches the checksum file from the given URL and extracts the hash for the target filename.
+// The checksum file format is "sha256hash  filename" (standard sha256sum format).
+func fetchChecksum(ctx context.Context, checksumURL, targetFilename string) (string, error) {
+	if checksumURL == "" {
+		return "", fmt.Errorf("checksum URL is empty")
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, checksumURL, http.NoBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to create checksum request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch checksum: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("checksum URL returned status %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read checksum response: %w", err)
+	}
+
+	// Parse sha256sum format: "hash  filename" or "hash *filename"
+	lines := strings.Split(strings.TrimSpace(string(body)), "\n")
+	for _, line := range lines {
+		parts := strings.Fields(line)
+		if len(parts) >= 2 {
+			hash := parts[0]
+			filename := strings.TrimPrefix(parts[1], "*")
+			if filename == targetFilename || targetFilename == "" {
+				return hash, nil
+			}
+		}
+	}
+
+	// If only one line with just a hash (no filename), return it
+	if len(lines) == 1 {
+		hash := strings.TrimSpace(lines[0])
+		if len(hash) == 64 { // SHA256 hex length
+			return hash, nil
+		}
+	}
+
+	return "", fmt.Errorf("checksum not found for %s in checksum file", targetFilename)
 }

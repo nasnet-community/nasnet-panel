@@ -6,8 +6,9 @@
 
 import * as React from 'react';
 
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { RefreshCw, Plus, Server } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { 
   useWireGuardInterfaces,
@@ -28,8 +29,8 @@ import {
   ProtocolIconBadge,
   getProtocolLabel,
 } from '@nasnet/ui/patterns';
-import { 
-  Button, 
+import {
+  Button,
   Skeleton,
   Tabs,
   TabsList,
@@ -37,16 +38,15 @@ import {
   TabsContent,
 } from '@nasnet/ui/primitives';
 
-import { Route } from '@/routes/router/$id/vpn/servers';
-
 const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2'];
 
 /**
  * VPN Servers Page Component
  */
 export function VPNServersPage() {
+  const { t } = useTranslation('vpn');
   const navigate = useNavigate();
-  const { id: routerId } = Route.useParams();
+  const { id: routerId } = useParams({ from: '/router/$id/vpn/servers' });
   const search = useSearch({ from: '/router/$id/vpn/servers' });
   const initialProtocol = (search as { protocol?: VPNProtocol }).protocol || null;
   const [activeTab, setActiveTab] = React.useState<VPNProtocol | 'all'>(initialProtocol || 'all');
@@ -125,7 +125,7 @@ export function VPNServersPage() {
   const sstpServer = sstpServerQuery.data;
   
   // IPsec Peers (servers = passive mode)
-  const ipsecServerPeers = ipsecPeersQuery.data?.filter(p => p.passive) || [];
+  const ipsecServerPeers = ipsecPeersQuery.data?.filter(p => p.isPassive) || [];
 
   // Render server section based on protocol
   const renderProtocolSection = (protocol: VPNProtocol) => {
@@ -145,8 +145,8 @@ export function VPNServersPage() {
                     id={server.id}
                     name={server.name}
                     protocol="wireguard"
-                    disabled={server.disabled}
-                    running={server.running}
+                    isDisabled={server.isDisabled}
+                    isRunning={server.isRunning}
                     port={server.listenPort}
                     rx={server.rx}
                     tx={server.tx}
@@ -179,8 +179,8 @@ export function VPNServersPage() {
                     id={server.id}
                     name={server.name}
                     protocol="openvpn"
-                    disabled={server.disabled}
-                    running={server.running}
+                    isDisabled={server.isDisabled}
+                    isRunning={server.isRunning}
                     port={server.port}
                     connectedClients={getPPPConnectedCount('ovpn')}
                     comment={server.comment}
@@ -209,8 +209,8 @@ export function VPNServersPage() {
                 id={l2tpServer.id}
                 name={l2tpServer.name}
                 protocol="l2tp"
-                disabled={l2tpServer.disabled}
-                running={l2tpServer.running}
+                isDisabled={l2tpServer.isDisabled}
+                isRunning={l2tpServer.isRunning}
                 connectedClients={getPPPConnectedCount('l2tp')}
                 comment={l2tpServer.comment}
                 onToggle={(id, enabled) => handleToggle(id, l2tpServer.name, 'l2tp', enabled)}
@@ -235,8 +235,8 @@ export function VPNServersPage() {
                 id={pptpServer.id}
                 name={pptpServer.name}
                 protocol="pptp"
-                disabled={pptpServer.disabled}
-                running={pptpServer.running}
+                isDisabled={pptpServer.isDisabled}
+                isRunning={pptpServer.isRunning}
                 connectedClients={getPPPConnectedCount('pptp')}
                 comment={pptpServer.comment}
                 onToggle={(id, enabled) => handleToggle(id, pptpServer.name, 'pptp', enabled)}
@@ -261,8 +261,8 @@ export function VPNServersPage() {
                 id={sstpServer.id}
                 name={sstpServer.name}
                 protocol="sstp"
-                disabled={sstpServer.disabled}
-                running={sstpServer.running}
+                isDisabled={sstpServer.isDisabled}
+                isRunning={sstpServer.isRunning}
                 port={sstpServer.port}
                 connectedClients={getPPPConnectedCount('sstp')}
                 comment={sstpServer.comment}
@@ -291,8 +291,8 @@ export function VPNServersPage() {
                     id={peer.id}
                     name={peer.name}
                     protocol="ikev2"
-                    disabled={peer.disabled}
-                    running={!peer.disabled}
+                    isDisabled={peer.isDisabled}
+                    isRunning={!peer.isDisabled}
                     port={peer.port}
                     comment={peer.comment}
                     onToggle={(id, enabled) => handleToggle(id, peer.name, 'ikev2', enabled)}
@@ -322,10 +322,10 @@ export function VPNServersPage() {
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                VPN Servers
+                {t('servers.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Configure and manage your VPN server infrastructure
+                {t('servers.overview')}
               </p>
             </div>
           </div>
@@ -337,7 +337,7 @@ export function VPNServersPage() {
               disabled={isLoading || isFetching}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
             </Button>
           </div>
         </div>
@@ -356,12 +356,12 @@ export function VPNServersPage() {
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}>
             {/* Protocol Tabs */}
             <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
-              <TabsTrigger 
+              <TabsTrigger
                 value="all"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <Server className="h-4 w-4 mr-2" />
-                All
+                {t('button.all', { ns: 'common' })}
               </TabsTrigger>
               {ALL_PROTOCOLS.map((protocol) => (
                 <TabsTrigger 
@@ -397,6 +397,8 @@ export function VPNServersPage() {
   );
 }
 
+VPNServersPage.displayName = 'VPNServersPage';
+
 /**
  * Empty State Component
  */
@@ -406,18 +408,19 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ protocol, onAdd }: EmptyStateProps) {
+  const { t } = useTranslation('vpn');
   return (
     <div className="text-center py-8 bg-muted/30 rounded-xl">
       <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        No {getProtocolLabel(protocol)} servers configured
+        {t('servers.noServersConfigured', { protocol: getProtocolLabel(protocol) })}
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Get started by adding your first {getProtocolLabel(protocol)} server
+        {t('servers.getStartedAddFirst', { protocol: getProtocolLabel(protocol) })}
       </p>
       <Button onClick={onAdd}>
         <Plus className="h-4 w-4 mr-2" />
-        Add {getProtocolLabel(protocol)} Server
+        {t('servers.addServer', { protocol: getProtocolLabel(protocol) })}
       </Button>
     </div>
   );

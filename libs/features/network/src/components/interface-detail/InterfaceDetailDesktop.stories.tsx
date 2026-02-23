@@ -11,8 +11,9 @@
  *  - Loaded (Status / Traffic / Configuration tabs)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { InterfaceDetailDesktop } from './InterfaceDetailDesktop';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock interface objects

@@ -1,11 +1,19 @@
 /**
  * TemplateInstallWizardMobile Component
  *
- * Mobile/Tablet presenter for template installation wizard.
+ * @description Mobile/Tablet presenter for template installation wizard.
  * Full-screen modal with bottom navigation and 44px touch targets.
+ *
+ * Features:
+ * - Full-screen modal
+ * - Step indicator at top (1/4, 2/4, etc.)
+ * - Scrollable content area
+ * - Bottom navigation bar with 44px touch targets
+ * - Cannot dismiss during installation
  */
 
 import * as React from 'react';
+import { memo, useCallback } from 'react';
 import { X } from 'lucide-react';
 
 import { Button, Dialog, DialogContent, Progress } from '@nasnet/ui/primitives';
@@ -22,15 +30,8 @@ import type { TemplateInstallWizardProps } from './TemplateInstallWizard';
 
 /**
  * Mobile presenter for TemplateInstallWizard
- *
- * Features:
- * - Full-screen modal
- * - Step indicator at top (1/4, 2/4, etc.)
- * - Scrollable content area
- * - Bottom navigation bar with 44px touch targets
- * - Cannot dismiss during installation
  */
-export function TemplateInstallWizardMobile({
+function TemplateInstallWizardMobileComponent({
   routerId,
   template,
   open,
@@ -52,7 +53,7 @@ export function TemplateInstallWizardMobile({
     onCancel: onClose,
   });
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentStep === 2) {
       send({ type: 'START_INSTALL' });
     } else if (currentStep === 4) {
@@ -66,14 +67,14 @@ export function TemplateInstallWizardMobile({
     } else {
       send({ type: 'NEXT' });
     }
-  };
+  }, [currentStep, context.selectedRoutingRules.length, context.installResult?.instanceIDs, send, onComplete, onClose]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (!isInstalling) {
       send({ type: 'CANCEL' });
       onClose();
     }
-  };
+  }, [isInstalling, send, onClose]);
 
   const progressPercent = (currentStep / 4) * 100;
 
@@ -182,3 +183,9 @@ export function TemplateInstallWizardMobile({
     </Dialog>
   );
 }
+
+// Wrap with memo for performance
+export const TemplateInstallWizardMobile = memo(TemplateInstallWizardMobileComponent);
+
+// Set display name for React DevTools
+TemplateInstallWizardMobile.displayName = 'TemplateInstallWizardMobile';

@@ -1,0 +1,1 @@
+{"version":3,"file":"useWireGuardPeers.d.ts","sourceRoot":"","sources":["useWireGuardPeers.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAY,cAAc,EAAE,MAAM,uBAAuB,CAAC;AAEjE,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,oBAAoB,CAAC;AA4BxD;;;;;;;;;;;;GAYG;AACH,wBAAgB,iBAAiB,CAC/B,QAAQ,EAAE,MAAM,EAChB,aAAa,CAAC,EAAE,MAAM,GACrB,cAAc,CAAC,aAAa,EAAE,EAAE,KAAK,CAAC,CAOxC"}

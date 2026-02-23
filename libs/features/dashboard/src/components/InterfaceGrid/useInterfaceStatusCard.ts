@@ -5,10 +5,16 @@
  * - Click/keyboard event handling
  * - Status change detection for animations
  * - Accessibility attributes
+ *
+ * @description
+ * Centralized business logic for interface status card interactions.
+ * Handles keyboard navigation (Enter/Space), detects status changes for pulse animations,
+ * respects reduced motion preferences, and generates ARIA attributes for screen readers.
+ * Separated from presentation via Headless + Platform Presenters pattern.
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useReducedMotion } from './utils';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useReducedMotion } from '@nasnet/core/utils';
 import type { InterfaceGridData, InterfaceStatus } from './types';
 
 interface UseInterfaceStatusCardProps {
@@ -99,17 +105,33 @@ export function useInterfaceStatusCard({
     [iface, onSelect]
   );
 
-  const ariaLabel = `${iface.name} interface, status ${iface.status}${
-    iface.ip ? `, IP ${iface.ip}` : ''
-  }`;
-  const detailsId = `interface-${iface.id}-details`;
+  // Memoize aria attributes to prevent unnecessary re-renders
+  const ariaLabel = useMemo(
+    () =>
+      `${iface.name} interface, status ${iface.status}${
+        iface.ip ? `, IP ${iface.ip}` : ''
+      }`,
+    [iface.name, iface.status, iface.ip]
+  );
 
-  return {
-    handleClick,
-    handleKeyDown,
-    isStatusChanged,
-    prefersReducedMotion,
-    ariaLabel,
-    detailsId,
-  };
+  const detailsId = useMemo(() => `interface-${iface.id}-details`, [iface.id]);
+
+  return useMemo(
+    () => ({
+      handleClick,
+      handleKeyDown,
+      isStatusChanged,
+      prefersReducedMotion,
+      ariaLabel,
+      detailsId,
+    }),
+    [
+      handleClick,
+      handleKeyDown,
+      isStatusChanged,
+      prefersReducedMotion,
+      ariaLabel,
+      detailsId,
+    ]
+  );
 }

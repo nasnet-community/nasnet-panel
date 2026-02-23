@@ -11,9 +11,10 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 4: Static IP)
  */
 
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@nasnet/ui/utils';
 import {
   Input,
   Label,
@@ -29,7 +30,7 @@ import { FormSection, FieldHelp, InterfaceSelector } from '@nasnet/ui/patterns';
 import type { RouterInterface } from '@nasnet/ui/patterns';
 import {
   staticIPSchema,
-  staticIPDefaultValues,
+  STATIC_IP_DEFAULT_VALUES,
   type StaticIPFormValues,
   DNS_PRESETS,
   SUBNET_PRESETS,
@@ -38,6 +39,7 @@ import { AlertTriangle, Network, Globe, Server } from 'lucide-react';
 
 /**
  * Static IP Form Props
+ * @description Configuration options for the Static IP WAN form
  */
 export interface StaticIPFormProps {
   /** Router ID for interface selection */
@@ -47,9 +49,11 @@ export interface StaticIPFormProps {
   /** Callback when form is submitted */
   onSubmit: (values: StaticIPFormValues) => void | Promise<void>;
   /** Whether submit operation is in progress */
-  loading?: boolean;
+  isLoading?: boolean;
   /** Callback when form is cancelled */
   onCancel?: () => void;
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
@@ -76,17 +80,18 @@ export interface StaticIPFormProps {
  * <StaticIPForm
  *   routerId="router-123"
  *   onSubmit={handleSubmit}
- *   loading={isSubmitting}
+ *   isLoading={isSubmitting}
  *   onCancel={handleCancel}
  * />
  * ```
  */
-export function StaticIPForm({
+export const StaticIPForm = memo(function StaticIPForm({
   routerId,
   initialValues,
   onSubmit,
-  loading = false,
+  isLoading = false,
   onCancel,
+  className,
 }: StaticIPFormProps) {
   const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
     null
@@ -98,7 +103,7 @@ export function StaticIPForm({
   const form = useForm<StaticIPFormValues>({
     resolver: zodResolver(staticIPSchema) as any,
     defaultValues: {
-      ...staticIPDefaultValues,
+      ...STATIC_IP_DEFAULT_VALUES,
       ...initialValues,
     },
   });
@@ -106,7 +111,7 @@ export function StaticIPForm({
   /**
    * Handle interface selection
    */
-  const handleInterfaceSelect = (interfaceId: string | string[]) => {
+  const handleInterfaceSelect = useCallback((interfaceId: string | string[]) => {
     // InterfaceSelector onChange returns the ID
     const selectedId = Array.isArray(interfaceId) ? interfaceId[0] : interfaceId;
     form.setValue('interface', selectedId, {
@@ -121,60 +126,60 @@ export function StaticIPForm({
       status: 'up',
       mac: '',
     } as RouterInterface);
-  };
+  }, [form]);
 
   /**
    * Apply DNS preset
    */
-  const applyDNSPreset = (preset: keyof typeof DNS_PRESETS) => {
+  const applyDNSPreset = useCallback((preset: keyof typeof DNS_PRESETS) => {
     const { primary, secondary } = DNS_PRESETS[preset];
     form.setValue('primaryDNS', primary, { shouldDirty: true });
     form.setValue('secondaryDNS', secondary, { shouldDirty: true });
-  };
+  }, [form]);
 
   /**
    * Apply subnet mask preset to current IP
    */
-  const applySubnetPreset = (mask: string) => {
+  const applySubnetPreset = useCallback((mask: string) => {
     const currentAddress = form.watch('address');
     if (currentAddress) {
       // Extract IP part (before /) and replace mask
       const ip = currentAddress.split('/')[0];
       form.setValue('address', `${ip}${mask}`, { shouldDirty: true });
     }
-  };
+  }, [form]);
 
   /**
    * Handle form submission with safety checks
    */
-  const handleFormSubmit = ((values: StaticIPFormValues) => {
+  const handleFormSubmit = useCallback((values: StaticIPFormValues) => {
     // Show safety warning before applying
     setPendingFormValues(values);
     setShowSafetyWarning(true);
-  }) as any;
+  }, []);
 
   /**
    * Confirm safety warning and proceed with submission
    */
-  const handleConfirmSafety = () => {
+  const handleConfirmSafety = useCallback(() => {
     if (pendingFormValues) {
       onSubmit(pendingFormValues);
     }
     setShowSafetyWarning(false);
     setPendingFormValues(null);
-  };
+  }, [pendingFormValues, onSubmit]);
 
   /**
    * Cancel safety warning
    */
-  const handleCancelSafety = () => {
+  const handleCancelSafety = useCallback(() => {
     setShowSafetyWarning(false);
     setPendingFormValues(null);
-  };
+  }, []);
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className={cn('space-y-6', className)}>
         {/* Interface Selection */}
         <FormSection
           title="Interface Configuration"
@@ -195,7 +200,7 @@ export function StaticIPForm({
                 onChange={handleInterfaceSelect}
                 value={selectedInterface?.id}
                 types={['ethernet']}
-                disabled={loading}
+                disabled={isLoading}
               />
               {form.formState.errors.interface && (
                 <p
@@ -216,7 +221,7 @@ export function StaticIPForm({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
-                    <span className="ml-2 font-mono">{selectedInterface.name}</span>
+                    <span className="ml-2 font-mono text-xs">{selectedInterface.name}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Type:</span>
@@ -225,7 +230,7 @@ export function StaticIPForm({
                   {selectedInterface.mac && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">MAC:</span>
-                      <span className="ml-2 font-mono">
+                      <span className="ml-2 font-mono text-xs">
                         {selectedInterface.mac}
                       </span>
                     </div>
@@ -257,7 +262,8 @@ export function StaticIPForm({
                 placeholder="203.0.113.10/30"
                 {...form.register('address')}
                 aria-describedby="address-error address-help"
-                disabled={loading}
+                disabled={isLoading}
+                className="font-mono text-sm"
               />
               {form.formState.errors.address && (
                 <p id="address-error" className="text-sm text-error mt-1" role="alert">
@@ -281,8 +287,9 @@ export function StaticIPForm({
                       variant="outline"
                       size="sm"
                       onClick={() => applySubnetPreset(preset.mask)}
-                      disabled={loading}
+                      disabled={isLoading}
                       className="text-xs"
+                      aria-label={`Set subnet mask to ${preset.label}`}
                     >
                       {preset.label}
                     </Button>
@@ -303,7 +310,8 @@ export function StaticIPForm({
                 placeholder="203.0.113.9"
                 {...form.register('gateway')}
                 aria-describedby="gateway-error gateway-help"
-                disabled={loading}
+                disabled={isLoading}
+                className="font-mono text-sm"
               />
               {form.formState.errors.gateway && (
                 <p id="gateway-error" className="text-sm text-error mt-1" role="alert">
@@ -334,9 +342,10 @@ export function StaticIPForm({
                     variant="outline"
                     size="sm"
                     onClick={() => applyDNSPreset(key as keyof typeof DNS_PRESETS)}
-                    disabled={loading}
+                    disabled={isLoading}
+                    aria-label={`Apply ${preset.label} DNS servers`}
                   >
-                    <Server className="h-4 w-4 mr-2" />
+                    <Server className="h-4 w-4 mr-2" aria-hidden="true" />
                     {preset.label}
                   </Button>
                 ))}
@@ -355,7 +364,8 @@ export function StaticIPForm({
                 placeholder="1.1.1.1"
                 {...form.register('primaryDNS')}
                 aria-describedby="primary-dns-error"
-                disabled={loading}
+                disabled={isLoading}
+                className="font-mono text-sm"
               />
               {form.formState.errors.primaryDNS && (
                 <p
@@ -380,7 +390,8 @@ export function StaticIPForm({
                 placeholder="1.0.0.1"
                 {...form.register('secondaryDNS')}
                 aria-describedby="secondary-dns-error"
-                disabled={loading}
+                disabled={isLoading}
+                className="font-mono text-sm"
               />
               {form.formState.errors.secondaryDNS && (
                 <p
@@ -410,7 +421,7 @@ export function StaticIPForm({
               type="text"
               maxLength={255}
               placeholder="e.g., Static WAN from ISP"
-              disabled={loading}
+              disabled={isLoading}
               {...form.register('comment')}
               aria-describedby="comment-error comment-help"
             />
@@ -432,17 +443,19 @@ export function StaticIPForm({
               type="button"
               variant="outline"
               onClick={onCancel}
-              disabled={loading}
+              disabled={isLoading}
+              aria-label="Cancel static IP configuration"
             >
               Cancel
             </Button>
           )}
           <Button
             type="submit"
-            disabled={loading || !form.formState.isValid || !form.formState.isDirty}
+            disabled={isLoading || !form.formState.isValid || !form.formState.isDirty}
             className="min-w-[120px]"
+            aria-busy={isLoading}
           >
-            {loading ? 'Configuring...' : 'Configure Static IP'}
+            {isLoading ? 'Configuring...' : 'Configure Static IP'}
           </Button>
         </div>
       </form>
@@ -455,7 +468,7 @@ export function StaticIPForm({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
               Static IP Configuration Warning
             </DialogTitle>
             <DialogDescription className="space-y-3">
@@ -479,12 +492,14 @@ export function StaticIPForm({
               variant="outline"
               onClick={handleCancelSafety}
               className="min-h-[44px]"
+              aria-label="Cancel and go back"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmSafety}
               className="bg-warning hover:bg-warning/90 min-h-[44px]"
+              aria-label="Understand the warning and proceed"
             >
               I Understand, Proceed
             </Button>
@@ -493,4 +508,6 @@ export function StaticIPForm({
       </Dialog>
     </>
   );
-}
+});
+
+StaticIPForm.displayName = 'StaticIPForm';

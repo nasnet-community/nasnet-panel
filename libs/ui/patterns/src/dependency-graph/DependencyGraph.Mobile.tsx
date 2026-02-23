@@ -29,25 +29,30 @@ import type { DependencyGraphPresenterProps, EnhancedNode } from './dependency-g
 /**
  * Mobile Presenter for Dependency Graph
  *
+ * Optimized for mobile devices (<640px) with collapsible accordion-style layout.
+ *
  * Features:
  * - Collapsible layers (accordion-style)
- * - 44px minimum touch targets
+ * - 44px minimum touch targets (WCAG AAA)
  * - Layer-by-layer navigation
- * - Service cards with status badges
+ * - Service instance cards with status badges
+ * - Dependency/dependent counts
+ *
+ * @param props Presenter props with state, loading, error, and display options
  */
-export function DependencyGraphMobile({
+const DependencyGraphMobileInner = ({
   state,
   className,
   loading,
   error,
   emptyMessage,
-}: DependencyGraphPresenterProps) {
+}: DependencyGraphPresenterProps) => {
   const [expandedLayers, setExpandedLayers] = React.useState<Set<number>>(
     new Set([0]) // Expand layer 0 by default
   );
 
-  // Toggle layer expansion
-  const toggleLayer = (layerNumber: number) => {
+  // Toggle layer expansion with useCallback
+  const toggleLayer = React.useCallback((layerNumber: number) => {
     setExpandedLayers((prev) => {
       const next = new Set(prev);
       if (next.has(layerNumber)) {
@@ -57,7 +62,7 @@ export function DependencyGraphMobile({
       }
       return next;
     });
-  };
+  }, []);
 
   // Loading state
   if (loading) {
@@ -171,10 +176,18 @@ export function DependencyGraphMobile({
       </CardContent>
     </Card>
   );
-}
+};
+
+DependencyGraphMobileInner.displayName = 'DependencyGraphMobile';
 
 /**
- * Node Card Component
+ * DependencyGraphMobile - Mobile presenter for dependency graph
+ */
+const DependencyGraphMobile = React.memo(DependencyGraphMobileInner);
+DependencyGraphMobile.displayName = 'DependencyGraphMobile';
+
+/**
+ * Node Card Component - Service instance card for mobile display
  */
 interface NodeCardProps {
   node: EnhancedNode;
@@ -182,37 +195,40 @@ interface NodeCardProps {
   onSelect: (nodeId: string) => void;
 }
 
-function NodeCard({ node, isSelected, onSelect }: NodeCardProps) {
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(node.instanceId)}
-      className={cn(
-        'w-full min-h-[44px] p-3 rounded-lg',
-        'flex items-center justify-between gap-3',
-        'transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        isSelected
-          ? 'bg-primary/10 border border-primary'
-          : 'bg-card border border-border hover:bg-accent'
-      )}
-      aria-pressed={isSelected}
-    >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <StatusIndicator status={node.status as 'online' | 'offline' | 'pending'} size="sm" />
-        <div className="flex flex-col items-start min-w-0">
-          <span className="text-sm font-medium truncate w-full text-left">
-            {node.instanceName}
-          </span>
-          <span className="text-xs text-muted-foreground truncate w-full text-left">
-            {node.featureId}
-          </span>
-        </div>
+const NodeCardInner = ({ node, isSelected, onSelect }: NodeCardProps) => (
+  <button
+    type="button"
+    onClick={() => onSelect(node.instanceId)}
+    className={cn(
+      'w-full min-h-[44px] p-3 rounded-lg',
+      'flex items-center justify-between gap-3',
+      'transition-colors',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+      isSelected
+        ? 'bg-primary/10 border border-primary'
+        : 'bg-card border border-border hover:bg-accent'
+    )}
+    aria-pressed={isSelected}
+  >
+    <div className="flex items-center gap-3 flex-1 min-w-0">
+      <StatusIndicator status={node.status as 'online' | 'offline' | 'pending'} size="sm" />
+      <div className="flex flex-col items-start min-w-0">
+        <span className="text-sm font-medium truncate w-full text-left">
+          {node.instanceName}
+        </span>
+        <span className="text-xs text-muted-foreground truncate w-full text-left">
+          {node.featureId}
+        </span>
       </div>
-      <div className="flex flex-col items-end text-xs text-muted-foreground flex-shrink-0">
-        <span>↑ {node.dependenciesCount}</span>
-        <span>↓ {node.dependentsCount}</span>
-      </div>
-    </button>
-  );
-}
+    </div>
+    <div className="flex flex-col items-end text-xs text-muted-foreground flex-shrink-0">
+      <span>↑ {node.dependenciesCount}</span>
+      <span>↓ {node.dependentsCount}</span>
+    </div>
+  </button>
+);
+
+NodeCardInner.displayName = 'NodeCard';
+const NodeCard = React.memo(NodeCardInner);
+
+export { DependencyGraphMobile };

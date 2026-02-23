@@ -15,6 +15,13 @@ import type {
 
 /**
  * Configuration for each validation strategy.
+ *
+ * Maps validation strategy levels to their respective configurations,
+ * including validation stages, confirmation requirements, and risk profiles.
+ *
+ * @example
+ * const config = VALIDATION_CONFIGS.high;
+ * // Returns full validation pipeline with dry-run for WAN changes
  */
 export const VALIDATION_CONFIGS: Record<ValidationStrategy, ValidationConfig> =
   {

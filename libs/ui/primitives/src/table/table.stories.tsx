@@ -11,7 +11,6 @@ import {
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Table> = {
   title: 'Primitives/Table',
   component: Table,
@@ -21,8 +20,11 @@ const meta: Meta<typeof Table> = {
     docs: {
       description: {
         component:
-          'A semantic table component for displaying structured data with headers, rows, and cells.',
+          'A semantic table component for displaying structured data with headers, rows, and cells. Built with semantic HTML (<table>, <thead>, <tbody>, <tr>, <th>, <td>) for accessibility and native browser support. Fully keyboard navigable with arrow keys and Enter/Space activation on interactive elements. Tables include captions for screen reader context and support striping for visual clarity.',
       },
+    },
+    viewport: {
+      defaultViewport: 'desktop',
     },
   },
 };
@@ -40,6 +42,10 @@ const invoices = [
   { invoice: 'INV007', status: 'Unpaid', method: 'Credit Card', amount: '$300.00' },
 ];
 
+/**
+ * Default table with typical invoice data showing header, body, and caption.
+ * Demonstrates semantic HTML structure with proper accessibility annotations.
+ */
 export const Default: Story = {
   render: () => (
     <Table>
@@ -66,6 +72,10 @@ export const Default: Story = {
   ),
 };
 
+/**
+ * Table with footer section for totals or summary information.
+ * Demonstrates use of TableFooter component for summary rows.
+ */
 export const WithFooter: Story = {
   render: () => (
     <Table>
@@ -106,6 +116,11 @@ const firewallRules = [
   { id: '5', chain: 'forward', action: 'accept', src: '192.168.1.0/24', dst: 'any', protocol: 'all', port: 'any' },
 ];
 
+/**
+ * Domain-specific example showing firewall rules with semantic status colors.
+ * Demonstrates technical data presentation with monospace fonts for IP addresses.
+ * Colors paired with text labels for color-blind accessibility.
+ */
 export const FirewallRulesExample: Story = {
   render: () => (
     <Table>
@@ -148,6 +163,10 @@ export const FirewallRulesExample: Story = {
   ),
 };
 
+/**
+ * Empty state showing table with no data.
+ * Demonstrates handling of filtered-to-empty or no-records scenarios.
+ */
 export const Empty: Story = {
   render: () => (
     <Table>
@@ -171,6 +190,10 @@ export const Empty: Story = {
   ),
 };
 
+/**
+ * Table with striped rows for improved visual readability across long rows.
+ * Demonstrates alternating row background colors using semantic muted tokens.
+ */
 export const Striped: Story = {
   render: () => (
     <Table>
@@ -197,6 +220,134 @@ export const Striped: Story = {
             <TableCell className="text-right">
               <button className="text-primary hover:underline">Edit</button>
             </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};
+
+/**
+ * Mobile viewport (375px) showing reduced columns with scrollable overflow.
+ * Demonstrates responsive table design for small screens - only essential columns shown.
+ */
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  render: () => (
+    <Table>
+      <TableCaption>Firewall rules (mobile view with horizontal scroll).</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Chain</TableHead>
+          <TableHead>Action</TableHead>
+          <TableHead>Source</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {firewallRules.slice(0, 3).map((rule) => (
+          <TableRow key={rule.id}>
+            <TableCell>{rule.chain}</TableCell>
+            <TableCell>
+              <span
+                className={
+                  rule.action === 'accept'
+                    ? 'text-success'
+                    : 'text-error'
+                }
+              >
+                {rule.action}
+              </span>
+            </TableCell>
+            <TableCell className="font-mono text-sm">{rule.src}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};
+
+/**
+ * Tablet viewport (768px) showing balanced column density.
+ * Demonstrates responsive table with moderate information density for medium screens.
+ */
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+  render: () => (
+    <Table>
+      <TableCaption>Recent invoices (tablet view).</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Invoice</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {invoices.slice(0, 4).map((invoice) => (
+          <TableRow key={invoice.invoice}>
+            <TableCell className="font-medium">{invoice.invoice}</TableCell>
+            <TableCell>{invoice.status}</TableCell>
+            <TableCell className="text-right">{invoice.amount}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};
+
+/**
+ * Desktop viewport (1280px) showing full density table with all columns visible.
+ * Demonstrates high information density for power users on large screens.
+ * All details visible without horizontal scrolling or column hiding.
+ */
+export const DesktopFull: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+  render: () => (
+    <Table>
+      <TableCaption>Firewall rules with full details (desktop view).</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[60px]">#</TableHead>
+          <TableHead>Chain</TableHead>
+          <TableHead>Action</TableHead>
+          <TableHead>Source</TableHead>
+          <TableHead>Destination</TableHead>
+          <TableHead>Protocol</TableHead>
+          <TableHead>Port</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {firewallRules.map((rule) => (
+          <TableRow key={rule.id}>
+            <TableCell className="font-medium">{rule.id}</TableCell>
+            <TableCell>{rule.chain}</TableCell>
+            <TableCell>
+              <span
+                className={
+                  rule.action === 'accept'
+                    ? 'text-success'
+                    : 'text-error'
+                }
+              >
+                {rule.action}
+              </span>
+            </TableCell>
+            <TableCell className="font-mono text-sm">{rule.src}</TableCell>
+            <TableCell className="font-mono text-sm">{rule.dst}</TableCell>
+            <TableCell>{rule.protocol}</TableCell>
+            <TableCell>{rule.port}</TableCell>
           </TableRow>
         ))}
       </TableBody>

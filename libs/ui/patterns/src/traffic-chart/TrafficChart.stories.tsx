@@ -60,7 +60,7 @@ const gigabitData: TrafficDataPoint[] = [
 ];
 
 /** Single data point — edge case with one sample */
-const singlePointData: TrafficDataPoint[] = [
+const _singlePointData: TrafficDataPoint[] = [
   { time: 'now', download: 55, upload: 18 },
 ];
 

@@ -1,5 +1,4 @@
-import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, useMutation, useSubscription, gql } from '@apollo/client';
 
 // ============================================================================
 // GraphQL Documents

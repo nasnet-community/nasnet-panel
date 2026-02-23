@@ -4,9 +4,12 @@
  *
  * Dense table layout optimized for mouse/keyboard interaction.
  * Uses DataTable with sorting, filtering, and row actions.
+ *
+ * @description Desktop/tablet presenter for IP address list with data table,
+ * filtering, sorting, and dropdown action menu for each row.
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -27,7 +30,7 @@ import { AlertCircle, Edit, MoreVertical, RefreshCw, Trash } from 'lucide-react'
 
 import type { IPAddressData, IPAddressListProps } from './types';
 
-export function IPAddressListDesktop({
+function IPAddressListDesktopComponent({
   ipAddresses,
   loading = false,
   error,
@@ -101,7 +104,7 @@ export function IPAddressListDesktop({
         header: 'Address',
         cell: (ip) => (
           <div className="flex items-center gap-2">
-            <code className="text-sm font-mono">{ip.address}</code>
+            <code className="text-sm font-mono font-semibold">{ip.address}</code>
             {ip.dynamic && (
               <Badge variant="secondary" className="text-xs">
                 Dynamic
@@ -113,7 +116,7 @@ export function IPAddressListDesktop({
               </Badge>
             )}
             {ip.disabled && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="secondary" className="text-xs">
                 Disabled
               </Badge>
             )}
@@ -131,7 +134,7 @@ export function IPAddressListDesktop({
         key: 'network',
         header: 'Network',
         cell: (ip) => (
-          <code className="text-sm text-muted-foreground">
+          <code className="text-sm font-mono text-muted-foreground">
             {ip.network || '-'}
           </code>
         ),
@@ -140,7 +143,7 @@ export function IPAddressListDesktop({
         key: 'broadcast',
         header: 'Broadcast',
         cell: (ip) => (
-          <code className="text-sm text-muted-foreground">
+          <code className="text-sm font-mono text-muted-foreground">
             {ip.broadcast || '-'}
           </code>
         ),
@@ -163,10 +166,10 @@ export function IPAddressListDesktop({
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={ip.dynamic} // Disable actions for dynamic IPs
-                aria-label={`Actions for ${ip.address}`}
+                disabled={ip.dynamic}
+                aria-label={`Actions for IP address ${ip.address}`}
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -257,3 +260,6 @@ export function IPAddressListDesktop({
     </Card>
   );
 }
+
+export const IPAddressListDesktop = memo(IPAddressListDesktopComponent);
+IPAddressListDesktop.displayName = 'IPAddressListDesktop';

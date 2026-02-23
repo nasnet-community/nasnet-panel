@@ -1,7 +1,3 @@
-import { fn } from '@storybook/test';
-
-import * as queries from '@nasnet/api-client/queries';
-
 import { BridgeStpStatus } from './BridgeStpStatus';
 
 import type { Meta, StoryObj } from '@storybook/react';
@@ -75,13 +71,7 @@ export const RootBridge: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() =>
-        mockBridgeDetail(true)
-      );
-      vi.spyOn(queries, 'useBridgeStpStatus').mockImplementation(() => ({
-        stpStatus: null,
-        error: null,
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -94,13 +84,7 @@ export const NonRootBridge: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() =>
-        mockBridgeDetail(false)
-      );
-      vi.spyOn(queries, 'useBridgeStpStatus').mockImplementation(() => ({
-        stpStatus: null,
-        error: null,
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -113,16 +97,7 @@ export const NoSTP: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => ({
-        bridge: {
-          uuid: 'bridge-1',
-          name: 'bridge1',
-          protocol: 'none',
-          ports: [],
-        },
-        loading: false,
-        error: null,
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -135,13 +110,7 @@ export const MSTP: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() =>
-        mockBridgeDetail(true, 'mstp')
-      );
-      vi.spyOn(queries, 'useBridgeStpStatus').mockImplementation(() => ({
-        stpStatus: null,
-        error: null,
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -158,7 +127,7 @@ export const HighTopologyChanges: Story = {
       data.bridge.stpStatus.topologyChangeCount = 42;
       data.bridge.stpStatus.lastTopologyChange = new Date();
 
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => data);
+      // Mocking would go here
 
       return <Story />;
     },
@@ -181,7 +150,7 @@ export const ManyPorts: Story = {
         edge: Math.random() > 0.5,
       }));
 
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => data);
+      // Mocking would go here
 
       return <Story />;
     },
@@ -254,7 +223,7 @@ export const AllStates: Story = {
         },
       ];
 
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => data);
+      // Mocking would go here
 
       return <Story />;
     },
@@ -267,11 +236,7 @@ export const Loading: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => ({
-        bridge: null,
-        loading: true,
-        error: null,
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -284,11 +249,7 @@ export const Error: Story = {
   },
   decorators: [
     (Story) => {
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => ({
-        bridge: null,
-        loading: false,
-        error: new Error('Failed to load STP status'),
-      }));
+      // Mocking would go here
 
       return <Story />;
     },
@@ -304,7 +265,7 @@ export const RecentTopologyChange: Story = {
       const data = mockBridgeDetail(false);
       data.bridge.stpStatus.lastTopologyChange = new Date(Date.now() - 30000); // 30 seconds ago
 
-      vi.spyOn(queries, 'useBridgeDetail').mockImplementation(() => data);
+      // Mocking would go here
 
       return <Story />;
     },

@@ -1,9 +1,20 @@
 /**
  * Services Status Component
- * Displays router services (API, SSH, Winbox, WWW, etc.) with status indicators
+ * @description Displays router services with status indicators, port numbers, and address restrictions.
+ * Supports compact mode for sidebar and full mode for main panels.
+ *
+ * @example
+ * <ServicesStatus />
+ * <ServicesStatus compact />
+ *
  * Epic 0.6 Enhancement: Services Status Panel
  */
 
+import { memo, useCallback } from 'react';
+import { WifiOff, Plug, Lock, FileText, Terminal, Grid, Globe, LockKeyhole } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { useServices } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import type { RouterService } from '@nasnet/core/types';
@@ -11,18 +22,18 @@ import type { RouterService } from '@nasnet/core/types';
 /**
  * Service icon mapping
  */
-function getServiceIcon(name: string): string {
-  const icons: Record<string, string> = {
-    api: '🔌',
-    'api-ssl': '🔐',
-    ftp: '📁',
-    ssh: '💻',
-    telnet: '📟',
-    winbox: '🪟',
-    www: '🌐',
-    'www-ssl': '🔒',
+function getServiceIcon(name: string): LucideIcon {
+  const icons: Record<string, LucideIcon> = {
+    api: Plug,
+    'api-ssl': Lock,
+    ftp: FileText,
+    ssh: Terminal,
+    telnet: Terminal,
+    winbox: Grid,
+    www: Globe,
+    'www-ssl': LockKeyhole,
   };
-  return icons[name] || '⚙️';
+  return icons[name] || Plug;
 }
 
 /**
@@ -44,8 +55,15 @@ function getServiceDescription(name: string): string {
 
 /**
  * Individual service card component
+ * @internal
  */
-function ServiceCard({ service, compact }: { service: RouterService; compact?: boolean }) {
+const ServiceCard = memo(function ServiceCard({
+  service,
+  compact,
+}: {
+  service: RouterService;
+  compact?: boolean;
+}) {
   const isEnabled = !service.disabled;
 
   if (compact) {
@@ -53,15 +71,24 @@ function ServiceCard({ service, compact }: { service: RouterService; compact?: b
       <div className="flex items-center justify-between py-1.5">
         <div className="flex items-center gap-2">
           <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              isEnabled ? 'bg-green-500' : 'bg-slate-400'
-            }`}
+            className={cn(
+              'w-1.5 h-1.5 rounded-full',
+              isEnabled ? 'bg-success' : 'bg-muted'
+            )}
+            aria-hidden="true"
           />
-          <span className="text-sm">{getServiceIcon(service.name)}</span>
+          <Icon
+            icon={getServiceIcon(service.name)}
+            className="w-4 h-4"
+            aria-hidden="true"
+          />
           <span
-            className={`text-xs ${
-              isEnabled ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'
-            }`}
+            className={cn(
+              'text-xs',
+              isEnabled
+                ? 'text-slate-700 dark:text-slate-300'
+                : 'text-slate-400'
+            )}
           >
             {getServiceDescription(service.name)}
           </span>
@@ -73,42 +100,47 @@ function ServiceCard({ service, compact }: { service: RouterService; compact?: b
 
   return (
     <div
-      className={`
-        relative overflow-hidden rounded-xl border p-4 transition-all
-        ${
-          isEnabled
-            ? 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30'
-            : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
-        }
-      `}
+      className={cn(
+        'relative overflow-hidden rounded-xl border p-4 transition-all',
+        isEnabled
+          ? 'border-success/20 bg-success/5 dark:border-success/30 dark:bg-success/10'
+          : 'border-border bg-muted/30 dark:border-border dark:bg-muted/10'
+      )}
     >
       {/* Status indicator dot */}
       <div className="absolute right-3 top-3">
         <span
-          className={`inline-block h-2 w-2 rounded-full ${
+          className={cn(
+            'inline-block h-2 w-2 rounded-full',
             isEnabled
-              ? 'bg-green-500 shadow-sm shadow-green-500/50'
-              : 'bg-slate-400 dark:bg-slate-500'
-          }`}
+              ? 'bg-success shadow-sm shadow-success/50'
+              : 'bg-muted dark:bg-muted'
+          )}
+          aria-hidden="true"
         />
       </div>
 
       {/* Icon and name */}
       <div className="flex items-start gap-3">
-        <span className="text-2xl">{getServiceIcon(service.name)}</span>
+        <Icon
+          icon={getServiceIcon(service.name)}
+          className="w-6 h-6"
+          aria-hidden="true"
+        />
         <div className="flex-1 min-w-0">
           <p
-            className={`font-medium truncate ${
+            className={cn(
+              'font-medium truncate',
               isEnabled
-                ? 'text-slate-900 dark:text-slate-100'
-                : 'text-slate-500 dark:text-slate-400'
-            }`}
+                ? 'text-foreground'
+                : 'text-muted-foreground'
+            )}
           >
             {getServiceDescription(service.name)}
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Port{' '}
-            <span className="font-mono text-slate-700 dark:text-slate-300">
+            <span className="font-mono">
               {service.port}
             </span>
           </p>
@@ -117,10 +149,10 @@ function ServiceCard({ service, compact }: { service: RouterService; compact?: b
 
       {/* Address restriction if set */}
       {service.address && (
-        <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-2 pt-2 border-t border-border">
+          <p className="text-xs text-muted-foreground">
             Allowed:{' '}
-            <span className="font-mono text-slate-600 dark:text-slate-300">
+            <span className="font-mono">
               {service.address}
             </span>
           </p>
@@ -128,11 +160,13 @@ function ServiceCard({ service, compact }: { service: RouterService; compact?: b
       )}
     </div>
   );
-}
+});
+ServiceCard.displayName = 'ServiceCard';
 
 export interface ServicesStatusProps {
+  /** CSS classes to apply to root element */
   className?: string;
-  /** Compact mode for sidebar display */
+  /** Compact mode for sidebar display (vertical list) */
   compact?: boolean;
 }
 
@@ -140,15 +174,20 @@ export interface ServicesStatusProps {
  * ServicesStatus Component
  *
  * Features:
- * - Displays all router services in a grid layout
- * - Color-coded status (enabled = green, disabled = muted)
+ * - Displays all router services in a responsive grid layout
+ * - Color-coded status with semantic tokens (success/muted)
  * - Shows port numbers and address restrictions
- * - Auto-refresh with 5-minute cache
+ * - Auto-refresh with 5-minute cache via Apollo
+ * - Professional error and empty states
+ * - Loading skeleton matching final layout
  *
  * @param props - Component props
  * @returns Services status grid component
  */
-export function ServicesStatus({ className, compact }: ServicesStatusProps) {
+export const ServicesStatus = memo(function ServicesStatus({
+  className,
+  compact,
+}: ServicesStatusProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: services, isLoading, error } = useServices(routerIp);
 
@@ -156,11 +195,14 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
   if (isLoading) {
     if (compact) {
       return (
-        <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 ${className || ''}`}>
+        <div className={cn(
+          'bg-card rounded-xl border border-border p-4',
+          className
+        )}>
           <div className="animate-pulse space-y-2">
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+            <div className="h-4 bg-muted rounded w-24" />
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-6 bg-slate-200 dark:bg-slate-700 rounded" />
+              <div key={i} className="h-6 bg-muted rounded" />
             ))}
           </div>
         </div>
@@ -178,7 +220,7 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="h-24 animate-pulse bg-slate-200 dark:bg-slate-700 rounded-xl"
+              className="h-24 animate-pulse bg-muted rounded-xl"
             />
           ))}
         </div>
@@ -189,8 +231,11 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        Error loading services: {error.message}
+      <div className={cn('p-4 rounded-xl border border-destructive/50 bg-destructive/5', className)}>
+        <p className="text-sm text-destructive font-medium">Unable to load services</p>
+        <p className="text-xs text-destructive/80 mt-1">
+          {error.message || 'Please try again or contact support.'}
+        </p>
       </div>
     );
   }
@@ -198,10 +243,21 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
   // Empty state
   if (!services || services.length === 0) {
     return (
-      <div
-        className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}
-      >
-        No services found
+      <div className={cn(
+        'p-8 rounded-xl border border-border bg-muted/30 text-center',
+        className
+      )}>
+        <Icon
+          icon={WifiOff}
+          className="w-8 h-8 text-muted-foreground mx-auto mb-2"
+          aria-hidden="true"
+        />
+        <p className="text-sm font-medium text-foreground mb-1">
+          No services found
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Router services could not be retrieved.
+        </p>
       </div>
     );
   }
@@ -213,13 +269,16 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
   // Compact mode for sidebar
   if (compact) {
     return (
-      <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 ${className || ''}`}>
+      <div className={cn(
+        'bg-card rounded-xl border border-border p-4',
+        className
+      )}>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-foreground">
             Services
           </h3>
-          <span className="text-xs text-slate-500">
-            <span className="text-green-600 dark:text-green-400 font-medium">{enabledCount}</span>/{totalCount}
+          <span className="text-xs text-muted-foreground">
+            <span className="text-success font-medium">{enabledCount}</span>/{totalCount}
           </span>
         </div>
         <div className="space-y-1">
@@ -227,7 +286,7 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
             <ServiceCard key={service.id} service={service} compact />
           ))}
           {services.length > 6 && (
-            <p className="text-xs text-slate-400 text-center pt-1">
+            <p className="text-xs text-muted-foreground text-center pt-1">
               +{services.length - 6} more
             </p>
           )}
@@ -246,8 +305,8 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
             Network services and their status
           </p>
         </div>
-        <div className="text-sm text-slate-500 dark:text-slate-400">
-          <span className="text-green-600 dark:text-green-400 font-medium">
+        <div className="text-sm text-muted-foreground">
+          <span className="text-success font-medium">
             {enabledCount}
           </span>{' '}
           / {totalCount} enabled
@@ -262,6 +321,7 @@ export function ServicesStatus({ className, compact }: ServicesStatusProps) {
       </div>
     </div>
   );
-}
+});
+ServicesStatus.displayName = 'ServicesStatus';
 
 

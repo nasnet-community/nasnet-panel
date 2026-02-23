@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useState, type ReactNode } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 
 import { storeCredentials, clearCredentials } from '@nasnet/api-client/core';
 import { ROUTES } from '@nasnet/core/constants';
@@ -64,7 +65,7 @@ interface RouterPanelProps {
  * }
  * ```
  */
-export function RouterPanel({ routerId, children }: RouterPanelProps) {
+export const RouterPanel = React.memo(function RouterPanel({ routerId, children }: RouterPanelProps) {
   const id = routerId;
   const navigate = useNavigate();
 
@@ -224,4 +225,5 @@ export function RouterPanel({ routerId, children }: RouterPanelProps) {
       )}
     </div>
   );
-}
+});
+RouterPanel.displayName = 'RouterPanel';

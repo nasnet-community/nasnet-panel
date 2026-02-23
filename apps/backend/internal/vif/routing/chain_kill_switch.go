@@ -8,6 +8,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
+	"backend/generated/ent/virtualinterface"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -18,10 +19,11 @@ import (
 // ChainKillSwitchListener subscribes to health events and activates kill switches
 // when any hop in a chain becomes unhealthy.
 type ChainKillSwitchListener struct {
-	router    router.RouterPort
-	store     *ent.Client
-	eventBus  events.EventBus
-	publisher *events.Publisher
+	router      router.RouterPort
+	store       *ent.Client
+	eventBus    events.EventBus
+	publisher   *events.Publisher
+	chainRouter *ChainRouter
 }
 
 // NewChainKillSwitchListener creates a new kill switch listener.
@@ -29,12 +31,14 @@ func NewChainKillSwitchListener(
 	routerPort router.RouterPort,
 	store *ent.Client,
 	eventBus events.EventBus,
+	chainRouter *ChainRouter,
 ) *ChainKillSwitchListener {
 
 	listener := &ChainKillSwitchListener{
-		router:   routerPort,
-		store:    store,
-		eventBus: eventBus,
+		router:      routerPort,
+		store:       store,
+		eventBus:    eventBus,
+		chainRouter: chainRouter,
 	}
 
 	if eventBus != nil {
@@ -50,7 +54,84 @@ func (l *ChainKillSwitchListener) Start(ctx context.Context) error {
 		return fmt.Errorf("event bus is nil")
 	}
 
-	log.Info().Msg("Chain kill switch listener started (health events pending Story 8.6)")
+	if err := l.eventBus.Subscribe(events.EventTypeHealthChanged, func(ctx context.Context, event events.Event) error {
+		healthEvt, ok := event.(*events.FeatureHealthChangedEvent)
+		if !ok {
+			return nil
+		}
+		return l.handleHealthChanged(ctx, healthEvt)
+	}); err != nil {
+		return fmt.Errorf("failed to subscribe to health events: %w", err)
+	}
+
+	log.Info().Msg("Chain kill switch listener started - subscribed to health.changed events")
+	return nil
+}
+
+// handleHealthChanged processes a health changed event and activates/deactivates
+// kill switches for any chains whose hops use the affected service instance.
+func (l *ChainKillSwitchListener) handleHealthChanged(ctx context.Context, event *events.FeatureHealthChangedEvent) error {
+	if l.chainRouter == nil {
+		return nil
+	}
+
+	// Find the VirtualInterface associated with this instance
+	iface, err := l.store.VirtualInterface.
+		Query().
+		Where(virtualinterface.InstanceID(event.InstanceID)).
+		Only(ctx)
+	if err != nil {
+		// No virtual interface for this instance - not chain-related, skip
+		return nil //nolint:nilerr // intentional: no VIF means not chain-related, skip gracefully
+	}
+
+	// Find all chain hops using this interface
+	hops, err := l.store.ChainHop.
+		Query().
+		Where(chainhop.InterfaceID(iface.ID)).
+		WithChain().
+		All(ctx)
+	if err != nil {
+		return nil //nolint:nilerr // intentional: skip on error
+	}
+	if len(hops) == 0 {
+		return nil
+	}
+
+	isHealthy := event.CurrentState == "healthy"
+
+	// Deduplicate chain IDs
+	seen := make(map[string]bool)
+	for _, hop := range hops {
+		if hop.Edges.Chain == nil {
+			continue
+		}
+		chain := hop.Edges.Chain
+		if seen[chain.ID] {
+			continue
+		}
+		seen[chain.ID] = true
+
+		if !isHealthy {
+			log.Warn().
+				Str("instance_id", event.InstanceID).
+				Str("chain_id", chain.ID).
+				Str("current_state", event.CurrentState).
+				Msg("Health event: hop unhealthy, activating chain kill switch")
+			if err := l.chainRouter.ActivateChainKillSwitch(ctx, chain.ID, hop.HopOrder); err != nil {
+				log.Error().Err(err).Str("chain_id", chain.ID).Msg("Failed to activate chain kill switch")
+			}
+		} else {
+			log.Info().
+				Str("instance_id", event.InstanceID).
+				Str("chain_id", chain.ID).
+				Msg("Health event: hop healthy, attempting kill switch deactivation")
+			if err := l.chainRouter.DeactivateChainKillSwitch(ctx, chain.ID); err != nil {
+				log.Debug().Err(err).Str("chain_id", chain.ID).Msg("Kill switch deactivation skipped (other hops may still be unhealthy)")
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -164,8 +245,8 @@ func (cr *ChainRouter) DeactivateChainKillSwitch(ctx context.Context, chainID st
 		return nil
 	}
 
-	log.Info().Msg("Health status verification not yet implemented (Story 8.6)")
-	allHealthy := true
+	// Check each hop's VirtualInterface status to determine if all hops are healthy.
+	allHealthy := cr.checkHopsHealth(ctx, chain)
 
 	if !allHealthy {
 		log.Warn().Msg("Not all hops are healthy - kill switch remains active")
@@ -173,35 +254,9 @@ func (cr *ChainRouter) DeactivateChainKillSwitch(ctx context.Context, chainID st
 	}
 
 	hops := chain.Edges.Hops
-	disabledCount := 0
-
-	for _, hop := range hops {
-		if hop.KillSwitchRuleID == "" {
-			continue
-		}
-
-		disableCmd := router.Command{
-			Path:   "/ip/firewall/filter",
-			Action: "set",
-			Args: map[string]string{
-				".id":      hop.KillSwitchRuleID,
-				"disabled": "yes",
-			},
-		}
-
-		if _, err := cr.router.ExecuteCommand(ctx, disableCmd); err != nil {
-			log.Error().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to disable kill switch rule")
-			return fmt.Errorf("failed to disable kill switch for hop %d: %w", hop.HopOrder, err)
-		}
-
-		if err := cr.store.ChainHop.
-			UpdateOneID(hop.ID).
-			SetKillSwitchActive(false).
-			Exec(ctx); err != nil {
-			log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to update hop kill switch status")
-		}
-
-		disabledCount++
+	disabledCount, err := cr.disableHopRules(ctx, hops)
+	if err != nil {
+		return err
 	}
 
 	if err := cr.store.RoutingChain.
@@ -232,4 +287,68 @@ func (cr *ChainRouter) DeactivateChainKillSwitch(ctx context.Context, chainID st
 
 	log.Info().Str("chain_id", chain.ID).Int("rules_disabled", disabledCount).Msg("Chain kill switch deactivated - traffic restored")
 	return nil
+}
+
+// checkHopsHealth checks if all hops in the chain are healthy.
+// A hop is considered healthy when its interface Status is "active" and
+// GatewayStatus is "running". The hops are loaded with WithInterface() in DeactivateChainKillSwitch.
+func (cr *ChainRouter) checkHopsHealth(ctx context.Context, chain *ent.RoutingChain) bool {
+	for _, hop := range chain.Edges.Hops {
+		iface := hop.Edges.Interface
+		if iface == nil {
+			// Eager load failed; fall back to a direct query
+			var queryErr error
+			iface, queryErr = cr.store.VirtualInterface.
+				Query().
+				Where(virtualinterface.ID(hop.InterfaceID)).
+				Only(ctx)
+			if queryErr != nil {
+				log.Warn().Err(queryErr).Str("interface_id", hop.InterfaceID).Msg("Failed to query hop interface status")
+				return false
+			}
+		}
+		if iface.Status != virtualinterface.StatusActive || iface.GatewayStatus != virtualinterface.GatewayStatusRunning {
+			log.Debug().
+				Str("interface_id", hop.InterfaceID).
+				Str("status", string(iface.Status)).
+				Str("gateway_status", string(iface.GatewayStatus)).
+				Msg("Hop interface not fully healthy")
+			return false
+		}
+	}
+	return true
+}
+
+// disableHopRules disables all kill switch filter rules for a list of hops.
+func (cr *ChainRouter) disableHopRules(ctx context.Context, hops []*ent.ChainHop) (int, error) {
+	disabledCount := 0
+	for _, hop := range hops {
+		if hop.KillSwitchRuleID == "" {
+			continue
+		}
+
+		disableCmd := router.Command{
+			Path:   "/ip/firewall/filter",
+			Action: "set",
+			Args: map[string]string{
+				".id":      hop.KillSwitchRuleID,
+				"disabled": "yes",
+			},
+		}
+
+		if _, err := cr.router.ExecuteCommand(ctx, disableCmd); err != nil {
+			log.Error().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to disable kill switch rule")
+			return 0, fmt.Errorf("failed to disable kill switch for hop %d: %w", hop.HopOrder, err)
+		}
+
+		if err := cr.store.ChainHop.
+			UpdateOneID(hop.ID).
+			SetKillSwitchActive(false).
+			Exec(ctx); err != nil {
+			log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to update hop kill switch status")
+		}
+
+		disabledCount++
+	}
+	return disabledCount, nil
 }

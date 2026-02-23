@@ -5,11 +5,48 @@ import {
 } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 
+/** Toast duration for deletion notification (10 seconds allows undo window) */
+const DELETION_TOAST_DURATION_MS = 10000;
+
 /**
  * Headless hook for VLAN list logic
- * Manages VLAN selection, filtering, sorting, and CRUD operations
+ *
+ * @description
+ * Manages VLAN selection, filtering, sorting, and CRUD operations.
+ * All business logic lives here; presenters call this hook and render the results.
+ *
+ * Features:
+ * - Fetch VLANs via GraphQL (useVlans hook)
+ * - Filter by search query, parent interface, and VLAN ID range
+ * - Batch selection and bulk operations
+ * - Delete with toast notification and refetch
+ * - Memoized filtered results
+ * - useCallback on all action handlers for stable references
  *
  * @param routerId - Router ID to fetch VLANs for
+ * @returns Headless hook state and action handlers
+ *
+ * @example
+ * ```tsx
+ * const vlanList = useVlanList(routerId);
+ * return (
+ *   <>
+ *     <input
+ *       value={vlanList.searchQuery}
+ *       onChange={(e) => vlanList.setSearchQuery(e.target.value)}
+ *     />
+ *     {vlanList.vlans.map(v => (
+ *       <VlanCard
+ *         key={v.id}
+ *         vlan={v}
+ *         isSelected={vlanList.selectedIds.has(v.id)}
+ *         onToggle={() => vlanList.toggleSelection(v.id)}
+ *         onDelete={() => vlanList.handleDelete(v.id)}
+ *       />
+ *     ))}
+ *   </>
+ * );
+ * ```
  */
 export function useVlanList(routerId: string) {
   const { vlans, loading, error, refetch } = useVlans(routerId);
@@ -47,9 +84,9 @@ export function useVlanList(routerId: string) {
         const result = await deleteVlan(id);
 
         if (result.data?.success) {
-          // Show success toast with 10-second duration
+          // Show success toast with 10-second duration (allows undo window)
           toast.success('VLAN deleted', {
-            duration: 10000,
+            duration: DELETION_TOAST_DURATION_MS,
             description: 'VLAN interface has been removed from the router',
           });
 

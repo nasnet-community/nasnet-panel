@@ -1,17 +1,62 @@
 /**
  * Accessibility Testing Utilities
  *
- * Provides reusable test utilities for axe-core accessibility testing.
- * Use these utilities to ensure WCAG AAA compliance across all components.
+ * Comprehensive reusable test utilities for axe-core accessibility testing.
+ * Provides functions to ensure WCAG AAA compliance across all components.
  *
- * @see NAS-4.17: Implement Accessibility (a11y) Foundation
+ * Features:
+ * - testA11y(): Main test function with configurable WCAG level (A, AA, AAA)
+ * - getA11yReport(): Non-asserting report generation for debugging
+ * - getTabOrder(): Verify logical keyboard navigation order
+ * - hasMinimumTouchTarget(): Check 44x44px touch target requirements
+ * - getElementsWithSmallTouchTargets(): Batch touch target verification
+ * - meetsContrastRequirement(): Validate color contrast ratios
+ * - getContrastRatio(): Calculate exact contrast ratio between colors
+ * - assertAriaAttributes(): Verify ARIA attribute presence and values
+ *
+ * @example
+ * ```tsx
+ * import { testA11y, getA11yReport } from '@nasnet/ui/primitives/test/a11y-utils';
+ *
+ * // Test with default WCAG AAA
+ * it('should pass WCAG AAA', async () => {
+ *   await testA11y(<Button>Click me</Button>);
+ * });
+ *
+ * // Test with specific WCAG level
+ * it('should pass WCAG AA', async () => {
+ *   await testA11y(<MyComponent />, { wcagLevel: 'AA' });
+ * });
+ *
+ * // Generate report for debugging
+ * const report = await getA11yReport(<Component />);
+ * console.log(report.violations); // View all accessibility violations
+ * ```
+ *
+ * @see {@link ./setup.ts} For vitest configuration
+ * @see {@link ../../Docs/design/ux-design/8-responsive-design-accessibility.md} For accessibility guidelines
+ * @see {@link ../../Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md#7-accessibility-wcag-aaa} For WCAG AAA checklist
  */
 
 import type { ReactElement } from 'react';
 
 import { render } from '@testing-library/react';
 import { expect } from 'vitest';
-import { axe, type AxeResults } from 'vitest-axe';
+import { axe } from 'vitest-axe';
+import type AxeCore from 'axe-core';
+
+/**
+ * Vitest interface augmentation for axe-core custom matcher
+ * Extends Vitest's Assertion interface to support .toHaveNoViolations()
+ */
+declare module 'vitest' {
+  interface Assertion<T = any> {
+    toHaveNoViolations(): T;
+  }
+  interface AsymmetricMatchersContaining {
+    toHaveNoViolations(): void;
+  }
+}
 
 /**
  * Options for axe-core testing
@@ -112,7 +157,7 @@ export async function testA11y(
 export async function getA11yReport(
   ui: ReactElement,
   options: TestA11yOptions = {}
-): Promise<AxeResults> {
+): Promise<AxeCore.AxeResults> {
   const { axeOptions, rules, wcagLevel = 'AAA' } = options;
 
   const { container } = render(ui);

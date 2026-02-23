@@ -3,8 +3,9 @@
  * Modal dialog for entering and validating router credentials (Story 0-1-3)
  */
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import type { RouterCredentials } from '@nasnet/core/types';
 import { DEFAULT_CREDENTIALS } from '../services/credentialService';
 
@@ -48,12 +49,17 @@ export interface CredentialDialogProps {
    * Initial credentials (for retry scenarios)
    */
   initialCredentials?: RouterCredentials;
+
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 
 /**
  * CredentialDialog Component
  *
- * Modal dialog for entering router login credentials with validation.
+ * @description Modal dialog for entering router login credentials with validation.
  *
  * Features:
  * - Username and password inputs
@@ -73,7 +79,7 @@ export interface CredentialDialogProps {
  * />
  * ```
  */
-export function CredentialDialog({
+export const CredentialDialog = memo(function CredentialDialog({
   isOpen,
   routerIp,
   routerName,
@@ -82,6 +88,7 @@ export function CredentialDialog({
   onSubmit,
   onCancel,
   initialCredentials,
+  className,
 }: CredentialDialogProps) {
   const [username, setUsername] = useState(
     initialCredentials?.username || DEFAULT_CREDENTIALS.username
@@ -95,7 +102,7 @@ export function CredentialDialog({
   /**
    * Handles form submission
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username.trim()) {
@@ -109,18 +116,18 @@ export function CredentialDialog({
       },
       saveCredentials
     );
-  };
+  }, [username, password, saveCredentials, onSubmit]);
 
   /**
    * Handles cancel action
    */
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     // Reset to initial or default values
     setUsername(initialCredentials?.username || DEFAULT_CREDENTIALS.username);
     setPassword(initialCredentials?.password || DEFAULT_CREDENTIALS.password);
     setShowPassword(false);
     onCancel?.();
-  };
+  }, [initialCredentials, onCancel]);
 
   return (
     <AnimatePresence>
@@ -132,7 +139,7 @@ export function CredentialDialog({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleCancel}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className={cn('fixed inset-0 bg-black/50 backdrop-blur-sm z-40', className)}
           />
 
           {/* Dialog */}
@@ -141,14 +148,14 @@ export function CredentialDialog({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
+              className="bg-background dark:bg-surface-elevated2 rounded-lg shadow-modal max-w-md w-full"
             >
               {/* Header */}
-              <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <div className="px-6 pt-6 pb-4 border-b border-border">
+                <h2 className="text-xl font-semibold text-foreground">
                   Connect to Router
                 </h2>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {routerName ? (
                     <>
                       {routerName}{' '}
@@ -167,7 +174,7 @@ export function CredentialDialog({
                   <div>
                     <label
                       htmlFor="username"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      className="block text-sm font-medium text-foreground mb-1"
                     >
                       Username
                     </label>
@@ -178,7 +185,7 @@ export function CredentialDialog({
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isValidating}
                       placeholder="admin"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-white disabled:opacity-50"
+                      className={cn('w-full px-3 py-2 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
                       autoFocus
                     />
                   </div>
@@ -187,7 +194,7 @@ export function CredentialDialog({
                   <div>
                     <label
                       htmlFor="password"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      className="block text-sm font-medium text-foreground mb-1"
                     >
                       Password
                     </label>
@@ -199,13 +206,14 @@ export function CredentialDialog({
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={isValidating}
                         placeholder="Enter password"
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-white disabled:opacity-50"
+                        className={cn('w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isValidating}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground disabled:opacity-50"
                       >
                         {showPassword ? (
                           <svg
@@ -254,11 +262,11 @@ export function CredentialDialog({
                       checked={saveCredentials}
                       onChange={(e) => setSaveCredentials(e.target.checked)}
                       disabled={isValidating}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+                      className={cn('h-4 w-4 rounded disabled:opacity-50', 'focus-visible:ring-2 focus-visible:ring-ring')}
                     />
                     <label
                       htmlFor="saveCredentials"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      className="ml-2 block text-sm text-foreground"
                     >
                       Remember credentials
                     </label>
@@ -271,14 +279,16 @@ export function CredentialDialog({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
+                        className="p-3 bg-destructive/10 border border-destructive/20 rounded-md"
+                        role="alert"
                       >
                         <div className="flex">
                           <div className="flex-shrink-0">
                             <svg
-                              className="h-5 w-5 text-red-400"
+                              className="h-5 w-5 text-destructive"
                               viewBox="0 0 20 20"
                               fill="currentColor"
+                              aria-hidden="true"
                             >
                               <path
                                 fillRule="evenodd"
@@ -288,7 +298,7 @@ export function CredentialDialog({
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm text-red-800 dark:text-red-200">
+                            <p className="text-sm text-destructive">
                               {validationError}
                             </p>
                           </div>
@@ -304,14 +314,14 @@ export function CredentialDialog({
                     type="button"
                     onClick={handleCancel}
                     disabled={isValidating}
-                    className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50"
+                    className={cn('flex-1 px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50', 'bg-muted text-foreground hover:bg-muted/80')}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isValidating || !username.trim()}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                    className={cn('flex-1 px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2', 'bg-primary text-primary-foreground hover:bg-primary/90')}
                   >
                     {isValidating ? (
                       <>
@@ -326,10 +336,10 @@ export function CredentialDialog({
               </form>
 
               {/* Footer Help Text */}
-              <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="px-6 py-4 bg-muted border-t border-border rounded-b-lg">
+                <p className="text-xs text-muted-foreground">
                   💡 Default MikroTik credentials: username{' '}
-                  <code className="px-1 py-0.5 bg-gray-200 dark:bg-gray-800 rounded">
+                  <code className="px-1 py-0.5 bg-surface-elevated1 rounded">
                     admin
                   </code>{' '}
                   with empty password
@@ -341,4 +351,6 @@ export function CredentialDialog({
       )}
     </AnimatePresence>
   );
-}
+});
+
+CredentialDialog.displayName = 'CredentialDialog';

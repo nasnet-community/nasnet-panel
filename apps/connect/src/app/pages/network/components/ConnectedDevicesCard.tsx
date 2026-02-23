@@ -3,14 +3,15 @@
  * Light/dark theme support - ARP/DHCP device summary
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Users, CheckCircle, AlertCircle, XCircle, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type ARPEntry } from '@nasnet/core/types';
 import { formatMACAddress } from '@nasnet/core/utils';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface ConnectedDevicesCardProps {
   entries: ARPEntry[];
@@ -18,7 +19,8 @@ interface ConnectedDevicesCardProps {
   error?: Error | null;
 }
 
-export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDevicesCardProps) {
+export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDevicesCardProps) {
+  const { t } = useTranslation('network');
   const stats = useMemo(() => {
     const complete = entries.filter((e) => e.status === 'complete').length;
     const incomplete = entries.filter((e) => e.status === 'incomplete').length;
@@ -30,14 +32,14 @@ export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDev
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 animate-pulse">
+      <div className="bg-card rounded-2xl border border-border p-4 animate-pulse">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-          <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-32" />
+          <div className="w-8 h-8 bg-muted rounded-lg" />
+          <div className="h-5 bg-muted rounded w-32" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800 rounded-lg" />
+            <div key={i} className="h-12 bg-muted rounded-lg" />
           ))}
         </div>
       </div>
@@ -46,26 +48,26 @@ export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDev
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-red-200 dark:border-red-800/50 p-4">
-        <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+      <div className="bg-card rounded-2xl border border-destructive/30 p-4">
+        <div className="flex items-center gap-2 text-destructive">
           <XCircle className="w-5 h-5" />
-          <span className="text-sm font-medium">Failed to load devices</span>
+          <span className="text-sm font-medium">{t('connectedDevices.loadError')}</span>
         </div>
-        <p className="text-xs text-red-500/70 mt-1">{error.message}</p>
+        <p className="text-xs text-destructive/70 mt-1">{error.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+    <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center">
-            <Users className="w-4 h-4 text-secondary-500" />
+          <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
+            <Users className="w-4 h-4 text-info" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Connected Devices</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{stats.total} in ARP table</p>
+            <h3 className="text-sm font-semibold text-foreground">{t('connectedDevices.title')}</h3>
+            <p className="text-xs text-muted-foreground">{stats.total} {t('connectedDevices.inArp')}</p>
           </div>
         </div>
       </div>
@@ -73,19 +75,19 @@ export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDev
       {/* Status Summary */}
       <div className="flex gap-4 mb-4">
         <div className="flex items-center gap-1.5">
-          <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-          <span className="text-xs text-slate-600 dark:text-slate-400">{stats.complete} complete</span>
+          <CheckCircle className="w-3.5 h-3.5 text-success" />
+          <span className="text-xs text-muted-foreground">{stats.complete} {t('arp.statusComplete').toLowerCase()}</span>
         </div>
         {stats.incomplete > 0 && (
           <div className="flex items-center gap-1.5">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-xs text-slate-600 dark:text-slate-400">{stats.incomplete} incomplete</span>
+            <AlertCircle className="w-3.5 h-3.5 text-warning" />
+            <span className="text-xs text-muted-foreground">{stats.incomplete} {t('arp.statusIncomplete').toLowerCase()}</span>
           </div>
         )}
         {stats.failed > 0 && (
           <div className="flex items-center gap-1.5">
-            <XCircle className="w-3.5 h-3.5 text-red-500" />
-            <span className="text-xs text-slate-600 dark:text-slate-400">{stats.failed} failed</span>
+            <XCircle className="w-3.5 h-3.5 text-destructive" />
+            <span className="text-xs text-muted-foreground">{stats.failed} {t('arp.statusFailed').toLowerCase()}</span>
           </div>
         )}
       </div>
@@ -94,7 +96,7 @@ export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDev
       <div className="space-y-2">
         {recentDevices.length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-sm text-slate-500 dark:text-slate-400">No devices found</p>
+            <p className="text-sm text-muted-foreground">{t('connectedDevices.noDevices')}</p>
           </div>
         ) : (
           recentDevices.map((device) => (
@@ -102,31 +104,33 @@ export function ConnectedDevicesCard({ entries, isLoading, error }: ConnectedDev
               key={device.id}
               className={cn(
                 'flex items-center justify-between p-2 rounded-lg',
-                'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
+                'bg-muted hover:bg-muted/80 transition-colors'
               )}
             >
               <div className="flex items-center gap-3">
                 <span className={cn('w-2 h-2 rounded-full',
-                  device.status === 'complete' ? 'bg-emerald-500' :
-                  device.status === 'incomplete' ? 'bg-amber-500' : 'bg-red-500'
+                  device.status === 'complete' ? 'bg-success' :
+                  device.status === 'incomplete' ? 'bg-warning' : 'bg-destructive'
                 )} />
                 <div>
-                  <p className="text-sm font-mono text-slate-900 dark:text-white">{device.ipAddress}</p>
-                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{formatMACAddress(device.macAddress)}</p>
+                  <p className="text-sm font-mono text-foreground">{device.ipAddress}</p>
+                  <p className="text-xs font-mono text-muted-foreground">{formatMACAddress(device.macAddress)}</p>
                 </div>
               </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">{device.interface}</span>
+              <span className="text-xs text-muted-foreground">{device.interface}</span>
             </div>
           ))
         )}
       </div>
 
       {entries.length > 5 && (
-        <button className="w-full mt-3 flex items-center justify-center gap-1 text-xs text-primary-500 hover:text-primary-600 font-medium py-2 transition-colors">
-          View all {entries.length} devices
+        <button className="w-full mt-3 flex items-center justify-center gap-1 text-xs text-primary hover:text-primary/90 font-medium py-2 transition-colors">
+          {t('connectedDevices.viewAll', { count: entries.length })}
           <ChevronRight className="w-3 h-3" />
         </button>
       )}
     </div>
   );
-}
+});
+
+ConnectedDevicesCard.displayName = 'ConnectedDevicesCard';

@@ -1,8 +1,9 @@
 /**
  * Mangle Rules Table Component (Platform Wrapper)
  *
- * Wrapper component that detects platform and renders the appropriate presenter.
- * Follows the Headless + Platform Presenters pattern.
+ * @description Platform-aware wrapper for mangle rules table with automatic detection and rendering
+ * of appropriate presenter (Mobile/Desktop). Supports drag-drop reordering, inline toggles, and
+ * CRUD actions with counter visualization.
  *
  * Features:
  * - Automatic platform detection (Mobile/Desktop)
@@ -17,12 +18,15 @@
  */
 
 import { memo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { MangleRulesTableDesktop } from './MangleRulesTableDesktop';
 import { MangleRulesTableMobile } from './MangleRulesTableMobile';
 
 export interface MangleRulesTableProps {
+  /** Optional CSS class name for custom styling */
   className?: string;
+  /** Optional firewall chain filter (e.g., 'forward', 'input', 'output') */
   chain?: string;
 }
 
@@ -36,13 +40,18 @@ export interface MangleRulesTableProps {
  * @param props - Component props
  * @returns Platform-appropriate mangle rules table
  */
-export const MangleRulesTable = memo(function MangleRulesTable({ className, chain }: MangleRulesTableProps) {
+export const MangleRulesTable = memo(function MangleRulesTable({
+  className,
+  chain
+}: MangleRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   return isMobile ? (
-    <MangleRulesTableMobile className={className} chain={chain} />
+    <MangleRulesTableMobile className={cn(className)} chain={chain} />
   ) : (
-    <MangleRulesTableDesktop className={className} chain={chain} />
+    <MangleRulesTableDesktop className={cn(className)} chain={chain} />
   );
 });
+
+MangleRulesTable.displayName = 'MangleRulesTable';

@@ -1,23 +1,40 @@
 /**
- * BandwidthDataTable - Accessible table alternative for bandwidth chart
- * Provides screen reader accessible data representation (WCAG AAA)
+ * BandwidthDataTable - Accessible tabular representation of bandwidth data
+ *
+ * @description
+ * Provides screen reader-optimized table alternative to chart visualization.
+ * Hidden visually by default (`sr-only`) but fully accessible to assistive
+ * technologies. Includes timestamp, TX/RX rates (in bps, tabular-nums font),
+ * and total transferred bytes. Limited to latest 50 points for readability.
+ *
+ * **Accessibility:** Table has semantic `<caption>`, `<thead>/<tbody>`,
+ * `scope="col"` headers, and `role="region"` for easy navigation.
+ * All numerical data uses `font-variant-numeric: tabular-nums` for alignment.
+ *
+ * **Design Tokens:** Uses semantic spacing and color tokens. Supports toggle
+ * to make visible for users preferring tabular data via `data-visible=true`.
+ *
+ * @param props - Component props { dataPoints, timeRange, className? }
+ * @param props.dataPoints - Array of bandwidth measurement points
+ * @param props.timeRange - Current time range ('5m', '1h', '24h') for caption
+ * @param props.className - Optional CSS class name
+ *
+ * @returns Memoized table component, screen-reader-only by default
+ *
+ * @example
+ * ```tsx
+ * <BandwidthDataTable
+ *   dataPoints={historicalData}
+ *   timeRange="1h"
+ *   className="mt-4"
+ * />
+ * ```
  */
 
 import { memo } from 'react';
 import { cn } from '@nasnet/ui/utils';
 import { formatBitrate, formatBytes } from './utils';
 import type { BandwidthDataTableProps } from './types';
-
-/**
- * BandwidthDataTable component
- *
- * Provides accessible data table for screen readers as alternative to chart
- * - Hidden visually but accessible to assistive technologies
- * - Can be toggled visible for users who prefer tabular data
- * - Includes all data points with timestamp, rates, and totals
- *
- * @param props - Component props
- */
 export const BandwidthDataTable = memo<BandwidthDataTableProps>(
   ({ dataPoints, timeRange, className }) => {
     // Limit displayed points to avoid excessive table size
@@ -27,7 +44,7 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
     return (
       <div
         className={cn(
-          // Screen reader only by default
+          // Screen reader only by default (hidden visually)
           'sr-only',
           // Can be made visible with data-visible attribute
           'data-[visible=true]:not-sr-only',
@@ -35,15 +52,16 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
         )}
         role="region"
         aria-label="Bandwidth data table"
+        aria-live="polite"
       >
         <table className="w-full border-collapse text-sm">
           <caption className="mb-2 text-left text-lg font-semibold">
-            Bandwidth Data - {timeRange} time range
+            Bandwidth Data Table - {timeRange} time range
             {displayedPoints.length < dataPoints.length && (
               <span className="text-muted-foreground">
                 {' '}
                 (showing latest {displayedPoints.length} of {dataPoints.length}{' '}
-                points)
+                data points)
               </span>
             )}
           </caption>
@@ -59,25 +77,25 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
                 scope="col"
                 className="px-4 py-2 text-right font-medium"
               >
-                TX Rate
+                TX Rate (bps)
               </th>
               <th
                 scope="col"
                 className="px-4 py-2 text-right font-medium"
               >
-                RX Rate
+                RX Rate (bps)
               </th>
               <th
                 scope="col"
                 className="px-4 py-2 text-right font-medium"
               >
-                TX Total
+                TX Total (bytes)
               </th>
               <th
                 scope="col"
                 className="px-4 py-2 text-right font-medium"
               >
-                RX Total
+                RX Total (bytes)
               </th>
             </tr>
           </thead>
@@ -98,16 +116,16 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
                       second: '2-digit',
                     })}
                   </td>
-                  <td className="px-4 py-2 text-right tabular-nums">
+                  <td className="px-4 py-2 text-right font-mono">
                     {formatBitrate(point.txRate)}
                   </td>
-                  <td className="px-4 py-2 text-right tabular-nums">
+                  <td className="px-4 py-2 text-right font-mono">
                     {formatBitrate(point.rxRate)}
                   </td>
-                  <td className="px-4 py-2 text-right tabular-nums">
+                  <td className="px-4 py-2 text-right font-mono">
                     {formatBytes(point.txBytes)}
                   </td>
-                  <td className="px-4 py-2 text-right tabular-nums">
+                  <td className="px-4 py-2 text-right font-mono">
                     {formatBytes(point.rxBytes)}
                   </td>
                 </tr>

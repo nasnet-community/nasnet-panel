@@ -20,10 +20,12 @@
  */
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertTriangle } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import {
   Dialog,
   DialogContent,
@@ -48,7 +50,8 @@ import {
   Alert,
   AlertDescription,
 } from '@nasnet/ui/primitives';
-import { AlertTriangle } from 'lucide-react';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Schema (mirrors BridgePortEditor)
@@ -114,6 +117,7 @@ function BridgePortEditorPreview({
   saving = false,
 }: BridgePortEditorPreviewProps) {
   const form = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: {
       pvid: port?.pvid ?? 1,

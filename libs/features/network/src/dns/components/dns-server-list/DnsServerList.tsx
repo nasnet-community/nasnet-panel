@@ -4,6 +4,10 @@
  * Platform-adaptive component for displaying and managing DNS servers.
  * Supports drag-and-drop reordering, add/remove operations.
  *
+ * @description
+ * Automatically renders the appropriate presenter (Mobile/Desktop) for managing
+ * DNS servers with reordering, addition, and removal capabilities.
+ *
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
@@ -37,6 +41,8 @@ export interface DnsServerListProps {
   /** Callback to add a new static server */
   onAdd: () => void;
   /** Whether operations are in progress */
+  isLoading?: boolean;
+  /** Whether data is loading (alias for isLoading) */
   loading?: boolean;
 }
 
@@ -77,3 +83,5 @@ export const DnsServerList = memo(function DnsServerList(
 
   return <DnsServerListDesktop {...props} />;
 });
+
+DnsServerList.displayName = 'DnsServerList';

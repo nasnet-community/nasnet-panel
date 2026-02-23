@@ -4,10 +4,11 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { type FieldValues } from 'react-hook-form';
 
 import { useWizardPersistence } from '../useWizardPersistence';
 
-interface TestWizardData {
+interface TestWizardData extends Record<string, FieldValues> {
   step1: { name: string };
   step2: { email: string };
   step3: { password: string };
@@ -301,7 +302,7 @@ describe('useWizardPersistence', () => {
 
       // Verify the stored data
       const storedData = JSON.parse(
-        (mockStorage.setItem as vi.Mock).mock.calls.at(-1)?.[1] ?? '{}'
+        (mockStorage.setItem as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1] ?? '{}'
       );
       expect(storedData.stepData.step1).toEqual({ name: 'Test' });
       expect(storedData.completedSteps).toContain('step1');

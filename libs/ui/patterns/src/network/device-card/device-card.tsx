@@ -59,7 +59,10 @@ import type { DeviceCardProps } from './device-card.types';
  * />
  * ```
  */
-export function DeviceCard({
+/**
+ * Internal component function
+ */
+function DeviceCardComponent({
   device,
   onConfigure,
   onBlock,
@@ -140,3 +143,9 @@ export function DeviceCard({
     </div>
   );
 }
+
+/**
+ * Memoized DeviceCard component
+ */
+export const DeviceCard = React.memo(DeviceCardComponent);
+DeviceCard.displayName = 'DeviceCard';

@@ -1,6 +1,6 @@
-import { Badge } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { X, Settings } from 'lucide-react';
+import { memo, useCallback, useMemo } from 'react';
+import { Badge, Button, Icon } from '@nasnet/ui/primitives';
+import { Settings, X } from 'lucide-react';
 import type { BridgePort } from '@nasnet/api-client/generated';
 
 export interface PortNodeProps {
@@ -8,15 +8,24 @@ export interface PortNodeProps {
   onRemove: (portId: string) => void;
   onEdit: (portId: string) => void;
   isRemoving?: boolean;
+  className?: string;
 }
 
 /**
  * Port Node Component - Visualizes a bridge port with VLAN and STP info
  * Shows: Interface name, PVID, Tagged VLANs, STP role/state
+ *
+ * @description Visual representation of a bridge port with VLAN tagging and STP status
  */
-export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNodeProps) {
-  // Determine STP role badge variant
-  const getRoleBadgeVariant = (role: string): 'success' | 'info' | 'warning' | 'secondary' => {
+export const PortNode = memo(function PortNode({
+  port,
+  onRemove,
+  onEdit,
+  isRemoving = false,
+  className,
+}: PortNodeProps) {
+  // Memoized STP role badge variant determiner
+  const getRoleBadgeVariant = useCallback((role: string): 'success' | 'info' | 'warning' | 'secondary' => {
     switch (role.toLowerCase()) {
       case 'root':
         return 'success';
@@ -29,10 +38,10 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
       default:
         return 'secondary';
     }
-  };
+  }, []);
 
-  // Determine STP state badge variant
-  const getStateBadgeVariant = (state: string): 'success' | 'warning' | 'secondary' => {
+  // Memoized STP state badge variant determiner
+  const getStateBadgeVariant = useCallback((state: string): 'success' | 'warning' | 'secondary' => {
     switch (state.toLowerCase()) {
       case 'forwarding':
         return 'success';
@@ -44,11 +53,20 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
       default:
         return 'secondary';
     }
-  };
+  }, []);
+
+  // Memoized event handlers
+  const handleRemoveClick = useCallback(() => {
+    onRemove(port.id);
+  }, [port.id, onRemove]);
+
+  const handleEditClick = useCallback(() => {
+    onEdit(port.id);
+  }, [port.id, onEdit]);
 
   return (
     <div
-      className="group relative flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
+      className={className || 'group relative flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent'}
       role="listitem"
       aria-label={`Port ${port.interface.name}`}
     >
@@ -81,19 +99,19 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
 
         {/* VLAN Info */}
         <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-          <span className="font-mono">PVID: {port.pvid}</span>
+          <span className="font-mono">PVID: <span className="font-mono">{port.pvid}</span></span>
 
           {port.taggedVlans && port.taggedVlans.length > 0 && (
             <>
               <span>•</span>
-              <span>Tagged: {port.taggedVlans.join(', ')}</span>
+              <span>Tagged: <span className="font-mono">{port.taggedVlans.join(', ')}</span></span>
             </>
           )}
 
           {port.untaggedVlans && port.untaggedVlans.length > 0 && (
             <>
               <span>•</span>
-              <span>Untagged: {port.untaggedVlans.join(', ')}</span>
+              <span>Untagged: <span className="font-mono">{port.untaggedVlans.join(', ')}</span></span>
             </>
           )}
         </div>
@@ -120,22 +138,24 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          onClick={() => onEdit(port.id)}
+          onClick={handleEditClick}
           aria-label={`Edit ${port.interface.name} settings`}
         >
-          <Settings className="h-4 w-4" />
+          <Icon icon={Settings} className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-destructive hover:text-destructive"
-          onClick={() => onRemove(port.id)}
+          onClick={handleRemoveClick}
           disabled={isRemoving}
           aria-label={`Remove ${port.interface.name} from bridge`}
         >
-          <X className="h-4 w-4" />
+          <Icon icon={X} className="h-4 w-4" />
         </Button>
       </div>
     </div>
   );
-}
+});
+
+PortNode.displayName = 'PortNode';

@@ -8,7 +8,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import { BandwidthChart } from './BandwidthChart';
 import { BandwidthChartDesktop } from './BandwidthChartDesktop';
 import { BandwidthChartMobile } from './BandwidthChartMobile';
-import { BANDWIDTH_HISTORY_QUERY, BANDWIDTH_SUBSCRIPTION } from './graphql';
+import { GET_BANDWIDTH_HISTORY } from './graphql';
 import { GraphQLTimeRange, GraphQLAggregationType } from './types';
 
 import type { UseBandwidthHistoryReturn } from './types';
@@ -61,9 +61,9 @@ const meta: Meta<typeof BandwidthChart> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
+    (_Story) => (
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <Story />
+        <_Story />
       </div>
     ),
   ],
@@ -91,7 +91,7 @@ export const Default: Story = {
         mocks={[
           {
             request: {
-              query: BANDWIDTH_HISTORY_QUERY,
+              query: GET_BANDWIDTH_HISTORY,
               variables: {
                 deviceId: 'router-1',
                 interfaceId: null,
@@ -132,7 +132,7 @@ export const OneHour: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       // Pre-select 1-hour time range
       const mockHook: UseBandwidthHistoryReturn = {
         data: {
@@ -177,7 +177,7 @@ export const TwentyFourHours: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: {
           dataPoints: twentyFourHourData.map((dp) => ({
@@ -221,12 +221,12 @@ export const InterfaceFiltered: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => (
+    (_Story) => (
       <MockedProvider
         mocks={[
           {
             request: {
-              query: BANDWIDTH_HISTORY_QUERY,
+              query: GET_BANDWIDTH_HISTORY,
               variables: {
                 deviceId: 'router-1',
                 interfaceId: 'ether1',
@@ -246,7 +246,7 @@ export const InterfaceFiltered: Story = {
         ]}
         addTypename={false}
       >
-        <Story />
+        <_Story />
       </MockedProvider>
     ),
   ],
@@ -267,7 +267,7 @@ export const Loading: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: null,
         loading: true,
@@ -296,12 +296,12 @@ export const Loading: Story = {
 /**
  * Error state with retry button
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: null,
         loading: false,
@@ -337,7 +337,7 @@ export const Empty: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: {
           dataPoints: [],
@@ -378,7 +378,7 @@ export const Mobile: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: {
           dataPoints: fiveMinData.map((dp) => ({
@@ -427,7 +427,7 @@ export const HighTraffic: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       const mockHook: UseBandwidthHistoryReturn = {
         data: {
           dataPoints: highTrafficData.map((dp) => ({
@@ -471,7 +471,7 @@ export const ReducedMotion: Story = {
     deviceId: 'router-1',
   },
   decorators: [
-    (Story) => {
+    (_Story) => {
       // Mock prefers-reduced-motion
       const originalMatchMedia = window.matchMedia;
       window.matchMedia = (query: string) => ({

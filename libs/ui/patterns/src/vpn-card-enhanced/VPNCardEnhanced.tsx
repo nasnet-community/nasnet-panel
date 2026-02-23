@@ -14,11 +14,10 @@
  * ```
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
+import { Loader2, Shield } from 'lucide-react';
 
-import { Shield, Loader2 } from 'lucide-react';
-
-import { Card, CardContent, Switch } from '@nasnet/ui/primitives';
+import { Card, CardContent, Switch, Icon } from '@nasnet/ui/primitives';
 
 /**
  * VPN connection status
@@ -104,11 +103,11 @@ function VPNCardEnhancedComponent({
   const config = getStatusConfig(status);
   const isLoading = status === 'connecting';
 
-  const handleToggle = (checked: boolean) => {
+  const handleToggle = useCallback((checked: boolean) => {
     if (!disabled && !isLoading) {
       onToggle(checked);
     }
-  };
+  }, [disabled, isLoading, onToggle]);
 
   return (
     <Card className={className} aria-label={`VPN status: ${config.label}`}>
@@ -123,9 +122,9 @@ function VPNCardEnhancedComponent({
               `}
             >
               {isLoading ? (
-                <Loader2 className={`w-5 h-5 ${config.color} animate-spin`} />
+                <Icon icon={Loader2} className={`w-5 h-5 ${config.color} animate-spin`} />
               ) : (
-                <Shield className={`w-5 h-5 ${config.color}`} aria-hidden="true" />
+                <Icon icon={Shield} className={`w-5 h-5 ${config.color}`} aria-hidden="true" />
               )}
             </div>
             <div>
@@ -165,10 +164,6 @@ function VPNCardEnhancedComponent({
 
 export const VPNCardEnhanced = memo(VPNCardEnhancedComponent);
 VPNCardEnhanced.displayName = 'VPNCardEnhanced';
-
-
-
-
 
 
 

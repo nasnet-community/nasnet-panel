@@ -1,4 +1,4 @@
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { ErrorDisplay } from './ErrorDisplay';
 
@@ -61,5 +61,19 @@ export const GenericError: Story = {
   args: {
     error: new Error(''),
     onRetry: fn(),
+  },
+};
+
+export const Mobile: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

@@ -384,7 +384,7 @@ describe('useServiceCard', () => {
   });
 
   describe('formatBytes helper', () => {
-    it('should format bytes correctly', () => {
+    it('should format bytes correctly', async () => {
       const { formatBytes } = await import('./useServiceCard');
 
       expect(formatBytes(0)).toBe('0 B/s');

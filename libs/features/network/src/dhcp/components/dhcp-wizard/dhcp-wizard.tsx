@@ -1,14 +1,21 @@
 /**
  * DHCP Wizard - Main Orchestrator
- * Multi-step wizard for creating DHCP servers using CStepper
+ * Multi-step wizard for creating DHCP servers using CStepper component.
+ * Guides users through interface selection, pool configuration, network settings, and review.
+ *
+ * @description Provides a guided workflow for DHCP server creation with live preview
+ * of configuration across all steps. Maintains internal state for each step and
+ * offers navigation between steps with validation at each stage.
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { CStepper } from '@nasnet/ui/patterns';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { cn } from '@nasnet/ui/utils';
 import { useDHCPWizard } from './use-dhcp-wizard';
 import { WizardStepInterface } from './wizard-step-interface';
 import { WizardStepPool } from './wizard-step-pool';
@@ -16,13 +23,21 @@ import { WizardStepNetwork } from './wizard-step-network';
 import { WizardStepReview } from './wizard-step-review';
 import type { InterfaceStepFormData, PoolStepFormData, NetworkStepFormData } from './dhcp-wizard.schema';
 
-export function DHCPWizard() {
+interface DHCPWizardProps {
+  /** Optional CSS class names to apply to root container */
+  className?: string;
+}
+
+/**
+ * DHCP Wizard component - orchestrates multi-step wizard flow
+ */
+function DHCPWizardComponent({ className }: DHCPWizardProps) {
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp);
   const { stepper, isCreating } = useDHCPWizard();
 
-  // Render step content based on current step
-  const renderStepContent = () => {
+  // Memoized step content renderer
+  const stepContent = useMemo(() => {
     switch (stepper.currentStep.id) {
       case 'interface':
         return <WizardStepInterface stepper={stepper} routerIp={routerIp || ''} />;
@@ -35,10 +50,10 @@ export function DHCPWizard() {
       default:
         return null;
     }
-  };
+  }, [stepper, routerIp]);
 
-  // Render live preview panel
-  const renderPreview = () => {
+  // Memoized live preview renderer
+  const previewContent = useMemo(() => {
     const interfaceData = stepper.getStepData('interface') as InterfaceStepFormData;
     const poolData = stepper.getStepData('pool') as PoolStepFormData;
     const networkData = stepper.getStepData('network') as NetworkStepFormData;
@@ -132,22 +147,22 @@ export function DHCPWizard() {
         </CardContent>
       </Card>
     );
-  };
+  }, [stepper]);
 
-  // Handle wizard completion
-  const handleComplete = async () => {
+  // Memoized completion handler
+  const handleComplete = useCallback(async () => {
     await stepper.next();
     // On success, navigate to DHCP server list
     navigate({ to: '/network/dhcp' });
-  };
+  }, [stepper, navigate]);
 
-  // Handle cancel
-  const handleCancel = () => {
+  // Memoized cancel handler
+  const handleCancel = useCallback(() => {
     navigate({ to: '/network/dhcp' });
-  };
+  }, [navigate]);
 
   return (
-    <div className="container mx-auto py-6">
+    <div className={cn('container mx-auto py-6', className)}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Create DHCP Server</h1>
         <p className="text-muted-foreground mt-2">
@@ -157,14 +172,15 @@ export function DHCPWizard() {
 
       <CStepper
         stepper={stepper}
-        stepContent={renderStepContent()}
-        previewContent={renderPreview()}
+        stepContent={stepContent}
+        previewContent={previewContent}
         customNavigation={
           <div className="flex gap-3">
             <Button
               variant="outline"
               onClick={handleCancel}
               disabled={isCreating}
+              aria-label="Cancel wizard"
             >
               Cancel
             </Button>
@@ -172,6 +188,7 @@ export function DHCPWizard() {
               variant="outline"
               onClick={stepper.prev}
               disabled={stepper.currentIndex === 0 || isCreating}
+              aria-label="Go to previous step"
             >
               Previous
             </Button>
@@ -179,6 +196,7 @@ export function DHCPWizard() {
               <Button
                 onClick={() => stepper.next()}
                 disabled={isCreating}
+                aria-label="Go to next step"
               >
                 Next
               </Button>
@@ -186,6 +204,7 @@ export function DHCPWizard() {
               <Button
                 onClick={handleComplete}
                 disabled={isCreating}
+                aria-label="Complete DHCP server creation"
               >
                 {isCreating ? 'Creating...' : 'Create DHCP Server'}
               </Button>
@@ -196,3 +215,12 @@ export function DHCPWizard() {
     </div>
   );
 }
+
+DHCPWizardComponent.displayName = 'DHCPWizard';
+
+/**
+ * Exported DHCP Wizard component with memo optimization
+ */
+export const DHCPWizard = Object.assign(DHCPWizardComponent, {
+  displayName: 'DHCPWizard',
+});

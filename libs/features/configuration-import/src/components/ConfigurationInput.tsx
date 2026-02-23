@@ -4,8 +4,9 @@
  * Implements FileUploadZone pattern from design spec section 6.3
  */
 
-import { useState, useRef, useCallback, memo } from 'react';
+import { useState, useRef, useCallback, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import { Upload, FileText, Clipboard, X, ExternalLink } from 'lucide-react';
 
 export interface ConfigurationInputProps {
@@ -28,6 +29,11 @@ export interface ConfigurationInputProps {
    * Error message to display
    */
   error?: string;
+
+  /**
+   * Optional className for styling
+   */
+  className?: string;
 }
 
 type InputMode = 'upload' | 'paste';
@@ -53,11 +59,15 @@ export const ConfigurationInput = memo(function ConfigurationInput({
   onChange,
   disabled = false,
   error,
+  className,
 }: ConfigurationInputProps) {
   const [mode, setMode] = useState<InputMode>('upload');
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Memoize character count
+  const charCount = useMemo(() => value.length, [value.length]);
 
   /**
    * Handles file selection from input or drop
@@ -177,7 +187,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
   }, [disabled, onChange]);
 
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       {/* External Link */}
       <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-lg border border-border">
         <ExternalLink className="w-4 h-4 text-secondary flex-shrink-0" aria-hidden="true" />
@@ -375,8 +385,8 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 
             {/* Character count */}
             <div className="flex justify-end">
-              <span className="text-xs text-muted-foreground">
-                {value.length.toLocaleString()} characters
+              <span className="text-xs text-muted-foreground font-mono">
+                {charCount.toLocaleString()} characters
               </span>
             </div>
           </motion.div>
@@ -401,4 +411,6 @@ export const ConfigurationInput = memo(function ConfigurationInput({
     </div>
   );
 });
+
+ConfigurationInput.displayName = 'ConfigurationInput';
 

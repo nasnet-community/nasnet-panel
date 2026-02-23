@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 
-import type { DHCPLease, LeaseStatus } from '@nasnet/core/types';
+import type { DHCPLease } from '@nasnet/core/types';
 import { formatMACAddress, formatExpirationTime } from '@nasnet/core/utils';
 import {
   Table,
@@ -18,7 +18,8 @@ import {
   TableRow,
   Input,
   Skeleton,
- cn } from '@nasnet/ui/primitives';
+} from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { StatusBadge } from '../status-badge';
 
@@ -57,7 +58,7 @@ export interface LeaseTableProps {
  * - Blocked lease styling (gray/strikethrough)
  * - Dark/light theme support
  */
-export const LeaseTable = React.forwardRef<HTMLDivElement, LeaseTableProps>(
+const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
   ({ leases, isLoading = false, className }, ref) => {
     // Search filter state
     const [searchTerm, setSearchTerm] = React.useState('');
@@ -287,7 +288,12 @@ export const LeaseTable = React.forwardRef<HTMLDivElement, LeaseTableProps>(
   }
 );
 
-LeaseTable.displayName = 'LeaseTable';
+LeaseTableComponent.displayName = 'LeaseTable';
+
+/**
+ * Memoized LeaseTable component for performance optimization
+ */
+export const LeaseTable = React.memo(LeaseTableComponent);
 
 /**
  * Compare two IP addresses numerically

@@ -7,6 +7,7 @@
     "composite": false,
     "tsBuildInfoFile": "../../../dist/out-tsc/ui-layouts.tsbuildinfo",
     "baseUrl": ".",
+    "rootDir": "../..",
     "paths": {
       "@nasnet/ui/*": ["../*/src"],
       "@nasnet/core/*": ["../../core/*/src"],
@@ -20,7 +21,9 @@
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.tsx",
-    "src/**/*.test.tsx"
+    "src/**/*.test.tsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
   ],
   "references": []
 }

@@ -22,7 +22,7 @@ import {
   mockDefaultSettings,
   mockModifiedSettings,
   type ConnectionTrackingSettings,
-} from '../__test-utils__/connection-tracking-fixtures';
+} from '../__test-utils__';
 
 // TODO: Uncomment when hook is created
 // const mocks = [

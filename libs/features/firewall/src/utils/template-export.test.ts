@@ -4,7 +4,7 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import yaml from 'js-yaml';
 import {
   exportTemplateToJSON,
@@ -36,7 +36,7 @@ const mockTemplate: FirewallTemplate = {
       label: 'LAN Interface',
       type: 'INTERFACE',
       defaultValue: 'bridge1',
-      required: true,
+      isRequired: true,
     },
   ],
   rules: [
@@ -252,11 +252,11 @@ describe('exportTemplates', () => {
 // ============================================
 
 describe('downloadTemplate', () => {
-  let createObjectURLSpy: vi.SpyInstance;
-  let revokeObjectURLSpy: vi.SpyInstance;
-  let appendChildSpy: vi.SpyInstance;
-  let removeChildSpy: vi.SpyInstance;
-  let clickSpy: vi.SpyInstance;
+  let createObjectURLSpy: MockInstance;
+  let revokeObjectURLSpy: MockInstance;
+  let appendChildSpy: MockInstance;
+  let removeChildSpy: MockInstance;
+  let clickSpy: MockInstance;
 
   beforeEach(() => {
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
@@ -311,8 +311,8 @@ describe('downloadTemplate', () => {
 // ============================================
 
 describe('downloadTemplates', () => {
-  let createObjectURLSpy: vi.SpyInstance;
-  let clickSpy: vi.SpyInstance;
+  let createObjectURLSpy: MockInstance;
+  let clickSpy: MockInstance;
 
   beforeEach(() => {
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');

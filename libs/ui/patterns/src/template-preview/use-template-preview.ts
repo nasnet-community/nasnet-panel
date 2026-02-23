@@ -104,7 +104,7 @@ export function useTemplatePreview(
 
   // Create Zod schema from template variables
   const variableSchema = useMemo(
-    () => createTemplateVariablesSchema(template.variables),
+    () => createTemplateVariablesSchema([...template.variables]),
     [template.variables]
   );
 

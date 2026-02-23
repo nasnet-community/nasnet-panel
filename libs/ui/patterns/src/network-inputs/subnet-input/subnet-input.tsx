@@ -35,7 +35,7 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
-import * as React from 'react';
+import { forwardRef, memo } from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
 
@@ -59,7 +59,7 @@ import type { SubnetInputProps } from './subnet-input.types';
  * - Platform-responsive (mobile/desktop)
  * - Full accessibility support
  */
-export function SubnetInput(props: SubnetInputProps) {
+export const SubnetInput = memo(function SubnetInput(props: SubnetInputProps) {
   const {
     value,
     onChange,
@@ -99,18 +99,22 @@ export function SubnetInput(props: SubnetInputProps) {
       showCalculations={showCalculations}
     />
   );
-}
+});
+
+SubnetInput.displayName = 'SubnetInput';
 
 /**
- * ForwardRef version for React Hook Form integration
+ * ForwardRef version for React Hook Form integration.
+ *
+ * Note: This wraps the memoized component to allow ref forwarding.
+ * Direct ref usage on the main component is not supported due to memo wrapper.
  */
-export const SubnetInputWithRef = React.forwardRef<HTMLInputElement, SubnetInputProps>(
-  function SubnetInputWithRef(props, _ref) {
-    // Note: ref forwarding would require modifying presenters
-    // For now, we just render the component without ref forwarding
+export const SubnetInputWithRef = forwardRef<HTMLInputElement, SubnetInputProps>(
+  function SubnetInputWithRef(props, ref) {
+    // Note: Proper ref forwarding would require modifying presenters
+    // For now, we just render the memoized component (ref not fully connected)
     return <SubnetInput {...props} />;
   }
 );
 
-SubnetInput.displayName = 'SubnetInput';
 SubnetInputWithRef.displayName = 'SubnetInputWithRef';

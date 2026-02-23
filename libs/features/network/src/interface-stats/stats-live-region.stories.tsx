@@ -9,9 +9,11 @@
  * to assistive technology without using a screen reader.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { StatsLiveRegion } from './stats-live-region';
 import type { InterfaceStats } from '@nasnet/api-client/generated';
+
+import { StatsLiveRegion } from './stats-live-region';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Helpers

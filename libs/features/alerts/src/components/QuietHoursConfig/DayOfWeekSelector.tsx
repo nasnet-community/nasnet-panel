@@ -1,11 +1,10 @@
 /**
  * DayOfWeekSelector Component
  *
- * Interactive day picker for selecting which days quiet hours apply.
- * Supports both abbreviated (mobile) and full names (desktop).
+ * @description Interactive day picker for selecting which days quiet hours apply, with support for abbreviated (mobile) and full names (desktop).
  */
 
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
@@ -31,7 +30,7 @@ interface DayInfo {
  * />
  * ```
  */
-export function DayOfWeekSelector({
+function DayOfWeekSelectorComponent({
   value,
   onChange,
   disabled = false,
@@ -95,3 +94,6 @@ export function DayOfWeekSelector({
     </div>
   );
 }
+
+export const DayOfWeekSelector = memo(DayOfWeekSelectorComponent);
+DayOfWeekSelector.displayName = 'DayOfWeekSelector';

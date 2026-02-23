@@ -8,10 +8,12 @@
  * @module @nasnet/features/firewall
  */
 
-import { fn } from '@storybook/test';
-import type { Meta, StoryObj } from '@storybook/react';
-import type { FirewallTemplate } from '../schemas/templateSchemas';
+import { fn } from 'storybook/test';
+
 import { TemplateApplyFlow } from './TemplateApplyFlow';
+
+import type { FirewallTemplate } from '../schemas/templateSchemas';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Mock Data
@@ -34,7 +36,7 @@ const mockBasicTemplate: FirewallTemplate = {
       name: 'LAN_INTERFACE',
       label: 'LAN Interface',
       type: 'INTERFACE',
-      required: true,
+      isRequired: true,
       description: 'The bridge or Ethernet interface facing your local network',
       defaultValue: 'bridge1',
     },
@@ -42,17 +44,17 @@ const mockBasicTemplate: FirewallTemplate = {
       name: 'LAN_SUBNET',
       label: 'LAN Subnet (CIDR)',
       type: 'SUBNET',
-      required: true,
+      isRequired: true,
       description: 'Your local network address range',
       defaultValue: '192.168.88.0/24',
     },
   ],
   rules: [
-    { table: 'FILTER', chain: 'input', action: 'accept', position: 0, comment: 'Accept established', properties: { connectionState: ['established', 'related'] } },
-    { table: 'FILTER', chain: 'input', action: 'accept', position: 1, comment: 'Accept SSH from LAN', properties: { protocol: 'tcp', dstPort: '22', srcAddress: '{{LAN_SUBNET}}' } },
-    { table: 'FILTER', chain: 'input', action: 'drop', position: 2, comment: 'Drop all other input', properties: {} },
-    { table: 'FILTER', chain: 'forward', action: 'accept', position: 3, comment: 'Accept established forwards', properties: { connectionState: ['established', 'related'] } },
-    { table: 'FILTER', chain: 'forward', action: 'drop', position: 4, comment: 'Drop other forwards', properties: {} },
+    { table: 'FILTER' as const, chain: 'input', action: 'accept', position: 0, comment: 'Accept established', properties: { connectionState: ['established', 'related'] } },
+    { table: 'FILTER' as const, chain: 'input', action: 'accept', position: 1, comment: 'Accept SSH from LAN', properties: { protocol: 'tcp', dstPort: '22', srcAddress: '{{LAN_SUBNET}}' } },
+    { table: 'FILTER' as const, chain: 'input', action: 'drop', position: 2, comment: 'Drop all other input', properties: {} },
+    { table: 'FILTER' as const, chain: 'forward', action: 'accept', position: 3, comment: 'Accept established forwards', properties: { connectionState: ['established', 'related'] } },
+    { table: 'FILTER' as const, chain: 'forward', action: 'drop', position: 4, comment: 'Drop other forwards', properties: {} },
   ],
 };
 
@@ -69,11 +71,11 @@ const mockAdvancedTemplate: FirewallTemplate = {
   createdAt: null,
   updatedAt: null,
   variables: [
-    { name: 'WAN_INTERFACE', label: 'WAN Interface', type: 'INTERFACE', required: true, defaultValue: 'ether1' },
-    { name: 'LAN_INTERFACE', label: 'LAN Interface', type: 'INTERFACE', required: true, defaultValue: 'bridge1' },
-    { name: 'VPN_SUBNET', label: 'VPN Subnet', type: 'SUBNET', required: true, defaultValue: '10.0.0.0/24' },
-    { name: 'DNS_SERVER', label: 'DNS Server IP', type: 'IP', required: false, defaultValue: '1.1.1.1' },
-    { name: 'SSH_PORT', label: 'SSH Port', type: 'PORT', required: false, defaultValue: '22' },
+    { name: 'WAN_INTERFACE', label: 'WAN Interface', type: 'INTERFACE', isRequired: true, defaultValue: 'ether1' },
+    { name: 'LAN_INTERFACE', label: 'LAN Interface', type: 'INTERFACE', isRequired: true, defaultValue: 'bridge1' },
+    { name: 'VPN_SUBNET', label: 'VPN Subnet', type: 'SUBNET', isRequired: true, defaultValue: '10.0.0.0/24' },
+    { name: 'DNS_SERVER', label: 'DNS Server IP', type: 'IP', isRequired: false, defaultValue: '1.1.1.1' },
+    { name: 'SSH_PORT', label: 'SSH Port', type: 'PORT', isRequired: false, defaultValue: '22' },
   ],
   rules: Array.from({ length: 18 }, (_, i) => ({
     table: 'FILTER' as const,
@@ -138,7 +140,7 @@ const onApplyHang = fn().mockImplementation(() => new Promise(() => {}));
 const onApplySuccess = fn().mockResolvedValue(mockApplyResult);
 const onApplyError = fn().mockRejectedValue(new Error('Failed to write rules: router connection timeout'));
 // Rollback that hangs indefinitely — keeps the machine in 'rollingBack' state
-const onRollbackHang = fn().mockImplementation(() => new Promise(() => {}));
+const _onRollbackHang = fn().mockImplementation(() => new Promise(() => {}));
 const onRollback = fn().mockResolvedValue(undefined);
 
 /**

@@ -66,7 +66,9 @@
     "warning": "Warning",
     "success": "Success",
     "unknown": "Unknown",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "reconnected": "Reconnected",
+    "reconnectedDescription": "Successfully reconnected to router"
   },
   "time": {
     "now": "Just now",
@@ -118,5 +120,25 @@
     "closeMenu": "Close menu",
     "expand": "Expand",
     "collapse": "Collapse"
+  },
+  "apiTest": {
+    "title": "API Proxy Test (AC-3)",
+    "testButton": "Test API Connection",
+    "testing": "Testing...",
+    "success": "API connection successful",
+    "proxyWorking": "API proxy working (expected backend error)"
+  },
+  "webhook": {
+    "title": "Webhook Configuration",
+    "description": "Configure webhook endpoints to receive alert notifications via HTTP POST requests.",
+    "backToNotifications": "Back to Notification Settings",
+    "aboutWebhooks": "About Webhooks",
+    "info1": "Webhooks send alert notifications to your custom HTTP endpoints",
+    "info2": "Only HTTPS URLs are allowed for security (HTTP is rejected)",
+    "info3": "Choose from preset templates (Slack, Discord, Teams) or create custom JSON",
+    "info4": "Optional HMAC signing with secret for request verification",
+    "info5": "Test your webhook before saving to verify connectivity",
+    "securityNoteTitle": "Security Note:",
+    "securityNoteText": "Your signing secret will only be shown once after creation. Save it securely - it cannot be retrieved later. You can regenerate a new secret by updating the webhook configuration."
   }
 }

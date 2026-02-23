@@ -41,7 +41,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'web',
     description: 'Hypertext Transfer Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 443,
@@ -49,7 +49,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'secure',
     description: 'HTTP over TLS/SSL',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 8080,
@@ -57,7 +57,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'web',
     description: 'HTTP Alternate',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 53,
@@ -65,7 +65,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'both',
     category: 'network',
     description: 'Domain Name System',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 123,
@@ -73,7 +73,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'udp',
     category: 'network',
     description: 'Network Time Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 9999,
@@ -81,7 +81,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'custom',
     description: 'My custom application',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -108,7 +108,7 @@ const mockUpdateGroup = vi.fn();
 
 const mockUseCustomServices = {
   services: MOCK_SERVICES,
-  customServices: MOCK_SERVICES.filter((s) => !s.builtIn),
+  customServices: MOCK_SERVICES.filter((s) => !s.isBuiltIn),
   serviceGroups: MOCK_GROUPS,
   addService: vi.fn(),
   updateService: vi.fn(),

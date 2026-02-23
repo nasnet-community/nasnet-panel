@@ -5,9 +5,10 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@nasnet/ui/utils';
 import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label, Input, Button } from '@nasnet/ui/primitives';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
@@ -19,9 +20,13 @@ import { Eye, EyeOff, Lock, User, ServerCog } from 'lucide-react';
 
 interface PppoeCredentialsStepProps {
   stepper: UseStepperReturn;
+  className?: string;
 }
 
-export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
+export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
+  stepper,
+  className,
+}: PppoeCredentialsStepProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<PppoeCredentialsStepFormValues>({
@@ -33,6 +38,13 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
     },
   });
 
+  /**
+   * Toggle password visibility
+   */
+  const handleTogglePassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
+
   // Auto-save form data to stepper
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -42,7 +54,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
   }, [form, stepper]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="ISP Credentials"
         description="Enter the username and password provided by your Internet Service Provider"
@@ -52,7 +64,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="username">
-                <User className="inline h-4 w-4 mr-1" />
+                <User className="inline h-4 w-4 mr-1" aria-hidden="true" />
                 Username
               </Label>
               <FieldHelp field="username" />
@@ -64,11 +76,12 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
               autoComplete="username"
               {...form.register('username')}
               aria-describedby="username-error"
+              className="font-mono text-sm"
             />
             {form.formState.errors.username && (
               <p
                 id="username-error"
-                className="text-sm text-error mt-1"
+                className="text-sm text-destructive mt-1"
                 role="alert"
               >
                 {form.formState.errors.username.message}
@@ -80,7 +93,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="password">
-                <Lock className="inline h-4 w-4 mr-1" />
+                <Lock className="inline h-4 w-4 mr-1" aria-hidden="true" />
                 Password
               </Label>
               <FieldHelp field="password" />
@@ -93,27 +106,28 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
                 autoComplete="current-password"
                 {...form.register('password')}
                 aria-describedby="password-error password-help"
-                className="pr-10"
+                className="pr-10 font-mono text-sm"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={handleTogglePassword}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
+                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 )}
               </Button>
             </div>
             {form.formState.errors.password && (
               <p
                 id="password-error"
-                className="text-sm text-error mt-1"
+                className="text-sm text-destructive mt-1"
                 role="alert"
               >
                 {form.formState.errors.password.message}
@@ -128,7 +142,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="service-name">
-                <ServerCog className="inline h-4 w-4 mr-1" />
+                <ServerCog className="inline h-4 w-4 mr-1" aria-hidden="true" />
                 Service Name (Optional)
               </Label>
               <FieldHelp field="serviceName" />
@@ -139,11 +153,12 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
               placeholder="Leave empty if not required"
               {...form.register('serviceName')}
               aria-describedby="service-name-error service-name-help"
+              className="font-mono text-sm"
             />
             {form.formState.errors.serviceName && (
               <p
                 id="service-name-error"
-                className="text-sm text-error mt-1"
+                className="text-sm text-destructive mt-1"
                 role="alert"
               >
                 {form.formState.errors.serviceName.message}
@@ -160,9 +175,9 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
       </FormSection>
 
       {/* Security Notice */}
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+      <div className="rounded-lg border border-info/20 bg-info/5 p-4" role="note">
         <div className="flex gap-3">
-          <Lock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+          <Lock className="h-5 w-5 text-info flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="space-y-1">
             <p className="text-sm font-medium">Security Notice</p>
             <p className="text-xs text-muted-foreground">
@@ -175,4 +190,6 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
       </div>
     </div>
   );
-}
+});
+
+PppoeCredentialsStep.displayName = 'PppoeCredentialsStep';

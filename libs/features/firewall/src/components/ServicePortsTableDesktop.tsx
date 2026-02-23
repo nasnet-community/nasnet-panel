@@ -1,20 +1,19 @@
 /**
- * Service Ports Table Component (Desktop)
+ * Service Ports Table Component (Desktop Presenter)
  *
- * Desktop presenter for service ports management with search, filter, and sort.
+ * @description Desktop-optimized service ports management with dense data table layout,
+ * sortable columns, advanced filtering, and bulk actions. Built-in services are read-only;
+ * custom services support edit and delete operations with professional UI.
  *
- * Features:
- * - Search by service name or port
- * - Filter by protocol and category
- * - Sort by name or port
- * - CRUD actions (Edit, Delete) for custom services
- * - Read-only built-in services with disabled actions
- * - Empty and loading states
- *
- * @see NAS-7.8: Implement Service Ports Management - Task 5
+ * @example
+ * ```tsx
+ * <ServicePortsTableDesktop
+ *   className="p-4"
+ * />
+ * ```
  */
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCustomServices } from '../hooks/useCustomServices';
 import type { ServicePortDefinition, ServicePortProtocol, ServicePortCategory } from '@nasnet/core/types';
@@ -44,14 +43,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@nasnet/ui/primitives';
-import { Pencil, Trash2, Search } from 'lucide-react';
+import { Pencil, Trash2, Search, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@nasnet/ui/utils';
 
 // ============================================================================
 // Protocol Badge Component
 // ============================================================================
 
-function ProtocolBadge({ protocol }: { protocol: ServicePortProtocol }) {
+interface ProtocolBadgeProps {
+  protocol: ServicePortProtocol;
+}
+
+const ProtocolBadge = React.memo(function ProtocolBadge({ protocol }: ProtocolBadgeProps) {
   const variantMap: Record<ServicePortProtocol, 'default' | 'info' | 'success'> = {
     tcp: 'info',
     udp: 'success',
@@ -66,27 +69,33 @@ function ProtocolBadge({ protocol }: { protocol: ServicePortProtocol }) {
       {t(`servicePorts.protocols.${protocol}`)}
     </Badge>
   );
-}
+});
+ProtocolBadge.displayName = 'ProtocolBadge';
 
 // ============================================================================
 // Type Badge Component
 // ============================================================================
 
-function TypeBadge({ builtIn }: { builtIn: boolean }) {
+interface TypeBadgeProps {
+  isBuiltIn: boolean;
+}
+
+const TypeBadge = React.memo(function TypeBadge({ isBuiltIn }: TypeBadgeProps) {
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={builtIn ? 'default' : 'warning'} className="text-xs">
-      {t(`servicePorts.types.${builtIn ? 'builtIn' : 'custom'}`)}
+    <Badge variant={isBuiltIn ? 'default' : 'warning'} className="text-xs">
+      {t(`servicePorts.types.${isBuiltIn ? 'builtIn' : 'custom'}`)}
     </Badge>
   );
-}
+});
+TypeBadge.displayName = 'TypeBadge';
 
 // ============================================================================
 // Loading State Component
 // ============================================================================
 
-function LoadingState() {
+const LoadingState = React.memo(function LoadingState() {
   return (
     <div className="space-y-2">
       {[...Array(5)].map((_, i) => (
@@ -96,7 +105,8 @@ function LoadingState() {
       ))}
     </div>
   );
-}
+});
+LoadingState.displayName = 'LoadingState';
 
 // ============================================================================
 // Empty State Component
@@ -107,27 +117,31 @@ interface EmptyStateProps {
   description?: string;
 }
 
-function EmptyState({ message, description }: EmptyStateProps) {
+const EmptyState = React.memo(function EmptyState({ message, description }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <p className="text-lg font-medium text-muted-foreground">{message}</p>
       {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
     </div>
   );
-}
+});
+EmptyState.displayName = 'EmptyState';
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export interface ServicePortsTableDesktopProps {
+  /** Optional CSS class name */
   className?: string;
 }
 
 type SortField = 'name' | 'port';
 type SortDirection = 'asc' | 'desc';
 
-export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktopProps) {
+export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDesktop({
+  className,
+}: ServicePortsTableDesktopProps) {
   const { t } = useTranslation('firewall');
   const { services, deleteService } = useCustomServices();
 
@@ -183,21 +197,24 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
   }, [services, searchQuery, protocolFilter, categoryFilter, sortField, sortDirection]);
 
   // Handlers
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
+  const handleSort = useCallback((field: SortField) => {
+    setSortField((prevField) => {
+      if (prevField === field) {
+        setSortDirection((prevDir) => (prevDir === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setSortField(field);
+        setSortDirection('asc');
+      }
+      return prevField === field ? prevField : field;
+    });
+  }, []);
 
-  const handleDeleteClick = (service: ServicePortDefinition) => {
+  const handleDeleteClick = useCallback((service: ServicePortDefinition) => {
     setServiceToDelete(service);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (serviceToDelete) {
       try {
         deleteService(serviceToDelete.port);
@@ -207,38 +224,42 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
         console.error('Failed to delete service:', error);
       }
     }
-  };
+  }, [serviceToDelete, deleteService]);
 
-  const handleEditClick = (service: ServicePortDefinition) => {
+  const handleEditClick = useCallback((service: ServicePortDefinition) => {
     // TODO: Open edit dialog (Task 6)
     console.log('Edit service:', service);
-  };
+  }, []);
 
-  // Categories for filter dropdown
-  const categories: ServicePortCategory[] = [
-    'web',
-    'secure',
-    'database',
-    'messaging',
-    'mail',
-    'network',
-    'system',
-    'containers',
-    'mikrotik',
-    'custom',
-  ];
+  // Categories for filter dropdown (constant)
+  const CATEGORIES: ServicePortCategory[] = useMemo(
+    () => [
+      'web',
+      'secure',
+      'database',
+      'messaging',
+      'mail',
+      'network',
+      'system',
+      'containers',
+      'mikrotik',
+      'custom',
+    ],
+    []
+  );
 
   return (
     <div className={cn('space-y-4', className)}>
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder={t('servicePorts.placeholders.searchServices')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            aria-label={t('servicePorts.fields.name')}
           />
         </div>
 
@@ -260,7 +281,7 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('servicePorts.categories.all', 'All Categories')}</SelectItem>
-            {categories.map((category) => (
+            {CATEGORIES.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
               </SelectItem>
@@ -293,20 +314,30 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                 <TableHead
                   className="cursor-pointer select-none"
                   onClick={() => handleSort('name')}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t('servicePorts.fields.name')} - ${sortField === 'name' ? `sorted ${sortDirection}` : 'not sorted'}`}
                 >
                   {t('servicePorts.fields.name')}
                   {sortField === 'name' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className="ml-1" aria-hidden="true">
+                      {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />}
+                    </span>
                   )}
                 </TableHead>
                 <TableHead>{t('servicePorts.fields.protocol')}</TableHead>
                 <TableHead
                   className="cursor-pointer select-none"
                   onClick={() => handleSort('port')}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t('servicePorts.fields.port')} - ${sortField === 'port' ? `sorted ${sortDirection}` : 'not sorted'}`}
                 >
                   {t('servicePorts.fields.port')}
                   {sortField === 'port' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className="ml-1" aria-hidden="true">
+                      {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />}
+                    </span>
                   )}
                 </TableHead>
                 <TableHead>{t('servicePorts.fields.type')}</TableHead>
@@ -328,22 +359,23 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                     <ProtocolBadge protocol={service.protocol} />
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm">{service.port}</span>
+                    <span className="font-mono text-sm tabular-nums">{service.port}</span>
                   </TableCell>
                   <TableCell>
-                    <TypeBadge builtIn={service.builtIn} />
+                    <TypeBadge isBuiltIn={service.isBuiltIn} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {service.builtIn ? (
+                      {service.isBuiltIn ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div>
+                            <div className="flex items-center justify-end gap-2">
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 disabled
                                 className="opacity-50"
+                                aria-label={t('servicePorts.editService')}
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -352,6 +384,7 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                                 size="icon"
                                 disabled
                                 className="opacity-50"
+                                aria-label={t('servicePorts.deleteService')}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -367,6 +400,7 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEditClick(service)}
+                            aria-label={t('servicePorts.editService')}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -374,6 +408,7 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteClick(service)}
+                            aria-label={t('servicePorts.deleteService')}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -416,4 +451,5 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
       </Dialog>
     </div>
   );
-}
+});
+ServicePortsTableDesktop.displayName = 'ServicePortsTableDesktop';

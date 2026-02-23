@@ -45,14 +45,14 @@ vi.mock('./use-port-knock-sequence-form', () => ({
 describe('PortKnockSequenceForm - Smoke Tests', () => {
   it('renders without crashing', () => {
     const { container } = render(
-      <PortKnockSequenceForm onSubmit={vi.fn()} onCancel={vi.fn()} />
+      <PortKnockSequenceForm formState={vi.fn() as any} />
     );
     expect(container).toBeInTheDocument();
   });
 
   it('renders form with data-testid', () => {
     const { container } = render(
-      <PortKnockSequenceForm onSubmit={vi.fn()} onCancel={vi.fn()} />
+      <PortKnockSequenceForm formState={vi.fn() as any} />
     );
     const form = container.querySelector('[data-testid="knock-sequence-form"]');
     expect(form).toBeInTheDocument();
@@ -63,29 +63,27 @@ describe('PortKnockSequenceForm - Smoke Tests', () => {
       id: 'test-1',
       name: 'test_knock',
       knockPorts: [
-        { port: 1234, protocol: 'tcp' as const },
-        { port: 5678, protocol: 'tcp' as const },
+        { port: 1234, protocol: 'tcp' as const, order: 1 },
+        { port: 5678, protocol: 'tcp' as const, order: 2 },
       ],
       protectedPort: 22,
+      protectedProtocol: 'tcp' as const,
       accessTimeout: '5m',
       knockTimeout: '15s',
-      enabled: true,
+      isEnabled: true,
     };
 
     const { container } = render(
       <PortKnockSequenceForm
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        initialSequence={mockSequence}
+        formState={vi.fn() as any}
       />
     );
     expect(container).toBeInTheDocument();
   });
 
   it('calls onSubmit when form is submitted', () => {
-    const onSubmit = vi.fn();
     const { container } = render(
-      <PortKnockSequenceForm onSubmit={onSubmit} onCancel={vi.fn()} />
+      <PortKnockSequenceForm formState={vi.fn() as any} />
     );
 
     // Component should mount successfully
@@ -93,9 +91,8 @@ describe('PortKnockSequenceForm - Smoke Tests', () => {
   });
 
   it('calls onCancel when cancel is clicked', () => {
-    const onCancel = vi.fn();
     const { container } = render(
-      <PortKnockSequenceForm onSubmit={vi.fn()} onCancel={onCancel} />
+      <PortKnockSequenceForm formState={vi.fn() as any} />
     );
 
     // Component should mount successfully

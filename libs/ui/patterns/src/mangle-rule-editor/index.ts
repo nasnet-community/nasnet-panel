@@ -9,6 +9,8 @@
  */
 
 export { MangleRuleEditor } from './MangleRuleEditor';
+export { MangleRuleEditorDesktop } from './MangleRuleEditorDesktop';
+export { MangleRuleEditorMobile } from './MangleRuleEditorMobile';
 export { useMangleRuleEditor, validateMarkName } from './use-mangle-rule-editor';
 
 export type {

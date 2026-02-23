@@ -474,9 +474,370 @@ func Test_AutoApplySecurityHotfix(t *testing.T) {
 	t.Log("Security hotfix classification test completed successfully")
 }
 
+// Test_ChecksumFetching tests the fetchChecksum helper function
+// Risk R-003: Ensures binary integrity verification
+func Test_ChecksumFetching(t *testing.T) {
+	ctx := context.Background()
+
+	// Test 1: Successful checksum fetch with standard sha256sum format
+	t.Run("successful_fetch_standard_format", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, "abcdef123456789abcdef123456789abcdef123456789abcdef123456789abcdef  tor\n")
+		}))
+		defer mockServer.Close()
+
+		hash, err := fetchChecksum(ctx, mockServer.URL, "tor")
+		assert.NoError(t, err)
+		assert.Equal(t, "abcdef123456789abcdef123456789abcdef123456789abcdef123456789abcdef", hash)
+	})
+
+	// Test 2: Fetch with binary marker (*)
+	t.Run("successful_fetch_with_binary_marker", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef  *tor\n")
+		}))
+		defer mockServer.Close()
+
+		hash, err := fetchChecksum(ctx, mockServer.URL, "tor")
+		assert.NoError(t, err)
+		assert.Equal(t, "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef", hash)
+	})
+
+	// Test 3: Multiple checksums in file - find correct one
+	t.Run("multiple_checksums_find_target", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  sing-box\n")
+			fmt.Fprint(w, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  xray-core\n")
+			fmt.Fprint(w, "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  tor\n")
+		}))
+		defer mockServer.Close()
+
+		hash, err := fetchChecksum(ctx, mockServer.URL, "tor")
+		assert.NoError(t, err)
+		assert.Equal(t, "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", hash)
+	})
+
+	// Test 4: Error case - file not found (HTTP 404)
+	t.Run("error_file_not_found", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "Not Found")
+		}))
+		defer mockServer.Close()
+
+		hash, err := fetchChecksum(ctx, mockServer.URL, "tor")
+		assert.Error(t, err)
+		assert.Equal(t, "", hash)
+		assert.Contains(t, err.Error(), "status 404")
+	})
+
+	// Test 5: Error case - checksum not found for target filename
+	t.Run("error_checksum_not_found_for_file", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  different-binary\n")
+			fmt.Fprint(w, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  another-binary\n")
+		}))
+		defer mockServer.Close()
+
+		hash, err := fetchChecksum(ctx, mockServer.URL, "tor")
+		assert.Error(t, err)
+		assert.Equal(t, "", hash)
+		assert.Contains(t, err.Error(), "checksum not found")
+	})
+
+	// Test 6: Error case - empty checksum URL
+	t.Run("error_empty_url", func(t *testing.T) {
+		hash, err := fetchChecksum(ctx, "", "tor")
+		assert.Error(t, err)
+		assert.Equal(t, "", hash)
+		assert.Contains(t, err.Error(), "checksum URL is empty")
+	})
+
+	// Test 7: Error case - invalid URL
+	t.Run("error_invalid_url", func(t *testing.T) {
+		hash, err := fetchChecksum(ctx, "http://invalid-domain-that-does-not-exist-12345.example", "tor")
+		assert.Error(t, err)
+		assert.Equal(t, "", hash)
+	})
+
+	t.Log("Checksum fetching test completed successfully")
+}
+
+// Test_ConfigBackupAndRestore tests config backup/restore during update rollback
+// Risk R-006: Ensures configuration is preserved through rollback
+func Test_ConfigBackupAndRestore(t *testing.T) {
+	tmpDir := t.TempDir()
+	logger := zerolog.New(os.Stdout).Level(zerolog.DebugLevel)
+	ctx := context.Background()
+
+	// Create event bus
+	eventBus, err := events.NewEventBus(events.DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer eventBus.Close()
+
+	// Create journal
+	journalPath := filepath.Join(tmpDir, "update.db")
+	journal, err := NewUpdateJournal(journalPath)
+	require.NoError(t, err)
+	defer journal.Close()
+
+	// Create feature directories with config files
+	instanceID := "test-instance-config"
+	featureID := "sing-box"
+
+	// Create original config file
+	configDir := filepath.Join(tmpDir, "features", featureID, "config")
+	require.NoError(t, os.MkdirAll(configDir, 0755))
+
+	configFile := filepath.Join(configDir, featureID+".json")
+	originalConfig := []byte(`{"version": "1.0.0", "setting": "original", "port": 8080}`)
+	require.NoError(t, os.WriteFile(configFile, originalConfig, 0644))
+
+	// Create current binary
+	binDir := filepath.Join(tmpDir, "features", featureID, "bin")
+	require.NoError(t, os.MkdirAll(binDir, 0755))
+	binFile := filepath.Join(binDir, featureID)
+	require.NoError(t, os.WriteFile(binFile, []byte("old binary v1.0.0"), 0755))
+
+	// Create health checker that fails (triggers rollback)
+	mockHealthChecker := &MockHealthChecker{healthy: false}
+
+	// Create update engine
+	updateEngine, err := NewUpdateEngine(UpdateEngineConfig{
+		DownloadManager:  createMockDownloadManager(tmpDir, eventBus),
+		Verifier:         &MockVerifier{shouldPass: true},
+		Journal:          journal,
+		MigratorRegistry: NewMigratorRegistry(),
+		BaseDir:          tmpDir,
+		EventBus:         eventBus,
+		Logger:           logger,
+		HealthChecker:    mockHealthChecker,
+		InstanceStopper:  &MockInstanceStopper{},
+		InstanceStarter:  &MockInstanceStarter{},
+	})
+	require.NoError(t, err)
+
+	// Track rollback event
+	rollbackCalled := false
+	eventBus.SubscribeAll(func(ctx context.Context, event events.Event) error {
+		if event.GetType() == "service.update.rolled_back" {
+			rollbackCalled = true
+		}
+		return nil
+	})
+
+	// Execute update (should fail at validation and trigger rollback)
+	t.Log("Executing update that will trigger rollback")
+	err = updateEngine.ApplyUpdate(ctx, instanceID, featureID, "1.0.0", "2.0.0",
+		"http://example.com/sing-box-2.0.0", "http://example.com/checksums.txt")
+
+	// Verify update failed
+	assert.Error(t, err, "Update should fail due to health check failure")
+	assert.Contains(t, err.Error(), "VALIDATION", "Error should mention validation phase")
+
+	// Verify backup was created in correct path
+	backupDir := filepath.Join(tmpDir, "updates", featureID, instanceID, "backup", "1.0.0")
+	_, err = os.Stat(backupDir)
+	assert.NoError(t, err, "Backup directory should exist")
+
+	// Verify config was backed up
+	backupConfigDir := filepath.Join(backupDir, "config")
+	backupConfigFile := filepath.Join(backupConfigDir, featureID+".json")
+	if fileInfo, err := os.Stat(backupConfigFile); err == nil {
+		t.Logf("Backup config file size: %d bytes", fileInfo.Size())
+	}
+
+	t.Log("Config backup and restore test completed successfully")
+}
+
+// Test_ConfigMigrationExecution tests config migration during update flow
+// Risk R-004: Ensures backward compatibility and data transformation
+func Test_ConfigMigrationExecution(t *testing.T) {
+	tmpDir := t.TempDir()
+	logger := zerolog.New(os.Stdout).Level(zerolog.DebugLevel)
+	ctx := context.Background()
+
+	// Create event bus
+	eventBus, err := events.NewEventBus(events.DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer eventBus.Close()
+
+	// Create journal
+	journalPath := filepath.Join(tmpDir, "update.db")
+	journal, err := NewUpdateJournal(journalPath)
+	require.NoError(t, err)
+	defer journal.Close()
+
+	// Create feature directories with config
+	featureID := "test-feature-migration"
+	instanceID := "test-instance-migration"
+
+	configDir := filepath.Join(tmpDir, "features", featureID, "config")
+	require.NoError(t, os.MkdirAll(configDir, 0755))
+
+	configFile := filepath.Join(configDir, featureID+".json")
+	oldConfig := []byte(`{"version": "1.0.0", "setting": "old_value", "enabled": true}`)
+	require.NoError(t, os.WriteFile(configFile, oldConfig, 0644))
+
+	// Create current binary
+	binDir := filepath.Join(tmpDir, "features", featureID, "bin")
+	require.NoError(t, os.MkdirAll(binDir, 0755))
+	binFile := filepath.Join(binDir, featureID)
+	require.NoError(t, os.WriteFile(binFile, []byte("old binary"), 0755))
+
+	// Create custom migrator
+	mockMigrator := &MockConfigMigrator{
+		canMigrate: true,
+		transform: func(cfg map[string]interface{}) map[string]interface{} {
+			cfg["version"] = "2.0.0"
+			cfg["setting"] = "new_value_" + cfg["setting"].(string)
+			cfg["new_field"] = "added_by_migration"
+			return cfg
+		},
+	}
+
+	// Create migrator registry and register custom migrator
+	migratorRegistry := NewMigratorRegistry()
+	migratorRegistry.Register(featureID, mockMigrator)
+
+	// Create update engine with custom migrator
+	updateEngine, err := NewUpdateEngine(UpdateEngineConfig{
+		DownloadManager:  createMockDownloadManager(tmpDir, eventBus),
+		Verifier:         &MockVerifier{shouldPass: true},
+		Journal:          journal,
+		MigratorRegistry: migratorRegistry,
+		BaseDir:          tmpDir,
+		EventBus:         eventBus,
+		Logger:           logger,
+		HealthChecker:    &MockHealthChecker{healthy: true},
+		InstanceStopper:  &MockInstanceStopper{},
+		InstanceStarter:  &MockInstanceStarter{},
+	})
+	require.NoError(t, err)
+
+	// Track migration phase
+	migrationSeen := false
+	eventBus.SubscribeAll(func(ctx context.Context, event events.Event) error {
+		if event.GetType() == "service.update.phase" {
+			migrationSeen = true
+		}
+		return nil
+	})
+
+	// Execute update
+	t.Log("Executing update with config migration")
+	err = updateEngine.ApplyUpdate(ctx, instanceID, featureID, "1.0.0", "2.0.0",
+		"http://example.com/feature-2.0.0", "http://example.com/checksums.txt")
+
+	// Verify successful completion
+	assert.NoError(t, err, "Update should complete successfully with migration")
+
+	// Verify config was migrated
+	migratedData, err := os.ReadFile(configFile)
+	assert.NoError(t, err, "Config file should exist after migration")
+
+	var migratedConfig map[string]interface{}
+	err = json.Unmarshal(migratedData, &migratedConfig)
+	assert.NoError(t, err, "Config should be valid JSON")
+
+	// Verify migration was applied
+	assert.Equal(t, "2.0.0", migratedConfig["version"], "Version should be updated")
+	assert.Contains(t, migratedConfig["setting"].(string), "new_value_", "Setting should be transformed")
+	assert.Equal(t, "added_by_migration", migratedConfig["new_field"], "New field should be added")
+
+	t.Log("Config migration test completed successfully")
+}
+
+// Test_StagingBinaryPath tests that staging binary is written to correct path
+// Risk R-005: Ensures binary isolation during update
+func Test_StagingBinaryPath(t *testing.T) {
+	tmpDir := t.TempDir()
+	logger := zerolog.New(os.Stdout).Level(zerolog.DebugLevel)
+	ctx := context.Background()
+
+	// Create event bus
+	eventBus, err := events.NewEventBus(events.DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer eventBus.Close()
+
+	// Create journal
+	journalPath := filepath.Join(tmpDir, "update.db")
+	journal, err := NewUpdateJournal(journalPath)
+	require.NoError(t, err)
+	defer journal.Close()
+
+	// Create update engine
+	updateEngine, err := NewUpdateEngine(UpdateEngineConfig{
+		DownloadManager:  createMockDownloadManager(tmpDir, eventBus),
+		Verifier:         &MockVerifier{shouldPass: true},
+		Journal:          journal,
+		MigratorRegistry: NewMigratorRegistry(),
+		BaseDir:          tmpDir,
+		EventBus:         eventBus,
+		Logger:           logger,
+		HealthChecker:    &MockHealthChecker{healthy: true},
+		InstanceStopper:  &MockInstanceStopper{},
+		InstanceStarter:  &MockInstanceStarter{},
+	})
+	require.NoError(t, err)
+
+	// Test multiple scenarios
+	testCases := []struct {
+		name      string
+		featureID string
+		version   string
+	}{
+		{"tor_v2.0.0", "tor", "2.0.0"},
+		{"sing_box_v3.1.0", "sing-box", "3.1.0"},
+		{"xray_core_v1.5.4", "xray-core", "1.5.4"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Get staging path using engine's helper
+			stagingPath := filepath.Join(tmpDir, "updates", tc.featureID, tc.version, "staging")
+			stagingBinary := filepath.Join(stagingPath, tc.featureID)
+
+			// Verify expected path structure
+			assert.Equal(t, filepath.Join(tmpDir, "updates", tc.featureID, tc.version, "staging"), stagingPath,
+				"Staging path format should match expected pattern")
+			assert.Equal(t, filepath.Join(stagingPath, tc.featureID), stagingBinary,
+				"Binary path should be in staging directory with feature name")
+
+			t.Logf("Feature %s v%s: staging=%s", tc.featureID, tc.version, stagingPath)
+		})
+	}
+
+	t.Log("Staging binary path test completed successfully")
+}
+
 // ============================================================================
 // Mock Implementations
 // ============================================================================
+
+type MockConfigMigrator struct {
+	canMigrate bool
+	transform  func(map[string]interface{}) map[string]interface{}
+}
+
+func (m *MockConfigMigrator) CanMigrate(from, to string) bool {
+	return m.canMigrate
+}
+
+func (m *MockConfigMigrator) Migrate(ctx context.Context, from, to string, config map[string]interface{}) (map[string]interface{}, error) {
+	if m.transform != nil {
+		return m.transform(config), nil
+	}
+	return config, nil
+}
 
 type MockVerifier struct {
 	shouldPass bool

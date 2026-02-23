@@ -9,8 +9,6 @@ export { useNotificationChannels } from './hooks/useNotificationChannels';
 export type { ChannelConfig } from './hooks/useNotificationChannels';
 export { useAlertNotifications, playAlertSound } from './hooks/useAlertNotifications';
 export type { UseAlertNotificationsOptions } from './hooks/useAlertNotifications';
-export { usePushoverUsage } from './hooks/usePushoverUsage';
-export type { UsePushoverUsageResult, PushoverUsageData } from './hooks/usePushoverUsage';
 export { useEmailChannelForm } from './hooks/useEmailChannelForm';
 export type { UseEmailChannelFormOptions, UseEmailChannelFormReturn } from './hooks/useEmailChannelForm';
 export { useWebhookConfigForm } from './hooks/useWebhookConfigForm';
@@ -96,10 +94,10 @@ export {
   throttleConfigSchema,
   quietHoursConfigSchema,
   defaultAlertRule,
-  commonEventTypes,
-  notificationChannels,
-  severityConfig,
-  operatorConfig,
+  COMMON_EVENT_TYPES,
+  NOTIFICATION_CHANNELS,
+  SEVERITY_CONFIG,
+  OPERATOR_CONFIG,
 } from './schemas/alert-rule.schema';
 
 export type {
@@ -121,7 +119,7 @@ export type { EmailConfig } from './schemas/email-config.schema';
 
 export {
   webhookConfigSchema,
-  defaultWebhookConfig,
+  DEFAULT_WEBHOOK_CONFIG,
   WEBHOOK_TEMPLATE_PRESETS,
   AUTH_TYPE_OPTIONS,
   toWebhookInput,
@@ -131,7 +129,7 @@ export type { WebhookConfig } from './schemas/webhook.schema';
 
 export {
   ntfyConfigSchema,
-  defaultNtfyConfig,
+  DEFAULT_NTFY_CONFIG,
   NTFY_PRIORITY_PRESETS,
   NTFY_SERVER_PRESETS,
   isValidNtfyTopic,

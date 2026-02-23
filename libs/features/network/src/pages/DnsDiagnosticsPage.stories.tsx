@@ -5,8 +5,9 @@
  * Covers default, alternate device IDs, and mobile viewport.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { DnsDiagnosticsPage } from './DnsDiagnosticsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof DnsDiagnosticsPage> = {
   title: 'Pages/Network/DnsDiagnosticsPage',

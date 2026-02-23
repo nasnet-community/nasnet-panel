@@ -13,14 +13,16 @@
 
 import { useState } from 'react';
 
-import { fn, within, waitFor, userEvent } from '@storybook/test';
+import { fn, within, waitFor, userEvent } from 'storybook/test';
 import { vi } from 'vitest';
 
 import type { ServiceGroup, ServicePortDefinition } from '@nasnet/core/types';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import { ServiceGroupDialog } from './ServiceGroupDialog';
 import * as useCustomServicesModule from '../hooks/useCustomServices';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 
 
@@ -36,7 +38,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'web',
     description: 'Hypertext Transfer Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 443,
@@ -44,7 +46,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'secure',
     description: 'HTTP over TLS/SSL',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 8080,
@@ -52,7 +54,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'web',
     description: 'HTTP Alternate',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 8443,
@@ -60,7 +62,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'secure',
     description: 'HTTPS Alternate',
-    builtIn: true,
+    isBuiltIn: true,
   },
   // Database services
   {
@@ -69,7 +71,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'database',
     description: 'MySQL Database',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 5432,
@@ -77,7 +79,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'database',
     description: 'PostgreSQL Database',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 6379,
@@ -85,7 +87,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'database',
     description: 'Redis In-Memory Database',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 27017,
@@ -93,7 +95,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'database',
     description: 'MongoDB Database',
-    builtIn: true,
+    isBuiltIn: true,
   },
   // Network services
   {
@@ -102,7 +104,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'both',
     category: 'network',
     description: 'Domain Name System',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 123,
@@ -110,7 +112,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'udp',
     category: 'network',
     description: 'Network Time Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 161,
@@ -118,7 +120,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'udp',
     category: 'network',
     description: 'Simple Network Management Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   // Mail services
   {
@@ -127,7 +129,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'mail',
     description: 'Simple Mail Transfer Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 143,
@@ -135,7 +137,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'mail',
     description: 'Internet Message Access Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 993,
@@ -143,7 +145,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'mail',
     description: 'IMAP over TLS/SSL',
-    builtIn: true,
+    isBuiltIn: true,
   },
   // Custom services
   {
@@ -152,7 +154,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'custom',
     description: 'My custom application',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -162,7 +164,7 @@ const MOCK_SERVICES: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'custom',
     description: 'Development server',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -208,7 +210,7 @@ const mockUpdateGroup = fn();
 
 const mockUseCustomServices = {
   services: MOCK_SERVICES,
-  customServices: MOCK_SERVICES.filter((s) => !s.builtIn),
+  customServices: MOCK_SERVICES.filter((s) => !s.isBuiltIn),
   serviceGroups: MOCK_GROUPS,
   addService: fn(),
   updateService: fn(),
@@ -227,8 +229,9 @@ vi.spyOn(useCustomServicesModule, 'useCustomServices').mockReturnValue(
 // Story Wrapper
 // ============================================================================
 
-function ServiceGroupDialogWrapper(props: Partial<typeof ServiceGroupDialog>) {
+function ServiceGroupDialogWrapper(props: Partial<typeof ServiceGroupDialog & { editGroup?: ServiceGroup }>) {
   const [open, setOpen] = useState(true);
+  const { editGroup, ...restProps } = props as any;
 
   return (
     <div className="min-h-screen p-8 bg-background">
@@ -238,7 +241,7 @@ function ServiceGroupDialogWrapper(props: Partial<typeof ServiceGroupDialog>) {
       >
         Open Dialog
       </button>
-      <ServiceGroupDialog open={open} onOpenChange={setOpen} {...props} />
+      <ServiceGroupDialog open={open} onOpenChange={setOpen} editGroup={editGroup} {...restProps} />
     </div>
   );
 }
@@ -273,7 +276,7 @@ const meta: Meta<typeof ServiceGroupDialog> = {
       control: 'object',
       description: 'Service group to edit (undefined for create mode)',
     },
-  },
+  } satisfies Meta<typeof ServiceGroupDialog>['argTypes'],
 };
 
 export default meta;

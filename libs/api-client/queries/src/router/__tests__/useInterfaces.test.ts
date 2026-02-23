@@ -7,6 +7,8 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useInterfaces } from '../useInterfaces';
 import { apiClient } from '@nasnet/api-client/core';
+import * as React from 'react';
+import type { Mock } from 'vitest';
 
 vi.mock('@nasnet/api-client/core', () => ({
   apiClient: {
@@ -15,6 +17,8 @@ vi.mock('@nasnet/api-client/core', () => ({
 }));
 
 const mockApiClient = vi.mocked(apiClient);
+
+const TEST_ROUTER_IP = '192.168.88.1';
 
 describe('useInterfaces', () => {
   let queryClient: QueryClient;
@@ -30,9 +34,8 @@ describe('useInterfaces', () => {
     vi.clearAllMocks();
   });
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
 
   it('should fetch and transform interface data', async () => {
     const mockResponse = {
@@ -49,9 +52,9 @@ describe('useInterfaces', () => {
       ],
     };
 
-    mockApiClient.get.mockResolvedValueOnce(mockResponse);
+    (mockApiClient.get as Mock).mockResolvedValueOnce(mockResponse);
 
-    const { result } = renderHook(() => useInterfaces(), { wrapper });
+    const { result } = renderHook(() => useInterfaces(TEST_ROUTER_IP), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -83,9 +86,9 @@ describe('useInterfaces', () => {
       ],
     };
 
-    mockApiClient.get.mockResolvedValueOnce(mockResponse);
+    (mockApiClient.get as Mock).mockResolvedValueOnce(mockResponse);
 
-    const { result } = renderHook(() => useInterfaces(), { wrapper });
+    const { result } = renderHook(() => useInterfaces(TEST_ROUTER_IP), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -102,9 +105,9 @@ describe('useInterfaces', () => {
       ],
     };
 
-    mockApiClient.get.mockResolvedValueOnce(mockResponse);
+    (mockApiClient.get as Mock).mockResolvedValueOnce(mockResponse);
 
-    const { result } = renderHook(() => useInterfaces(), { wrapper });
+    const { result } = renderHook(() => useInterfaces(TEST_ROUTER_IP), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -114,9 +117,9 @@ describe('useInterfaces', () => {
   });
 
   it('should handle API errors', async () => {
-    mockApiClient.get.mockRejectedValueOnce(new Error('Network error'));
+    (mockApiClient.get as Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useInterfaces(), { wrapper });
+    const { result } = renderHook(() => useInterfaces(TEST_ROUTER_IP), { wrapper });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 

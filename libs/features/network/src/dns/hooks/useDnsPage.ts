@@ -3,10 +3,14 @@
  *
  * Combines DNS queries and provides parsed data for the DNS page.
  *
+ * @description
+ * Fetches and combines DNS settings and static entries from Apollo Client.
+ * Parses raw RouterOS data into UI-friendly format for the DNS configuration page.
+ *
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useDNSSettings, useDNSStaticEntries } from '@nasnet/api-client/queries';
 import { parseDNSSettings } from '../utils';
 import type { ParsedDNSSettings, DNSStaticEntry } from '@nasnet/core/types';
@@ -84,11 +88,11 @@ export function useDnsPage(deviceId: string): UseDnsPageReturn {
   // Get first error (if any)
   const error = settingsQuery.error || entriesQuery.error || null;
 
-  // Refetch both queries
-  const refetch = () => {
-    settingsQuery.refetch();
-    entriesQuery.refetch();
-  };
+  // Refetch both queries (stable reference with useCallback)
+  const refetch = useCallback(() => {
+    settingsQuery.refetch?.();
+    entriesQuery.refetch?.();
+  }, [settingsQuery, entriesQuery]);
 
   return {
     settings: parsedSettings,

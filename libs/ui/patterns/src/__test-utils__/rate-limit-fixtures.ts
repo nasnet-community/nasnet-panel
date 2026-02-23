@@ -2,12 +2,45 @@
  * Rate Limiting Test Fixtures
  *
  * Mock data and helper utilities for testing rate limiting components and hooks.
- * Provides realistic test data for drop, tarpit, and add-to-list rules.
+ * Provides realistic test data for drop, tarpit, and add-to-list rules, SYN flood configs,
+ * blocked IPs, and statistics.
  *
- * @see libs/core/types/src/firewall/rate-limit.types.ts
+ * Fixture Categories:
+ * - Rate Limit Rules (7 predefined rules covering all action types)
+ * - SYN Flood Configurations (4 config presets)
+ * - Blocked IPs (5 examples with varying block counts and timeouts)
+ * - Statistics (activity patterns, trend data)
+ * - Helper functions (generate custom fixtures with defaults)
+ *
+ * Usage in Tests:
+ * ```tsx
+ * import { mockRateLimitRules, generateMockRules, mockStatsWithActivity } from './rate-limit-fixtures';
+ *
+ * test('sorts rules by connection limit', () => {
+ *   const rules = mockRateLimitRules;
+ *   // Test sorting logic
+ * });
+ *
+ * test('renders 100 rules without lag', () => {
+ *   const manyRules = generateMockRules(100);
+ *   render(<RateLimitTable rules={manyRules} />);
+ * });
+ * ```
+ *
+ * @see libs/core/types/src/firewall/rate-limit.types.ts for type definitions
+ * @see libs/features/firewall/src/components/RateLimitingPage.tsx for component usage
  */
 
 import type {
+  RateLimitRule,
+  SynFloodConfig,
+  BlockedIP,
+  RateLimitStats,
+  TimeWindow,
+  RateLimitAction,
+} from '@nasnet/core/types';
+
+export type {
   RateLimitRule,
   SynFloodConfig,
   BlockedIP,
@@ -29,7 +62,7 @@ export const mockDropRule: RateLimitRule = {
   timeWindow: 'per-minute',
   action: 'drop',
   comment: 'Basic rate limit protection',
-  disabled: false,
+  isDisabled: false,
   packets: 1234,
   bytes: 567890,
 };
@@ -44,7 +77,7 @@ export const mockTarpitRule: RateLimitRule = {
   timeWindow: 'per-second',
   action: 'tarpit',
   comment: 'Tarpit suspicious subnet',
-  disabled: false,
+  isDisabled: false,
   packets: 890,
   bytes: 123456,
 };
@@ -60,7 +93,7 @@ export const mockAddToListRule: RateLimitRule = {
   addressList: 'rate-limited',
   addressListTimeout: '1h',
   comment: 'Block rate limit violators',
-  disabled: false,
+  isDisabled: false,
   packets: 4567,
   bytes: 2345678,
 };
@@ -74,7 +107,7 @@ export const mockDisabledRule: RateLimitRule = {
   timeWindow: 'per-minute',
   action: 'drop',
   comment: 'Temporarily disabled',
-  disabled: true,
+  isDisabled: true,
   packets: 0,
   bytes: 0,
 };
@@ -91,7 +124,7 @@ export const mockWhitelistRule: RateLimitRule = {
   addressList: 'ddos-attackers',
   addressListTimeout: '1d',
   comment: 'DDoS protection with whitelist bypass',
-  disabled: false,
+  isDisabled: false,
   packets: 8901,
   bytes: 4567890,
 };
@@ -105,7 +138,7 @@ export const mockStrictRule: RateLimitRule = {
   timeWindow: 'per-second',
   action: 'drop',
   comment: 'Very strict rate limit',
-  disabled: false,
+  isDisabled: false,
   packets: 12345,
   bytes: 6789012,
 };
@@ -120,7 +153,7 @@ export const mockSpecificIPRule: RateLimitRule = {
   timeWindow: 'per-second',
   action: 'tarpit',
   comment: 'Rate limit known attacker',
-  disabled: false,
+  isDisabled: false,
   packets: 23456,
   bytes: 12345678,
 };
@@ -155,7 +188,7 @@ export const emptyRuleInput = {
  * Enabled SYN flood protection (drop action)
  */
 export const mockSynFloodDrop: SynFloodConfig = {
-  enabled: true,
+  isEnabled: true,
   synLimit: 100,
   burst: 5,
   action: 'drop',
@@ -165,7 +198,7 @@ export const mockSynFloodDrop: SynFloodConfig = {
  * Enabled SYN flood protection (tarpit action)
  */
 export const mockSynFloodTarpit: SynFloodConfig = {
-  enabled: true,
+  isEnabled: true,
   synLimit: 200,
   burst: 10,
   action: 'tarpit',
@@ -175,7 +208,7 @@ export const mockSynFloodTarpit: SynFloodConfig = {
  * Disabled SYN flood protection
  */
 export const mockSynFloodDisabled: SynFloodConfig = {
-  enabled: false,
+  isEnabled: false,
   synLimit: 100,
   burst: 5,
   action: 'drop',
@@ -185,7 +218,7 @@ export const mockSynFloodDisabled: SynFloodConfig = {
  * Strict SYN flood protection
  */
 export const mockSynFloodStrict: SynFloodConfig = {
-  enabled: true,
+  isEnabled: true,
   synLimit: 50,
   burst: 5,
   action: 'drop',
@@ -205,7 +238,7 @@ export const mockBlockedIP1: BlockedIP = {
   firstBlocked: new Date('2025-01-10T10:00:00Z'),
   lastBlocked: new Date('2025-01-10T12:30:00Z'),
   timeout: '1h',
-  dynamic: true,
+  isDynamic: true,
 };
 
 /**
@@ -218,7 +251,7 @@ export const mockBlockedIP2: BlockedIP = {
   firstBlocked: new Date('2025-01-05T08:00:00Z'),
   lastBlocked: new Date('2025-01-10T15:45:00Z'),
   timeout: '',
-  dynamic: false,
+  isDynamic: false,
 };
 
 /**
@@ -231,7 +264,7 @@ export const mockBlockedIP3: BlockedIP = {
   firstBlocked: new Date('2025-01-10T14:00:00Z'),
   lastBlocked: new Date('2025-01-10T14:30:00Z'),
   timeout: '6h',
-  dynamic: true,
+  isDynamic: true,
 };
 
 /**
@@ -244,7 +277,7 @@ export const mockBlockedIP4: BlockedIP = {
   firstBlocked: new Date('2025-01-01T00:00:00Z'),
   lastBlocked: new Date('2025-01-10T16:00:00Z'),
   timeout: '1w',
-  dynamic: true,
+  isDynamic: true,
 };
 
 /**
@@ -257,7 +290,7 @@ export const mockBlockedIP5: BlockedIP = {
   firstBlocked: new Date('2025-01-10T11:00:00Z'),
   lastBlocked: new Date('2025-01-10T13:00:00Z'),
   timeout: '1d',
-  dynamic: true,
+  isDynamic: true,
 };
 
 /**
@@ -362,7 +395,7 @@ export function createMockRule(
     connectionLimit: 100,
     timeWindow: 'per-minute',
     action: 'drop',
-    disabled: false,
+    isDisabled: false,
     packets: 0,
     bytes: 0,
     ...overrides,
@@ -379,7 +412,7 @@ export function createMockBlockedIP(
     address: `192.168.1.${Math.floor(Math.random() * 255)}`,
     list: 'rate-limited',
     blockCount: Math.floor(Math.random() * 100),
-    dynamic: true,
+    isDynamic: true,
     ...overrides,
   };
 }
@@ -391,7 +424,7 @@ export function createMockSynFloodConfig(
   overrides: Partial<SynFloodConfig> = {}
 ): SynFloodConfig {
   return {
-    enabled: true,
+    isEnabled: true,
     synLimit: 100,
     burst: 5,
     action: 'drop',

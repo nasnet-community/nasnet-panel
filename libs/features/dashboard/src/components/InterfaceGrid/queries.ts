@@ -8,8 +8,19 @@
 import { gql } from '@apollo/client';
 
 /**
- * Fragment for interface fields to ensure consistency.
- * Includes all fields needed for dashboard display.
+ * GraphQL fragment for interface fields.
+ *
+ * @description
+ * Shared field selection for Interface type. Ensures consistency
+ * across queries and subscriptions. Includes real-time status,
+ * traffic metrics, and hardware information.
+ *
+ * Fields included:
+ * - Basic: id, name, type, comment
+ * - Status: status, running, lastSeen
+ * - Network: ip, mac, mtu
+ * - Traffic: txRate, rxRate, linkSpeed
+ * - Relations: usedBy, linkPartner
  */
 export const INTERFACE_FIELDS = gql`
   fragment InterfaceFields on Interface {
@@ -32,8 +43,14 @@ export const INTERFACE_FIELDS = gql`
 `;
 
 /**
- * Query to fetch all interfaces for a device.
+ * GraphQL query to fetch all interfaces for a device.
+ *
+ * @description
+ * Retrieves the complete interface list from the device.
  * Used as fallback when subscription is not available or for initial load.
+ * Cached by Apollo Client (stableTime: 10s per architecture).
+ *
+ * Variables: deviceId (ID!) - UUID of the target device
  */
 export const GET_INTERFACES = gql`
   query GetInterfaces($deviceId: ID!) {
@@ -48,9 +65,15 @@ export const GET_INTERFACES = gql`
 `;
 
 /**
- * Subscription for real-time interface status updates.
+ * GraphQL subscription for real-time interface status updates.
+ *
+ * @description
+ * WebSocket subscription for live interface changes.
  * Returns the full list of interfaces on each update.
- * Priority: NORMAL (within 5 seconds) per GraphQL architecture decisions.
+ * Priority: NORMAL (within 5 seconds) per GraphQL architecture.
+ *
+ * Variables: deviceId (ID!) - UUID of the target device
+ * Update frequency: On any interface status/traffic change
  */
 export const INTERFACE_STATUS_SUBSCRIPTION = gql`
   subscription OnInterfaceStatusChanged($deviceId: ID!) {

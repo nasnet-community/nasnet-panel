@@ -29,22 +29,26 @@ import {
   Skeleton,
   Checkbox,
   cn,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { StatusBadge } from '@nasnet/ui/patterns';
 
 import { LeaseDetailPanel } from './LeaseDetailPanel';
 
-// Sort direction type
+/** Sort direction type */
 type SortDirection = 'asc' | 'desc' | null;
 
-// Sortable column keys
+/** Sortable column keys */
 type SortableColumn = 'ipAddress' | 'hostname' | 'expiration' | 'macAddress';
 
-// Sort configuration
+/** Sort configuration */
 interface SortConfig {
   column: SortableColumn | null;
   direction: SortDirection;
 }
+
+/** Maximum number of rows to display before requiring virtualization */
+const MAX_ROWS_BEFORE_VIRTUALIZATION = 20;
 
 export interface LeaseTableWithSelectionProps {
   /** Array of DHCP leases to display */
@@ -380,15 +384,16 @@ export const LeaseTableWithSelection = React.forwardRef<
                         {/* Expand button */}
                         <TableCell className="w-[50px]" onClick={(e) => e.stopPropagation()}>
                           <button
-                            className="flex items-center justify-center p-1 hover:bg-muted rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            type="button"
+                            className="flex items-center justify-center p-1 hover:bg-muted rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[32px] min-w-[32px]"
                             onClick={() => handleRowClick(lease.id)}
                             aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
                             aria-expanded={isExpanded}
                           >
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4" />
+                              <Icon icon={ChevronDown} size="sm" />
                             ) : (
-                              <ChevronRight className="h-4 w-4" />
+                              <Icon icon={ChevronRight} size="sm" />
                             )}
                           </button>
                         </TableCell>
@@ -406,8 +411,8 @@ export const LeaseTableWithSelection = React.forwardRef<
 
                         <TableCell
                           className={cn(
-                            'font-mono',
-                            lease.blocked && 'line-through'
+                            'font-mono text-sm',
+                            lease.blocked && 'line-through opacity-60'
                           )}
                         >
                           {lease.address}
@@ -415,7 +420,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                         <TableCell
                           className={cn(
                             'font-mono text-xs',
-                            lease.blocked && 'line-through'
+                            lease.blocked && 'line-through opacity-60'
                           )}
                         >
                           {formatMACAddress(lease.macAddress)}
@@ -431,7 +436,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                             {!lease.dynamic && <StatusBadge status="static" />}
                             {isNew && (
                               <span className="inline-flex items-center gap-1 rounded-md bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
-                                <Sparkles className="h-3 w-3" />
+                                <Icon icon={Sparkles} size="sm" />
                                 New
                               </span>
                             )}

@@ -1,9 +1,11 @@
 /**
  * SecurityLevelBadge Component
- * Displays a color-coded security level indicator
+ * @description Displays a color-coded security level indicator with status icon and label.
+ * Shows security strength (Strong/Moderate/Weak/None) with appropriate visual styling.
  * Implements FR0-16: View security profile settings with security level indicator
  */
 
+import * as React from 'react';
 import { Shield, ShieldAlert, ShieldX, ShieldOff } from 'lucide-react';
 import { type SecurityLevel } from '@nasnet/core/types';
 import { cn } from '@nasnet/ui/primitives';
@@ -19,8 +21,9 @@ export interface SecurityLevelBadgeProps {
  * Security Level Badge Component
  * - Shows security level with appropriate icon and color
  * - Color coding: Green (Strong), Yellow (Moderate), Red (Weak), Gray (None)
+ * - Uses semantic status colors (success/warning/error/muted)
  */
-export function SecurityLevelBadge({
+export const SecurityLevelBadge = React.memo(function SecurityLevelBadge({
   level,
   className,
 }: SecurityLevelBadgeProps) {
@@ -36,14 +39,17 @@ export function SecurityLevelBadge({
       )}
       aria-label={`Security level: ${config.label}`}
     >
-      <config.icon className="h-3.5 w-3.5" />
+      <config.icon className="h-3.5 w-3.5" aria-hidden="true" />
       <span>{config.label}</span>
     </div>
   );
-}
+});
+
+SecurityLevelBadge.displayName = 'SecurityLevelBadge';
 
 /**
  * Get configuration for security level badge
+ * Uses semantic status colors: success (green), warning (amber), error (red), muted (gray)
  */
 function getSecurityLevelConfig(level: SecurityLevel) {
   switch (level) {
@@ -51,28 +57,25 @@ function getSecurityLevelConfig(level: SecurityLevel) {
       return {
         label: 'Strong',
         icon: Shield,
-        className:
-          'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
+        className: 'bg-success/10 text-success dark:bg-success/20',
       };
     case 'moderate':
       return {
         label: 'Moderate',
         icon: ShieldAlert,
-        className:
-          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        className: 'bg-warning/10 text-warning dark:bg-warning/20',
       };
     case 'weak':
       return {
         label: 'Weak',
         icon: ShieldX,
-        className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        className: 'bg-error/10 text-error dark:bg-error/20',
       };
     case 'none':
       return {
         label: 'None',
         icon: ShieldOff,
-        className:
-          'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
+        className: 'bg-muted text-muted-foreground dark:bg-muted/20',
       };
   }
 }

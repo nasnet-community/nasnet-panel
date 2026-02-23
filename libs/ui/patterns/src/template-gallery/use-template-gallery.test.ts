@@ -410,7 +410,7 @@ describe('useTemplateGallery', () => {
       );
 
       const sorted = result.current.filteredTemplates;
-      const complexityOrder = { SIMPLE: 1, MODERATE: 2, ADVANCED: 3 };
+      const complexityOrder = { SIMPLE: 1, MODERATE: 2, ADVANCED: 3, EXPERT: 4 };
 
       for (let i = 0; i < sorted.length - 1; i++) {
         expect(complexityOrder[sorted[i].complexity]).toBeLessThanOrEqual(

@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import type { Router } from '@nasnet/core/types';
+
 import { RouterCard } from './RouterCard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof RouterCard> = {
   title: 'Features/RouterDiscovery/RouterCard',

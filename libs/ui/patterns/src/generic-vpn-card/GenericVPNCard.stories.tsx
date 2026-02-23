@@ -8,7 +8,7 @@
  * @module @nasnet/ui/patterns/generic-vpn-card
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { GenericVPNCard } from './GenericVPNCard';
 
@@ -74,8 +74,8 @@ export const L2TPConnected: Story = {
       id: 'l2tp-out1',
       name: 'l2tp-out1',
       type: 'l2tp',
-      disabled: false,
-      running: true,
+      isDisabled: false,
+      isRunning: true,
       connectTo: 'vpn.example.com',
       user: 'admin',
       comment: 'Primary office VPN',
@@ -93,8 +93,8 @@ export const L2TPDisconnected: Story = {
       id: 'l2tp-out2',
       name: 'l2tp-out2',
       type: 'l2tp',
-      disabled: false,
-      running: false,
+      isDisabled: false,
+      isRunning: false,
       connectTo: '10.0.0.1',
       user: 'remote-user',
     },
@@ -111,8 +111,8 @@ export const PPTPDisabled: Story = {
       id: 'pptp-out1',
       name: 'pptp-out1',
       type: 'pptp',
-      disabled: true,
-      running: false,
+      isDisabled: true,
+      isRunning: false,
       connectTo: 'pptp.provider.net',
       user: 'pptp_user',
       comment: 'Legacy PPTP — kept for compatibility',
@@ -131,11 +131,11 @@ export const SSTPWithCertVerification: Story = {
       id: 'sstp-out1',
       name: 'sstp-out1',
       type: 'sstp',
-      disabled: false,
-      running: true,
+      isDisabled: false,
+      isRunning: true,
       connectTo: 'sstp.secure-corp.com',
       user: 'corp_user',
-      verifyServerCertificate: true,
+      shouldVerifyServerCertificate: true,
       comment: 'Corporate SSTP with cert pinning',
     },
   },
@@ -152,8 +152,8 @@ export const MinimalInterface: Story = {
       id: 'l2tp-min',
       name: 'l2tp-minimal',
       type: 'l2tp',
-      disabled: false,
-      running: false,
+      isDisabled: false,
+      isRunning: false,
       connectTo: '192.168.1.254',
     },
   },
@@ -170,8 +170,8 @@ export const ClickableCard: Story = {
       id: 'l2tp-click',
       name: 'l2tp-office',
       type: 'l2tp',
-      disabled: false,
-      running: true,
+      isDisabled: false,
+      isRunning: true,
       connectTo: 'vpn.office.example.com',
       user: 'alice',
       comment: 'Click to open detail panel',

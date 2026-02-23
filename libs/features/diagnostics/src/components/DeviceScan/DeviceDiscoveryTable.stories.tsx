@@ -5,7 +5,7 @@
  * and a single-device result.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { DeviceDiscoveryTable } from './DeviceDiscoveryTable';
 

@@ -221,3 +221,23 @@ export const LowTraffic: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    stats: cleanStats,
+    variant: 'default',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    stats: cleanStats,
+    variant: 'default',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

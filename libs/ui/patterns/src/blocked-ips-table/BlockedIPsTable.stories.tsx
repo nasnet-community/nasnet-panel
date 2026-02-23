@@ -15,7 +15,7 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { BlockedIPsTable } from './BlockedIPsTable';
 import {
@@ -23,12 +23,37 @@ import {
   mockBlockedIP1,
   mockBlockedIP2,
   mockBlockedIP3,
-  mockBlockedIP5,
   mockTopBlockedIPs,
   generateMockBlockedIPs,
 } from '../__test-utils__/rate-limit-fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react';
+import type { UseBlockedIPsTableReturn } from './use-blocked-ips-table';
+
+/**
+ * Helper to create a UseBlockedIPsTableReturn mock
+ */
+function createMockBlockedIPsTable(blockedIPs: typeof mockBlockedIPs = mockBlockedIPs): UseBlockedIPsTableReturn {
+  return {
+    filteredBlockedIPs: blockedIPs,
+    totalCount: blockedIPs.length,
+    filteredCount: blockedIPs.length,
+    filter: { ipAddress: '', list: 'all' },
+    setFilter: fn(),
+    clearFilter: fn(),
+    hasActiveFilter: false,
+    sort: { field: 'lastBlocked', direction: 'desc' },
+    setSort: fn(),
+    toggleSortDirection: fn(),
+    selectedIPs: [],
+    toggleSelection: fn(),
+    selectAll: fn(),
+    clearSelection: fn(),
+    isSelected: fn(),
+    hasSelection: false,
+    refresh: fn(),
+  };
+}
 
 /**
  * BlockedIPsTable - Display and manage blocked IP addresses
@@ -78,7 +103,7 @@ import type { Meta, StoryObj } from '@storybook/react';
  * ```
  */
 const meta = {
-  title: 'Patterns/Firewall/Rate Limiting/BlockedIPsTable',
+  title: 'Patterns/Domain/Firewall/BlockedIPsTable',
   component: BlockedIPsTable,
   parameters: {
     layout: 'fullscreen',
@@ -106,33 +131,31 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    blockedIPs: {
+    blockedIPsTable: {
       control: 'object',
-      description: 'Array of blocked IP addresses',
+      description: 'Blocked IPs table hook return value',
     },
     loading: {
       control: 'boolean',
       description: 'Is table loading',
     },
-    showFilters: {
+    isWhitelisting: {
       control: 'boolean',
-      description: 'Show filter bar',
+      description: 'Whether whitelist action is loading',
     },
-    selectable: {
+    isRemoving: {
       control: 'boolean',
-      description: 'Enable row selection for bulk operations',
+      description: 'Whether remove action is loading',
     },
     onWhitelist: { action: 'whitelisted' },
     onRemove: { action: 'removed' },
-    onRefresh: { action: 'refreshed' },
   },
   args: {
     loading: false,
-    showFilters: true,
-    selectable: true,
+    isWhitelisting: false,
+    isRemoving: false,
     onWhitelist: fn(),
     onRemove: fn(),
-    onRefresh: fn(),
   },
 } satisfies Meta<typeof BlockedIPsTable>;
 
@@ -151,7 +174,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     docs: {
@@ -175,7 +198,7 @@ export const Default: Story = {
  */
 export const Empty: Story = {
   args: {
-    blockedIPs: [],
+    blockedIPsTable: createMockBlockedIPsTable([]),
   },
   parameters: {
     docs: {
@@ -198,7 +221,7 @@ export const Empty: Story = {
  */
 export const Loading: Story = {
   args: {
-    blockedIPs: [],
+    blockedIPsTable: createMockBlockedIPsTable([]),
     loading: true,
   },
   parameters: {
@@ -222,7 +245,7 @@ export const Loading: Story = {
  */
 export const TopOffenders: Story = {
   args: {
-    blockedIPs: mockTopBlockedIPs,
+    blockedIPsTable: createMockBlockedIPsTable(mockTopBlockedIPs),
   },
   parameters: {
     docs: {
@@ -246,8 +269,7 @@ export const TopOffenders: Story = {
  */
 export const WithSelection: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
-    selectable: true,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     docs: {
@@ -271,11 +293,13 @@ export const WithSelection: Story = {
  */
 export const ManyBlockedIPs: Story = {
   args: {
-    blockedIPs: generateMockBlockedIPs(250, (i) => ({
-      blockCount: Math.floor(Math.random() * 500),
-      dynamic: i % 3 !== 0,
-      timeout: i % 3 === 0 ? '' : ['1h', '6h', '1d', '1w'][i % 4],
-    })),
+    blockedIPsTable: createMockBlockedIPsTable(
+      generateMockBlockedIPs(250, (i) => ({
+        blockCount: Math.floor(Math.random() * 500),
+        isDynamic: i % 3 !== 0,
+        timeout: i % 3 === 0 ? '' : ['1h', '6h', '1d', '1w'][i % 4],
+      }))
+    ),
   },
   parameters: {
     docs: {
@@ -299,7 +323,7 @@ export const ManyBlockedIPs: Story = {
  */
 export const IPv6Only: Story = {
   args: {
-    blockedIPs: [
+    blockedIPsTable: createMockBlockedIPsTable([
       {
         address: '2001:db8::1',
         list: 'rate-limited',
@@ -307,7 +331,7 @@ export const IPv6Only: Story = {
         firstBlocked: new Date('2025-01-10T11:00:00Z'),
         lastBlocked: new Date('2025-01-10T13:00:00Z'),
         timeout: '1d',
-        dynamic: true,
+        isDynamic: true,
       },
       {
         address: '2001:db8:85a3::8a2e:370:7334',
@@ -316,7 +340,7 @@ export const IPv6Only: Story = {
         firstBlocked: new Date('2025-01-05T08:00:00Z'),
         lastBlocked: new Date('2025-01-10T15:45:00Z'),
         timeout: '',
-        dynamic: false,
+        isDynamic: false,
       },
       {
         address: 'fe80::1',
@@ -325,9 +349,9 @@ export const IPv6Only: Story = {
         firstBlocked: new Date('2025-01-10T14:00:00Z'),
         lastBlocked: new Date('2025-01-10T14:30:00Z'),
         timeout: '6h',
-        dynamic: true,
+        isDynamic: true,
       },
-    ],
+    ]),
   },
   parameters: {
     docs: {
@@ -350,7 +374,7 @@ export const IPv6Only: Story = {
  */
 export const DynamicOnly: Story = {
   args: {
-    blockedIPs: mockBlockedIPs.filter((ip) => ip.dynamic),
+    blockedIPsTable: createMockBlockedIPsTable(mockBlockedIPs.filter((ip) => ip.isDynamic)),
   },
   parameters: {
     docs: {
@@ -374,7 +398,7 @@ export const DynamicOnly: Story = {
  */
 export const PermanentOnly: Story = {
   args: {
-    blockedIPs: mockBlockedIPs.filter((ip) => !ip.dynamic),
+    blockedIPsTable: createMockBlockedIPsTable(mockBlockedIPs.filter((ip) => !ip.isDynamic)),
   },
   parameters: {
     docs: {
@@ -397,7 +421,7 @@ export const PermanentOnly: Story = {
  */
 export const MobileView: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     viewport: {
@@ -424,7 +448,7 @@ export const MobileView: Story = {
  */
 export const DesktopView: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     viewport: {
@@ -451,7 +475,7 @@ export const DesktopView: Story = {
  */
 export const HighBlockCounts: Story = {
   args: {
-    blockedIPs: [
+    blockedIPsTable: createMockBlockedIPsTable([
       {
         ...mockBlockedIP2,
         blockCount: 15000,
@@ -464,7 +488,7 @@ export const HighBlockCounts: Story = {
         ...mockBlockedIP1,
         blockCount: 250000,
       },
-    ],
+    ]),
   },
   parameters: {
     docs: {
@@ -487,8 +511,7 @@ export const HighBlockCounts: Story = {
  */
 export const NoFilters: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
-    showFilters: false,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     docs: {
@@ -511,8 +534,7 @@ export const NoFilters: Story = {
  */
 export const NonSelectable: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
-    selectable: false,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     docs: {
@@ -535,7 +557,7 @@ export const NonSelectable: Story = {
  */
 export const AccessibilityTest: Story = {
   args: {
-    blockedIPs: mockBlockedIPs,
+    blockedIPsTable: createMockBlockedIPsTable(),
   },
   parameters: {
     a11y: {

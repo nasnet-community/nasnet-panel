@@ -12,17 +12,20 @@
  * - VPN clients summary with expandable list
  */
 
+import React from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
-import { 
-  Shield, 
-  Wifi, 
-  RotateCcw, 
+import {
+  Shield,
+  Wifi,
+  RotateCcw,
   ShieldCheck,
   CheckCircle,
   AlertTriangle,
   XCircle,
   Loader2,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useRouterInfo, useRouterResource, useRouterboard , useDHCPLeases, useDHCPServers, useDHCPPools , useVPNStats, usePPPActive } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
@@ -40,7 +43,8 @@ import {
 } from '@nasnet/ui/patterns';
 import type { QuickAction, StatusPill, ConnectedVPNClient , NetworkStatus } from '@nasnet/ui/patterns';
 
-export function OverviewTab() {
+export const OverviewTab = React.memo(function OverviewTab() {
+  const { t } = useTranslation('router');
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
@@ -112,12 +116,12 @@ export function OverviewTab() {
   const networkStatus = getNetworkStatus();
   const statusMessage =
     networkStatus === 'healthy'
-      ? 'All Good ✓'
+      ? t('overview.statusHealthy')
       : networkStatus === 'warning'
-      ? 'Attention Needed'
+      ? t('overview.statusWarning')
       : networkStatus === 'error'
-      ? 'System Issues'
-      : 'Loading...';
+      ? t('overview.statusError')
+      : t('overview.statusLoading');
 
   // Get uptime in a friendly format
   const uptimeFormatted = data?.uptime ? parseRouterOSUptime(data.uptime) : 'N/A';
@@ -147,23 +151,23 @@ export function OverviewTab() {
     {
       id: 'vpn',
       icon: Shield,
-      label: vpnConnectedCount > 0 ? 'VPN Active' : 'Connect VPN',
-      sublabel: vpnConnectedCount > 0 ? `${vpnConnectedCount} connected` : 'Manage connections',
+      label: vpnConnectedCount > 0 ? t('overview.quickActions.vpnActive') : t('overview.quickActions.vpnConnect'),
+      sublabel: vpnConnectedCount > 0 ? t('overview.quickActions.vpnConnected', { count: vpnConnectedCount }) : t('overview.quickActions.vpnManage'),
       onClick: () => navigate({ to: 'vpn' as '/' }),
       variant: vpnConnectedCount > 0 ? 'primary' : 'default',
     },
     {
       id: 'wifi',
       icon: Wifi,
-      label: 'WiFi',
-      sublabel: 'Manage networks',
+      label: t('overview.quickActions.wifi'),
+      sublabel: t('overview.quickActions.wifiManage'),
       onClick: () => navigate({ to: 'wifi' as '/' }),
     },
     {
       id: 'restart',
       icon: RotateCcw,
-      label: 'Restart',
-      sublabel: 'Safe restart',
+      label: t('overview.quickActions.restart'),
+      sublabel: t('overview.quickActions.restartSafe'),
       onClick: () => {
         // TODO: Implement restart confirmation dialog
         console.log('Restart clicked');
@@ -172,8 +176,8 @@ export function OverviewTab() {
     {
       id: 'firewall',
       icon: ShieldCheck,
-      label: 'Firewall',
-      sublabel: 'Active',
+      label: t('overview.quickActions.firewall'),
+      sublabel: t('overview.quickActions.firewallActive'),
       onClick: () => navigate({ to: 'firewall' as '/' }),
     },
   ];
@@ -182,12 +186,12 @@ export function OverviewTab() {
   const statusPills: StatusPill[] = [
     {
       id: 'internet',
-      label: 'Internet OK',
+      label: t('overview.statusPills.internetOk'),
       variant: networkStatus === 'healthy' ? 'success' : networkStatus === 'warning' ? 'warning' : 'error',
     },
     {
       id: 'vpn',
-      label: vpnConnectedCount > 0 ? `VPN (${vpnConnectedCount})` : 'VPN Off',
+      label: vpnConnectedCount > 0 ? t('overview.statusPills.vpn', { count: vpnConnectedCount }) : t('overview.statusPills.vpnOff'),
       variant: vpnConnectedCount > 0 ? 'success' : 'neutral',
     },
     {
@@ -197,7 +201,7 @@ export function OverviewTab() {
     },
     {
       id: 'dhcp',
-      label: `${activeDhcpLeases} Devices`,
+      label: t('overview.statusPills.devices', { count: activeDhcpLeases }),
       variant: 'info',
     },
   ];
@@ -234,7 +238,7 @@ export function OverviewTab() {
       case 'error':
         return 'from-error to-error-dark';
       case 'loading':
-        return 'from-slate-500 to-slate-400';
+        return 'from-muted-foreground to-muted-foreground';
     }
   };
 
@@ -244,7 +248,7 @@ export function OverviewTab() {
       <div className={`bg-gradient-to-r ${getHeroGradient()} px-4 pt-6 pb-28 md:px-6 md:pb-32 rounded-b-[40px]`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-white/70 text-sm">Router Status</p>
+            <p className="text-white/70 text-sm">{t('overview.routerStatus')}</p>
             <LastUpdated timestamp={dataUpdatedAt} className="text-white/70" />
           </div>
           <div className="text-center py-4">
@@ -262,9 +266,9 @@ export function OverviewTab() {
       <div className="px-4 md:px-6 -mt-20">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Quick Actions Card (Floating) */}
-          <QuickActionsCard 
+          <QuickActionsCard
             actions={quickActions}
-            title="Quick Actions"
+            title={t('overview.quickActionsTitle')}
           />
 
           {/* Status Pills */}
@@ -272,7 +276,7 @@ export function OverviewTab() {
 
           {/* Resource Monitor Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">Resource Monitor</h2>
+            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.resourceMonitor')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* System Information Card */}
               <SystemInfoCard
@@ -312,20 +316,20 @@ export function OverviewTab() {
 
           {/* DHCP & Traffic Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">Network Activity</h2>
+            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.networkActivity')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* DHCP Summary */}
               <DHCPSummaryCard
                 activeLeases={activeDhcpLeases}
                 ipRange={dhcpPoolRange}
-                serverName={dhcpServers?.[0]?.name || 'DHCP Server'}
+                serverName={dhcpServers?.[0]?.name || t('overview.defaultDhcpServer')}
                 isLoading={dhcpLeasesLoading}
                 linkTo="dhcp"
               />
 
               {/* Traffic Chart */}
               <TrafficChart
-                title="Network Traffic"
+                title={t('overview.networkTraffic')}
                 showPlaceholder={true}
                 height={140}
               />
@@ -334,7 +338,7 @@ export function OverviewTab() {
 
           {/* VPN Clients Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">VPN Status</h2>
+            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.vpnStatus')}</h2>
             <VPNClientsSummary
               connectedCount={vpnConnectedCount}
               clients={connectedVpnClients}
@@ -346,7 +350,7 @@ export function OverviewTab() {
 
           {/* Hardware Details Section */}
           <div className="pb-6">
-            <h2 className="text-lg font-semibold mb-4 px-2">Hardware</h2>
+            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.hardware')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <HardwareCard
                 data={hardwareData}
@@ -359,4 +363,6 @@ export function OverviewTab() {
       </div>
     </div>
   );
-}
+});
+
+OverviewTab.displayName = 'OverviewTab';

@@ -6,6 +6,7 @@
 import { memo } from 'react';
 
 import { Activity, ArrowDown, ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type NetworkInterface } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
@@ -26,6 +27,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
   totalTraffic,
   isLoading,
 }: NetworkStatusHeroProps) {
+  const { t } = useTranslation('network');
   const activeInterfaces = interfaces.filter((i) => i.status === 'running');
 
   const activePercent = interfaces.length > 0
@@ -34,7 +36,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-2 md:gap-3 animate-pulse" role="status" aria-label="Loading network statistics">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 animate-pulse" role="status" aria-label={t('status.loading')}>
         {[1, 2, 3].map((i) => (
           <div
             key={i}
@@ -53,9 +55,9 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
     <div className="grid grid-cols-3 gap-2 md:gap-3">
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Activity className="w-3.5 h-3.5 text-cyan-500" aria-hidden="true" />
+          <Activity className="w-3.5 h-3.5 text-category-wifi" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
-            Active
+            {t('status.active')}
           </p>
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground">
@@ -66,7 +68,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
         </p>
         <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
-            className="bg-cyan-500 h-1.5 rounded-full transition-all duration-300"
+            className="bg-category-wifi h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activePercent}%` }}
           />
         </div>
@@ -74,16 +76,16 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
 
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <ArrowDown className="w-3.5 h-3.5 text-emerald-500" aria-hidden="true" />
+          <ArrowDown className="w-3.5 h-3.5 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
-            Download
+            {t('traffic.download')}
           </p>
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {totalTraffic ? formatBytes(totalTraffic.rxBytes) : '0 B'}
         </p>
         {totalTraffic?.rxRate !== undefined && (
-          <p className="text-xs text-emerald-500 mt-1">
+          <p className="text-xs text-success mt-1">
             {formatBytes(totalTraffic.rxRate)}/s
           </p>
         )}
@@ -91,16 +93,16 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
 
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <ArrowUp className="w-3.5 h-3.5 text-purple-500" aria-hidden="true" />
+          <ArrowUp className="w-3.5 h-3.5 text-category-monitoring" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
-            Upload
+            {t('traffic.upload')}
           </p>
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {totalTraffic ? formatBytes(totalTraffic.txBytes) : '0 B'}
         </p>
         {totalTraffic?.txRate !== undefined && (
-          <p className="text-xs text-purple-500 mt-1">
+          <p className="text-xs text-category-monitoring mt-1">
             {formatBytes(totalTraffic.txRate)}/s
           </p>
         )}

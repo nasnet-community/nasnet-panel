@@ -43,7 +43,7 @@ vi.mock('./DeviceRoutingMatrixDesktop', () => ({
           </tr>
         </thead>
         <tbody>
-          {matrix.devices.map((device) => (
+          {matrix.devices.map((device: NetworkDevice) => (
             <tr key={device.deviceID} data-testid={`device-row-${device.deviceID}`}>
               <td>{device.hostname || device.deviceID}</td>
               <td>{device.macAddress}</td>
@@ -67,7 +67,7 @@ vi.mock('./DeviceRoutingMatrixMobile', () => ({
   DeviceRoutingMatrixMobile: vi.fn(({ routerId, matrix }) => (
     <div data-testid="device-routing-matrix-mobile">
       <div data-testid="router-id">{routerId}</div>
-      {matrix.devices.map((device) => (
+      {matrix.devices.map((device: NetworkDevice) => (
         <div
           key={device.deviceID}
           data-testid={`device-card-${device.deviceID}`}

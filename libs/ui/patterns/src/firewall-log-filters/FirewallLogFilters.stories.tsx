@@ -8,11 +8,10 @@
 
 import { useState } from 'react';
 
-import { within, userEvent, expect } from '@storybook/test';
+import { within, userEvent, expect } from 'storybook/test';
 
 import { FirewallLogFilters } from './FirewallLogFilters';
 import { FirewallLogFiltersDesktop } from './FirewallLogFiltersDesktop';
-import { FirewallLogFiltersMobile } from './FirewallLogFiltersMobile';
 
 import type { FirewallLogFilterState } from './firewall-log-filters.types';
 import type { Meta, StoryObj } from '@storybook/react';

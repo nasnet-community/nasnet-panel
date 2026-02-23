@@ -1,0 +1,11627 @@
+export type Maybe<T> = T | null | undefined;
+export type InputMaybe<T> = T | null | undefined;
+export type Exact<T extends {
+    [key: string]: unknown;
+}> = {
+    [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+    [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+    [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<T extends {
+    [key: string]: unknown;
+}, K extends keyof T> = {
+    [_ in K]?: never;
+};
+export type Incremental<T> = T | {
+    [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
+};
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+    ID: {
+        input: string;
+        output: string;
+    };
+    String: {
+        input: string;
+        output: string;
+    };
+    Boolean: {
+        input: boolean;
+        output: boolean;
+    };
+    Int: {
+        input: number;
+        output: number;
+    };
+    Float: {
+        input: number;
+        output: number;
+    };
+    /** Bandwidth string with unit (e.g., "10M", "1G", "100k") */
+    Bandwidth: {
+        input: string;
+        output: string;
+    };
+    /** CIDR notation for network address (e.g., "192.168.1.0/24") */
+    CIDR: {
+        input: string;
+        output: string;
+    };
+    /** ISO 8601 datetime string (e.g., "2024-01-15T10:30:00Z") */
+    DateTime: {
+        input: string;
+        output: string;
+    };
+    /** Duration string in RouterOS format (e.g., "1d2h3m4s", "30s", "5m") */
+    Duration: {
+        input: string;
+        output: string;
+    };
+    /**
+     * IPv4 address string (e.g., "192.168.1.1")
+     * Validated format: XXX.XXX.XXX.XXX where XXX is 0-255
+     */
+    IPv4: {
+        input: string;
+        output: string;
+    };
+    /** IPv6 address string (e.g., "2001:0db8:85a3:0000:0000:8a2e:0370:7334") */
+    IPv6: {
+        input: string;
+        output: string;
+    };
+    /** Arbitrary JSON data for flexible configuration */
+    JSON: {
+        input: Record<string, unknown>;
+        output: Record<string, unknown>;
+    };
+    /** MAC address string (e.g., "00:1A:2B:3C:4D:5E" or "00-1A-2B-3C-4D-5E") */
+    MAC: {
+        input: string;
+        output: string;
+    };
+    /** TCP/UDP port number (1-65535) */
+    Port: {
+        input: number;
+        output: number;
+    };
+    /** Port range string (e.g., "80", "80-443", "80,443,8080") */
+    PortRange: {
+        input: string;
+        output: string;
+    };
+    /** Size in bytes with optional unit (e.g., "1024", "1k", "1M", "1G") */
+    Size: {
+        input: string;
+        output: string;
+    };
+    /**
+     * ULID (Universally Unique Lexicographically Sortable Identifier)
+     * A 26-character string that is time-sortable and globally unique.
+     * Example: "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+     */
+    ULID: {
+        input: any;
+        output: any;
+    };
+};
+export type AddBridgePortInput = {
+    readonly frameTypes?: InputMaybe<FrameTypes>;
+    readonly ingressFiltering?: InputMaybe<Scalars['Boolean']['input']>;
+    readonly interfaceId: Scalars['ID']['input'];
+    readonly pvid?: InputMaybe<Scalars['Int']['input']>;
+};
+export type AddChangeSetItemPayload = {
+    /** The updated change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The added item ID */
+    readonly itemId?: Maybe<Scalars['ID']['output']>;
+};
+/** AddDependencyInput contains parameters for creating a dependency relationship. */
+export type AddDependencyInput = {
+    readonly autoStart: Scalars['Boolean']['input'];
+    readonly dependencyType: DependencyType;
+    readonly fromInstanceId: Scalars['ID']['input'];
+    readonly healthTimeoutSeconds: Scalars['Int']['input'];
+    readonly toInstanceId: Scalars['ID']['input'];
+};
+/**
+ * Input for manually adding a new router with full credentials and protocol preference.
+ * This is the primary input type for the addRouter mutation.
+ */
+export type AddRouterInput = {
+    /**
+     * Router hostname or IP address.
+     * Can be an IPv4 address (e.g., '192.168.88.1'), IPv6 address, or hostname (e.g., 'router.local').
+     * Hostnames will trigger DNS resolution with caching.
+     */
+    readonly host: Scalars['String']['input'];
+    /**
+     * User-friendly display name for the router.
+     * If not provided, a name will be generated from the host.
+     */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /**
+     * Password for authentication.
+     * This value is encrypted before storage and never logged.
+     */
+    readonly password: Scalars['String']['input'];
+    /**
+     * Connection port. If not specified, defaults to protocol-specific port:
+     * - REST: 443 (or 80 for HTTP)
+     * - API: 8728
+     * - API_SSL: 8729
+     * - SSH: 22
+     * - Telnet: 23
+     */
+    readonly port?: InputMaybe<Scalars['Int']['input']>;
+    /**
+     * Protocol preference for connection.
+     * Defaults to AUTO which tries protocols in recommended order.
+     */
+    readonly protocolPreference?: InputMaybe<ProtocolPreference>;
+    /**
+     * Username for authentication.
+     * For MikroTik routers, this is typically 'admin' or a custom user.
+     */
+    readonly username: Scalars['String']['input'];
+};
+/**
+ * Payload returned from the addRouter mutation.
+ * Contains either the created router or validation/connection errors.
+ */
+export type AddRouterPayload = {
+    /** Connection test result from initial connection attempt */
+    readonly connectionResult?: Maybe<ConnectionTestResult>;
+    /** General errors that occurred during creation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The newly created router (null if errors occurred) */
+    readonly router?: Maybe<Router>;
+    /** Field-level validation errors for retry */
+    readonly validationErrors?: Maybe<ReadonlyArray<ValidationError>>;
+};
+/**
+ * Aggregated view of an address list with entry statistics.
+ * Address lists group IP addresses for use in firewall rules.
+ */
+export type AddressList = {
+    /** Number of dynamic entries (added by firewall actions) */
+    readonly dynamicCount: Scalars['Int']['output'];
+    /** Paginated entries in this list */
+    readonly entries: AddressListEntryConnection;
+    /** Total number of entries in this list */
+    readonly entryCount: Scalars['Int']['output'];
+    /** List name (unique identifier) */
+    readonly name: Scalars['String']['output'];
+    /** Firewall rules that reference this list */
+    readonly referencingRules: ReadonlyArray<FirewallRule>;
+    /** Number of firewall rules referencing this list */
+    readonly referencingRulesCount: Scalars['Int']['output'];
+};
+/**
+ * Aggregated view of an address list with entry statistics.
+ * Address lists group IP addresses for use in firewall rules.
+ */
+export type AddressListEntriesArgs = {
+    after?: InputMaybe<Scalars['String']['input']>;
+    first?: InputMaybe<Scalars['Int']['input']>;
+};
+/**
+ * Single entry in an address list.
+ * Represents an IP address, CIDR subnet, or IP range that belongs to a named list.
+ */
+export type AddressListEntry = Node & {
+    /** IP address, CIDR subnet, or IP range */
+    readonly address: Scalars['String']['output'];
+    /** Optional description */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** When this entry was created */
+    readonly creationTime?: Maybe<Scalars['DateTime']['output']>;
+    /** Whether this entry is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Whether this entry was added dynamically by a firewall action */
+    readonly dynamic: Scalars['Boolean']['output'];
+    /** MikroTik internal ID */
+    readonly id: Scalars['ID']['output'];
+    /** Name of the address list this entry belongs to */
+    readonly list: Scalars['String']['output'];
+    /** Optional timeout after which entry is removed */
+    readonly timeout?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Connection type for paginated address list entries.
+ * Follows Relay pagination specification.
+ */
+export type AddressListEntryConnection = Connection & {
+    readonly edges: ReadonlyArray<AddressListEntryEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+/** Edge type for address list entry connections. */
+export type AddressListEntryEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: AddressListEntry;
+};
+/** Resource affected by a configuration change */
+export type AffectedResource = {
+    /** Resource ID */
+    readonly id: Scalars['ID']['output'];
+    /** How the resource will be affected (modified, disabled, removed) */
+    readonly impact: ResourceImpact;
+    /** Resource name or description */
+    readonly name: Scalars['String']['output'];
+    /** Resource type (ip-address, dhcp-server, firewall-rule, etc.) */
+    readonly type: Scalars['String']['output'];
+};
+/** Individual alert instance triggered when rule conditions are met */
+export type Alert = Node & {
+    /** When alert was acknowledged */
+    readonly acknowledgedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** User who acknowledged the alert */
+    readonly acknowledgedBy?: Maybe<Scalars['String']['output']>;
+    /** Event data and context information */
+    readonly data?: Maybe<Scalars['JSON']['output']>;
+    /** Delivery status per channel */
+    readonly deliveryStatus?: Maybe<Scalars['JSON']['output']>;
+    /** Device ID that triggered this alert */
+    readonly deviceId?: Maybe<Scalars['ID']['output']>;
+    /** Escalation tracking for this alert (NAS-18.9) */
+    readonly escalation?: Maybe<AlertEscalation>;
+    /** Event type that triggered this alert */
+    readonly eventType: Scalars['String']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Detailed alert message */
+    readonly message: Scalars['String']['output'];
+    /** Alert rule that triggered this alert */
+    readonly rule: AlertRule;
+    /** Alert severity level */
+    readonly severity: AlertSeverity;
+    /** Reason for suppression (e.g., "throttled", "storm_detected") */
+    readonly suppressReason?: Maybe<Scalars['String']['output']>;
+    /** Number of alerts suppressed by throttling (if this alert is part of a throttle group) */
+    readonly suppressedCount?: Maybe<Scalars['Int']['output']>;
+    /** Alert title/summary */
+    readonly title: Scalars['String']['output'];
+    /** When alert was triggered */
+    readonly triggeredAt: Scalars['DateTime']['output'];
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Alert action types for subscriptions */
+export declare const AlertAction: {
+    /** Alert was acknowledged */
+    readonly Acknowledged: "ACKNOWLEDGED";
+    /** Alert was created/triggered */
+    readonly Created: "CREATED";
+    /** Alert was resolved */
+    readonly Resolved: "RESOLVED";
+};
+export type AlertAction = typeof AlertAction[keyof typeof AlertAction];
+/** Template variable input */
+export type AlertAlertTemplateVariableInput = {
+    /** Default value */
+    readonly defaultValue?: InputMaybe<Scalars['String']['input']>;
+    /** Description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Display label */
+    readonly label: Scalars['String']['input'];
+    /** Variable name */
+    readonly name: Scalars['String']['input'];
+    /** Options for enum types */
+    readonly options?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Whether required */
+    readonly required: Scalars['Boolean']['input'];
+    /** Variable type */
+    readonly type: AlertTemplateVariableType;
+};
+/** Condition for event matching in alert rules */
+export type AlertCondition = {
+    /** Field name to evaluate */
+    readonly field: Scalars['String']['output'];
+    /** Comparison operator */
+    readonly operator: ConditionOperator;
+    /** Value to compare against */
+    readonly value: Scalars['String']['output'];
+};
+/** Alert condition input */
+export type AlertConditionInput = {
+    /** Field name to evaluate */
+    readonly field: Scalars['String']['input'];
+    /** Comparison operator */
+    readonly operator: ConditionOperator;
+    /** Value to compare against */
+    readonly value: Scalars['String']['input'];
+};
+/** Paginated alert connection */
+export type AlertConnection = Connection & {
+    /** Alert edges */
+    readonly edges: ReadonlyArray<AlertEdge>;
+    /** Pagination information */
+    readonly pageInfo: PageInfo;
+    /** Total count of alerts */
+    readonly totalCount: Scalars['Int']['output'];
+};
+/** Alert edge for pagination */
+export type AlertEdge = Edge & {
+    /** Pagination cursor */
+    readonly cursor: Scalars['String']['output'];
+    /** Alert node */
+    readonly node: Alert;
+};
+/** Alert escalation tracking record (NAS-18.9) */
+export type AlertEscalation = Node & {
+    /** Alert being tracked for escalation */
+    readonly alertId: Scalars['ID']['output'];
+    /** Record creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Current escalation level (0 = initial) */
+    readonly currentLevel: Scalars['Int']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Maximum escalation level */
+    readonly maxLevel: Scalars['Int']['output'];
+    /** When next escalation level should trigger */
+    readonly nextEscalationAt?: Maybe<Scalars['DateTime']['output']>;
+    /** When escalation was resolved */
+    readonly resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Reason for resolution */
+    readonly resolvedBy?: Maybe<Scalars['String']['output']>;
+    /** Alert rule with escalation configuration */
+    readonly ruleId: Scalars['ID']['output'];
+    /** Escalation status */
+    readonly status: EscalationStatus;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Alert event for real-time subscriptions */
+export type AlertEvent = {
+    /** Type of action that occurred */
+    readonly action: AlertAction;
+    /** The alert that changed */
+    readonly alert: Alert;
+};
+/** Alert mutation payload */
+export type AlertPayload = {
+    /** Modified alert */
+    readonly alert?: Maybe<Alert>;
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Alert rule defines conditions that trigger notifications when met */
+export type AlertRule = Node & {
+    /** Alerts triggered by this rule */
+    readonly alerts: ReadonlyArray<Alert>;
+    /** Notification channels to use */
+    readonly channels: ReadonlyArray<Scalars['String']['output']>;
+    /** Array of conditions for event matching */
+    readonly conditions: ReadonlyArray<AlertCondition>;
+    /** Record creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Optional description of what this rule monitors */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Optional device ID filter - rule only applies to this device */
+    readonly deviceId?: Maybe<Scalars['ID']['output']>;
+    /** Whether this alert rule is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Escalation configuration for unacknowledged alerts (NAS-18.9) */
+    readonly escalation?: Maybe<EscalationConfig>;
+    /** Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high') */
+    readonly eventType: Scalars['String']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Human-readable alert rule name */
+    readonly name: Scalars['String']['output'];
+    /** Quiet hours configuration for non-critical alerts */
+    readonly quietHours?: Maybe<QuietHoursConfig>;
+    /** Alert severity level */
+    readonly severity: AlertSeverity;
+    /** Throttle configuration to prevent alert spam */
+    readonly throttle?: Maybe<ThrottleConfig>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Alert rule defines conditions that trigger notifications when met */
+export type AlertRuleAlertsArgs = {
+    acknowledged?: InputMaybe<Scalars['Boolean']['input']>;
+    limit?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Variable input for alert rule templates */
+export type AlertRuleAlertTemplateVariableInput = {
+    /** Default value */
+    readonly defaultValue?: InputMaybe<Scalars['String']['input']>;
+    /** Description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Display label */
+    readonly label: Scalars['String']['input'];
+    /** Maximum value */
+    readonly max?: InputMaybe<Scalars['Int']['input']>;
+    /** Minimum value */
+    readonly min?: InputMaybe<Scalars['Int']['input']>;
+    /** Variable name */
+    readonly name: Scalars['String']['input'];
+    /** Whether required */
+    readonly required: Scalars['Boolean']['input'];
+    /** Variable type */
+    readonly type: AlertRuleTemplateVariableType;
+    /** Unit label */
+    readonly unit?: InputMaybe<Scalars['String']['input']>;
+};
+/** Alert rule mutation payload */
+export type AlertRulePayload = {
+    /** Created/updated alert rule */
+    readonly alertRule?: Maybe<AlertRule>;
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/**
+ * Alert rule template for quick rule creation
+ * Pre-configured templates with variables for common alert scenarios
+ */
+export type AlertRuleTemplate = Node & {
+    /** Template category */
+    readonly category: AlertRuleTemplateCategory;
+    /** Default notification channels */
+    readonly channels: ReadonlyArray<Scalars['String']['output']>;
+    /** Pre-configured conditions */
+    readonly conditions: ReadonlyArray<AlertCondition>;
+    /** Record creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Template description */
+    readonly description: Scalars['String']['output'];
+    /** Event type this template monitors */
+    readonly eventType: Scalars['String']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Whether this is a built-in template */
+    readonly isBuiltIn: Scalars['Boolean']['output'];
+    /** Template name */
+    readonly name: Scalars['String']['output'];
+    /** Alert severity level */
+    readonly severity: AlertSeverity;
+    /** Throttle configuration */
+    readonly throttle?: Maybe<ThrottleConfig>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Template variables for customization */
+    readonly variables: ReadonlyArray<AlertRuleTemplateVariable>;
+    /** Template version */
+    readonly version: Scalars['String']['output'];
+};
+/** Alert rule template categories */
+export declare const AlertRuleTemplateCategory: {
+    /** Custom user-defined templates */
+    readonly Custom: "CUSTOM";
+    /** DHCP and IP address management */
+    readonly Dhcp: "DHCP";
+    /** Network connectivity and interface monitoring */
+    readonly Network: "NETWORK";
+    /** Resource usage (CPU, memory, disk) */
+    readonly Resources: "RESOURCES";
+    /** Security and firewall events */
+    readonly Security: "SECURITY";
+    /** System events and maintenance */
+    readonly System: "SYSTEM";
+    /** VPN and tunnel monitoring */
+    readonly Vpn: "VPN";
+};
+export type AlertRuleTemplateCategory = typeof AlertRuleTemplateCategory[keyof typeof AlertRuleTemplateCategory];
+/** Alert rule template mutation payload */
+export type AlertRuleTemplatePayload = {
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Created/updated template */
+    readonly template?: Maybe<AlertRuleTemplate>;
+};
+/** Preview result for alert rule template */
+export type AlertRuleTemplatePreview = {
+    /** Resolved conditions with variable substitution */
+    readonly resolvedConditions: ReadonlyArray<AlertCondition>;
+    /** The template being previewed */
+    readonly template: AlertRuleTemplate;
+    /** Validation information */
+    readonly validationInfo: TemplateValidationInfo;
+};
+/** Variable definition for alert rule templates */
+export type AlertRuleTemplateVariable = {
+    /** Default value */
+    readonly defaultValue?: Maybe<Scalars['String']['output']>;
+    /** Variable description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Display label */
+    readonly label: Scalars['String']['output'];
+    /** Maximum value (for INTEGER, DURATION, PERCENTAGE) */
+    readonly max?: Maybe<Scalars['Int']['output']>;
+    /** Minimum value (for INTEGER, DURATION, PERCENTAGE) */
+    readonly min?: Maybe<Scalars['Int']['output']>;
+    /** Variable name (used for substitution) */
+    readonly name: Scalars['String']['output'];
+    /** Whether this variable is required */
+    readonly required: Scalars['Boolean']['output'];
+    /** Variable type */
+    readonly type: AlertRuleTemplateVariableType;
+    /** Unit label (e.g., "seconds", "percent", "MB") */
+    readonly unit?: Maybe<Scalars['String']['output']>;
+};
+/** Variable types for alert rule templates */
+export declare const AlertRuleTemplateVariableType: {
+    /** Duration in seconds */
+    readonly Duration: "DURATION";
+    /** Integer value */
+    readonly Integer: "INTEGER";
+    /** Percentage (0-100) */
+    readonly Percentage: "PERCENTAGE";
+    /** String value */
+    readonly String: "STRING";
+};
+export type AlertRuleTemplateVariableType = typeof AlertRuleTemplateVariableType[keyof typeof AlertRuleTemplateVariableType];
+/** Alert severity levels */
+export declare const AlertSeverity: {
+    /** Critical - requires immediate attention */
+    readonly Critical: "CRITICAL";
+    /** Info - informational only */
+    readonly Info: "INFO";
+    /** Warning - attention needed soon */
+    readonly Warning: "WARNING";
+};
+export type AlertSeverity = typeof AlertSeverity[keyof typeof AlertSeverity];
+/**
+ * Alert notification template
+ * Templates define message format for different event types and channels
+ */
+export type AlertTemplate = Node & {
+    /** Body template with Go template syntax */
+    readonly bodyTemplate: Scalars['String']['output'];
+    /** Notification channel */
+    readonly channel: NotificationChannel;
+    /** Record creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Template description */
+    readonly description: Scalars['String']['output'];
+    /** Event type this template applies to */
+    readonly eventType: Scalars['String']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Whether this is a built-in template */
+    readonly isBuiltIn: Scalars['Boolean']['output'];
+    /** Whether this is a system default template */
+    readonly isDefault: Scalars['Boolean']['output'];
+    /** Channel-specific metadata */
+    readonly metadata?: Maybe<Scalars['JSON']['output']>;
+    /** Template name */
+    readonly name: Scalars['String']['output'];
+    /** Subject/title template */
+    readonly subjectTemplate?: Maybe<Scalars['String']['output']>;
+    /** Tags for categorization */
+    readonly tags: ReadonlyArray<Scalars['String']['output']>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Template variables */
+    readonly variables: ReadonlyArray<AlertTemplateVariable>;
+};
+/** Alert template mutation payload */
+export type AlertTemplatePayload = {
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Created/updated template */
+    readonly template?: Maybe<AlertTemplate>;
+};
+/** Template variable definition */
+export type AlertTemplateVariable = {
+    /** Default value */
+    readonly defaultValue?: Maybe<Scalars['String']['output']>;
+    /** Variable description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Display label */
+    readonly label: Scalars['String']['output'];
+    /** Variable name (used in template as {{.Name}}) */
+    readonly name: Scalars['String']['output'];
+    /** Options for enum-type variables */
+    readonly options?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Whether this variable is required */
+    readonly required: Scalars['Boolean']['output'];
+    /** Variable type */
+    readonly type: AlertTemplateVariableType;
+};
+/** Template variable types for notification templates */
+export declare const AlertTemplateVariableType: {
+    /** Boolean value */
+    readonly Boolean: "BOOLEAN";
+    /** Interface name */
+    readonly Interface: "INTERFACE";
+    /** IP address */
+    readonly Ipaddress: "IPADDRESS";
+    /** Numeric value */
+    readonly Number: "NUMBER";
+    /** String value */
+    readonly String: "STRING";
+    /** Timestamp value */
+    readonly Timestamp: "TIMESTAMP";
+};
+export type AlertTemplateVariableType = typeof AlertTemplateVariableType[keyof typeof AlertTemplateVariableType];
+/** Input for applying an alert template */
+export type ApplyAlertTemplateInput = {
+    /** Alert rule configuration */
+    readonly ruleConfig: CreateAlertRuleInput;
+    /** Template ID to apply */
+    readonly templateId: Scalars['ID']['input'];
+    /** Variables for template substitution */
+    readonly variables: Scalars['JSON']['input'];
+};
+export type ApplyChangeSetPayload = {
+    /** Change set ID */
+    readonly changeSetId: Scalars['ID']['output'];
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Current status */
+    readonly status: ChangeSetStatus;
+};
+/** Result of applying configuration */
+export type ApplyConfigPayload = {
+    /** Path to generated config file */
+    readonly configPath?: Maybe<Scalars['String']['output']>;
+    /** Error messages (if failed) */
+    readonly errors: ReadonlyArray<Scalars['String']['output']>;
+    /** Updated service instance (if successful) */
+    readonly instance?: Maybe<ServiceInstance>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Result of applying a fix */
+export type ApplyFixPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** User-friendly message */
+    readonly message: Scalars['String']['output'];
+    /** Fix application status */
+    readonly status: FixApplicationStatus;
+    /** Whether fix was applied successfully */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type ApplyResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Operation ID for progress tracking */
+    readonly operationId: Scalars['ID']['output'];
+    /** The applied resource */
+    readonly resource?: Maybe<Resource>;
+};
+/** Input for applying service configuration */
+export type ApplyServiceConfigInput = {
+    /** Configuration to apply (as JSON) */
+    readonly config: Scalars['JSON']['input'];
+    /** Service instance ID */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/**
+ * Input for applying a validated service import.
+ * Actually creates/updates the service instance.
+ */
+export type ApplyServiceImportInput = {
+    /** Conflict resolution strategy */
+    readonly conflictResolution: ConflictResolution;
+    /** Device MAC addresses to filter routing rules (optional) */
+    readonly deviceFilter?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Service export package (JSON) */
+    readonly package: Scalars['JSON']['input'];
+    /** User-provided values for redacted fields */
+    readonly redactedFieldValues: Scalars['JSON']['input'];
+    /** Router ID to import into */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Payload for apply service import mutation. */
+export type ApplyServiceImportPayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Created or updated service instance (null if failed) */
+    readonly instance?: Maybe<ServiceInstance>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type ArchiveResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether archive was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Input for assigning device routing. */
+export type AssignDeviceRoutingInput = {
+    /** Device ID to route */
+    readonly deviceID: Scalars['String']['input'];
+    /** Device IP address (optional) */
+    readonly deviceIP?: InputMaybe<Scalars['String']['input']>;
+    /** Device hostname (optional) */
+    readonly deviceName?: InputMaybe<Scalars['String']['input']>;
+    /** Service instance ID to route through */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Virtual interface ID to route through */
+    readonly interfaceID: Scalars['ID']['input'];
+    /** Device MAC address */
+    readonly macAddress: Scalars['String']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Routing mark */
+    readonly routingMark: Scalars['String']['input'];
+    /** Routing mode */
+    readonly routingMode: RoutingMode;
+};
+/** Authentication error codes */
+export declare const AuthErrorCode: {
+    /** Insufficient permissions */
+    readonly InsufficientRole: "INSUFFICIENT_ROLE";
+    /** Invalid username or password */
+    readonly InvalidCredentials: "INVALID_CREDENTIALS";
+    /** Password does not meet requirements */
+    readonly PasswordPolicyViolation: "PASSWORD_POLICY_VIOLATION";
+    /** Too many login attempts */
+    readonly RateLimited: "RATE_LIMITED";
+    /** Session has expired */
+    readonly SessionExpired: "SESSION_EXPIRED";
+    /** Token has expired */
+    readonly TokenExpired: "TOKEN_EXPIRED";
+    /** Token is invalid or malformed */
+    readonly TokenInvalid: "TOKEN_INVALID";
+};
+export type AuthErrorCode = typeof AuthErrorCode[keyof typeof AuthErrorCode];
+/** Authentication payload returned on successful login */
+export type AuthPayload = {
+    /** Token expiration timestamp */
+    readonly expiresAt: Scalars['DateTime']['output'];
+    /** JWT access token */
+    readonly token: Scalars['String']['output'];
+    /** Authenticated user */
+    readonly user: User;
+};
+/** Authentication test status */
+export type AuthStatus = {
+    /** Error message (if authentication failed) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Error code mapped to ErrorCodes (A5xx) */
+    readonly errorCode?: Maybe<Scalars['String']['output']>;
+    /** Whether authentication succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** Whether authentication was tested */
+    readonly tested: Scalars['Boolean']['output'];
+};
+/**
+ * Available service that can be installed from the Feature Marketplace.
+ * Represents a downloadable network service with metadata from the manifest.
+ */
+export type AvailableService = {
+    /** Supported architectures */
+    readonly architectures: ReadonlyArray<Scalars['String']['output']>;
+    /** Service author */
+    readonly author: Scalars['String']['output'];
+    /** Service category (VPN, Privacy, DNS, Messaging) */
+    readonly category: Scalars['String']['output'];
+    /** Configuration schema (JSON Schema) */
+    readonly configSchema?: Maybe<Scalars['JSON']['output']>;
+    /** Default configuration (JSON) */
+    readonly defaultConfig?: Maybe<Scalars['JSON']['output']>;
+    /** Service description */
+    readonly description: Scalars['String']['output'];
+    /** Docker image name */
+    readonly dockerImage: Scalars['String']['output'];
+    /** Docker image tag */
+    readonly dockerTag: Scalars['String']['output'];
+    /** Homepage URL */
+    readonly homepage?: Maybe<Scalars['String']['output']>;
+    /** Icon filename or URL */
+    readonly icon?: Maybe<Scalars['String']['output']>;
+    /** Unique service identifier (e.g., 'tor', 'sing-box', 'xray') */
+    readonly id: Scalars['ID']['output'];
+    /** License */
+    readonly license: Scalars['String']['output'];
+    /** Minimum RouterOS version required */
+    readonly minRouterOSVersion?: Maybe<Scalars['String']['output']>;
+    /** Display name */
+    readonly name: Scalars['String']['output'];
+    /** Required disk space in MB */
+    readonly requiredDiskMB: Scalars['Int']['output'];
+    /** Required memory in MB */
+    readonly requiredMemoryMB: Scalars['Int']['output'];
+    /** Required packages */
+    readonly requiredPackages: ReadonlyArray<Scalars['String']['output']>;
+    /** Required ports */
+    readonly requiredPorts: ReadonlyArray<Scalars['Int']['output']>;
+    /** Tags for filtering and search */
+    readonly tags: ReadonlyArray<Scalars['String']['output']>;
+    /** Service version */
+    readonly version: Scalars['String']['output'];
+};
+/** A bandwidth data point */
+export type BandwidthDataPoint = {
+    /** Bytes in during this period */
+    readonly bytesIn: Scalars['Size']['output'];
+    /** Bytes out during this period */
+    readonly bytesOut: Scalars['Size']['output'];
+    /** Period duration in seconds */
+    readonly periodSeconds: Scalars['Int']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Actions available for batch interface operations */
+export declare const BatchInterfaceAction: {
+    readonly Disable: "DISABLE";
+    readonly Enable: "ENABLE";
+    readonly Update: "UPDATE";
+};
+export type BatchInterfaceAction = typeof BatchInterfaceAction[keyof typeof BatchInterfaceAction];
+/** Input for batch interface operations */
+export type BatchInterfaceInput = {
+    /** Action to perform */
+    readonly action: BatchInterfaceAction;
+    /** Optional input for UPDATE action */
+    readonly input?: InputMaybe<UpdateInterfaceInput>;
+    /** Interface IDs to operate on */
+    readonly interfaceIds: ReadonlyArray<Scalars['ID']['input']>;
+};
+/** Payload returned by batchInterfaceOperation mutation */
+export type BatchInterfacePayload = {
+    /** General errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Interfaces that failed with reasons */
+    readonly failed: ReadonlyArray<InterfaceOperationError>;
+    /** Interfaces that were successfully updated */
+    readonly succeeded: ReadonlyArray<Interface>;
+};
+/**
+ * Binary verification information for a service instance.
+ * Contains hashes and verification status for security auditing.
+ */
+export type BinaryVerification = {
+    /** SHA256 hash of the original downloaded archive (from checksums.txt) */
+    readonly archiveHash?: Maybe<Scalars['String']['output']>;
+    /** SHA256 hash of the extracted binary (computed at runtime) */
+    readonly binaryHash?: Maybe<Scalars['String']['output']>;
+    /** URL where checksums.txt was fetched from */
+    readonly checksumsURL?: Maybe<Scalars['String']['output']>;
+    /** Whether binary verification is enabled for this instance */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** GPG key ID that signed the checksums file */
+    readonly gpgKeyID?: Maybe<Scalars['String']['output']>;
+    /** Whether GPG signature verification was performed and passed */
+    readonly gpgVerified: Scalars['Boolean']['output'];
+    /** Verification status (valid, invalid, pending, not_verified) */
+    readonly status: VerificationStatus;
+    /** Timestamp when binary was last verified */
+    readonly verifiedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+/** BootSequenceEvent represents a real-time boot sequence event. */
+export type BootSequenceEvent = {
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    readonly failureCount?: Maybe<Scalars['Int']['output']>;
+    readonly id: Scalars['ID']['output'];
+    readonly instanceIds: ReadonlyArray<Scalars['String']['output']>;
+    readonly layer?: Maybe<Scalars['Int']['output']>;
+    readonly successCount?: Maybe<Scalars['Int']['output']>;
+    readonly timestamp: Scalars['DateTime']['output'];
+    readonly type: Scalars['String']['output'];
+};
+/** BootSequenceProgress represents the current state of the boot sequence. */
+export type BootSequenceProgress = {
+    readonly currentLayer?: Maybe<Scalars['Int']['output']>;
+    readonly failedInstances: ReadonlyArray<Scalars['String']['output']>;
+    readonly inProgress: Scalars['Boolean']['output'];
+    readonly remainingInstances: ReadonlyArray<Scalars['String']['output']>;
+    readonly startedInstances: ReadonlyArray<Scalars['String']['output']>;
+    readonly totalLayers?: Maybe<Scalars['Int']['output']>;
+};
+export type Bridge = Node & {
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    readonly dependentDhcpServers: ReadonlyArray<DhcpServer>;
+    readonly dependentRoutes: ReadonlyArray<Route>;
+    readonly disabled: Scalars['Boolean']['output'];
+    readonly id: Scalars['ID']['output'];
+    readonly ipAddresses: ReadonlyArray<IpAddress>;
+    readonly macAddress?: Maybe<Scalars['MAC']['output']>;
+    readonly mtu?: Maybe<Scalars['Int']['output']>;
+    readonly name: Scalars['String']['output'];
+    readonly ports: ReadonlyArray<BridgePort>;
+    readonly priority?: Maybe<Scalars['Int']['output']>;
+    readonly protocol: StpProtocol;
+    readonly pvid?: Maybe<Scalars['Int']['output']>;
+    readonly running: Scalars['Boolean']['output'];
+    readonly stpStatus?: Maybe<BridgeStpStatus>;
+    readonly vlanFiltering: Scalars['Boolean']['output'];
+    readonly vlans: ReadonlyArray<BridgeVlan>;
+};
+export type BridgeMutationResult = {
+    readonly bridge?: Maybe<Bridge>;
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Unique operation ID for undo within 10-second window */
+    readonly operationId?: Maybe<Scalars['ID']['output']>;
+    /** Previous state for undo functionality */
+    readonly previousState?: Maybe<Scalars['JSON']['output']>;
+    readonly success: Scalars['Boolean']['output'];
+};
+export type BridgePort = Node & {
+    readonly bridge: Bridge;
+    readonly edge: Scalars['Boolean']['output'];
+    readonly frameTypes: FrameTypes;
+    readonly id: Scalars['ID']['output'];
+    readonly ingressFiltering: Scalars['Boolean']['output'];
+    readonly interface: Interface;
+    readonly pathCost: Scalars['Int']['output'];
+    readonly pvid: Scalars['Int']['output'];
+    readonly role: StpPortRole;
+    readonly state: StpPortState;
+    readonly taggedVlans: ReadonlyArray<Scalars['Int']['output']>;
+    readonly untaggedVlans: ReadonlyArray<Scalars['Int']['output']>;
+};
+/** Frame types that can be admitted on a bridge port */
+export declare const BridgePortFrameTypes: {
+    /** Accept all frames (tagged and untagged) */
+    readonly AdmitAll: "ADMIT_ALL";
+    /** Accept only untagged and priority-tagged frames */
+    readonly AdmitOnlyUntaggedAndPriorityTagged: "ADMIT_ONLY_UNTAGGED_AND_PRIORITY_TAGGED";
+    /** Accept only VLAN-tagged frames */
+    readonly AdmitOnlyVlanTagged: "ADMIT_ONLY_VLAN_TAGGED";
+};
+export type BridgePortFrameTypes = typeof BridgePortFrameTypes[keyof typeof BridgePortFrameTypes];
+export type BridgePortMutationResult = {
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    readonly operationId?: Maybe<Scalars['ID']['output']>;
+    readonly port?: Maybe<BridgePort>;
+    readonly previousState?: Maybe<Scalars['JSON']['output']>;
+    readonly success: Scalars['Boolean']['output'];
+};
+/** VLAN configuration for a bridge port (trunk/access port setup) */
+export type BridgePortVlanConfig = {
+    /** Frame types allowed on this port */
+    readonly frameTypes: BridgePortFrameTypes;
+    /** Port mode (trunk or access) */
+    readonly mode: PortMode;
+    /** Bridge port ID */
+    readonly portId: Scalars['ID']['output'];
+    /** Port VLAN ID (PVID) for untagged traffic */
+    readonly pvid: Scalars['Int']['output'];
+    /** Tagged VLANs allowed on this port (trunk mode) */
+    readonly taggedVlans: ReadonlyArray<Scalars['Int']['output']>;
+    /** Untagged VLANs on this port (typically just PVID) */
+    readonly untaggedVlans: ReadonlyArray<Scalars['Int']['output']>;
+};
+/** Input for configuring bridge port VLAN settings */
+export type BridgePortVlanInput = {
+    /** Frame types allowed on this port */
+    readonly frameTypes: BridgePortFrameTypes;
+    /** Port mode (trunk or access) */
+    readonly mode: PortMode;
+    /** Port VLAN ID (PVID) for untagged traffic */
+    readonly pvid: Scalars['Int']['input'];
+    /** Tagged VLANs (for trunk ports) */
+    readonly taggedVlans?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+};
+/** Bridge resource (part of LANNetwork) */
+export type BridgeResource = Node & Resource & {
+    readonly category: ResourceCategory;
+    readonly configuration: Scalars['JSON']['output'];
+    readonly deployment?: Maybe<DeploymentState>;
+    readonly id: Scalars['ID']['output'];
+    readonly metadata: ResourceMetadata;
+    /** Bridge name */
+    readonly name: Scalars['String']['output'];
+    readonly platform?: Maybe<PlatformInfo>;
+    /** Ports in this bridge */
+    readonly ports: ReadonlyArray<Scalars['String']['output']>;
+    /** Protocol mode (rstp, stp, none) */
+    readonly protocolMode?: Maybe<Scalars['String']['output']>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+};
+/**
+ * Bridge status for service instance network setup.
+ * Combines interface and gateway status for health monitoring.
+ */
+export type BridgeStatus = {
+    /** Any errors encountered */
+    readonly errors?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Whether the gateway (if any) is running */
+    readonly gatewayRunning: Scalars['Boolean']['output'];
+    /** The virtual interface */
+    readonly interface?: Maybe<VirtualInterface>;
+    /** Whether the interface is ready for traffic */
+    readonly isReady: Scalars['Boolean']['output'];
+};
+export type BridgeStpStatus = {
+    readonly lastTopologyChange?: Maybe<Scalars['DateTime']['output']>;
+    readonly rootBridge: Scalars['Boolean']['output'];
+    readonly rootBridgeId?: Maybe<Scalars['String']['output']>;
+    readonly rootPathCost: Scalars['Int']['output'];
+    readonly rootPort?: Maybe<Scalars['String']['output']>;
+    readonly topologyChangeCount: Scalars['Int']['output'];
+};
+export type BridgeVlan = {
+    readonly bridge: Bridge;
+    readonly taggedPorts: ReadonlyArray<BridgePort>;
+    readonly untaggedPorts: ReadonlyArray<BridgePort>;
+    readonly uuid: Scalars['ID']['output'];
+    readonly vlanId: Scalars['Int']['output'];
+};
+export type BridgeVlanMutationResult = {
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    readonly success: Scalars['Boolean']['output'];
+    readonly vlan?: Maybe<BridgeVlan>;
+};
+/**
+ * Input for bulk address import.
+ * Used with bulkCreateAddressListEntries mutation.
+ */
+export type BulkAddressInput = {
+    /** IP address, CIDR notation, or IP range */
+    readonly address: Scalars['String']['input'];
+    /** Optional description */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Optional timeout */
+    readonly timeout?: InputMaybe<Scalars['String']['input']>;
+};
+/** Bulk alert mutation payload */
+export type BulkAlertPayload = {
+    /** Number of alerts acknowledged */
+    readonly acknowledgedCount: Scalars['Int']['output'];
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Input for bulk device routing assignment. */
+export type BulkAssignRoutingInput = {
+    /** List of device routing assignments */
+    readonly assignments: ReadonlyArray<SingleDeviceRoutingInput>;
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Details of a single failed entry in bulk import. */
+export type BulkCreateError = {
+    /** The address that failed */
+    readonly address: Scalars['String']['output'];
+    /** Index in the input array */
+    readonly index: Scalars['Int']['output'];
+    /** Error message */
+    readonly message: Scalars['String']['output'];
+};
+/**
+ * Result of bulk address list entry creation.
+ * Includes success count, failure count, and error details.
+ */
+export type BulkCreateResult = {
+    /** Details of failed entries */
+    readonly errors: ReadonlyArray<BulkCreateError>;
+    /** Number of entries that failed */
+    readonly failedCount: Scalars['Int']['output'];
+    /** Number of entries successfully created */
+    readonly successCount: Scalars['Int']['output'];
+};
+/** Failed routing assignment in bulk operation. */
+export type BulkRoutingFailure = {
+    /** Device ID that failed */
+    readonly deviceID: Scalars['String']['output'];
+    /** Error message */
+    readonly errorMessage: Scalars['String']['output'];
+    /** Device MAC address */
+    readonly macAddress: Scalars['String']['output'];
+};
+/** Result of bulk routing assignment operation. */
+export type BulkRoutingResult = {
+    /** Number of failed assignments */
+    readonly failureCount: Scalars['Int']['output'];
+    /** Failed assignments with error messages */
+    readonly failures: ReadonlyArray<BulkRoutingFailure>;
+    /** Number of successful assignments */
+    readonly successCount: Scalars['Int']['output'];
+    /** Successfully assigned routings */
+    readonly successes: ReadonlyArray<DeviceRouting>;
+};
+/** CPU utilization metrics */
+export type CpuMetrics = {
+    /** Number of CPU cores */
+    readonly cores: Scalars['Int']['output'];
+    /** CPU frequency in MHz (optional) */
+    readonly frequency?: Maybe<Scalars['Float']['output']>;
+    /** Per-core usage percentages (one per core) */
+    readonly perCore: ReadonlyArray<Scalars['Float']['output']>;
+    /** Overall CPU usage percentage (0-100) */
+    readonly usage: Scalars['Float']['output'];
+};
+export declare const CacheScope: {
+    readonly Private: "PRIVATE";
+    readonly Public: "PUBLIC";
+};
+export type CacheScope = typeof CacheScope[keyof typeof CacheScope];
+export type CancelChangeSetPayload = {
+    /** The cancelled change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether cancel was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type CancelScanPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The cancelled scan task */
+    readonly task?: Maybe<ScanTask>;
+};
+/**
+ * Feature capability categories detected on routers.
+ * Used to determine what features are available on a specific router.
+ */
+export declare const Capability: {
+    /** Container/Docker support */
+    readonly Container: "CONTAINER";
+    /** Dude monitoring support */
+    readonly Dude: "DUDE";
+    /** Firewall features */
+    readonly Firewall: "FIREWALL";
+    /** Hotspot features */
+    readonly Hotspot: "HOTSPOT";
+    /** IPv6 support */
+    readonly Ipv6: "IPV6";
+    /** MPLS support */
+    readonly Mpls: "MPLS";
+    /** Advanced routing features */
+    readonly Routing: "ROUTING";
+    /** User Manager features */
+    readonly UserManager: "USER_MANAGER";
+    /** Virtual Interface Factory support */
+    readonly Vif: "VIF";
+    /** WireGuard VPN support */
+    readonly Wireguard: "WIREGUARD";
+    /** Wireless/WiFi support */
+    readonly Wireless: "WIRELESS";
+    /** ZeroTier support */
+    readonly Zerotier: "ZEROTIER";
+};
+export type Capability = typeof Capability[keyof typeof Capability];
+/** Single capability with its support level and guidance */
+export type CapabilityEntry = {
+    /** Capability category */
+    readonly capability: Capability;
+    /** Human-readable description of support */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Actionable message if feature unavailable */
+    readonly guidance?: Maybe<Scalars['String']['output']>;
+    /** Support level */
+    readonly level: CapabilityLevel;
+};
+/**
+ * Capability support level for a feature.
+ * Determines how the feature appears in the UI.
+ */
+export declare const CapabilityLevel: {
+    /** Full RouterOS native support */
+    readonly Advanced: "ADVANCED";
+    /** Limited support (show with warnings) */
+    readonly Basic: "BASIC";
+    /** Complete support including container-based features */
+    readonly Full: "FULL";
+    /** Feature not supported (hide in UI) */
+    readonly None: "NONE";
+};
+export type CapabilityLevel = typeof CapabilityLevel[keyof typeof CapabilityLevel];
+/** A single hop in a multi-hop routing chain, referencing one VirtualInterface. */
+export type ChainHop = Node & {
+    /** Whether this hop is currently healthy */
+    readonly healthy: Scalars['Boolean']['output'];
+    /** Hop ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Virtual interface for this hop */
+    readonly interface: VirtualInterface;
+    /** Whether kill switch is active for this hop */
+    readonly killSwitchActive: Scalars['Boolean']['output'];
+    /** Latency for this hop in milliseconds (-1 if unreachable) */
+    readonly latencyMs?: Maybe<Scalars['Float']['output']>;
+    /** 1-based position in the chain (1 = first hop, 2 = second, etc.) */
+    readonly order: Scalars['Int']['output'];
+    /** MikroTik routing mark (e.g., chain-abc123-hop1) */
+    readonly routingMark: Scalars['String']['output'];
+};
+/** Input for a single hop in a chain. */
+export type ChainHopInput = {
+    /** Virtual interface ID for this hop */
+    readonly interfaceId: Scalars['ID']['input'];
+    /** 1-based position in the chain */
+    readonly order: Scalars['Int']['input'];
+};
+/** An entry in the change log */
+export type ChangeLogEntry = {
+    /** Type of change */
+    readonly changeType: ChangeType;
+    /** Changed fields */
+    readonly changedFields: ReadonlyArray<Scalars['String']['output']>;
+    /** Brief description of the change */
+    readonly summary?: Maybe<Scalars['String']['output']>;
+    /** Change timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** User who made the change */
+    readonly user: Scalars['String']['output'];
+};
+/** Type of operation to perform on a resource */
+export declare const ChangeOperation: {
+    /** Create a new resource */
+    readonly Create: "CREATE";
+    /** Delete an existing resource */
+    readonly Delete: "DELETE";
+    /** Update an existing resource */
+    readonly Update: "UPDATE";
+};
+export type ChangeOperation = typeof ChangeOperation[keyof typeof ChangeOperation];
+/** A change set representing an atomic multi-resource operation */
+export type ChangeSet = {
+    /** Apply started timestamp */
+    readonly applyStartedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Completed timestamp */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Created timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** User who created the change set */
+    readonly createdBy?: Maybe<Scalars['String']['output']>;
+    /** Optional description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Error information (if failed) */
+    readonly error?: Maybe<ChangeSetError>;
+    /** Unique identifier (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Items in this change set */
+    readonly items: ReadonlyArray<ChangeSetItem>;
+    /** Human-readable name */
+    readonly name: Scalars['String']['output'];
+    /** Rollback plan */
+    readonly rollbackPlan: ReadonlyArray<RollbackStep>;
+    /** Router ID this change set applies to */
+    readonly routerId: Scalars['ID']['output'];
+    /** Source wizard/feature */
+    readonly source?: Maybe<Scalars['String']['output']>;
+    /** Current status */
+    readonly status: ChangeSetStatus;
+    /** Validation result */
+    readonly validation?: Maybe<ChangeSetValidationResult>;
+    /** Version for optimistic concurrency */
+    readonly version: Scalars['Int']['output'];
+};
+/** Conflict between change set items */
+export type ChangeSetConflict = {
+    /** Description of the conflict */
+    readonly description: Scalars['String']['output'];
+    /** Whether conflict is with existing resource */
+    readonly isExternalConflict: Scalars['Boolean']['output'];
+    /** First conflicting item ID */
+    readonly itemId1: Scalars['ID']['output'];
+    /** Second conflicting item ID or resource UUID */
+    readonly itemId2OrResourceUuid: Scalars['ID']['output'];
+    /** Suggested resolution */
+    readonly resolution?: Maybe<Scalars['String']['output']>;
+};
+/** Detailed error for failed change sets */
+export type ChangeSetError = {
+    /** Error code */
+    readonly code?: Maybe<Scalars['String']['output']>;
+    /** Item ID that caused the failure */
+    readonly failedItemId: Scalars['ID']['output'];
+    /** Items that failed rollback */
+    readonly failedRollbackItemIds: ReadonlyArray<Scalars['ID']['output']>;
+    /** Error message */
+    readonly message: Scalars['String']['output'];
+    /** Items applied before failure */
+    readonly partiallyAppliedItemIds: ReadonlyArray<Scalars['ID']['output']>;
+    /** Whether manual intervention is required */
+    readonly requiresManualIntervention: Scalars['Boolean']['output'];
+};
+/** Individual item within a change set */
+export type ChangeSetItem = {
+    /** Apply completed timestamp */
+    readonly applyCompletedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Order in which this item will be applied */
+    readonly applyOrder: Scalars['Int']['output'];
+    /** Apply started timestamp */
+    readonly applyStartedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** New/updated configuration */
+    readonly configuration: Scalars['JSON']['output'];
+    /** Item IDs this depends on */
+    readonly dependencies: ReadonlyArray<Scalars['ID']['output']>;
+    /** Optional description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Error message if failed */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Unique identifier for this item */
+    readonly id: Scalars['ID']['output'];
+    /** User-friendly name */
+    readonly name: Scalars['String']['output'];
+    /** Operation to perform */
+    readonly operation: ChangeOperation;
+    /** Previous state (for rollback) */
+    readonly previousState?: Maybe<Scalars['JSON']['output']>;
+    /** Resource category */
+    readonly resourceCategory: ResourceCategory;
+    /** Resource type identifier */
+    readonly resourceType: Scalars['String']['output'];
+    /** Existing resource UUID (null for create operations) */
+    readonly resourceUuid?: Maybe<Scalars['ID']['output']>;
+    /** Current status */
+    readonly status: ChangeSetItemStatus;
+};
+/** Input for adding an item to a change set */
+export type ChangeSetItemInput = {
+    /** Configuration */
+    readonly configuration: Scalars['JSON']['input'];
+    /** Item IDs this depends on */
+    readonly dependencies?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** User-friendly name */
+    readonly name: Scalars['String']['input'];
+    /** Operation to perform */
+    readonly operation: ChangeOperation;
+    /** Previous state (for rollback on update/delete) */
+    readonly previousState?: InputMaybe<Scalars['JSON']['input']>;
+    /** Resource category */
+    readonly resourceCategory: ResourceCategory;
+    /** Resource type identifier */
+    readonly resourceType: Scalars['String']['input'];
+    /** Existing resource UUID (for update/delete) */
+    readonly resourceUuid?: InputMaybe<Scalars['ID']['input']>;
+};
+/** Status of individual items within a change set */
+export declare const ChangeSetItemStatus: {
+    /** Successfully applied */
+    readonly Applied: "APPLIED";
+    /** Currently being applied */
+    readonly Applying: "APPLYING";
+    /** Application failed */
+    readonly Failed: "FAILED";
+    /** Waiting to be applied */
+    readonly Pending: "PENDING";
+    /** Rollback failed - manual intervention needed */
+    readonly RollbackFailed: "ROLLBACK_FAILED";
+    /** Successfully rolled back */
+    readonly RolledBack: "ROLLED_BACK";
+    /** Skipped due to dependency failure */
+    readonly Skipped: "SKIPPED";
+};
+export type ChangeSetItemStatus = typeof ChangeSetItemStatus[keyof typeof ChangeSetItemStatus];
+/** Progress event for real-time updates during apply */
+export type ChangeSetProgressEvent = {
+    /** Number of items applied */
+    readonly appliedCount: Scalars['Int']['output'];
+    /** Change set ID */
+    readonly changeSetId: Scalars['ID']['output'];
+    /** Currently processing item */
+    readonly currentItem?: Maybe<CurrentItemInfo>;
+    /** Error if failed */
+    readonly error?: Maybe<ChangeSetError>;
+    /** Estimated time remaining in milliseconds */
+    readonly estimatedRemainingMs?: Maybe<Scalars['Int']['output']>;
+    /** Progress percentage (0-100) */
+    readonly progressPercent: Scalars['Float']['output'];
+    /** Current status */
+    readonly status: ChangeSetStatus;
+    /** Timestamp of this event */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total number of items */
+    readonly totalCount: Scalars['Int']['output'];
+};
+/** Change set lifecycle status */
+export declare const ChangeSetStatus: {
+    /** Applying resources in dependency order */
+    readonly Applying: "APPLYING";
+    /** User cancelled the operation */
+    readonly Cancelled: "CANCELLED";
+    /** All resources applied successfully */
+    readonly Completed: "COMPLETED";
+    /** Initial state - adding items, not yet validated */
+    readonly Draft: "DRAFT";
+    /** Apply failed, may have partial application */
+    readonly Failed: "FAILED";
+    /** Rollback partially failed - manual intervention needed */
+    readonly PartialFailure: "PARTIAL_FAILURE";
+    /** All items validated, ready to apply */
+    readonly Ready: "READY";
+    /** Rollback completed successfully */
+    readonly RolledBack: "ROLLED_BACK";
+    /** Rolling back applied changes */
+    readonly RollingBack: "ROLLING_BACK";
+    /** Running validation on all items */
+    readonly Validating: "VALIDATING";
+};
+export type ChangeSetStatus = typeof ChangeSetStatus[keyof typeof ChangeSetStatus];
+/** Change set status change event */
+export type ChangeSetStatusEvent = {
+    /** Change set ID */
+    readonly changeSetId: Scalars['ID']['output'];
+    /** Error if failed */
+    readonly error?: Maybe<ChangeSetError>;
+    /** New status */
+    readonly newStatus: ChangeSetStatus;
+    /** Previous status */
+    readonly previousStatus: ChangeSetStatus;
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Summary of a change set for list displays */
+export type ChangeSetSummary = {
+    /** Created timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Has validation errors */
+    readonly hasErrors: Scalars['Boolean']['output'];
+    /** Has validation warnings */
+    readonly hasWarnings: Scalars['Boolean']['output'];
+    /** Change set ID */
+    readonly id: Scalars['ID']['output'];
+    /** Name */
+    readonly name: Scalars['String']['output'];
+    /** Operation counts */
+    readonly operationCounts: OperationCounts;
+    /** Current status */
+    readonly status: ChangeSetStatus;
+    /** Total items */
+    readonly totalItems: Scalars['Int']['output'];
+};
+/** Validation error for a change set item */
+export type ChangeSetValidationError = {
+    /** Error code */
+    readonly code?: Maybe<Scalars['String']['output']>;
+    /** Field path within the item configuration */
+    readonly field: Scalars['String']['output'];
+    /** Item ID with validation error */
+    readonly itemId: Scalars['ID']['output'];
+    /** Error message */
+    readonly message: Scalars['String']['output'];
+    /** Severity level */
+    readonly severity: ValidationSeverity;
+};
+/** Validation result for a change set */
+export type ChangeSetValidationResult = {
+    /** Whether the change set can be applied */
+    readonly canApply: Scalars['Boolean']['output'];
+    /** Circular dependencies (if any) */
+    readonly circularDependencies?: Maybe<ReadonlyArray<ReadonlyArray<Scalars['ID']['output']>>>;
+    /** Detected conflicts */
+    readonly conflicts: ReadonlyArray<ChangeSetConflict>;
+    /** Validation errors (blocking) */
+    readonly errors: ReadonlyArray<ChangeSetValidationError>;
+    /** Missing dependencies */
+    readonly missingDependencies: ReadonlyArray<MissingDependency>;
+    /** Validation warnings (non-blocking) */
+    readonly warnings: ReadonlyArray<ChangeSetValidationError>;
+};
+/** Type of change for resource events */
+export declare const ChangeType: {
+    readonly Create: "CREATE";
+    readonly Delete: "DELETE";
+    readonly Update: "UPDATE";
+};
+export type ChangeType = typeof ChangeType[keyof typeof ChangeType];
+/** Payload for channel configuration mutations */
+export type ChannelConfigPayload = {
+    /** The created/updated configuration */
+    readonly config?: Maybe<NotificationChannelConfig>;
+    /** Validation or mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Type of notification channel */
+export declare const ChannelType: {
+    readonly Email: "EMAIL";
+    readonly Pushover: "PUSHOVER";
+    readonly Slack: "SLACK";
+    readonly Telegram: "TELEGRAM";
+    readonly Webhook: "WEBHOOK";
+};
+export type ChannelType = typeof ChannelType[keyof typeof ChannelType];
+/** Input for checking port availability. */
+export type CheckPortAvailabilityInput = {
+    /** Port number to check */
+    readonly port: Scalars['Int']['input'];
+    /** Protocol to check */
+    readonly protocol: PortProtocol;
+    /** Router ID to check */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Event emitted when circuit breaker state changes */
+export type CircuitBreakerEvent = {
+    /** Consecutive failures that triggered the change */
+    readonly consecutiveFailures: Scalars['Int']['output'];
+    /** New state */
+    readonly newState: CircuitBreakerState;
+    /** Previous state */
+    readonly previousState: CircuitBreakerState;
+    /** Router ID */
+    readonly routerId: Scalars['ID']['output'];
+    /** When the state changed */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Circuit breaker state */
+export declare const CircuitBreakerState: {
+    /** Circuit is closed (normal operation) */
+    readonly Closed: "CLOSED";
+    /** Circuit is half-open (testing recovery) */
+    readonly HalfOpen: "HALF_OPEN";
+    /** Circuit is open (blocking requests) */
+    readonly Open: "OPEN";
+};
+export type CircuitBreakerState = typeof CircuitBreakerState[keyof typeof CircuitBreakerState];
+/** Circuit breaker status for a router */
+export type CircuitBreakerStatus = {
+    /** Seconds until auto-retry (when circuit is open) */
+    readonly cooldownRemainingSeconds?: Maybe<Scalars['Int']['output']>;
+    /** Number of consecutive failures */
+    readonly failureCount: Scalars['Int']['output'];
+    /** Failure threshold before circuit opens */
+    readonly failureThreshold: Scalars['Int']['output'];
+    /** When the last failure occurred */
+    readonly lastFailureAt?: Maybe<Scalars['DateTime']['output']>;
+    /** When the last success occurred */
+    readonly lastSuccessAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Router ID */
+    readonly routerId: Scalars['ID']['output'];
+    /** Current circuit breaker state */
+    readonly state: CircuitBreakerState;
+};
+/** Input for cleaning up orphaned ports. */
+export type CleanupOrphanedPortsInput = {
+    /** Router ID to cleanup (if not provided, cleans all routers) */
+    readonly routerID?: InputMaybe<Scalars['ID']['input']>;
+};
+/** A composite resource with all related sub-resources */
+export type CompositeResource = {
+    /** All child/related resources */
+    readonly children: ReadonlyArray<Resource>;
+    /** Flattened relationship graph */
+    readonly relationships: ReadonlyArray<ResourceRelationshipEdge>;
+    /** The root resource */
+    readonly root: Resource;
+};
+/** Condition comparison operators */
+export declare const ConditionOperator: {
+    /** String contains */
+    readonly Contains: "CONTAINS";
+    /** Exact match */
+    readonly Equals: "EQUALS";
+    /** Numeric greater than */
+    readonly GreaterThan: "GREATER_THAN";
+    /** Numeric less than */
+    readonly LessThan: "LESS_THAN";
+    /** Not equal */
+    readonly NotEquals: "NOT_EQUALS";
+    /** Regular expression match */
+    readonly Regex: "REGEX";
+};
+export type ConditionOperator = typeof ConditionOperator[keyof typeof ConditionOperator];
+/** Status of a configuration apply operation */
+export declare const ConfigApplyStatus: {
+    readonly Applying: "APPLYING";
+    readonly Completed: "COMPLETED";
+    readonly Failed: "FAILED";
+    readonly Pending: "PENDING";
+    readonly RolledBack: "ROLLED_BACK";
+    readonly Validating: "VALIDATING";
+    readonly Verifying: "VERIFYING";
+};
+export type ConfigApplyStatus = typeof ConfigApplyStatus[keyof typeof ConfigApplyStatus];
+/** Configuration field type for dynamic form generation */
+export declare const ConfigFieldType: {
+    /** Email input */
+    readonly Email: "EMAIL";
+    /** IP address input */
+    readonly Ip: "IP";
+    /** Multi-select dropdown */
+    readonly MultiSelect: "MULTI_SELECT";
+    /** Number input */
+    readonly Number: "NUMBER";
+    /** Password input (masked) */
+    readonly Password: "PASSWORD";
+    /** Port number input */
+    readonly Port: "PORT";
+    /** Single-select dropdown */
+    readonly Select: "SELECT";
+    /** Single-line text input */
+    readonly Text: "TEXT";
+    /** Multi-line text area */
+    readonly TextArea: "TEXT_AREA";
+    /** Array of text inputs */
+    readonly TextArray: "TEXT_ARRAY";
+    /** Boolean toggle/checkbox */
+    readonly Toggle: "TOGGLE";
+    /** URL input */
+    readonly Url: "URL";
+};
+export type ConfigFieldType = typeof ConfigFieldType[keyof typeof ConfigFieldType];
+/** Preview of RouterOS configuration commands */
+export type ConfigPreview = {
+    /** Resources that will be affected */
+    readonly affectedResources?: Maybe<ReadonlyArray<AffectedResource>>;
+    /** RouterOS commands to be executed */
+    readonly commands: ReadonlyArray<Scalars['String']['output']>;
+    /** Warnings about the configuration changes */
+    readonly warnings?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+};
+/** Progress information for configuration apply operations */
+export type ConfigProgress = {
+    /** Current step number */
+    readonly currentStep?: Maybe<Scalars['Int']['output']>;
+    /** Human-readable progress message */
+    readonly message: Scalars['String']['output'];
+    /** Unique operation identifier */
+    readonly operationId: Scalars['ID']['output'];
+    /** Completion percentage (0-100) */
+    readonly percentage: Scalars['Int']['output'];
+    /** Current status of the operation */
+    readonly status: ConfigApplyStatus;
+    /** Timestamp of this progress update */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total number of steps */
+    readonly totalSteps?: Maybe<Scalars['Int']['output']>;
+};
+/** Configuration schema for a service type */
+export type ConfigSchema = {
+    /** Configuration fields */
+    readonly fields: ReadonlyArray<ConfigSchemaField>;
+    /** Service type identifier */
+    readonly serviceType: Scalars['String']['output'];
+    /** Schema version */
+    readonly version: Scalars['String']['output'];
+};
+/** Configuration field definition for a service */
+export type ConfigSchemaField = {
+    /** Default value (as JSON) */
+    readonly defaultValue?: Maybe<Scalars['JSON']['output']>;
+    /** Field description/help text */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network') */
+    readonly group?: Maybe<Scalars['String']['output']>;
+    /** Field label (display name) */
+    readonly label: Scalars['String']['output'];
+    /** Maximum value (for NUMBER/PORT types) */
+    readonly max?: Maybe<Scalars['Int']['output']>;
+    /** Minimum value (for NUMBER/PORT types) */
+    readonly min?: Maybe<Scalars['Int']['output']>;
+    /** Field name (internal identifier) */
+    readonly name: Scalars['String']['output'];
+    /** Options for SELECT/MULTI_SELECT types */
+    readonly options?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Placeholder text */
+    readonly placeholder?: Maybe<Scalars['String']['output']>;
+    /** Whether the field is required */
+    readonly required: Scalars['Boolean']['output'];
+    /** Whether the field contains sensitive data */
+    readonly sensitive: Scalars['Boolean']['output'];
+    /** Field type for UI rendering */
+    readonly type: ConfigFieldType;
+    /** Validation function name */
+    readonly validateFunc?: Maybe<Scalars['String']['output']>;
+};
+/** Validation error for a configuration field */
+export type ConfigValidationError = {
+    /** Field name */
+    readonly field: Scalars['String']['output'];
+    /** Error message */
+    readonly message: Scalars['String']['output'];
+};
+/** Service configuration validation result */
+export type ConfigValidationResult = {
+    /** List of validation errors (empty if valid) */
+    readonly errors: ReadonlyArray<ConfigValidationError>;
+    /** Whether the configuration is valid */
+    readonly valid: Scalars['Boolean']['output'];
+};
+/** Input for configuring external storage. */
+export type ConfigureExternalStorageInput = {
+    /** Whether to enable external storage (default: true) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Absolute path to external storage mount point */
+    readonly path: Scalars['String']['input'];
+};
+/** Payload for configureExternalStorage mutation. */
+export type ConfigureExternalStoragePayload = {
+    /** Storage configuration after update */
+    readonly config?: Maybe<StorageConfig>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Storage info for configured path */
+    readonly storageInfo?: Maybe<StorageInfo>;
+};
+/** Input for configuring health check settings */
+export type ConfigureHealthCheckInput = {
+    /** Whether to enable auto-restart on failure */
+    readonly autoRestart?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Consecutive failures before marking unhealthy (1-10) */
+    readonly failureThreshold?: InputMaybe<Scalars['Int']['input']>;
+    /** Instance ID to configure */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Health check interval in seconds (10-300) */
+    readonly intervalSeconds?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Severity level for confirmation dialogs */
+export declare const ConfirmationSeverity: {
+    /** Critical operation requiring explicit confirmation */
+    readonly Critical: "CRITICAL";
+    /** Standard operation with brief confirmation */
+    readonly Standard: "STANDARD";
+};
+export type ConfirmationSeverity = typeof ConfirmationSeverity[keyof typeof ConfirmationSeverity];
+/**
+ * Conflict resolution strategy for service import.
+ * Determines what happens when an imported service name already exists.
+ */
+export declare const ConflictResolution: {
+    /** Overwrite existing instance configuration */
+    readonly Overwrite: "OVERWRITE";
+    /** Create new instance with renamed name */
+    readonly Rename: "RENAME";
+    /** Skip import, leave existing instance unchanged */
+    readonly Skip: "SKIP";
+};
+export type ConflictResolution = typeof ConflictResolution[keyof typeof ConflictResolution];
+/** Types of resource conflicts */
+export declare const ConflictType: {
+    /** Configuration incompatibility */
+    readonly Configuration: "CONFIGURATION";
+    /** Interface conflict */
+    readonly Interface: "INTERFACE";
+    /** IP address conflict */
+    readonly IpAddress: "IP_ADDRESS";
+    /** Name collision */
+    readonly Name: "NAME";
+    /** Port number conflict */
+    readonly Port: "PORT";
+    /** Route overlap */
+    readonly Route: "ROUTE";
+};
+export type ConflictType = typeof ConflictType[keyof typeof ConflictType];
+export type ConnectRouterPayload = {
+    /** Errors that occurred during connection */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The router that was connected */
+    readonly router?: Maybe<Router>;
+};
+/** Connection interface for paginated results (Relay pagination) */
+export type Connection = {
+    /** Pagination information */
+    readonly pageInfo: PageInfo;
+    /** Total count of items (if available) */
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+/** Record of a single protocol connection attempt */
+export type ConnectionAttempt = {
+    /** When the attempt ended */
+    readonly endedAt: Scalars['DateTime']['output'];
+    /** Error category for classification */
+    readonly errorCategory?: Maybe<ErrorCategory>;
+    /** Error code if failed */
+    readonly errorCode?: Maybe<Scalars['String']['output']>;
+    /** Error message if failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Protocol that was attempted */
+    readonly protocol: Protocol;
+    /** When the attempt started */
+    readonly startedAt: Scalars['DateTime']['output'];
+    /** Whether the attempt succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Detailed connection status for a router */
+export type ConnectionDetails = {
+    /** Current circuit breaker state */
+    readonly circuitBreakerState: CircuitBreakerState;
+    /** When the connection was established */
+    readonly connectedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Reason for disconnection */
+    readonly disconnectReason?: Maybe<DisconnectReason>;
+    /** When the last disconnection occurred */
+    readonly disconnectedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Consecutive failed health checks */
+    readonly healthChecksFailed: Scalars['Int']['output'];
+    /** Consecutive passed health checks */
+    readonly healthChecksPassed: Scalars['Int']['output'];
+    /** Whether the current protocol is considered legacy/insecure */
+    readonly isLegacyProtocol: Scalars['Boolean']['output'];
+    /** Most recent error message */
+    readonly lastError?: Maybe<Scalars['String']['output']>;
+    /** When the last error occurred */
+    readonly lastErrorTime?: Maybe<Scalars['DateTime']['output']>;
+    /** When the last health check was performed */
+    readonly lastHealthCheck?: Maybe<Scalars['DateTime']['output']>;
+    /** When the next reconnection attempt will be made */
+    readonly nextReconnectAt?: Maybe<Scalars['DateTime']['output']>;
+    /** User's preferred protocol (if set) */
+    readonly preferredProtocol?: Maybe<Protocol>;
+    /** Protocol currently in use */
+    readonly protocol?: Maybe<Protocol>;
+    /** Number of reconnection attempts made */
+    readonly reconnectAttempts: Scalars['Int']['output'];
+    /** Security warning if using insecure protocol (e.g., Telnet) */
+    readonly securityWarning?: Maybe<Scalars['String']['output']>;
+    /** Current connection state */
+    readonly state: ConnectionStatus;
+    /** Recommendation for upgrading to a more secure protocol */
+    readonly upgradeRecommendation?: Maybe<Scalars['String']['output']>;
+    /** Connection uptime duration */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+    /** Router version (if connected) */
+    readonly version?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Detailed error information for connection failures.
+ * Used to provide actionable feedback to the user.
+ */
+export type ConnectionError = {
+    /** Error code for programmatic handling */
+    readonly code: ConnectionErrorCode;
+    /** Human-readable error message */
+    readonly message: Scalars['String']['output'];
+    /** Protocol that failed (if specific to a protocol) */
+    readonly protocol?: Maybe<Protocol>;
+    /** Whether the error is likely transient and retryable */
+    readonly retryable: Scalars['Boolean']['output'];
+    /** Suggested user action to resolve the error */
+    readonly suggestedAction?: Maybe<Scalars['String']['output']>;
+    /** Timeout in milliseconds (if timeout error) */
+    readonly timeoutMs?: Maybe<Scalars['Int']['output']>;
+};
+/**
+ * Error codes for connection failures.
+ * Each code has specific meaning and recovery suggestions.
+ */
+export declare const ConnectionErrorCode: {
+    /** Authentication failed - invalid username or password */
+    readonly AuthFailed: "AUTH_FAILED";
+    /** Connection refused - port is closed or blocked */
+    readonly ConnectionRefused: "CONNECTION_REFUSED";
+    /** DNS resolution failed for hostname */
+    readonly DnsFailed: "DNS_FAILED";
+    /** Router with same host/port already exists */
+    readonly DuplicateRouter: "DUPLICATE_ROUTER";
+    /** Network unreachable - cannot reach the host */
+    readonly NetworkUnreachable: "NETWORK_UNREACHABLE";
+    /** Router responded but is not a MikroTik device */
+    readonly NotMikrotik: "NOT_MIKROTIK";
+    /** No compatible protocol found after trying all options */
+    readonly ProtocolMismatch: "PROTOCOL_MISMATCH";
+    /** Connection or response timed out */
+    readonly Timeout: "TIMEOUT";
+    /** TLS/SSL handshake failed */
+    readonly TlsError: "TLS_ERROR";
+    /** Unknown or unexpected error */
+    readonly Unknown: "UNKNOWN";
+};
+export type ConnectionErrorCode = typeof ConnectionErrorCode[keyof typeof ConnectionErrorCode];
+/** Connection manager statistics */
+export type ConnectionStats = {
+    /** Number of connected routers */
+    readonly connected: Scalars['Int']['output'];
+    /** Number of connecting routers */
+    readonly connecting: Scalars['Int']['output'];
+    /** Number of disconnected routers */
+    readonly disconnected: Scalars['Int']['output'];
+    /** Number of routers in error state */
+    readonly error: Scalars['Int']['output'];
+    /** Number of reconnecting routers */
+    readonly reconnecting: Scalars['Int']['output'];
+    /** Total number of connections */
+    readonly totalConnections: Scalars['Int']['output'];
+};
+/** Router connection status */
+export declare const ConnectionStatus: {
+    /** Actively connected and responsive */
+    readonly Connected: "CONNECTED";
+    /** Connection attempt in progress */
+    readonly Connecting: "CONNECTING";
+    /** Not connected */
+    readonly Disconnected: "DISCONNECTED";
+    /** Connection failed with error */
+    readonly Error: "ERROR";
+};
+export type ConnectionStatus = typeof ConnectionStatus[keyof typeof ConnectionStatus];
+/** Result of a connection test attempt, including protocol detection results. */
+export type ConnectionTestResult = {
+    /** Architecture of the router (arm, arm64, x86, etc.) */
+    readonly architecture?: Maybe<Scalars['String']['output']>;
+    /** Router board name (if connection succeeded) */
+    readonly boardName?: Maybe<Scalars['String']['output']>;
+    /** Error details if connection failed */
+    readonly error?: Maybe<ConnectionError>;
+    /** Protocol that was successfully used */
+    readonly protocolUsed?: Maybe<Protocol>;
+    /** List of protocols that were attempted */
+    readonly protocolsAttempted: ReadonlyArray<Protocol>;
+    /** Response time in milliseconds */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Router model detected (if connection succeeded) */
+    readonly routerModel?: Maybe<Scalars['String']['output']>;
+    /** RouterOS version detected (if connection succeeded) */
+    readonly routerVersion?: Maybe<Scalars['String']['output']>;
+    /** Whether the connection was successful */
+    readonly success: Scalars['Boolean']['output'];
+    /** Whether the router supports containers */
+    readonly supportsContainers?: Maybe<Scalars['Boolean']['output']>;
+    /** Uptime of the router (if connection succeeded) */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+};
+/** Container-specific capability information */
+export type ContainerInfo = {
+    /** Whether container feature is enabled in system settings */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Maximum number of containers supported */
+    readonly maxContainers?: Maybe<Scalars['Int']['output']>;
+    /** Whether container package is installed */
+    readonly packageInstalled: Scalars['Boolean']['output'];
+    /** Whether a container registry is configured */
+    readonly registryConfigured: Scalars['Boolean']['output'];
+    /** Available storage for container images in bytes */
+    readonly storageAvailable: Scalars['Size']['output'];
+    /** Whether network namespace is supported */
+    readonly supportsNetworkNamespace: Scalars['Boolean']['output'];
+};
+/**
+ * Input for creating a new address list entry.
+ * List will be created if it doesn't exist.
+ */
+export type CreateAddressListEntryInput = {
+    /** IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100) */
+    readonly address: Scalars['String']['input'];
+    /** Optional description */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Target list name (will create if doesn't exist) */
+    readonly list: Scalars['String']['input'];
+    /** Optional timeout (e.g., "1d", "12h", "30m") */
+    readonly timeout?: InputMaybe<Scalars['String']['input']>;
+};
+/** Input for creating an alert rule */
+export type CreateAlertRuleInput = {
+    /** Notification channels */
+    readonly channels: ReadonlyArray<Scalars['String']['input']>;
+    /** Array of conditions */
+    readonly conditions?: InputMaybe<ReadonlyArray<AlertConditionInput>>;
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Optional device ID filter */
+    readonly deviceId?: InputMaybe<Scalars['ID']['input']>;
+    /** Whether rule is enabled (default: true) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Escalation configuration (NAS-18.9) */
+    readonly escalation?: InputMaybe<EscalationConfigInput>;
+    /** Event type to match */
+    readonly eventType: Scalars['String']['input'];
+    /** Human-readable alert rule name */
+    readonly name: Scalars['String']['input'];
+    /** Quiet hours configuration */
+    readonly quietHours?: InputMaybe<QuietHoursConfigInput>;
+    /** Alert severity level */
+    readonly severity: AlertSeverity;
+    /** Throttle configuration */
+    readonly throttle?: InputMaybe<ThrottleConfigInput>;
+};
+export type CreateBridgeInput = {
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+    readonly name: Scalars['String']['input'];
+    readonly priority?: InputMaybe<Scalars['Int']['input']>;
+    readonly protocol?: InputMaybe<StpProtocol>;
+    readonly pvid?: InputMaybe<Scalars['Int']['input']>;
+    readonly vlanFiltering?: InputMaybe<Scalars['Boolean']['input']>;
+};
+export type CreateBridgeVlanInput = {
+    readonly taggedPortIds?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+    readonly untaggedPortIds?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+    readonly vlanId: Scalars['Int']['input'];
+};
+/** Input for creating a new change set */
+export type CreateChangeSetInput = {
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Human-readable name */
+    readonly name: Scalars['String']['input'];
+    /** Router to apply changes to */
+    readonly routerId: Scalars['ID']['input'];
+    /** Source wizard/feature */
+    readonly source?: InputMaybe<Scalars['String']['input']>;
+};
+export type CreateChangeSetPayload = {
+    /** The created change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Input for creating a NAT rule. */
+export type CreateNatRuleInput = {
+    /** NAT action */
+    readonly action: NatAction;
+    /** NAT chain (srcnat or dstnat) */
+    readonly chain: NatChain;
+    /** Optional comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Whether rule is disabled */
+    readonly disabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Destination address or CIDR */
+    readonly dstAddress?: InputMaybe<Scalars['String']['input']>;
+    /** Destination port (1-65535) */
+    readonly dstPort?: InputMaybe<Scalars['String']['input']>;
+    /** Incoming interface */
+    readonly inInterface?: InputMaybe<Scalars['String']['input']>;
+    /** Outgoing interface */
+    readonly outInterface?: InputMaybe<Scalars['String']['input']>;
+    /** Protocol (TCP, UDP) */
+    readonly protocol?: InputMaybe<TransportProtocol>;
+    /** Source address or CIDR */
+    readonly srcAddress?: InputMaybe<Scalars['String']['input']>;
+    /** Source port or port range */
+    readonly srcPort?: InputMaybe<Scalars['String']['input']>;
+    /** Target address for NAT */
+    readonly toAddresses?: InputMaybe<Scalars['String']['input']>;
+    /** Target port(s) for NAT */
+    readonly toPorts?: InputMaybe<Scalars['String']['input']>;
+};
+/** Input for creating a new notification channel configuration */
+export type CreateNotificationChannelConfigInput = {
+    /** Type of notification channel */
+    readonly channelType: ChannelType;
+    /**
+     * Full configuration including sensitive fields
+     * For Pushover: {"userKey": "...", "apiToken": "...", "device": "...", "baseURL": "..."}
+     * For Email: {"host": "...", "port": 587, "from": "...", "username": "...", "password": "...", "tlsMode": "..."}
+     */
+    readonly config: Scalars['JSON']['input'];
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Whether this should be the default configuration */
+    readonly isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Human-readable name */
+    readonly name: Scalars['String']['input'];
+};
+/** Input for creating a new port mirror configuration */
+export type CreatePortMirrorInput = {
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Destination interface ID for mirrored traffic */
+    readonly destinationInterfaceId: Scalars['ID']['input'];
+    /** Direction of traffic to mirror (default: BOTH) */
+    readonly direction?: InputMaybe<MirrorDirection>;
+    /** Descriptive name for the mirror configuration */
+    readonly name: Scalars['String']['input'];
+    /** Source interface IDs to mirror (must be bridge members) */
+    readonly sourceInterfaceIds: ReadonlyArray<Scalars['ID']['input']>;
+};
+/** Input for creating a new resource */
+export type CreateResourceInput = {
+    /** Resource category */
+    readonly category: ResourceCategory;
+    /** Initial configuration */
+    readonly configuration: Scalars['JSON']['input'];
+    /** Resource description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** User-defined relationships */
+    readonly relationships?: InputMaybe<ResourceRelationshipsInput>;
+    /** Router to create resource on */
+    readonly routerId: Scalars['ID']['input'];
+    /** Initial tags */
+    readonly tags?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Resource type (e.g., 'vpn.wireguard.client') */
+    readonly type: Scalars['String']['input'];
+};
+export type CreateResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created resource */
+    readonly resource?: Maybe<Resource>;
+};
+/** Input for creating a new router connection */
+export type CreateRouterInput = {
+    /** Router hostname or IP address */
+    readonly host: Scalars['String']['input'];
+    /** User-friendly display name */
+    readonly name: Scalars['String']['input'];
+    /** Password for authentication */
+    readonly password: Scalars['String']['input'];
+    /** Router platform type */
+    readonly platform?: InputMaybe<RouterPlatform>;
+    /** Connection port (default: 8728 for MikroTik API) */
+    readonly port?: InputMaybe<Scalars['Int']['input']>;
+    /** Username for authentication */
+    readonly username: Scalars['String']['input'];
+};
+export type CreateRouterPayload = {
+    /** Errors that occurred during creation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created router */
+    readonly router?: Maybe<Router>;
+};
+/** Input for creating or updating a multi-hop routing chain. */
+export type CreateRoutingChainInput = {
+    /** Target device identifier */
+    readonly deviceId: Scalars['ID']['input'];
+    /** Device IP address (required if routing_mode=IP) */
+    readonly deviceIp?: InputMaybe<Scalars['String']['input']>;
+    /** Device MAC address (required if routing_mode=MAC) */
+    readonly deviceMac?: InputMaybe<Scalars['String']['input']>;
+    /** Human-readable device name */
+    readonly deviceName?: InputMaybe<Scalars['String']['input']>;
+    /** Ordered list of hops (2-5 hops required) */
+    readonly hops: ReadonlyArray<ChainHopInput>;
+    /** Whether to enable kill switch */
+    readonly killSwitchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Kill switch behavior mode */
+    readonly killSwitchMode?: InputMaybe<KillSwitchMode>;
+    /** Routing mode (MAC or IP matching) */
+    readonly routingMode: RoutingMode;
+};
+/** Input for creating a new routing schedule. */
+export type CreateScheduleInput = {
+    /** Days of week (0=Sunday, 6=Saturday) */
+    readonly days: ReadonlyArray<Scalars['Int']['input']>;
+    /** Whether schedule is enabled (default: true) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** End time in HH:MM format (24-hour) */
+    readonly endTime: Scalars['String']['input'];
+    /** Device routing ID to schedule */
+    readonly routingID: Scalars['ID']['input'];
+    /** Start time in HH:MM format (24-hour) */
+    readonly startTime: Scalars['String']['input'];
+    /** IANA timezone identifier */
+    readonly timezone: Scalars['String']['input'];
+};
+/** Input for creating a webhook */
+export type CreateWebhookInput = {
+    /** Authentication type (default: NONE) */
+    readonly authType?: InputMaybe<WebhookAuthType>;
+    /** Bearer token for Bearer auth */
+    readonly bearerToken?: InputMaybe<Scalars['String']['input']>;
+    /** Custom template body (required if template is CUSTOM) */
+    readonly customTemplate?: InputMaybe<Scalars['String']['input']>;
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Whether webhook is enabled (default: true) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Custom HTTP headers (as JSON object) */
+    readonly headers?: InputMaybe<Scalars['JSON']['input']>;
+    /** Maximum retry attempts (default: 3) */
+    readonly maxRetries?: InputMaybe<Scalars['Int']['input']>;
+    /** HTTP method (default: POST) */
+    readonly method?: InputMaybe<Scalars['String']['input']>;
+    /** Human-readable webhook name */
+    readonly name: Scalars['String']['input'];
+    /** Password for Basic auth */
+    readonly password?: InputMaybe<Scalars['String']['input']>;
+    /** Whether to retry failed deliveries (default: true) */
+    readonly retryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Signing secret for HMAC signature (optional) */
+    readonly signingSecret?: InputMaybe<Scalars['String']['input']>;
+    /** Template type for webhook payload (default: GENERIC) */
+    readonly template?: InputMaybe<WebhookTemplate>;
+    /** Timeout in seconds (default: 10) */
+    readonly timeoutSeconds?: InputMaybe<Scalars['Int']['input']>;
+    /** Webhook URL endpoint */
+    readonly url: Scalars['String']['input'];
+    /** Username for Basic auth */
+    readonly username?: InputMaybe<Scalars['String']['input']>;
+};
+/** Error codes specific to credential operations. */
+export declare const CredentialErrorCode: {
+    /** Authentication failed with new credentials */
+    readonly AuthFailed: "AUTH_FAILED";
+    /** Connection was refused */
+    readonly ConnectionRefused: "CONNECTION_REFUSED";
+    /** Credentials not found for router */
+    readonly CredentialsNotFound: "CREDENTIALS_NOT_FOUND";
+    /** Decryption failed (key may have rotated) */
+    readonly DecryptionFailed: "DECRYPTION_FAILED";
+    /** Encryption failed */
+    readonly EncryptionFailed: "ENCRYPTION_FAILED";
+    /** Invalid input provided */
+    readonly InvalidInput: "INVALID_INPUT";
+    /** Router not found */
+    readonly RouterNotFound: "ROUTER_NOT_FOUND";
+    /** Connection timed out when testing credentials */
+    readonly Timeout: "TIMEOUT";
+};
+export type CredentialErrorCode = typeof CredentialErrorCode[keyof typeof CredentialErrorCode];
+/** Result of testing a single router's credentials. */
+export type CredentialTestResult = {
+    /** Error message if test failed */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Response time in milliseconds (if successful) */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Router ID that was tested */
+    readonly routerId: Scalars['ID']['output'];
+    /** Router name for display */
+    readonly routerName: Scalars['String']['output'];
+    /** Connection status */
+    readonly status: CredentialTestStatus;
+    /** Whether the test was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Status of a credential test. */
+export declare const CredentialTestStatus: {
+    /** Authentication failed */
+    readonly AuthFailed: "AUTH_FAILED";
+    /** Connection was refused */
+    readonly ConnectionRefused: "CONNECTION_REFUSED";
+    /** Unknown error occurred */
+    readonly Error: "ERROR";
+    /** Network unreachable */
+    readonly NetworkError: "NETWORK_ERROR";
+    /** No credentials stored for this router */
+    readonly NoCredentials: "NO_CREDENTIALS";
+    /** Credentials are valid and connection succeeded */
+    readonly Success: "SUCCESS";
+    /** Connection timed out */
+    readonly Timeout: "TIMEOUT";
+};
+export type CredentialTestStatus = typeof CredentialTestStatus[keyof typeof CredentialTestStatus];
+/** Result of updating router credentials. */
+export type CredentialUpdatePayload = {
+    /** Updated credential info (without password) */
+    readonly credentials?: Maybe<RouterCredentials>;
+    /** Error code if update failed */
+    readonly errorCode?: Maybe<CredentialErrorCode>;
+    /** Errors that occurred during update */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Human-readable message about the operation */
+    readonly message: Scalars['String']['output'];
+    /** Whether the update was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/**
+ * Input for updating router credentials.
+ * Both username and password must be provided.
+ */
+export type CredentialsInput = {
+    /** Password for router authentication */
+    readonly password: Scalars['String']['input'];
+    /** Username for router authentication */
+    readonly username: Scalars['String']['input'];
+};
+/** Current item information in progress event */
+export type CurrentItemInfo = {
+    readonly id: Scalars['ID']['output'];
+    readonly name: Scalars['String']['output'];
+    readonly operation: ChangeOperation;
+    readonly status: ChangeSetItemStatus;
+};
+/** DHCP Server resource */
+export type DhcpServerResource = Node & Resource & {
+    /** Number of active leases */
+    readonly activeLeases?: Maybe<Scalars['Int']['output']>;
+    /** Address pool name */
+    readonly addressPool: Scalars['String']['output'];
+    readonly category: ResourceCategory;
+    readonly configuration: Scalars['JSON']['output'];
+    readonly deployment?: Maybe<DeploymentState>;
+    readonly id: Scalars['ID']['output'];
+    /** Interface serving DHCP */
+    readonly interface: Scalars['String']['output'];
+    /** Lease time */
+    readonly leaseTime: Scalars['Duration']['output'];
+    readonly metadata: ResourceMetadata;
+    /** Server name */
+    readonly name: Scalars['String']['output'];
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** Daily statistics */
+export type DailyStats = {
+    /** Date (UTC) */
+    readonly date: Scalars['DateTime']['output'];
+    /** Error count */
+    readonly errorCount: Scalars['Int']['output'];
+    /** Peak throughput in (bytes/sec) */
+    readonly peakThroughputIn: Scalars['Size']['output'];
+    /** Peak throughput out (bytes/sec) */
+    readonly peakThroughputOut: Scalars['Size']['output'];
+    /** Total bytes in */
+    readonly totalBytesIn: Scalars['Size']['output'];
+    /** Total bytes out */
+    readonly totalBytesOut: Scalars['Size']['output'];
+    /** Uptime percentage (0-100) */
+    readonly uptimePercent: Scalars['Float']['output'];
+};
+export type DeleteChangeSetPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether deletion was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Input for deleting a service instance. */
+export type DeleteInstanceInput = {
+    /** Instance ID to delete */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Delete operation payload */
+export type DeletePayload = {
+    /** ID of deleted item */
+    readonly deletedId?: Maybe<Scalars['ID']['output']>;
+    /** Errors encountered during deletion */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether deletion was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type DeleteResourcePayload = {
+    /** ID of deleted resource */
+    readonly deletedId?: Maybe<Scalars['ID']['output']>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether deletion was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Result of a delete operation */
+export type DeleteResult = {
+    /** Errors that occurred during deletion */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Success or error message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** Whether the deletion succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type DeleteRouterPayload = {
+    /** ID of the deleted router */
+    readonly deletedRouterId?: Maybe<Scalars['ID']['output']>;
+    /** Errors that occurred during deletion */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether deletion was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** DependencyGraph represents the full dependency graph for visualization. */
+export type DependencyGraph = {
+    readonly edges: ReadonlyArray<DependencyGraphEdge>;
+    readonly nodes: ReadonlyArray<DependencyGraphNode>;
+};
+/** DependencyGraphEdge represents a dependency relationship edge in the graph. */
+export type DependencyGraphEdge = {
+    readonly autoStart: Scalars['Boolean']['output'];
+    readonly dependencyType: DependencyType;
+    readonly fromInstanceId: Scalars['ID']['output'];
+    readonly healthTimeoutSeconds: Scalars['Int']['output'];
+    readonly toInstanceId: Scalars['ID']['output'];
+};
+/** DependencyGraphNode represents a service instance node in the graph. */
+export type DependencyGraphNode = {
+    readonly featureId: Scalars['String']['output'];
+    readonly instanceId: Scalars['ID']['output'];
+    readonly instanceName: Scalars['String']['output'];
+    readonly status: Scalars['String']['output'];
+};
+/** Status of a required dependency */
+export type DependencyStatus = {
+    /** Whether the dependency is active */
+    readonly isActive: Scalars['Boolean']['output'];
+    /** Why this dependency is required */
+    readonly reason: Scalars['String']['output'];
+    /** Dependency resource type */
+    readonly resourceType: Scalars['String']['output'];
+    /** Dependency resource UUID */
+    readonly resourceUuid: Scalars['ID']['output'];
+    /** Current state of the dependency */
+    readonly state: ResourceLifecycleState;
+};
+/** DependencyType defines the strength of the dependency relationship. */
+export declare const DependencyType: {
+    /** OPTIONAL: Soft dependency - dependent can start even if this dependency is unavailable */
+    readonly Optional: "OPTIONAL";
+    /** REQUIRES: Hard dependency - dependent cannot start without this dependency */
+    readonly Requires: "REQUIRES";
+};
+export type DependencyType = typeof DependencyType[keyof typeof DependencyType];
+/**
+ * Layer 3: What's actually on router after Apply-Confirm.
+ * Includes router-generated fields like IDs and computed values.
+ */
+export type DeploymentState = {
+    /** When the resource was applied */
+    readonly appliedAt: Scalars['DateTime']['output'];
+    /** User who applied the resource */
+    readonly appliedBy?: Maybe<Scalars['String']['output']>;
+    /** Apply operation ID for audit trail */
+    readonly applyOperationId?: Maybe<Scalars['ID']['output']>;
+    /** Detected drift from configuration */
+    readonly drift?: Maybe<DriftInfo>;
+    /** Router-generated fields (public key, computed values, etc.) */
+    readonly generatedFields?: Maybe<Scalars['JSON']['output']>;
+    /** Whether deployment matches configuration (no drift) */
+    readonly isInSync: Scalars['Boolean']['output'];
+    /** Router-generated resource ID (e.g., '*1A' in MikroTik) */
+    readonly routerResourceId?: Maybe<Scalars['String']['output']>;
+    /** Version number on router */
+    readonly routerVersion?: Maybe<Scalars['Int']['output']>;
+};
+export type DeprecateResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The deprecated resource */
+    readonly resource?: Maybe<Resource>;
+};
+/** Device (router) for querying resource metrics */
+export type Device = {
+    /** Device identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Current resource utilization metrics */
+    readonly resourceMetrics: ResourceMetrics;
+};
+/**
+ * Device routing assignment.
+ * Maps a client device to a service instance via Policy-Based Routing (PBR).
+ */
+export type DeviceRouting = {
+    /** Whether the assignment is active */
+    readonly active: Scalars['Boolean']['output'];
+    /** When the assignment was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Device identifier */
+    readonly deviceID: Scalars['String']['output'];
+    /** Device IP address (optional) */
+    readonly deviceIP?: Maybe<Scalars['String']['output']>;
+    /** Device hostname (optional) */
+    readonly deviceName?: Maybe<Scalars['String']['output']>;
+    /** Whether this routing has any active schedules */
+    readonly hasSchedules: Scalars['Boolean']['output'];
+    /** Routing assignment ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Service instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Virtual interface ID */
+    readonly interfaceID: Scalars['ID']['output'];
+    /** Timestamp when kill switch was last activated */
+    readonly killSwitchActivatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Whether kill switch is currently blocking traffic */
+    readonly killSwitchActive: Scalars['Boolean']['output'];
+    /** Whether kill switch is enabled for this routing */
+    readonly killSwitchEnabled: Scalars['Boolean']['output'];
+    /** Fallback interface ID when kill_switch_mode=FALLBACK_SERVICE */
+    readonly killSwitchFallbackInterfaceID?: Maybe<Scalars['String']['output']>;
+    /** Kill switch behavior mode */
+    readonly killSwitchMode: KillSwitchMode;
+    /** RouterOS filter rule ID for kill switch (for O(1) cleanup) */
+    readonly killSwitchRuleID?: Maybe<Scalars['String']['output']>;
+    /** Device MAC address */
+    readonly macAddress: Scalars['String']['output'];
+    /** RouterOS mangle rule ID (for O(1) removal) */
+    readonly mangleRuleID: Scalars['String']['output'];
+    /** Routing mark */
+    readonly routingMark: Scalars['String']['output'];
+    /** Routing mode (MAC-based or IP-based) */
+    readonly routingMode: RoutingMode;
+    /** All schedules for this device routing */
+    readonly schedules: ReadonlyArray<RoutingSchedule>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Device routing change event for subscriptions. */
+export type DeviceRoutingEvent = {
+    /** Event type (assigned, removed, updated, kill_switch_activated, kill_switch_deactivated) */
+    readonly eventType: Scalars['String']['output'];
+    /** Event ID */
+    readonly id: Scalars['ID']['output'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['output'];
+    /** Device routing (null if removed) */
+    readonly routing?: Maybe<DeviceRouting>;
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/**
+ * Complete device routing matrix.
+ * Provides all data needed for the device-to-service routing UI.
+ */
+export type DeviceRoutingMatrix = {
+    /** Discovered network devices */
+    readonly devices: ReadonlyArray<NetworkDevice>;
+    /** Active virtual interfaces available for routing */
+    readonly interfaces: ReadonlyArray<VirtualInterfaceInfo>;
+    /** Current routing assignments */
+    readonly routings: ReadonlyArray<DeviceRouting>;
+    /** Summary statistics */
+    readonly summary: DeviceRoutingMatrixStats;
+};
+/** Summary statistics for device routing matrix. */
+export type DeviceRoutingMatrixStats = {
+    /** Active virtual interfaces */
+    readonly activeInterfaces: Scalars['Int']['output'];
+    /** Active routing assignments */
+    readonly activeRoutings: Scalars['Int']['output'];
+    /** Devices discovered via ARP only */
+    readonly arpOnlyDevices: Scalars['Int']['output'];
+    /** Devices discovered via DHCP */
+    readonly dhcpDevices: Scalars['Int']['output'];
+    /** Devices with routing assignments */
+    readonly routedDevices: Scalars['Int']['output'];
+    /** Total discovered devices */
+    readonly totalDevices: Scalars['Int']['output'];
+    /** Devices without routing assignments */
+    readonly unroutedDevices: Scalars['Int']['output'];
+};
+/**
+ * Per-device traffic breakdown for a service instance.
+ * Shows which devices are consuming bandwidth through this service.
+ */
+export type DeviceTrafficBreakdown = {
+    /** Device identifier (MAC or IP) */
+    readonly deviceID: Scalars['String']['output'];
+    /** Device hostname (if available) */
+    readonly deviceName?: Maybe<Scalars['String']['output']>;
+    /** Bytes downloaded by this device */
+    readonly downloadBytes: Scalars['Int']['output'];
+    /** Device IP address */
+    readonly ipAddress?: Maybe<Scalars['String']['output']>;
+    /** Device MAC address */
+    readonly macAddress?: Maybe<Scalars['String']['output']>;
+    /** Percentage of total service traffic */
+    readonly percentOfTotal: Scalars['Float']['output'];
+    /** Total bytes (upload + download) */
+    readonly totalBytes: Scalars['Int']['output'];
+    /** Bytes uploaded by this device */
+    readonly uploadBytes: Scalars['Int']['output'];
+};
+/** DHCP client configuration for dynamic WAN IP */
+export type DhcpClient = Node & {
+    /** Add default route from DHCP */
+    readonly addDefaultRoute: Scalars['Boolean']['output'];
+    /** Assigned IP address */
+    readonly address?: Maybe<Scalars['IPv4']['output']>;
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** DHCP server address */
+    readonly dhcpServer?: Maybe<Scalars['IPv4']['output']>;
+    /** Whether DHCP client is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Lease expiry time */
+    readonly expiresAfter?: Maybe<Scalars['Duration']['output']>;
+    /** Gateway from DHCP */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interface: Scalars['String']['output'];
+    /** Current DHCP status */
+    readonly status: Scalars['String']['output'];
+    /** Use DNS servers from DHCP */
+    readonly usePeerDNS: Scalars['Boolean']['output'];
+    /** Use NTP servers from DHCP */
+    readonly usePeerNTP: Scalars['Boolean']['output'];
+};
+/** Input for creating/updating DHCP client */
+export type DhcpClientInput = {
+    /** Add default route (default: true) */
+    readonly addDefaultRoute?: InputMaybe<Scalars['Boolean']['input']>;
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Interface to enable DHCP client on */
+    readonly interface: Scalars['String']['input'];
+    /** Use peer DNS (default: true) */
+    readonly usePeerDNS?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Use peer NTP (default: true) */
+    readonly usePeerNTP?: InputMaybe<Scalars['Boolean']['input']>;
+};
+/** DHCP server (minimal type for dependencies) */
+export type DhcpServer = {
+    /** Whether the DHCP server is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** DHCP server ID */
+    readonly id: Scalars['ID']['output'];
+    /** Interface the DHCP server is bound to */
+    readonly interface: Interface;
+    /** DHCP server name */
+    readonly name: Scalars['String']['output'];
+};
+/** Comprehensive diagnostic report for a router */
+export type DiagnosticReport = {
+    /** Authentication test status */
+    readonly authStatus: AuthStatus;
+    /** Whether the router is reachable on the network */
+    readonly networkReachable: Scalars['Boolean']['output'];
+    /** Status of each checked port */
+    readonly portStatus: ReadonlyArray<PortStatus>;
+    /** Raw text report for clipboard/export */
+    readonly rawReport: Scalars['String']['output'];
+    /** Router ID being diagnosed */
+    readonly routerId: Scalars['ID']['output'];
+    /** Actionable suggestions based on diagnostic results */
+    readonly suggestions: ReadonlyArray<DiagnosticSuggestion>;
+    /** When the diagnostic was run */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** TLS certificate status (if TLS ports were checked) */
+    readonly tlsStatus?: Maybe<TlsStatus>;
+};
+/**
+ * Result of a single diagnostic test.
+ * Represents the outcome of a health check or connectivity test.
+ */
+export type DiagnosticResult = Node & {
+    /** Timestamp when test was executed */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Detailed information about the test result */
+    readonly details?: Maybe<Scalars['String']['output']>;
+    /** Test execution duration in milliseconds */
+    readonly durationMs: Scalars['Int']['output'];
+    /** Error message if test failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Result ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Instance ID this diagnostic belongs to */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Short message describing the result */
+    readonly message: Scalars['String']['output'];
+    /** Additional test-specific metadata (JSON) */
+    readonly metadata?: Maybe<Scalars['JSON']['output']>;
+    /** ULID for grouping tests run together */
+    readonly runGroupID?: Maybe<Scalars['String']['output']>;
+    /** Test result status */
+    readonly status: DiagnosticStatus;
+    /** Test name (e.g., 'tor_socks5', 'process_health') */
+    readonly testName: Scalars['String']['output'];
+};
+/** Diagnostic test status. */
+export declare const DiagnosticStatus: {
+    /** Test failed */
+    readonly Fail: "FAIL";
+    /** Test passed successfully */
+    readonly Pass: "PASS";
+    /** Test was skipped */
+    readonly Skipped: "SKIPPED";
+    /** Test completed with warnings */
+    readonly Warning: "WARNING";
+};
+export type DiagnosticStatus = typeof DiagnosticStatus[keyof typeof DiagnosticStatus];
+/** Actionable diagnostic suggestion */
+export type DiagnosticSuggestion = {
+    /** Recommended action to resolve the issue */
+    readonly action: Scalars['String']['output'];
+    /** Detailed description of the issue */
+    readonly description: Scalars['String']['output'];
+    /** Link to relevant documentation */
+    readonly docsUrl?: Maybe<Scalars['String']['output']>;
+    /** Severity level of the issue */
+    readonly severity: SuggestionSeverity;
+    /** Short title describing the issue */
+    readonly title: Scalars['String']['output'];
+};
+/**
+ * Complete diagnostic suite for a service type.
+ * Defines all available tests for a service.
+ */
+export type DiagnosticSuite = {
+    /** Service name (e.g., 'tor', 'singbox', 'adguard') */
+    readonly serviceName: Scalars['String']['output'];
+    /** Available diagnostic tests */
+    readonly tests: ReadonlyArray<DiagnosticTest>;
+};
+/**
+ * A single diagnostic test definition.
+ * Describes a test that can be run against a service.
+ */
+export type DiagnosticTest = {
+    /** Test category (health, connectivity, dns, http, socks5) */
+    readonly category: Scalars['String']['output'];
+    /** Human-readable description */
+    readonly description: Scalars['String']['output'];
+    /** Unique test identifier */
+    readonly name: Scalars['String']['output'];
+};
+/**
+ * Real-time diagnostic progress event for subscriptions.
+ * Emitted as each test completes during a diagnostic run.
+ */
+export type DiagnosticsProgress = {
+    /** Completed tests count */
+    readonly completedTests: Scalars['Int']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Progress (0-100) */
+    readonly progress: Scalars['Int']['output'];
+    /** Test result that just completed */
+    readonly result: DiagnosticResult;
+    /** Run group ID */
+    readonly runGroupID: Scalars['String']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total tests count */
+    readonly totalTests: Scalars['Int']['output'];
+};
+/** Email digest configuration (NAS-18.11) */
+export type DigestConfig = {
+    /** Whether critical alerts bypass digest mode and send immediately */
+    readonly bypassCritical: Scalars['Boolean']['output'];
+    /** Whether digest mode is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Digest interval in minutes (e.g., 60 for hourly, 1440 for daily) */
+    readonly intervalMinutes: Scalars['Int']['output'];
+    /** Whether to send digest even when no alerts occurred during the period */
+    readonly sendEmptyDigest: Scalars['Boolean']['output'];
+    /** Time of day for daily delivery in HH:MM format (optional, for daily digests) */
+    readonly time?: Maybe<Scalars['String']['output']>;
+};
+/** Email digest configuration input (NAS-18.11) */
+export type DigestConfigInput = {
+    /** Whether critical alerts bypass digest mode and send immediately (default: true) */
+    readonly bypassCritical?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Whether digest mode is enabled */
+    readonly enabled: Scalars['Boolean']['input'];
+    /** Digest interval in minutes (e.g., 60 for hourly, 1440 for daily) */
+    readonly intervalMinutes: Scalars['Int']['input'];
+    /** Whether to send digest even when no alerts occurred during the period (default: false) */
+    readonly sendEmptyDigest?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Time of day for daily delivery in HH:MM format (optional, for daily digests) */
+    readonly time?: InputMaybe<Scalars['String']['input']>;
+};
+/** Digest summary (NAS-18.11) */
+export type DigestSummary = {
+    /** Number of alerts included in the digest */
+    readonly alertCount: Scalars['Int']['output'];
+    /** Channel ID this digest was sent to */
+    readonly channelId: Scalars['String']['output'];
+    /** When the digest was delivered */
+    readonly deliveredAt: Scalars['DateTime']['output'];
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Time period covered by the digest (e.g., "Last hour", "Last 24 hours") */
+    readonly period: Scalars['String']['output'];
+};
+/** Reason for router disconnection */
+export declare const DisconnectReason: {
+    /** Authentication failed */
+    readonly AuthFailure: "AUTH_FAILURE";
+    /** Circuit breaker is open */
+    readonly CircuitOpen: "CIRCUIT_OPEN";
+    /** User manually disconnected */
+    readonly Manual: "MANUAL";
+    /** Network failure */
+    readonly NetworkFailure: "NETWORK_FAILURE";
+    /** Application shutting down */
+    readonly Shutdown: "SHUTDOWN";
+    /** Connection timed out */
+    readonly Timeout: "TIMEOUT";
+    /** Unknown reason */
+    readonly Unknown: "UNKNOWN";
+};
+export type DisconnectReason = typeof DisconnectReason[keyof typeof DisconnectReason];
+export type DisconnectRouterPayload = {
+    /** Errors that occurred during disconnection */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The router that was disconnected */
+    readonly router?: Maybe<Router>;
+};
+/**
+ * A device discovered during a network scan.
+ * Only confirmed MikroTik devices are returned (confidence >= 40).
+ */
+export type DiscoveredDevice = {
+    /** Confidence score for RouterOS detection (40-100) */
+    readonly confidence: Scalars['Int']['output'];
+    /** Device type classification */
+    readonly deviceType: Scalars['String']['output'];
+    /** Hostname (if reverse DNS resolves) */
+    readonly hostname?: Maybe<Scalars['String']['output']>;
+    /** IP address of the discovered device */
+    readonly ip: Scalars['String']['output'];
+    /** Open ports found on the device */
+    readonly ports: ReadonlyArray<Scalars['Int']['output']>;
+    /** RouterOS-specific information (version, board, architecture) */
+    readonly routerOSInfo?: Maybe<RouterOsInfo>;
+    /** Detected services (mikrotik-api, mikrotik-winbox, mikrotik-rest, etc.) */
+    readonly services: ReadonlyArray<Scalars['String']['output']>;
+    /** Device vendor (always 'MikroTik' for returned results) */
+    readonly vendor?: Maybe<Scalars['String']['output']>;
+};
+/** Complete benchmark result comparing all configured DNS servers */
+export type DnsBenchmarkResult = {
+    /** Fastest server */
+    readonly fastestServer?: Maybe<DnsBenchmarkServerResult>;
+    /** Results for each tested server, sorted by response time */
+    readonly serverResults: ReadonlyArray<DnsBenchmarkServerResult>;
+    /** Test hostname used for benchmarking */
+    readonly testHostname: Scalars['String']['output'];
+    /** When the benchmark was executed */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total benchmark execution time in milliseconds */
+    readonly totalTimeMs: Scalars['Int']['output'];
+};
+/** Benchmark result for a single DNS server */
+export type DnsBenchmarkServerResult = {
+    /** Error message (if server failed) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Response time in milliseconds (-1 if unreachable) */
+    readonly responseTimeMs: Scalars['Int']['output'];
+    /** DNS server IP address */
+    readonly server: Scalars['String']['output'];
+    /** Server status (Fastest, Good, Slow, Unreachable) */
+    readonly status: DnsServerStatus;
+    /** Whether the server responded successfully */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** DNS cache statistics for monitoring cache usage */
+export type DnsCacheStats = {
+    /** Maximum cache size in bytes */
+    readonly cacheMaxBytes: Scalars['Size']['output'];
+    /** Cache usage percentage (0-100) */
+    readonly cacheUsagePercent: Scalars['Float']['output'];
+    /** Cache size used in bytes */
+    readonly cacheUsedBytes: Scalars['Size']['output'];
+    /** Cache hit rate percentage (0-100) */
+    readonly hitRatePercent?: Maybe<Scalars['Float']['output']>;
+    /** When the statistics were collected */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Most queried domains (top 10) */
+    readonly topDomains: ReadonlyArray<DnsTopDomain>;
+    /** Total number of entries in the DNS cache */
+    readonly totalEntries: Scalars['Int']['output'];
+};
+/** Input for DNS lookup operation */
+export type DnsLookupInput = {
+    /** Device/router ID to run lookup from */
+    readonly deviceId: Scalars['String']['input'];
+    /** Hostname or IP address to look up */
+    readonly hostname: Scalars['String']['input'];
+    /** DNS record type to query */
+    readonly recordType: DnsRecordType;
+    /** DNS server to use (defaults to router's configured DNS) */
+    readonly server?: InputMaybe<Scalars['String']['input']>;
+    /** Query timeout in seconds (default: 5) */
+    readonly timeout?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Result of a DNS lookup operation */
+export type DnsLookupResult = {
+    /** Whether response was authoritative */
+    readonly authoritative: Scalars['Boolean']['output'];
+    /** Error message (if query failed) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Hostname that was queried */
+    readonly hostname: Scalars['String']['output'];
+    /** Query time in milliseconds */
+    readonly queryTime: Scalars['Int']['output'];
+    /** Record type that was queried */
+    readonly recordType: DnsRecordType;
+    /** Resolved records */
+    readonly records: ReadonlyArray<DnsRecord>;
+    /** DNS server used */
+    readonly server: Scalars['String']['output'];
+    /** Query status */
+    readonly status: DnsLookupStatus;
+    /** When the query was executed */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** DNS lookup status codes */
+export declare const DnsLookupStatus: {
+    /** Network error occurred */
+    readonly NetworkError: "NETWORK_ERROR";
+    /** Domain does not exist (NXDOMAIN) */
+    readonly Nxdomain: "NXDOMAIN";
+    /** Query refused by server */
+    readonly Refused: "REFUSED";
+    /** DNS server failure (SERVFAIL) */
+    readonly Servfail: "SERVFAIL";
+    /** Query completed successfully */
+    readonly Success: "SUCCESS";
+    /** Query timed out */
+    readonly Timeout: "TIMEOUT";
+};
+export type DnsLookupStatus = typeof DnsLookupStatus[keyof typeof DnsLookupStatus];
+/** Single DNS record */
+export type DnsRecord = {
+    /** Record data (IP, hostname, text, etc.) */
+    readonly data: Scalars['String']['output'];
+    /** Record name (query hostname) */
+    readonly name: Scalars['String']['output'];
+    /** Port (for SRV records) */
+    readonly port?: Maybe<Scalars['Int']['output']>;
+    /** Priority (for MX/SRV records) */
+    readonly priority?: Maybe<Scalars['Int']['output']>;
+    /** Time to live in seconds */
+    readonly ttl: Scalars['Int']['output'];
+    /** Record type */
+    readonly type: DnsRecordType;
+    /** Weight (for SRV records) */
+    readonly weight?: Maybe<Scalars['Int']['output']>;
+};
+/** DNS record types supported */
+export declare const DnsRecordType: {
+    /** IPv4 address record */
+    readonly A: "A";
+    /** IPv6 address record */
+    readonly Aaaa: "AAAA";
+    /** Canonical name record */
+    readonly Cname: "CNAME";
+    /** Mail exchange record */
+    readonly Mx: "MX";
+    /** Name server record */
+    readonly Ns: "NS";
+    /** Pointer record (reverse DNS) */
+    readonly Ptr: "PTR";
+    /** Start of authority record */
+    readonly Soa: "SOA";
+    /** Service record */
+    readonly Srv: "SRV";
+    /** Text record */
+    readonly Txt: "TXT";
+};
+export type DnsRecordType = typeof DnsRecordType[keyof typeof DnsRecordType];
+/** DNS server configuration */
+export type DnsServer = {
+    /** Server IP address */
+    readonly address: Scalars['String']['output'];
+    /** Whether this is the primary DNS server */
+    readonly isPrimary: Scalars['Boolean']['output'];
+    /** Whether this is the secondary DNS server */
+    readonly isSecondary: Scalars['Boolean']['output'];
+};
+/** Status classification for DNS servers in benchmark */
+export declare const DnsServerStatus: {
+    /** Fastest responding server */
+    readonly Fastest: "FASTEST";
+    /** Server responded in acceptable time (<100ms) */
+    readonly Good: "GOOD";
+    /** Server responded slowly (>100ms) */
+    readonly Slow: "SLOW";
+    /** Server did not respond */
+    readonly Unreachable: "UNREACHABLE";
+};
+export type DnsServerStatus = typeof DnsServerStatus[keyof typeof DnsServerStatus];
+/** Collection of DNS servers */
+export type DnsServers = {
+    /** Primary DNS server address */
+    readonly primary: Scalars['String']['output'];
+    /** Secondary DNS server address (if configured) */
+    readonly secondary?: Maybe<Scalars['String']['output']>;
+    /** All configured DNS servers */
+    readonly servers: ReadonlyArray<DnsServer>;
+};
+/** A frequently queried domain in the DNS cache */
+export type DnsTopDomain = {
+    /** Domain name */
+    readonly domain: Scalars['String']['output'];
+    /** Last query time */
+    readonly lastQueried?: Maybe<Scalars['DateTime']['output']>;
+    /** Number of queries for this domain */
+    readonly queryCount: Scalars['Int']['output'];
+};
+/** Actions to resolve drift */
+export declare const DriftAction: {
+    /** Update configuration to match router */
+    readonly Accept: "ACCEPT";
+    /** Re-apply configuration to router */
+    readonly Reapply: "REAPPLY";
+    /** Manual review required */
+    readonly Review: "REVIEW";
+};
+export type DriftAction = typeof DriftAction[keyof typeof DriftAction];
+/** A field that has drifted from configuration */
+export type DriftField = {
+    /** Actual value (from router) */
+    readonly actual?: Maybe<Scalars['JSON']['output']>;
+    /** Expected value (from configuration) */
+    readonly expected?: Maybe<Scalars['JSON']['output']>;
+    /** Field path */
+    readonly path: Scalars['String']['output'];
+};
+/** Information about configuration drift */
+export type DriftInfo = {
+    /** When drift was detected */
+    readonly detectedAt: Scalars['DateTime']['output'];
+    /** Fields that have drifted */
+    readonly driftedFields: ReadonlyArray<DriftField>;
+    /** Suggested action to resolve drift */
+    readonly suggestedAction: DriftAction;
+};
+/** Edge interface for connection edges */
+export type Edge = {
+    /** Cursor for pagination */
+    readonly cursor: Scalars['String']['output'];
+};
+/** Email notification configuration */
+export type EmailConfig = {
+    /** Whether email notifications are enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Email sender address */
+    readonly fromAddress?: Maybe<Scalars['String']['output']>;
+    /** Email sender display name */
+    readonly fromName?: Maybe<Scalars['String']['output']>;
+    /** SMTP server hostname */
+    readonly host?: Maybe<Scalars['String']['output']>;
+    /** SMTP server port */
+    readonly port?: Maybe<Scalars['Int']['output']>;
+    /** Skip TLS certificate verification (use with caution) */
+    readonly skipVerify?: Maybe<Scalars['Boolean']['output']>;
+    /** Array of recipient email addresses */
+    readonly toAddresses: ReadonlyArray<Scalars['String']['output']>;
+    /** Whether to use TLS/SSL */
+    readonly useTLS?: Maybe<Scalars['Boolean']['output']>;
+    /** SMTP username for authentication */
+    readonly username?: Maybe<Scalars['String']['output']>;
+};
+/** Email notification configuration input */
+export type EmailConfigInput = {
+    /** Whether email notifications are enabled */
+    readonly enabled: Scalars['Boolean']['input'];
+    /** Email sender address */
+    readonly fromAddress?: InputMaybe<Scalars['String']['input']>;
+    /** Email sender display name */
+    readonly fromName?: InputMaybe<Scalars['String']['input']>;
+    /** SMTP server hostname */
+    readonly host?: InputMaybe<Scalars['String']['input']>;
+    /** SMTP password for authentication */
+    readonly password?: InputMaybe<Scalars['String']['input']>;
+    /** SMTP server port */
+    readonly port?: InputMaybe<Scalars['Int']['input']>;
+    /** Skip TLS certificate verification (use with caution) */
+    readonly skipVerify?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Array of recipient email addresses */
+    readonly toAddresses: ReadonlyArray<Scalars['String']['input']>;
+    /** Whether to use TLS/SSL */
+    readonly useTLS?: InputMaybe<Scalars['Boolean']['input']>;
+    /** SMTP username for authentication */
+    readonly username?: InputMaybe<Scalars['String']['input']>;
+};
+/** Category of connection error for classification */
+export declare const ErrorCategory: {
+    /** Authentication failed */
+    readonly AuthFailed: "AUTH_FAILED";
+    /** Network unreachable or DNS failure */
+    readonly NetworkError: "NETWORK_ERROR";
+    /** Protocol-level error */
+    readonly ProtocolError: "PROTOCOL_ERROR";
+    /** Connection actively refused */
+    readonly Refused: "REFUSED";
+    /** Connection or response timeout */
+    readonly Timeout: "TIMEOUT";
+    /** TLS/SSL certificate or handshake error */
+    readonly TlsError: "TLS_ERROR";
+};
+export type ErrorCategory = typeof ErrorCategory[keyof typeof ErrorCategory];
+/**
+ * Rich error extensions for detailed error diagnostics.
+ * Included in GraphQL error responses under the 'extensions' key.
+ */
+export type ErrorExtensions = {
+    /** Error category (validation, protocol, network, auth, resource, internal) */
+    readonly category: Scalars['String']['output'];
+    /** Error code for programmatic handling (e.g., 'V400', 'R200') */
+    readonly code: Scalars['String']['output'];
+    /** Link to relevant documentation */
+    readonly docsUrl?: Maybe<Scalars['String']['output']>;
+    /** Field path that caused the error (e.g., 'input.listenPort') */
+    readonly field?: Maybe<Scalars['String']['output']>;
+    /** Whether the error is recoverable (can be retried) */
+    readonly recoverable: Scalars['Boolean']['output'];
+    /** Request correlation ID for support and debugging */
+    readonly requestId: Scalars['String']['output'];
+    /** User-friendly suggestion for fixing the error */
+    readonly suggestedFix?: Maybe<Scalars['String']['output']>;
+    /** Additional troubleshooting steps for complex errors */
+    readonly troubleshootingSteps?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** The invalid value (redacted in production for sensitive fields) */
+    readonly value?: Maybe<Scalars['JSON']['output']>;
+};
+/** Escalation configuration for unacknowledged alerts (NAS-18.9) */
+export type EscalationConfig = {
+    /** Additional notification channels to add during escalation */
+    readonly additionalChannels: ReadonlyArray<Scalars['String']['output']>;
+    /** Whether escalation is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Delay in seconds before first escalation */
+    readonly escalationDelay: Scalars['Int']['output'];
+    /** Maximum number of escalation levels */
+    readonly maxEscalations: Scalars['Int']['output'];
+    /** Per-level delay intervals in seconds */
+    readonly repeatIntervals: ReadonlyArray<Scalars['Int']['output']>;
+    /** Whether alert must be acknowledged to stop escalation */
+    readonly requireAck: Scalars['Boolean']['output'];
+};
+/** Escalation configuration input (NAS-18.9) */
+export type EscalationConfigInput = {
+    /** Additional notification channels to add during escalation */
+    readonly additionalChannels?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Whether escalation is enabled (default: false) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Delay in seconds before first escalation (default: 900 = 15min) */
+    readonly escalationDelay?: InputMaybe<Scalars['Int']['input']>;
+    /** Maximum number of escalation levels (default: 3) */
+    readonly maxEscalations?: InputMaybe<Scalars['Int']['input']>;
+    /** Per-level delay intervals in seconds (default: [900, 1800, 3600]) */
+    readonly repeatIntervals?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+    /** Whether alert must be acknowledged to stop escalation (default: true) */
+    readonly requireAck?: InputMaybe<Scalars['Boolean']['input']>;
+};
+/** Escalation status (NAS-18.9) */
+export declare const EscalationStatus: {
+    /** Maximum escalation level reached */
+    readonly MaxReached: "MAX_REACHED";
+    /** Escalation is pending/in progress */
+    readonly Pending: "PENDING";
+    /** Escalation was resolved (alert acknowledged) */
+    readonly Resolved: "RESOLVED";
+};
+export type EscalationStatus = typeof EscalationStatus[keyof typeof EscalationStatus];
+/** Input for exporting services as a template */
+export type ExportAsTemplateInput = {
+    /** Template category */
+    readonly category: ServiceTemplateCategory;
+    /** Template description */
+    readonly description: Scalars['String']['input'];
+    /** Instance IDs to export */
+    readonly instanceIDs: ReadonlyArray<Scalars['ID']['input']>;
+    /** Template name */
+    readonly name: Scalars['String']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Template scope */
+    readonly scope: TemplateScope;
+};
+/** Options for exporting router configuration. */
+export type ExportConfigInput = {
+    /** User-provided encryption key for credential export (required if includeCredentials is true) */
+    readonly encryptionKey?: InputMaybe<Scalars['String']['input']>;
+    /** Whether to include credentials (requires encryptionKey if true) */
+    readonly includeCredentials?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Router ID to export configuration from */
+    readonly routerId: Scalars['ID']['input'];
+};
+/** Result of exporting router configuration. */
+export type ExportConfigPayload = {
+    /** Exported configuration data (JSON format) */
+    readonly config?: Maybe<Scalars['JSON']['output']>;
+    /** Errors that occurred during export */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Security warning message about credential handling */
+    readonly securityWarning?: Maybe<Scalars['String']['output']>;
+    /** Whether the export was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Input for exporting a service configuration. */
+export type ExportServiceConfigInput = {
+    /** Whether to include device routing rules */
+    readonly includeRoutingRules: Scalars['Boolean']['input'];
+    /** Instance ID to export */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Whether to redact sensitive fields (passwords, API keys, etc.) */
+    readonly redactSecrets: Scalars['Boolean']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Payload for export service configuration mutation. */
+export type ExportServiceConfigPayload = {
+    /** Download URL for JSON file (15-minute expiry) */
+    readonly downloadURL?: Maybe<Scalars['String']['output']>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Exported service package (null if failed) */
+    readonly package?: Maybe<ServiceExportPackage>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Information about a feature in the compatibility matrix */
+export type FeatureCompatibilityInfo = {
+    /** Feature dependencies */
+    readonly dependsOn: ReadonlyArray<Scalars['String']['output']>;
+    /** Feature identifier */
+    readonly featureId: Scalars['String']['output'];
+    /** Maximum RouterOS version supported (if any) */
+    readonly maxVersion?: Maybe<Scalars['String']['output']>;
+    /** Minimum RouterOS version required */
+    readonly minVersion: Scalars['String']['output'];
+    /** Minimum version for CHR (if different) */
+    readonly minVersionCHR?: Maybe<Scalars['String']['output']>;
+    /** Human-readable feature name */
+    readonly name: Scalars['String']['output'];
+    /** Required packages */
+    readonly requiredPackages: ReadonlyArray<Scalars['String']['output']>;
+    /** URL to MikroTik documentation */
+    readonly upgradeUrl?: Maybe<Scalars['String']['output']>;
+};
+/** Input for checking feature compatibility */
+export type FeatureCompatibilityInput = {
+    /** Feature identifier to check */
+    readonly featureId: Scalars['String']['input'];
+    /** Whether to check for CHR-specific requirements */
+    readonly isCHR?: InputMaybe<Scalars['Boolean']['input']>;
+};
+/** Feature deployment state */
+export type FeatureDeployment = {
+    readonly appliedAt: Scalars['DateTime']['output'];
+    readonly appliedBy?: Maybe<Scalars['String']['output']>;
+    /** Assigned IP address */
+    readonly assignedIP?: Maybe<Scalars['IPv4']['output']>;
+    /** Assigned ports */
+    readonly assignedPorts?: Maybe<ReadonlyArray<Scalars['Port']['output']>>;
+    /** Container ID (if containerized) */
+    readonly containerId?: Maybe<Scalars['String']['output']>;
+    /** Container image used */
+    readonly containerImage?: Maybe<Scalars['String']['output']>;
+    readonly drift?: Maybe<DriftInfo>;
+    readonly isInSync: Scalars['Boolean']['output'];
+    readonly routerResourceId?: Maybe<Scalars['String']['output']>;
+    readonly routerVersion?: Maybe<Scalars['Int']['output']>;
+};
+/** Marketplace Feature resource (Tor, AdGuard, sing-box, etc.) */
+export type FeatureResource = Node & Resource & {
+    readonly category: ResourceCategory;
+    readonly configuration?: Maybe<Scalars['JSON']['output']>;
+    readonly deployment?: Maybe<DeploymentState>;
+    readonly featureDeployment?: Maybe<FeatureDeployment>;
+    /** Feature identifier */
+    readonly featureId: Scalars['String']['output'];
+    readonly featureRuntime?: Maybe<FeatureRuntime>;
+    readonly id: Scalars['ID']['output'];
+    readonly metadata: ResourceMetadata;
+    /** Feature name */
+    readonly name: Scalars['String']['output'];
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+    /** Feature version */
+    readonly version: Scalars['String']['output'];
+    /** Virtual interface assigned */
+    readonly virtualInterface?: Maybe<Scalars['String']['output']>;
+};
+/** Feature runtime state */
+export type FeatureRuntime = {
+    /** Container status */
+    readonly containerStatus?: Maybe<Scalars['String']['output']>;
+    /** CPU usage percentage */
+    readonly cpuUsagePercent?: Maybe<Scalars['Float']['output']>;
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    readonly health: RuntimeHealth;
+    readonly isRunning: Scalars['Boolean']['output'];
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Memory usage */
+    readonly memoryUsage?: Maybe<Scalars['Size']['output']>;
+    /** Devices routed through this feature */
+    readonly routedDevices?: Maybe<Scalars['Int']['output']>;
+};
+/**
+ * Per-feature storage usage breakdown.
+ * Shows how much space each feature is consuming and where data is stored.
+ */
+export type FeatureStorageUsage = {
+    /** Binary size in bytes (serialized uint64) */
+    readonly binarySize: Scalars['String']['output'];
+    /** Config files size in bytes (serialized uint64) */
+    readonly configSize: Scalars['String']['output'];
+    /** Runtime data size in bytes (serialized uint64) */
+    readonly dataSize: Scalars['String']['output'];
+    /** Feature identifier (e.g., 'tor', 'sing-box') */
+    readonly featureId: Scalars['ID']['output'];
+    /** Human-readable feature name */
+    readonly featureName: Scalars['String']['output'];
+    /** Number of instances of this feature */
+    readonly instanceCount: Scalars['Int']['output'];
+    /** Primary storage location ('flash' or 'external') */
+    readonly location: Scalars['String']['output'];
+    /** Log files size in bytes (serialized uint64) */
+    readonly logsSize: Scalars['String']['output'];
+    /** Total size across all components in bytes (serialized uint64) */
+    readonly totalSize: Scalars['String']['output'];
+};
+/** Feature support information based on RouterOS version */
+export type FeatureSupport = {
+    /** Feature identifier (e.g., 'rest_api', 'container', 'wireguard') */
+    readonly featureId: Scalars['String']['output'];
+    /** Capability level (none, basic, advanced, full) */
+    readonly level: CapabilityLevel;
+    /** Missing packages (if any) */
+    readonly missingPackages?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Human-readable feature name */
+    readonly name: Scalars['String']['output'];
+    /** Reason why the feature is not supported (if applicable) */
+    readonly reason?: Maybe<Scalars['String']['output']>;
+    /** Required packages that need to be installed */
+    readonly requiredPackages?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Minimum RouterOS version required for this feature */
+    readonly requiredVersion?: Maybe<Scalars['String']['output']>;
+    /** Whether the feature is supported on this router */
+    readonly supported: Scalars['Boolean']['output'];
+    /** URL to MikroTik documentation for upgrade guidance */
+    readonly upgradeUrl?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Firewall rule placeholder type.
+ * TODO: Expand with full filter/NAT/mangle rule types in future stories.
+ */
+export type FirewallRule = Node & {
+    /** Rule action (accept, drop, reject, etc.) */
+    readonly action: Scalars['String']['output'];
+    /** Rule chain (input, forward, output, prerouting, postrouting, etc.) */
+    readonly chain: Scalars['String']['output'];
+    /** Optional comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether rule is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Destination address list reference */
+    readonly dstAddressList?: Maybe<Scalars['String']['output']>;
+    /** Rule ID */
+    readonly id: Scalars['ID']['output'];
+    /** Source address list reference */
+    readonly srcAddressList?: Maybe<Scalars['String']['output']>;
+    /** Rule type (filter, nat, mangle) */
+    readonly type: Scalars['String']['output'];
+};
+/**
+ * Firewall rule reference type (lightweight for dependency tracking).
+ * For full firewall rule management, see FirewallRule type in firewall.graphql.
+ */
+export type FirewallRuleReference = {
+    /** Rule action */
+    readonly action: Scalars['String']['output'];
+    /** Rule chain */
+    readonly chain: Scalars['String']['output'];
+    /** Whether the rule is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Firewall rule ID */
+    readonly id: Scalars['ID']['output'];
+    /** Input interface filter */
+    readonly inInterface?: Maybe<Scalars['String']['output']>;
+    /** Output interface filter */
+    readonly outInterface?: Maybe<Scalars['String']['output']>;
+};
+/** Firewall Rule resource */
+export type FirewallRuleResource = Node & Resource & {
+    /** Rule action (accept, drop, reject) */
+    readonly action: Scalars['String']['output'];
+    readonly category: ResourceCategory;
+    /** Rule chain (input, forward, output) */
+    readonly chain: Scalars['String']['output'];
+    /** Rule comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    readonly configuration: Scalars['JSON']['output'];
+    readonly deployment?: Maybe<DeploymentState>;
+    /** Destination address/network */
+    readonly dstAddress?: Maybe<Scalars['String']['output']>;
+    /** Destination port(s) */
+    readonly dstPort?: Maybe<Scalars['String']['output']>;
+    /** Whether rule is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Hit counter */
+    readonly hitCount?: Maybe<Scalars['Int']['output']>;
+    readonly id: Scalars['ID']['output'];
+    readonly metadata: ResourceMetadata;
+    readonly platform?: Maybe<PlatformInfo>;
+    /** Protocol (tcp, udp, icmp, etc.) */
+    readonly protocol?: Maybe<Scalars['String']['output']>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    /** Source address/network */
+    readonly srcAddress?: Maybe<Scalars['String']['output']>;
+    /** Source port(s) */
+    readonly srcPort?: Maybe<Scalars['String']['output']>;
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** Firewall table types. */
+export declare const FirewallTable: {
+    /** Packet filtering */
+    readonly Filter: "FILTER";
+    /** Packet marking and modification */
+    readonly Mangle: "MANGLE";
+    /** Network address translation */
+    readonly Nat: "NAT";
+    /** Raw packet processing */
+    readonly Raw: "RAW";
+};
+export type FirewallTable = typeof FirewallTable[keyof typeof FirewallTable];
+/**
+ * Firewall template with pre-configured rule sets.
+ * Templates allow quick application of common firewall configurations.
+ */
+export type FirewallTemplate = {
+    /** Category for organization */
+    readonly category: TemplateCategory;
+    /** Complexity level indicator */
+    readonly complexity: TemplateComplexity;
+    /** When this template was created (null for built-in) */
+    readonly createdAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Detailed description of what this template does */
+    readonly description: Scalars['String']['output'];
+    /** Unique template identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Whether this is a built-in template */
+    readonly isBuiltIn: Scalars['Boolean']['output'];
+    /** Human-readable template name */
+    readonly name: Scalars['String']['output'];
+    /** Total number of rules in this template */
+    readonly ruleCount: Scalars['Int']['output'];
+    /** Rules that will be created */
+    readonly rules: ReadonlyArray<TemplateRule>;
+    /** When this template was last modified (null for built-in) */
+    readonly updatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Variables that can be customized before applying */
+    readonly variables: ReadonlyArray<FirewallTemplateVariable>;
+    /** Template version for compatibility tracking */
+    readonly version: Scalars['String']['output'];
+};
+/** Result of template application. */
+export type FirewallTemplateResult = {
+    /** Number of rules successfully applied */
+    readonly appliedRulesCount: Scalars['Int']['output'];
+    /** Errors encountered during application */
+    readonly errors?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Rollback ID for undo (valid for 5 minutes) */
+    readonly rollbackId: Scalars['ID']['output'];
+    /** Whether application succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/**
+ * Variable definition for template customization.
+ * Variables allow parameterization of templates for different network configurations.
+ */
+export type FirewallTemplateVariable = {
+    /** Default value if not specified */
+    readonly defaultValue?: Maybe<Scalars['String']['output']>;
+    /** Description to help users understand the variable */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Human-readable label for UI */
+    readonly label: Scalars['String']['output'];
+    /** Variable name (used in rule properties) */
+    readonly name: Scalars['String']['output'];
+    /** Available options (populated from router for INTERFACE type) */
+    readonly options?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Whether this variable is required */
+    readonly required: Scalars['Boolean']['output'];
+    /** Variable type for validation */
+    readonly type: VariableType;
+};
+/** Input for defining a template variable. */
+export type FirewallTemplateVariableInput = {
+    /** Default value */
+    readonly defaultValue?: InputMaybe<Scalars['String']['input']>;
+    /** Description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Label for UI */
+    readonly label: Scalars['String']['input'];
+    /** Variable name */
+    readonly name: Scalars['String']['input'];
+    /** Whether required */
+    readonly required: Scalars['Boolean']['input'];
+    /** Variable type */
+    readonly type: VariableType;
+};
+/** Status of a fix application */
+export declare const FixApplicationStatus: {
+    /** Fix was applied successfully */
+    readonly Applied: "APPLIED";
+    /** Fix is being applied */
+    readonly Applying: "APPLYING";
+    /** Fix is available but not yet applied */
+    readonly Available: "AVAILABLE";
+    /** Fix application failed */
+    readonly Failed: "FAILED";
+    /** Fix was applied but issue persists */
+    readonly IssuePersists: "ISSUE_PERSISTS";
+};
+export type FixApplicationStatus = typeof FixApplicationStatus[keyof typeof FixApplicationStatus];
+/** Confidence level for a fix suggestion */
+export declare const FixConfidence: {
+    /** High confidence this fix will resolve the issue */
+    readonly High: "HIGH";
+    /** Low confidence, worth trying as last resort */
+    readonly Low: "LOW";
+    /** Medium confidence, may resolve the issue */
+    readonly Medium: "MEDIUM";
+};
+export type FixConfidence = typeof FixConfidence[keyof typeof FixConfidence];
+/** Result of flushing the DNS cache */
+export type FlushDnsCacheResult = {
+    /** Cache statistics after flushing */
+    readonly afterStats: DnsCacheStats;
+    /** Cache statistics before flushing */
+    readonly beforeStats: DnsCacheStats;
+    /** Number of entries removed from the cache */
+    readonly entriesRemoved: Scalars['Int']['output'];
+    /** User-friendly message */
+    readonly message: Scalars['String']['output'];
+    /** Whether the cache was flushed successfully */
+    readonly success: Scalars['Boolean']['output'];
+    /** When the flush was executed */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+export declare const FrameTypes: {
+    readonly AdmitAll: "ADMIT_ALL";
+    readonly AdmitOnlyUntaggedAndPriority: "ADMIT_ONLY_UNTAGGED_AND_PRIORITY";
+    readonly AdmitOnlyVlanTagged: "ADMIT_ONLY_VLAN_TAGGED";
+};
+export type FrameTypes = typeof FrameTypes[keyof typeof FrameTypes];
+/**
+ * Gateway monitoring information for SOCKS-to-TUN gateway instances.
+ * Provides visibility into hev-socks5-tunnel processes.
+ */
+export type GatewayInfo = {
+    /** Error message if in ERROR state */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Last health check timestamp */
+    readonly lastHealthCheck?: Maybe<Scalars['DateTime']['output']>;
+    /** Process ID of gateway */
+    readonly pid?: Maybe<Scalars['Int']['output']>;
+    /** Current gateway state */
+    readonly state: GatewayState;
+    /** TUN interface name (e.g., tun-tor-usa) */
+    readonly tunName?: Maybe<Scalars['String']['output']>;
+    /** Uptime duration in seconds */
+    readonly uptime?: Maybe<Scalars['Int']['output']>;
+};
+/** Result of checking gateway reachability */
+export type GatewayReachabilityResult = {
+    /** Interface through which gateway is reachable (null if unreachable) */
+    readonly interface?: Maybe<Scalars['String']['output']>;
+    /** Ping latency in milliseconds (null if unreachable) */
+    readonly latency?: Maybe<Scalars['Int']['output']>;
+    /** Human-readable message about reachability */
+    readonly message: Scalars['String']['output'];
+    /** Whether the gateway is reachable */
+    readonly reachable: Scalars['Boolean']['output'];
+};
+/** Gateway process state for monitoring */
+export declare const GatewayState: {
+    /** Gateway encountered an error */
+    readonly Error: "ERROR";
+    /** Service does not need a gateway */
+    readonly NotNeeded: "NOT_NEEDED";
+    /** Gateway is running normally */
+    readonly Running: "RUNNING";
+    /** Gateway is stopped */
+    readonly Stopped: "STOPPED";
+};
+export type GatewayState = typeof GatewayState[keyof typeof GatewayState];
+/** Gateway runtime status. */
+export declare const GatewayStatus: {
+    /** Gateway process failed to start */
+    readonly Failed: "FAILED";
+    /** Gateway process is running */
+    readonly Running: "RUNNING";
+    /** Gateway process is starting */
+    readonly Starting: "STARTING";
+    /** Gateway process is stopped */
+    readonly Stopped: "STOPPED";
+};
+export type GatewayStatus = typeof GatewayStatus[keyof typeof GatewayStatus];
+/** Gateway type for virtual interface routing. */
+export declare const GatewayType: {
+    /** HEV SOCKS5 tunnel gateway */
+    readonly HevSocks5Tunnel: "HEV_SOCKS5_TUNNEL";
+    /** No gateway, direct routing */
+    readonly None: "NONE";
+};
+export type GatewayType = typeof GatewayType[keyof typeof GatewayType];
+/** Input for generating a QR code for service config. */
+export type GenerateConfigQrInput = {
+    /** QR code image size in pixels (default 256) */
+    readonly imageSize?: InputMaybe<Scalars['Int']['input']>;
+    /** Whether to include routing rules */
+    readonly includeRoutingRules: Scalars['Boolean']['input'];
+    /** Instance ID to generate QR code for */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Whether to redact sensitive fields */
+    readonly redactSecrets: Scalars['Boolean']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Payload for generate config QR mutation. */
+export type GenerateConfigQrPayload = {
+    /** QR code data size in bytes (before encoding) */
+    readonly dataSize?: Maybe<Scalars['Int']['output']>;
+    /** Download URL for PNG file (15-minute expiry) */
+    readonly downloadURL?: Maybe<Scalars['String']['output']>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Base64-encoded PNG image data */
+    readonly imageDataBase64?: Maybe<Scalars['String']['output']>;
+    /** PNG image size in bytes */
+    readonly imageSize?: Maybe<Scalars['Int']['output']>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Hardware information detected from router */
+export type HardwareInfo = {
+    /** CPU architecture (arm, arm64, x86_64, etc.) */
+    readonly architecture: Scalars['String']['output'];
+    /** Available storage in bytes */
+    readonly availableStorage: Scalars['Size']['output'];
+    /** Board name */
+    readonly boardName?: Maybe<Scalars['String']['output']>;
+    /** Number of CPU cores */
+    readonly cpuCount: Scalars['Int']['output'];
+    /** Whether LTE/cellular hardware is present */
+    readonly hasLTEModule: Scalars['Boolean']['output'];
+    /** Whether wireless hardware is present */
+    readonly hasWirelessChip: Scalars['Boolean']['output'];
+    /** Router model name */
+    readonly model?: Maybe<Scalars['String']['output']>;
+    /** Total RAM in bytes */
+    readonly totalMemory: Scalars['Size']['output'];
+};
+/** Health check result for a router */
+export type HealthCheckResult = {
+    /** When the check was performed */
+    readonly checkedAt: Scalars['DateTime']['output'];
+    /** Error message if unhealthy */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Whether the router is healthy */
+    readonly healthy: Scalars['Boolean']['output'];
+    /** Response time in milliseconds */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Router ID */
+    readonly routerId: Scalars['ID']['output'];
+};
+/** Health check status */
+export declare const HealthCheckStatus: {
+    /** Health check is disabled */
+    readonly Disabled: "DISABLED";
+    /** Target is reachable (healthy) */
+    readonly Healthy: "HEALTHY";
+    /** Target is unreachable (unhealthy) */
+    readonly Unhealthy: "UNHEALTHY";
+    /** Health check is starting */
+    readonly Unknown: "UNKNOWN";
+};
+export type HealthCheckStatus = typeof HealthCheckStatus[keyof typeof HealthCheckStatus];
+/** Connection status from health probe checks */
+export declare const HealthConnectionState: {
+    readonly Connected: "CONNECTED";
+    readonly Connecting: "CONNECTING";
+    readonly Failed: "FAILED";
+};
+export type HealthConnectionState = typeof HealthConnectionState[keyof typeof HealthConnectionState];
+/** Overall system health status */
+export type HealthStatus = {
+    /** Last health check timestamp */
+    readonly checkedAt: Scalars['DateTime']['output'];
+    /** Connected router count */
+    readonly connectedRouters: Scalars['Int']['output'];
+    /** Service status */
+    readonly status: ServiceStatus;
+    /** Server uptime */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+    /** Service version */
+    readonly version: Scalars['String']['output'];
+};
+/** A single probe result within a hop */
+export type HopProbe = {
+    /** ICMP error code if probe failed */
+    readonly icmpCode?: Maybe<Scalars['String']['output']>;
+    /** Latency in milliseconds (null for timeout) */
+    readonly latencyMs?: Maybe<Scalars['Float']['output']>;
+    /** Probe number (1-3 typically) */
+    readonly probeNumber: Scalars['Int']['output'];
+    /** Whether the probe succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Status of a single hop in a traceroute */
+export declare const HopStatus: {
+    /** Access prohibited (firewall/ACL) */
+    readonly Prohibited: "PROHIBITED";
+    /** Hop responded successfully */
+    readonly Success: "SUCCESS";
+    /** Hop did not respond (timeout) */
+    readonly Timeout: "TIMEOUT";
+    /** Destination unreachable at this hop */
+    readonly Unreachable: "UNREACHABLE";
+};
+export type HopStatus = typeof HopStatus[keyof typeof HopStatus];
+/** Hourly statistics */
+export type HourlyStats = {
+    /** Error count */
+    readonly errorCount: Scalars['Int']['output'];
+    /** Hour start timestamp */
+    readonly hour: Scalars['DateTime']['output'];
+    /** Total bytes in */
+    readonly totalBytesIn: Scalars['Size']['output'];
+    /** Total bytes out */
+    readonly totalBytesOut: Scalars['Size']['output'];
+    /** Uptime percentage (0-100) */
+    readonly uptimePercent: Scalars['Float']['output'];
+};
+/** ISP contact information */
+export type IspInfo = {
+    /** ISP name */
+    readonly name: Scalars['String']['output'];
+    /** ISP support phone number */
+    readonly phone?: Maybe<Scalars['String']['output']>;
+    /** ISP support website URL */
+    readonly url?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Analysis of template application impact.
+ * Provides estimates and warnings before applying.
+ */
+export type ImpactAnalysis = {
+    /** Chains that will be affected */
+    readonly affectedChains: ReadonlyArray<Scalars['String']['output']>;
+    /** Estimated time to apply (seconds) */
+    readonly estimatedApplyTime: Scalars['Int']['output'];
+    /** Number of new rules that will be created */
+    readonly newRulesCount: Scalars['Int']['output'];
+    /** Warnings about potential issues */
+    readonly warnings: ReadonlyArray<Scalars['String']['output']>;
+};
+/**
+ * Input for importing a service configuration.
+ * Performs validation only, does not apply changes.
+ */
+export type ImportServiceConfigInput = {
+    /** Conflict resolution strategy (required if conflicts exist) */
+    readonly conflictResolution?: InputMaybe<ConflictResolution>;
+    /** Device MAC addresses to filter routing rules (optional) */
+    readonly deviceFilter?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Dry-run mode (validate only, don't create instance) */
+    readonly dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Service export package (JSON) */
+    readonly package: Scalars['JSON']['input'];
+    /** User-provided values for redacted fields (map of field name to value) */
+    readonly redactedFieldValues?: InputMaybe<Scalars['JSON']['input']>;
+    /** Router ID to import into */
+    readonly routerID: Scalars['ID']['input'];
+};
+/**
+ * Payload for import service configuration mutation.
+ * Returns validation results without applying changes.
+ */
+export type ImportServiceConfigPayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether validation succeeded */
+    readonly valid: Scalars['Boolean']['output'];
+    /** Validation result */
+    readonly validationResult: ImportValidationResult;
+};
+/** Input for importing a template */
+export type ImportServiceTemplateInput = {
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Template JSON data */
+    readonly templateData: Scalars['JSON']['input'];
+};
+/** Validation error for service import. */
+export type ImportValidationError = {
+    /** Error code (V400, V403, S600, S602) */
+    readonly code: Scalars['String']['output'];
+    /** Field name (if applicable) */
+    readonly field?: Maybe<Scalars['String']['output']>;
+    /** Human-readable error message */
+    readonly message: Scalars['String']['output'];
+    /** Validation stage (schema, syntax, cross-resource, dependency, conflict, capability, dry-run) */
+    readonly stage: Scalars['String']['output'];
+};
+/**
+ * Validation result for service import.
+ * Contains errors, warnings, and redacted field prompts.
+ */
+export type ImportValidationResult = {
+    /** Conflicting service instances (if any) */
+    readonly conflictingInstances?: Maybe<ReadonlyArray<ServiceInstance>>;
+    /** Validation errors (blocking) */
+    readonly errors: ReadonlyArray<ImportValidationError>;
+    /** List of fields that were redacted and need user input */
+    readonly redactedFields?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Whether user input is required to proceed */
+    readonly requiresUserInput: Scalars['Boolean']['output'];
+    /** Whether the import package passed validation */
+    readonly valid: Scalars['Boolean']['output'];
+    /** Validation warnings (non-blocking) */
+    readonly warnings: ReadonlyArray<ImportValidationWarning>;
+};
+/** Validation warning for service import. */
+export type ImportValidationWarning = {
+    /** Warning message */
+    readonly message: Scalars['String']['output'];
+    /** Validation stage */
+    readonly stage: Scalars['String']['output'];
+};
+/** Installation progress event. */
+export type InstallProgress = {
+    /** Bytes downloaded */
+    readonly bytesDownloaded: Scalars['Int']['output'];
+    /** Error message if failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Feature ID */
+    readonly featureID: Scalars['String']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Download progress percentage (0-100) */
+    readonly percent: Scalars['Float']['output'];
+    /** Current status (downloading, verifying, completed, failed) */
+    readonly status: Scalars['String']['output'];
+    /** Total bytes to download */
+    readonly totalBytes: Scalars['Int']['output'];
+};
+/** Input for installing a new service instance. */
+export type InstallServiceInput = {
+    /** IP address to bind the service to (optional) */
+    readonly bindIP?: InputMaybe<Scalars['String']['input']>;
+    /** Service-specific configuration (JSON) */
+    readonly config?: InputMaybe<Scalars['JSON']['input']>;
+    /** Feature ID to install (e.g., 'tor', 'sing-box') */
+    readonly featureID: Scalars['String']['input'];
+    /** Human-readable instance name */
+    readonly instanceName: Scalars['String']['input'];
+    /** Router ID to install the service on */
+    readonly routerID: Scalars['ID']['input'];
+    /** VLAN ID for network isolation (optional) */
+    readonly vlanID?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Input for installing a service template */
+export type InstallServiceTemplateInput = {
+    /** Dry run (preview only, don't actually install) */
+    readonly dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Template ID to install */
+    readonly templateID: Scalars['ID']['input'];
+    /** Variable values */
+    readonly variables: Scalars['JSON']['input'];
+};
+/** Health status enumeration for service instances */
+export declare const InstanceHealthState: {
+    readonly Checking: "CHECKING";
+    readonly Healthy: "HEALTHY";
+    readonly Unhealthy: "UNHEALTHY";
+    readonly Unknown: "UNKNOWN";
+};
+export type InstanceHealthState = typeof InstanceHealthState[keyof typeof InstanceHealthState];
+/**
+ * Resource usage details for a single service instance.
+ * Combines instance metadata with current resource usage.
+ */
+export type InstanceResourceUsage = {
+    /** Feature ID */
+    readonly featureID: Scalars['String']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Instance name */
+    readonly instanceName: Scalars['String']['output'];
+    /** Resource requirements from manifest */
+    readonly requirements?: Maybe<ResourceRequirements>;
+    /** Current resource usage */
+    readonly usage: ResourceUsage;
+};
+/** Instance status change event. */
+export type InstanceStatusChanged = {
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** New status */
+    readonly newStatus: ServiceInstanceStatus;
+    /** Previous status */
+    readonly previousStatus: ServiceInstanceStatus;
+    /** Timestamp of the change */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Integer range for filtering */
+export type IntRange = {
+    /** Maximum value (inclusive) */
+    readonly max?: InputMaybe<Scalars['Int']['input']>;
+    /** Minimum value (inclusive) */
+    readonly min?: InputMaybe<Scalars['Int']['input']>;
+};
+/** A network interface on a router */
+export type Interface = Node & {
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether the interface is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Unique interface identifier */
+    readonly id: Scalars['ID']['output'];
+    /** IP address assigned to this interface */
+    readonly ip?: Maybe<Scalars['IPv4']['output']>;
+    /** Last time this interface was seen/queried */
+    readonly lastSeen?: Maybe<Scalars['DateTime']['output']>;
+    /** Connected device information from LLDP */
+    readonly linkPartner?: Maybe<Scalars['String']['output']>;
+    /** Link speed (e.g., 1Gbps, 100Mbps) */
+    readonly linkSpeed?: Maybe<Scalars['String']['output']>;
+    /** MAC address */
+    readonly macAddress?: Maybe<Scalars['MAC']['output']>;
+    /** MTU setting */
+    readonly mtu?: Maybe<Scalars['Int']['output']>;
+    /** Interface name (e.g., ether1, wlan1) */
+    readonly name: Scalars['String']['output'];
+    /** Whether the interface is running (link up) */
+    readonly running: Scalars['Boolean']['output'];
+    /** RX bytes */
+    readonly rxBytes?: Maybe<Scalars['Size']['output']>;
+    /** Current receive rate in bytes per second */
+    readonly rxRate?: Maybe<Scalars['Size']['output']>;
+    /** Operational status of the interface */
+    readonly status: InterfaceStatus;
+    /** TX bytes */
+    readonly txBytes?: Maybe<Scalars['Size']['output']>;
+    /** Current transmit rate in bytes per second */
+    readonly txRate?: Maybe<Scalars['Size']['output']>;
+    /** Interface type */
+    readonly type: InterfaceType;
+    /** Services using this interface (bridge, VPN, etc.) */
+    readonly usedBy?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+};
+export type InterfaceConnection = Connection & {
+    readonly edges: ReadonlyArray<InterfaceEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+export type InterfaceEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: Interface;
+};
+/** Error information for a single interface operation in a batch */
+export type InterfaceOperationError = {
+    /** Error message describing why the operation failed */
+    readonly error: Scalars['String']['output'];
+    /** Interface ID that failed */
+    readonly interfaceId: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interfaceName: Scalars['String']['output'];
+};
+/** Interface traffic statistics */
+export type InterfaceStats = {
+    /** Total bytes received */
+    readonly rxBytes: Scalars['Size']['output'];
+    /** Receive drops */
+    readonly rxDrops: Scalars['Int']['output'];
+    /** Receive errors */
+    readonly rxErrors: Scalars['Int']['output'];
+    /** Total packets received */
+    readonly rxPackets: Scalars['Size']['output'];
+    /** Total bytes transmitted */
+    readonly txBytes: Scalars['Size']['output'];
+    /** Transmission drops */
+    readonly txDrops: Scalars['Int']['output'];
+    /** Transmission errors */
+    readonly txErrors: Scalars['Int']['output'];
+    /** Total packets transmitted */
+    readonly txPackets: Scalars['Size']['output'];
+};
+/** Historical interface statistics with time-series data */
+export type InterfaceStatsHistory = {
+    /** Time-series data points */
+    readonly dataPoints: ReadonlyArray<StatsDataPoint>;
+    /** End of the time range */
+    readonly endTime: Scalars['DateTime']['output'];
+    /** Interface ID */
+    readonly interfaceId: Scalars['ID']['output'];
+    /** Aggregation interval (e.g., 5m, 1h) */
+    readonly interval: Scalars['Duration']['output'];
+    /** Start of the time range */
+    readonly startTime: Scalars['DateTime']['output'];
+};
+/** Operational status of a network interface */
+export declare const InterfaceStatus: {
+    /** Interface is disabled */
+    readonly Disabled: "DISABLED";
+    /** Interface is down */
+    readonly Down: "DOWN";
+    /** Status unknown or error */
+    readonly Unknown: "UNKNOWN";
+    /** Interface is up and running */
+    readonly Up: "UP";
+};
+export type InterfaceStatus = typeof InterfaceStatus[keyof typeof InterfaceStatus];
+/** Event emitted when an interface status changes */
+export type InterfaceStatusEvent = {
+    /** Interface ID */
+    readonly interfaceId: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interfaceName: Scalars['String']['output'];
+    /** Previous status */
+    readonly previousStatus: InterfaceStatus;
+    /** New status */
+    readonly status: InterfaceStatus;
+    /** Event timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+export type InterfaceTrafficEvent = {
+    /** Interface ID */
+    readonly interfaceId: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interfaceName: Scalars['String']['output'];
+    /** RX rate in bytes per second */
+    readonly rxRate: Scalars['Size']['output'];
+    /** Total RX bytes */
+    readonly rxTotal: Scalars['Size']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** TX rate in bytes per second */
+    readonly txRate: Scalars['Size']['output'];
+    /** Total TX bytes */
+    readonly txTotal: Scalars['Size']['output'];
+};
+/** Types of network interfaces */
+export declare const InterfaceType: {
+    readonly Bonding: "BONDING";
+    readonly Bridge: "BRIDGE";
+    readonly Ethernet: "ETHERNET";
+    readonly Loopback: "LOOPBACK";
+    readonly Other: "OTHER";
+    readonly Ppp: "PPP";
+    readonly Tunnel: "TUNNEL";
+    readonly Virtual: "VIRTUAL";
+    readonly Vlan: "VLAN";
+    readonly Wireless: "WIRELESS";
+};
+export type InterfaceType = typeof InterfaceType[keyof typeof InterfaceType];
+/** An IP address assigned to an interface */
+export type IpAddress = Node & {
+    /** IP address with CIDR notation (e.g., 192.168.10.1/24) */
+    readonly address: Scalars['String']['output'];
+    /** Broadcast address (calculated from address and netmask) */
+    readonly broadcast?: Maybe<Scalars['String']['output']>;
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether this IP is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Whether this IP was dynamically assigned (via DHCP client) */
+    readonly dynamic: Scalars['Boolean']['output'];
+    /** Unique IP address identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Interface this IP is assigned to */
+    readonly interface: Interface;
+    /** Whether this IP is invalid (conflicting or error state) */
+    readonly invalid: Scalars['Boolean']['output'];
+    /** Network address (calculated from address and netmask) */
+    readonly network?: Maybe<Scalars['String']['output']>;
+};
+/** Event emitted when an IP address changes */
+export type IpAddressChangeEvent = {
+    /** Type of change (CREATED, UPDATED, DELETED) */
+    readonly changeType: ChangeType;
+    /** The IP address that changed */
+    readonly ipAddress?: Maybe<IpAddress>;
+    /** IP address ID (for deletions) */
+    readonly ipAddressId: Scalars['ID']['output'];
+    /** Timestamp of the change */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Result of an IP address deletion with dependency checking */
+export type IpAddressDeleteResult = {
+    /** Errors that occurred during deletion */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Impact analysis for this IP address deletion */
+    readonly impactAnalysis?: Maybe<IpAddressImpactAnalysis>;
+    /** Success or error message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** Whether the deletion succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Dependencies for an IP address */
+export type IpAddressDependencies = {
+    /** DHCP servers using this IP as gateway */
+    readonly dhcpServers: ReadonlyArray<DhcpServer>;
+    /** Firewall rules referencing this IP */
+    readonly firewallRules: ReadonlyArray<FirewallRuleReference>;
+    /** Whether the IP has any dependencies */
+    readonly hasDependencies: Scalars['Boolean']['output'];
+    /** IP address ID */
+    readonly ipAddressId: Scalars['ID']['output'];
+    /** NAT rules referencing this IP */
+    readonly natRules: ReadonlyArray<NatRuleReference>;
+    /** Static routes using this IP */
+    readonly routes: ReadonlyArray<Route>;
+};
+/** Analysis of the impact of deleting an IP address */
+export type IpAddressImpactAnalysis = {
+    /** Number of active connections using this IP */
+    readonly activeConnections: Scalars['Int']['output'];
+    /** Whether the IP can be safely deleted */
+    readonly canDelete: Scalars['Boolean']['output'];
+    /** List of consequences of deleting this IP */
+    readonly consequences: ReadonlyArray<Scalars['String']['output']>;
+    /** Human-readable impact message */
+    readonly message: Scalars['String']['output'];
+    /** Severity of the deletion */
+    readonly severity: ConfirmationSeverity;
+    /** Whether this IP is used as a gateway by DHCP servers */
+    readonly usedByDhcpServers: ReadonlyArray<DhcpServer>;
+    /** Whether this IP is referenced in firewall rules */
+    readonly usedInFirewallRules: ReadonlyArray<FirewallRuleReference>;
+    /** Whether this IP is used in NAT rules */
+    readonly usedInNatRules: ReadonlyArray<NatRuleReference>;
+};
+/** Input for creating or updating an IP address */
+export type IpAddressInput = {
+    /** IP address with CIDR notation (e.g., 192.168.10.1/24) */
+    readonly address: Scalars['String']['input'];
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Whether this IP is disabled */
+    readonly disabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Interface ID to assign this IP to */
+    readonly interfaceId: Scalars['ID']['input'];
+};
+/** Result of an IP address mutation (create, update) */
+export type IpAddressMutationResult = {
+    /** Errors that occurred during the operation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created or updated IP address (if successful) */
+    readonly ipAddress?: Maybe<IpAddress>;
+    /** Configuration preview (RouterOS commands) */
+    readonly preview?: Maybe<ConfigPreview>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Details about an IP address conflict */
+export type IpConflict = {
+    /** Conflicting IP address */
+    readonly address: Scalars['String']['output'];
+    /** Type of conflict */
+    readonly conflictType: IpConflictType;
+    /** Explanation of the conflict */
+    readonly explanation: Scalars['String']['output'];
+    /** Conflicting IP address ID */
+    readonly id: Scalars['ID']['output'];
+    /** Interface where conflict exists */
+    readonly interface: Interface;
+};
+/** Result of checking IP address conflicts */
+export type IpConflictResult = {
+    /** List of conflicting IP addresses */
+    readonly conflicts: ReadonlyArray<IpConflict>;
+    /** Whether the IP conflicts with existing assignments */
+    readonly hasConflict: Scalars['Boolean']['output'];
+    /** Human-readable message */
+    readonly message: Scalars['String']['output'];
+};
+/** Type of IP address conflict */
+export declare const IpConflictType: {
+    /** IP is the broadcast address of another subnet */
+    readonly Broadcast: "BROADCAST";
+    /** Exact IP address match on different interface */
+    readonly Exact: "EXACT";
+    /** IP is the network address of another subnet */
+    readonly Network: "NETWORK";
+    /** IP addresses are in overlapping subnets */
+    readonly SubnetOverlap: "SUBNET_OVERLAP";
+};
+export type IpConflictType = typeof IpConflictType[keyof typeof IpConflictType];
+/** IPsec profile for GRE tunnel encryption */
+export type IpsecProfile = {
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** IPsec profile ID */
+    readonly id: Scalars['ID']['output'];
+    /** Profile name */
+    readonly name: Scalars['String']['output'];
+};
+/** Severity level of an isolation violation. */
+export declare const IsolationSeverity: {
+    /** Critical error that blocks instance start */
+    readonly Error: "ERROR";
+    /** Informational message */
+    readonly Info: "INFO";
+    /** Warning that is logged but allows instance start */
+    readonly Warning: "WARNING";
+};
+export type IsolationSeverity = typeof IsolationSeverity[keyof typeof IsolationSeverity];
+/**
+ * Complete isolation status for a service instance.
+ * Includes violations and resource limits.
+ */
+export type IsolationStatus = {
+    /** Timestamp of the last isolation verification check */
+    readonly lastVerified?: Maybe<Scalars['DateTime']['output']>;
+    /** Resource limits applied to the instance */
+    readonly resourceLimits?: Maybe<ResourceLimits>;
+    /** List of isolation violations (empty if all checks passed) */
+    readonly violations: ReadonlyArray<IsolationViolation>;
+};
+/**
+ * An isolation violation detected during pre-start checks.
+ * Represents a failure in one of the 4 isolation layers.
+ */
+export type IsolationViolation = {
+    /** Which isolation layer failed (IP Binding, Directory, Port Registry, Process Binding) */
+    readonly layer: Scalars['String']['output'];
+    /** Human-readable description of the violation */
+    readonly message: Scalars['String']['output'];
+    /** Severity level of the violation */
+    readonly severity: IsolationSeverity;
+    /** Timestamp when the violation was detected */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Job status for async traceroute execution */
+export declare const JobStatus: {
+    /** Job was cancelled by user */
+    readonly Cancelled: "CANCELLED";
+    /** Job completed successfully */
+    readonly Complete: "COMPLETE";
+    /** Job encountered an error */
+    readonly Error: "ERROR";
+    /** Job is currently running */
+    readonly Running: "RUNNING";
+    /** Job has been created */
+    readonly Started: "STARTED";
+};
+export type JobStatus = typeof JobStatus[keyof typeof JobStatus];
+/** Kill switch behavior when any hop in a chain fails. */
+export declare const KillSwitchMode: {
+    /** Allow direct internet access (no VPN) */
+    readonly AllowDirect: "ALLOW_DIRECT";
+    /** Block all traffic from the device */
+    readonly BlockAll: "BLOCK_ALL";
+    /** Fall back to a specified service */
+    readonly FallbackService: "FALLBACK_SERVICE";
+};
+export type KillSwitchMode = typeof KillSwitchMode[keyof typeof KillSwitchMode];
+/**
+ * Kill switch status information for monitoring.
+ * Provides visibility into kill switch state and activation history.
+ */
+export type KillSwitchStatus = {
+    /** Number of times kill switch has been activated */
+    readonly activationCount: Scalars['Int']['output'];
+    /** Whether kill switch is currently active (blocking traffic) */
+    readonly active: Scalars['Boolean']['output'];
+    /** Whether kill switch is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Fallback interface ID (if mode=FALLBACK_SERVICE) */
+    readonly fallbackInterfaceID?: Maybe<Scalars['String']['output']>;
+    /** Timestamp when kill switch was last activated */
+    readonly lastActivatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Reason for most recent activation (service_down, health_check_failed, etc.) */
+    readonly lastActivationReason?: Maybe<Scalars['String']['output']>;
+    /** Timestamp when kill switch was last deactivated */
+    readonly lastDeactivatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Kill switch behavior mode */
+    readonly mode: KillSwitchMode;
+};
+/** Single knock port in sequence. */
+export type KnockPort = {
+    /** Position in sequence (1-based) */
+    readonly order: Scalars['Int']['output'];
+    /** Port number (1-65535) */
+    readonly port: Scalars['Int']['output'];
+    /** Protocol for this knock port */
+    readonly protocol: KnockProtocol;
+};
+/** Input for knock port. */
+export type KnockPortInput = {
+    /** Order in sequence */
+    readonly order: Scalars['Int']['input'];
+    /** Port number */
+    readonly port: Scalars['Int']['input'];
+    /** Protocol */
+    readonly protocol: KnockProtocol;
+};
+/** Protocol for knock port. */
+export declare const KnockProtocol: {
+    /** Both TCP and UDP */
+    readonly Both: "BOTH";
+    /** TCP only */
+    readonly Tcp: "TCP";
+    /** UDP only */
+    readonly Udp: "UDP";
+};
+export type KnockProtocol = typeof KnockProtocol[keyof typeof KnockProtocol];
+/** Status of knock attempt. */
+export declare const KnockStatus: {
+    /** Wrong port order */
+    readonly Failed: "FAILED";
+    /** Some ports hit, sequence incomplete */
+    readonly Partial: "PARTIAL";
+    /** All ports hit correctly, access granted */
+    readonly Success: "SUCCESS";
+    /** Time between knocks exceeded */
+    readonly Timeout: "TIMEOUT";
+};
+export type KnockStatus = typeof KnockStatus[keyof typeof KnockStatus];
+/** LAN Network composite resource - groups bridge, DHCP, firewall, routing */
+export type LanNetwork = Node & Resource & {
+    /** Bridge interface */
+    readonly bridge?: Maybe<BridgeResource>;
+    readonly category: ResourceCategory;
+    readonly config: LanNetworkConfig;
+    readonly configuration?: Maybe<Scalars['JSON']['output']>;
+    readonly deployment?: Maybe<DeploymentState>;
+    /** DHCP server configuration */
+    readonly dhcpServer?: Maybe<DhcpServerResource>;
+    /** Firewall rules for this LAN */
+    readonly firewallRules: ReadonlyArray<FirewallRuleResource>;
+    readonly id: Scalars['ID']['output'];
+    readonly lanDeployment?: Maybe<LanNetworkDeployment>;
+    readonly lanRuntime?: Maybe<LanNetworkRuntime>;
+    readonly metadata: ResourceMetadata;
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    /** Static routes */
+    readonly routes: ReadonlyArray<RouteResource>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** LAN Network configuration */
+export type LanNetworkConfig = {
+    /** Enable DHCP server */
+    readonly dhcpEnabled: Scalars['Boolean']['output'];
+    /** DHCP lease time */
+    readonly dhcpLeaseTime?: Maybe<Scalars['Duration']['output']>;
+    /** DHCP pool end */
+    readonly dhcpPoolEnd?: Maybe<Scalars['IPv4']['output']>;
+    /** DHCP pool start */
+    readonly dhcpPoolStart?: Maybe<Scalars['IPv4']['output']>;
+    /** DNS servers for DHCP */
+    readonly dnsServers?: Maybe<ReadonlyArray<Scalars['IPv4']['output']>>;
+    /** Enable NAT masquerading */
+    readonly enableNat: Scalars['Boolean']['output'];
+    /** Interfaces to include in bridge */
+    readonly interfaces: ReadonlyArray<Scalars['String']['output']>;
+    /** IP address for the LAN */
+    readonly ipAddress: Scalars['IPv4']['output'];
+    /** Network name */
+    readonly name: Scalars['String']['output'];
+    /** Subnet mask in CIDR notation */
+    readonly subnetMask: Scalars['Int']['output'];
+    /** VLAN ID (optional) */
+    readonly vlanId?: Maybe<Scalars['Int']['output']>;
+};
+/** LAN Network deployment state */
+export type LanNetworkDeployment = {
+    readonly appliedAt: Scalars['DateTime']['output'];
+    readonly appliedBy?: Maybe<Scalars['String']['output']>;
+    /** Bridge interface ID on router */
+    readonly bridgeId?: Maybe<Scalars['String']['output']>;
+    /** DHCP server ID on router */
+    readonly dhcpServerId?: Maybe<Scalars['String']['output']>;
+    readonly drift?: Maybe<DriftInfo>;
+    /** IP address ID on router */
+    readonly ipAddressId?: Maybe<Scalars['String']['output']>;
+    readonly isInSync: Scalars['Boolean']['output'];
+    readonly routerResourceId?: Maybe<Scalars['String']['output']>;
+    readonly routerVersion?: Maybe<Scalars['Int']['output']>;
+};
+/** LAN Network runtime state */
+export type LanNetworkRuntime = {
+    /** Number of active clients */
+    readonly activeClients: Scalars['Int']['output'];
+    /** Active DHCP leases */
+    readonly dhcpLeases: Scalars['Int']['output'];
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    readonly health: RuntimeHealth;
+    readonly isRunning: Scalars['Boolean']['output'];
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Total traffic in */
+    readonly totalBytesIn: Scalars['Size']['output'];
+    /** Total traffic out */
+    readonly totalBytesOut: Scalars['Size']['output'];
+};
+/**
+ * A single log entry from a service instance.
+ * Represents one line of stdout/stderr output with parsed metadata.
+ */
+export type LogEntry = {
+    /** Log severity level */
+    readonly level: LogLevel;
+    /** Log message */
+    readonly message: Scalars['String']['output'];
+    /** Additional parsed metadata (JSON) */
+    readonly metadata?: Maybe<Scalars['JSON']['output']>;
+    /** Original raw log line */
+    readonly rawLine: Scalars['String']['output'];
+    /** Service source (e.g., 'tor', 'singbox', 'adguard') */
+    readonly source: Scalars['String']['output'];
+    /** Timestamp when the log was generated */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Log level for service log entries. */
+export declare const LogLevel: {
+    /** Debug-level log */
+    readonly Debug: "DEBUG";
+    /** Error log */
+    readonly Error: "ERROR";
+    /** Informational log */
+    readonly Info: "INFO";
+    /** Unknown/unparsed log level */
+    readonly Unknown: "UNKNOWN";
+    /** Warning log */
+    readonly Warn: "WARN";
+};
+export type LogLevel = typeof LogLevel[keyof typeof LogLevel];
+/** LTE/cellular modem configuration */
+export type LteModem = Node & {
+    /** APN (Access Point Name) */
+    readonly apn: Scalars['String']['output'];
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** LTE interface name */
+    readonly name: Scalars['String']['output'];
+    /** Network type (LTE, 3G, etc.) */
+    readonly networkType?: Maybe<Scalars['String']['output']>;
+    /** Operator name */
+    readonly operator?: Maybe<Scalars['String']['output']>;
+    /** PIN code configured */
+    readonly pinConfigured: Scalars['Boolean']['output'];
+    /** Connection status */
+    readonly running: Scalars['Boolean']['output'];
+    /** Signal strength (RSSI in dBm) */
+    readonly signalStrength?: Maybe<Scalars['Int']['output']>;
+};
+/** Input for configuring LTE modem */
+export type LteModemInput = {
+    /** APN (Access Point Name) */
+    readonly apn: Scalars['String']['input'];
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** LTE interface name */
+    readonly name: Scalars['String']['input'];
+    /** PIN code (optional, for SIM card) */
+    readonly pin?: InputMaybe<Scalars['String']['input']>;
+};
+/** Memory utilization metrics */
+export type MemoryMetrics = {
+    /** Memory usage percentage (0-100) */
+    readonly percentage: Scalars['Float']['output'];
+    /** Total memory in bytes */
+    readonly total: Scalars['Float']['output'];
+    /** Used memory in bytes */
+    readonly used: Scalars['Float']['output'];
+};
+/** Direction of traffic to mirror */
+export declare const MirrorDirection: {
+    /** Mirror both ingress and egress traffic */
+    readonly Both: "BOTH";
+    /** Mirror only egress (outgoing) traffic */
+    readonly Egress: "EGRESS";
+    /** Mirror only ingress (incoming) traffic */
+    readonly Ingress: "INGRESS";
+};
+export type MirrorDirection = typeof MirrorDirection[keyof typeof MirrorDirection];
+/** Missing dependency information */
+export type MissingDependency = {
+    /** Item ID with missing dependency */
+    readonly itemId: Scalars['ID']['output'];
+    /** Missing resource ID */
+    readonly missingResourceId: Scalars['ID']['output'];
+    /** Missing resource type */
+    readonly missingResourceType: Scalars['String']['output'];
+};
+/** MTU guidance for tunnel configuration */
+export type MtuGuidance = {
+    /** Human-readable explanation of the overhead */
+    readonly explanation: Scalars['String']['output'];
+    /** Protocol overhead in bytes */
+    readonly overhead: Scalars['Int']['output'];
+    /** Recommended MTU based on base MTU (typically 1500) */
+    readonly recommendedMtu: Scalars['Int']['output'];
+    /** Tunnel type this guidance applies to */
+    readonly tunnelType: TunnelType;
+};
+export type Mutation = {
+    /** Acknowledge a single alert */
+    readonly acknowledgeAlert: AlertPayload;
+    /** Acknowledge multiple alerts */
+    readonly acknowledgeAlerts: BulkAlertPayload;
+    /** Add a port to a bridge */
+    readonly addBridgePort: BridgePortMutationResult;
+    /** Add an item to a change set */
+    readonly addChangeSetItem: AddChangeSetItemPayload;
+    /**
+     * Add a new dependency relationship between service instances.
+     * Pre-validates that the relationship won't create a cycle.
+     */
+    readonly addDependency: ServiceDependency;
+    /**
+     * Add a new router by entering its IP address and credentials.
+     *
+     * This mutation will:
+     * 1. Validate input fields (host format, port range, etc.)
+     * 2. Check for duplicate routers (same host/port)
+     * 3. Resolve hostname to IP if necessary (with DNS caching)
+     * 4. Test connection using protocol preference (or auto-detect)
+     * 5. Store router with encrypted credentials on success
+     * 6. Emit RouterAddedEvent for real-time updates
+     *
+     * Returns validation errors if input is invalid, or connection errors
+     * if the router cannot be reached or authenticated.
+     */
+    readonly addRouter: AddRouterPayload;
+    /** Apply an alert rule template to create a rule */
+    readonly applyAlertRuleTemplate: AlertRulePayload;
+    /** Apply an alert template to create an alert rule */
+    readonly applyAlertTemplate: AlertRulePayload;
+    /** Apply a change set atomically to the router */
+    readonly applyChangeSet: ApplyChangeSetPayload;
+    /**
+     * Apply a firewall template to the router.
+     * Creates all rules defined in the template with variable substitution.
+     * Returns a rollback ID for undo within 5 minutes.
+     */
+    readonly applyFirewallTemplate: FirewallTemplateResult;
+    /**
+     * Apply resource to router (transitions VALID -> APPLYING -> ACTIVE/ERROR)
+     * Follows Apply-Confirm-Merge pattern.
+     */
+    readonly applyResource: ApplyResourcePayload;
+    /**
+     * Apply configuration to a service instance.
+     * Validates, generates config file, and persists to database.
+     */
+    readonly applyServiceConfig: ApplyConfigPayload;
+    /**
+     * Apply a validated service import package.
+     * Creates or updates service instance based on conflict resolution strategy.
+     * Applies routing rules if included.
+     */
+    readonly applyServiceImport: ApplyServiceImportPayload;
+    /** Apply a suggested fix for a failed diagnostic step */
+    readonly applyTroubleshootFix: ApplyFixPayload;
+    /** Archive a resource (transitions DEPRECATED -> ARCHIVED) */
+    readonly archiveResource: ArchiveResourcePayload;
+    /**
+     * Assign a device to route through a specific service instance.
+     * Creates a MikroTik mangle rule for Policy-Based Routing (PBR).
+     */
+    readonly assignDeviceRouting: DeviceRouting;
+    /**
+     * Start an automatic gateway scan.
+     * Scans common gateway IPs (192.168.0-255.1) to find MikroTik routers.
+     * This is useful when the user doesn't know which subnet to scan.
+     *
+     * Only returns verified MikroTik RouterOS devices (confidence >= 40).
+     */
+    readonly autoScanGateways: ScanNetworkPayload;
+    /** Batch operation on multiple interfaces */
+    readonly batchInterfaceOperation: BatchInterfacePayload;
+    /**
+     * Assign multiple devices to routing in a single operation.
+     * Each assignment is processed independently (partial success allowed).
+     */
+    readonly bulkAssignRouting: BulkRoutingResult;
+    /**
+     * Bulk create address list entries.
+     * Processes entries in batches and returns success/failure counts.
+     * Continues on error - does not stop at first failure.
+     */
+    readonly bulkCreateAddressListEntries: BulkCreateResult;
+    /** Cancel an in-progress change set application */
+    readonly cancelChangeSet: CancelChangeSetPayload;
+    /**
+     * Cancel a running scan.
+     * The scan will stop within 1 second and partial results are preserved.
+     */
+    readonly cancelScan: CancelScanPayload;
+    /** Cancel a running traceroute job. */
+    readonly cancelTraceroute: Scalars['Boolean']['output'];
+    /** Cancel a troubleshooting session */
+    readonly cancelTroubleshoot: TroubleshootSession;
+    /** Change the current user's password */
+    readonly changePassword: Scalars['Boolean']['output'];
+    /**
+     * Manually trigger update check for all instances.
+     * Queries GitHub Releases API for new versions.
+     */
+    readonly checkForUpdates: Scalars['Int']['output'];
+    /** Perform immediate health check on a router */
+    readonly checkRouterHealth: HealthCheckResult;
+    /**
+     * Clean up orphaned port allocations.
+     * Removes allocations for service instances that no longer exist.
+     */
+    readonly cleanupOrphanedPorts: OrphanCleanupPayload;
+    /**
+     * Clean up orphaned VLAN allocations for a router.
+     *
+     * Finds allocations referencing missing or deleting instances and marks them
+     * as RELEASED. Returns the count of cleaned allocations.
+     *
+     * This mutation is automatically called during system startup reconciliation
+     * via InstanceManager.Reconcile(). Manual invocation is useful for:
+     * - Recovering from crashes or unclean shutdowns
+     * - Debugging allocation issues
+     * - Forcing cleanup outside of normal reconciliation
+     *
+     * Example:
+     * ```
+     * mutation {
+     *   cleanupOrphanedVLANs(routerID: "router-123")
+     * }
+     * ```
+     *
+     * Returns: Number of allocations cleaned up
+     */
+    readonly cleanupOrphanedVLANs: Scalars['Int']['output'];
+    /** Configure VLAN settings on a bridge port (trunk/access) */
+    readonly configureBridgePortVlan: VlanMutationResult;
+    /** Configure DHCP client on a WAN interface */
+    readonly configureDhcpWAN: WanMutationResult;
+    /**
+     * Configure external storage path for service binaries.
+     * Validates path exists and is writable, then persists to settings.
+     * Future installations will use external storage for binaries.
+     */
+    readonly configureExternalStorage: ConfigureExternalStoragePayload;
+    /**
+     * Configure health check settings for a service instance
+     * Allows adjusting check interval, failure threshold, and auto-restart behavior
+     */
+    readonly configureHealthCheck: ServiceInstanceHealth;
+    /** Configure LTE modem */
+    readonly configureLteWAN: WanMutationResult;
+    /** Configure PPPoE client on a WAN interface */
+    readonly configurePppoeWAN: WanMutationResult;
+    /** Configure static IP on a WAN interface */
+    readonly configureStaticWAN: WanMutationResult;
+    /** Configure update schedule and auto-apply policy for an instance. */
+    readonly configureUpdateSchedule: ServiceInstance;
+    /** Configure health check for WAN interface */
+    readonly configureWANHealthCheck: WanMutationResult;
+    /** Connect to a router */
+    readonly connectRouter: ConnectRouterPayload;
+    /**
+     * Create a new address list entry.
+     * If the list doesn't exist, it will be created automatically.
+     */
+    readonly createAddressListEntry: AddressListEntry;
+    /** Create a new alert rule */
+    readonly createAlertRule: AlertRulePayload;
+    /** Create a new bridge */
+    readonly createBridge: BridgeMutationResult;
+    /** Create a bridge VLAN entry */
+    readonly createBridgeVlan: BridgeVlanMutationResult;
+    /** Create a new change set */
+    readonly createChangeSet: CreateChangeSetPayload;
+    /** Assign a new IP address to an interface */
+    readonly createIpAddress: IpAddressMutationResult;
+    /**
+     * Create a masquerade rule for internet sharing.
+     * Convenience mutation for common srcnat masquerade setup.
+     */
+    readonly createMasqueradeRule: NatRule;
+    /** Create a NAT rule. */
+    readonly createNatRule: NatRule;
+    /** Create a new notification channel configuration (validates before saving) */
+    readonly createNotificationChannelConfig: ChannelConfigPayload;
+    /**
+     * Create a port forward (creates both NAT and filter rules).
+     * Simplified wizard for common use case of exposing internal service.
+     */
+    readonly createPortForward: PortForward;
+    /**
+     * Create a new port knock sequence.
+     * Generates firewall rules on the router.
+     */
+    readonly createPortKnockSequence: PortKnockSequence;
+    /** Create a new port mirror configuration */
+    readonly createPortMirror: PortMirrorMutationResult;
+    /** Create a new resource (starts in DRAFT state) */
+    readonly createResource: CreateResourcePayload;
+    /** Create a new static route */
+    readonly createRoute: RouteMutationResult;
+    /** Add a new router to manage */
+    readonly createRouter: CreateRouterPayload;
+    /**
+     * Create a multi-hop routing chain for a device.
+     * Removes any existing single-hop routing for the device.
+     * Creates sequential MikroTik mangle rules with Policy-Based Routing (PBR).
+     */
+    readonly createRoutingChain: RoutingChainMutationResult;
+    /**
+     * Create a new routing schedule.
+     * Validates time format, timezone, and days. Triggers immediate schedule evaluation.
+     */
+    readonly createSchedule: RoutingSchedule;
+    /** Create a new tunnel interface */
+    readonly createTunnel: TunnelMutationResult;
+    /** Create a new VLAN interface */
+    readonly createVlan: VlanMutationResult;
+    /** Create a new webhook */
+    readonly createWebhook: WebhookPayload;
+    /**
+     * Delete an address list entry by ID.
+     * Returns true if successful, false otherwise.
+     */
+    readonly deleteAddressListEntry: Scalars['Boolean']['output'];
+    /** Delete an alert rule */
+    readonly deleteAlertRule: DeletePayload;
+    /** Delete a custom alert template */
+    readonly deleteAlertTemplate: DeletePayload;
+    /** Delete a bridge */
+    readonly deleteBridge: DeleteResult;
+    /** Delete a bridge VLAN entry */
+    readonly deleteBridgeVlan: DeleteResult;
+    /** Delete a change set (only if not applying) */
+    readonly deleteChangeSet: DeleteChangeSetPayload;
+    /** Delete a custom alert rule template (built-ins cannot be deleted) */
+    readonly deleteCustomAlertRuleTemplate: DeletePayload;
+    /**
+     * Delete a custom firewall template.
+     * Only custom templates can be deleted (not built-in).
+     */
+    readonly deleteFirewallTemplate: Scalars['Boolean']['output'];
+    /** Delete a service instance and clean up resources. */
+    readonly deleteInstance: ServiceInstancePayload;
+    /** Remove an IP address from an interface */
+    readonly deleteIpAddress: IpAddressDeleteResult;
+    /** Delete a NAT rule. */
+    readonly deleteNatRule: Scalars['Boolean']['output'];
+    /** Delete a notification channel configuration (soft delete) */
+    readonly deleteNotificationChannelConfig: DeletePayload;
+    /** Delete a port forward (removes both NAT and filter rules). */
+    readonly deletePortForward: Scalars['Boolean']['output'];
+    /**
+     * Delete port knock sequence.
+     * Removes all associated firewall rules.
+     */
+    readonly deletePortKnockSequence: Scalars['Boolean']['output'];
+    /** Delete a port mirror configuration */
+    readonly deletePortMirror: DeleteResult;
+    /** Delete a resource permanently */
+    readonly deleteResource: DeleteResourcePayload;
+    /** Delete a route with impact analysis */
+    readonly deleteRoute: RouteDeleteResult;
+    /** Remove a router */
+    readonly deleteRouter: DeleteRouterPayload;
+    /**
+     * Delete a routing schedule.
+     * Triggers immediate schedule evaluation to ensure routing state is correct.
+     */
+    readonly deleteSchedule: Scalars['Boolean']['output'];
+    /**
+     * Delete a user-created service template.
+     * Built-in templates cannot be deleted.
+     */
+    readonly deleteServiceTemplate: Scalars['Boolean']['output'];
+    /** Delete a tunnel interface */
+    readonly deleteTunnel: TunnelMutationResult;
+    /** Delete a VLAN interface */
+    readonly deleteVlan: DeleteResult;
+    /** Delete WAN configuration (revert to unconfigured) */
+    readonly deleteWANConfiguration: DeleteResult;
+    /** Delete a webhook */
+    readonly deleteWebhook: DeletePayload;
+    /** Deprecate a resource (transitions -> DEPRECATED) */
+    readonly deprecateResource: DeprecateResourcePayload;
+    /** Disable an interface */
+    readonly disableInterface: UpdateInterfacePayload;
+    /** Disable a port mirror configuration */
+    readonly disablePortMirror: PortMirrorMutationResult;
+    /** Disconnect from a router */
+    readonly disconnectRouter: DisconnectRouterPayload;
+    /** Enable an interface */
+    readonly enableInterface: UpdateInterfacePayload;
+    /** Enable a port mirror configuration */
+    readonly enablePortMirror: PortMirrorMutationResult;
+    /** Export an alert rule template as JSON */
+    readonly exportAlertRuleTemplate: Scalars['String']['output'];
+    /**
+     * Export existing service instances as a reusable template.
+     * Creates a new user template from running services.
+     */
+    readonly exportAsTemplate: ServiceTemplate;
+    /**
+     * Export router configuration with optional credential handling.
+     * Credentials are excluded by default for security.
+     * If includeCredentials is true, an encryptionKey must be provided.
+     */
+    readonly exportRouterConfig: ExportConfigPayload;
+    /**
+     * Export a service configuration as a JSON package.
+     * Returns a download URL with 15-minute expiry.
+     * Supports secret redaction and routing rule inclusion.
+     */
+    readonly exportServiceConfig: ExportServiceConfigPayload;
+    /**
+     * Flush the DNS cache on the router.
+     * Clears all cached DNS entries and returns before/after statistics.
+     */
+    readonly flushDnsCache: FlushDnsCacheResult;
+    /**
+     * Generate a QR code for service configuration sharing.
+     * Returns base64-encoded PNG image (256x256 by default).
+     * Enforces 2KB size limit for QR code data.
+     */
+    readonly generateConfigQR: GenerateConfigQrPayload;
+    /** Import an alert rule template from JSON */
+    readonly importAlertRuleTemplate: AlertRuleTemplatePayload;
+    /**
+     * Import a service configuration package (validation only).
+     * Performs 7-stage validation pipeline without making changes.
+     * Returns validation results and conflicts.
+     */
+    readonly importServiceConfig: ImportServiceConfigPayload;
+    /** Import a service template from JSON. */
+    readonly importServiceTemplate: ServiceTemplate;
+    /**
+     * Install a new service instance on a router.
+     * Downloads the binary, verifies checksum, and creates the instance.
+     */
+    readonly installService: ServiceInstancePayload;
+    /**
+     * Install a service template on a router.
+     * Creates one or more service instances based on the template.
+     */
+    readonly installServiceTemplate: TemplateInstallResult;
+    /** Authenticate and receive a JWT token */
+    readonly login: AuthPayload;
+    /** Invalidate current session and clear tokens */
+    readonly logout: Scalars['Boolean']['output'];
+    /**
+     * Preview how a notification template will render with sample data
+     * Used for template customization - renders subject and body with validation
+     * Requires authentication
+     */
+    readonly previewNotificationTemplate: NotificationTemplatePreview;
+    /** Manually trigger reconnection to a router */
+    readonly reconnectRouter: ReconnectRouterPayload;
+    /** Force refresh router capabilities (invalidates cache) */
+    readonly refreshCapabilities: RefreshCapabilitiesPayload;
+    /** Remove a port from a bridge */
+    readonly removeBridgePort: DeleteResult;
+    /** Remove an item from a change set */
+    readonly removeChangeSetItem: RemoveChangeSetItemPayload;
+    /** Remove an existing dependency relationship. */
+    readonly removeDependency: Scalars['Boolean']['output'];
+    /**
+     * Remove a device routing assignment.
+     * Deletes the MikroTik mangle rule and database record.
+     */
+    readonly removeDeviceRouting: Scalars['Boolean']['output'];
+    /** Remove a routing chain and all its mangle/route/filter rules from the router. */
+    readonly removeRoutingChain: RoutingChainMutationResult;
+    /**
+     * Reset alert notification template to system default (deletes custom template)
+     * Used for notification template customization per channel
+     * Requires authentication
+     */
+    readonly resetAlertTemplate: DeletePayload;
+    /**
+     * Manually reset the circuit breaker for a router.
+     * This allows immediate reconnection attempts even if the circuit is open.
+     * Use with caution as it bypasses the backoff protection.
+     */
+    readonly resetCircuitBreaker: CircuitBreakerStatus;
+    /**
+     * Reset external storage configuration to use flash only.
+     * Optionally migrates existing binaries back to flash.
+     */
+    readonly resetExternalStorage: ResetExternalStoragePayload;
+    /**
+     * Remove traffic quota from a service instance.
+     * Removes tracking mangle rules and quota configuration.
+     */
+    readonly resetTrafficQuota: TrafficQuotaPayload;
+    /** Restart a service instance. */
+    readonly restartInstance: ServiceInstancePayload;
+    /**
+     * Manually trigger binary reverification for an instance.
+     * Checks if the binary hash matches the stored hash from install-time.
+     */
+    readonly reverifyInstance: ReverifyPayload;
+    /** Revoke all sessions for a user (admin only) */
+    readonly revokeAllSessions: Scalars['Boolean']['output'];
+    /** Revoke a specific session */
+    readonly revokeSession: Scalars['Boolean']['output'];
+    /** Force rollback of a failed change set */
+    readonly rollbackChangeSet: RollbackChangeSetPayload;
+    /**
+     * Rollback a previously applied template.
+     * Removes all template rules and restores previous state.
+     * Only works within 5 minutes of application.
+     */
+    readonly rollbackFirewallTemplate: Scalars['Boolean']['output'];
+    /**
+     * Rollback an instance to its backed-up version.
+     * Only works if a backup exists (has_backup=true).
+     */
+    readonly rollbackInstance: UpdateResult;
+    /**
+     * Run comprehensive diagnostics on a router connection.
+     * Performs network reachability check, port scanning, TLS validation,
+     * and authentication testing. Rate limited to 1 request per 10 seconds per router.
+     */
+    readonly runDiagnostics: DiagnosticReport;
+    /**
+     * Perform DNS lookup (synchronous request-response).
+     * Queries the specified DNS server for the hostname and record type.
+     * Uses RouterOS native DNS lookup for A/AAAA records when possible,
+     * falls back to Go resolver for other record types.
+     */
+    readonly runDnsLookup: DnsLookupResult;
+    /**
+     * Manually run diagnostics on a service instance.
+     * Executes health checks and connectivity tests.
+     */
+    readonly runServiceDiagnostics: RunDiagnosticsPayload;
+    /**
+     * Start a traceroute from the router to the target.
+     * Returns a job ID for subscription tracking.
+     */
+    readonly runTraceroute: TracerouteJob;
+    /** Run a specific diagnostic step in a session */
+    readonly runTroubleshootStep: RunTroubleshootStepPayload;
+    /** Save a custom alert template */
+    readonly saveAlertTemplate: AlertTemplatePayload;
+    /** Save a custom alert rule template */
+    readonly saveCustomAlertRuleTemplate: AlertRuleTemplatePayload;
+    /**
+     * Save a custom firewall template.
+     * Template is stored locally in IndexedDB (frontend operation).
+     */
+    readonly saveFirewallTemplate: FirewallTemplate;
+    /**
+     * Start a network scan for MikroTik routers.
+     * Returns a task ID that can be used to track progress via subscription or polling.
+     *
+     * Supported subnet formats:
+     * - CIDR: "192.168.88.0/24" (scans 254 usable IPs)
+     * - Range: "192.168.1.1-192.168.1.100" (scans specified range)
+     * - Single IP: "192.168.88.1" (scans one IP)
+     *
+     * Performance: /24 scan completes in 1-2 seconds with 20 concurrent workers.
+     */
+    readonly scanNetwork: ScanNetworkPayload;
+    /**
+     * Manually trigger storage detection scan.
+     * Useful for detecting newly mounted storage without restart.
+     */
+    readonly scanStorage: ScanStoragePayload;
+    /**
+     * Enable or update kill switch for a device routing.
+     * Creates MikroTik filter rules to block traffic when service is unhealthy.
+     */
+    readonly setKillSwitch: DeviceRouting;
+    /** Set preferred protocol for a router */
+    readonly setPreferredProtocol: SetPreferredProtocolPayload;
+    /**
+     * Set resource limits for a service instance.
+     * Applies cgroups v2 memory limits to the running process.
+     */
+    readonly setResourceLimits: ResourceLimitsPayload;
+    /**
+     * Set or update traffic quota for a service instance.
+     * Creates mangle rules to track traffic and enforces limits.
+     */
+    readonly setTrafficQuota: TrafficQuotaPayload;
+    /** Start a service instance. */
+    readonly startInstance: ServiceInstancePayload;
+    /**
+     * Start a new troubleshooting session for a router.
+     * Automatically detects network configuration and begins diagnostics.
+     */
+    readonly startTroubleshoot: StartTroubleshootPayload;
+    /** Stop a service instance. */
+    readonly stopInstance: ServiceInstancePayload;
+    /**
+     * Test all router credentials in parallel.
+     * Returns aggregate results with per-router status.
+     */
+    readonly testAllCredentials: TestAllCredentialsPayload;
+    /** Test a notification channel */
+    readonly testNotificationChannel: TestNotificationPayload;
+    /**
+     * Test port knock sequence.
+     * Creates temporary rules with short timeout for verification.
+     */
+    readonly testPortKnockSequence: TestPortKnockResult;
+    /** Test connection to a router */
+    readonly testRouterConnection: TestConnectionPayload;
+    /**
+     * Test connection to a router without adding it.
+     * Useful for validating credentials before committing.
+     */
+    readonly testRouterCredentials: ConnectionTestResult;
+    /** Test tunnel connectivity and path MTU */
+    readonly testTunnel: TunnelTestResult;
+    /** Test a webhook by sending a sample payload */
+    readonly testWebhook: WebhookTestPayload;
+    /** Toggle alert rule enabled/disabled status */
+    readonly toggleAlertRule: AlertRulePayload;
+    /**
+     * Toggle port knock sequence enabled/disabled.
+     * Enables or disables firewall rules.
+     */
+    readonly togglePortKnockSequence: PortKnockSequence;
+    /**
+     * Manually trigger the boot sequence for auto-start instances.
+     * Useful for testing or re-running boot sequence after failures.
+     */
+    readonly triggerBootSequence: Scalars['Boolean']['output'];
+    /** Trigger digest delivery immediately for a channel (NAS-18.11) */
+    readonly triggerDigestNow: DigestSummary;
+    /** Undo a bridge operation (within 10-second window) */
+    readonly undoBridgeOperation: BridgeMutationResult;
+    /** Update an existing alert rule */
+    readonly updateAlertRule: AlertRulePayload;
+    /**
+     * Update all instances that have critical updates available.
+     * Returns number of instances updated.
+     */
+    readonly updateAllInstances: Scalars['Int']['output'];
+    /** Update an existing bridge */
+    readonly updateBridge: BridgeMutationResult;
+    /** Update bridge port settings */
+    readonly updateBridgePort: BridgePortMutationResult;
+    /** Update an item in a change set */
+    readonly updateChangeSetItem: UpdateChangeSetItemPayload;
+    /**
+     * Apply an available update to a service instance.
+     * Uses atomic 6-phase update with rollback on failure.
+     */
+    readonly updateInstance: UpdateResult;
+    /** Update interface settings (MTU, comment, ARP mode) */
+    readonly updateInterface: UpdateInterfacePayload;
+    /** Update an existing IP address */
+    readonly updateIpAddress: IpAddressMutationResult;
+    /** Update an existing NAT rule. */
+    readonly updateNatRule: NatRule;
+    /** Update an existing notification channel configuration */
+    readonly updateNotificationChannelConfig: ChannelConfigPayload;
+    /**
+     * Update existing port knock sequence.
+     * Regenerates firewall rules.
+     */
+    readonly updatePortKnockSequence: PortKnockSequence;
+    /** Update an existing port mirror configuration */
+    readonly updatePortMirror: PortMirrorMutationResult;
+    /** Update resource configuration (transitions to DRAFT -> VALIDATING) */
+    readonly updateResource: UpdateResourcePayload;
+    /** Update an existing route */
+    readonly updateRoute: RouteMutationResult;
+    /** Update router settings */
+    readonly updateRouter: UpdateRouterPayload;
+    /**
+     * Update router credentials.
+     * Tests the new credentials before saving.
+     * Old credentials are preserved if the test fails.
+     */
+    readonly updateRouterCredentials: CredentialUpdatePayload;
+    /**
+     * Update an existing routing chain (replaces all hops).
+     * Removes the old chain and creates a new one with updated configuration.
+     */
+    readonly updateRoutingChain: RoutingChainMutationResult;
+    /**
+     * Update an existing routing schedule.
+     * Triggers immediate schedule evaluation.
+     */
+    readonly updateSchedule: RoutingSchedule;
+    /** Update an existing tunnel interface */
+    readonly updateTunnel: TunnelMutationResult;
+    /**
+     * Update VLAN pool configuration.
+     *
+     * Changes the allocatable VLAN range. The new configuration is persisted to
+     * GlobalSettings and will be used for all future allocations.
+     *
+     * Validation:
+     * - poolStart must be >= 1 (minimum valid VLAN ID)
+     * - poolEnd must be <= 4094 (maximum valid VLAN ID per IEEE 802.1Q)
+     * - poolStart must be <= poolEnd
+     * - No existing allocations can fall outside the new range
+     *
+     * Example:
+     * ```
+     * mutation {
+     *   updateVLANPoolConfig(poolStart: 200, poolEnd: 299) {
+     *     routerID
+     *     totalVLANs
+     *     poolStart
+     *     poolEnd
+     *   }
+     * }
+     * ```
+     *
+     * Note: Changing pool config may require application restart to take effect
+     * for all service instances.
+     *
+     * Returns: Updated pool status with new configuration
+     */
+    readonly updateVLANPoolConfig: VlanPoolStatus;
+    /** Update an existing VLAN interface */
+    readonly updateVlan: VlanMutationResult;
+    /** Update an existing webhook */
+    readonly updateWebhook: WebhookPayload;
+    /** Validate a change set (all items) */
+    readonly validateChangeSet: ValidateChangeSetPayload;
+    /** Validate resource configuration (transitions DRAFT -> VALIDATING -> VALID/ERROR) */
+    readonly validateResource: ValidateResourcePayload;
+    /**
+     * Validate service configuration without applying it.
+     * Returns validation errors if any.
+     */
+    readonly validateServiceConfig: ConfigValidationResult;
+    /** Verify a fix by re-running the diagnostic step */
+    readonly verifyTroubleshootFix: RunTroubleshootStepPayload;
+};
+export type MutationAcknowledgeAlertArgs = {
+    alertId: Scalars['ID']['input'];
+};
+export type MutationAcknowledgeAlertsArgs = {
+    alertIds: ReadonlyArray<Scalars['ID']['input']>;
+};
+export type MutationAddBridgePortArgs = {
+    bridgeId: Scalars['ID']['input'];
+    input: AddBridgePortInput;
+};
+export type MutationAddChangeSetItemArgs = {
+    changeSetId: Scalars['ID']['input'];
+    input: ChangeSetItemInput;
+};
+export type MutationAddDependencyArgs = {
+    input: AddDependencyInput;
+};
+export type MutationAddRouterArgs = {
+    input: AddRouterInput;
+};
+export type MutationApplyAlertRuleTemplateArgs = {
+    customizations?: InputMaybe<CreateAlertRuleInput>;
+    templateId: Scalars['ID']['input'];
+    variables: Scalars['JSON']['input'];
+};
+export type MutationApplyAlertTemplateArgs = {
+    input: ApplyAlertTemplateInput;
+};
+export type MutationApplyChangeSetArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type MutationApplyFirewallTemplateArgs = {
+    routerId: Scalars['ID']['input'];
+    templateId: Scalars['ID']['input'];
+    variables: Scalars['JSON']['input'];
+};
+export type MutationApplyResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationApplyServiceConfigArgs = {
+    input: ApplyServiceConfigInput;
+};
+export type MutationApplyServiceImportArgs = {
+    input: ApplyServiceImportInput;
+};
+export type MutationApplyTroubleshootFixArgs = {
+    issueCode: Scalars['String']['input'];
+    sessionId: Scalars['ID']['input'];
+};
+export type MutationArchiveResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationAssignDeviceRoutingArgs = {
+    input: AssignDeviceRoutingInput;
+};
+export type MutationBatchInterfaceOperationArgs = {
+    input: BatchInterfaceInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationBulkAssignRoutingArgs = {
+    input: BulkAssignRoutingInput;
+};
+export type MutationBulkCreateAddressListEntriesArgs = {
+    entries: ReadonlyArray<BulkAddressInput>;
+    listName: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCancelChangeSetArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type MutationCancelScanArgs = {
+    taskId: Scalars['ID']['input'];
+};
+export type MutationCancelTracerouteArgs = {
+    jobId: Scalars['ID']['input'];
+};
+export type MutationCancelTroubleshootArgs = {
+    sessionId: Scalars['ID']['input'];
+};
+export type MutationChangePasswordArgs = {
+    currentPassword: Scalars['String']['input'];
+    newPassword: Scalars['String']['input'];
+};
+export type MutationCheckForUpdatesArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type MutationCheckRouterHealthArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCleanupOrphanedPortsArgs = {
+    input: CleanupOrphanedPortsInput;
+};
+export type MutationCleanupOrphanedVlaNsArgs = {
+    routerID: Scalars['String']['input'];
+};
+export type MutationConfigureBridgePortVlanArgs = {
+    input: BridgePortVlanInput;
+    portId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationConfigureDhcpWanArgs = {
+    input: DhcpClientInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationConfigureExternalStorageArgs = {
+    input: ConfigureExternalStorageInput;
+};
+export type MutationConfigureHealthCheckArgs = {
+    input: ConfigureHealthCheckInput;
+};
+export type MutationConfigureLteWanArgs = {
+    input: LteModemInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationConfigurePppoeWanArgs = {
+    input: PppoeClientInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationConfigureStaticWanArgs = {
+    input: StaticIpInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationConfigureUpdateScheduleArgs = {
+    input: UpdateCheckScheduleInput;
+};
+export type MutationConfigureWanHealthCheckArgs = {
+    input: WanHealthCheckInput;
+    routerId: Scalars['ID']['input'];
+    wanInterfaceId: Scalars['ID']['input'];
+};
+export type MutationConnectRouterArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationCreateAddressListEntryArgs = {
+    input: CreateAddressListEntryInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateAlertRuleArgs = {
+    input: CreateAlertRuleInput;
+};
+export type MutationCreateBridgeArgs = {
+    input: CreateBridgeInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateBridgeVlanArgs = {
+    bridgeId: Scalars['ID']['input'];
+    input: CreateBridgeVlanInput;
+};
+export type MutationCreateChangeSetArgs = {
+    input: CreateChangeSetInput;
+};
+export type MutationCreateIpAddressArgs = {
+    input: IpAddressInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateMasqueradeRuleArgs = {
+    comment?: InputMaybe<Scalars['String']['input']>;
+    outInterface: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+    srcAddress?: InputMaybe<Scalars['String']['input']>;
+};
+export type MutationCreateNatRuleArgs = {
+    input: CreateNatRuleInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateNotificationChannelConfigArgs = {
+    input: CreateNotificationChannelConfigInput;
+};
+export type MutationCreatePortForwardArgs = {
+    input: PortForwardInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreatePortKnockSequenceArgs = {
+    input: PortKnockSequenceInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreatePortMirrorArgs = {
+    input: CreatePortMirrorInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateResourceArgs = {
+    input: CreateResourceInput;
+};
+export type MutationCreateRouteArgs = {
+    input: RouteInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateRouterArgs = {
+    input: CreateRouterInput;
+};
+export type MutationCreateRoutingChainArgs = {
+    input: CreateRoutingChainInput;
+    routerID: Scalars['ID']['input'];
+};
+export type MutationCreateScheduleArgs = {
+    input: CreateScheduleInput;
+    routerID: Scalars['ID']['input'];
+};
+export type MutationCreateTunnelArgs = {
+    input: TunnelInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateVlanArgs = {
+    input: VlanInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationCreateWebhookArgs = {
+    input: CreateWebhookInput;
+};
+export type MutationDeleteAddressListEntryArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteAlertRuleArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteAlertTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteBridgeArgs = {
+    uuid: Scalars['ID']['input'];
+};
+export type MutationDeleteBridgeVlanArgs = {
+    uuid: Scalars['ID']['input'];
+};
+export type MutationDeleteChangeSetArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type MutationDeleteCustomAlertRuleTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteFirewallTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteInstanceArgs = {
+    input: DeleteInstanceInput;
+};
+export type MutationDeleteIpAddressArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteNatRuleArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteNotificationChannelConfigArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeletePortForwardArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeletePortKnockSequenceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeletePortMirrorArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteRouteArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteRouterArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteScheduleArgs = {
+    routerID: Scalars['ID']['input'];
+    scheduleID: Scalars['ID']['input'];
+};
+export type MutationDeleteServiceTemplateArgs = {
+    routerID: Scalars['ID']['input'];
+    templateID: Scalars['ID']['input'];
+};
+export type MutationDeleteTunnelArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDeleteVlanArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeleteWanConfigurationArgs = {
+    routerId: Scalars['ID']['input'];
+    wanInterfaceId: Scalars['ID']['input'];
+};
+export type MutationDeleteWebhookArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationDeprecateResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDisableInterfaceArgs = {
+    interfaceId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDisablePortMirrorArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationDisconnectRouterArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationEnableInterfaceArgs = {
+    interfaceId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationEnablePortMirrorArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationExportAlertRuleTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationExportAsTemplateArgs = {
+    input: ExportAsTemplateInput;
+};
+export type MutationExportRouterConfigArgs = {
+    input: ExportConfigInput;
+};
+export type MutationExportServiceConfigArgs = {
+    input: ExportServiceConfigInput;
+};
+export type MutationFlushDnsCacheArgs = {
+    deviceId: Scalars['String']['input'];
+};
+export type MutationGenerateConfigQrArgs = {
+    input: GenerateConfigQrInput;
+};
+export type MutationImportAlertRuleTemplateArgs = {
+    json: Scalars['String']['input'];
+};
+export type MutationImportServiceConfigArgs = {
+    input: ImportServiceConfigInput;
+};
+export type MutationImportServiceTemplateArgs = {
+    input: ImportServiceTemplateInput;
+};
+export type MutationInstallServiceArgs = {
+    input: InstallServiceInput;
+};
+export type MutationInstallServiceTemplateArgs = {
+    input: InstallServiceTemplateInput;
+};
+export type MutationLoginArgs = {
+    password: Scalars['String']['input'];
+    username: Scalars['String']['input'];
+};
+export type MutationPreviewNotificationTemplateArgs = {
+    input: PreviewNotificationTemplateInput;
+};
+export type MutationReconnectRouterArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationRefreshCapabilitiesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationRemoveBridgePortArgs = {
+    portId: Scalars['ID']['input'];
+};
+export type MutationRemoveChangeSetItemArgs = {
+    changeSetId: Scalars['ID']['input'];
+    itemId: Scalars['ID']['input'];
+};
+export type MutationRemoveDependencyArgs = {
+    input: RemoveDependencyInput;
+};
+export type MutationRemoveDeviceRoutingArgs = {
+    deviceID: Scalars['String']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationRemoveRoutingChainArgs = {
+    chainID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationResetAlertTemplateArgs = {
+    channel: NotificationChannel;
+    eventType: Scalars['String']['input'];
+};
+export type MutationResetCircuitBreakerArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationResetExternalStorageArgs = {
+    input?: InputMaybe<ResetExternalStorageInput>;
+};
+export type MutationResetTrafficQuotaArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationRestartInstanceArgs = {
+    input: RestartInstanceInput;
+};
+export type MutationReverifyInstanceArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationRevokeAllSessionsArgs = {
+    userId: Scalars['ID']['input'];
+};
+export type MutationRevokeSessionArgs = {
+    sessionId: Scalars['ID']['input'];
+};
+export type MutationRollbackChangeSetArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type MutationRollbackFirewallTemplateArgs = {
+    rollbackId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationRollbackInstanceArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationRunDiagnosticsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationRunDnsLookupArgs = {
+    input: DnsLookupInput;
+};
+export type MutationRunServiceDiagnosticsArgs = {
+    input: RunDiagnosticsInput;
+};
+export type MutationRunTracerouteArgs = {
+    deviceId: Scalars['ID']['input'];
+    input: TracerouteInput;
+};
+export type MutationRunTroubleshootStepArgs = {
+    sessionId: Scalars['ID']['input'];
+    stepType: TroubleshootStepType;
+};
+export type MutationSaveAlertTemplateArgs = {
+    input: SaveAlertTemplateInput;
+};
+export type MutationSaveCustomAlertRuleTemplateArgs = {
+    input: SaveAlertRuleTemplateInput;
+};
+export type MutationSaveFirewallTemplateArgs = {
+    input: SaveTemplateInput;
+};
+export type MutationScanNetworkArgs = {
+    input: ScanNetworkInput;
+};
+export type MutationSetKillSwitchArgs = {
+    input: SetKillSwitchInput;
+};
+export type MutationSetPreferredProtocolArgs = {
+    protocol: Protocol;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationSetResourceLimitsArgs = {
+    input: SetResourceLimitsInput;
+};
+export type MutationSetTrafficQuotaArgs = {
+    input: SetTrafficQuotaInput;
+};
+export type MutationStartInstanceArgs = {
+    input: StartInstanceInput;
+};
+export type MutationStartTroubleshootArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type MutationStopInstanceArgs = {
+    input: StopInstanceInput;
+};
+export type MutationTestNotificationChannelArgs = {
+    channel: Scalars['String']['input'];
+    config: Scalars['JSON']['input'];
+};
+export type MutationTestPortKnockSequenceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationTestRouterConnectionArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationTestRouterCredentialsArgs = {
+    input: AddRouterInput;
+};
+export type MutationTestTunnelArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationTestWebhookArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationToggleAlertRuleArgs = {
+    id: Scalars['ID']['input'];
+};
+export type MutationTogglePortKnockSequenceArgs = {
+    enabled: Scalars['Boolean']['input'];
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationTriggerDigestNowArgs = {
+    channelId: Scalars['ID']['input'];
+};
+export type MutationUndoBridgeOperationArgs = {
+    operationId: Scalars['ID']['input'];
+};
+export type MutationUpdateAlertRuleArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdateAlertRuleInput;
+};
+export type MutationUpdateAllInstancesArgs = {
+    minSeverity?: InputMaybe<UpdateSeverity>;
+    routerID: Scalars['ID']['input'];
+};
+export type MutationUpdateBridgeArgs = {
+    input: UpdateBridgeInput;
+    uuid: Scalars['ID']['input'];
+};
+export type MutationUpdateBridgePortArgs = {
+    input: UpdateBridgePortInput;
+    portId: Scalars['ID']['input'];
+};
+export type MutationUpdateChangeSetItemArgs = {
+    changeSetId: Scalars['ID']['input'];
+    input: UpdateChangeSetItemInput;
+    itemId: Scalars['ID']['input'];
+};
+export type MutationUpdateInstanceArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type MutationUpdateInterfaceArgs = {
+    input: UpdateInterfaceInput;
+    interfaceId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateIpAddressArgs = {
+    id: Scalars['ID']['input'];
+    input: IpAddressInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateNatRuleArgs = {
+    id: Scalars['ID']['input'];
+    input: CreateNatRuleInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateNotificationChannelConfigArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdateNotificationChannelConfigInput;
+};
+export type MutationUpdatePortKnockSequenceArgs = {
+    id: Scalars['ID']['input'];
+    input: PortKnockSequenceInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdatePortMirrorArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdatePortMirrorInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateResourceArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdateResourceInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateRouteArgs = {
+    id: Scalars['ID']['input'];
+    input: RouteInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateRouterArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdateRouterInput;
+};
+export type MutationUpdateRouterCredentialsArgs = {
+    input: CredentialsInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateRoutingChainArgs = {
+    chainID: Scalars['ID']['input'];
+    input: CreateRoutingChainInput;
+    routerID: Scalars['ID']['input'];
+};
+export type MutationUpdateScheduleArgs = {
+    input: UpdateScheduleInput;
+    routerID: Scalars['ID']['input'];
+    scheduleID: Scalars['ID']['input'];
+};
+export type MutationUpdateTunnelArgs = {
+    id: Scalars['ID']['input'];
+    input: TunnelInput;
+    routerId: Scalars['ID']['input'];
+};
+export type MutationUpdateVlanPoolConfigArgs = {
+    poolEnd: Scalars['Int']['input'];
+    poolStart: Scalars['Int']['input'];
+};
+export type MutationUpdateVlanArgs = {
+    id: Scalars['ID']['input'];
+    input: VlanInput;
+};
+export type MutationUpdateWebhookArgs = {
+    id: Scalars['ID']['input'];
+    input: UpdateWebhookInput;
+};
+export type MutationValidateChangeSetArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type MutationValidateResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type MutationValidateServiceConfigArgs = {
+    input: ValidateServiceConfigInput;
+};
+export type MutationVerifyTroubleshootFixArgs = {
+    sessionId: Scalars['ID']['input'];
+    stepType: TroubleshootStepType;
+};
+/** Standard error type for mutations */
+export type MutationError = {
+    /** Error code for programmatic handling */
+    readonly code: Scalars['String']['output'];
+    /** Field that caused the error (if applicable) */
+    readonly field?: Maybe<Scalars['String']['output']>;
+    /** Human-readable error message */
+    readonly message: Scalars['String']['output'];
+};
+/** NAT action types for firewall NAT rules. */
+export declare const NatAction: {
+    /** Accept packet */
+    readonly Accept: "ACCEPT";
+    /** Drop packet */
+    readonly Drop: "DROP";
+    /** Destination NAT (port forwarding) */
+    readonly DstNat: "DST_NAT";
+    /** Jump to different chain */
+    readonly Jump: "JUMP";
+    /** Log packet */
+    readonly Log: "LOG";
+    /** Masquerade (dynamic source NAT) */
+    readonly Masquerade: "MASQUERADE";
+    /** Network mapping */
+    readonly Netmap: "NETMAP";
+    /** Pass through without action */
+    readonly Passthrough: "PASSTHROUGH";
+    /** Redirect to different port */
+    readonly Redirect: "REDIRECT";
+    /** Return to parent chain */
+    readonly Return: "RETURN";
+    /** Use same IP */
+    readonly Same: "SAME";
+    /** Source NAT (static mapping) */
+    readonly SrcNat: "SRC_NAT";
+};
+export type NatAction = typeof NatAction[keyof typeof NatAction];
+/** NAT chain types (srcnat for source NAT, dstnat for destination NAT). */
+export declare const NatChain: {
+    /** Destination NAT (incoming traffic) */
+    readonly Dstnat: "DSTNAT";
+    /** Source NAT (outgoing traffic) */
+    readonly Srcnat: "SRCNAT";
+};
+export type NatChain = typeof NatChain[keyof typeof NatChain];
+/**
+ * NAT rule configuration for network address translation.
+ * Handles both source NAT (masquerade) and destination NAT (port forwarding).
+ */
+export type NatRule = Node & {
+    /** NAT action */
+    readonly action: NatAction;
+    /** Bytes processed by this rule */
+    readonly bytes: Scalars['Int']['output'];
+    /** NAT chain (srcnat or dstnat) */
+    readonly chain: NatChain;
+    /** Optional comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether rule is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Destination address or CIDR */
+    readonly dstAddress?: Maybe<Scalars['String']['output']>;
+    /** Destination port or port range */
+    readonly dstPort?: Maybe<Scalars['String']['output']>;
+    /** MikroTik internal ID */
+    readonly id: Scalars['ID']['output'];
+    /** Incoming interface */
+    readonly inInterface?: Maybe<Scalars['String']['output']>;
+    /** Outgoing interface */
+    readonly outInterface?: Maybe<Scalars['String']['output']>;
+    /** Packets processed by this rule */
+    readonly packets: Scalars['Int']['output'];
+    /** Rule position in chain */
+    readonly position: Scalars['Int']['output'];
+    /** Protocol (TCP, UDP) */
+    readonly protocol?: Maybe<TransportProtocol>;
+    /** Source address or CIDR */
+    readonly srcAddress?: Maybe<Scalars['String']['output']>;
+    /** Source port or port range */
+    readonly srcPort?: Maybe<Scalars['String']['output']>;
+    /** Target address for NAT */
+    readonly toAddresses?: Maybe<Scalars['String']['output']>;
+    /** Target port(s) for NAT */
+    readonly toPorts?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * NAT rule reference type (lightweight for dependency tracking).
+ * For full NAT rule management, see NatRule type in firewall.graphql.
+ */
+export type NatRuleReference = {
+    /** Action (masquerade, dst-nat, src-nat) */
+    readonly action: Scalars['String']['output'];
+    /** Rule chain (srcnat, dstnat) */
+    readonly chain: Scalars['String']['output'];
+    /** Whether the rule is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Destination address */
+    readonly dstAddress?: Maybe<Scalars['String']['output']>;
+    /** NAT rule ID */
+    readonly id: Scalars['ID']['output'];
+    /** Source address */
+    readonly srcAddress?: Maybe<Scalars['String']['output']>;
+    /** To address (for dst-nat) */
+    readonly toAddress?: Maybe<Scalars['String']['output']>;
+};
+/** Network configuration detection result */
+export type NetworkConfigDetection = {
+    /** Detected default gateway IP */
+    readonly gateway?: Maybe<Scalars['String']['output']>;
+    /** Detected ISP information */
+    readonly ispInfo?: Maybe<IspInfo>;
+    /** Detected WAN interface name */
+    readonly wanInterface: Scalars['String']['output'];
+};
+/**
+ * Network device discovered via DHCP and ARP.
+ * Represents a client device on the network that can be routed through service instances.
+ */
+export type NetworkDevice = {
+    /** Whether the device is currently active */
+    readonly active: Scalars['Boolean']['output'];
+    /** Whether device has an ARP entry */
+    readonly arpEntry: Scalars['Boolean']['output'];
+    /** Device identifier (generated from MAC address) */
+    readonly deviceID: Scalars['ID']['output'];
+    /** Whether device has a DHCP lease */
+    readonly dhcpLease: Scalars['Boolean']['output'];
+    /** Hostname from DHCP (optional) */
+    readonly hostname?: Maybe<Scalars['String']['output']>;
+    /** IP address of the device (optional, may change) */
+    readonly ipAddress?: Maybe<Scalars['String']['output']>;
+    /** Whether device has a routing assignment */
+    readonly isRouted: Scalars['Boolean']['output'];
+    /** MAC address of the device */
+    readonly macAddress: Scalars['String']['output'];
+    /** Current routing mark (if routed) */
+    readonly routingMark?: Maybe<Scalars['String']['output']>;
+    /** Source of device discovery (dhcp, arp, or both) */
+    readonly source: Scalars['String']['output'];
+};
+/** Relay Node interface for global object identification */
+export type Node = {
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+};
+/** Notification channel types */
+export declare const NotificationChannel: {
+    /** Email notifications */
+    readonly Email: "EMAIL";
+    /** In-app notifications */
+    readonly Inapp: "INAPP";
+    /** Ntfy.sh notifications */
+    readonly Ntfy: "NTFY";
+    /** Pushover notifications */
+    readonly Pushover: "PUSHOVER";
+    /** Telegram notifications */
+    readonly Telegram: "TELEGRAM";
+    /** Webhook notifications */
+    readonly Webhook: "WEBHOOK";
+};
+export type NotificationChannel = typeof NotificationChannel[keyof typeof NotificationChannel];
+/** Notification channel configuration with encrypted credentials */
+export type NotificationChannelConfig = {
+    /** Type of notification channel */
+    readonly channelType: ChannelType;
+    /**
+     * Masked configuration (sensitive fields redacted)
+     * For Pushover: {"device": "iphone", "baseURL": "...", "userKey": "******", "apiToken": "******"}
+     * For Email: {"host": "smtp.gmail.com", "port": 587, "from": "...", "password": "******"}
+     */
+    readonly configMasked: Scalars['JSON']['output'];
+    /** When this configuration was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** User ID who created this configuration */
+    readonly createdBy?: Maybe<Scalars['String']['output']>;
+    /** Optional description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Whether this configuration is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Unique configuration ID */
+    readonly id: Scalars['ID']['output'];
+    /** Whether this is the default configuration for this channel type */
+    readonly isDefault: Scalars['Boolean']['output'];
+    /** Human-readable name for this configuration */
+    readonly name: Scalars['String']['output'];
+    /** When this configuration was last updated */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** User ID who last updated this configuration */
+    readonly updatedBy?: Maybe<Scalars['String']['output']>;
+};
+/** Notification delivery log entry */
+export type NotificationLog = Node & {
+    /** Alert that triggered this notification */
+    readonly alertId: Scalars['ID']['output'];
+    /** When delivery was attempted */
+    readonly attemptedAt: Scalars['DateTime']['output'];
+    /** Notification channel type (email, telegram, pushover, webhook) */
+    readonly channel: Scalars['String']['output'];
+    /** When delivery was completed (success or final failure) */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Error message if delivery failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Request payload sent */
+    readonly requestPayload?: Maybe<Scalars['JSON']['output']>;
+    /** Response body received */
+    readonly responseBody?: Maybe<Scalars['String']['output']>;
+    /** Response time in milliseconds */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Number of retry attempts */
+    readonly retryCount: Scalars['Int']['output'];
+    /** Delivery status */
+    readonly status: NotificationStatus;
+    /** HTTP status code (for webhooks) */
+    readonly statusCode?: Maybe<Scalars['Int']['output']>;
+    /** Webhook ID (if channel is webhook) */
+    readonly webhookId?: Maybe<Scalars['ID']['output']>;
+};
+/** Notification delivery status */
+export declare const NotificationStatus: {
+    /** Delivery failed */
+    readonly Failed: "FAILED";
+    /** Delivery pending */
+    readonly Pending: "PENDING";
+    /** Retrying after failure */
+    readonly Retrying: "RETRYING";
+    /** Successfully delivered */
+    readonly Success: "SUCCESS";
+};
+export type NotificationStatus = typeof NotificationStatus[keyof typeof NotificationStatus];
+/**
+ * Notification template preview result
+ * Simplified preview output for template customization
+ */
+export type NotificationTemplatePreview = {
+    /** Rendered body content */
+    readonly body: Scalars['String']['output'];
+    /** Validation errors (empty array if valid) */
+    readonly errors: ReadonlyArray<Scalars['String']['output']>;
+    /** Rendered subject line (empty if channel doesn't use subjects) */
+    readonly subject?: Maybe<Scalars['String']['output']>;
+};
+/** Ntfy.sh notification configuration input */
+export type NtfyChannelInput = {
+    /** Whether ntfy notifications are enabled */
+    readonly enabled: Scalars['Boolean']['input'];
+    /** Optional password for authentication */
+    readonly password?: InputMaybe<Scalars['String']['input']>;
+    /** Message priority (1-5, default: 3) */
+    readonly priority?: InputMaybe<Scalars['Int']['input']>;
+    /** Ntfy server URL (e.g., https://ntfy.sh or self-hosted) */
+    readonly serverUrl: Scalars['String']['input'];
+    /** Optional tags for categorization */
+    readonly tags?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Topic to publish to */
+    readonly topic: Scalars['String']['input'];
+    /** Optional username for authentication */
+    readonly username?: InputMaybe<Scalars['String']['input']>;
+};
+/** Operation counts by type */
+export type OperationCounts = {
+    readonly create: Scalars['Int']['output'];
+    readonly delete: Scalars['Int']['output'];
+    readonly update: Scalars['Int']['output'];
+};
+/** Payload for orphan cleanup mutation. */
+export type OrphanCleanupPayload = {
+    /** Number of orphaned allocations cleaned up */
+    readonly cleanedCount: Scalars['Int']['output'];
+    /** List of allocation IDs that were deleted */
+    readonly deletedAllocationIDs: ReadonlyArray<Scalars['ID']['output']>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Orphaned port allocation that references a non-existent service instance. */
+export type OrphanedPort = {
+    /** Port allocation record */
+    readonly allocation: PortAllocation;
+    /** Reason why this allocation is orphaned */
+    readonly reason: Scalars['String']['output'];
+};
+/** Information about pagination in a connection */
+export type PageInfo = {
+    /** Cursor for the last edge */
+    readonly endCursor?: Maybe<Scalars['String']['output']>;
+    /** When paginating forwards, are there more items? */
+    readonly hasNextPage: Scalars['Boolean']['output'];
+    /** When paginating backwards, are there more items? */
+    readonly hasPreviousPage: Scalars['Boolean']['output'];
+    /** Cursor for the first edge */
+    readonly startCursor?: Maybe<Scalars['String']['output']>;
+};
+/** Standard pagination input arguments */
+export type PaginationInput = {
+    /** Cursor to fetch items after */
+    readonly after?: InputMaybe<Scalars['String']['input']>;
+    /** Cursor to fetch items before */
+    readonly before?: InputMaybe<Scalars['String']['input']>;
+    /** Number of items to fetch */
+    readonly first?: InputMaybe<Scalars['Int']['input']>;
+    /** Number of items to fetch from the end */
+    readonly last?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Platform capabilities for a resource type */
+export type PlatformCapabilities = {
+    /** Capability-specific details */
+    readonly details?: Maybe<Scalars['JSON']['output']>;
+    /** Whether this resource type is supported */
+    readonly isSupported: Scalars['Boolean']['output'];
+    /** Capability level */
+    readonly level: CapabilityLevel;
+    /** Minimum platform version required */
+    readonly minVersion?: Maybe<Scalars['String']['output']>;
+    /** Required packages */
+    readonly requiredPackages?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+};
+/** A platform-specific feature */
+export type PlatformFeature = {
+    /** Feature description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Whether feature is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Feature identifier */
+    readonly id: Scalars['String']['output'];
+    /** Feature name */
+    readonly name: Scalars['String']['output'];
+};
+/**
+ * Layer 8: Platform-specific capabilities and field mappings.
+ * From platform adapter (MikroTik, OpenWrt, VyOS).
+ */
+export type PlatformInfo = {
+    /** Platform-specific capabilities for this resource type */
+    readonly capabilities: PlatformCapabilities;
+    /** Current platform */
+    readonly current: RouterPlatform;
+    /** Platform-specific features available */
+    readonly features?: Maybe<ReadonlyArray<PlatformFeature>>;
+    /** Field mappings between GraphQL and platform-native names */
+    readonly fieldMappings?: Maybe<Scalars['JSON']['output']>;
+    /** Platform-specific limitations or constraints */
+    readonly limitations?: Maybe<ReadonlyArray<PlatformLimitation>>;
+};
+/** A platform-specific limitation */
+export type PlatformLimitation = {
+    /** Affected fields */
+    readonly affectedFields?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Limitation identifier */
+    readonly code: Scalars['String']['output'];
+    /** Human-readable description */
+    readonly description: Scalars['String']['output'];
+    /** Workaround if available */
+    readonly workaround?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * A port allocation record tracking which ports are in use by service instances.
+ * Prevents port conflicts and enables centralized port management.
+ */
+export type PortAllocation = Node & {
+    /** Allocation timestamp */
+    readonly allocatedAt: Scalars['DateTime']['output'];
+    /** ULID primary key */
+    readonly id: Scalars['ID']['output'];
+    /** Service instance ID that owns this allocation */
+    readonly instanceID: Scalars['String']['output'];
+    /** Optional notes about this port allocation */
+    readonly notes?: Maybe<Scalars['String']['output']>;
+    /** Port number (1-65535) */
+    readonly port: Scalars['Int']['output'];
+    /** Transport protocol (TCP or UDP) */
+    readonly protocol: PortProtocol;
+    /** The router where this port is allocated */
+    readonly router?: Maybe<Router>;
+    /** Router ID where this port is allocated */
+    readonly routerID: Scalars['String']['output'];
+    /** The service instance that owns this port allocation */
+    readonly serviceInstance?: Maybe<ServiceInstance>;
+    /** Service type (e.g., 'tor', 'xray-core', 'adguard-home') */
+    readonly serviceType: Scalars['String']['output'];
+};
+/** Port availability check result. */
+export type PortAvailability = {
+    /** Whether the port is available for allocation */
+    readonly available: Scalars['Boolean']['output'];
+    /** Port number checked */
+    readonly port: Scalars['Int']['output'];
+    /** Protocol checked */
+    readonly protocol: PortProtocol;
+    /** Reason why port is unavailable (if applicable) */
+    readonly reason?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Port forward configuration (high-level view).
+ * Represents both the NAT rule and corresponding filter rule.
+ */
+export type PortForward = Node & {
+    /** External port */
+    readonly externalPort: Scalars['Int']['output'];
+    /** ID of the associated filter rule (if created) */
+    readonly filterRuleId?: Maybe<Scalars['ID']['output']>;
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Internal target IP */
+    readonly internalIP: Scalars['String']['output'];
+    /** Internal target port */
+    readonly internalPort: Scalars['Int']['output'];
+    /** Optional name/description */
+    readonly name?: Maybe<Scalars['String']['output']>;
+    /** ID of the associated NAT rule */
+    readonly natRuleId: Scalars['ID']['output'];
+    /** Protocol (TCP, UDP) */
+    readonly protocol: TransportProtocol;
+    /** Current status */
+    readonly status: PortForwardStatus;
+};
+/**
+ * Input for creating a port forward (simplified wizard).
+ * Creates both NAT and filter rules automatically.
+ */
+export type PortForwardInput = {
+    /** External port (1-65535) */
+    readonly externalPort: Scalars['Int']['input'];
+    /** Internal target IP address */
+    readonly internalIP: Scalars['String']['input'];
+    /** Internal target port (defaults to external port if not specified) */
+    readonly internalPort?: InputMaybe<Scalars['Int']['input']>;
+    /** Optional name/description for this port forward */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /** Protocol (TCP, UDP) */
+    readonly protocol: TransportProtocol;
+    /** WAN interface name (optional, auto-detected if not specified) */
+    readonly wanInterface?: InputMaybe<Scalars['String']['input']>;
+};
+/** Status of a port forward configuration. */
+export declare const PortForwardStatus: {
+    /** Port forward is active and working */
+    readonly Active: "ACTIVE";
+    /** Port forward is disabled */
+    readonly Disabled: "DISABLED";
+    /** Port forward has errors or misconfiguration */
+    readonly Error: "ERROR";
+    /** Port forward is partially configured (missing rules) */
+    readonly Incomplete: "INCOMPLETE";
+};
+export type PortForwardStatus = typeof PortForwardStatus[keyof typeof PortForwardStatus];
+/** Port knock attempt log entry. */
+export type PortKnockAttempt = Node & {
+    /** Attempt ID */
+    readonly id: Scalars['ID']['output'];
+    /** Ports hit in order */
+    readonly portsHit: ReadonlyArray<Scalars['Int']['output']>;
+    /** Progress indicator (e.g., "2/4") */
+    readonly progress: Scalars['String']['output'];
+    /** Protected service port */
+    readonly protectedPort: Scalars['Int']['output'];
+    /** Sequence ID */
+    readonly sequenceId: Scalars['ID']['output'];
+    /** Sequence name */
+    readonly sequenceName: Scalars['String']['output'];
+    /** Source IP address */
+    readonly sourceIP: Scalars['String']['output'];
+    /** Attempt status */
+    readonly status: KnockStatus;
+    /** Attempt timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Connection type for paginated knock attempts. */
+export type PortKnockAttemptConnection = Connection & {
+    readonly edges: ReadonlyArray<PortKnockAttemptEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+/** Edge type for knock attempt connections. */
+export type PortKnockAttemptEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: PortKnockAttempt;
+};
+/** Filters for knock attempt log. */
+export type PortKnockLogFilters = {
+    /** End date */
+    readonly endDate?: InputMaybe<Scalars['DateTime']['input']>;
+    /** Filter by sequence ID */
+    readonly sequenceId?: InputMaybe<Scalars['ID']['input']>;
+    /** Filter by source IP */
+    readonly sourceIP?: InputMaybe<Scalars['String']['input']>;
+    /** Start date */
+    readonly startDate?: InputMaybe<Scalars['DateTime']['input']>;
+    /** Filter by status */
+    readonly status?: InputMaybe<KnockStatus>;
+};
+/**
+ * Port knocking sequence configuration.
+ * Implements stage-based address list progression for hiding services.
+ */
+export type PortKnockSequence = Node & {
+    /** Access timeout after successful knock */
+    readonly accessTimeout: Scalars['String']['output'];
+    /** When sequence was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Whether sequence is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Generated firewall rule IDs */
+    readonly generatedRuleIds: ReadonlyArray<Scalars['ID']['output']>;
+    /** Unique sequence identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Ordered list of knock ports (2-8 ports) */
+    readonly knockPorts: ReadonlyArray<KnockPort>;
+    /** Max time between knocks */
+    readonly knockTimeout: Scalars['String']['output'];
+    /** Sequence name (alphanumeric, underscores, hyphens) */
+    readonly name: Scalars['String']['output'];
+    /** Protected service port */
+    readonly protectedPort: Scalars['Int']['output'];
+    /** Protected service protocol */
+    readonly protectedProtocol: TransportProtocol;
+    /** Successful knocks in last 24h */
+    readonly recentAccessCount: Scalars['Int']['output'];
+    /** Router ID */
+    readonly routerId: Scalars['ID']['output'];
+    /** When sequence was last updated */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Input for creating/updating port knock sequence. */
+export type PortKnockSequenceInput = {
+    /** Access timeout (e.g., "5m", "1h") */
+    readonly accessTimeout: Scalars['String']['input'];
+    /** Whether enabled */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Ordered knock ports (2-8) */
+    readonly knockPorts: ReadonlyArray<KnockPortInput>;
+    /** Knock timeout (e.g., "15s", "30s") */
+    readonly knockTimeout: Scalars['String']['input'];
+    /** Sequence name */
+    readonly name: Scalars['String']['input'];
+    /** Protected service port */
+    readonly protectedPort: Scalars['Int']['input'];
+    /** Protected service protocol */
+    readonly protectedProtocol: TransportProtocol;
+};
+/** Port mapping specification */
+export type PortMapping = {
+    /** Host port (0 = auto-allocate) */
+    readonly external: Scalars['Int']['output'];
+    /** Container port */
+    readonly internal: Scalars['Int']['output'];
+    /** Protocol (tcp/udp) */
+    readonly protocol: Scalars['String']['output'];
+    /** Purpose description */
+    readonly purpose?: Maybe<Scalars['String']['output']>;
+};
+/** A port mirror configuration for traffic monitoring and analysis */
+export type PortMirror = Node & {
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Destination interface where mirrored traffic is sent */
+    readonly destinationInterface: Interface;
+    /** Direction of traffic to mirror */
+    readonly direction: MirrorDirection;
+    /** Whether the mirror is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Unique port mirror identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Descriptive name for the mirror configuration */
+    readonly name: Scalars['String']['output'];
+    /** Source interfaces being mirrored */
+    readonly sourceInterfaces: ReadonlyArray<Interface>;
+    /** Statistics for the destination interface */
+    readonly statistics?: Maybe<PortMirrorStats>;
+};
+/** Result of a port mirror mutation (create, update) */
+export type PortMirrorMutationResult = {
+    /** Errors that occurred during the operation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created or updated port mirror (if successful) */
+    readonly portMirror?: Maybe<PortMirror>;
+    /** Configuration preview (RouterOS commands) */
+    readonly preview?: Maybe<ConfigPreview>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Statistics for a port mirror destination interface */
+export type PortMirrorStats = {
+    /** Destination interface current load */
+    readonly destinationLoad: Scalars['Float']['output'];
+    /** Whether the destination is saturated (dropping packets) */
+    readonly isSaturated: Scalars['Boolean']['output'];
+    /** Total mirrored bytes */
+    readonly mirroredBytes: Scalars['Size']['output'];
+    /** Total mirrored packets */
+    readonly mirroredPackets: Scalars['Size']['output'];
+};
+/** Port mode for VLAN configuration */
+export declare const PortMode: {
+    /** Access port (single VLAN, untagged) */
+    readonly Access: "ACCESS";
+    /** Trunk port (carries multiple VLANs with tagging) */
+    readonly Trunk: "TRUNK";
+};
+export type PortMode = typeof PortMode[keyof typeof PortMode];
+/** Transport protocol for port allocations. */
+export declare const PortProtocol: {
+    /** TCP protocol */
+    readonly Tcp: "TCP";
+    /** UDP protocol */
+    readonly Udp: "UDP";
+};
+export type PortProtocol = typeof PortProtocol[keyof typeof PortProtocol];
+/** Status of a single port check */
+export type PortStatus = {
+    /** Error message (if port is closed) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Whether the port is open and accepting connections */
+    readonly open: Scalars['Boolean']['output'];
+    /** Port number checked */
+    readonly port: Scalars['Int']['output'];
+    /** Response time in milliseconds (if port is open) */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Service name (API, API-SSL, SSH, Telnet, HTTP, HTTPS) */
+    readonly service: Scalars['String']['output'];
+};
+/** PPPoE client configuration for dial-up WAN */
+export type PppoeClient = Node & {
+    /** Add default route */
+    readonly addDefaultRoute: Scalars['Boolean']['output'];
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether PPPoE is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Underlying interface (ethernet/bridge) */
+    readonly interface: Scalars['String']['output'];
+    /** MRU setting */
+    readonly mru?: Maybe<Scalars['Int']['output']>;
+    /** MTU setting */
+    readonly mtu?: Maybe<Scalars['Int']['output']>;
+    /** PPPoE interface name */
+    readonly name: Scalars['String']['output'];
+    /** Current connection status */
+    readonly running: Scalars['Boolean']['output'];
+    /** Service name (optional) */
+    readonly serviceName?: Maybe<Scalars['String']['output']>;
+    /** Use peer DNS */
+    readonly usePeerDNS: Scalars['Boolean']['output'];
+    /** Username for authentication */
+    readonly username: Scalars['String']['output'];
+};
+/** Input for creating/updating PPPoE client */
+export type PppoeClientInput = {
+    /** Add default route (default: true) */
+    readonly addDefaultRoute?: InputMaybe<Scalars['Boolean']['input']>;
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Physical interface (ether1, bridge, etc.) */
+    readonly interface: Scalars['String']['input'];
+    /** MRU (default: auto) */
+    readonly mru?: InputMaybe<Scalars['Int']['input']>;
+    /** MTU (default: auto) */
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+    /** PPPoE interface name */
+    readonly name: Scalars['String']['input'];
+    /** Password for ISP authentication */
+    readonly password: Scalars['String']['input'];
+    /** Service name (optional, ISP-specific) */
+    readonly serviceName?: InputMaybe<Scalars['String']['input']>;
+    /** Use peer DNS (default: true) */
+    readonly usePeerDNS?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Username for ISP authentication */
+    readonly username: Scalars['String']['input'];
+};
+/**
+ * Input for previewing a notification template
+ * Simpler input for template customization workflow
+ */
+export type PreviewNotificationTemplateInput = {
+    /** Body template with Go template syntax */
+    readonly bodyTemplate: Scalars['String']['input'];
+    /** Notification channel */
+    readonly channel: NotificationChannel;
+    /** Event type for sample data generation */
+    readonly eventType: Scalars['String']['input'];
+    /** Subject template (optional, not all channels use subjects) */
+    readonly subjectTemplate?: InputMaybe<Scalars['String']['input']>;
+};
+/** Protocol used for router communication */
+export declare const Protocol: {
+    /** Binary API protocol (port 8728) */
+    readonly Api: "API";
+    /** TLS-encrypted binary API (port 8729) */
+    readonly ApiSsl: "API_SSL";
+    /** REST API protocol (RouterOS 7.1+) */
+    readonly Rest: "REST";
+    /** SSH protocol (port 22) */
+    readonly Ssh: "SSH";
+    /** Telnet protocol (port 23) */
+    readonly Telnet: "TELNET";
+};
+export type Protocol = typeof Protocol[keyof typeof Protocol];
+/**
+ * User preference for which protocol to use when connecting to a router.
+ * AUTO will try protocols in the recommended fallback order.
+ */
+export declare const ProtocolPreference: {
+    /** Force Binary API protocol (port 8728) */
+    readonly Api: "API";
+    /** Force TLS-encrypted binary API (port 8729) */
+    readonly ApiSsl: "API_SSL";
+    /** Automatically detect best protocol (REST -> API -> API_SSL -> SSH -> Telnet) */
+    readonly Auto: "AUTO";
+    /** Force REST API protocol (RouterOS 7.1+) */
+    readonly Rest: "REST";
+    /** Force SSH protocol (port 22) */
+    readonly Ssh: "SSH";
+    /** Force Telnet protocol (port 23, insecure - use only as last resort) */
+    readonly Telnet: "TELNET";
+};
+export type ProtocolPreference = typeof ProtocolPreference[keyof typeof ProtocolPreference];
+/** Pushover API usage statistics */
+export type PushoverUsage = {
+    /** Monthly message limit */
+    readonly limit: Scalars['Int']['output'];
+    /** Number of messages remaining this month */
+    readonly remaining: Scalars['Int']['output'];
+    /** When the usage counter resets */
+    readonly resetAt: Scalars['DateTime']['output'];
+    /** Number of messages used this month */
+    readonly used: Scalars['Int']['output'];
+};
+export type Query = {
+    /**
+     * Get entries for a specific address list with cursor-based pagination.
+     * Supports infinite scrolling for large lists (10,000+ entries).
+     */
+    readonly addressListEntries: AddressListEntryConnection;
+    /**
+     * Get all address lists with aggregated statistics.
+     * Returns a list of address lists with entry counts and referencing rule counts.
+     */
+    readonly addressLists: ReadonlyArray<AddressList>;
+    /** Get alert escalations with optional filtering (NAS-18.9) */
+    readonly alertEscalations: ReadonlyArray<AlertEscalation>;
+    /** Get a single alert rule by ID */
+    readonly alertRule?: Maybe<AlertRule>;
+    /** Get a single alert rule template by ID */
+    readonly alertRuleTemplate?: Maybe<AlertRuleTemplate>;
+    /** Get alert rule templates, optionally filtered by category */
+    readonly alertRuleTemplates: ReadonlyArray<AlertRuleTemplate>;
+    /**
+     * Get throttle status for alert rules
+     * Returns throttle information for all rules or a specific rule
+     */
+    readonly alertRuleThrottleStatus: ReadonlyArray<ThrottleStatus>;
+    /** Get all alert rules, optionally filtered by device */
+    readonly alertRules: ReadonlyArray<AlertRule>;
+    /**
+     * Get current storm detection status
+     * Shows if alert storm is detected and which rules are contributing
+     */
+    readonly alertStormStatus: StormStatus;
+    /** Get a single alert template by ID */
+    readonly alertTemplate?: Maybe<AlertTemplate>;
+    /** Get all alert templates, optionally filtered by event type or channel */
+    readonly alertTemplates: ReadonlyArray<AlertTemplate>;
+    /** Get alerts with filtering and pagination */
+    readonly alerts: AlertConnection;
+    /**
+     * Get available diagnostic tests for a service type.
+     * Returns the diagnostic suite definition.
+     */
+    readonly availableDiagnostics: DiagnosticSuite;
+    /** Get interfaces available to add to a bridge (not already in any bridge) */
+    readonly availableInterfacesForBridge: ReadonlyArray<Interface>;
+    /** List all available services from the Feature Marketplace. */
+    readonly availableServices: ReadonlyArray<AvailableService>;
+    /**
+     * Get available updates for all instances on a router.
+     * Returns instances that have updates available.
+     */
+    readonly availableUpdates: ReadonlyArray<UpdateInfo>;
+    /** Get the current boot sequence progress (if running). */
+    readonly bootSequenceProgress?: Maybe<BootSequenceProgress>;
+    /** Get a single bridge by UUID */
+    readonly bridge?: Maybe<Bridge>;
+    /** Get bridge ports */
+    readonly bridgePorts: ReadonlyArray<BridgePort>;
+    /**
+     * Get bridge status for a service instance.
+     * Includes interface and gateway health status.
+     */
+    readonly bridgeStatus: BridgeStatus;
+    /** Get bridge VLANs */
+    readonly bridgeVlans: ReadonlyArray<BridgeVlan>;
+    /** List all bridges on a router */
+    readonly bridges: ReadonlyArray<Bridge>;
+    /** Get a change set by ID */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** List change sets for a router */
+    readonly changeSets: ReadonlyArray<ChangeSetSummary>;
+    /** Check if a gateway address is reachable from the router */
+    readonly checkGatewayReachability: GatewayReachabilityResult;
+    /** Check if an IP address conflicts with existing assignments */
+    readonly checkIpConflict: IpConflictResult;
+    /** Check if a VLAN ID is available on a parent interface */
+    readonly checkVlanIdAvailable: Scalars['Boolean']['output'];
+    /**
+     * Get circuit breaker status for a router.
+     * Shows current state, failure counts, and cooldown timing.
+     */
+    readonly circuitBreakerStatus: CircuitBreakerStatus;
+    /** Get common event types */
+    readonly commonEventTypes: ReadonlyArray<Scalars['String']['output']>;
+    /** Get the compatibility matrix for all known features */
+    readonly compatibilityMatrix: ReadonlyArray<FeatureCompatibilityInfo>;
+    /** Get composite resource with all related sub-resources */
+    readonly compositeResource?: Maybe<CompositeResource>;
+    /**
+     * Get recent connection attempts for a router.
+     * Returns the most recent attempts, ordered newest first.
+     */
+    readonly connectionAttempts: ReadonlyArray<ConnectionAttempt>;
+    /** Get detailed connection status for a router */
+    readonly connectionDetails?: Maybe<ConnectionDetails>;
+    /** Get connection manager statistics */
+    readonly connectionStats: ConnectionStats;
+    /** Get the default configuration for a specific channel type */
+    readonly defaultNotificationChannelConfig?: Maybe<NotificationChannelConfig>;
+    /** Get the full dependency graph for a router (for visualization). */
+    readonly dependencyGraph: DependencyGraph;
+    /** Detect default gateway from DHCP client or static route */
+    readonly detectGateway?: Maybe<Scalars['String']['output']>;
+    /** Detect ISP information from WAN IP */
+    readonly detectISP?: Maybe<IspInfo>;
+    /** Detect orphaned port allocations (allocated to non-existent instances). */
+    readonly detectOrphanedPorts: ReadonlyArray<OrphanedPort>;
+    /**
+     * Detect orphaned VLAN allocations for a router.
+     *
+     * An allocation is orphaned if:
+     * - Its ServiceInstance no longer exists
+     * - Its ServiceInstance is in "deleting" status
+     *
+     * This is a diagnostic query - use cleanupOrphanedVLANs mutation to actually remove them.
+     *
+     * Example:
+     * ```
+     * query {
+     *   detectOrphanedVLANs(routerID: "router-123") {
+     *     id
+     *     vlanID
+     *     instanceID
+     *     serviceType
+     *     allocatedAt
+     *   }
+     * }
+     * ```
+     */
+    readonly detectOrphanedVLANs: ReadonlyArray<VlanAllocation>;
+    /** Detect WAN interface from default route */
+    readonly detectWanInterface: Scalars['String']['output'];
+    /** Get a device by ID for resource metrics */
+    readonly device?: Maybe<Device>;
+    /** Get a specific device routing assignment. */
+    readonly deviceRouting?: Maybe<DeviceRouting>;
+    /**
+     * Get the complete device routing matrix for a router.
+     * Includes discovered devices, available interfaces, and current routings.
+     */
+    readonly deviceRoutingMatrix: DeviceRoutingMatrix;
+    /** Get all device routing assignments for a router. */
+    readonly deviceRoutings: ReadonlyArray<DeviceRouting>;
+    /**
+     * Get diagnostic history for a service instance.
+     * Returns past diagnostic results grouped by run_group_id.
+     */
+    readonly diagnosticHistory: ReadonlyArray<StartupDiagnostics>;
+    /** Get digest delivery history for a channel (NAS-18.11) */
+    readonly digestHistory: ReadonlyArray<DigestSummary>;
+    /** Get the number of alerts in the digest queue for a channel (NAS-18.11) */
+    readonly digestQueueCount: Scalars['Int']['output'];
+    /**
+     * Run DNS server benchmark against all configured DNS servers.
+     * Tests each server with a well-known hostname (google.com) and returns
+     * response times sorted from fastest to slowest.
+     */
+    readonly dnsBenchmark: DnsBenchmarkResult;
+    /** Get DNS cache statistics including entries, size, hit rate, and top domains. */
+    readonly dnsCacheStats: DnsCacheStats;
+    /**
+     * Get configured DNS servers for a device.
+     * Returns primary and secondary DNS servers configured on the router.
+     */
+    readonly dnsServers: DnsServers;
+    /**
+     * Get gateway status for a service instance.
+     * Returns gateway state for SOCKS-to-TUN gateways.
+     */
+    readonly gatewayStatus: GatewayInfo;
+    /** Get system health status */
+    readonly health: HealthStatus;
+    /**
+     * Get current configuration for a service instance.
+     * Returns the persisted configuration from the database.
+     */
+    readonly instanceConfig: Scalars['JSON']['output'];
+    /**
+     * Get current health status for a service instance
+     * Returns null if instance not found or health monitoring not enabled
+     */
+    readonly instanceHealth?: Maybe<ServiceInstanceHealth>;
+    /**
+     * Get isolation status for a specific service instance.
+     * Returns complete isolation check results and resource limits.
+     */
+    readonly instanceIsolation: IsolationStatus;
+    /**
+     * Get update information for a specific instance.
+     * Returns null if no update available.
+     */
+    readonly instanceUpdateInfo?: Maybe<UpdateInfo>;
+    /**
+     * Get verification status for all instances on a router.
+     * Returns only instances with verification enabled.
+     */
+    readonly instanceVerificationStatus: ReadonlyArray<BinaryVerification>;
+    /** Get a network interface by ID */
+    readonly interface?: Maybe<Interface>;
+    /** Get historical interface statistics for bandwidth analysis */
+    readonly interfaceStatsHistory: InterfaceStatsHistory;
+    /** List interfaces on a router */
+    readonly interfaces: InterfaceConnection;
+    /** Get a specific IP address by ID */
+    readonly ipAddress?: Maybe<IpAddress>;
+    /** Get dependencies for an IP address (DHCP servers, routes, etc.) */
+    readonly ipAddressDependencies: IpAddressDependencies;
+    /** Get all IP addresses on a router with optional filtering */
+    readonly ipAddresses: ReadonlyArray<IpAddress>;
+    /** Get available IPsec profiles for GRE tunnel encryption */
+    readonly ipsecProfiles: ReadonlyArray<IpsecProfile>;
+    /** Check if a feature is supported on a specific router */
+    readonly isFeatureSupported: FeatureSupport;
+    /** Check if a specific port is available for allocation. */
+    readonly isPortAvailable: PortAvailability;
+    /**
+     * Get kill switch status for a specific device routing.
+     * Returns current kill switch configuration and state.
+     */
+    readonly killSwitchStatus: KillSwitchStatus;
+    /** Get current authenticated user */
+    readonly me?: Maybe<User>;
+    /** Get all active sessions for the current user */
+    readonly mySessions: ReadonlyArray<Session>;
+    /** Get NAT rules, optionally filtered by chain. */
+    readonly natRules: ReadonlyArray<NatRule>;
+    /** Fetch any node by its global ID */
+    readonly node?: Maybe<Node>;
+    /** Get a specific notification channel configuration by ID */
+    readonly notificationChannelConfig?: Maybe<NotificationChannelConfig>;
+    /** List all notification channel configurations (optionally filtered by type) */
+    readonly notificationChannelConfigs: ReadonlyArray<NotificationChannelConfig>;
+    /** Get notification delivery logs */
+    readonly notificationLogs: ReadonlyArray<NotificationLog>;
+    /** List all port allocations, optionally filtered by router, protocol, or service type. */
+    readonly portAllocations: ReadonlyArray<PortAllocation>;
+    /** Get all port forwards (high-level view). */
+    readonly portForwards: ReadonlyArray<PortForward>;
+    /** Get port knock attempt log with filtering. */
+    readonly portKnockLog: PortKnockAttemptConnection;
+    /** Get single port knock sequence by ID. */
+    readonly portKnockSequence?: Maybe<PortKnockSequence>;
+    /** Get all port knock sequences for a router. */
+    readonly portKnockSequences: ReadonlyArray<PortKnockSequence>;
+    /** Get a specific port mirror by ID */
+    readonly portMirror?: Maybe<PortMirror>;
+    /** Get all port mirror configurations on a router */
+    readonly portMirrors: ReadonlyArray<PortMirror>;
+    /** Preview an alert rule template with variable substitution */
+    readonly previewAlertRuleTemplate: AlertRuleTemplatePreview;
+    /** Preview an alert template with variables */
+    readonly previewAlertTemplate: TemplatePreviewPayload;
+    /** Get Pushover API usage statistics */
+    readonly pushoverUsage?: Maybe<PushoverUsage>;
+    /** Get a resource by ID */
+    readonly resource?: Maybe<Resource>;
+    /** List resources for a router */
+    readonly resources: ResourceConnection;
+    /** Get a specific route by ID */
+    readonly route?: Maybe<Route>;
+    /**
+     * Look up which route will be used for a destination IP.
+     * Supports optional source address for policy routing testing.
+     */
+    readonly routeLookup: RouteLookupResult;
+    /** Get a router by ID */
+    readonly router?: Maybe<Router>;
+    /** Get router capabilities by router ID */
+    readonly routerCapabilities?: Maybe<RouterCapabilities>;
+    /** Get credential information for a router (password is never returned) */
+    readonly routerCredentials?: Maybe<RouterCredentials>;
+    /** Get health check result for a router */
+    readonly routerHealth?: Maybe<HealthCheckResult>;
+    /** List all managed routers */
+    readonly routers: RouterConnection;
+    /** Get all routes on a router with optional filtering */
+    readonly routes: ReadonlyArray<Route>;
+    /** Get the routing chain for a specific device, if any. */
+    readonly routingChain?: Maybe<RoutingChain>;
+    /** List all routing chains for a router. */
+    readonly routingChains: ReadonlyArray<RoutingChain>;
+    /** Get a specific routing schedule by ID. */
+    readonly routingSchedule?: Maybe<RoutingSchedule>;
+    /**
+     * Get all schedules for a device routing.
+     * Returns schedules ordered by start time.
+     */
+    readonly routingSchedules: ReadonlyArray<RoutingSchedule>;
+    /**
+     * Get firewall rules that reference a specific address list.
+     * Includes filter, NAT, and mangle rules.
+     */
+    readonly rulesReferencingAddressList: ReadonlyArray<FirewallRule>;
+    /** Get scan history (recent scans) */
+    readonly scanHistory: ReadonlyArray<ScanTask>;
+    /** Get the status of a scan task by ID */
+    readonly scanStatus?: Maybe<ScanTask>;
+    /** Search alert templates */
+    readonly searchAlertTemplates: ReadonlyArray<AlertTemplate>;
+    /**
+     * Get alerts for a specific service instance
+     * Filters alerts by source_type='service' and source_id=instanceId
+     */
+    readonly serviceAlerts: AlertConnection;
+    /**
+     * Get configuration schema for a service type.
+     * Returns field definitions for dynamic form generation.
+     */
+    readonly serviceConfigSchema: ConfigSchema;
+    /** Get all dependencies of a service instance (services it depends on). */
+    readonly serviceDependencies: ReadonlyArray<ServiceDependency>;
+    /** Get all dependents of a service instance (services that depend on it). */
+    readonly serviceDependents: ReadonlyArray<ServiceDependency>;
+    /**
+     * Get per-device traffic breakdown for a service instance.
+     * Shows which devices are using bandwidth through this service.
+     */
+    readonly serviceDeviceBreakdown: ReadonlyArray<DeviceTrafficBreakdown>;
+    /** Get a specific service instance. */
+    readonly serviceInstance?: Maybe<ServiceInstance>;
+    /** List all service instances for a router. */
+    readonly serviceInstances: ReadonlyArray<ServiceInstance>;
+    /**
+     * Get recent log entries for a service instance.
+     * Returns the last N lines from the log file.
+     */
+    readonly serviceLogFile: ServiceLogFile;
+    /** Get a specific service template by ID. */
+    readonly serviceTemplate?: Maybe<ServiceTemplate>;
+    /**
+     * List all service templates (built-in + user-created).
+     * Optionally filter by category and/or scope.
+     */
+    readonly serviceTemplates: ReadonlyArray<ServiceTemplate>;
+    /**
+     * Get traffic statistics for a service instance.
+     * Includes current totals, historical data, and per-device breakdown.
+     */
+    readonly serviceTrafficStats: ServiceTrafficStats;
+    /**
+     * Get current external storage configuration.
+     * Returns enabled state and configured path.
+     */
+    readonly storageConfig: StorageConfig;
+    /**
+     * List all detected storage locations (flash and external).
+     * Scans known RouterOS mount points and returns availability.
+     */
+    readonly storageInfo: ReadonlyArray<StorageInfo>;
+    /**
+     * Get comprehensive storage usage breakdown.
+     * Shows flash vs external usage and per-feature breakdown.
+     */
+    readonly storageUsage: StorageUsage;
+    /** Get all features supported by a router */
+    readonly supportedFeatures: ReadonlyArray<FeatureSupport>;
+    /** Get system-wide resource overview */
+    readonly systemResources: SystemResources;
+    /** Get a troubleshooting session by ID */
+    readonly troubleshootSession?: Maybe<TroubleshootSession>;
+    /** Get a specific tunnel by ID */
+    readonly tunnel?: Maybe<Tunnel>;
+    /** Get all tunnels on a router with optional filtering by type */
+    readonly tunnels: ReadonlyArray<Tunnel>;
+    /**
+     * Get list of features affected by storage disconnection.
+     * Returns features marked as unavailable due to missing storage.
+     */
+    readonly unavailableFeatures: ReadonlyArray<ServiceInstance>;
+    /** Get features not supported by a router with upgrade guidance */
+    readonly unsupportedFeatures: ReadonlyArray<FeatureSupport>;
+    /** Get upgrade recommendation for a specific feature on a router */
+    readonly upgradeRecommendation?: Maybe<UpgradeRecommendation>;
+    /** Get all upgrade recommendations for a router */
+    readonly upgradeRecommendations: ReadonlyArray<UpgradeRecommendation>;
+    /** Get current API version */
+    readonly version: Scalars['String']['output'];
+    /** Get a specific virtual interface for a service instance. */
+    readonly virtualInterface?: Maybe<VirtualInterface>;
+    /** List all virtual interfaces for a router. */
+    readonly virtualInterfaces: ReadonlyArray<VirtualInterface>;
+    /** Get a specific VLAN by ID */
+    readonly vlan?: Maybe<Vlan>;
+    /**
+     * List all VLAN allocations with optional filtering.
+     *
+     * Examples:
+     * - vlanAllocations(routerID: "router-123") - All allocations for a router
+     * - vlanAllocations(status: ALLOCATED) - All active allocations across all routers
+     * - vlanAllocations(routerID: "router-123", status: ALLOCATED) - Active allocations for a router
+     */
+    readonly vlanAllocations: ReadonlyArray<VlanAllocation>;
+    /** Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.) */
+    readonly vlanDependencies?: Maybe<VlanDependencies>;
+    /**
+     * Get VLAN pool status for a router.
+     *
+     * Returns utilization metrics and warning flags. Useful for monitoring
+     * pool capacity and planning when to expand the pool or clean up unused instances.
+     *
+     * Example:
+     * ```
+     * query {
+     *   vlanPoolStatus(routerID: "router-123") {
+     *     totalVLANs
+     *     allocatedVLANs
+     *     availableVLANs
+     *     utilization
+     *     shouldWarn
+     *   }
+     * }
+     * ```
+     */
+    readonly vlanPoolStatus: VlanPoolStatus;
+    /** Get VLAN topology for a bridge */
+    readonly vlanTopology?: Maybe<VlanTopology>;
+    /** Get all VLANs on a router with optional filtering */
+    readonly vlans: ReadonlyArray<Vlan>;
+    /** Get connection history for a WAN interface */
+    readonly wanConnectionHistory: WanConnectionEventConnection;
+    /** Get a specific WAN interface by ID */
+    readonly wanInterface?: Maybe<WanInterface>;
+    /** Get all WAN interfaces on a router */
+    readonly wanInterfaces: ReadonlyArray<WanInterface>;
+    /** Get a single webhook by ID */
+    readonly webhook?: Maybe<Webhook>;
+    /** Get all webhooks */
+    readonly webhooks: ReadonlyArray<Webhook>;
+};
+export type QueryAddressListEntriesArgs = {
+    after?: InputMaybe<Scalars['String']['input']>;
+    first?: InputMaybe<Scalars['Int']['input']>;
+    listName: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryAddressListsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryAlertEscalationsArgs = {
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    status?: InputMaybe<EscalationStatus>;
+};
+export type QueryAlertRuleArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryAlertRuleTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryAlertRuleTemplatesArgs = {
+    category?: InputMaybe<AlertRuleTemplateCategory>;
+};
+export type QueryAlertRuleThrottleStatusArgs = {
+    ruleId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QueryAlertRulesArgs = {
+    deviceId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QueryAlertTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryAlertTemplatesArgs = {
+    channel?: InputMaybe<NotificationChannel>;
+    eventType?: InputMaybe<Scalars['String']['input']>;
+};
+export type QueryAlertsArgs = {
+    acknowledged?: InputMaybe<Scalars['Boolean']['input']>;
+    deviceId?: InputMaybe<Scalars['ID']['input']>;
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    severity?: InputMaybe<AlertSeverity>;
+};
+export type QueryAvailableDiagnosticsArgs = {
+    serviceName: Scalars['String']['input'];
+};
+export type QueryAvailableInterfacesForBridgeArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryAvailableServicesArgs = {
+    architecture?: InputMaybe<Scalars['String']['input']>;
+    category?: InputMaybe<Scalars['String']['input']>;
+};
+export type QueryAvailableUpdatesArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryBridgeArgs = {
+    uuid: Scalars['ID']['input'];
+};
+export type QueryBridgePortsArgs = {
+    bridgeId: Scalars['ID']['input'];
+};
+export type QueryBridgeStatusArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryBridgeVlansArgs = {
+    bridgeId: Scalars['ID']['input'];
+};
+export type QueryBridgesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryChangeSetArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryChangeSetsArgs = {
+    includeCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+    routerId: Scalars['ID']['input'];
+    status?: InputMaybe<ChangeSetStatus>;
+};
+export type QueryCheckGatewayReachabilityArgs = {
+    gateway: Scalars['IPv4']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryCheckIpConflictArgs = {
+    address: Scalars['String']['input'];
+    excludeId?: InputMaybe<Scalars['ID']['input']>;
+    interfaceId?: InputMaybe<Scalars['ID']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryCheckVlanIdAvailableArgs = {
+    parentInterface: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+    vlanId: Scalars['Int']['input'];
+};
+export type QueryCircuitBreakerStatusArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryCompositeResourceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryConnectionAttemptsArgs = {
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryConnectionDetailsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryDefaultNotificationChannelConfigArgs = {
+    channelType: ChannelType;
+};
+export type QueryDependencyGraphArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryDetectGatewayArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryDetectIspArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryDetectOrphanedPortsArgs = {
+    routerID?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QueryDetectOrphanedVlaNsArgs = {
+    routerID: Scalars['String']['input'];
+};
+export type QueryDetectWanInterfaceArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryDeviceArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryDeviceRoutingArgs = {
+    routerID: Scalars['ID']['input'];
+    routingID: Scalars['ID']['input'];
+};
+export type QueryDeviceRoutingMatrixArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryDeviceRoutingsArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryDiagnosticHistoryArgs = {
+    instanceID: Scalars['ID']['input'];
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    routerID: Scalars['ID']['input'];
+};
+export type QueryDigestHistoryArgs = {
+    channelId: Scalars['ID']['input'];
+    limit?: InputMaybe<Scalars['Int']['input']>;
+};
+export type QueryDigestQueueCountArgs = {
+    channelId: Scalars['ID']['input'];
+};
+export type QueryDnsBenchmarkArgs = {
+    deviceId: Scalars['String']['input'];
+};
+export type QueryDnsCacheStatsArgs = {
+    deviceId: Scalars['String']['input'];
+};
+export type QueryDnsServersArgs = {
+    deviceId: Scalars['String']['input'];
+};
+export type QueryGatewayStatusArgs = {
+    instanceID: Scalars['ID']['input'];
+};
+export type QueryInstanceConfigArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryInstanceHealthArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryInstanceIsolationArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryInstanceUpdateInfoArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryInstanceVerificationStatusArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryInterfaceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryInterfaceStatsHistoryArgs = {
+    interfaceId: Scalars['ID']['input'];
+    interval?: InputMaybe<Scalars['Duration']['input']>;
+    routerId: Scalars['ID']['input'];
+    timeRange: StatsTimeRangeInput;
+};
+export type QueryInterfacesArgs = {
+    pagination?: InputMaybe<PaginationInput>;
+    routerId: Scalars['ID']['input'];
+    type?: InputMaybe<InterfaceType>;
+};
+export type QueryIpAddressArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryIpAddressDependenciesArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryIpAddressesArgs = {
+    interfaceId?: InputMaybe<Scalars['ID']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryIpsecProfilesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryIsFeatureSupportedArgs = {
+    featureId: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryIsPortAvailableArgs = {
+    input: CheckPortAvailabilityInput;
+};
+export type QueryKillSwitchStatusArgs = {
+    deviceID: Scalars['String']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryNatRulesArgs = {
+    chain?: InputMaybe<NatChain>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryNodeArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryNotificationChannelConfigArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryNotificationChannelConfigsArgs = {
+    channelType?: InputMaybe<ChannelType>;
+};
+export type QueryNotificationLogsArgs = {
+    alertId?: InputMaybe<Scalars['ID']['input']>;
+    channel?: InputMaybe<Scalars['String']['input']>;
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    webhookId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QueryPortAllocationsArgs = {
+    protocol?: InputMaybe<PortProtocol>;
+    routerID?: InputMaybe<Scalars['ID']['input']>;
+    serviceType?: InputMaybe<Scalars['String']['input']>;
+};
+export type QueryPortForwardsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPortKnockLogArgs = {
+    after?: InputMaybe<Scalars['String']['input']>;
+    filters?: InputMaybe<PortKnockLogFilters>;
+    first?: InputMaybe<Scalars['Int']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPortKnockSequenceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPortKnockSequencesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPortMirrorArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPortMirrorsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryPreviewAlertRuleTemplateArgs = {
+    templateId: Scalars['ID']['input'];
+    variables: Scalars['JSON']['input'];
+};
+export type QueryPreviewAlertTemplateArgs = {
+    templateId: Scalars['ID']['input'];
+    variables: Scalars['JSON']['input'];
+};
+export type QueryResourceArgs = {
+    id: Scalars['ID']['input'];
+    layers?: InputMaybe<ReadonlyArray<ResourceLayer>>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryResourcesArgs = {
+    category?: InputMaybe<ResourceCategory>;
+    pagination?: InputMaybe<PaginationInput>;
+    routerId: Scalars['ID']['input'];
+    state?: InputMaybe<ResourceLifecycleState>;
+    type?: InputMaybe<Scalars['String']['input']>;
+};
+export type QueryRouteArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryRouteLookupArgs = {
+    destination: Scalars['IPv4']['input'];
+    routerId: Scalars['ID']['input'];
+    source?: InputMaybe<Scalars['IPv4']['input']>;
+};
+export type QueryRouterArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryRouterCapabilitiesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryRouterCredentialsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryRouterHealthArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryRoutersArgs = {
+    pagination?: InputMaybe<PaginationInput>;
+    status?: InputMaybe<ConnectionStatus>;
+};
+export type QueryRoutesArgs = {
+    routerId: Scalars['ID']['input'];
+    table?: InputMaybe<Scalars['String']['input']>;
+    type?: InputMaybe<RouteType>;
+};
+export type QueryRoutingChainArgs = {
+    deviceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryRoutingChainsArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryRoutingScheduleArgs = {
+    routerID: Scalars['ID']['input'];
+    scheduleID: Scalars['ID']['input'];
+};
+export type QueryRoutingSchedulesArgs = {
+    routerID: Scalars['ID']['input'];
+    routingID: Scalars['ID']['input'];
+};
+export type QueryRulesReferencingAddressListArgs = {
+    listName: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryScanHistoryArgs = {
+    limit?: InputMaybe<Scalars['Int']['input']>;
+};
+export type QueryScanStatusArgs = {
+    taskId: Scalars['ID']['input'];
+};
+export type QuerySearchAlertTemplatesArgs = {
+    query: Scalars['String']['input'];
+};
+export type QueryServiceAlertsArgs = {
+    acknowledged?: InputMaybe<Scalars['Boolean']['input']>;
+    instanceId: Scalars['ID']['input'];
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    severity?: InputMaybe<AlertSeverity>;
+};
+export type QueryServiceConfigSchemaArgs = {
+    serviceType: Scalars['String']['input'];
+};
+export type QueryServiceDependenciesArgs = {
+    instanceId: Scalars['ID']['input'];
+};
+export type QueryServiceDependentsArgs = {
+    instanceId: Scalars['ID']['input'];
+};
+export type QueryServiceDeviceBreakdownArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryServiceInstanceArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryServiceInstancesArgs = {
+    featureID?: InputMaybe<Scalars['String']['input']>;
+    routerID: Scalars['ID']['input'];
+    status?: InputMaybe<ServiceInstanceStatus>;
+};
+export type QueryServiceLogFileArgs = {
+    instanceID: Scalars['ID']['input'];
+    maxLines?: InputMaybe<Scalars['Int']['input']>;
+    routerID: Scalars['ID']['input'];
+};
+export type QueryServiceTemplateArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryServiceTemplatesArgs = {
+    category?: InputMaybe<ServiceTemplateCategory>;
+    routerID?: InputMaybe<Scalars['ID']['input']>;
+    scope?: InputMaybe<TemplateScope>;
+};
+export type QueryServiceTrafficStatsArgs = {
+    historyHours?: InputMaybe<Scalars['Int']['input']>;
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryStorageUsageArgs = {
+    routerId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QuerySupportedFeaturesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QuerySystemResourcesArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryTroubleshootSessionArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryTunnelArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryTunnelsArgs = {
+    routerId: Scalars['ID']['input'];
+    type?: InputMaybe<TunnelType>;
+};
+export type QueryUnavailableFeaturesArgs = {
+    routerId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type QueryUnsupportedFeaturesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryUpgradeRecommendationArgs = {
+    featureId: Scalars['String']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryUpgradeRecommendationsArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryVirtualInterfaceArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type QueryVirtualInterfacesArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type QueryVlanArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryVlanAllocationsArgs = {
+    routerID?: InputMaybe<Scalars['String']['input']>;
+    status?: InputMaybe<VlanAllocationStatus>;
+};
+export type QueryVlanDependenciesArgs = {
+    id: Scalars['ID']['input'];
+};
+export type QueryVlanPoolStatusArgs = {
+    routerID: Scalars['String']['input'];
+};
+export type QueryVlanTopologyArgs = {
+    bridgeId: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryVlansArgs = {
+    filter?: InputMaybe<VlanFilter>;
+    routerId: Scalars['ID']['input'];
+};
+export type QueryWanConnectionHistoryArgs = {
+    pagination?: InputMaybe<PaginationInput>;
+    routerId: Scalars['ID']['input'];
+    wanInterfaceId: Scalars['ID']['input'];
+};
+export type QueryWanInterfaceArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type QueryWanInterfacesArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type QueryWebhookArgs = {
+    id: Scalars['ID']['input'];
+};
+/** Quiet hours configuration */
+export type QuietHoursConfig = {
+    /** Whether critical alerts bypass quiet hours */
+    readonly bypassCritical: Scalars['Boolean']['output'];
+    /** Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days. */
+    readonly daysOfWeek: ReadonlyArray<Scalars['Int']['output']>;
+    /** End time in HH:MM format */
+    readonly endTime: Scalars['String']['output'];
+    /** Start time in HH:MM format */
+    readonly startTime: Scalars['String']['output'];
+    /** Timezone (IANA timezone database name) */
+    readonly timezone: Scalars['String']['output'];
+};
+/** Quiet hours configuration input */
+export type QuietHoursConfigInput = {
+    /** Whether critical alerts bypass quiet hours (default: true) */
+    readonly bypassCritical?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days. */
+    readonly daysOfWeek?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+    /** End time in HH:MM format */
+    readonly endTime: Scalars['String']['input'];
+    /** Start time in HH:MM format */
+    readonly startTime: Scalars['String']['input'];
+    /** Timezone (default: UTC) */
+    readonly timezone?: InputMaybe<Scalars['String']['input']>;
+};
+/** Action to take when traffic quota is reached. */
+export declare const QuotaAction: {
+    /** Send alert notification to user */
+    readonly Alert: "ALERT";
+    /** Log a warning but continue allowing traffic */
+    readonly LogOnly: "LOG_ONLY";
+    /** Stop the service instance to prevent further traffic */
+    readonly StopService: "STOP_SERVICE";
+    /** Throttle bandwidth to a lower speed */
+    readonly Throttle: "THROTTLE";
+};
+export type QuotaAction = typeof QuotaAction[keyof typeof QuotaAction];
+/** Quota period for traffic limits. */
+export declare const QuotaPeriod: {
+    /** Reset daily at midnight */
+    readonly Daily: "DAILY";
+    /** Reset monthly on the 1st at midnight */
+    readonly Monthly: "MONTHLY";
+    /** Reset weekly on Sunday at midnight */
+    readonly Weekly: "WEEKLY";
+};
+export type QuotaPeriod = typeof QuotaPeriod[keyof typeof QuotaPeriod];
+export type ReconnectRouterPayload = {
+    /** Updated connection details */
+    readonly connectionDetails?: Maybe<ConnectionDetails>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Whether reconnection was initiated */
+    readonly initiated: Scalars['Boolean']['output'];
+    /** The router being reconnected */
+    readonly router?: Maybe<Router>;
+    /** Rate limit wait time if rate limited */
+    readonly waitTimeMs?: Maybe<Scalars['Int']['output']>;
+};
+/** Payload for refreshCapabilities mutation */
+export type RefreshCapabilitiesPayload = {
+    /** Updated capabilities after refresh */
+    readonly capabilities?: Maybe<RouterCapabilities>;
+    /** Errors during refresh */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+export type RemoveChangeSetItemPayload = {
+    /** The updated change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** RemoveDependencyInput contains parameters for removing a dependency relationship. */
+export type RemoveDependencyInput = {
+    readonly dependencyId: Scalars['ID']['input'];
+};
+/** Input for resetting external storage configuration. */
+export type ResetExternalStorageInput = {
+    /** Whether to move existing binaries back to flash (default: false) */
+    readonly migrateToFlash?: InputMaybe<Scalars['Boolean']['input']>;
+};
+/** Payload for resetExternalStorage mutation. */
+export type ResetExternalStoragePayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Number of features migrated to flash (if requested) */
+    readonly featuresMigrated: Scalars['Int']['output'];
+    /** Whether reset was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/**
+ * Universal State v2 Resource Interface.
+ * Every managed resource implements this interface with 8 layers:
+ * 1. configuration - User's desired config (mutable by user)
+ * 2. validation - Pre-flight check results (computed by backend)
+ * 3. deployment - What's on router (after Apply-Confirm)
+ * 4. runtime - Live operational state (polled/streamed)
+ * 5. telemetry - Time-series metrics (historical)
+ * 6. metadata - Lifecycle info, tags, ownership
+ * 7. relationships - Dependencies (embedded + explicit)
+ * 8. platform - Capabilities and field mappings
+ */
+export type Resource = {
+    /** Resource category */
+    readonly category: ResourceCategory;
+    /**
+     * Layer 1: CONFIGURATION - User's desired config
+     * Mutable by user. Validated by Zod on client, GraphQL on server.
+     * Implementations can provide strongly-typed configs.
+     */
+    readonly configuration?: Maybe<Scalars['JSON']['output']>;
+    /**
+     * Layer 3: DEPLOYMENT - What's actually on router
+     * Written after Apply-Confirm. Includes router-generated fields.
+     * Implementations can provide strongly-typed deployment states.
+     */
+    readonly deployment?: Maybe<DeploymentState>;
+    /** Globally unique identifier (ULID) - also serves as Node.id for Relay compatibility */
+    readonly id: Scalars['ID']['output'];
+    /**
+     * Layer 6: METADATA - Resource lifecycle info
+     * System-managed. Includes tags, version, ownership.
+     */
+    readonly metadata: ResourceMetadata;
+    /**
+     * Layer 8: PLATFORM - Capabilities and field mappings
+     * From platform adapter. Router-specific behavior.
+     */
+    readonly platform?: Maybe<PlatformInfo>;
+    /**
+     * Layer 7: RELATIONSHIPS - Dependencies
+     * Embedded in config (user-defined) + explicit table (system-discovered).
+     */
+    readonly relationships?: Maybe<ResourceRelationships>;
+    /**
+     * Layer 4: RUNTIME - Live operational state
+     * Polled/streamed from router. Read-only.
+     * Implementations can provide strongly-typed runtime states.
+     */
+    readonly runtime?: Maybe<RuntimeState>;
+    /** Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2') */
+    readonly scopedId: Scalars['String']['output'];
+    /**
+     * Layer 5: TELEMETRY - Time-series metrics
+     * Historical data collected over time. Read-only.
+     */
+    readonly telemetry?: Maybe<TelemetryData>;
+    /** Resource type identifier (e.g., 'vpn.wireguard.client') */
+    readonly type: Scalars['String']['output'];
+    /**
+     * Layer 2: VALIDATION - Pre-flight check results
+     * Computed by backend. Updated on every configuration change.
+     */
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** Categories of managed resources */
+export declare const ResourceCategory: {
+    /** Application-level: Port Forwarding, Game Rules */
+    readonly Application: "APPLICATION";
+    /** Marketplace features: Tor, AdGuard, sing-box */
+    readonly Feature: "FEATURE";
+    /** System infrastructure: Certificates, NTP, DDNS */
+    readonly Infrastructure: "INFRASTRUCTURE";
+    /** Network topology: WAN Links, LAN Networks, VLANs */
+    readonly Network: "NETWORK";
+    /** Community extensions: Third-party plugins */
+    readonly Plugin: "PLUGIN";
+    /** VPN connectivity: WireGuard, OpenVPN, IPsec */
+    readonly Vpn: "VPN";
+};
+export type ResourceCategory = typeof ResourceCategory[keyof typeof ResourceCategory];
+/** Conflict with another resource */
+export type ResourceConflict = {
+    /** The conflicting resource */
+    readonly conflictingResource?: Maybe<Resource>;
+    /** Conflicting resource UUID (if resource is not loaded) */
+    readonly conflictingResourceUuid: Scalars['ID']['output'];
+    /** Description of the conflict */
+    readonly description: Scalars['String']['output'];
+    /** Suggested resolution */
+    readonly resolution?: Maybe<Scalars['String']['output']>;
+    /** Type of conflict */
+    readonly type: ConflictType;
+};
+export type ResourceConnection = Connection & {
+    readonly edges: ReadonlyArray<ResourceEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+export type ResourceEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: Resource;
+};
+/** Resource usage estimate */
+export type ResourceEstimate = {
+    /** Disk space needed in MB */
+    readonly diskSpaceMB: Scalars['Int']['output'];
+    /** Number of network ports */
+    readonly networkPorts: Scalars['Int']['output'];
+    /** Total CPU shares */
+    readonly totalCPUShares: Scalars['Int']['output'];
+    /** Total estimated memory in MB */
+    readonly totalMemoryMB: Scalars['Int']['output'];
+    /** Number of VLANs required */
+    readonly vlansRequired: Scalars['Int']['output'];
+};
+/** Impact level for affected resources */
+export declare const ResourceImpact: {
+    /** Connections will be dropped */
+    readonly ConnectionDrop: "CONNECTION_DROP";
+    /** Resource will be disabled */
+    readonly Disabled: "DISABLED";
+    /** Resource will be modified */
+    readonly Modified: "MODIFIED";
+    /** Resource will be removed */
+    readonly Removed: "REMOVED";
+};
+export type ResourceImpact = typeof ResourceImpact[keyof typeof ResourceImpact];
+/** Selectable resource layers for optimized fetching */
+export declare const ResourceLayer: {
+    readonly Configuration: "CONFIGURATION";
+    readonly Deployment: "DEPLOYMENT";
+    readonly Metadata: "METADATA";
+    readonly Platform: "PLATFORM";
+    readonly Relationships: "RELATIONSHIPS";
+    readonly Runtime: "RUNTIME";
+    readonly Telemetry: "TELEMETRY";
+    readonly Validation: "VALIDATION";
+};
+export type ResourceLayer = typeof ResourceLayer[keyof typeof ResourceLayer];
+/** Resource lifecycle states for state machine */
+export declare const ResourceLifecycleState: {
+    /** Successfully applied and running */
+    readonly Active: "ACTIVE";
+    /** Being applied to router */
+    readonly Applying: "APPLYING";
+    /** Final state, no longer active */
+    readonly Archived: "ARCHIVED";
+    /** Running but with issues */
+    readonly Degraded: "DEGRADED";
+    /** Marked for removal */
+    readonly Deprecated: "DEPRECATED";
+    /** Initial creation, not yet validated */
+    readonly Draft: "DRAFT";
+    /** Failed state (validation or apply) */
+    readonly Error: "ERROR";
+    /** Passed validation, ready to apply */
+    readonly Valid: "VALID";
+    /** Backend validation in progress */
+    readonly Validating: "VALIDATING";
+};
+export type ResourceLifecycleState = typeof ResourceLifecycleState[keyof typeof ResourceLifecycleState];
+/** Resource limits applied to a service instance via cgroups v2. */
+export type ResourceLimits = {
+    /** Whether resource limits are currently applied (cgroups available) */
+    readonly applied: Scalars['Boolean']['output'];
+    /** CPU usage percentage (0-100) */
+    readonly cpuPercent?: Maybe<Scalars['Int']['output']>;
+    /** Memory limit in megabytes (minimum 16MB) */
+    readonly memoryMB: Scalars['Int']['output'];
+};
+/** Payload for resource limits mutation. */
+export type ResourceLimitsPayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Updated resource limits (null if operation failed) */
+    readonly resourceLimits?: Maybe<ResourceLimits>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/**
+ * Layer 6: Resource lifecycle info, tags, ownership.
+ * System-managed with some user-editable fields.
+ */
+export type ResourceMetadata = {
+    /** Resource creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** User who created the resource */
+    readonly createdBy: Scalars['String']['output'];
+    /** Resource description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Whether resource is marked as favorite */
+    readonly isFavorite: Scalars['Boolean']['output'];
+    /** Whether resource is pinned */
+    readonly isPinned: Scalars['Boolean']['output'];
+    /** Custom user notes */
+    readonly notes?: Maybe<Scalars['String']['output']>;
+    /** Audit trail of recent changes */
+    readonly recentChanges?: Maybe<ReadonlyArray<ChangeLogEntry>>;
+    /** Current lifecycle state */
+    readonly state: ResourceLifecycleState;
+    /** User-defined tags for organization */
+    readonly tags: ReadonlyArray<Scalars['String']['output']>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** User who last updated the resource */
+    readonly updatedBy?: Maybe<Scalars['String']['output']>;
+    /** Optimistic locking version */
+    readonly version: Scalars['Int']['output'];
+};
+/** Real-time resource utilization metrics for a device */
+export type ResourceMetrics = {
+    /** CPU utilization metrics */
+    readonly cpu: CpuMetrics;
+    /** Memory utilization metrics */
+    readonly memory: MemoryMetrics;
+    /** Storage utilization metrics */
+    readonly storage: StorageMetrics;
+    /** Temperature in Celsius (null if not supported) */
+    readonly temperature?: Maybe<Scalars['Float']['output']>;
+    /** Timestamp when metrics were collected */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Reference to another resource */
+export type ResourceReference = {
+    /** Resource category */
+    readonly category: ResourceCategory;
+    /** Resource scoped ID */
+    readonly id: Scalars['String']['output'];
+    /** Current lifecycle state */
+    readonly state: ResourceLifecycleState;
+    /** Resource type */
+    readonly type: Scalars['String']['output'];
+    /** Resource UUID */
+    readonly uuid: Scalars['ID']['output'];
+};
+/** Edge in the resource relationship graph */
+export type ResourceRelationshipEdge = {
+    /** Source resource ID */
+    readonly from: Scalars['ID']['output'];
+    /** Target resource ID */
+    readonly to: Scalars['ID']['output'];
+    /** Relationship type */
+    readonly type: ResourceRelationshipType;
+};
+/** Types of relationships between resources */
+export declare const ResourceRelationshipType: {
+    /** Custom relationship */
+    readonly Custom: "CUSTOM";
+    /** Child depends on parent */
+    readonly DependsOn: "DEPENDS_ON";
+    /** Resources are in the same group */
+    readonly Group: "GROUP";
+    /** Parent-child hierarchy */
+    readonly ParentChild: "PARENT_CHILD";
+    /** Traffic routes via this resource */
+    readonly RoutesVia: "ROUTES_VIA";
+};
+export type ResourceRelationshipType = typeof ResourceRelationshipType[keyof typeof ResourceRelationshipType];
+/**
+ * Layer 7: Dependencies and relationships between resources.
+ * Combines user-defined relationships and system-discovered dependencies.
+ */
+export type ResourceRelationships = {
+    /** Child resources (for hierarchical resources) */
+    readonly children: ReadonlyArray<ResourceReference>;
+    /** Custom relationships */
+    readonly custom?: Maybe<Scalars['JSON']['output']>;
+    /** Resources that depend on this resource */
+    readonly dependents: ReadonlyArray<ResourceReference>;
+    /** Resources this resource depends on */
+    readonly dependsOn: ReadonlyArray<ResourceReference>;
+    /** Parent resource (for hierarchical resources) */
+    readonly parent?: Maybe<ResourceReference>;
+    /** Resources that route traffic via this resource */
+    readonly routedBy: ReadonlyArray<ResourceReference>;
+    /** Resource this routes traffic via */
+    readonly routesVia?: Maybe<ResourceReference>;
+};
+/** Input for resource relationships */
+export type ResourceRelationshipsInput = {
+    /** Custom relationship data */
+    readonly custom?: InputMaybe<Scalars['JSON']['input']>;
+    /** Resources this resource depends on (IDs) */
+    readonly dependsOn?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+    /** Parent resource ID (for hierarchical resources) */
+    readonly parent?: InputMaybe<Scalars['ID']['input']>;
+    /** Resources that route traffic via this resource (ID) */
+    readonly routesVia?: InputMaybe<Scalars['ID']['input']>;
+};
+/**
+ * Resource requirements for a service feature (from manifest).
+ * Defines the minimum and recommended resources for a service.
+ */
+export type ResourceRequirements = {
+    /** CPU weight (priority) for scheduling (0-100) */
+    readonly cpuWeight: Scalars['Int']['output'];
+    /** Minimum RAM required in megabytes */
+    readonly minRAM: Scalars['Int']['output'];
+    /** Recommended RAM for optimal performance in megabytes */
+    readonly recommendedRAM: Scalars['Int']['output'];
+};
+/** Runtime update event for a resource */
+export type ResourceRuntimeEvent = {
+    /** Resource ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Updated runtime state */
+    readonly runtime: RuntimeState;
+    /** Timestamp of update */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Resource type */
+    readonly type: Scalars['String']['output'];
+};
+/** Lifecycle state change event */
+export type ResourceStateEvent = {
+    /** Error message if state is ERROR */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Resource ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** New state */
+    readonly newState: ResourceLifecycleState;
+    /** Previous state */
+    readonly previousState: ResourceLifecycleState;
+    /** Timestamp of change */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Resource type */
+    readonly type: Scalars['String']['output'];
+};
+/** Resource status indicating health of resource usage. */
+export declare const ResourceStatus: {
+    /** Resource usage is critical (>90%) */
+    readonly Critical: "CRITICAL";
+    /** Resource usage is within acceptable limits (<70%) */
+    readonly Ok: "OK";
+    /** Resource usage is high (70-90%) */
+    readonly Warning: "WARNING";
+};
+export type ResourceStatus = typeof ResourceStatus[keyof typeof ResourceStatus];
+/** Event emitted when a router resource is updated */
+export type ResourceUpdatedEvent = {
+    /** Type of change (create, update, delete) */
+    readonly changeType: ChangeType;
+    /** Fields that were changed */
+    readonly changedFields: ReadonlyArray<Scalars['String']['output']>;
+    /** Unique resource identifier */
+    readonly resourceId: Scalars['ID']['output'];
+    /** Type of resource (interface, firewall-rule, dhcp-lease, etc.) */
+    readonly resourceType: Scalars['String']['output'];
+    /** Router this resource belongs to */
+    readonly routerId: Scalars['ID']['output'];
+    /** Timestamp of the update */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** New version number after update */
+    readonly version: Scalars['Int']['output'];
+};
+/**
+ * Current resource usage for a service instance.
+ * Provides real-time memory usage statistics.
+ */
+export type ResourceUsage = {
+    /** Current memory usage in megabytes */
+    readonly currentMB: Scalars['Int']['output'];
+    /** Memory limit in megabytes */
+    readonly limitMB: Scalars['Int']['output'];
+    /** Resource status (ok, warning, critical) */
+    readonly status: ResourceStatus;
+    /** Usage as a percentage of the limit (0-100) */
+    readonly usagePercent: Scalars['Float']['output'];
+};
+/** Input for restarting a service instance. */
+export type RestartInstanceInput = {
+    /** Instance ID to restart */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Payload for reverification mutation. */
+export type ReverifyPayload = {
+    /** Current binary hash */
+    readonly currentHash?: Maybe<Scalars['String']['output']>;
+    /** Error message if verification failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Expected binary hash (from install-time) */
+    readonly expectedHash?: Maybe<Scalars['String']['output']>;
+    /** Instance ID that was reverified */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Whether reverification passed */
+    readonly success: Scalars['Boolean']['output'];
+};
+export type RollbackChangeSetPayload = {
+    /** The rolled back change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Items that failed to rollback */
+    readonly failedItems?: Maybe<ReadonlyArray<Scalars['ID']['output']>>;
+    /** Whether rollback was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Rollback operation type */
+export declare const RollbackOperation: {
+    /** Delete a created resource */
+    readonly Delete: "DELETE";
+    /** Restore a deleted resource */
+    readonly Restore: "RESTORE";
+    /** Revert an updated resource */
+    readonly Revert: "REVERT";
+};
+export type RollbackOperation = typeof RollbackOperation[keyof typeof RollbackOperation];
+/** Rollback step for recovery */
+export type RollbackStep = {
+    /** Error message if failed */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Item ID being rolled back */
+    readonly itemId: Scalars['ID']['output'];
+    /** Rollback operation */
+    readonly operation: RollbackOperation;
+    /** Resource UUID on router */
+    readonly resourceUuid?: Maybe<Scalars['ID']['output']>;
+    /** State to restore */
+    readonly restoreState?: Maybe<Scalars['JSON']['output']>;
+    /** Order in rollback sequence */
+    readonly rollbackOrder: Scalars['Int']['output'];
+    /** Whether rollback succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Route type for static and dynamic routing */
+export type Route = Node & {
+    /** Whether the route is active */
+    readonly active: Scalars['Boolean']['output'];
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Destination network in CIDR notation */
+    readonly destination: Scalars['CIDR']['output'];
+    /** Whether the route is disabled */
+    readonly disabled?: Maybe<Scalars['Boolean']['output']>;
+    /** Route distance/metric (1-255) */
+    readonly distance: Scalars['Int']['output'];
+    /** Gateway address */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    /** Route ID */
+    readonly id: Scalars['ID']['output'];
+    /** Interface used for this route */
+    readonly interface?: Maybe<Scalars['String']['output']>;
+    /** Routing mark for policy routing */
+    readonly routingMark?: Maybe<Scalars['String']['output']>;
+    /** Routing table name (main, vpn, etc.) */
+    readonly routingTable?: Maybe<Scalars['String']['output']>;
+    /** Route scope */
+    readonly scope: RouteScope;
+    /** Route type (static, connected, dynamic, BGP, OSPF) */
+    readonly type: RouteType;
+};
+/** Result of a route deletion with impact analysis */
+export type RouteDeleteResult = {
+    /** Impact analysis for this route deletion */
+    readonly impactAnalysis: RouteImpactAnalysis;
+    /** Success or error message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** Whether the deletion succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Analysis of the impact of deleting a route */
+export type RouteImpactAnalysis = {
+    /** Description of affected traffic */
+    readonly affectedTraffic: Scalars['String']['output'];
+    /** List of consequences of deleting this route */
+    readonly consequences: ReadonlyArray<Scalars['String']['output']>;
+    /** Whether this is the default route (0.0.0.0/0) */
+    readonly isDefaultRoute: Scalars['Boolean']['output'];
+    /** Human-readable message about the impact */
+    readonly message: Scalars['String']['output'];
+    /** Severity of the deletion (CRITICAL for default route, STANDARD for others) */
+    readonly severity: ConfirmationSeverity;
+};
+/** Input for creating or updating a route */
+export type RouteInput = {
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Destination network in CIDR notation */
+    readonly destination: Scalars['CIDR']['input'];
+    /** Route distance/metric (1-255, default: 1) */
+    readonly distance?: InputMaybe<Scalars['Int']['input']>;
+    /** Gateway address (optional if interface is provided) */
+    readonly gateway?: InputMaybe<Scalars['IPv4']['input']>;
+    /** Interface used for this route (optional if gateway is provided) */
+    readonly interface?: InputMaybe<Scalars['String']['input']>;
+    /** Routing mark for policy routing */
+    readonly routingMark?: InputMaybe<Scalars['String']['input']>;
+    /** Routing table name (default: main) */
+    readonly routingTable?: InputMaybe<Scalars['String']['input']>;
+};
+/** A candidate route that matches the destination */
+export type RouteLookupCandidate = {
+    /** Administrative distance */
+    readonly distance: Scalars['Int']['output'];
+    /** Prefix length (24 for /24, 8 for /8) */
+    readonly prefixLength: Scalars['Int']['output'];
+    /** The route object */
+    readonly route: Route;
+    /** Whether this route was selected */
+    readonly selected: Scalars['Boolean']['output'];
+    /** Reason for selection or non-selection */
+    readonly selectionReason?: Maybe<Scalars['String']['output']>;
+};
+/** Result of a route lookup operation */
+export type RouteLookupResult = {
+    /** All candidate routes that match destination */
+    readonly candidateRoutes: ReadonlyArray<RouteLookupCandidate>;
+    /** Destination IP that was looked up */
+    readonly destination: Scalars['String']['output'];
+    /** Administrative distance of selected route */
+    readonly distance?: Maybe<Scalars['Int']['output']>;
+    /** Human-readable explanation of route selection */
+    readonly explanation: Scalars['String']['output'];
+    /** Gateway IP for the selected route */
+    readonly gateway?: Maybe<Scalars['String']['output']>;
+    /** Outgoing interface for the selected route */
+    readonly interface?: Maybe<Scalars['String']['output']>;
+    /** Whether this is the default route (0.0.0.0/0) */
+    readonly isDefaultRoute: Scalars['Boolean']['output'];
+    /** The selected route (null if no route found) */
+    readonly matchedRoute?: Maybe<Route>;
+    /** Route type (STATIC, CONNECTED, DYNAMIC, BGP, OSPF) */
+    readonly routeType: RouteType;
+    /** VPN tunnel info if route goes through VPN */
+    readonly vpnTunnel?: Maybe<VpnTunnelInfo>;
+};
+/** Result of a route mutation (create, update) */
+export type RouteMutationResult = {
+    /** Success or error message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** The created or updated route (if successful) */
+    readonly route?: Maybe<Route>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Route resource */
+export type RouteResource = Node & Resource & {
+    /** Whether route is active */
+    readonly active: Scalars['Boolean']['output'];
+    readonly category: ResourceCategory;
+    readonly configuration: Scalars['JSON']['output'];
+    readonly deployment?: Maybe<DeploymentState>;
+    /** Route distance/metric */
+    readonly distance?: Maybe<Scalars['Int']['output']>;
+    /** Destination network */
+    readonly dstAddress: Scalars['CIDR']['output'];
+    /** Gateway address */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    readonly id: Scalars['ID']['output'];
+    /** Outgoing interface */
+    readonly interface?: Maybe<Scalars['String']['output']>;
+    readonly metadata: ResourceMetadata;
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** Route scope */
+export declare const RouteScope: {
+    /** Global route (forwarded between interfaces) */
+    readonly Global: "GLOBAL";
+    /** Host-local route */
+    readonly Host: "HOST";
+    /** Link-local route (not forwarded) */
+    readonly Link: "LINK";
+};
+export type RouteScope = typeof RouteScope[keyof typeof RouteScope];
+/** Route type classification */
+export declare const RouteType: {
+    /** BGP route */
+    readonly Bgp: "BGP";
+    /** Connected route (directly connected network) */
+    readonly Connected: "CONNECTED";
+    /** Dynamic route (learned via routing protocol) */
+    readonly Dynamic: "DYNAMIC";
+    /** OSPF route */
+    readonly Ospf: "OSPF";
+    /** Static route (manually configured) */
+    readonly Static: "STATIC";
+};
+export type RouteType = typeof RouteType[keyof typeof RouteType];
+/** A managed router device */
+export type Router = Node & {
+    /** Detected router capabilities (requires connection) */
+    readonly capabilities?: Maybe<RouterCapabilities>;
+    /** When the router was added to NasNet */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Router hostname or IP address */
+    readonly host: Scalars['String']['output'];
+    /** Unique router identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Last successful connection time */
+    readonly lastConnected?: Maybe<Scalars['DateTime']['output']>;
+    /** Router model */
+    readonly model?: Maybe<Scalars['String']['output']>;
+    /** User-friendly display name */
+    readonly name: Scalars['String']['output'];
+    /** Router platform type */
+    readonly platform: RouterPlatform;
+    /** Connection port */
+    readonly port: Scalars['Int']['output'];
+    /** Current connection status */
+    readonly status: ConnectionStatus;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** System uptime */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+    /** RouterOS version (if connected) */
+    readonly version?: Maybe<Scalars['String']['output']>;
+};
+/** Event emitted when a new router is added. */
+export type RouterAddedEvent = {
+    /** User who added the router (if authenticated) */
+    readonly addedBy?: Maybe<Scalars['String']['output']>;
+    /** Protocol used for initial connection */
+    readonly protocolUsed: Protocol;
+    /** The newly added router */
+    readonly router: Router;
+    /** Timestamp of addition */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Complete router capabilities detected from system inspection */
+export type RouterCapabilities = {
+    /** Capability entries with support levels */
+    readonly capabilities: ReadonlyArray<CapabilityEntry>;
+    /** Container-specific capabilities */
+    readonly container: ContainerInfo;
+    /** When capabilities were detected */
+    readonly detectedAt: Scalars['DateTime']['output'];
+    /** When cache expires (24h TTL) */
+    readonly expiresAt: Scalars['DateTime']['output'];
+    /** Hardware information */
+    readonly hardware: HardwareInfo;
+    /** Whether cache is stale and refresh is in progress */
+    readonly isRefreshing: Scalars['Boolean']['output'];
+    /** Parsed RouterOS version with comparison helpers */
+    readonly routerOSVersion: RouterOsVersion;
+    /** Software information */
+    readonly software: SoftwareInfo;
+    /** Features supported by this router's version and configuration */
+    readonly supportedFeatures: ReadonlyArray<FeatureSupport>;
+    /** Features not supported by this router (with upgrade guidance) */
+    readonly unsupportedFeatures: ReadonlyArray<FeatureSupport>;
+    /** VIF requirements check */
+    readonly vifRequirements: VifRequirements;
+};
+export type RouterConnection = Connection & {
+    readonly edges: ReadonlyArray<RouterEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+/**
+ * Router credential information (non-sensitive).
+ * Password is never included - only metadata about credentials.
+ */
+export type RouterCredentials = {
+    /** When credentials were first created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Encryption algorithm used (always 'AES-256-GCM') */
+    readonly encryptionStatus: Scalars['String']['output'];
+    /** Whether a password is stored */
+    readonly hasPassword: Scalars['Boolean']['output'];
+    /** Encryption key version (for rotation tracking) */
+    readonly keyVersion: Scalars['Int']['output'];
+    /** When credentials were last updated */
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Router ID these credentials belong to */
+    readonly routerId: Scalars['ID']['output'];
+    /** Username for router authentication */
+    readonly username: Scalars['String']['output'];
+};
+export type RouterEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: Router;
+};
+/** Information about a discovered RouterOS device */
+export type RouterOsInfo = {
+    /** CPU architecture (e.g., 'arm', 'x86', 'mips') */
+    readonly architecture?: Maybe<Scalars['String']['output']>;
+    /** Router board name (e.g., 'hAP ac3', 'CCR2004-1G-12S+2XS') */
+    readonly boardName?: Maybe<Scalars['String']['output']>;
+    /** Platform identifier */
+    readonly platform?: Maybe<Scalars['String']['output']>;
+    /** RouterOS version string (e.g., '7.12', '6.49.8') */
+    readonly version?: Maybe<Scalars['String']['output']>;
+};
+/** Parsed RouterOS version with semantic versioning */
+export type RouterOsVersion = {
+    /** Version channel (stable, beta, rc, long-term) */
+    readonly channel?: Maybe<Scalars['String']['output']>;
+    /** Check if version is at least the given version (e.g., '7.1') */
+    readonly isAtLeast: Scalars['Boolean']['output'];
+    /** Whether this is a Cloud Hosted Router (CHR) */
+    readonly isCHR: Scalars['Boolean']['output'];
+    /** Major version number */
+    readonly major: Scalars['Int']['output'];
+    /** Minor version number */
+    readonly minor: Scalars['Int']['output'];
+    /** Patch version number */
+    readonly patch: Scalars['Int']['output'];
+    /** Full version string (e.g., '7.13.2') */
+    readonly raw: Scalars['String']['output'];
+    /** Check if this version supports a specific feature */
+    readonly supportsFeature: Scalars['Boolean']['output'];
+};
+/** Parsed RouterOS version with semantic versioning */
+export type RouterOsVersionIsAtLeastArgs = {
+    version: Scalars['String']['input'];
+};
+/** Parsed RouterOS version with semantic versioning */
+export type RouterOsVersionSupportsFeatureArgs = {
+    featureId: Scalars['String']['input'];
+};
+/** Supported router platforms */
+export declare const RouterPlatform: {
+    /** Generic/Unknown */
+    readonly Generic: "GENERIC";
+    /** MikroTik RouterOS */
+    readonly Mikrotik: "MIKROTIK";
+    /** OpenWrt */
+    readonly Openwrt: "OPENWRT";
+    /** VyOS */
+    readonly Vyos: "VYOS";
+};
+export type RouterPlatform = typeof RouterPlatform[keyof typeof RouterPlatform];
+export type RouterStatusEvent = {
+    /** New status */
+    readonly newStatus: ConnectionStatus;
+    /** Previous status */
+    readonly previousStatus: ConnectionStatus;
+    /** The router whose status changed */
+    readonly router: Router;
+    /** Timestamp of the change */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/**
+ * A multi-hop routing chain that routes device traffic through multiple services sequentially.
+ * Example: Device -> VPN -> Tor -> Internet for layered privacy.
+ */
+export type RoutingChain = Node & {
+    /** Whether this chain is currently active */
+    readonly active: Scalars['Boolean']['output'];
+    /** Chain creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Target device identifier */
+    readonly deviceId: Scalars['ID']['output'];
+    /** Device IP address (when routing_mode=IP) */
+    readonly deviceIp?: Maybe<Scalars['String']['output']>;
+    /** Device MAC address (when routing_mode=MAC) */
+    readonly deviceMac?: Maybe<Scalars['String']['output']>;
+    /** Human-readable device name */
+    readonly deviceName?: Maybe<Scalars['String']['output']>;
+    /** Ordered list of service hops in this chain */
+    readonly hops: ReadonlyArray<ChainHop>;
+    /** Chain ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Timestamp when kill switch was last activated */
+    readonly killSwitchActivatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Whether kill switch is currently blocking traffic */
+    readonly killSwitchActive: Scalars['Boolean']['output'];
+    /** Whether kill switch is enabled for this chain */
+    readonly killSwitchEnabled: Scalars['Boolean']['output'];
+    /** Kill switch behavior mode */
+    readonly killSwitchMode: KillSwitchMode;
+    /** Routing mode (MAC or IP matching) */
+    readonly routingMode: RoutingMode;
+    /** Total latency across all hops in milliseconds */
+    readonly totalLatencyMs?: Maybe<Scalars['Float']['output']>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Result of a routing chain mutation. */
+export type RoutingChainMutationResult = {
+    /** The created or updated chain (null if failed) */
+    readonly chain?: Maybe<RoutingChain>;
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Human-readable message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Routing mode for device routing assignments. */
+export declare const RoutingMode: {
+    /** IP address-based routing (less reliable due to DHCP changes) */
+    readonly Ip: "IP";
+    /** MAC address-based routing (default, more reliable) */
+    readonly Mac: "MAC";
+};
+export type RoutingMode = typeof RoutingMode[keyof typeof RoutingMode];
+/**
+ * A single routing rule for device-to-service routing.
+ * Represents a MikroTik firewall mangle rule.
+ */
+export type RoutingRule = {
+    /** Action (e.g., 'mark-routing') */
+    readonly action: Scalars['String']['output'];
+    /** Mangle chain (e.g., 'prerouting') */
+    readonly chain: Scalars['String']['output'];
+    /** Comment for rule identification */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Destination address */
+    readonly dstAddress?: Maybe<Scalars['String']['output']>;
+    /** New routing mark to set */
+    readonly newRoutingMark?: Maybe<Scalars['String']['output']>;
+    /** Protocol (tcp, udp, icmp, etc.) */
+    readonly protocol?: Maybe<Scalars['String']['output']>;
+    /** Routing mark to match */
+    readonly routingMark?: Maybe<Scalars['String']['output']>;
+    /** Source address (MAC or IP) */
+    readonly srcAddress?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Time-based schedule for activating/deactivating device routing rules.
+ * Enables features like parental controls, time-based VPN routing, etc.
+ */
+export type RoutingSchedule = Node & {
+    /** When the schedule was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Days of week when schedule is active (0=Sunday, 6=Saturday) */
+    readonly days: ReadonlyArray<Scalars['Int']['output']>;
+    /** Whether this schedule is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** End time in HH:MM format (24-hour) */
+    readonly endTime: Scalars['String']['output'];
+    /** Schedule ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Whether the schedule window is currently active (computed field) */
+    readonly isActive: Scalars['Boolean']['output'];
+    /** Timestamp when routing was last activated by this schedule */
+    readonly lastActivated?: Maybe<Scalars['DateTime']['output']>;
+    /** Timestamp when routing was last deactivated by this schedule */
+    readonly lastDeactivated?: Maybe<Scalars['DateTime']['output']>;
+    /** Device routing ID this schedule controls */
+    readonly routingID: Scalars['ID']['output'];
+    /** Start time in HH:MM format (24-hour) */
+    readonly startTime: Scalars['String']['output'];
+    /** IANA timezone identifier (e.g., 'America/New_York', 'UTC') */
+    readonly timezone: Scalars['String']['output'];
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/** Input for running diagnostics on a service instance. */
+export type RunDiagnosticsInput = {
+    /** Instance ID to run diagnostics on */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Specific test names to run (empty = run all tests) */
+    readonly testNames?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+};
+/** Payload for run diagnostics mutation. */
+export type RunDiagnosticsPayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Diagnostic results */
+    readonly results?: Maybe<ReadonlyArray<DiagnosticResult>>;
+    /** Run group ID linking these results together */
+    readonly runGroupID?: Maybe<Scalars['String']['output']>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Result of running a diagnostic step */
+export type RunTroubleshootStepPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Updated step with result */
+    readonly step: TroubleshootStep;
+};
+/** Runtime health status */
+export declare const RuntimeHealth: {
+    /** Resource is running but degraded */
+    readonly Degraded: "DEGRADED";
+    /** Resource has failed */
+    readonly Failed: "FAILED";
+    /** Resource is healthy and operating normally */
+    readonly Healthy: "HEALTHY";
+    /** Health status unknown */
+    readonly Unknown: "UNKNOWN";
+    /** Resource is running but with warnings */
+    readonly Warning: "WARNING";
+};
+export type RuntimeHealth = typeof RuntimeHealth[keyof typeof RuntimeHealth];
+/** Resource-specific runtime metrics */
+export type RuntimeMetrics = {
+    /** Bytes received */
+    readonly bytesIn?: Maybe<Scalars['Size']['output']>;
+    /** Bytes transmitted */
+    readonly bytesOut?: Maybe<Scalars['Size']['output']>;
+    /** Resource-specific custom metrics */
+    readonly custom?: Maybe<Scalars['JSON']['output']>;
+    /** Drops count */
+    readonly drops?: Maybe<Scalars['Int']['output']>;
+    /** Error count */
+    readonly errors?: Maybe<Scalars['Int']['output']>;
+    /** Packets received */
+    readonly packetsIn?: Maybe<Scalars['Int']['output']>;
+    /** Packets transmitted */
+    readonly packetsOut?: Maybe<Scalars['Int']['output']>;
+    /** Current throughput in (bytes/sec) */
+    readonly throughputIn?: Maybe<Scalars['Size']['output']>;
+    /** Current throughput out (bytes/sec) */
+    readonly throughputOut?: Maybe<Scalars['Size']['output']>;
+};
+/**
+ * Layer 4: Live operational state polled/streamed from router.
+ * Updated via polling (5-60s interval) or WebSocket push.
+ */
+export type RuntimeState = {
+    /** Current peers/connections (for VPN, etc.) */
+    readonly activeConnections?: Maybe<Scalars['Int']['output']>;
+    /** Error message if resource is unhealthy */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Health status of the resource */
+    readonly health: RuntimeHealth;
+    /** Whether the resource is currently running/active */
+    readonly isRunning: Scalars['Boolean']['output'];
+    /** Time since last successful operation */
+    readonly lastSuccessfulOperation?: Maybe<Scalars['DateTime']['output']>;
+    /** Last time runtime was updated */
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Resource-specific runtime metrics */
+    readonly metrics?: Maybe<RuntimeMetrics>;
+    /** Resource uptime */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+};
+/** Input for saving custom alert rule template */
+export type SaveAlertRuleTemplateInput = {
+    /** Template category */
+    readonly category: AlertRuleTemplateCategory;
+    /** Notification channels */
+    readonly channels: ReadonlyArray<Scalars['String']['input']>;
+    /** Alert conditions */
+    readonly conditions: ReadonlyArray<AlertConditionInput>;
+    /** Template description */
+    readonly description: Scalars['String']['input'];
+    /** Event type */
+    readonly eventType: Scalars['String']['input'];
+    /** Template name */
+    readonly name: Scalars['String']['input'];
+    /** Alert severity */
+    readonly severity: AlertSeverity;
+    /** Throttle configuration */
+    readonly throttle?: InputMaybe<ThrottleConfigInput>;
+    /** Template variables */
+    readonly variables?: InputMaybe<ReadonlyArray<AlertRuleAlertTemplateVariableInput>>;
+};
+/** Input for saving a custom alert template */
+export type SaveAlertTemplateInput = {
+    /** Body template */
+    readonly bodyTemplate: Scalars['String']['input'];
+    /** Notification channel */
+    readonly channel: NotificationChannel;
+    /** Template description */
+    readonly description: Scalars['String']['input'];
+    /** Event type */
+    readonly eventType: Scalars['String']['input'];
+    /** Metadata */
+    readonly metadata?: InputMaybe<Scalars['JSON']['input']>;
+    /** Template name */
+    readonly name: Scalars['String']['input'];
+    /** Subject template */
+    readonly subjectTemplate?: InputMaybe<Scalars['String']['input']>;
+    /** Tags */
+    readonly tags?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Template variables */
+    readonly variables: ReadonlyArray<AlertAlertTemplateVariableInput>;
+};
+/** Input for saving a custom template. */
+export type SaveTemplateInput = {
+    /** Category */
+    readonly category: TemplateCategory;
+    /** Template description */
+    readonly description: Scalars['String']['input'];
+    /** Template name */
+    readonly name: Scalars['String']['input'];
+    /** Rule definitions */
+    readonly rules: ReadonlyArray<TemplateRuleInput>;
+    /** Variable definitions */
+    readonly variables: ReadonlyArray<FirewallTemplateVariableInput>;
+};
+/** Input for starting a network scan */
+export type ScanNetworkInput = {
+    /** Target subnet in CIDR notation (e.g., '192.168.88.0/24') or IP range (e.g., '192.168.1.1-192.168.1.100') */
+    readonly subnet: Scalars['String']['input'];
+};
+export type ScanNetworkPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created scan task */
+    readonly task?: Maybe<ScanTask>;
+};
+/** Real-time progress event for scan subscriptions */
+export type ScanProgressEvent = {
+    /** IP address currently being scanned */
+    readonly currentIP?: Maybe<Scalars['String']['output']>;
+    /** Number of MikroTik devices found so far */
+    readonly devicesFound: Scalars['Int']['output'];
+    /** Current progress percentage (0-100) */
+    readonly progress: Scalars['Int']['output'];
+    /** Current scan status */
+    readonly status: ScanStatus;
+    /** Task ID this event belongs to */
+    readonly taskId: Scalars['ID']['output'];
+    /** Timestamp of this progress update */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Status of a network scan operation */
+export declare const ScanStatus: {
+    /** Scan was cancelled by user */
+    readonly Cancelled: "CANCELLED";
+    /** Scan completed successfully */
+    readonly Completed: "COMPLETED";
+    /** Scan failed with an error */
+    readonly Failed: "FAILED";
+    /** Scan is queued and waiting to start */
+    readonly Pending: "PENDING";
+    /** Scan is actively running */
+    readonly Running: "RUNNING";
+};
+export type ScanStatus = typeof ScanStatus[keyof typeof ScanStatus];
+/** Payload for scanStorage mutation. */
+export type ScanStoragePayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Number of new storage locations detected */
+    readonly newStorageCount: Scalars['Int']['output'];
+    /** Detected storage locations */
+    readonly storageInfo: ReadonlyArray<StorageInfo>;
+};
+/**
+ * A network scan task that tracks scan progress and results.
+ * Scans are asynchronous - start with mutation, poll/subscribe for progress.
+ */
+export type ScanTask = {
+    /** When the scan completed (null if still running) */
+    readonly endTime?: Maybe<Scalars['DateTime']['output']>;
+    /** Error message if scan failed */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Unique task identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Scan progress percentage (0-100) */
+    readonly progress: Scalars['Int']['output'];
+    /** Discovered devices (populated as scan progresses) */
+    readonly results: ReadonlyArray<DiscoveredDevice>;
+    /** Number of IPs scanned so far */
+    readonly scannedIPs?: Maybe<Scalars['Int']['output']>;
+    /** When the scan was started */
+    readonly startTime: Scalars['DateTime']['output'];
+    /** Current scan status */
+    readonly status: ScanStatus;
+    /** Target subnet (CIDR notation, IP range, or gateway scan indicator) */
+    readonly subnet: Scalars['String']['output'];
+    /** Total IPs to scan (for progress calculation) */
+    readonly totalIPs?: Maybe<Scalars['Int']['output']>;
+};
+/**
+ * Schedule event for subscriptions.
+ * Emitted when schedules are created, updated, deleted, or when activation state changes.
+ */
+export type ScheduleEvent = {
+    /** Event type (created, updated, deleted, activated, deactivated) */
+    readonly eventType: Scalars['String']['output'];
+    /** Event ID */
+    readonly id: Scalars['ID']['output'];
+    /** Routing ID (for deleted schedules) */
+    readonly routingID?: Maybe<Scalars['ID']['output']>;
+    /** Schedule that changed */
+    readonly schedule?: Maybe<RoutingSchedule>;
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/**
+ * Service configuration sharing event for subscriptions.
+ * Emitted when configs are exported, imported, or QR codes generated.
+ */
+export type ServiceConfigSharedEvent = {
+    /** Event type (exported, imported, qr_generated) */
+    readonly eventType: Scalars['String']['output'];
+    /** Event ID */
+    readonly id: Scalars['ID']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['output'];
+    /** Service name */
+    readonly serviceName: Scalars['String']['output'];
+    /** Service type */
+    readonly serviceType: Scalars['String']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** User who performed the action */
+    readonly userID?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * ServiceDependency represents a dependency relationship between two service instances.
+ * Example: A VPN-over-Tor instance depends on a Tor instance being running.
+ */
+export type ServiceDependency = {
+    readonly autoStart: Scalars['Boolean']['output'];
+    readonly createdAt: Scalars['DateTime']['output'];
+    readonly dependencyType: DependencyType;
+    readonly fromInstance: ServiceInstance;
+    readonly healthTimeoutSeconds: Scalars['Int']['output'];
+    readonly id: Scalars['ID']['output'];
+    readonly toInstance: ServiceInstance;
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/**
+ * Export package containing service configuration.
+ * Used for sharing service configs via JSON or QR code.
+ */
+export type ServiceExportPackage = {
+    /** Binary version */
+    readonly binaryVersion: Scalars['String']['output'];
+    /** Service configuration (JSON) */
+    readonly config: Scalars['JSON']['output'];
+    /** Timestamp when the export was created */
+    readonly exportedAt: Scalars['DateTime']['output'];
+    /** User who exported this configuration */
+    readonly exportedByUserID?: Maybe<Scalars['String']['output']>;
+    /** Whether secrets are included (not redacted) */
+    readonly includesSecrets: Scalars['Boolean']['output'];
+    /** Optional routing rules for device routing */
+    readonly routingRules?: Maybe<ReadonlyArray<RoutingRule>>;
+    /** Schema version (e.g., "1.0") */
+    readonly schemaVersion: Scalars['String']['output'];
+    /** Service instance name */
+    readonly serviceName: Scalars['String']['output'];
+    /** Service type identifier (e.g., 'tor', 'mtproxy') */
+    readonly serviceType: Scalars['String']['output'];
+};
+/**
+ * Service instance running on a router.
+ * Represents an installed and potentially running service instance.
+ */
+export type ServiceInstance = Node & {
+    /** SHA256 checksum of the binary */
+    readonly binaryChecksum?: Maybe<Scalars['String']['output']>;
+    /** Path to the service binary */
+    readonly binaryPath?: Maybe<Scalars['String']['output']>;
+    /** Version of the service binary */
+    readonly binaryVersion?: Maybe<Scalars['String']['output']>;
+    /** IP address to bind the service to */
+    readonly bindIP?: Maybe<Scalars['String']['output']>;
+    /** Service-specific configuration (JSON) */
+    readonly config?: Maybe<Scalars['JSON']['output']>;
+    /** When the instance was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Feature identifier (e.g., 'tor', 'sing-box') */
+    readonly featureID: Scalars['String']['output'];
+    /** Instance ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Human-readable instance name */
+    readonly instanceName: Scalars['String']['output'];
+    /** Ports used by this service instance */
+    readonly ports: ReadonlyArray<Scalars['Int']['output']>;
+    /** The router this instance belongs to */
+    readonly router?: Maybe<Router>;
+    /** Router ID this instance belongs to */
+    readonly routerID: Scalars['String']['output'];
+    /** Current lifecycle status */
+    readonly status: ServiceInstanceStatus;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Binary verification information (null if verification not enabled) */
+    readonly verification?: Maybe<BinaryVerification>;
+    /** VLAN ID for network isolation */
+    readonly vlanID?: Maybe<Scalars['Int']['output']>;
+};
+/**
+ * Comprehensive health status for a service instance
+ * Combines process liveness, connection status, and latency metrics
+ */
+export type ServiceInstanceHealth = {
+    /** Connection status from TCP/HTTP health probe */
+    readonly connectionStatus: HealthConnectionState;
+    /** Number of consecutive health check failures */
+    readonly consecutiveFails: Scalars['Int']['output'];
+    /** Timestamp of when the instance was last healthy (null if never healthy) */
+    readonly lastHealthy?: Maybe<Scalars['DateTime']['output']>;
+    /** Health probe round-trip latency in milliseconds (null if probe hasn't run) */
+    readonly latencyMs?: Maybe<Scalars['Int']['output']>;
+    /** Whether the service process is alive (PID check) */
+    readonly processAlive: Scalars['Boolean']['output'];
+    /** Current health state of the instance */
+    readonly status: InstanceHealthState;
+    /** Instance uptime in seconds (null if not running) */
+    readonly uptimeSeconds?: Maybe<Scalars['Int']['output']>;
+};
+/** Health check configuration for a service instance */
+export type ServiceInstanceHealthConfig = {
+    /** Whether to auto-restart on health check failure (default: true) */
+    readonly autoRestart: Scalars['Boolean']['output'];
+    /** Consecutive failures before marking unhealthy (1-10, default: 3) */
+    readonly failureThreshold: Scalars['Int']['output'];
+    /** Health check interval in seconds (10-300, default: 30) */
+    readonly intervalSeconds: Scalars['Int']['output'];
+};
+/** Payload for service instance mutations. */
+export type ServiceInstancePayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The service instance (null if operation failed) */
+    readonly instance?: Maybe<ServiceInstance>;
+};
+/** Service instance lifecycle status. */
+export declare const ServiceInstanceStatus: {
+    /** Instance is being deleted */
+    readonly Deleting: "DELETING";
+    /** Operation failed */
+    readonly Failed: "FAILED";
+    /** Binary installed, ready to start */
+    readonly Installed: "INSTALLED";
+    /** Binary is being downloaded and installed */
+    readonly Installing: "INSTALLING";
+    /** Process is running */
+    readonly Running: "RUNNING";
+    /** Process is starting */
+    readonly Starting: "STARTING";
+    /** Process is stopped */
+    readonly Stopped: "STOPPED";
+    /** Process is stopping */
+    readonly Stopping: "STOPPING";
+};
+export type ServiceInstanceStatus = typeof ServiceInstanceStatus[keyof typeof ServiceInstanceStatus];
+/**
+ * Service log file with metadata.
+ * Represents captured logs from a service instance.
+ */
+export type ServiceLogFile = {
+    /** Timestamp when log file was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Recent log entries (last N lines) */
+    readonly entries: ReadonlyArray<LogEntry>;
+    /** Log file path on router filesystem */
+    readonly filePath: Scalars['String']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Timestamp when log file was last updated */
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Number of log lines available */
+    readonly lineCount: Scalars['Int']['output'];
+    /** Service name */
+    readonly serviceName: Scalars['String']['output'];
+    /** Current log file size in bytes */
+    readonly sizeBytes: Scalars['Int']['output'];
+};
+/** Service result from template installation */
+export type ServiceResult = {
+    /** Creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Error message if failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Created instance ID */
+    readonly instanceID?: Maybe<Scalars['String']['output']>;
+    /** Service name from template */
+    readonly serviceName: Scalars['String']['output'];
+    /** Status (success/failed/skipped) */
+    readonly status: Scalars['String']['output'];
+};
+/** Service specification within a template */
+export type ServiceSpec = {
+    /** Service-specific configuration overrides */
+    readonly configOverrides?: Maybe<Scalars['JSON']['output']>;
+    /** CPU shares */
+    readonly cpuShares?: Maybe<Scalars['Int']['output']>;
+    /** Service dependencies (references other services in template) */
+    readonly dependsOn?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Memory limit in MB */
+    readonly memoryLimitMB?: Maybe<Scalars['Int']['output']>;
+    /** Instance name template (supports variables) */
+    readonly name: Scalars['String']['output'];
+    /** Port mappings */
+    readonly portMappings?: Maybe<ReadonlyArray<PortMapping>>;
+    /** Whether this service needs Virtual Interface Factory */
+    readonly requiresBridge?: Maybe<Scalars['Boolean']['output']>;
+    /** Service type (feature ID like 'tor', 'xray-core') */
+    readonly serviceType: Scalars['String']['output'];
+    /** VLAN ID (null = auto-allocate) */
+    readonly vlanID?: Maybe<Scalars['Int']['output']>;
+};
+/** Service operational status */
+export declare const ServiceStatus: {
+    /** Service is operational with degraded performance */
+    readonly Degraded: "DEGRADED";
+    /** Service is fully operational */
+    readonly Healthy: "HEALTHY";
+    /** Service is not operational */
+    readonly Unhealthy: "UNHEALTHY";
+};
+export type ServiceStatus = typeof ServiceStatus[keyof typeof ServiceStatus];
+/** Service template */
+export type ServiceTemplate = Node & {
+    /** Template author */
+    readonly author?: Maybe<Scalars['String']['output']>;
+    /** Template category */
+    readonly category: ServiceTemplateCategory;
+    /** Configuration variables */
+    readonly configVariables: ReadonlyArray<TemplateVariable>;
+    /** Creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Detailed description */
+    readonly description: Scalars['String']['output'];
+    /** Documentation */
+    readonly documentation?: Maybe<Scalars['String']['output']>;
+    /** Resource estimates */
+    readonly estimatedResources?: Maybe<ResourceEstimate>;
+    /** Usage examples */
+    readonly examples?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Template ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Whether this is a built-in template */
+    readonly isBuiltIn: Scalars['Boolean']['output'];
+    /** Template name */
+    readonly name: Scalars['String']['output'];
+    /** Prerequisites */
+    readonly prerequisites?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Router ID (null for built-in templates) */
+    readonly routerID?: Maybe<Scalars['String']['output']>;
+    /** Deployment scope */
+    readonly scope: TemplateScope;
+    /** Services to deploy */
+    readonly services: ReadonlyArray<ServiceSpec>;
+    /** Routing suggestions */
+    readonly suggestedRouting?: Maybe<ReadonlyArray<SuggestedRoutingRule>>;
+    /** Search tags */
+    readonly tags?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Template version */
+    readonly version: Scalars['String']['output'];
+};
+/** Service template category enum */
+export declare const ServiceTemplateCategory: {
+    readonly AntiCensorship: "ANTI_CENSORSHIP";
+    readonly Gaming: "GAMING";
+    readonly Messaging: "MESSAGING";
+    readonly Networking: "NETWORKING";
+    readonly Privacy: "PRIVACY";
+    readonly Security: "SECURITY";
+};
+export type ServiceTemplateCategory = typeof ServiceTemplateCategory[keyof typeof ServiceTemplateCategory];
+/**
+ * Traffic statistics for a service instance.
+ * Tracks uploaded/downloaded bytes with historical data retention.
+ */
+export type ServiceTrafficStats = {
+    /** Download bytes in current period (day/week/month) */
+    readonly currentPeriodDownload: Scalars['Int']['output'];
+    /** Upload bytes in current period (day/week/month) */
+    readonly currentPeriodUpload: Scalars['Int']['output'];
+    /** Per-device breakdown (if available) */
+    readonly deviceBreakdown: ReadonlyArray<DeviceTrafficBreakdown>;
+    /** Historical data points for chart visualization */
+    readonly history: ReadonlyArray<TrafficDataPoint>;
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Timestamp of last statistics update */
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Traffic quota configuration (if set) */
+    readonly quota?: Maybe<TrafficQuota>;
+    /** Total bytes downloaded (received) */
+    readonly totalDownloadBytes: Scalars['Int']['output'];
+    /** Total bytes uploaded (transmitted) */
+    readonly totalUploadBytes: Scalars['Int']['output'];
+};
+/** Active user session */
+export type Session = {
+    /** Session creation time */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Session ULID */
+    readonly id: Scalars['ID']['output'];
+    /** Client IP address */
+    readonly ipAddress?: Maybe<Scalars['String']['output']>;
+    /** Whether this is the current session */
+    readonly isCurrent: Scalars['Boolean']['output'];
+    /** Last activity time */
+    readonly lastActivity: Scalars['DateTime']['output'];
+    /** Client user agent */
+    readonly userAgent?: Maybe<Scalars['String']['output']>;
+};
+/** Input for setting kill switch on a device routing. */
+export type SetKillSwitchInput = {
+    /** Device ID whose routing should have kill switch */
+    readonly deviceID: Scalars['String']['input'];
+    /** Whether to enable kill switch */
+    readonly enabled: Scalars['Boolean']['input'];
+    /** Fallback interface ID (required if mode=FALLBACK_SERVICE) */
+    readonly fallbackInterfaceID?: InputMaybe<Scalars['String']['input']>;
+    /** Kill switch behavior mode */
+    readonly mode: KillSwitchMode;
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+export type SetPreferredProtocolPayload = {
+    /** Updated connection details */
+    readonly connectionDetails?: Maybe<ConnectionDetails>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The updated router */
+    readonly router?: Maybe<Router>;
+};
+/** Input for setting resource limits on a service instance. */
+export type SetResourceLimitsInput = {
+    /** CPU weight for scheduling (0-100, optional) */
+    readonly cpuWeight?: InputMaybe<Scalars['Int']['input']>;
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Memory limit in megabytes (minimum 16MB) */
+    readonly memoryMB: Scalars['Int']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Input for setting a traffic quota on a service instance. */
+export type SetTrafficQuotaInput = {
+    /** Action to take when quota is reached */
+    readonly action: QuotaAction;
+    /** Instance ID to set quota on */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Maximum bytes allowed per period (0 = unlimited) */
+    readonly limitBytes: Scalars['Int']['input'];
+    /** Quota period */
+    readonly period: QuotaPeriod;
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+    /** Warning threshold percentage (0-100, default 80) */
+    readonly warningThreshold?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Single device routing assignment for bulk operations. */
+export type SingleDeviceRoutingInput = {
+    /** Device ID */
+    readonly deviceID: Scalars['String']['input'];
+    /** Device IP (optional) */
+    readonly deviceIP?: InputMaybe<Scalars['String']['input']>;
+    /** Device name (optional) */
+    readonly deviceName?: InputMaybe<Scalars['String']['input']>;
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Interface ID */
+    readonly interfaceID: Scalars['ID']['input'];
+    /** Device MAC address */
+    readonly macAddress: Scalars['String']['input'];
+    /** Routing mark */
+    readonly routingMark: Scalars['String']['input'];
+    /** Routing mode */
+    readonly routingMode: RoutingMode;
+};
+/** Software information detected from router */
+export type SoftwareInfo = {
+    /** List of installed packages */
+    readonly installedPackages: ReadonlyArray<Scalars['String']['output']>;
+    /** License level (0-6) */
+    readonly licenseLevel: Scalars['Int']['output'];
+    /** Update channel (stable, testing, development) */
+    readonly updateChannel?: Maybe<Scalars['String']['output']>;
+    /** RouterOS version string */
+    readonly version: Scalars['String']['output'];
+    /** Parsed major version number */
+    readonly versionMajor: Scalars['Int']['output'];
+    /** Parsed minor version number */
+    readonly versionMinor: Scalars['Int']['output'];
+    /** Parsed patch version number */
+    readonly versionPatch?: Maybe<Scalars['Int']['output']>;
+};
+/** Input for starting a service instance. */
+export type StartInstanceInput = {
+    /** Instance ID to start */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Result of starting a troubleshooting session */
+export type StartTroubleshootPayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The created session */
+    readonly session?: Maybe<TroubleshootSession>;
+};
+/**
+ * Startup diagnostic results collected during instance boot.
+ * Automatically run when a service starts.
+ */
+export type StartupDiagnostics = {
+    /** Number of tests that failed */
+    readonly failedCount: Scalars['Int']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Overall health status (pass if all tests passed) */
+    readonly overallStatus: DiagnosticStatus;
+    /** Number of tests that passed */
+    readonly passedCount: Scalars['Int']['output'];
+    /** Test results */
+    readonly results: ReadonlyArray<DiagnosticResult>;
+    /** Run group ID linking these results together */
+    readonly runGroupID: Scalars['String']['output'];
+    /** Timestamp when diagnostics were run */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total number of tests run */
+    readonly totalTests: Scalars['Int']['output'];
+    /** Number of tests with warnings */
+    readonly warningCount: Scalars['Int']['output'];
+};
+/** Static IP WAN configuration */
+export type StaticIpConfig = Node & {
+    /** Static IP address with CIDR */
+    readonly address: Scalars['CIDR']['output'];
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Gateway IP address */
+    readonly gateway: Scalars['IPv4']['output'];
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interface: Scalars['String']['output'];
+    /** Primary DNS server */
+    readonly primaryDNS?: Maybe<Scalars['IPv4']['output']>;
+    /** Secondary DNS server */
+    readonly secondaryDNS?: Maybe<Scalars['IPv4']['output']>;
+};
+/** Input for configuring static IP WAN */
+export type StaticIpInput = {
+    /** Static IP address with CIDR (e.g., 203.0.113.5/30) */
+    readonly address: Scalars['CIDR']['input'];
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Gateway IP address */
+    readonly gateway: Scalars['IPv4']['input'];
+    /** Interface to configure */
+    readonly interface: Scalars['String']['input'];
+    /** Primary DNS server */
+    readonly primaryDNS?: InputMaybe<Scalars['IPv4']['input']>;
+    /** Secondary DNS server */
+    readonly secondaryDNS?: InputMaybe<Scalars['IPv4']['input']>;
+};
+/** A single data point in interface statistics history */
+export type StatsDataPoint = {
+    /** Receive rate in bytes per second */
+    readonly rxBytesPerSec: Scalars['Float']['output'];
+    /** Receive errors in this interval */
+    readonly rxErrors: Scalars['Int']['output'];
+    /** Receive rate in packets per second */
+    readonly rxPacketsPerSec: Scalars['Float']['output'];
+    /** Timestamp of the data point */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Transmit rate in bytes per second */
+    readonly txBytesPerSec: Scalars['Float']['output'];
+    /** Transmission errors in this interval */
+    readonly txErrors: Scalars['Int']['output'];
+    /** Transmit rate in packets per second */
+    readonly txPacketsPerSec: Scalars['Float']['output'];
+};
+/** Input for specifying a time range */
+export type StatsTimeRangeInput = {
+    /** End of the time range */
+    readonly end: Scalars['DateTime']['input'];
+    /** Start of the time range */
+    readonly start: Scalars['DateTime']['input'];
+};
+/** Input for stopping a service instance. */
+export type StopInstanceInput = {
+    /** Instance ID to stop */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/**
+ * Storage breakdown for a specific location (flash or external).
+ * Shows what types of data are stored and capacity metrics.
+ */
+export type StorageBreakdown = {
+    /** Available free space in bytes (serialized uint64) */
+    readonly availableBytes: Scalars['String']['output'];
+    /** Human-readable description of contents (e.g., 'Configs, DB' or 'Binaries, data') */
+    readonly contents: Scalars['String']['output'];
+    /** Storage location type */
+    readonly locationType: StorageLocationType;
+    /** Space threshold status */
+    readonly thresholdStatus: StorageThresholdStatus;
+    /** Total capacity in bytes (serialized uint64) */
+    readonly totalBytes: Scalars['String']['output'];
+    /** Usage percentage (0-100) */
+    readonly usagePercent: Scalars['Float']['output'];
+    /** Used space in bytes (serialized uint64) */
+    readonly usedBytes: Scalars['String']['output'];
+};
+/**
+ * Storage configuration state.
+ * Represents the current external storage configuration.
+ */
+export type StorageConfig = {
+    /** Whether external storage is enabled and configured */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Whether configured storage is currently available */
+    readonly isAvailable: Scalars['Boolean']['output'];
+    /** Configured external storage path (null if not configured) */
+    readonly path?: Maybe<Scalars['String']['output']>;
+    /** Storage info for configured path (null if not mounted) */
+    readonly storageInfo?: Maybe<StorageInfo>;
+    /** When the configuration was last updated */
+    readonly updatedAt: Scalars['DateTime']['output'];
+};
+/**
+ * Information about a storage location (flash or external).
+ * Represents a detected mount point with capacity and filesystem information.
+ */
+export type StorageInfo = {
+    /** Available free space in bytes (serialized uint64) */
+    readonly availableBytes: Scalars['String']['output'];
+    /** Filesystem type (e.g., 'ext4', 'vfat', 'ntfs') */
+    readonly filesystem: Scalars['String']['output'];
+    /** Storage location type */
+    readonly locationType: StorageLocationType;
+    /** Whether the storage is currently mounted and accessible */
+    readonly mounted: Scalars['Boolean']['output'];
+    /** Absolute path to the mount point (e.g., '/data', '/usb1', '/disk1') */
+    readonly path: Scalars['String']['output'];
+    /** Total capacity in bytes (serialized uint64) */
+    readonly totalBytes: Scalars['String']['output'];
+    /** Usage percentage (0-100, calculated from used/total) */
+    readonly usagePercent: Scalars['Float']['output'];
+    /** Used space in bytes (serialized uint64) */
+    readonly usedBytes: Scalars['String']['output'];
+};
+/** Type of storage location. */
+export declare const StorageLocationType: {
+    /** External USB/disk storage (large, removable) */
+    readonly External: "EXTERNAL";
+    /** Internal flash memory (limited, persistent) */
+    readonly Flash: "FLASH";
+    /** Unknown storage type */
+    readonly Unknown: "UNKNOWN";
+};
+export type StorageLocationType = typeof StorageLocationType[keyof typeof StorageLocationType];
+/** Storage utilization metrics */
+export type StorageMetrics = {
+    /** Storage usage percentage (0-100) */
+    readonly percentage: Scalars['Float']['output'];
+    /** Total storage in bytes */
+    readonly total: Scalars['Float']['output'];
+    /** Used storage in bytes */
+    readonly used: Scalars['Float']['output'];
+};
+/** Union type for storage mount/unmount events. */
+export type StorageMountEvent = StorageMountedEvent | StorageUnmountedEvent;
+/** Event emitted when storage is mounted or becomes available. */
+export type StorageMountedEvent = {
+    /** Number of features restored (if reconnection) */
+    readonly featuresRestored: Scalars['Int']['output'];
+    /** Storage path that was mounted */
+    readonly path: Scalars['String']['output'];
+    /** Storage information */
+    readonly storageInfo: StorageInfo;
+    /** Timestamp of the event */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Event emitted when storage space crosses a threshold. */
+export type StorageSpaceEvent = {
+    /** Available bytes remaining (serialized uint64) */
+    readonly availableBytes: Scalars['String']['output'];
+    /** Storage path */
+    readonly path: Scalars['String']['output'];
+    /** Previous threshold status */
+    readonly previousStatus: StorageThresholdStatus;
+    /** Current threshold status */
+    readonly status: StorageThresholdStatus;
+    /** Timestamp of the event */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Current usage percentage */
+    readonly usagePercent: Scalars['Float']['output'];
+};
+/**
+ * Storage space threshold status.
+ * Used to trigger warnings and prevent installations when space is low.
+ */
+export declare const StorageThresholdStatus: {
+    /** Critical space warning (90-94%) */
+    readonly Critical: "CRITICAL";
+    /** Full - installations blocked (95%+) */
+    readonly Full: "FULL";
+    /** Low space warning (80-89%) */
+    readonly Low: "LOW";
+    /** Normal usage (<80%) */
+    readonly Normal: "NORMAL";
+};
+export type StorageThresholdStatus = typeof StorageThresholdStatus[keyof typeof StorageThresholdStatus];
+/** Event emitted when storage is unmounted or becomes unavailable. */
+export type StorageUnmountedEvent = {
+    /** List of affected feature IDs */
+    readonly affectedFeatureIds: ReadonlyArray<Scalars['String']['output']>;
+    /** Number of features affected (stopped) */
+    readonly featuresAffected: Scalars['Int']['output'];
+    /** Storage path that was unmounted */
+    readonly path: Scalars['String']['output'];
+    /** Timestamp of the event */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/**
+ * Comprehensive storage usage breakdown across flash and external locations.
+ * Shows how storage is allocated across configs, binaries, data, and per-feature.
+ */
+export type StorageUsage = {
+    /** Timestamp when usage was calculated */
+    readonly calculatedAt: Scalars['DateTime']['output'];
+    /** External storage usage breakdown (null if not configured) */
+    readonly external?: Maybe<StorageBreakdown>;
+    /** Per-feature storage usage details */
+    readonly features: ReadonlyArray<FeatureStorageUsage>;
+    /** Flash memory usage breakdown */
+    readonly flash: StorageBreakdown;
+    /** Total available capacity across all locations in bytes (serialized uint64) */
+    readonly totalCapacityBytes: Scalars['String']['output'];
+    /** Total storage usage across all locations in bytes (serialized uint64) */
+    readonly totalUsedBytes: Scalars['String']['output'];
+};
+/** Alert rule contribution to storm detection */
+export type StormRuleContribution = {
+    /** Number of alerts from this rule in current window */
+    readonly alertCount: Scalars['Int']['output'];
+    /** Percentage of total alerts */
+    readonly percentage: Scalars['Float']['output'];
+    /** Alert rule ID */
+    readonly ruleId: Scalars['ID']['output'];
+    /** Alert rule name */
+    readonly ruleName: Scalars['String']['output'];
+};
+/**
+ * Storm detection status
+ * Shows if alert storm is detected and current metrics
+ */
+export type StormStatus = {
+    /** Number of alerts in current window */
+    readonly alertCount: Scalars['Int']['output'];
+    /** Whether storm is currently detected */
+    readonly isStormDetected: Scalars['Boolean']['output'];
+    /** When storm detection started */
+    readonly stormStartedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Storm detection threshold */
+    readonly threshold: Scalars['Int']['output'];
+    /** Top alert rules contributing to the storm */
+    readonly topRules: ReadonlyArray<StormRuleContribution>;
+    /** When current window ends */
+    readonly windowEnd: Scalars['DateTime']['output'];
+    /** Window duration in seconds */
+    readonly windowSeconds: Scalars['Int']['output'];
+    /** When current window started */
+    readonly windowStart: Scalars['DateTime']['output'];
+};
+export declare const StpPortRole: {
+    readonly Alternate: "ALTERNATE";
+    readonly Backup: "BACKUP";
+    readonly Designated: "DESIGNATED";
+    readonly Disabled: "DISABLED";
+    readonly Root: "ROOT";
+};
+export type StpPortRole = typeof StpPortRole[keyof typeof StpPortRole];
+export declare const StpPortState: {
+    readonly Blocking: "BLOCKING";
+    readonly Disabled: "DISABLED";
+    readonly Forwarding: "FORWARDING";
+    readonly Learning: "LEARNING";
+    readonly Listening: "LISTENING";
+};
+export type StpPortState = typeof StpPortState[keyof typeof StpPortState];
+export declare const StpProtocol: {
+    readonly Mstp: "MSTP";
+    readonly None: "NONE";
+    readonly Rstp: "RSTP";
+    readonly Stp: "STP";
+};
+export type StpProtocol = typeof StpProtocol[keyof typeof StpProtocol];
+export type Subscription = {
+    /** Subscribe to alert events for real-time updates */
+    readonly alertEvents: AlertEvent;
+    /**
+     * Subscribe to boot sequence events for real-time progress updates.
+     * Emits events during system boot when auto-start instances are being started.
+     */
+    readonly bootSequenceEvents: BootSequenceEvent;
+    /** Subscribe to bridge port changes */
+    readonly bridgePortsChanged: ReadonlyArray<BridgePort>;
+    /** Subscribe to STP status changes for a bridge */
+    readonly bridgeStpStatusChanged: BridgeStpStatus;
+    /** Subscribe to change set application progress */
+    readonly changeSetProgress: ChangeSetProgressEvent;
+    /** Subscribe to change set status changes */
+    readonly changeSetStatusChanged: ChangeSetStatusEvent;
+    /** Subscribe to circuit breaker state changes */
+    readonly circuitBreakerChanged: CircuitBreakerEvent;
+    /**
+     * Subscribe to circuit breaker state changes for a router.
+     * Emits an event whenever the circuit breaker transitions between states.
+     */
+    readonly circuitBreakerStateChanged: CircuitBreakerStatus;
+    /** Subscribe to configuration apply progress */
+    readonly configApplyProgress: ConfigProgress;
+    /** Subscribe to connection health updates */
+    readonly connectionHealth: HealthCheckResult;
+    /**
+     * Subscribe to device routing changes for a router.
+     * Emits events when devices are assigned, removed, or updated.
+     */
+    readonly deviceRoutingChanged: DeviceRoutingEvent;
+    /**
+     * Subscribe to diagnostic progress updates.
+     * Emits events as each test completes during a diagnostic run.
+     */
+    readonly diagnosticsProgress: DiagnosticsProgress;
+    /**
+     * Subscribe to installation progress events for a router.
+     * Emits progress updates during binary download and installation.
+     */
+    readonly installProgress: InstallProgress;
+    /**
+     * Real-time health status changes for a service instance
+     * Streams updates when health state transitions (HEALTHY ↔ UNHEALTHY)
+     */
+    readonly instanceHealthChanged: ServiceInstanceHealth;
+    /**
+     * Subscribe to instance status changes for a router.
+     * Emits events when any instance changes state.
+     */
+    readonly instanceStatusChanged: InstanceStatusChanged;
+    /** Subscribe to real-time interface statistics updates */
+    readonly interfaceStatsUpdated: InterfaceStats;
+    /** Subscribe to interface status changes for real-time updates */
+    readonly interfaceStatusChanged: InterfaceStatusEvent;
+    /** Subscribe to interface traffic updates */
+    readonly interfaceTraffic: InterfaceTrafficEvent;
+    /** Subscribe to IP address changes (create, update, delete) */
+    readonly ipAddressChanged: IpAddressChangeEvent;
+    /**
+     * Subscribe to kill switch state changes for a router.
+     * Emits events when kill switch is activated, deactivated, or configuration changes.
+     */
+    readonly killSwitchChanged: DeviceRoutingEvent;
+    /** Subscribe to port mirror status changes */
+    readonly portMirrorChanged: PortMirror;
+    /** Subscribe to real-time resource metrics updates */
+    readonly resourceMetrics: ResourceMetrics;
+    /** Subscribe to resource runtime updates */
+    readonly resourceRuntime: ResourceRuntimeEvent;
+    /** Subscribe to resource lifecycle state changes */
+    readonly resourceStateChanged: ResourceStateEvent;
+    /** Subscribe to resource updates (create, update, delete) */
+    readonly resourceUpdated: ResourceUpdatedEvent;
+    /**
+     * Subscribe to resource usage changes for a specific instance.
+     * Emits updates when memory usage changes significantly or crosses thresholds.
+     */
+    readonly resourceUsageChanged: ResourceUsage;
+    /**
+     * Subscribe to router addition events.
+     * Emits when a new router is successfully added to the system.
+     */
+    readonly routerAdded: RouterAddedEvent;
+    /** Subscribe to router status changes */
+    readonly routerStatusChanged: RouterStatusEvent;
+    /** Real-time updates when any routing chain changes (create, update, remove, kill switch). */
+    readonly routingChainChanged: RoutingChain;
+    /**
+     * Subscribe to real-time scan progress updates.
+     * Emits events every 5% progress or every 2 seconds, whichever is sooner.
+     */
+    readonly scanProgress: ScanProgressEvent;
+    /**
+     * Subscribe to schedule changes for a router.
+     * Emits events when schedules are created, updated, deleted, or when activation state changes.
+     */
+    readonly scheduleChanged: ScheduleEvent;
+    /**
+     * Subscribe to service configuration sharing events.
+     * Emits events when configs are exported, imported, or QR codes generated.
+     */
+    readonly serviceConfigShared: ServiceConfigSharedEvent;
+    /**
+     * Subscribe to real-time log stream for a service instance.
+     * Emits new log entries as they are generated.
+     */
+    readonly serviceLogs: LogEntry;
+    /**
+     * Subscribe to traffic statistics updates for a service instance.
+     * Emits updates every 10 seconds with current traffic totals and deltas.
+     */
+    readonly serviceTrafficUpdated: TrafficStatsEvent;
+    /**
+     * Subscribe to storage mount/unmount events.
+     * Emits when external storage becomes available or unavailable.
+     */
+    readonly storageMountChanged: StorageMountEvent;
+    /**
+     * Subscribe to storage space threshold events.
+     * Emits when storage usage crosses 80%, 90%, or 95% thresholds.
+     */
+    readonly storageSpaceChanged: StorageSpaceEvent;
+    /**
+     * Subscribe to template installation progress.
+     * Emits progress updates during installation.
+     */
+    readonly templateInstallProgress: TemplateInstallProgress;
+    /**
+     * Subscribe to traceroute progress updates.
+     * Emits an event for each hop discovered and when traceroute completes.
+     */
+    readonly tracerouteProgress: TracerouteProgressEvent;
+    /**
+     * Subscribe to troubleshooting session progress.
+     * Emits events as steps are executed, fixes are applied, and results are updated.
+     */
+    readonly troubleshootProgress: TroubleshootSession;
+    /** Subscribe to tunnel status changes (create, update, delete) */
+    readonly tunnelChanged: Tunnel;
+    /**
+     * Subscribe to update progress for a router.
+     * Emits progress updates during atomic update process.
+     */
+    readonly updateProgress: UpdateProgress;
+    /**
+     * Subscribe to binary verification events for a router.
+     * Emits events when binaries are verified, verification fails, or integrity checks fail.
+     */
+    readonly verificationEvents: VerificationEvent;
+    /** Subscribe to VLAN interface changes (create, update, delete) */
+    readonly vlanChanged: Vlan;
+    /** Subscribe to WAN health check updates */
+    readonly wanHealthChanged: WanHealthStatus;
+    /** Subscribe to WAN status changes */
+    readonly wanStatusChanged: WanInterface;
+};
+export type SubscriptionAlertEventsArgs = {
+    deviceId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type SubscriptionBridgePortsChangedArgs = {
+    bridgeId: Scalars['ID']['input'];
+};
+export type SubscriptionBridgeStpStatusChangedArgs = {
+    bridgeId: Scalars['ID']['input'];
+};
+export type SubscriptionChangeSetProgressArgs = {
+    changeSetId: Scalars['ID']['input'];
+};
+export type SubscriptionChangeSetStatusChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionCircuitBreakerChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionCircuitBreakerStateChangedArgs = {
+    routerId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type SubscriptionConfigApplyProgressArgs = {
+    operationId: Scalars['ID']['input'];
+};
+export type SubscriptionConnectionHealthArgs = {
+    routerId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type SubscriptionDeviceRoutingChangedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionDiagnosticsProgressArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionInstallProgressArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionInstanceHealthChangedArgs = {
+    instanceID?: InputMaybe<Scalars['ID']['input']>;
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionInstanceStatusChangedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionInterfaceStatsUpdatedArgs = {
+    interfaceId: Scalars['ID']['input'];
+    interval?: InputMaybe<Scalars['Duration']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionInterfaceStatusChangedArgs = {
+    interfaceId?: InputMaybe<Scalars['ID']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionInterfaceTrafficArgs = {
+    interfaceId?: InputMaybe<Scalars['ID']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionIpAddressChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionKillSwitchChangedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionPortMirrorChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionResourceMetricsArgs = {
+    deviceId: Scalars['ID']['input'];
+};
+export type SubscriptionResourceRuntimeArgs = {
+    id: Scalars['ID']['input'];
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionResourceStateChangedArgs = {
+    id?: InputMaybe<Scalars['ID']['input']>;
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionResourceUpdatedArgs = {
+    resourceId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type SubscriptionResourceUsageChangedArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionRouterStatusChangedArgs = {
+    routerId?: InputMaybe<Scalars['ID']['input']>;
+};
+export type SubscriptionRoutingChainChangedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionScanProgressArgs = {
+    taskId: Scalars['ID']['input'];
+};
+export type SubscriptionScheduleChangedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionServiceConfigSharedArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionServiceLogsArgs = {
+    instanceID: Scalars['ID']['input'];
+    levelFilter?: InputMaybe<LogLevel>;
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionServiceTrafficUpdatedArgs = {
+    instanceID: Scalars['ID']['input'];
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionStorageMountChangedArgs = {
+    path?: InputMaybe<Scalars['String']['input']>;
+};
+export type SubscriptionStorageSpaceChangedArgs = {
+    path?: InputMaybe<Scalars['String']['input']>;
+};
+export type SubscriptionTemplateInstallProgressArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionTracerouteProgressArgs = {
+    jobId: Scalars['ID']['input'];
+};
+export type SubscriptionTroubleshootProgressArgs = {
+    sessionId: Scalars['ID']['input'];
+};
+export type SubscriptionTunnelChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionUpdateProgressArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionVerificationEventsArgs = {
+    routerID: Scalars['ID']['input'];
+};
+export type SubscriptionVlanChangedArgs = {
+    routerId: Scalars['ID']['input'];
+};
+export type SubscriptionWanHealthChangedArgs = {
+    routerId: Scalars['ID']['input'];
+    wanInterfaceId: Scalars['ID']['input'];
+};
+export type SubscriptionWanStatusChangedArgs = {
+    routerId: Scalars['ID']['input'];
+    wanInterfaceId?: InputMaybe<Scalars['ID']['input']>;
+};
+/** Routing suggestion for a template */
+export type SuggestedRoutingRule = {
+    /** Rule description */
+    readonly description: Scalars['String']['output'];
+    /** Destination port filter */
+    readonly destinationPort?: Maybe<Scalars['Int']['output']>;
+    /** Device name pattern (e.g., 'all', 'phone-*') */
+    readonly devicePattern: Scalars['String']['output'];
+    /** Protocol filter */
+    readonly protocol?: Maybe<Scalars['String']['output']>;
+    /** Target service name from template */
+    readonly targetService: Scalars['String']['output'];
+};
+/** Severity level for diagnostic suggestions */
+export declare const SuggestionSeverity: {
+    /** Critical issue blocking connectivity */
+    readonly Critical: "CRITICAL";
+    /** Error that needs to be addressed */
+    readonly Error: "ERROR";
+    /** Informational message, no action required */
+    readonly Info: "INFO";
+    /** Warning that may affect functionality */
+    readonly Warning: "WARNING";
+};
+export type SuggestionSeverity = typeof SuggestionSeverity[keyof typeof SuggestionSeverity];
+/**
+ * System-wide resource overview for a router.
+ * Shows total resources, available resources, and per-instance allocations.
+ */
+export type SystemResources = {
+    /** Total allocated RAM across all instances in megabytes */
+    readonly allocatedRAM: Scalars['Int']['output'];
+    /** Available (unallocated) RAM in megabytes */
+    readonly availableRAM: Scalars['Int']['output'];
+    /** Per-instance resource usage details */
+    readonly instances: ReadonlyArray<InstanceResourceUsage>;
+    /** Total RAM available on the router in megabytes */
+    readonly totalRAM: Scalars['Int']['output'];
+};
+/** TLS certificate status for secure connections */
+export type TlsStatus = {
+    /** Error message (if certificate is invalid) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Certificate expiration date */
+    readonly expiresAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Certificate issuer */
+    readonly issuer?: Maybe<Scalars['String']['output']>;
+    /** Certificate subject */
+    readonly subject?: Maybe<Scalars['String']['output']>;
+    /** Whether the certificate is valid */
+    readonly valid: Scalars['Boolean']['output'];
+};
+/**
+ * Layer 5: Time-series metrics and historical data.
+ * Collected over time for analytics and trending.
+ */
+export type TelemetryData = {
+    /** Bandwidth history (last 24h) */
+    readonly bandwidthHistory?: Maybe<ReadonlyArray<BandwidthDataPoint>>;
+    /** Daily statistics */
+    readonly dailyStats?: Maybe<ReadonlyArray<DailyStats>>;
+    /** First data point timestamp */
+    readonly dataStartedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Hourly statistics */
+    readonly hourlyStats?: Maybe<ReadonlyArray<HourlyStats>>;
+    /** Last data point timestamp */
+    readonly lastUpdatedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Data retention period */
+    readonly retentionDays: Scalars['Int']['output'];
+    /** Uptime history (availability) */
+    readonly uptimeHistory?: Maybe<ReadonlyArray<UptimeDataPoint>>;
+};
+/** Template categories for organization. */
+export declare const TemplateCategory: {
+    /** Basic security rules */
+    readonly Basic: "BASIC";
+    /** User-created custom templates */
+    readonly Custom: "CUSTOM";
+    /** Gaming-optimized rules */
+    readonly Gaming: "GAMING";
+    /** Guest network access */
+    readonly Guest: "GUEST";
+    /** Home network configurations */
+    readonly Home: "HOME";
+    /** IoT device isolation */
+    readonly Iot: "IOT";
+};
+export type TemplateCategory = typeof TemplateCategory[keyof typeof TemplateCategory];
+/** Template complexity levels. */
+export declare const TemplateComplexity: {
+    /** Advanced templates with many rules */
+    readonly Advanced: "ADVANCED";
+    /** Moderate complexity */
+    readonly Moderate: "MODERATE";
+    /** Simple templates with few rules */
+    readonly Simple: "SIMPLE";
+};
+export type TemplateComplexity = typeof TemplateComplexity[keyof typeof TemplateComplexity];
+/** Detected conflict between template and existing configuration. */
+export type TemplateConflict = {
+    /** Existing rule ID that conflicts (if applicable) */
+    readonly existingRuleId?: Maybe<Scalars['ID']['output']>;
+    /** Human-readable conflict description */
+    readonly message: Scalars['String']['output'];
+    /** Proposed template rule that conflicts */
+    readonly proposedRule: TemplateRule;
+    /** Type of conflict */
+    readonly type: TemplateConflictType;
+};
+/** Conflict types between template and existing configuration. */
+export declare const TemplateConflictType: {
+    /** Chain configuration conflicts */
+    readonly ChainConflict: "CHAIN_CONFLICT";
+    /** Duplicate rule already exists */
+    readonly DuplicateRule: "DUPLICATE_RULE";
+    /** IP address range overlaps */
+    readonly IpOverlap: "IP_OVERLAP";
+    /** Position conflict in chain */
+    readonly PositionConflict: "POSITION_CONFLICT";
+};
+export type TemplateConflictType = typeof TemplateConflictType[keyof typeof TemplateConflictType];
+/** Template installation progress */
+export type TemplateInstallProgress = {
+    /** Installation completion time */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Current service being installed */
+    readonly currentService?: Maybe<Scalars['String']['output']>;
+    /** Error message if failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Number of services installed */
+    readonly installedCount: Scalars['Int']['output'];
+    /** Individual service results */
+    readonly serviceResults: ReadonlyArray<ServiceResult>;
+    /** Installation start time */
+    readonly startedAt: Scalars['DateTime']['output'];
+    /** Installation status */
+    readonly status: TemplateInstallationStatus;
+    /** Template ID being installed */
+    readonly templateID: Scalars['ID']['output'];
+    /** Total number of services */
+    readonly totalServices: Scalars['Int']['output'];
+};
+/** Template installation result */
+export type TemplateInstallResult = {
+    /** Errors encountered */
+    readonly errors?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Created instance IDs */
+    readonly instanceIDs: ReadonlyArray<Scalars['ID']['output']>;
+    /** Installation progress */
+    readonly progress?: Maybe<TemplateInstallProgress>;
+    /** Map of service names to instance IDs */
+    readonly serviceMapping: Scalars['JSON']['output'];
+    /** Whether installation was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Template installation status */
+export declare const TemplateInstallationStatus: {
+    readonly Completed: "COMPLETED";
+    readonly Failed: "FAILED";
+    readonly InProgress: "IN_PROGRESS";
+    readonly Partial: "PARTIAL";
+    readonly Pending: "PENDING";
+};
+export type TemplateInstallationStatus = typeof TemplateInstallationStatus[keyof typeof TemplateInstallationStatus];
+/** Template preview result */
+export type TemplatePreview = {
+    /** Rendered body after variable substitution */
+    readonly renderedBody: Scalars['String']['output'];
+    /** Rendered subject after variable substitution */
+    readonly renderedSubject: Scalars['String']['output'];
+    /** The template that was previewed */
+    readonly template: AlertTemplate;
+    /** Validation information */
+    readonly validationInfo: TemplateValidationInfo;
+    /** Variables used in preview */
+    readonly variables: Scalars['JSON']['output'];
+};
+/** Template preview payload */
+export type TemplatePreviewPayload = {
+    /** Errors encountered during preview */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Preview result */
+    readonly preview?: Maybe<TemplatePreview>;
+};
+/**
+ * Result of template preview operation.
+ * Shows what will happen when template is applied.
+ */
+export type TemplatePreviewResult = {
+    /** Detected conflicts with existing rules */
+    readonly conflicts: ReadonlyArray<TemplateConflict>;
+    /** Impact analysis */
+    readonly impactAnalysis: ImpactAnalysis;
+    /** Rules with variables resolved */
+    readonly resolvedRules: ReadonlyArray<TemplateRule>;
+    /** The template being previewed */
+    readonly template: FirewallTemplate;
+};
+/**
+ * Template rule definition.
+ * Represents a firewall rule that will be created when template is applied.
+ */
+export type TemplateRule = {
+    /** Action to perform */
+    readonly action: Scalars['String']['output'];
+    /** Chain name */
+    readonly chain: Scalars['String']['output'];
+    /** Optional comment (can include template metadata) */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Position in the chain (null = append to end) */
+    readonly position?: Maybe<Scalars['Int']['output']>;
+    /** Rule properties as JSON (can include variable references like {{LAN_INTERFACE}}) */
+    readonly properties: Scalars['JSON']['output'];
+    /** Firewall table (filter, nat, mangle, raw) */
+    readonly table: FirewallTable;
+};
+/** Input for defining a template rule. */
+export type TemplateRuleInput = {
+    /** Action */
+    readonly action: Scalars['String']['input'];
+    /** Chain name */
+    readonly chain: Scalars['String']['input'];
+    /** Comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Position */
+    readonly position?: InputMaybe<Scalars['Int']['input']>;
+    /** Rule properties as JSON */
+    readonly properties: Scalars['JSON']['input'];
+    /** Firewall table */
+    readonly table: FirewallTable;
+};
+/** Template deployment scope */
+export declare const TemplateScope: {
+    /** Chained services (e.g., Tor -> Xray) */
+    readonly Chain: "CHAIN";
+    /** Multiple independent services */
+    readonly Multiple: "MULTIPLE";
+    /** Single service instance */
+    readonly Single: "SINGLE";
+};
+export type TemplateScope = typeof TemplateScope[keyof typeof TemplateScope];
+/** Template validation information */
+export type TemplateValidationInfo = {
+    /** Whether the template is valid with provided variables */
+    readonly isValid: Scalars['Boolean']['output'];
+    /** Missing required variables */
+    readonly missingVariables: ReadonlyArray<Scalars['String']['output']>;
+    /** Validation warnings */
+    readonly warnings: ReadonlyArray<Scalars['String']['output']>;
+};
+/** Configuration variable for a template */
+export type TemplateVariable = {
+    /** Default value (can be null) */
+    readonly default?: Maybe<Scalars['JSON']['output']>;
+    /** Human-readable description */
+    readonly description: Scalars['String']['output'];
+    /** Allowed values for enum types */
+    readonly enumValues?: Maybe<ReadonlyArray<Scalars['JSON']['output']>>;
+    /** Display label for UI */
+    readonly label: Scalars['String']['output'];
+    /** Maximum value for number types */
+    readonly maxValue?: Maybe<Scalars['Float']['output']>;
+    /** Minimum value for number types */
+    readonly minValue?: Maybe<Scalars['Float']['output']>;
+    /** Variable name (e.g., 'TOR_NAME') */
+    readonly name: Scalars['String']['output'];
+    /** Whether the variable is required */
+    readonly required: Scalars['Boolean']['output'];
+    /** Variable type */
+    readonly type: TemplateVariableType;
+    /** Regex pattern for validation */
+    readonly validationPattern?: Maybe<Scalars['String']['output']>;
+};
+/** Template variable type */
+export declare const TemplateVariableType: {
+    readonly Boolean: "BOOLEAN";
+    readonly Enum: "ENUM";
+    readonly Ip: "IP";
+    readonly Number: "NUMBER";
+    readonly Port: "PORT";
+    readonly String: "STRING";
+};
+export type TemplateVariableType = typeof TemplateVariableType[keyof typeof TemplateVariableType];
+/** Result of testing all router credentials. */
+export type TestAllCredentialsPayload = {
+    /** Number of failed credential tests */
+    readonly failureCount: Scalars['Int']['output'];
+    /** Per-router test results */
+    readonly results: ReadonlyArray<CredentialTestResult>;
+    /** Number of successful credential tests */
+    readonly successCount: Scalars['Int']['output'];
+    /** Total number of routers tested */
+    readonly totalRouters: Scalars['Int']['output'];
+};
+export type TestConnectionPayload = {
+    /** Error message if connection failed */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Response time in milliseconds */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Whether the connection test succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** Router version if connection succeeded */
+    readonly version?: Maybe<Scalars['String']['output']>;
+};
+/** Test notification payload */
+export type TestNotificationPayload = {
+    /** Errors encountered during test */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Test result message */
+    readonly message?: Maybe<Scalars['String']['output']>;
+    /** Whether test was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** Result of test port knock operation. */
+export type TestPortKnockResult = {
+    /** Message */
+    readonly message: Scalars['String']['output'];
+    /** Whether test rules were created successfully */
+    readonly success: Scalars['Boolean']['output'];
+    /** Test instructions for user */
+    readonly testInstructions: Scalars['String']['output'];
+    /** Test rule IDs (will auto-expire) */
+    readonly testRuleIds: ReadonlyArray<Scalars['ID']['output']>;
+};
+/** Throttle configuration to prevent alert spam */
+export type ThrottleConfig = {
+    /** Optional field to group alerts by */
+    readonly groupByField?: Maybe<Scalars['String']['output']>;
+    /** Maximum number of alerts allowed */
+    readonly maxAlerts: Scalars['Int']['output'];
+    /** Time period in seconds */
+    readonly periodSeconds: Scalars['Int']['output'];
+};
+/** Throttle configuration input */
+export type ThrottleConfigInput = {
+    /** Optional field to group alerts by */
+    readonly groupByField?: InputMaybe<Scalars['String']['input']>;
+    /** Maximum number of alerts allowed */
+    readonly maxAlerts: Scalars['Int']['input'];
+    /** Time period in seconds */
+    readonly periodSeconds: Scalars['Int']['input'];
+};
+/** Throttle status for a specific group (when groupByField is used) */
+export type ThrottleGroupStatus = {
+    /** Group identifier (value of groupByField) */
+    readonly groupKey: Scalars['String']['output'];
+    /** Whether this group is currently throttled */
+    readonly isThrottled: Scalars['Boolean']['output'];
+    /** Number of alerts suppressed for this group */
+    readonly suppressedCount: Scalars['Int']['output'];
+    /** When the throttle window for this group ends */
+    readonly windowEnd: Scalars['DateTime']['output'];
+    /** When the throttle window for this group started */
+    readonly windowStart: Scalars['DateTime']['output'];
+};
+/**
+ * Throttle status for an alert rule
+ * Shows current throttling state and suppressed alert counts
+ */
+export type ThrottleStatus = {
+    /** Throttle groups (if groupByField is configured) */
+    readonly groups: ReadonlyArray<ThrottleGroupStatus>;
+    /** Whether the rule is currently throttled */
+    readonly isThrottled: Scalars['Boolean']['output'];
+    /** Alert rule ID */
+    readonly ruleId: Scalars['ID']['output'];
+    /** Number of alerts suppressed in current throttle window */
+    readonly suppressedCount: Scalars['Int']['output'];
+    /** When the current throttle window ends */
+    readonly windowEnd?: Maybe<Scalars['DateTime']['output']>;
+    /** When the current throttle window started */
+    readonly windowStart?: Maybe<Scalars['DateTime']['output']>;
+};
+/** Edge connecting nodes in a topology */
+export type TopologyEdge = {
+    /** Additional edge data */
+    readonly data?: Maybe<Scalars['JSON']['output']>;
+    /** Edge ID */
+    readonly id: Scalars['ID']['output'];
+    /** Edge label (optional) */
+    readonly label?: Maybe<Scalars['String']['output']>;
+    /** Source node ID */
+    readonly source: Scalars['ID']['output'];
+    /** Edge styling */
+    readonly style?: Maybe<TopologyEdgeStyle>;
+    /** Target node ID */
+    readonly target: Scalars['ID']['output'];
+};
+/** Styling for topology edges */
+export type TopologyEdgeStyle = {
+    /** Stroke color (CSS color) */
+    readonly stroke?: Maybe<Scalars['String']['output']>;
+    /** Stroke dash array (for dashed lines) */
+    readonly strokeDasharray?: Maybe<Scalars['String']['output']>;
+    /** Stroke width in pixels */
+    readonly strokeWidth?: Maybe<Scalars['Float']['output']>;
+};
+/** Node in a VLAN network topology diagram */
+export type TopologyNode = {
+    /** Additional node data */
+    readonly data?: Maybe<Scalars['JSON']['output']>;
+    /** Node ID */
+    readonly id: Scalars['ID']['output'];
+    /** Display label */
+    readonly label: Scalars['String']['output'];
+    /** Node position in the diagram */
+    readonly position: TopologyPosition;
+    /** Node styling */
+    readonly style?: Maybe<TopologyNodeStyle>;
+    /** Sub-label (optional) */
+    readonly sublabel?: Maybe<Scalars['String']['output']>;
+    /** Node type (bridge, vlan, port) */
+    readonly type: TopologyNodeType;
+};
+/** Styling for topology nodes */
+export type TopologyNodeStyle = {
+    /** Fill color (CSS color) */
+    readonly fill?: Maybe<Scalars['String']['output']>;
+    /** Stroke color (CSS color) */
+    readonly stroke?: Maybe<Scalars['String']['output']>;
+    /** Stroke width in pixels */
+    readonly strokeWidth?: Maybe<Scalars['Float']['output']>;
+};
+/** Type of topology node */
+export declare const TopologyNodeType: {
+    /** Bridge interface */
+    readonly Bridge: "BRIDGE";
+    /** Physical port */
+    readonly Port: "PORT";
+    /** VLAN interface */
+    readonly Vlan: "VLAN";
+};
+export type TopologyNodeType = typeof TopologyNodeType[keyof typeof TopologyNodeType];
+/** Position of a node in the topology */
+export type TopologyPosition = {
+    /** X coordinate */
+    readonly x: Scalars['Float']['output'];
+    /** Y coordinate */
+    readonly y: Scalars['Float']['output'];
+};
+/** Event type for traceroute progress updates */
+export declare const TracerouteEventType: {
+    /** Traceroute was cancelled */
+    readonly Cancelled: "CANCELLED";
+    /** Traceroute completed */
+    readonly Complete: "COMPLETE";
+    /** Traceroute encountered an error */
+    readonly Error: "ERROR";
+    /** A new hop was discovered */
+    readonly HopDiscovered: "HOP_DISCOVERED";
+};
+export type TracerouteEventType = typeof TracerouteEventType[keyof typeof TracerouteEventType];
+/** A single hop in the traceroute path */
+export type TracerouteHop = {
+    /** IP address of the hop (null for timeout) */
+    readonly address?: Maybe<Scalars['String']['output']>;
+    /** Average latency across successful probes */
+    readonly avgLatencyMs?: Maybe<Scalars['Float']['output']>;
+    /** Hop number (1-based) */
+    readonly hopNumber: Scalars['Int']['output'];
+    /** Reverse DNS hostname (if available) */
+    readonly hostname?: Maybe<Scalars['String']['output']>;
+    /** Packet loss percentage for this hop (0-100) */
+    readonly packetLoss: Scalars['Float']['output'];
+    /** Individual probe results for this hop */
+    readonly probes: ReadonlyArray<HopProbe>;
+    /** Status of this hop */
+    readonly status: HopStatus;
+};
+/** Input parameters for starting a traceroute */
+export type TracerouteInput = {
+    /** Maximum number of hops (default: 30, max: 64) */
+    readonly maxHops?: InputMaybe<Scalars['Int']['input']>;
+    /** Number of probes per hop (default: 3) */
+    readonly probeCount?: InputMaybe<Scalars['Int']['input']>;
+    /** Protocol to use for probes (default: ICMP) */
+    readonly protocol?: InputMaybe<TracerouteProtocol>;
+    /** Target hostname or IP address */
+    readonly target: Scalars['String']['input'];
+    /** Timeout per hop in milliseconds (default: 3000) */
+    readonly timeout?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Traceroute job reference for subscription tracking */
+export type TracerouteJob = {
+    /** Unique job identifier */
+    readonly jobId: Scalars['ID']['output'];
+    /** Current job status */
+    readonly status: JobStatus;
+};
+/** Progress event emitted during traceroute execution */
+export type TracerouteProgressEvent = {
+    /** Error message (for ERROR events) */
+    readonly error?: Maybe<Scalars['String']['output']>;
+    /** Type of event */
+    readonly eventType: TracerouteEventType;
+    /** Newly discovered hop (for HOP_DISCOVERED events) */
+    readonly hop?: Maybe<TracerouteHop>;
+    /** Job identifier */
+    readonly jobId: Scalars['ID']['output'];
+    /** Final result (for COMPLETE events) */
+    readonly result?: Maybe<TracerouteResult>;
+};
+/** Protocol to use for traceroute probes */
+export declare const TracerouteProtocol: {
+    /** ICMP echo request (default) */
+    readonly Icmp: "ICMP";
+    /** TCP SYN probes */
+    readonly Tcp: "TCP";
+    /** UDP probes */
+    readonly Udp: "UDP";
+};
+export type TracerouteProtocol = typeof TracerouteProtocol[keyof typeof TracerouteProtocol];
+/** Complete traceroute result */
+export type TracerouteResult = {
+    /** Whether traceroute completed */
+    readonly completed: Scalars['Boolean']['output'];
+    /** When the traceroute completed (if finished) */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Discovered hops in order */
+    readonly hops: ReadonlyArray<TracerouteHop>;
+    /** Maximum hops configured */
+    readonly maxHops: Scalars['Int']['output'];
+    /** Protocol used for probes */
+    readonly protocol: TracerouteProtocol;
+    /** Whether destination was reached */
+    readonly reachedDestination: Scalars['Boolean']['output'];
+    /** When the traceroute started */
+    readonly startedAt: Scalars['DateTime']['output'];
+    /** Target hostname or IP address */
+    readonly target: Scalars['String']['output'];
+    /** Resolved target IP address */
+    readonly targetIp: Scalars['String']['output'];
+    /** Total time from start to completion (ms) */
+    readonly totalTimeMs: Scalars['Float']['output'];
+};
+/**
+ * A single traffic data point for time-series visualization.
+ * Represents traffic volume at a specific timestamp.
+ */
+export type TrafficDataPoint = {
+    /** Bytes downloaded in this interval */
+    readonly downloadBytes: Scalars['Int']['output'];
+    /** Timestamp of this data point */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total bytes (upload + download) */
+    readonly totalBytes: Scalars['Int']['output'];
+    /** Bytes uploaded in this interval */
+    readonly uploadBytes: Scalars['Int']['output'];
+};
+/**
+ * Traffic quota configuration for a service instance.
+ * Allows setting bandwidth limits with automated warnings and actions.
+ */
+export type TrafficQuota = {
+    /** Action to take when quota is reached */
+    readonly action: QuotaAction;
+    /** Bytes consumed in current period */
+    readonly consumedBytes: Scalars['Int']['output'];
+    /** Timestamp when quota was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Quota ID */
+    readonly id: Scalars['ID']['output'];
+    /** Instance ID this quota applies to */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Maximum bytes allowed per period (0 = unlimited) */
+    readonly limitBytes: Scalars['Int']['output'];
+    /** Whether quota limit has been reached */
+    readonly limitReached: Scalars['Boolean']['output'];
+    /** Quota period (daily, weekly, monthly) */
+    readonly period: QuotaPeriod;
+    /** When the current period will reset */
+    readonly periodEndsAt: Scalars['DateTime']['output'];
+    /** When the current period started */
+    readonly periodStartedAt: Scalars['DateTime']['output'];
+    /** Remaining bytes in current period */
+    readonly remainingBytes: Scalars['Int']['output'];
+    /** Timestamp when quota was last updated */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Usage percentage (0-100) */
+    readonly usagePercent: Scalars['Float']['output'];
+    /** Warning threshold percentage (0-100, triggers warning alert) */
+    readonly warningThreshold: Scalars['Int']['output'];
+    /** Whether warning threshold has been exceeded */
+    readonly warningTriggered: Scalars['Boolean']['output'];
+};
+/** Payload for traffic quota mutation. */
+export type TrafficQuotaPayload = {
+    /** Mutation errors */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Updated or created quota (null if failed) */
+    readonly quota?: Maybe<TrafficQuota>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+};
+/**
+ * Traffic statistics update event for subscriptions.
+ * Emitted when traffic stats are updated (every 10 seconds).
+ */
+export type TrafficStatsEvent = {
+    /** Download bytes since last update */
+    readonly deltaDownloadBytes: Scalars['Int']['output'];
+    /** Upload bytes since last update */
+    readonly deltaUploadBytes: Scalars['Int']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Whether quota limit was reached */
+    readonly quotaLimitReached: Scalars['Boolean']['output'];
+    /** Whether quota warning was triggered */
+    readonly quotaWarning: Scalars['Boolean']['output'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['output'];
+    /** Timestamp of this update */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Total bytes downloaded */
+    readonly totalDownloadBytes: Scalars['Int']['output'];
+    /** Total bytes uploaded */
+    readonly totalUploadBytes: Scalars['Int']['output'];
+};
+/** Transport protocol enum for network traffic. */
+export declare const TransportProtocol: {
+    readonly Tcp: "TCP";
+    readonly Udp: "UDP";
+};
+export type TransportProtocol = typeof TransportProtocol[keyof typeof TransportProtocol];
+/** Suggested fix for a failed diagnostic step */
+export type TroubleshootFixSuggestion = {
+    /** RouterOS command that will be executed */
+    readonly command?: Maybe<Scalars['String']['output']>;
+    /** Confidence level for this fix */
+    readonly confidence: FixConfidence;
+    /** Detailed explanation of what will be fixed */
+    readonly explanation: Scalars['String']['output'];
+    /** Whether this is a manual fix (requires user action) */
+    readonly isManualFix: Scalars['Boolean']['output'];
+    /** Unique issue code (e.g., WAN_DISABLED, NO_DEFAULT_ROUTE) */
+    readonly issueCode: Scalars['String']['output'];
+    /** Manual steps if this cannot be automated */
+    readonly manualSteps?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+    /** Whether user confirmation is required before applying */
+    readonly requiresConfirmation: Scalars['Boolean']['output'];
+    /** Rollback command if fix needs to be reverted */
+    readonly rollbackCommand?: Maybe<Scalars['String']['output']>;
+    /** User-friendly fix title */
+    readonly title: Scalars['String']['output'];
+};
+/** Complete troubleshooting session */
+export type TroubleshootSession = {
+    /** Fixes that have been applied */
+    readonly appliedFixes: ReadonlyArray<Scalars['String']['output']>;
+    /** When the session completed */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Current step index (0-based) */
+    readonly currentStepIndex: Scalars['Int']['output'];
+    /** Detected default gateway IP */
+    readonly gateway?: Maybe<Scalars['String']['output']>;
+    /** Unique session identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Detected ISP information */
+    readonly ispInfo?: Maybe<IspInfo>;
+    /** Router being diagnosed */
+    readonly routerId: Scalars['ID']['output'];
+    /** When the session started */
+    readonly startedAt: Scalars['DateTime']['output'];
+    /** Overall session status */
+    readonly status: TroubleshootSessionStatus;
+    /** All diagnostic steps */
+    readonly steps: ReadonlyArray<TroubleshootStep>;
+    /** Detected WAN interface name */
+    readonly wanInterface?: Maybe<Scalars['String']['output']>;
+};
+/** Overall status of a troubleshooting session */
+export declare const TroubleshootSessionStatus: {
+    /** Applying a fix */
+    readonly ApplyingFix: "APPLYING_FIX";
+    /** Waiting for user decision on fix */
+    readonly AwaitingFixDecision: "AWAITING_FIX_DECISION";
+    /** Session was cancelled */
+    readonly Cancelled: "CANCELLED";
+    /** Session completed */
+    readonly Completed: "COMPLETED";
+    /** Session created but not started */
+    readonly Idle: "IDLE";
+    /** Detecting network configuration */
+    readonly Initializing: "INITIALIZING";
+    /** Running diagnostic steps */
+    readonly Running: "RUNNING";
+    /** Verifying fix worked */
+    readonly VerifyingFix: "VERIFYING_FIX";
+};
+export type TroubleshootSessionStatus = typeof TroubleshootSessionStatus[keyof typeof TroubleshootSessionStatus];
+/** A single step in the troubleshooting wizard */
+export type TroubleshootStep = {
+    /** When the step completed */
+    readonly completedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Step description */
+    readonly description: Scalars['String']['output'];
+    /** Suggested fix if step failed */
+    readonly fix?: Maybe<TroubleshootFixSuggestion>;
+    /** Step type/ID */
+    readonly id: TroubleshootStepType;
+    /** Step display name */
+    readonly name: Scalars['String']['output'];
+    /** Result of executing this step */
+    readonly result?: Maybe<TroubleshootStepResult>;
+    /** When the step started */
+    readonly startedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Current status of this step */
+    readonly status: TroubleshootStepStatus;
+};
+/** Result of a single diagnostic step */
+export type TroubleshootStepResult = {
+    /** Technical details for debugging */
+    readonly details?: Maybe<Scalars['String']['output']>;
+    /** Execution time in milliseconds */
+    readonly executionTimeMs: Scalars['Int']['output'];
+    /** Detected error code */
+    readonly issueCode?: Maybe<Scalars['String']['output']>;
+    /** User-friendly message about the result */
+    readonly message: Scalars['String']['output'];
+    /** Whether the check passed */
+    readonly success: Scalars['Boolean']['output'];
+    /** Target that was checked (IP, interface name, etc.) */
+    readonly target?: Maybe<Scalars['String']['output']>;
+};
+/** Status of a diagnostic step */
+export declare const TroubleshootStepStatus: {
+    /** Step failed */
+    readonly Failed: "FAILED";
+    /** Step completed successfully */
+    readonly Passed: "PASSED";
+    /** Step not yet started */
+    readonly Pending: "PENDING";
+    /** Step currently executing */
+    readonly Running: "RUNNING";
+    /** Step skipped */
+    readonly Skipped: "SKIPPED";
+};
+export type TroubleshootStepStatus = typeof TroubleshootStepStatus[keyof typeof TroubleshootStepStatus];
+/** Diagnostic step identifier for internet troubleshooting */
+export declare const TroubleshootStepType: {
+    /** Test DNS resolution */
+    readonly Dns: "DNS";
+    /** Ping default gateway */
+    readonly Gateway: "GATEWAY";
+    /** Ping external internet server */
+    readonly Internet: "INTERNET";
+    /** Verify NAT/masquerade rules */
+    readonly Nat: "NAT";
+    /** Check WAN interface status */
+    readonly Wan: "WAN";
+};
+export type TroubleshootStepType = typeof TroubleshootStepType[keyof typeof TroubleshootStepType];
+/** A network tunnel interface for connecting remote networks */
+export type Tunnel = Node & {
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether the tunnel is disabled */
+    readonly disabled?: Maybe<Scalars['Boolean']['output']>;
+    /** Unique tunnel identifier */
+    readonly id: Scalars['ID']['output'];
+    /** IPsec profile name (GRE tunnels only) */
+    readonly ipsecProfile?: Maybe<Scalars['String']['output']>;
+    /** Local endpoint IP address */
+    readonly localAddress: Scalars['String']['output'];
+    /** MTU setting for the tunnel interface */
+    readonly mtu?: Maybe<Scalars['Int']['output']>;
+    /** Tunnel interface name */
+    readonly name: Scalars['String']['output'];
+    /** VXLAN port (default 4789) */
+    readonly port?: Maybe<Scalars['Int']['output']>;
+    /** Remote endpoint IP address */
+    readonly remoteAddress: Scalars['String']['output'];
+    /** Traffic statistics for this tunnel */
+    readonly statistics?: Maybe<InterfaceStats>;
+    /** Operational status of the tunnel */
+    readonly status: InterfaceStatus;
+    /** Tunnel ID (EoIP tunnels only, must be unique per remote address pair) */
+    readonly tunnelId?: Maybe<Scalars['Int']['output']>;
+    /** Tunnel protocol type */
+    readonly type: TunnelType;
+    /** VXLAN Network Identifier (VXLAN tunnels only) */
+    readonly vni?: Maybe<Scalars['Int']['output']>;
+    /** VTEP peer addresses (VXLAN tunnels only) */
+    readonly vtepPeers?: Maybe<ReadonlyArray<Scalars['String']['output']>>;
+};
+/** Input for creating or updating a tunnel */
+export type TunnelInput = {
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** IPsec profile name (GRE tunnels only) */
+    readonly ipsecProfile?: InputMaybe<Scalars['String']['input']>;
+    /** Local endpoint IP address */
+    readonly localAddress: Scalars['String']['input'];
+    /** MTU setting (optional, default calculated based on tunnel type) */
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+    /** Tunnel interface name (alphanumeric, hyphens, underscores) */
+    readonly name: Scalars['String']['input'];
+    /** VXLAN port (default 4789) */
+    readonly port?: InputMaybe<Scalars['Int']['input']>;
+    /** Remote endpoint IP address */
+    readonly remoteAddress: Scalars['String']['input'];
+    /** Tunnel ID (EoIP tunnels only, 0-65535) */
+    readonly tunnelId?: InputMaybe<Scalars['Int']['input']>;
+    /** Tunnel protocol type */
+    readonly type: TunnelType;
+    /** VXLAN Network Identifier (VXLAN tunnels only, 1-16777215) */
+    readonly vni?: InputMaybe<Scalars['Int']['input']>;
+    /** VTEP peer addresses (VXLAN tunnels only) */
+    readonly vtepPeers?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+};
+/** Result of a tunnel mutation (create, update) */
+export type TunnelMutationResult = {
+    /** Errors that occurred during the operation */
+    readonly errors: ReadonlyArray<Scalars['String']['output']>;
+    /** MTU guidance for the tunnel type */
+    readonly mtuGuidance?: Maybe<MtuGuidance>;
+    /** Configuration preview (RouterOS commands) */
+    readonly preview?: Maybe<Scalars['String']['output']>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** The created or updated tunnel (if successful) */
+    readonly tunnel?: Maybe<Tunnel>;
+};
+/** Status of a VPN tunnel */
+export declare const TunnelStatus: {
+    /** Tunnel is connected and active */
+    readonly Connected: "CONNECTED";
+    /** Tunnel is attempting to connect */
+    readonly Connecting: "CONNECTING";
+    /** Tunnel is disconnected */
+    readonly Disconnected: "DISCONNECTED";
+};
+export type TunnelStatus = typeof TunnelStatus[keyof typeof TunnelStatus];
+/** Result of a tunnel connectivity test */
+export type TunnelTestResult = {
+    /** Average ping latency in milliseconds (null if unreachable) */
+    readonly latency?: Maybe<Scalars['Float']['output']>;
+    /** Path MTU discovered (null if not tested) */
+    readonly mtuPath?: Maybe<Scalars['Int']['output']>;
+    /** Whether the remote endpoint is reachable */
+    readonly reachable: Scalars['Boolean']['output'];
+    /** Suggestions for common connectivity issues */
+    readonly suggestions: ReadonlyArray<Scalars['String']['output']>;
+    /** Throughput in Mbps (null if iperf not available) */
+    readonly throughput?: Maybe<Scalars['Float']['output']>;
+};
+/** Network tunnel types supported by MikroTik RouterOS */
+export declare const TunnelType: {
+    /** Ethernet over IP - Layer 2 tunnel for bridge extension */
+    readonly Eoip: "EOIP";
+    /** Generic Routing Encapsulation (RFC 2784) - L3 with optional IPsec */
+    readonly Gre: "GRE";
+    /** IP-in-IP tunnel (RFC 2003) - Basic L3 encapsulation */
+    readonly Ipip: "IPIP";
+    /** Layer 2 Tunneling Protocol (future support) */
+    readonly L2Tp: "L2TP";
+    /** Secure Socket Tunneling Protocol (future support) */
+    readonly Sstp: "SSTP";
+    /** Virtual eXtensible LAN (RFC 7348) - L2 overlay network */
+    readonly Vxlan: "VXLAN";
+};
+export type TunnelType = typeof TunnelType[keyof typeof TunnelType];
+/** Input for updating an alert rule */
+export type UpdateAlertRuleInput = {
+    /** Notification channels */
+    readonly channels?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+    /** Array of conditions */
+    readonly conditions?: InputMaybe<ReadonlyArray<AlertConditionInput>>;
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Optional device ID filter */
+    readonly deviceId?: InputMaybe<Scalars['ID']['input']>;
+    /** Whether rule is enabled */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Escalation configuration (NAS-18.9) */
+    readonly escalation?: InputMaybe<EscalationConfigInput>;
+    /** Event type to match */
+    readonly eventType?: InputMaybe<Scalars['String']['input']>;
+    /** Human-readable alert rule name */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /** Quiet hours configuration */
+    readonly quietHours?: InputMaybe<QuietHoursConfigInput>;
+    /** Alert severity level */
+    readonly severity?: InputMaybe<AlertSeverity>;
+    /** Throttle configuration */
+    readonly throttle?: InputMaybe<ThrottleConfigInput>;
+};
+export type UpdateBridgeInput = {
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    readonly disabled?: InputMaybe<Scalars['Boolean']['input']>;
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+    readonly priority?: InputMaybe<Scalars['Int']['input']>;
+    readonly protocol?: InputMaybe<StpProtocol>;
+    readonly pvid?: InputMaybe<Scalars['Int']['input']>;
+    readonly vlanFiltering?: InputMaybe<Scalars['Boolean']['input']>;
+};
+export type UpdateBridgePortInput = {
+    readonly edge?: InputMaybe<Scalars['Boolean']['input']>;
+    readonly frameTypes?: InputMaybe<FrameTypes>;
+    readonly ingressFiltering?: InputMaybe<Scalars['Boolean']['input']>;
+    readonly pathCost?: InputMaybe<Scalars['Int']['input']>;
+    readonly pvid?: InputMaybe<Scalars['Int']['input']>;
+    readonly taggedVlans?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+    readonly untaggedVlans?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+};
+/** Input for updating an item in a change set */
+export type UpdateChangeSetItemInput = {
+    /** Updated configuration */
+    readonly configuration?: InputMaybe<Scalars['JSON']['input']>;
+    /** Updated dependencies */
+    readonly dependencies?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+    /** Updated description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Updated name */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+};
+export type UpdateChangeSetItemPayload = {
+    /** The updated change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+};
+/** Input for configuring update check schedule for an instance. */
+export type UpdateCheckScheduleInput = {
+    /** Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL) */
+    readonly autoApplyThreshold: Scalars['String']['input'];
+    /** Update check schedule (e.g., '6h', '12h', '24h', 'manual') */
+    readonly checkSchedule: Scalars['String']['input'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Available update information for a service instance. */
+export type UpdateInfo = {
+    /** Target architecture */
+    readonly architecture: Scalars['String']['output'];
+    /** Available update version */
+    readonly availableVersion: Scalars['String']['output'];
+    /** Checksum URL for verification */
+    readonly checksumURL?: Maybe<Scalars['String']['output']>;
+    /** Current installed version */
+    readonly currentVersion: Scalars['String']['output'];
+    /** Download URL for the new binary */
+    readonly downloadURL: Scalars['String']['output'];
+    /** Feature ID */
+    readonly featureID: Scalars['String']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** When the update was published */
+    readonly publishedAt: Scalars['DateTime']['output'];
+    /** Release notes/changelog */
+    readonly releaseNotes: Scalars['String']['output'];
+    /** Update severity */
+    readonly severity: UpdateSeverity;
+    /** Binary size in bytes */
+    readonly sizeBytes: Scalars['Int']['output'];
+};
+/** Input for updating interface settings */
+export type UpdateInterfaceInput = {
+    /** Interface comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Enable or disable the interface */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** MTU size (68-9000 bytes) */
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+};
+/** Payload returned by updateInterface, enableInterface, and disableInterface mutations */
+export type UpdateInterfacePayload = {
+    /** Errors that occurred during the operation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Updated interface */
+    readonly interface?: Maybe<Interface>;
+};
+/** Input for updating an existing notification channel configuration */
+export type UpdateNotificationChannelConfigInput = {
+    /** New configuration (optional, replaces entire config if provided) */
+    readonly config?: InputMaybe<Scalars['JSON']['input']>;
+    /** New description (optional) */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Enable/disable configuration (optional) */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Set as default (optional) */
+    readonly isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+    /** New name (optional) */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+};
+/** Input for updating an existing port mirror configuration */
+export type UpdatePortMirrorInput = {
+    /** Updated comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Updated destination interface ID */
+    readonly destinationInterfaceId?: InputMaybe<Scalars['ID']['input']>;
+    /** Updated direction of traffic to mirror */
+    readonly direction?: InputMaybe<MirrorDirection>;
+    /** Updated name */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /** Updated source interface IDs (must be bridge members) */
+    readonly sourceInterfaceIds?: InputMaybe<ReadonlyArray<Scalars['ID']['input']>>;
+};
+/** Update progress during atomic update process. */
+export type UpdateProgress = {
+    /** Feature ID */
+    readonly featureID: Scalars['String']['output'];
+    /** Current version */
+    readonly fromVersion: Scalars['String']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Current stage message */
+    readonly message: Scalars['String']['output'];
+    /** Progress percentage (0-100) */
+    readonly progress: Scalars['Int']['output'];
+    /** Current stage */
+    readonly stage: UpdateStage;
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Target version */
+    readonly toVersion: Scalars['String']['output'];
+};
+/** Input for updating resource configuration */
+export type UpdateResourceInput = {
+    /** Updated configuration (partial or full) */
+    readonly configuration?: InputMaybe<Scalars['JSON']['input']>;
+    /** Updated description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Updated relationships */
+    readonly relationships?: InputMaybe<ResourceRelationshipsInput>;
+    /** Updated tags */
+    readonly tags?: InputMaybe<ReadonlyArray<Scalars['String']['input']>>;
+};
+export type UpdateResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The updated resource */
+    readonly resource?: Maybe<Resource>;
+};
+/** Update result after completion or failure. */
+export type UpdateResult = {
+    /** Update stages completed */
+    readonly completedStages: ReadonlyArray<UpdateStage>;
+    /** Total duration in milliseconds */
+    readonly durationMs: Scalars['Int']['output'];
+    /** Error message (if failed) */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Stage where failure occurred (if failed) */
+    readonly failedStage?: Maybe<UpdateStage>;
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Whether rollback occurred */
+    readonly rolledBack: Scalars['Boolean']['output'];
+    /** Whether the update succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** Version updated to (if successful) */
+    readonly version?: Maybe<Scalars['String']['output']>;
+};
+/** Input for updating router settings */
+export type UpdateRouterInput = {
+    /** Updated hostname or IP address */
+    readonly host?: InputMaybe<Scalars['String']['input']>;
+    /** Updated display name */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /** Updated password */
+    readonly password?: InputMaybe<Scalars['String']['input']>;
+    /** Updated connection port */
+    readonly port?: InputMaybe<Scalars['Int']['input']>;
+    /** Updated username */
+    readonly username?: InputMaybe<Scalars['String']['input']>;
+};
+export type UpdateRouterPayload = {
+    /** Errors that occurred during update */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The updated router */
+    readonly router?: Maybe<Router>;
+};
+/** Input for updating an existing routing schedule. */
+export type UpdateScheduleInput = {
+    /** Days of week (0=Sunday, 6=Saturday) */
+    readonly days?: InputMaybe<ReadonlyArray<Scalars['Int']['input']>>;
+    /** Whether schedule is enabled */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** End time in HH:MM format (24-hour) */
+    readonly endTime?: InputMaybe<Scalars['String']['input']>;
+    /** Start time in HH:MM format (24-hour) */
+    readonly startTime?: InputMaybe<Scalars['String']['input']>;
+    /** IANA timezone identifier */
+    readonly timezone?: InputMaybe<Scalars['String']['input']>;
+};
+/** Update severity classification for available updates. */
+export declare const UpdateSeverity: {
+    /** Critical security fix - auto-apply recommended */
+    readonly Critical: "CRITICAL";
+    /** Major version with breaking changes */
+    readonly Major: "MAJOR";
+    /** Minor version with new features */
+    readonly Minor: "MINOR";
+    /** Patch version with bug fixes */
+    readonly Patch: "PATCH";
+};
+export type UpdateSeverity = typeof UpdateSeverity[keyof typeof UpdateSeverity];
+/** Update stage during atomic update process. */
+export declare const UpdateStage: {
+    /** Backing up current binary */
+    readonly Backup: "BACKUP";
+    /** Finalizing update */
+    readonly Commit: "COMMIT";
+    /** Running config migrations */
+    readonly Migration: "MIGRATION";
+    /** Restoring from backup */
+    readonly Rollback: "ROLLBACK";
+    /** Downloading and verifying new binary */
+    readonly Staging: "STAGING";
+    /** Swapping binaries */
+    readonly Swap: "SWAP";
+    /** Validating new version */
+    readonly Validation: "VALIDATION";
+};
+export type UpdateStage = typeof UpdateStage[keyof typeof UpdateStage];
+/** Input for updating a webhook */
+export type UpdateWebhookInput = {
+    /** Authentication type */
+    readonly authType?: InputMaybe<WebhookAuthType>;
+    /** Bearer token for Bearer auth (only set if provided) */
+    readonly bearerToken?: InputMaybe<Scalars['String']['input']>;
+    /** Custom template body */
+    readonly customTemplate?: InputMaybe<Scalars['String']['input']>;
+    /** Optional description */
+    readonly description?: InputMaybe<Scalars['String']['input']>;
+    /** Whether webhook is enabled */
+    readonly enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Custom HTTP headers (as JSON object) */
+    readonly headers?: InputMaybe<Scalars['JSON']['input']>;
+    /** Maximum retry attempts */
+    readonly maxRetries?: InputMaybe<Scalars['Int']['input']>;
+    /** HTTP method */
+    readonly method?: InputMaybe<Scalars['String']['input']>;
+    /** Human-readable webhook name */
+    readonly name?: InputMaybe<Scalars['String']['input']>;
+    /** Password for Basic auth (only set if provided) */
+    readonly password?: InputMaybe<Scalars['String']['input']>;
+    /** Whether to retry failed deliveries */
+    readonly retryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+    /** Signing secret for HMAC signature (only set if provided) */
+    readonly signingSecret?: InputMaybe<Scalars['String']['input']>;
+    /** Template type for webhook payload */
+    readonly template?: InputMaybe<WebhookTemplate>;
+    /** Timeout in seconds */
+    readonly timeoutSeconds?: InputMaybe<Scalars['Int']['input']>;
+    /** Webhook URL endpoint */
+    readonly url?: InputMaybe<Scalars['String']['input']>;
+    /** Username for Basic auth */
+    readonly username?: InputMaybe<Scalars['String']['input']>;
+};
+/** Impact assessment for an upgrade */
+export type UpgradeImpact = {
+    /** Whether configuration backup is recommended before upgrade */
+    readonly backupRecommended: Scalars['Boolean']['output'];
+    /** Potential breaking changes to be aware of */
+    readonly breakingChanges: ReadonlyArray<Scalars['String']['output']>;
+    /** Estimated downtime description */
+    readonly estimatedDowntime?: Maybe<Scalars['String']['output']>;
+    /** Whether reboot is required */
+    readonly requiresReboot: Scalars['Boolean']['output'];
+};
+/** Priority level for upgrade recommendations */
+export declare const UpgradePriority: {
+    /** Security-related, should upgrade immediately */
+    readonly Critical: "CRITICAL";
+    /** Highly recommended for stability/features */
+    readonly High: "HIGH";
+    /** Nice to have, optional */
+    readonly Low: "LOW";
+    /** Recommended but not urgent */
+    readonly Medium: "MEDIUM";
+};
+export type UpgradePriority = typeof UpgradePriority[keyof typeof UpgradePriority];
+/** Upgrade recommendation for enabling a feature */
+export type UpgradeRecommendation = {
+    /** Current RouterOS version */
+    readonly currentVersion: Scalars['String']['output'];
+    /** URL to MikroTik upgrade documentation */
+    readonly documentationUrl?: Maybe<Scalars['String']['output']>;
+    /** Feature that requires upgrade */
+    readonly featureId: Scalars['String']['output'];
+    /** Human-readable feature name */
+    readonly featureName: Scalars['String']['output'];
+    /** Estimated impact on router operation */
+    readonly impact: UpgradeImpact;
+    /** Whether this is a major version upgrade (e.g., 6.x to 7.x) */
+    readonly isMajorUpgrade: Scalars['Boolean']['output'];
+    /** Priority level (critical, high, medium, low) */
+    readonly priority: UpgradePriority;
+    /** Minimum required version for this feature */
+    readonly requiredVersion: Scalars['String']['output'];
+    /** Steps to complete the upgrade */
+    readonly steps: ReadonlyArray<UpgradeStep>;
+    /** Warnings or important notes about this upgrade */
+    readonly warnings: ReadonlyArray<Scalars['String']['output']>;
+};
+/** Single step in an upgrade process */
+export type UpgradeStep = {
+    /** RouterOS command to execute (if applicable) */
+    readonly command?: Maybe<Scalars['String']['output']>;
+    /** Detailed instructions */
+    readonly description: Scalars['String']['output'];
+    /** Whether this step is optional */
+    readonly optional: Scalars['Boolean']['output'];
+    /** Step number (1-based) */
+    readonly step: Scalars['Int']['output'];
+    /** Step title */
+    readonly title: Scalars['String']['output'];
+};
+/** An uptime data point */
+export type UptimeDataPoint = {
+    /** Whether resource was up during this period */
+    readonly isUp: Scalars['Boolean']['output'];
+    /** Period duration in seconds */
+    readonly periodSeconds: Scalars['Int']['output'];
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** User account in NasNetConnect */
+export type User = Node & {
+    /** Account creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Display name */
+    readonly displayName?: Maybe<Scalars['String']['output']>;
+    /** Email address (if provided) */
+    readonly email?: Maybe<Scalars['String']['output']>;
+    /** User ULID */
+    readonly id: Scalars['ID']['output'];
+    /** Last successful login */
+    readonly lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
+    /** User role for authorization */
+    readonly role: UserRole;
+    /** Unique username */
+    readonly username: Scalars['String']['output'];
+};
+/** User roles for authorization */
+export declare const UserRole: {
+    /** Full administrative access */
+    readonly Admin: "ADMIN";
+    /** Can view and modify but not delete or manage users */
+    readonly Operator: "OPERATOR";
+    /** Read-only access */
+    readonly Viewer: "VIEWER";
+};
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+/** Single step in VIF enablement guidance */
+export type VifGuidanceStep = {
+    /** Whether this requirement is already met */
+    readonly completed: Scalars['Boolean']['output'];
+    /** Detailed instruction */
+    readonly description: Scalars['String']['output'];
+    /** RouterOS command to execute (if applicable) */
+    readonly routerCommand?: Maybe<Scalars['String']['output']>;
+    /** Step number (1-based) */
+    readonly step: Scalars['Int']['output'];
+    /** Short title for the step */
+    readonly title: Scalars['String']['output'];
+};
+/** VIF (Virtual Interface Factory) requirements check result */
+export type VifRequirements = {
+    /** Whether container feature is enabled */
+    readonly containerEnabled: Scalars['Boolean']['output'];
+    /** Whether container package is installed */
+    readonly containerPackage: Scalars['Boolean']['output'];
+    /** Step-by-step guidance for enabling VIF */
+    readonly guidanceSteps: ReadonlyArray<VifGuidanceStep>;
+    /** Whether all VIF requirements are satisfied */
+    readonly met: Scalars['Boolean']['output'];
+    /** Human-readable reasons why VIF is not available */
+    readonly missingReasons: ReadonlyArray<Scalars['String']['output']>;
+    /** Whether network namespace is supported */
+    readonly networkNamespace: Scalars['Boolean']['output'];
+    /** Whether RouterOS version is sufficient (7.13+) */
+    readonly routerOSVersion: Scalars['Boolean']['output'];
+    /** Whether there's sufficient storage (>100MB) */
+    readonly sufficientStorage: Scalars['Boolean']['output'];
+};
+/**
+ * VLANAllocation represents an automatic VLAN allocation for a service instance.
+ *
+ * Each allocation reserves a VLAN ID from the pool and generates a corresponding
+ * subnet (e.g., 10.8.100.0/24) for network isolation. Allocations are automatically
+ * created when service instances are provisioned and released when deleted.
+ *
+ * The system prevents conflicts with existing router VLANs through automatic
+ * detection via VlanService composition.
+ */
+export type VlanAllocation = Node & {
+    /** Timestamp when VLAN was allocated */
+    readonly allocatedAt: Scalars['DateTime']['output'];
+    /** Unique allocation ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Service instance ID that owns this VLAN */
+    readonly instanceID: Scalars['String']['output'];
+    /** Timestamp when VLAN was released (null if still allocated) */
+    readonly releasedAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Router this VLAN belongs to */
+    readonly router: Router;
+    /** Router ID this VLAN allocation belongs to */
+    readonly routerID: Scalars['String']['output'];
+    /** Service instance that owns this VLAN */
+    readonly serviceInstance: ServiceInstance;
+    /** Service type (e.g., 'tor', 'xray', 'singbox') */
+    readonly serviceType: Scalars['String']['output'];
+    /** Allocation lifecycle status */
+    readonly status: VlanAllocationStatus;
+    /** Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24') */
+    readonly subnet?: Maybe<Scalars['String']['output']>;
+    /** VLAN ID (IEEE 802.1Q range: 1-4094) */
+    readonly vlanID: Scalars['Int']['output'];
+};
+/** VLANAllocationStatus represents the lifecycle state of a VLAN allocation. */
+export declare const VlanAllocationStatus: {
+    /** VLAN is currently allocated and in use */
+    readonly Allocated: "ALLOCATED";
+    /** VLAN has been released and is available for reuse */
+    readonly Released: "RELEASED";
+    /** VLAN is being released (transitional state) */
+    readonly Releasing: "RELEASING";
+};
+export type VlanAllocationStatus = typeof VlanAllocationStatus[keyof typeof VlanAllocationStatus];
+/**
+ * VLANPoolStatus represents the current state of the VLAN pool for a router.
+ *
+ * Provides utilization metrics and warnings when the pool is approaching exhaustion.
+ * Useful for capacity planning and monitoring.
+ */
+export type VlanPoolStatus = {
+    /** Number of currently allocated VLANs */
+    readonly allocatedVLANs: Scalars['Int']['output'];
+    /** Number of available VLANs remaining */
+    readonly availableVLANs: Scalars['Int']['output'];
+    /** Pool configuration (end VLAN ID) */
+    readonly poolEnd: Scalars['Int']['output'];
+    /** Pool configuration (start VLAN ID) */
+    readonly poolStart: Scalars['Int']['output'];
+    /** Router ID this pool status applies to */
+    readonly routerID: Scalars['String']['output'];
+    /** Warning flag if utilization > 80% */
+    readonly shouldWarn: Scalars['Boolean']['output'];
+    /** Total number of VLANs in the pool (e.g., 100 for range 100-199) */
+    readonly totalVLANs: Scalars['Int']['output'];
+    /** Utilization percentage (0.0 - 100.0) */
+    readonly utilization: Scalars['Float']['output'];
+};
+/** VPN tunnel information for routes through VPN */
+export type VpnTunnelInfo = {
+    /** Tunnel name */
+    readonly name: Scalars['String']['output'];
+    /** Remote endpoint address */
+    readonly remoteAddress?: Maybe<Scalars['String']['output']>;
+    /** Current tunnel connection status */
+    readonly status: TunnelStatus;
+    /** Tunnel type (wireguard, ipsec, ovpn, l2tp, gre, eoip) */
+    readonly type: Scalars['String']['output'];
+};
+export type ValidateChangeSetPayload = {
+    /** The validated change set */
+    readonly changeSet?: Maybe<ChangeSet>;
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Validation result */
+    readonly validation?: Maybe<ChangeSetValidationResult>;
+};
+/** Predefined validation formats for common data types */
+export declare const ValidateFormat: {
+    readonly Cidr: "CIDR";
+    readonly Email: "EMAIL";
+    readonly Fqdn: "FQDN";
+    readonly Hostname: "HOSTNAME";
+    readonly Ipv4: "IPV4";
+    readonly Ipv6: "IPV6";
+    readonly Mac: "MAC";
+    readonly Url: "URL";
+    readonly Uuid: "UUID";
+};
+export type ValidateFormat = typeof ValidateFormat[keyof typeof ValidateFormat];
+export type ValidateResourcePayload = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** The validated resource */
+    readonly resource?: Maybe<Resource>;
+    /** Validation result */
+    readonly validation?: Maybe<ValidationResult>;
+};
+/** Input for validating service configuration */
+export type ValidateServiceConfigInput = {
+    /** Configuration to validate (as JSON) */
+    readonly config: Scalars['JSON']['input'];
+    /** Service instance ID */
+    readonly instanceID: Scalars['ID']['input'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['input'];
+};
+/** Field-level validation error with suggestions for fixing. */
+export type ValidationError = {
+    /** Error code for the validation failure */
+    readonly code: Scalars['String']['output'];
+    /** Field path that failed validation (e.g., 'input.host', 'input.port') */
+    readonly field: Scalars['String']['output'];
+    /** Human-readable error message */
+    readonly message: Scalars['String']['output'];
+    /** The invalid value (redacted for sensitive fields) */
+    readonly providedValue?: Maybe<Scalars['String']['output']>;
+    /** Suggestion for fixing the validation error */
+    readonly suggestion?: Maybe<Scalars['String']['output']>;
+};
+/** A validation issue (error or warning) */
+export type ValidationIssue = {
+    /** Error code for programmatic handling */
+    readonly code: Scalars['String']['output'];
+    /** Link to documentation */
+    readonly docsUrl?: Maybe<Scalars['String']['output']>;
+    /** Field path that caused the issue (e.g., 'configuration.listenPort') */
+    readonly field?: Maybe<Scalars['String']['output']>;
+    /** Human-readable message */
+    readonly message: Scalars['String']['output'];
+    /** Severity level */
+    readonly severity: ValidationSeverity;
+    /** Suggested fix */
+    readonly suggestedFix?: Maybe<Scalars['String']['output']>;
+};
+/**
+ * Layer 2: Validation result from 7-stage backend validation pipeline.
+ * Computed on every configuration change.
+ */
+export type ValidationResult = {
+    /** Whether the resource can be applied */
+    readonly canApply: Scalars['Boolean']['output'];
+    /** Resource conflicts detected */
+    readonly conflicts: ReadonlyArray<ResourceConflict>;
+    /** Validation errors (blocking) */
+    readonly errors: ReadonlyArray<ValidationIssue>;
+    /** Required dependencies that must be active */
+    readonly requiredDependencies: ReadonlyArray<DependencyStatus>;
+    /** Current validation stage */
+    readonly stage: ValidationStage;
+    /** When validation was performed */
+    readonly validatedAt: Scalars['DateTime']['output'];
+    /** Duration of validation in milliseconds */
+    readonly validationDurationMs: Scalars['Int']['output'];
+    /** Validation warnings (non-blocking) */
+    readonly warnings: ReadonlyArray<ValidationIssue>;
+};
+/** Validation issue severity */
+export declare const ValidationSeverity: {
+    /** Blocks apply, must be fixed */
+    readonly Error: "ERROR";
+    /** Informational notice */
+    readonly Info: "INFO";
+    /** Does not block, but recommended to address */
+    readonly Warning: "WARNING";
+};
+export type ValidationSeverity = typeof ValidationSeverity[keyof typeof ValidationSeverity];
+/** Validation pipeline stages */
+export declare const ValidationStage: {
+    /** All stages complete */
+    readonly Complete: "COMPLETE";
+    /** Conflict detection (port/IP/route conflicts) */
+    readonly Conflict: "CONFLICT";
+    /** Dependency validation (required resources exist) */
+    readonly Dependency: "DEPENDENCY";
+    /** Platform validation (capability checks) */
+    readonly Platform: "PLATFORM";
+    /** Quota validation (resource limits) */
+    readonly Quota: "QUOTA";
+    /** Schema validation (Zod/GraphQL) */
+    readonly Schema: "SCHEMA";
+    /** Semantic validation (business rules) */
+    readonly Semantic: "SEMANTIC";
+    /** Pre-flight simulation */
+    readonly Simulation: "SIMULATION";
+};
+export type ValidationStage = typeof ValidationStage[keyof typeof ValidationStage];
+/** Variable types for template parameters. */
+export declare const VariableType: {
+    /** Interface name (autocomplete from router) */
+    readonly Interface: "INTERFACE";
+    /** IP address */
+    readonly Ip: "IP";
+    /** Port number */
+    readonly Port: "PORT";
+    /** Free-form string */
+    readonly String: "STRING";
+    /** Subnet in CIDR notation */
+    readonly Subnet: "SUBNET";
+    /** VLAN ID */
+    readonly VlanId: "VLAN_ID";
+};
+export type VariableType = typeof VariableType[keyof typeof VariableType];
+/** Verification event for subscriptions. */
+export type VerificationEvent = {
+    /** Actual hash (for failures) */
+    readonly actualHash?: Maybe<Scalars['String']['output']>;
+    /** Archive hash */
+    readonly archiveHash?: Maybe<Scalars['String']['output']>;
+    /** Binary hash */
+    readonly binaryHash?: Maybe<Scalars['String']['output']>;
+    /** Event type (verified, verification_failed, integrity_failed) */
+    readonly eventType: Scalars['String']['output'];
+    /** Expected hash (for failures) */
+    readonly expectedHash?: Maybe<Scalars['String']['output']>;
+    /** Failure reason (for failures) */
+    readonly failureReason?: Maybe<Scalars['String']['output']>;
+    /** Feature ID */
+    readonly featureID: Scalars['String']['output'];
+    /** GPG key ID */
+    readonly gpgKeyID?: Maybe<Scalars['String']['output']>;
+    /** GPG verified */
+    readonly gpgVerified: Scalars['Boolean']['output'];
+    /** Instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Router ID */
+    readonly routerID: Scalars['ID']['output'];
+    /** Suggested action (for failures) */
+    readonly suggestedAction?: Maybe<Scalars['String']['output']>;
+    /** Timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+};
+/** Binary verification status. */
+export declare const VerificationStatus: {
+    /** Binary failed verification (hash mismatch) */
+    readonly Invalid: "INVALID";
+    /** Verification not performed (disabled or missing data) */
+    readonly NotVerified: "NOT_VERIFIED";
+    /** Verification in progress */
+    readonly Pending: "PENDING";
+    /** Binary passed verification */
+    readonly Valid: "VALID";
+};
+export type VerificationStatus = typeof VerificationStatus[keyof typeof VerificationStatus];
+/**
+ * Virtual network interface for service instance isolation.
+ * Each service instance gets its own VLAN interface with routing mark.
+ */
+export type VirtualInterface = {
+    /** When the interface was created */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Gateway runtime status */
+    readonly gatewayStatus: GatewayStatus;
+    /** Gateway type (tunnel, direct, etc.) */
+    readonly gatewayType: GatewayType;
+    /** Interface ID (ULID) */
+    readonly id: Scalars['ID']['output'];
+    /** Service instance ID this interface belongs to */
+    readonly instanceId: Scalars['ID']['output'];
+    /** IP address assigned to this interface */
+    readonly ipAddress: Scalars['String']['output'];
+    /** Interface name (e.g., vlan100) */
+    readonly name: Scalars['String']['output'];
+    /** Routing mark for policy routing */
+    readonly routingMark: Scalars['String']['output'];
+    /** Interface lifecycle status */
+    readonly status: VirtualInterfaceStatus;
+    /** Tunnel interface name (for HEV tunnel) */
+    readonly tunName?: Maybe<Scalars['String']['output']>;
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** VLAN ID for network isolation */
+    readonly vlanId: Scalars['Int']['output'];
+};
+/**
+ * Virtual interface information for routing matrix.
+ * Simplified view of VirtualInterface for device routing selection.
+ */
+export type VirtualInterfaceInfo = {
+    /** Gateway status */
+    readonly gatewayStatus: Scalars['String']['output'];
+    /** Gateway type */
+    readonly gatewayType: Scalars['String']['output'];
+    /** Interface ID */
+    readonly id: Scalars['ID']['output'];
+    /** Service instance ID */
+    readonly instanceID: Scalars['ID']['output'];
+    /** Service instance name */
+    readonly instanceName: Scalars['String']['output'];
+    /** Interface name (e.g., vlan100) */
+    readonly interfaceName: Scalars['String']['output'];
+    /** IP address */
+    readonly ipAddress: Scalars['String']['output'];
+    /** Routing mark for PBR */
+    readonly routingMark: Scalars['String']['output'];
+    /** Interface status */
+    readonly status: Scalars['String']['output'];
+    /** VLAN ID */
+    readonly vlanID: Scalars['Int']['output'];
+};
+/** Virtual interface lifecycle status. */
+export declare const VirtualInterfaceStatus: {
+    /** Interface is active and ready */
+    readonly Active: "ACTIVE";
+    /** Interface is being created */
+    readonly Creating: "CREATING";
+    /** Interface creation/operation failed */
+    readonly Error: "ERROR";
+    /** Interface is being removed */
+    readonly Removing: "REMOVING";
+};
+export type VirtualInterfaceStatus = typeof VirtualInterfaceStatus[keyof typeof VirtualInterfaceStatus];
+/** A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging */
+export type Vlan = Node & {
+    /** User comment */
+    readonly comment?: Maybe<Scalars['String']['output']>;
+    /** Whether the VLAN interface is disabled */
+    readonly disabled: Scalars['Boolean']['output'];
+    /** Unique VLAN identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Parent interface (bridge or physical interface) */
+    readonly interface: Interface;
+    /** IP addresses assigned to this VLAN */
+    readonly ipAddresses: ReadonlyArray<IpAddress>;
+    /** MAC address of the VLAN interface */
+    readonly macAddress?: Maybe<Scalars['MAC']['output']>;
+    /** MTU setting (optional, inherits from parent if not set) */
+    readonly mtu?: Maybe<Scalars['Int']['output']>;
+    /** VLAN interface name (e.g., vlan10, vlan-guest) */
+    readonly name: Scalars['String']['output'];
+    /** Whether the VLAN interface is running (link up) */
+    readonly running: Scalars['Boolean']['output'];
+    /** Traffic statistics for this VLAN */
+    readonly statistics?: Maybe<InterfaceStats>;
+    /** 802.1Q VLAN ID (1-4094) */
+    readonly vlanId: Scalars['Int']['output'];
+};
+/** Resources that depend on a VLAN interface */
+export type VlanDependencies = {
+    /** Number of active connections on this VLAN */
+    readonly activeConnections: Scalars['Int']['output'];
+    /** DHCP servers using this VLAN */
+    readonly dhcpServers: ReadonlyArray<DhcpServer>;
+    /** Firewall rules referencing this VLAN */
+    readonly firewallRules: ReadonlyArray<FirewallRuleReference>;
+    /** Whether the VLAN has any dependencies */
+    readonly hasDependencies: Scalars['Boolean']['output'];
+    /** IP addresses assigned to this VLAN */
+    readonly ipAddresses: ReadonlyArray<IpAddress>;
+    /** Routes using this VLAN interface */
+    readonly routes: ReadonlyArray<Route>;
+    /** VLAN interface ID */
+    readonly vlanId: Scalars['ID']['output'];
+};
+/** Filter options for querying VLANs */
+export type VlanFilter = {
+    /** Filter by name containing this string */
+    readonly nameContains?: InputMaybe<Scalars['String']['input']>;
+    /** Filter by parent interface ID */
+    readonly parentInterface?: InputMaybe<Scalars['ID']['input']>;
+    /** Filter by VLAN ID range */
+    readonly vlanIdRange?: InputMaybe<IntRange>;
+};
+/** Input for creating a new VLAN interface */
+export type VlanInput = {
+    /** User comment */
+    readonly comment?: InputMaybe<Scalars['String']['input']>;
+    /** Parent interface ID (bridge or physical interface) */
+    readonly interface: Scalars['ID']['input'];
+    /** MTU setting (optional, inherits from parent if not set) */
+    readonly mtu?: InputMaybe<Scalars['Int']['input']>;
+    /** VLAN interface name (alphanumeric, hyphens, underscores) */
+    readonly name: Scalars['String']['input'];
+    /** 802.1Q VLAN ID (1-4094) */
+    readonly vlanId: Scalars['Int']['input'];
+};
+/** Result of a VLAN mutation (create, update) */
+export type VlanMutationResult = {
+    /** Errors that occurred during the operation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Configuration preview (RouterOS commands that will be executed) */
+    readonly preview?: Maybe<ConfigPreview>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** The created or updated VLAN (if successful) */
+    readonly vlan?: Maybe<Vlan>;
+};
+/** VLAN topology data (nodes and edges) */
+export type VlanTopology = {
+    /** Topology edges (connections) */
+    readonly edges: ReadonlyArray<TopologyEdge>;
+    /** Topology nodes (bridges, VLANs, ports) */
+    readonly nodes: ReadonlyArray<TopologyNode>;
+};
+/** WAN connection history entry */
+export type WanConnectionEvent = {
+    /** Connection duration (for disconnect events) */
+    readonly duration?: Maybe<Scalars['Duration']['output']>;
+    /** Event type */
+    readonly eventType: WanEventType;
+    /** Gateway IP */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    /** Event ID */
+    readonly id: Scalars['ID']['output'];
+    /** Public IP at the time (if applicable) */
+    readonly publicIP?: Maybe<Scalars['IPv4']['output']>;
+    /** Reason/error message (if applicable) */
+    readonly reason?: Maybe<Scalars['String']['output']>;
+    /** Event timestamp */
+    readonly timestamp: Scalars['DateTime']['output'];
+    /** WAN interface ID */
+    readonly wanInterfaceId: Scalars['ID']['output'];
+};
+/** Connection history pagination */
+export type WanConnectionEventConnection = Connection & {
+    readonly edges: ReadonlyArray<WanConnectionEventEdge>;
+    readonly pageInfo: PageInfo;
+    readonly totalCount?: Maybe<Scalars['Int']['output']>;
+};
+export type WanConnectionEventEdge = Edge & {
+    readonly cursor: Scalars['String']['output'];
+    readonly node: WanConnectionEvent;
+};
+/** WAN connection type classification */
+export declare const WanConnectionType: {
+    /** DHCP client (dynamic IP) */
+    readonly Dhcp: "DHCP";
+    /** LTE/cellular connection */
+    readonly Lte: "LTE";
+    /** Not configured */
+    readonly None: "NONE";
+    /** PPPoE dial-up connection */
+    readonly Pppoe: "PPPOE";
+    /** Static IP configuration */
+    readonly Static: "STATIC";
+};
+export type WanConnectionType = typeof WanConnectionType[keyof typeof WanConnectionType];
+/** WAN event types for history tracking */
+export declare const WanEventType: {
+    /** Authentication failed */
+    readonly AuthFailed: "AUTH_FAILED";
+    /** Connection established */
+    readonly Connected: "CONNECTED";
+    /** Connection lost */
+    readonly Disconnected: "DISCONNECTED";
+    /** Gateway changed */
+    readonly GatewayChanged: "GATEWAY_CHANGED";
+    /** Health check failed */
+    readonly HealthFailed: "HEALTH_FAILED";
+    /** Health check recovered */
+    readonly HealthRecovered: "HEALTH_RECOVERED";
+    /** IP address changed */
+    readonly IpChanged: "IP_CHANGED";
+};
+export type WanEventType = typeof WanEventType[keyof typeof WanEventType];
+/** Input for configuring WAN health check */
+export type WanHealthCheckInput = {
+    /** Enable health check */
+    readonly enabled: Scalars['Boolean']['input'];
+    /** Check interval in seconds */
+    readonly interval: Scalars['Int']['input'];
+    /** Target host to ping (IP or hostname) */
+    readonly target: Scalars['String']['input'];
+};
+/** WAN health check status */
+export type WanHealthStatus = {
+    /** Whether health check is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Consecutive failed checks */
+    readonly failureCount: Scalars['Int']['output'];
+    /** Check interval */
+    readonly interval: Scalars['Duration']['output'];
+    /** Last check timestamp */
+    readonly lastCheck: Scalars['DateTime']['output'];
+    /** Current latency (if reachable) */
+    readonly latency?: Maybe<Scalars['Int']['output']>;
+    /** Packet loss percentage (0-100) */
+    readonly packetLoss: Scalars['Int']['output'];
+    /** Overall health status */
+    readonly status: HealthCheckStatus;
+    /** Consecutive successful checks */
+    readonly successCount: Scalars['Int']['output'];
+    /** Target host being monitored */
+    readonly target: Scalars['String']['output'];
+};
+/** WAN interface status with connection details */
+export type WanInterface = Node & {
+    /** DHCP client configuration (if type is DHCP) */
+    readonly dhcpClient?: Maybe<DhcpClient>;
+    /** Gateway IP address */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    /** Health check status */
+    readonly health?: Maybe<WanHealthStatus>;
+    /** Unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Underlying network interface */
+    readonly interface: Interface;
+    /** Whether this is the default route */
+    readonly isDefaultRoute: Scalars['Boolean']['output'];
+    /** Last connection time */
+    readonly lastConnected?: Maybe<Scalars['DateTime']['output']>;
+    /** LTE modem configuration (if type is LTE) */
+    readonly lteModem?: Maybe<LteModem>;
+    /** PPPoE client configuration (if type is PPPOE) */
+    readonly pppoeClient?: Maybe<PppoeClient>;
+    /** Primary DNS server */
+    readonly primaryDNS?: Maybe<Scalars['IPv4']['output']>;
+    /** Public IP address (if connected) */
+    readonly publicIP?: Maybe<Scalars['IPv4']['output']>;
+    /** Secondary DNS server */
+    readonly secondaryDNS?: Maybe<Scalars['IPv4']['output']>;
+    /** Static IP configuration (if type is STATIC) */
+    readonly staticConfig?: Maybe<StaticIpConfig>;
+    /** Traffic statistics */
+    readonly statistics?: Maybe<InterfaceStats>;
+    /** Current connection status */
+    readonly status: WanStatus;
+    /** WAN connection type */
+    readonly type: WanConnectionType;
+    /** Connection uptime */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+};
+/** WAN Link resource for internet connectivity */
+export type WanLink = Node & Resource & {
+    readonly category: ResourceCategory;
+    readonly configuration?: Maybe<Scalars['JSON']['output']>;
+    /** Connection type (static, dhcp, pppoe) */
+    readonly connectionType: WanConnectionType;
+    readonly deployment?: Maybe<DeploymentState>;
+    /** Failover priority (lower = higher priority) */
+    readonly failoverPriority?: Maybe<Scalars['Int']['output']>;
+    readonly id: Scalars['ID']['output'];
+    /** Interface name */
+    readonly interface: Scalars['String']['output'];
+    /** Whether this is the primary WAN */
+    readonly isPrimary: Scalars['Boolean']['output'];
+    readonly metadata: ResourceMetadata;
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+    readonly wanRuntime?: Maybe<WanLinkRuntime>;
+};
+/** WAN Link runtime state */
+export type WanLinkRuntime = {
+    /** Current IP address */
+    readonly currentIP?: Maybe<Scalars['IPv4']['output']>;
+    /** DNS servers received */
+    readonly dnsServers?: Maybe<ReadonlyArray<Scalars['IPv4']['output']>>;
+    /** Current downlink speed (bytes/sec) */
+    readonly downlinkSpeed?: Maybe<Scalars['Size']['output']>;
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Gateway address */
+    readonly gateway?: Maybe<Scalars['IPv4']['output']>;
+    readonly health: RuntimeHealth;
+    readonly isRunning: Scalars['Boolean']['output'];
+    /** Last connection change */
+    readonly lastStateChange?: Maybe<Scalars['DateTime']['output']>;
+    readonly lastUpdated: Scalars['DateTime']['output'];
+    /** Public IP (may differ due to NAT) */
+    readonly publicIP?: Maybe<Scalars['IPv4']['output']>;
+    /** Current uplink speed (bytes/sec) */
+    readonly uplinkSpeed?: Maybe<Scalars['Size']['output']>;
+    /** Total uptime */
+    readonly uptime?: Maybe<Scalars['Duration']['output']>;
+};
+/** Result of WAN configuration mutation */
+export type WanMutationResult = {
+    /** Errors that occurred */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Configuration preview (RouterOS commands) */
+    readonly preview?: Maybe<ConfigPreview>;
+    /** Whether the operation succeeded */
+    readonly success: Scalars['Boolean']['output'];
+    /** The configured WAN interface */
+    readonly wanInterface?: Maybe<WanInterface>;
+};
+/** WAN connection status */
+export declare const WanStatus: {
+    /** Connected and online */
+    readonly Connected: "CONNECTED";
+    /** Connecting/authenticating */
+    readonly Connecting: "CONNECTING";
+    /** Disabled */
+    readonly Disabled: "DISABLED";
+    /** Disconnected */
+    readonly Disconnected: "DISCONNECTED";
+    /** Connection failed */
+    readonly Error: "ERROR";
+};
+export type WanStatus = typeof WanStatus[keyof typeof WanStatus];
+/** Webhook notification configuration */
+export type Webhook = Node & {
+    /** Authentication type */
+    readonly authType: WebhookAuthType;
+    /** Bearer token (masked, only shown on creation) */
+    readonly bearerToken?: Maybe<Scalars['String']['output']>;
+    /** Record creation timestamp */
+    readonly createdAt: Scalars['DateTime']['output'];
+    /** Custom template body (for CUSTOM template type) */
+    readonly customTemplate?: Maybe<Scalars['String']['output']>;
+    /** Delivery statistics */
+    readonly deliveryStats?: Maybe<WebhookDeliveryStats>;
+    /** Optional description */
+    readonly description?: Maybe<Scalars['String']['output']>;
+    /** Whether this webhook is enabled */
+    readonly enabled: Scalars['Boolean']['output'];
+    /** Custom HTTP headers (as JSON object) */
+    readonly headers?: Maybe<Scalars['JSON']['output']>;
+    /** Globally unique identifier */
+    readonly id: Scalars['ID']['output'];
+    /** Last successful delivery timestamp */
+    readonly lastDeliveredAt?: Maybe<Scalars['DateTime']['output']>;
+    /** Maximum retry attempts (default: 3) */
+    readonly maxRetries: Scalars['Int']['output'];
+    /** HTTP method (default: POST) */
+    readonly method: Scalars['String']['output'];
+    /** Human-readable webhook name */
+    readonly name: Scalars['String']['output'];
+    /** Whether to retry failed deliveries */
+    readonly retryEnabled: Scalars['Boolean']['output'];
+    /** Signing secret (masked with ******, never returned in plaintext except on creation) */
+    readonly signingSecretMasked?: Maybe<Scalars['String']['output']>;
+    /** Template type for webhook payload */
+    readonly template: WebhookTemplate;
+    /** Timeout in seconds (default: 10) */
+    readonly timeoutSeconds: Scalars['Int']['output'];
+    /** Last update timestamp */
+    readonly updatedAt: Scalars['DateTime']['output'];
+    /** Webhook URL endpoint */
+    readonly url: Scalars['String']['output'];
+    /** Username for Basic auth */
+    readonly username?: Maybe<Scalars['String']['output']>;
+};
+/** Webhook authentication types */
+export declare const WebhookAuthType: {
+    /** HTTP Basic authentication */
+    readonly Basic: "BASIC";
+    /** Bearer token authentication */
+    readonly Bearer: "BEARER";
+    /** No authentication required */
+    readonly None: "NONE";
+};
+export type WebhookAuthType = typeof WebhookAuthType[keyof typeof WebhookAuthType];
+/** Webhook delivery statistics */
+export type WebhookDeliveryStats = {
+    /** Average response time in milliseconds */
+    readonly avgResponseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** Failed deliveries */
+    readonly failureCount: Scalars['Int']['output'];
+    /** Successful deliveries */
+    readonly successCount: Scalars['Int']['output'];
+    /** Success rate (0-100) */
+    readonly successRate: Scalars['Float']['output'];
+    /** Total deliveries attempted */
+    readonly totalAttempts: Scalars['Int']['output'];
+};
+/** Webhook mutation payload */
+export type WebhookPayload = {
+    /** Errors encountered during mutation */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Signing secret (only returned on creation, one-time show) */
+    readonly signingSecret?: Maybe<Scalars['String']['output']>;
+    /** Created/updated webhook */
+    readonly webhook?: Maybe<Webhook>;
+};
+/** Webhook template types for predefined formats */
+export declare const WebhookTemplate: {
+    /** Custom template with user-defined format */
+    readonly Custom: "CUSTOM";
+    /** Discord webhook format */
+    readonly Discord: "DISCORD";
+    /** Generic JSON format */
+    readonly Generic: "GENERIC";
+    /** Slack incoming webhook format */
+    readonly Slack: "SLACK";
+    /** Microsoft Teams webhook format */
+    readonly Teams: "TEAMS";
+};
+export type WebhookTemplate = typeof WebhookTemplate[keyof typeof WebhookTemplate];
+/** Webhook test mutation payload */
+export type WebhookTestPayload = {
+    /** Errors encountered during test */
+    readonly errors?: Maybe<ReadonlyArray<MutationError>>;
+    /** Test result */
+    readonly result?: Maybe<WebhookTestResult>;
+};
+/** Result of testing a webhook */
+export type WebhookTestResult = {
+    /** Error message if test failed */
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    /** Response body from webhook endpoint */
+    readonly responseBody?: Maybe<Scalars['String']['output']>;
+    /** Response time in milliseconds */
+    readonly responseTimeMs?: Maybe<Scalars['Int']['output']>;
+    /** HTTP status code received */
+    readonly statusCode?: Maybe<Scalars['Int']['output']>;
+    /** Whether the test was successful */
+    readonly success: Scalars['Boolean']['output'];
+};
+/** WireGuard VPN Client resource implementing 8-layer model */
+export type WireGuardClient = Node & Resource & {
+    readonly category: ResourceCategory;
+    readonly config: WireGuardClientConfig;
+    readonly configuration?: Maybe<Scalars['JSON']['output']>;
+    readonly deployment?: Maybe<DeploymentState>;
+    readonly id: Scalars['ID']['output'];
+    readonly metadata: ResourceMetadata;
+    readonly platform?: Maybe<PlatformInfo>;
+    readonly relationships?: Maybe<ResourceRelationships>;
+    readonly runtime?: Maybe<RuntimeState>;
+    readonly scopedId: Scalars['String']['output'];
+    readonly telemetry?: Maybe<TelemetryData>;
+    readonly type: Scalars['String']['output'];
+    readonly validation?: Maybe<ValidationResult>;
+    readonly wireguardDeployment?: Maybe<WireGuardDeployment>;
+    readonly wireguardRuntime?: Maybe<WireGuardRuntime>;
+};
+/** WireGuard client configuration */
+export type WireGuardClientConfig = {
+    /** Allowed IPs (CIDR notation) */
+    readonly allowedIPs: ReadonlyArray<Scalars['CIDR']['output']>;
+    /** DNS servers to use */
+    readonly dnsServers?: Maybe<ReadonlyArray<Scalars['IPv4']['output']>>;
+    /** Enable kill switch */
+    readonly killSwitch?: Maybe<Scalars['Boolean']['output']>;
+    /** Listen port (0 for auto) */
+    readonly listenPort?: Maybe<Scalars['Port']['output']>;
+    /** User-friendly name */
+    readonly name: Scalars['String']['output'];
+    /** Peer endpoint (IP:port) */
+    readonly peerEndpoint: Scalars['String']['output'];
+    /** Peer public key */
+    readonly peerPublicKey: Scalars['String']['output'];
+    /** Persistent keepalive interval */
+    readonly persistentKeepalive?: Maybe<Scalars['Duration']['output']>;
+    /** WireGuard private key */
+    readonly privateKey: Scalars['String']['output'];
+    /** WAN interface to use */
+    readonly wanInterface?: Maybe<Scalars['ID']['output']>;
+};
+/** WireGuard deployment state (router-generated) */
+export type WireGuardDeployment = {
+    readonly appliedAt: Scalars['DateTime']['output'];
+    readonly appliedBy?: Maybe<Scalars['String']['output']>;
+    readonly drift?: Maybe<DriftInfo>;
+    /** Assigned interface name */
+    readonly interfaceName?: Maybe<Scalars['String']['output']>;
+    readonly isInSync: Scalars['Boolean']['output'];
+    /** Generated public key */
+    readonly publicKey?: Maybe<Scalars['String']['output']>;
+    readonly routerResourceId?: Maybe<Scalars['String']['output']>;
+    readonly routerVersion?: Maybe<Scalars['Int']['output']>;
+};
+/** WireGuard runtime state */
+export type WireGuardRuntime = {
+    /** Current active peers count */
+    readonly activePeers: Scalars['Int']['output'];
+    /** Bytes transferred in */
+    readonly bytesIn: Scalars['Size']['output'];
+    /** Bytes transferred out */
+    readonly bytesOut: Scalars['Size']['output'];
+    /** Current endpoint (may differ from configured) */
+    readonly currentEndpoint?: Maybe<Scalars['String']['output']>;
+    readonly errorMessage?: Maybe<Scalars['String']['output']>;
+    readonly health: RuntimeHealth;
+    /** Whether connected to peer */
+    readonly isConnected: Scalars['Boolean']['output'];
+    readonly isRunning: Scalars['Boolean']['output'];
+    /** Last handshake time */
+    readonly lastHandshake?: Maybe<Scalars['DateTime']['output']>;
+    readonly lastUpdated: Scalars['DateTime']['output'];
+};
+//# sourceMappingURL=types.d.ts.map

@@ -7,10 +7,13 @@
  *
  * Layer 3 Domain Component
  *
+ * @description Provides a context menu overlay for adding IPs to existing address lists
+ * or creating new ones. Supports keyboard navigation and Enter to submit.
+ *
  * @module @nasnet/features/firewall/components
  */
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 
 import {
   DropdownMenu,
@@ -21,19 +24,28 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Button,
+  Input,
+  Label,
+  useToast,
 } from '@nasnet/ui/primitives';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
-import { Label } from '@nasnet/ui/primitives';
-import { useToast } from '@nasnet/ui/primitives';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+const SUBDROPDOWN_MAX_HEIGHT_PX = 300;
 
 // ============================================
 // TYPES
 // ============================================
 
 export interface AddToAddressListContextMenuProps {
-  /** The IP address to add */
+  /** The IP address to add (e.g., "192.168.1.100") */
   ipAddress: string;
   /** Existing address lists for quick-add */
   existingLists?: string[];
@@ -61,7 +73,7 @@ export interface AddToAddressListContextMenuProps {
  * </AddToAddressListContextMenu>
  * ```
  */
-export function AddToAddressListContextMenu({
+function AddToAddressListContextMenuInner({
   ipAddress,
   existingLists = [],
   onAddToList,
@@ -76,25 +88,25 @@ export function AddToAddressListContextMenu({
   // HANDLERS
   // ============================================
 
-  const handleAddToExistingList = async (listName: string) => {
+  const handleAddToExistingList = useCallback(async (listName: string) => {
     if (!onAddToList) return;
 
     try {
       await onAddToList(listName, ipAddress);
       toast({
         title: 'Added to address list',
-        description: `${ipAddress} has been added to "${listName}"`,
+        description: `${ipAddress} has been added to "${listName}".`,
       });
     } catch (error) {
       toast({
         title: 'Failed to add to list',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        description: error instanceof Error ? error.message : 'Unable to add IP to list. Please try again.',
         variant: 'destructive',
       });
     }
-  };
+  }, [onAddToList, ipAddress, toast]);
 
-  const handleCreateNewList = async () => {
+  const handleCreateNewList = useCallback(async () => {
     if (!newListName.trim() || !onAddToList) return;
 
     setIsCreating(true);
@@ -102,20 +114,20 @@ export function AddToAddressListContextMenu({
       await onAddToList(newListName.trim(), ipAddress);
       toast({
         title: 'Created address list',
-        description: `New list "${newListName}" created with ${ipAddress}`,
+        description: `New list "${newListName}" created with ${ipAddress}.`,
       });
       setShowCreateDialog(false);
       setNewListName('');
     } catch (error) {
       toast({
         title: 'Failed to create list',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        description: error instanceof Error ? error.message : 'Unable to create address list. Please try again.',
         variant: 'destructive',
       });
     } finally {
       setIsCreating(false);
     }
-  };
+  }, [newListName, onAddToList, ipAddress, toast]);
 
   // ============================================
   // RENDER
@@ -135,14 +147,17 @@ export function AddToAddressListContextMenu({
                 <DropdownMenuSubTrigger>
                   <span>Add to existing list</span>
                 </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
+                <DropdownMenuSubContent
+                  className="overflow-y-auto"
+                  style={{ maxHeight: `${SUBDROPDOWN_MAX_HEIGHT_PX}px` }}
+                >
                   {existingLists.map((list) => (
                     <DropdownMenuItem
                       key={list}
                       onClick={() => handleAddToExistingList(list)}
                       className="font-mono"
                     >
-                      {list}
+                      <span className="font-mono">{list}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>
@@ -182,6 +197,7 @@ export function AddToAddressListContextMenu({
                 placeholder="e.g., blocklist, trusted_devices"
                 className="font-mono"
                 disabled={isCreating}
+                aria-describedby="list-name-hint"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && newListName.trim()) {
                     e.preventDefault();
@@ -190,15 +206,15 @@ export function AddToAddressListContextMenu({
                 }}
                 autoFocus
               />
-              <p className="text-xs text-muted-foreground">
+              <p id="list-name-hint" className="text-xs text-muted-foreground">
                 Only letters, numbers, underscores, and hyphens allowed
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>IP Address</Label>
+              <Label htmlFor="ip-display">IP Address</Label>
               <div className="px-3 py-2 bg-muted rounded-md">
-                <code className="text-sm font-mono">{ipAddress}</code>
+                <code id="ip-display" className="text-sm font-mono">{ipAddress}</code>
               </div>
             </div>
 
@@ -227,3 +243,7 @@ export function AddToAddressListContextMenu({
     </>
   );
 }
+
+AddToAddressListContextMenuInner.displayName = 'AddToAddressListContextMenu';
+
+export const AddToAddressListContextMenu = memo(AddToAddressListContextMenuInner);

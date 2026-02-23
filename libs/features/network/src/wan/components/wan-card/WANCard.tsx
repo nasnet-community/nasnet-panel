@@ -3,9 +3,14 @@
  *
  * Composite card displaying WAN interface status, health, and connection details.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 8: Overview Integration)
+ *
+ * @description Displays comprehensive WAN interface information including connection type,
+ * status, public IP, health monitoring status, and quick action buttons.
  */
 
+import { memo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import {
   Globe,
   Activity,
@@ -40,7 +45,7 @@ export interface WANCardProps {
  * - Uptime
  * - Quick actions
  */
-export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
+const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => {
   const isConnected = wan.status === 'CONNECTED';
   const isHealthy = wan.healthStatus === 'HEALTHY';
   const hasHealthCheck = wan.healthEnabled;
@@ -81,24 +86,39 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
 
   const typeBadge = getConnectionTypeBadge();
 
+  const handleCardClick = useCallback(() => {
+    if (onViewDetails) {
+      onViewDetails(wan.id);
+    }
+  }, [wan.id, onViewDetails]);
+
+  const handleConfigureClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onConfigure) {
+      onConfigure(wan.id);
+    }
+  }, [wan.id, onConfigure]);
+
   return (
-    <Card className={onViewDetails ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} onClick={onViewDetails ? () => onViewDetails(wan.id) : undefined}>
+    <Card
+      className={cn(
+        onViewDetails && 'cursor-pointer hover:shadow-md transition-shadow'
+      )}
+      onClick={handleCardClick}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {isConnected ? (
-              <Globe className="h-5 w-5 text-success" />
+              <Globe className="h-5 w-5 text-success" aria-hidden="true" />
             ) : (
-              <WifiOff className="h-5 w-5 text-muted-foreground" />
+              <WifiOff className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
             )}
             <CardTitle>{wan.interfaceName}</CardTitle>
           </div>
           {onConfigure && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onConfigure(wan.id);
-              }}
+              onClick={handleConfigureClick}
               className="text-xs text-primary hover:underline"
               aria-label={`Configure ${wan.interfaceName}`}
             >
@@ -113,7 +133,11 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Badge variant={getConnectionStatusColor(wan.status) as any} className="text-xs">
-              {isConnected ? <Globe className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {isConnected ? (
+                <Globe className="h-3 w-3" aria-hidden="true" />
+              ) : (
+                <WifiOff className="h-3 w-3" aria-hidden="true" />
+              )}
               <span className="ml-1">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
             </Badge>
             <Badge {...typeBadge}>
@@ -126,9 +150,11 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
           {hasHealthCheck && (
             <div className="flex items-center gap-2">
               <Activity
-                className={`h-4 w-4 ${
+                className={cn(
+                  'h-4 w-4',
                   isHealthy ? 'text-success' : 'text-warning'
-                }`}
+                )}
+                aria-hidden="true"
               />
               <Badge
                 variant={getHealthStatusColor(wan.healthStatus) as any}
@@ -166,7 +192,11 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
                 <span className="text-muted-foreground">DNS:</span>
                 <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
                   {wan.primaryDNS}
-                  {wan.secondaryDNS && `, ${wan.secondaryDNS}`}
+                  {wan.secondaryDNS && (
+                    <>
+                      , <span className="font-mono">{wan.secondaryDNS}</span>
+                    </>
+                  )}
                 </code>
               </div>
             )}
@@ -176,7 +206,7 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
         {/* Uptime */}
         {isConnected && wan.lastConnected && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3 w-3" aria-hidden="true" />
             <span>
               Connected{' '}
               {formatDistanceToNow(new Date(wan.lastConnected), {
@@ -196,9 +226,9 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
             {wan.healthLatency && wan.healthLatency > 0 && (
               <div className="flex items-center justify-between mt-1">
                 <span>Latency:</span>
-                <span className="font-mono text-[10px]">
+                <code className="font-mono text-[10px]">
                   {wan.healthLatency}ms
-                </span>
+                </code>
               </div>
             )}
           </div>
@@ -208,7 +238,7 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
         {wan.isDefaultRoute && (
           <div className="pt-2 border-t">
             <Badge variant="secondary" className="text-[10px]">
-              <Network className="h-3 w-3 mr-1" />
+              <Network className="h-3 w-3 mr-1" aria-hidden="true" />
               Default Route
             </Badge>
           </div>
@@ -218,7 +248,7 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
         {!isConnected && (
           <div className="text-xs text-muted-foreground pt-2 border-t">
             <div className="flex items-center gap-2">
-              <WifiOff className="h-3 w-3" />
+              <WifiOff className="h-3 w-3" aria-hidden="true" />
               <span>Not connected</span>
             </div>
             {wan.lastConnected && (
@@ -235,13 +265,23 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
       </CardContent>
     </Card>
   );
-}
+};
+
+WANCardComponent.displayName = 'WANCard';
+
+export const WANCard = memo(WANCardComponent);
 
 /**
  * Compact WAN Card for mobile/narrow views
  */
-export function WANCardCompact({ wan, onConfigure, onViewDetails }: WANCardProps) {
+const WANCardCompactComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => {
   const isConnected = wan.status === 'CONNECTED';
+
+  const handleConfigureClick = useCallback(() => {
+    if (onConfigure) {
+      onConfigure(wan.id);
+    }
+  }, [wan.id, onConfigure]);
 
   return (
     <div className="border rounded-lg p-4 space-y-3">
@@ -249,14 +289,18 @@ export function WANCardCompact({ wan, onConfigure, onViewDetails }: WANCardProps
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {isConnected ? (
-            <Globe className="h-4 w-4 text-success" />
+            <Globe className="h-4 w-4 text-success" aria-hidden="true" />
           ) : (
-            <WifiOff className="h-4 w-4 text-muted-foreground" />
+            <WifiOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           )}
           <h3 className="font-semibold text-sm">{wan.interfaceName}</h3>
         </div>
         <Badge variant={getConnectionStatusColor(wan.status) as any} className="text-xs">
-          {isConnected ? <Globe className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+          {isConnected ? (
+            <Globe className="h-3 w-3" aria-hidden="true" />
+          ) : (
+            <WifiOff className="h-3 w-3" aria-hidden="true" />
+          )}
           <span className="ml-1">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
         </Badge>
       </div>
@@ -280,8 +324,9 @@ export function WANCardCompact({ wan, onConfigure, onViewDetails }: WANCardProps
         <div className="flex gap-2">
           {onConfigure && (
             <button
-              onClick={() => onConfigure(wan.id)}
+              onClick={handleConfigureClick}
               className="text-xs text-primary hover:underline"
+              aria-label={`Configure ${wan.interfaceName}`}
             >
               Configure
             </button>
@@ -290,4 +335,8 @@ export function WANCardCompact({ wan, onConfigure, onViewDetails }: WANCardProps
       </div>
     </div>
   );
-}
+};
+
+WANCardCompactComponent.displayName = 'WANCardCompact';
+
+export const WANCardCompact = memo(WANCardCompactComponent);

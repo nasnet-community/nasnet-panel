@@ -13,6 +13,7 @@ export const mockLeases: DHCPLease[] = [
     server: 'LAN DHCP',
     status: 'bound' as const,
     hostname: 'laptop-work',
+    clientId: 'client-1',
     expiresAfter: '2h30m',
     lastSeen: new Date('2024-01-15T10:30:00Z'),
     dynamic: true,

@@ -5,6 +5,7 @@
  * Displays up to 5 recent notifications with full details and actions.
  */
 
+import { memo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell } from 'lucide-react';
 
@@ -45,7 +46,7 @@ function getSeverityVariant(severity: AlertSeverity): 'error' | 'warning' | 'inf
  * - Unread count badge
  * - Quick actions: Mark all read, View all
  */
-export function NotificationBellDesktop(props: NotificationBellProps) {
+function NotificationBellDesktopComponent(props: NotificationBellProps) {
   const {
     isOpen,
     unreadCount,
@@ -211,4 +212,5 @@ export function NotificationBellDesktop(props: NotificationBellProps) {
   );
 }
 
-NotificationBellDesktop.displayName = 'NotificationBell.Desktop';
+export const NotificationBellDesktop = memo(NotificationBellDesktopComponent);
+NotificationBellDesktop.displayName = 'NotificationBellDesktop';

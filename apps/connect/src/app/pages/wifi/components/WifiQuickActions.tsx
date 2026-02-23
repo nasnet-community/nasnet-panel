@@ -3,16 +3,18 @@
  * Action buttons for refresh and restart operations
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { RefreshCw, Power } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface WifiQuickActionsProps {
   onRefresh: () => void;
   isRefreshing?: boolean;
 }
 
-export function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsProps) {
+export const WifiQuickActions = React.memo(function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsProps) {
+  const { t } = useTranslation('wifi');
   const [showRestartDialog, setShowRestartDialog] = useState(false);
 
   const handleRestart = () => {
@@ -26,17 +28,17 @@ export function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsPr
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('quickActions.refresh')}
         </button>
         <button
           onClick={() => setShowRestartDialog(true)}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-warning bg-warning/10 border border-warning/30 rounded-lg hover:bg-warning/20 transition-colors"
         >
           <Power className="w-4 h-4" />
-          Restart WiFi
+          {t('quickActions.restartWiFi')}
         </button>
       </div>
 
@@ -54,23 +56,23 @@ export function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsPr
             role="presentation"
             tabIndex={-1}
           />
-          <div className="relative bg-white dark:bg-slate-900 rounded-xl p-6 max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Restart WiFi?</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              This will temporarily disconnect all wireless clients. They will automatically reconnect after the restart completes.
+          <div className="relative bg-card rounded-xl p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground mb-2">{t('quickActions.restartConfirmTitle')}</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t('quickActions.restartConfirmMessage')}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowRestartDialog(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
               >
-                Cancel
+                {t('button.cancel', { ns: 'common' })}
               </button>
               <button
                 onClick={handleRestart}
-                className="px-4 py-2 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-warning hover:bg-warning/90 rounded-lg transition-colors"
               >
-                Restart
+                {t('quickActions.restartWiFi')}
               </button>
             </div>
           </div>
@@ -78,11 +80,9 @@ export function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsPr
       )}
     </>
   );
-}
+});
 
-
-
-
+WifiQuickActions.displayName = 'WifiQuickActions';
 
 
 

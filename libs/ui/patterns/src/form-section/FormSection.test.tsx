@@ -269,7 +269,7 @@ describe('FormSectionErrors component', () => {
 
   it('renders nothing when errors is undefined', () => {
     const { container } = render(
-      <FormSectionErrors errors={undefined as unknown as string[]} />
+      <FormSectionErrors errors={undefined} />
     );
     expect(container.firstChild).toBeNull();
   });
@@ -575,7 +575,6 @@ describe('FormSection component', () => {
       );
 
       const results = await axe(container);
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(results).toHaveNoViolations();
     });
 
@@ -594,7 +593,6 @@ describe('FormSection component', () => {
       );
 
       const results = await axe(container);
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(results).toHaveNoViolations();
     });
 
@@ -612,7 +610,6 @@ describe('FormSection component', () => {
       );
 
       const results = await axe(container);
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(results).toHaveNoViolations();
     });
   });

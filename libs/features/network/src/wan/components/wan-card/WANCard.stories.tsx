@@ -5,9 +5,10 @@
  * components. Covers all connection types, health states, and status combinations.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { WANCard, WANCardCompact } from './WANCard';
+
 import type { WANInterfaceData } from '../../types/wan.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock data helpers

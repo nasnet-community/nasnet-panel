@@ -8,30 +8,340 @@ package resolver
 import (
 	graphql1 "backend/graph/model"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"time"
+
+	"backend/internal/events"
+	"backend/internal/features/sharing"
 )
 
 // ExportServiceConfig is the resolver for the exportServiceConfig field.
 func (r *mutationResolver) ExportServiceConfig(ctx context.Context, input graphql1.ExportServiceConfigInput) (*graphql1.ExportServiceConfigPayload, error) {
-	panic(fmt.Errorf("not implemented: ExportServiceConfig - exportServiceConfig"))
+	if r.SharingService == nil {
+		return &graphql1.ExportServiceConfigPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: "sharing service not available"}},
+		}, nil
+	}
+
+	options := sharing.ExportOptions{
+		RedactSecrets:       input.RedactSecrets,
+		IncludeRoutingRules: input.IncludeRoutingRules,
+	}
+
+	pkg, err := r.SharingService.Export(ctx, input.InstanceID, options)
+	if err != nil {
+		return &graphql1.ExportServiceConfigPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	modelPkg := convertSharingExportToModel(pkg)
+	return &graphql1.ExportServiceConfigPayload{
+		Success: true,
+		Package: modelPkg,
+	}, nil
 }
 
 // ImportServiceConfig is the resolver for the importServiceConfig field.
 func (r *mutationResolver) ImportServiceConfig(ctx context.Context, input graphql1.ImportServiceConfigInput) (*graphql1.ImportServiceConfigPayload, error) {
-	panic(fmt.Errorf("not implemented: ImportServiceConfig - importServiceConfig"))
+	if r.SharingService == nil {
+		return &graphql1.ImportServiceConfigPayload{
+			Valid:   false,
+			Errors:  []*graphql1.MutationError{{Message: "sharing service not available"}},
+		}, nil
+	}
+
+	pkg, err := mapToExportPackage(input.Package)
+	if err != nil {
+		return &graphql1.ImportServiceConfigPayload{
+			Valid:   false,
+			Errors:  []*graphql1.MutationError{{Message: fmt.Sprintf("invalid package format: %s", err.Error())}},
+		}, nil
+	}
+
+	options := sharing.ImportOptions{
+		RouterID: input.RouterID,
+	}
+	if input.ConflictResolution.IsSet() && input.ConflictResolution.Value() != nil {
+		options.ConflictResolution = convertConflictResolution(input.ConflictResolution.Value())
+	}
+	if input.RedactedFieldValues.IsSet() {
+		options.RedactedFieldValues = convertRedactedFieldValues(input.RedactedFieldValues.Value())
+	}
+	if input.DeviceFilter.IsSet() {
+		options.DeviceFilter = input.DeviceFilter.Value()
+	}
+	if input.DryRun.IsSet() && input.DryRun.Value() != nil {
+		options.DryRun = *input.DryRun.Value()
+	}
+
+	result, err := r.SharingService.Import(ctx, pkg, options)
+	if err != nil {
+		return &graphql1.ImportServiceConfigPayload{
+			Valid:   false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	modelResult := convertValidationResultToModel(result)
+	return &graphql1.ImportServiceConfigPayload{
+		Valid:             result.Valid,
+		ValidationResult: modelResult,
+	}, nil
 }
 
 // ApplyServiceImport is the resolver for the applyServiceImport field.
 func (r *mutationResolver) ApplyServiceImport(ctx context.Context, input graphql1.ApplyServiceImportInput) (*graphql1.ApplyServiceImportPayload, error) {
-	panic(fmt.Errorf("not implemented: ApplyServiceImport - applyServiceImport"))
+	if r.SharingService == nil {
+		return &graphql1.ApplyServiceImportPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: "sharing service not available"}},
+		}, nil
+	}
+
+	pkg, err := mapToExportPackage(input.Package)
+	if err != nil {
+		return &graphql1.ApplyServiceImportPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: fmt.Sprintf("invalid package format: %s", err.Error())}},
+		}, nil
+	}
+
+	options := sharing.ImportOptions{
+		RouterID:            input.RouterID,
+		ConflictResolution:  convertConflictResolutionRequired(input.ConflictResolution),
+		RedactedFieldValues: convertRedactedFieldValuesRequired(input.RedactedFieldValues),
+	}
+	if input.DeviceFilter.IsSet() {
+		options.DeviceFilter = input.DeviceFilter.Value()
+	}
+
+	instance, err := r.SharingService.ApplyImport(ctx, pkg, options)
+	if err != nil {
+		return &graphql1.ApplyServiceImportPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	return &graphql1.ApplyServiceImportPayload{
+		Success:  true,
+		Instance: convertEntInstanceToModel(instance),
+	}, nil
 }
 
 // GenerateConfigQR is the resolver for the generateConfigQR field.
 func (r *mutationResolver) GenerateConfigQR(ctx context.Context, input graphql1.GenerateConfigQRInput) (*graphql1.GenerateConfigQRPayload, error) {
-	panic(fmt.Errorf("not implemented: GenerateConfigQR - generateConfigQR"))
+	if r.SharingService == nil {
+		return &graphql1.GenerateConfigQRPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: "sharing service not available"}},
+		}, nil
+	}
+
+	// First export the service config
+	exportOptions := sharing.ExportOptions{
+		RedactSecrets:       input.RedactSecrets,
+		IncludeRoutingRules: input.IncludeRoutingRules,
+	}
+
+	pkg, err := r.SharingService.Export(ctx, input.InstanceID, exportOptions)
+	if err != nil {
+		return &graphql1.GenerateConfigQRPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	// Build QR options
+	qrOptions := sharing.QRCodeOptions{}
+	if input.ImageSize.IsSet() && input.ImageSize.Value() != nil {
+		qrOptions.Size = *input.ImageSize.Value()
+	}
+
+	pngData, err := r.SharingService.GenerateQR(ctx, pkg, qrOptions)
+	if err != nil {
+		return &graphql1.GenerateConfigQRPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	// Encode PNG as base64
+	encoded := base64.StdEncoding.EncodeToString(pngData)
+	dataSize := len(pngData)
+	imageSize := len(pngData)
+
+	return &graphql1.GenerateConfigQRPayload{
+		Success:         true,
+		ImageDataBase64: &encoded,
+		DataSize:        &dataSize,
+		ImageSize:       &imageSize,
+	}, nil
 }
 
 // ServiceConfigShared is the resolver for the serviceConfigShared field.
 func (r *subscriptionResolver) ServiceConfigShared(ctx context.Context, routerID string) (<-chan *graphql1.ServiceConfigSharedEvent, error) {
-	panic(fmt.Errorf("not implemented: ServiceConfigShared - serviceConfigShared"))
+	if r.EventBus == nil {
+		return nil, fmt.Errorf("event bus not available")
+	}
+
+	eventChan := make(chan *graphql1.ServiceConfigSharedEvent, 10)
+
+	err := r.EventBus.Subscribe("service.config.*", func(ctx context.Context, event events.Event) error {
+		sharedEvent := &graphql1.ServiceConfigSharedEvent{
+			ID:        event.GetID().String(),
+			EventType: event.GetType(),
+			RouterID:  routerID,
+			Timestamp: event.GetTimestamp(),
+		}
+
+		select {
+		case eventChan <- sharedEvent:
+		case <-ctx.Done():
+		}
+		return nil
+	})
+	if err != nil {
+		close(eventChan)
+		return nil, fmt.Errorf("failed to subscribe to sharing events: %w", err)
+	}
+
+	go func() {
+		<-ctx.Done()
+		close(eventChan)
+	}()
+
+	return eventChan, nil
+}
+
+// convertSharingExportToModel converts a sharing.ServiceExportPackage to model.ServiceExportPackage.
+func convertSharingExportToModel(pkg *sharing.ServiceExportPackage) *graphql1.ServiceExportPackage {
+	if pkg == nil {
+		return nil
+	}
+
+	modelPkg := &graphql1.ServiceExportPackage{
+		SchemaVersion:   pkg.SchemaVersion,
+		ExportedAt:      pkg.ExportedAt,
+		ServiceType:     pkg.ServiceType,
+		ServiceName:     pkg.ServiceName,
+		BinaryVersion:   pkg.BinaryVersion,
+		Config:          pkg.Config,
+		IncludesSecrets: pkg.IncludesSecrets,
+	}
+
+	if pkg.ExportedByUserID != "" {
+		modelPkg.ExportedByUserID = &pkg.ExportedByUserID
+	}
+
+	for _, rule := range pkg.RoutingRules {
+		r := rule
+		modelRule := &graphql1.RoutingRule{
+			Chain:  r.Chain,
+			Action: r.Action,
+		}
+		if r.SrcAddress != "" {
+			modelRule.SrcAddress = &r.SrcAddress
+		}
+		if r.DstAddress != "" {
+			modelRule.DstAddress = &r.DstAddress
+		}
+		if r.Protocol != "" {
+			modelRule.Protocol = &r.Protocol
+		}
+		if r.Comment != "" {
+			modelRule.Comment = &r.Comment
+		}
+		if r.RoutingMark != "" {
+			modelRule.RoutingMark = &r.RoutingMark
+		}
+		if r.NewRoutingMark != "" {
+			modelRule.NewRoutingMark = &r.NewRoutingMark
+		}
+		modelPkg.RoutingRules = append(modelPkg.RoutingRules, modelRule)
+	}
+
+	return modelPkg
+}
+
+// convertValidationResultToModel converts sharing.ImportValidationResult to model.ImportValidationResult.
+func convertValidationResultToModel(result *sharing.ImportValidationResult) *graphql1.ImportValidationResult {
+	if result == nil {
+		return nil
+	}
+
+	modelResult := &graphql1.ImportValidationResult{
+		Valid:             result.Valid,
+		Errors:            []*graphql1.ImportValidationError{},
+		Warnings:          []*graphql1.ImportValidationWarning{},
+		RedactedFields:    result.RedactedFields,
+		RequiresUserInput: result.RequiresUserInput,
+	}
+
+	for _, e := range result.Errors {
+		modelErr := &graphql1.ImportValidationError{
+			Stage:   e.Stage,
+			Code:    e.Code,
+			Message: e.Message,
+		}
+		if e.Field != "" {
+			modelErr.Field = &e.Field
+		}
+		modelResult.Errors = append(modelResult.Errors, modelErr)
+	}
+
+	for _, w := range result.Warnings {
+		modelResult.Warnings = append(modelResult.Warnings, &graphql1.ImportValidationWarning{
+			Stage:   w.Stage,
+			Message: w.Message,
+		})
+	}
+
+	for _, inst := range result.ConflictingInstances {
+		modelResult.ConflictingInstances = append(modelResult.ConflictingInstances, convertEntInstanceToModel(inst))
+	}
+
+	return modelResult
+}
+
+// mapToExportPackage deserializes a map[string]any (from GraphQL input) into a sharing.ServiceExportPackage.
+func mapToExportPackage(m map[string]any) (*sharing.ServiceExportPackage, error) {
+	data, err := json.Marshal(m)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal package map: %w", err)
+	}
+
+	// Use an intermediate struct with flexible time parsing
+	var raw struct {
+		SchemaVersion    string                 `json:"schema_version"`
+		ExportedAt       time.Time              `json:"exported_at"`
+		ServiceType      string                 `json:"service_type"`
+		ServiceName      string                 `json:"service_name"`
+		BinaryVersion    string                 `json:"binary_version"`
+		Config           map[string]interface{} `json:"config"`
+		RoutingRules     []sharing.RoutingRule  `json:"routing_rules"`
+		IncludesSecrets  bool                   `json:"includes_secrets"`
+		ExportedByUserID string                 `json:"exported_by_user_id"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal package: %w", err)
+	}
+
+	return &sharing.ServiceExportPackage{
+		SchemaVersion:    raw.SchemaVersion,
+		ExportedAt:       raw.ExportedAt,
+		ServiceType:      raw.ServiceType,
+		ServiceName:      raw.ServiceName,
+		BinaryVersion:    raw.BinaryVersion,
+		Config:           raw.Config,
+		RoutingRules:     raw.RoutingRules,
+		IncludesSecrets:  raw.IncludesSecrets,
+		ExportedByUserID: raw.ExportedByUserID,
+	}, nil
 }

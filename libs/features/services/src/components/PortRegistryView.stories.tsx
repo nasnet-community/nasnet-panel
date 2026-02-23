@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { PortRegistryView } from './PortRegistryView';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * PortRegistryView fetches live data via Apollo using the routerId prop.

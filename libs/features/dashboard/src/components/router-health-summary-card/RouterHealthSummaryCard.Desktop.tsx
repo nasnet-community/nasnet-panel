@@ -14,11 +14,12 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
+import React, { useCallback } from 'react';
 import { RefreshCw, Activity, Cpu, MemoryStick, Thermometer } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter, Badge, Button } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import type { UseRouterHealthCardReturn } from './useRouterHealthCard';
-import { getHealthBgClass, getHealthTextClass, formatUptime } from './health-utils';
+import { getHealthBgClass, formatUptime } from './health-utils';
 
 export interface RouterHealthSummaryCardDesktopProps {
   /** Computed state from headless hook */
@@ -34,12 +35,17 @@ export interface RouterHealthSummaryCardDesktopProps {
  *
  * Detailed vertical card with visual health indicator and progress bars.
  * Optimized for larger viewports with pro-grade information density.
+ *
+ * @description Renders a detailed health card with metrics, progress bars, and status indicators for desktop/tablet views.
  */
-export function RouterHealthSummaryCardDesktop({
+export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSummaryCardDesktop({
   state,
   onRefresh,
   className,
 }: RouterHealthSummaryCardDesktopProps) {
+  const handleRefresh = useCallback(() => {
+    onRefresh?.();
+  }, [onRefresh]);
   const { router, healthStatus, isOnline, isStale, cacheAgeMinutes, mutationsDisabled } = state;
 
   if (!router) {
@@ -66,9 +72,9 @@ export function RouterHealthSummaryCardDesktop({
             <Button
               variant="ghost"
               size="icon"
-              onClick={onRefresh}
+              onClick={handleRefresh}
               aria-label="Refresh router data"
-              className="h-12 w-12 -mt-1 -mr-2" // 48px touch target
+              className="h-12 w-12 -mt-1 -mr-2"
             >
               <RefreshCw className="h-5 w-5" aria-hidden="true" />
             </Button>
@@ -99,11 +105,11 @@ export function RouterHealthSummaryCardDesktop({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Version</span>
-            <span className="font-medium text-foreground">{router.version}</span>
+            <span className="font-mono font-medium text-foreground">{router.version}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Uptime</span>
-            <span className="font-medium text-foreground">{formatUptime(router.uptime)}</span>
+            <span className="font-mono font-medium text-foreground">{formatUptime(router.uptime)}</span>
           </div>
         </div>
 
@@ -138,7 +144,7 @@ export function RouterHealthSummaryCardDesktop({
                 <Cpu className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>CPU</span>
               </div>
-              <span className={cn('font-medium', getCpuTextClass(router.cpuUsage))}>
+              <span className={cn('font-mono font-medium', getCpuTextClass(router.cpuUsage))}>
                 {router.cpuUsage}%
               </span>
             </div>
@@ -162,7 +168,7 @@ export function RouterHealthSummaryCardDesktop({
                 <MemoryStick className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Memory</span>
               </div>
-              <span className={cn('font-medium', getMemoryTextClass(router.memoryUsage))}>
+              <span className={cn('font-mono font-medium', getMemoryTextClass(router.memoryUsage))}>
                 {router.memoryUsage}%
               </span>
             </div>
@@ -187,7 +193,7 @@ export function RouterHealthSummaryCardDesktop({
                   <Thermometer className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>Temperature</span>
                 </div>
-                <span className={cn('font-medium', getTempTextClass(router.temperature))}>
+                <span className={cn('font-mono font-medium', getTempTextClass(router.temperature))}>
                   {router.temperature}°C
                 </span>
               </div>
@@ -199,17 +205,21 @@ export function RouterHealthSummaryCardDesktop({
       <CardFooter className="pt-4 border-t border-border">
         <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
           <span>Last updated</span>
-          <span>{formatLastUpdate(router.lastUpdate)}</span>
+          <span className="font-mono">{formatLastUpdate(router.lastUpdate)}</span>
         </div>
       </CardFooter>
     </Card>
   );
-}
+});
+
+RouterHealthSummaryCardDesktop.displayName = 'RouterHealthSummaryCardDesktop';
 
 /**
  * Loading skeleton for desktop presenter
+ *
+ * @description Displays a skeleton placeholder while router health data is loading.
  */
-export function RouterHealthSummaryCardDesktopSkeleton({ className }: { className?: string }) {
+export const RouterHealthSummaryCardDesktopSkeleton = React.memo(function RouterHealthSummaryCardDesktopSkeleton({ className }: { className?: string }) {
   return (
     <Card className={cn('h-80 flex flex-col animate-pulse', className)}>
       <CardHeader className="pb-4">
@@ -249,40 +259,66 @@ export function RouterHealthSummaryCardDesktopSkeleton({ className }: { classNam
       </CardFooter>
     </Card>
   );
-}
+});
+
+RouterHealthSummaryCardDesktopSkeleton.displayName = 'RouterHealthSummaryCardDesktopSkeleton';
 
 // Helper functions for color classes
 
+/**
+ * Get text color class for CPU usage level
+ * @description Returns semantic color class based on CPU usage threshold
+ */
 function getCpuTextClass(usage: number): string {
   if (usage >= 90) return 'text-semantic-error';
   if (usage >= 70) return 'text-semantic-warning';
   return 'text-foreground';
 }
 
+/**
+ * Get background color class for CPU progress bar
+ * @description Returns semantic color class based on CPU usage threshold
+ */
 function getCpuBgClass(usage: number): string {
   if (usage >= 90) return 'bg-semantic-error';
   if (usage >= 70) return 'bg-semantic-warning';
   return 'bg-semantic-success';
 }
 
+/**
+ * Get text color class for memory usage level
+ * @description Returns semantic color class based on memory usage threshold
+ */
 function getMemoryTextClass(usage: number): string {
   if (usage >= 95) return 'text-semantic-error';
   if (usage >= 80) return 'text-semantic-warning';
   return 'text-foreground';
 }
 
+/**
+ * Get background color class for memory progress bar
+ * @description Returns semantic color class based on memory usage threshold
+ */
 function getMemoryBgClass(usage: number): string {
   if (usage >= 95) return 'bg-semantic-error';
   if (usage >= 80) return 'bg-semantic-warning';
   return 'bg-semantic-success';
 }
 
+/**
+ * Get text color class for temperature level
+ * @description Returns semantic color class based on temperature threshold
+ */
 function getTempTextClass(temp: number): string {
   if (temp >= 75) return 'text-semantic-error';
   if (temp >= 60) return 'text-semantic-warning';
   return 'text-foreground';
 }
 
+/**
+ * Format last update timestamp to human-readable string
+ * @description Converts a date to relative time format with proper pluralization
+ */
 function formatLastUpdate(date: Date): string {
   const now = Date.now();
   const diff = now - date.getTime();

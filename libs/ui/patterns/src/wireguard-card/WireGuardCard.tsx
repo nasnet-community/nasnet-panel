@@ -6,7 +6,7 @@
  * @see NAS-4.23 - Refactored to use useClipboard hook
  */
 
-
+import { memo, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, ChevronDown } from 'lucide-react';
 
@@ -22,6 +22,7 @@ import {
   Badge,
   Button,
   Skeleton,
+  cn,
 } from '@nasnet/ui/primitives';
 
 import { useClipboard } from '../hooks';
@@ -47,13 +48,13 @@ export interface WireGuardCardProps {
  * Shows WireGuard interface name, listening port, status, public key with copy button, and peer count
  * Expandable to show peer details
  */
-export function WireGuardCard({
+function WireGuardCardComponent({
   interface: wgInterface,
   peerCount = 0,
   onClick,
 }: WireGuardCardProps) {
   const { toast } = useToast();
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Use shared clipboard hook with standardized 2000ms timeout (NAS-4.23)
@@ -82,34 +83,34 @@ export function WireGuardCard({
   /**
    * Handle copy public key to clipboard
    */
-  const handleCopyPublicKey = (e: React.MouseEvent) => {
+  const handleCopyPublicKey = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click if card has onClick
     copy(wgInterface.publicKey);
-  };
+  }, [copy, wgInterface.publicKey]);
 
   /**
    * Handle toggle expansion
    */
-  const handleToggleExpand = (e: React.MouseEvent) => {
+  const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click if card has onClick
-    setIsExpanded(!isExpanded);
-  };
+    setIsExpanded(prev => !prev);
+  }, []);
 
   // Determine status for display
-  const status = wgInterface.disabled
+  const status = wgInterface.isDisabled
     ? 'offline'
-    : wgInterface.running
+    : wgInterface.isRunning
     ? 'online'
     : 'warning';
 
-  const statusLabel = wgInterface.disabled
+  const statusLabel = wgInterface.isDisabled
     ? 'Disabled'
-    : wgInterface.running
+    : wgInterface.isRunning
     ? 'Active'
     : 'Inactive';
 
   return (
-    <Card className="rounded-card-sm md:rounded-card-lg shadow-sm transition-shadow hover:shadow-md">
+    <Card className={cn('rounded-card-sm md:rounded-card-lg shadow-sm transition-shadow hover:shadow-md')}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
@@ -276,3 +277,9 @@ export function WireGuardCard({
     </Card>
   );
 }
+
+/**
+ * WireGuardCard - Memoized component for performance
+ */
+export const WireGuardCard = memo(WireGuardCardComponent);
+WireGuardCard.displayName = 'WireGuardCard';

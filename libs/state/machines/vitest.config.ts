@@ -19,6 +19,7 @@ export default defineConfig({
     alias: {
       '@nasnet/state/stores': resolve(__dirname, '../stores/src'),
       '@nasnet/core/types': resolve(__dirname, '../../core/types/src'),
+      '@nasnet/core/utils': resolve(__dirname, '../../core/utils/src'),
     },
   },
 });

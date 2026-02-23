@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useVlans } from '@nasnet/api-client/queries';
 
 /**
- * VLAN Topology Node Types
+ * @description VLAN Topology Interface node in the hierarchy
  */
 export interface VlanTopologyInterface {
   id: string;
@@ -11,23 +11,29 @@ export interface VlanTopologyInterface {
   vlans: VlanTopologyVlan[];
 }
 
+/**
+ * @description Individual VLAN within a topology interface
+ */
 export interface VlanTopologyVlan {
   id: string;
   name: string;
   vlanId: number;
-  disabled: boolean;
-  running: boolean;
+  isDisabled: boolean;
+  isRunning: boolean;
   mtu: number | null;
   comment: string | null;
 }
 
 /**
- * Hook to build VLAN topology data structure
+ * @description Hook to build VLAN topology data structure
  *
- * Organizes VLANs by their parent interfaces for hierarchical visualization.
+ * Organizes VLANs by their parent interfaces for hierarchical visualization
+ * with memoized topology building and statistics calculation.
  *
  * @param routerId - Router ID to fetch VLANs for
- * @returns Topology data grouped by parent interface
+ * @returns Object with topology, stats, loading, error, and refetch function
+ * @example
+ * const { topology, stats, loading } = useVlanTopology('router-1');
  */
 export function useVlanTopology(routerId: string) {
   const { vlans, loading, error, refetch } = useVlans(routerId);
@@ -52,8 +58,8 @@ export function useVlanTopology(routerId: string) {
         id: vlan.id,
         name: vlan.name,
         vlanId: vlan.vlanId,
-        disabled: vlan.disabled,
-        running: vlan.running,
+        isDisabled: vlan.disabled,
+        isRunning: vlan.running,
         mtu: vlan.mtu,
         comment: vlan.comment,
       });
@@ -73,8 +79,8 @@ export function useVlanTopology(routerId: string) {
   // Calculate statistics
   const stats = useMemo(() => {
     const totalVlans = vlans.length;
-    const runningVlans = vlans.filter((v: any) => v.running && !v.disabled).length;
-    const disabledVlans = vlans.filter((v: any) => v.disabled).length;
+    const runningVlans = vlans.filter((v: any) => v.isRunning && !v.isDisabled).length;
+    const disabledVlans = vlans.filter((v: any) => v.isDisabled).length;
     const parentInterfaces = topology.length;
 
     return {
@@ -85,12 +91,16 @@ export function useVlanTopology(routerId: string) {
     };
   }, [vlans, topology]);
 
+  const handleRefetch = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return {
     topology,
     stats,
-    loading,
+    isLoading: loading,
     error,
-    refetch,
+    onRefetch: handleRefetch,
   };
 }
 

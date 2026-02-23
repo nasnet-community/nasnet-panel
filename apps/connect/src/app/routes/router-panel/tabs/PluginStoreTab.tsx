@@ -12,7 +12,7 @@
  * - Dark/light theme aware surfaces
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   Shield,
@@ -21,6 +21,8 @@ import {
   MessageSquare,
   Info
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
 import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
@@ -155,11 +157,12 @@ const createMockPlugins = (): Plugin[] => [
   }
 ];
 
-interface PluginStoreTabProps {
+export interface PluginStoreTabProps {
   routerId: string;
 }
 
-export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
+export const PluginStoreTab = React.memo(function PluginStoreTab({ routerId }: PluginStoreTabProps) {
+  const { t } = useTranslation('services');
   const { toast } = useToast();
   const [plugins, setPlugins] = useState<Plugin[]>(createMockPlugins());
 
@@ -246,8 +249,8 @@ export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
   const handleInstallComplete = (instanceIDs: string[]) => {
     const count = instanceIDs.length;
     toast({
-      title: 'Template Installed',
-      description: `Successfully installed ${count} service${count !== 1 ? 's' : ''} from template "${selectedTemplate?.name}"`,
+      title: t('marketplace.templateInstalledTitle'),
+      description: t('marketplace.templateInstalledDescription', { count, name: selectedTemplate?.name || '' }),
       variant: 'success',
     });
     handleWizardClose();
@@ -262,19 +265,19 @@ export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-            Services & Templates
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">
+            {t('marketplace.title')}
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Install individual services or pre-configured template bundles
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('marketplace.description')}
           </p>
         </div>
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="services" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="services">{t('marketplace.servicesTab')}</TabsTrigger>
+            <TabsTrigger value="templates">{t('marketplace.templatesTab')}</TabsTrigger>
           </TabsList>
 
           {/* Services Tab Content */}
@@ -283,29 +286,28 @@ export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
         {/* Status Summary Pills - Following demo pattern */}
         <div className="flex gap-2 flex-wrap">
           {runningCount > 0 && (
-            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-full px-4 py-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-green-700 dark:text-green-400 text-sm font-medium">
-                {runningCount} Running
+            <div className="flex items-center gap-2 bg-success/10 border border-success/30 rounded-full px-4 py-2">
+              <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
+              <span className="text-success text-sm font-medium">
+                {runningCount} {t('marketplace.running')}
               </span>
             </div>
           )}
-          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2">
-            <span className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-              {installedCount} of {plugins.length} Installed
+          <div className="flex items-center gap-2 bg-muted border border-border rounded-full px-4 py-2">
+            <span className="text-muted-foreground text-sm font-medium">
+              {t('marketplace.installedCount', { installed: installedCount, total: plugins.length })}
             </span>
           </div>
         </div>
 
         {/* Info Banner - Blue tip style from demos */}
-        <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl p-4 flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        <div className="bg-info/10 border border-info/30 rounded-2xl p-4 flex gap-3">
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-info/20 flex items-center justify-center">
+            <Info className="w-4 h-4 text-info" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              <span className="font-semibold">💡 Tip:</span> Install plugins to extend your router's functionality. 
-              Each plugin runs independently and can be configured, started, or stopped individually.
+            <p className="text-sm text-info">
+              <span className="font-semibold">💡 {t('marketplace.tipLabel')}:</span> {t('marketplace.tipDescription')}
             </p>
           </div>
         </div>
@@ -324,10 +326,9 @@ export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
         </div>
 
             {/* Footer Note - Subtle */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-400 dark:text-slate-500">
-                This is a demonstration interface. In production, services would be
-                installed directly on your MikroTik router and managed through the RouterOS API.
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                {t('marketplace.footerNote')}
               </p>
             </div>
           </TabsContent>
@@ -354,4 +355,6 @@ export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
       </div>
     </div>
   );
-}
+});
+
+PluginStoreTab.displayName = 'PluginStoreTab';

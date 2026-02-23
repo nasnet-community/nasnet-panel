@@ -8,19 +8,16 @@
 import { z } from 'zod';
 
 /**
- * APN (Access Point Name) validation
- * - Must not be empty
- * - Alphanumeric, dots, hyphens allowed
- * - Max 100 characters
+ * APN (Access Point Name) validation regex
+ * @description Alphanumeric, dots, hyphens allowed for carrier APN names
  */
-const apnRegex = /^[a-zA-Z0-9.-]+$/;
+const APN_VALIDATION_REGEX = /^[a-zA-Z0-9.-]+$/;
 
 /**
- * PIN validation
- * - 4-8 digit PIN
- * - Optional (some carriers don't require PIN)
+ * SIM PIN validation regex
+ * @description Validates 4-8 digit PIN format (optional per carrier)
  */
-const pinRegex = /^\d{4,8}$/;
+const PIN_VALIDATION_REGEX = /^\d{4,8}$/;
 
 /**
  * LTE Modem Configuration Schema
@@ -38,7 +35,7 @@ export const lteModemSchema = z.object({
     .string()
     .min(1, 'APN is required')
     .max(100, 'APN must be less than 100 characters')
-    .regex(apnRegex, 'APN can only contain letters, numbers, dots, and hyphens'),
+    .regex(APN_VALIDATION_REGEX, 'APN can only contain letters, numbers, dots, and hyphens'),
 
   /**
    * SIM PIN (optional)
@@ -49,7 +46,7 @@ export const lteModemSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || pinRegex.test(val),
+      (val) => !val || PIN_VALIDATION_REGEX.test(val),
       'PIN must be 4-8 digits'
     ),
 
@@ -110,7 +107,7 @@ export type LteModemFormValues = z.infer<typeof lteModemSchema>;
 /**
  * Default form values
  */
-export const lteModemDefaultValues: Partial<LteModemFormValues> = {
+export const LTE_MODEM_DEFAULT_VALUES: Partial<LteModemFormValues> = {
   apn: '',
   pin: '',
   username: '',
@@ -146,18 +143,18 @@ export const APN_PRESETS = {
 
 /**
  * Signal strength interpretation
- * - RSSI (Received Signal Strength Indicator) in dBm
+ * @description RSSI (Received Signal Strength Indicator) ranges in dBm with semantic color tokens
  */
 export const SIGNAL_STRENGTH_RANGES = {
   EXCELLENT: { min: -70, max: 0, label: 'Excellent', color: 'success' },
   GOOD: { min: -85, max: -70, label: 'Good', color: 'success' },
   FAIR: { min: -100, max: -85, label: 'Fair', color: 'warning' },
-  POOR: { min: -120, max: -100, label: 'Poor', color: 'error' },
-  NO_SIGNAL: { min: -Infinity, max: -120, label: 'No Signal', color: 'error' },
+  POOR: { min: -120, max: -100, label: 'Poor', color: 'destructive' },
+  NO_SIGNAL: { min: -Infinity, max: -120, label: 'No Signal', color: 'destructive' },
 } as const;
 
 /**
- * Get signal strength category from RSSI value
+ * Determine signal strength category from RSSI value (dBm)
  */
 export function getSignalStrength(rssi: number) {
   if (rssi >= SIGNAL_STRENGTH_RANGES.EXCELLENT.min) {
@@ -177,6 +174,7 @@ export function getSignalStrength(rssi: number) {
 
 /**
  * LTE Network Modes
+ * @description Available network mode options for LTE modem configuration
  */
 export const LTE_NETWORK_MODES = [
   { value: 'auto', label: 'Auto (4G/3G/2G)' },
@@ -186,18 +184,22 @@ export const LTE_NETWORK_MODES = [
 ] as const;
 
 /**
- * Validate APN format (client-side helper)
+ * Validate APN format
+ * @description Client-side helper for APN validation before submission
+ * @returns true if APN is valid, false otherwise
  */
 export function validateAPN(apn: string): boolean {
   if (!apn || apn.length === 0) return false;
   if (apn.length > 100) return false;
-  return apnRegex.test(apn);
+  return APN_VALIDATION_REGEX.test(apn);
 }
 
 /**
- * Validate PIN format (client-side helper)
+ * Validate PIN format
+ * @description Client-side helper for PIN validation (optional field)
+ * @returns true if PIN is empty or valid, false otherwise
  */
 export function validatePIN(pin: string): boolean {
   if (!pin || pin.length === 0) return true; // PIN is optional
-  return pinRegex.test(pin);
+  return PIN_VALIDATION_REGEX.test(pin);
 }

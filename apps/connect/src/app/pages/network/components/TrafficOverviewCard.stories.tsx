@@ -133,3 +133,23 @@ export const Loading: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    interfaces: activeInterfaces,
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    interfaces: activeInterfaces,
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

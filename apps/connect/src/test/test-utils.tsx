@@ -20,6 +20,12 @@ import { RouterProvider, createMemoryHistory, createRootRoute, createRouter } fr
 import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { I18nProvider, DirectionProvider } from '@nasnet/core/i18n';
+import { PlatformProvider } from '@nasnet/ui/layouts';
+import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
+
+import { ThemeProvider } from '../app/providers/ThemeProvider';
+
 // Create a fresh QueryClient for each test to avoid state leaking between tests
 function createTestQueryClient(): QueryClient {
   return new QueryClient({
@@ -67,9 +73,21 @@ function AllProviders({ children }: AllProvidersProps): ReactElement {
   const router = createTestRouter(children);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <I18nProvider>
+      <DirectionProvider>
+        <ThemeProvider>
+          <PlatformProvider>
+            <AnimationProvider>
+              <QueryClientProvider client={queryClient}>
+                <ToastProvider>
+                  <RouterProvider router={router} />
+                </ToastProvider>
+              </QueryClientProvider>
+            </AnimationProvider>
+          </PlatformProvider>
+        </ThemeProvider>
+      </DirectionProvider>
+    </I18nProvider>
   );
 }
 

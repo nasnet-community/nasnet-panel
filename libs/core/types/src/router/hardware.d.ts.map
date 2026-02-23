@@ -1,0 +1,1 @@
+{"version":3,"file":"hardware.d.ts","sourceRoot":"","sources":["hardware.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH;;;;;;;;;;;;GAYG;AACH,MAAM,WAAW,eAAe;IAC9B,2BAA2B;IAC3B,YAAY,EAAE,MAAM,CAAC;IAErB,2CAA2C;IAC3C,eAAe,EAAE,MAAM,CAAC;IAExB,yCAAyC;IACzC,eAAe,EAAE,MAAM,CAAC;IAExB,mCAAmC;IACnC,KAAK,EAAE,MAAM,CAAC;IAEd,wBAAwB;IACxB,QAAQ,EAAE,MAAM,CAAC;CAClB"}

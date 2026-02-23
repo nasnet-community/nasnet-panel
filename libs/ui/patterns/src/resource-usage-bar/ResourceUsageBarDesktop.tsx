@@ -9,6 +9,8 @@
  * - Hover states for interactivity
  */
 
+import * as React from 'react';
+
 import { AlertCircle, AlertTriangle, Check, Circle, HelpCircle } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
@@ -84,7 +86,7 @@ const STATUS_COLORS: Record<
  * Compact, information-dense display optimized for larger screens.
  * Uses horizontal inline layout.
  */
-export function ResourceUsageBarDesktop(props: ResourceUsageBarProps) {
+function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
   const { showValues = true, showPercentage = true, className } = props;
   const state = useResourceUsageBar(props);
 
@@ -177,3 +179,7 @@ export function ResourceUsageBarDesktop(props: ResourceUsageBarProps) {
     </div>
   );
 }
+
+export const ResourceUsageBarDesktop = React.memo(ResourceUsageBarDesktopBase);
+
+ResourceUsageBarDesktop.displayName = 'ResourceUsageBarDesktop';

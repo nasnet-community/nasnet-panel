@@ -49,7 +49,7 @@ import type { FieldHelpProps } from './help.types';
  * <FieldHelp field="subnet" mode="technical" />
  * ```
  */
-export function FieldHelp({
+export const FieldHelp = React.memo(function FieldHelp({
   field,
   mode,
   placement = 'right',
@@ -85,4 +85,6 @@ export function FieldHelp({
       helpState={helpState}
     />
   );
-}
+});
+
+FieldHelp.displayName = 'FieldHelp';

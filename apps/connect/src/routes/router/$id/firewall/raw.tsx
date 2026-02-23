@@ -26,7 +26,7 @@ const LazyRawPage = lazy(() =>
  */
 function RawPageSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading raw firewall rules">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />

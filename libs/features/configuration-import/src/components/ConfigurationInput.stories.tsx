@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { ConfigurationInput } from './ConfigurationInput';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const SAMPLE_CONFIG = `/ip address
 add address=192.168.88.1/24 interface=ether1 network=192.168.88.0

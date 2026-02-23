@@ -11,7 +11,6 @@
  * The WizardStepReview component is separately showcased for design review.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import {
   Card,
   CardContent,
@@ -19,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@nasnet/ui/primitives';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ─── Inline Live-Preview Panel ─────────────────────────────────────────────
 // This component mirrors the `renderPreview()` output inside DHCPWizard,

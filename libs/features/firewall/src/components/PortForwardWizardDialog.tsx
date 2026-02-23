@@ -13,7 +13,7 @@
  * @see libs/core/types/src/firewall/nat-rule.types.ts - PortForwardSchema
  */
 
-import { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -33,8 +33,7 @@ import {
   Label,
   toast,
 } from '@nasnet/ui/primitives';
-import { useStepper } from '@nasnet/ui/patterns';
-import { SafetyConfirmation } from '@nasnet/ui/patterns';
+import { useStepper, SafetyConfirmation } from '@nasnet/ui/patterns';
 import {
   PortForwardSchema,
   type PortForward,
@@ -58,18 +57,37 @@ interface PortForwardWizardDialogProps {
   wanInterfaces?: string[];
   /** Callback when port forward is successfully created */
   onSuccess?: () => void;
+  /** Optional CSS class for styling */
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function PortForwardWizardDialog({
+/**
+ * PortForwardWizardDialog Component
+ *
+ * @description 3-step wizard for creating port forwarding rules with
+ * SafetyConfirmation integration for dangerous operations.
+ *
+ * @example
+ * ```tsx
+ * <PortForwardWizardDialog
+ *   open={dialogOpen}
+ *   onOpenChange={setDialogOpen}
+ *   routerIp="192.168.1.1"
+ *   onSuccess={handleSuccess}
+ * />
+ * ```
+ */
+export const PortForwardWizardDialog = React.memo(function PortForwardWizardDialogComponent({
   open,
   onOpenChange,
   routerIp,
   wanInterfaces = ['ether1', 'ether2'],
   onSuccess,
+  className,
 }: PortForwardWizardDialogProps) {
   const [showSafetyConfirmation, setShowSafetyConfirmation] = useState(false);
 
@@ -178,14 +196,14 @@ export function PortForwardWizardDialog({
   // Handlers
   // ========================================
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     form.reset();
     stepper.reset();
     setShowSafetyConfirmation(false);
     onOpenChange(false);
-  };
+  }, [form, stepper, onOpenChange]);
 
-  const handleConfirmCreate = async () => {
+  const handleConfirmCreate = useCallback(async () => {
     try {
       const formData = form.getValues();
 
@@ -219,17 +237,17 @@ export function PortForwardWizardDialog({
         variant: 'error',
       });
     }
-  };
+  }, [createPortForward, form, handleClose, onSuccess]);
 
   // ========================================
   // Form Data Helpers
   // ========================================
 
   const formData = form.watch();
-  const summary = generatePortForwardSummary({
+  const summary = useMemo(() => generatePortForwardSummary({
     ...formData,
     internalPort: formData.internalPort || formData.externalPort,
-  });
+  }), [formData]);
 
   // ========================================
   // Render
@@ -422,19 +440,19 @@ export function PortForwardWizardDialog({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">External Port:</span>
-                    <span className="font-mono">{formData.externalPort}</span>
+                    <span className="font-mono tabular-nums">{formData.externalPort}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">WAN Interface:</span>
-                    <span className="font-mono">{formData.wanInterface}</span>
+                    <span className="font-mono tabular-nums">{formData.wanInterface}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Internal IP:</span>
-                    <span className="font-mono">{formData.internalIP}</span>
+                    <span className="font-mono tabular-nums">{formData.internalIP}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Internal Port:</span>
-                    <span className="font-mono">
+                    <span className="font-mono tabular-nums">
                       {formData.internalPort || formData.externalPort}
                     </span>
                   </div>
@@ -510,4 +528,6 @@ export function PortForwardWizardDialog({
       />
     </>
   );
-}
+});
+
+PortForwardWizardDialog.displayName = 'PortForwardWizardDialog';

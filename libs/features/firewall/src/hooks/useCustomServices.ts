@@ -4,6 +4,7 @@
  * Manages custom service port definitions and service groups in localStorage.
  * Merges built-in services from WELL_KNOWN_PORTS with user-defined custom services.
  *
+ * @description
  * Architecture:
  * - Built-in services (read-only, from WELL_KNOWN_PORTS) + Custom services (editable)
  * - Service groups for bulk selection (e.g., "web" → [80, 443, 8080])
@@ -173,7 +174,7 @@ export function useCustomServices(): UseCustomServicesReturn {
           | 'mikrotik'
           | 'custom',
         description: port.description,
-        builtIn: port.builtIn,
+        isBuiltIn: true,
       })),
     []
   );
@@ -216,7 +217,7 @@ export function useCustomServices(): UseCustomServicesReturn {
       const newService: ServicePortDefinition = {
         ...input,
         category: 'custom',
-        builtIn: false,
+        isBuiltIn: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -236,7 +237,7 @@ export function useCustomServices(): UseCustomServicesReturn {
   const updateService = useCallback(
     (port: number, input: CustomServicePortInput) => {
       // Find existing service
-      const existingIndex = customServices.findIndex((s) => s.port === port && !s.builtIn);
+      const existingIndex = customServices.findIndex((s) => s.port === port && !s.isBuiltIn);
       if (existingIndex === -1) {
         throw new Error(`Custom service with port ${port} not found.`);
       }
@@ -278,7 +279,7 @@ export function useCustomServices(): UseCustomServicesReturn {
   const deleteService = useCallback(
     (port: number) => {
       // Find service
-      const serviceIndex = customServices.findIndex((s) => s.port === port && !s.builtIn);
+      const serviceIndex = customServices.findIndex((s) => s.port === port && !s.isBuiltIn);
       if (serviceIndex === -1) {
         throw new Error(`Custom service with port ${port} not found or is read-only.`);
       }

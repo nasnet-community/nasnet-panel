@@ -1,6 +1,20 @@
 /**
  * UpdateIndicator Component
- * Main component with automatic platform detection (NAS-8.7)
+ *
+ * Service update indicator with automatic platform detection.
+ * Displays update availability with version comparison, severity levels,
+ * and progress tracking.
+ *
+ * Features:
+ * - Platform-aware rendering (Mobile/Desktop)
+ * - Multiple severity levels (OPTIONAL, RECOMMENDED, SECURITY)
+ * - Visual progress bar during updates
+ * - Rollback support on update failure
+ * - Touch-optimized mobile layout
+ * - Desktop popover with detailed information
+ * - Automatic platform detection via usePlatform()
+ *
+ * @see NAS-8.7: Service Update Management
  */
 
 import * as React from 'react';

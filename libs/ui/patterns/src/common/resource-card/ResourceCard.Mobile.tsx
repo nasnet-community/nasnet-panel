@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, CardContent } from '@nasnet/ui/primitives';
+import { Badge, Button, Card, CardContent, cn } from '@nasnet/ui/primitives';
 
 import { useResourceCard } from './useResourceCard';
 
@@ -24,7 +24,7 @@ import type { BaseResource, ResourceCardProps } from './types';
  * - Primary action as full-width button
  * - Tap to expand for details
  */
-export function ResourceCardMobile<T extends BaseResource>(
+function ResourceCardMobileComponent<T extends BaseResource>(
   props: ResourceCardProps<T>
 ) {
   const { resource, className, children, showLivePulse = true } = props;
@@ -40,10 +40,7 @@ export function ResourceCardMobile<T extends BaseResource>(
 
   return (
     <Card
-      className={`
-        p-4 touch-manipulation
-        ${className || ''}
-      `.trim()}
+      className={cn('p-4 touch-manipulation', className)}
       onClick={handleClick}
       role="article"
       aria-label={`${resource.name} - ${statusLabel}`}
@@ -59,7 +56,7 @@ export function ResourceCardMobile<T extends BaseResource>(
               </Badge>
               {isOnline && showLivePulse && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-success rounded-full animate-pulse"
                   aria-hidden="true"
                 />
               )}
@@ -106,4 +103,8 @@ export function ResourceCardMobile<T extends BaseResource>(
   );
 }
 
-ResourceCardMobile.displayName = 'ResourceCardMobile';
+ResourceCardMobileComponent.displayName = 'ResourceCardMobile';
+
+export const ResourceCardMobile = React.memo(
+  ResourceCardMobileComponent
+) as typeof ResourceCardMobileComponent;

@@ -1,29 +1,31 @@
 /**
  * LeaseCard Skeleton Component
  *
- * Loading skeleton for the LeaseCard component.
+ * @description Loading skeleton for the LeaseCard component.
  * Displays placeholder content while lease data is loading.
+ * Matches the layout of the actual LeaseCard component to prevent layout shift.
  * Part of NAS-6.11: DHCP Lease Management
  *
  * @module @nasnet/features/network/dhcp/lease-card
  */
 
-import * as React from 'react';
-
-import { cn, Card, Skeleton } from '@nasnet/ui/primitives';
+import { memo } from 'react';
+import { Card, Skeleton } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 export interface LeaseCardSkeletonProps {
-  /** Additional CSS classes */
+  /** Additional CSS classes to apply to root card */
   className?: string;
 }
 
 /**
  * Skeleton loader for LeaseCard
  *
- * Matches the layout of the actual LeaseCard component
- * to prevent layout shift when data loads.
+ * Provides a placeholder representation of a lease card while data is loading.
+ * Uses subtle pulse animation and matches the final layout exactly to prevent
+ * cumulative layout shift.
  */
-export function LeaseCardSkeleton({ className }: LeaseCardSkeletonProps) {
+function LeaseCardSkeletonComponent({ className }: LeaseCardSkeletonProps) {
   return (
     <Card
       className={cn(
@@ -58,3 +60,7 @@ export function LeaseCardSkeleton({ className }: LeaseCardSkeletonProps) {
     </Card>
   );
 }
+
+// Export with memo wrapper and displayName
+export const LeaseCardSkeleton = memo(LeaseCardSkeletonComponent);
+LeaseCardSkeleton.displayName = 'LeaseCardSkeleton';

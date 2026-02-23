@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  cn,
 } from '@nasnet/ui/primitives';
 import {
   MoreVertical,
@@ -82,44 +83,62 @@ export interface LogActionMenuProps {
 }
 
 /**
- * Context menu for log entry actions
+ * @description Context menu for log entry actions including copy, bookmark, and topic-specific actions
  */
-export function LogActionMenu({
-  entry,
-  onAction,
-  isBookmarked = false,
-  trigger,
-  className,
-}: LogActionMenuProps) {
-  const actions = React.useMemo(
-    () => getActionsForTopic(entry.topic),
-    [entry.topic]
-  );
+export const LogActionMenu = React.memo(
+  function LogActionMenu({
+    entry,
+    onAction,
+    isBookmarked = false,
+    trigger,
+    className,
+  }: LogActionMenuProps) {
+    const actions = React.useMemo(
+      () => getActionsForTopic(entry.topic),
+      [entry.topic]
+    );
 
-  // Separate topic-specific and common actions
-  const topicActions = actions.filter(
-    (a) => !['copy', 'bookmark', 'view-details'].includes(a.id)
-  );
-  const commonActions = actions.filter((a) =>
-    ['copy', 'bookmark', 'view-details'].includes(a.id)
-  );
+    // Separate topic-specific and common actions
+    const topicActions = React.useMemo(
+      () =>
+        actions.filter(
+          (a) => !['copy', 'bookmark', 'view-details'].includes(a.id)
+        ),
+      [actions]
+    );
 
-  const handleAction = (action: LogAction) => {
-    const extractedData = extractDataFromMessage(entry.message, action);
-    onAction(action, extractedData);
-  };
+    const commonActions = React.useMemo(
+      () =>
+        actions.filter((a) =>
+          ['copy', 'bookmark', 'view-details'].includes(a.id)
+        ),
+      [actions]
+    );
 
-  const getIcon = (iconName: string) => {
-    const Icon = iconMap[iconName] || MoreVertical;
-    return <Icon className="h-4 w-4 mr-2" aria-hidden="true" />;
-  };
+    const handleAction = React.useCallback(
+      (action: LogAction) => {
+        const extractedData = extractDataFromMessage(entry.message, action);
+        onAction(action, extractedData);
+      },
+      [entry.message, onAction]
+    );
+
+    const getIcon = React.useCallback((iconName: string) => {
+      const Icon = iconMap[iconName] || MoreVertical;
+      return (
+        <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
+      );
+    }, []);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {trigger || (
           <button
-            className={`min-h-[44px] min-w-[44px] p-1 rounded-button hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className || ''}`}
+            className={cn(
+              'min-h-[44px] min-w-[44px] p-1 rounded-button hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              className
+            )}
             aria-label="Log entry actions"
           >
             <MoreVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -170,7 +189,10 @@ export function LogActionMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+  }
+);
+
+LogActionMenu.displayName = 'LogActionMenu';
 
 
 

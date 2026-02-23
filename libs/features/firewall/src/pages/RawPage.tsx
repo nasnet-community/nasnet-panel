@@ -17,11 +17,10 @@
 
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRawUIStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { useRawUIStore, useConnectionStore } from '@nasnet/state/stores';
 import { useRawRules } from '@nasnet/api-client/queries/firewall';
 import { RawRulesTable } from '../components/RawRulesTable';
-import { RawRuleEditor, BogonFilterDialog } from '@nasnet/ui/patterns';
+import { RawRuleEditor, BogonFilterDialog, usePlatform } from '@nasnet/ui/patterns';
 import type { RawChain } from '@nasnet/core/types';
 import {
   Button,
@@ -42,24 +41,8 @@ import {
   CollapsibleTrigger,
 } from '@nasnet/ui/primitives';
 import { Plus, Shield, ChevronDown, AlertTriangle, Zap, Info } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-function usePlatform() {
-  const [platform, setPlatform] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-
-  // Simple platform detection based on window width
-  if (typeof window !== 'undefined') {
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  }
-
-  return platform;
-}
 
 // ============================================================================
 // Empty State Component
@@ -71,6 +54,9 @@ interface EmptyStateProps {
   onBogonFilter: () => void;
 }
 
+/**
+ * @description Empty state shown when no RAW rules exist in a chain
+ */
 const EmptyState = memo(function EmptyState({ chain, onAddRule, onBogonFilter }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
@@ -90,11 +76,11 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onBogonFilter }:
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
         <Button onClick={onAddRule} aria-label={t('raw.buttons.addRule', 'Add RAW Rule')}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('raw.buttons.addRule', 'Add RAW Rule')}
         </Button>
         <Button variant="outline" onClick={onBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
-          <Shield className="h-4 w-4 mr-2" />
+          <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('raw.buttons.bogonFilter', 'Bogon Filter')}
         </Button>
       </CardContent>
@@ -106,6 +92,9 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onBogonFilter }:
 // Performance Explanation Component
 // ============================================================================
 
+/**
+ * @description Collapsible performance explanation section
+ */
 const PerformanceExplanation = memo(function PerformanceExplanation() {
   const { t } = useTranslation('firewall');
   const { performanceSectionExpanded, setPerformanceSectionExpanded } = useRawUIStore();
@@ -124,13 +113,14 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
               aria-expanded={performanceSectionExpanded}
             >
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-warning" />
+                <Zap className="h-5 w-5 text-warning" aria-hidden="true" />
                 <CardTitle className="text-lg">
                   {t('raw.performance.title', 'Why use RAW table?')}
                 </CardTitle>
               </div>
               <ChevronDown
                 className={`h-5 w-5 transition-transform ${performanceSectionExpanded ? 'rotate-180' : ''}`}
+                aria-hidden="true"
               />
             </button>
           </CollapsibleTrigger>
@@ -152,7 +142,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
             {/* Benefits */}
             <div>
               <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                <Info className="h-4 w-4 text-success" />
+                <Info className="h-4 w-4 text-success" aria-hidden="true" />
                 {t('raw.performance.benefits.title', 'Key Benefits')}
               </h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -208,7 +198,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
             {/* Warnings */}
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-4" role="alert">
               <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-warning-foreground">
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 {t('raw.performance.warnings.title', 'Important Warnings')}
               </h4>
               <ul className="space-y-1 text-sm text-warning-foreground list-disc list-inside">
@@ -292,11 +282,11 @@ export function RawPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={handleBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
-              <Shield className="h-4 w-4 mr-2" />
+              <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('raw.buttons.bogonFilter', 'Bogon Filter')}
             </Button>
             <Button onClick={handleAddRule} aria-label={t('raw.buttons.addRule', 'Add Rule')}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('raw.buttons.addRule', 'Add Rule')}
             </Button>
           </div>
@@ -306,7 +296,7 @@ export function RawPage() {
       {/* Notice Banner */}
       <div className="p-4 pb-0">
         <Alert>
-          <Info className="h-4 w-4" />
+          <Info className="h-4 w-4" aria-hidden="true" />
           <AlertTitle>{t('raw.performance.title', 'Why use RAW table?')}</AlertTitle>
           <AlertDescription>
             {t('raw.description',

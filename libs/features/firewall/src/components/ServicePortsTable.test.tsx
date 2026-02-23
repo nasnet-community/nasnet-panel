@@ -53,7 +53,7 @@ const builtInService: ServicePortDefinition = {
   protocol: 'tcp',
   category: 'web',
   description: 'HyperText Transfer Protocol',
-  builtIn: true,
+  isBuiltIn: true,
 };
 
 const customService: ServicePortDefinition = {
@@ -62,7 +62,7 @@ const customService: ServicePortDefinition = {
   protocol: 'tcp',
   category: 'custom',
   description: 'My custom application',
-  builtIn: false,
+  isBuiltIn: false,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
 };
@@ -262,7 +262,7 @@ describe('ServicePortsTable', () => {
         service: 'DNS',
         protocol: 'udp',
         category: 'network',
-        builtIn: true,
+        isBuiltIn: true,
       };
 
       (useCustomServices as ReturnType<typeof vi.fn>).mockReturnValue({

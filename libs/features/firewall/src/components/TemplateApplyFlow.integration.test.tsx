@@ -80,7 +80,13 @@ describe('TemplateApplyFlow - Integration Tests', () => {
   const renderApplyFlow = (routerId: string = 'router-1') => {
     return render(
       <QueryClientProvider client={queryClient}>
-        <TemplateApplyFlow routerId={routerId} />
+        <TemplateApplyFlow
+          routerId={routerId}
+          template={mockBasicSecurityTemplate}
+          onPreview={async (params) => mockPreviewResult}
+          onApply={async (params) => mockSuccessfulApplyResult}
+          onRollback={async (params) => {}}
+        />
       </QueryClientProvider>
     );
   };

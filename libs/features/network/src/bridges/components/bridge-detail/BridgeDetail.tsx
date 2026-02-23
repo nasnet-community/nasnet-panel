@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useBridgeDetail, useCreateBridge, useUpdateBridge } from '@nasnet/api-client/queries';
 import { BridgeDetailDesktop } from './BridgeDetailDesktop';
@@ -9,6 +10,9 @@ import type { BridgeFormData } from './bridge-form';
  * Bridge Detail Component - Main wrapper
  * Shows bridge details and edit form in Sheet (desktop) or full screen (mobile)
  *
+ * @description Multi-platform component for creating and editing bridge configurations
+ * with automatic form submission, optimistic UI updates, and undo support.
+ *
  * @param routerId - Router ID
  * @param bridgeId - Bridge UUID (or 'new' for creation)
  * @param open - Whether the detail panel is open
@@ -19,13 +23,15 @@ export interface BridgeDetailProps {
   bridgeId: string | null;
   open: boolean;
   onClose: () => void;
+  className?: string;
 }
 
-export function BridgeDetail({
+function BridgeDetailComponent({
   routerId,
   bridgeId,
   open,
   onClose,
+  className,
 }: BridgeDetailProps) {
   const platform = usePlatform();
 
@@ -38,11 +44,11 @@ export function BridgeDetail({
   const [createBridge, { loading: creating }] = useCreateBridge();
   const [updateBridge, { loading: updating }] = useUpdateBridge();
 
-  const isCreating = bridgeId === 'new';
-  const isSubmitting = creating || updating;
+  const isCreating = useMemo(() => bridgeId === 'new', [bridgeId]);
+  const isSubmitting = useMemo(() => creating || updating, [creating, updating]);
 
   // Handle form submission
-  const handleSubmit = async (data: BridgeFormData) => {
+  const handleSubmit = useCallback(async (data: BridgeFormData) => {
     try {
       if (isCreating) {
         // Create new bridge
@@ -123,10 +129,10 @@ export function BridgeDetail({
       toast.error('Failed to save bridge');
       console.error(err);
     }
-  };
+  }, [isCreating, routerId, bridgeId, createBridge, updateBridge, onClose, refetch]);
 
   // Shared props
-  const sharedProps = {
+  const sharedProps = useMemo(() => ({
     bridge: isCreating ? null : bridge,
     loading,
     error: error ? new Error(error.message) : null,
@@ -134,7 +140,8 @@ export function BridgeDetail({
     onClose,
     onSubmit: handleSubmit,
     isSubmitting,
-  };
+    className,
+  }), [isCreating, bridge, loading, error, open, onClose, handleSubmit, isSubmitting, className]);
 
   return platform === 'mobile' ? (
     <BridgeDetailMobile {...sharedProps} />
@@ -142,3 +149,7 @@ export function BridgeDetail({
     <BridgeDetailDesktop {...sharedProps} />
   );
 }
+
+BridgeDetailComponent.displayName = 'BridgeDetail';
+
+export const BridgeDetail = BridgeDetailComponent;

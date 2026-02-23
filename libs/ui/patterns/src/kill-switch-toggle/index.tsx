@@ -5,6 +5,7 @@
  * Automatically detects screen size and renders the appropriate version.
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { KillSwitchToggleDesktop } from './KillSwitchToggleDesktop';
@@ -34,7 +35,7 @@ import type { KillSwitchToggleProps } from './types';
  * />
  * ```
  */
-export function KillSwitchToggle(props: KillSwitchToggleProps) {
+const KillSwitchToggle = memo(function KillSwitchToggleComponent(props: KillSwitchToggleProps) {
   const platform = usePlatform();
 
   if (platform === 'mobile') {
@@ -42,10 +43,15 @@ export function KillSwitchToggle(props: KillSwitchToggleProps) {
   }
 
   return <KillSwitchToggleDesktop {...props} />;
-}
+});
+
+KillSwitchToggle.displayName = 'KillSwitchToggle';
 
 // Re-export types
 export type { KillSwitchToggleProps, KillSwitchMode, VirtualInterfaceOption } from './types';
+
+// Re-export main component
+export { KillSwitchToggle };
 
 // Re-export presenters for direct use (testing, Storybook, etc.)
 export { KillSwitchToggleDesktop } from './KillSwitchToggleDesktop';

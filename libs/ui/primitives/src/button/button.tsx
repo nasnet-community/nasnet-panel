@@ -1,15 +1,54 @@
 /**
  * Button Component
  *
- * Primary interactive element for triggering actions.
- * Supports loading states, multiple variants, and sizes.
+ * Primary interactive element for triggering actions across the application.
+ * Supports 7 variants (default, action, secondary, destructive, outline, ghost, link),
+ * 4 sizes (default, sm, lg, icon), and built-in loading state management.
+ *
+ * Features:
+ * - Multiple semantic variants for different interaction contexts
+ * - Built-in loading spinner with customizable text
+ * - Automatic width management to prevent layout shift
+ * - Can render as any element via asChild + Radix Slot
+ * - Responsive spacing based on platform (mobile/tablet/desktop)
  *
  * Accessibility:
- * - Uses aria-busy during loading state
- * - Automatically disabled during loading to prevent double-submission
- * - Maintains button width during loading to prevent layout shift
+ * - aria-busy set during loading to indicate processing state
+ * - aria-disabled managed for semantic HTML
+ * - Automatic focus indicators with ring styling
+ * - Keyboard accessible (Enter/Space to activate)
+ * - Icon buttons should include aria-label when icon-only
+ * - 44px minimum touch target on mobile devices
  *
  * @module @nasnet/ui/primitives/button
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Button>Click me</Button>
+ *
+ * // With variants for different contexts
+ * <Button variant="default">Save Changes</Button>
+ * <Button variant="destructive">Delete</Button>
+ * <Button variant="outline" size="sm">Cancel</Button>
+ * <Button variant="ghost">Dismiss</Button>
+ * <Button variant="link">Learn more</Button>
+ *
+ * // Loading state (spinner shows, button disables)
+ * <Button isLoading>Saving...</Button>
+ * <Button isLoading loadingText="Applying config...">
+ *   Apply Configuration
+ * </Button>
+ *
+ * // Icon button
+ * <Button variant="ghost" size="icon" aria-label="Close dialog">
+ *   <X className="h-4 w-4" />
+ * </Button>
+ *
+ * // Render as link
+ * <Button asChild variant="outline">
+ *   <a href="/dashboard">Go to Dashboard</a>
+ * </Button>
+ * ```
  */
 
 import * as React from 'react';
@@ -54,77 +93,92 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Props for the Button component
+ * @template T - HTML button element or other element via asChild
+ */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  /** Render as a different element using Radix Slot */
+  /**
+   * Render as a different element using Radix Slot.
+   * Useful for rendering as links or custom components.
+   * @default false
+   */
   asChild?: boolean;
-  /** Show loading spinner and disable the button */
+  /**
+   * Show loading spinner and disable the button.
+   * Prevents user interaction while operation is in progress.
+   * Sets aria-busy="true" for accessibility.
+   * @default false
+   */
   isLoading?: boolean;
-  /** Text to show during loading (replaces children) */
+  /**
+   * Text to show during loading state.
+   * If not provided, uses children content.
+   * Useful for showing different text like "Saving..." or "Applying...".
+   * Recommended for accessibility to indicate action in progress.
+   */
   loadingText?: string;
+  /**
+   * Additional CSS classes to apply to the button.
+   * Merged with computed variant and size classes using cn() utility.
+   */
+  className?: string;
 }
 
 /**
- * Button Component
- *
- * @example
- * ```tsx
- * // Basic usage
- * <Button>Click me</Button>
- *
- * // With variants
- * <Button variant="destructive">Delete</Button>
- * <Button variant="outline" size="sm">Cancel</Button>
- *
- * // Loading state
- * <Button isLoading>Saving</Button>
- * <Button isLoading loadingText="Saving...">Save</Button>
- * ```
+ * Button component - Primary interactive element for user actions
  */
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      asChild = false,
-      isLoading = false,
-      loadingText,
-      disabled,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const Comp = asChild ? Slot : 'button';
+const Button = React.memo(
+  React.forwardRef<HTMLButtonElement, ButtonProps>(
+    (
+      {
+        className,
+        variant,
+        size,
+        asChild = false,
+        isLoading = false,
+        loadingText,
+        disabled,
+        children,
+        ...props
+      },
+      ref
+    ) => {
+      const Comp = asChild ? Slot : 'button';
 
-    // Determine spinner size based on button size
-    const spinnerSize = size === 'sm' ? 'xs' : size === 'lg' ? 'sm' : 'sm';
+      // Determine spinner size based on button size
+      const spinnerSize = size === 'sm' ? 'xs' : size === 'lg' ? 'sm' : 'sm';
 
-    // When loading, disable the button and show spinner
-    const isDisabled = disabled || isLoading;
+      // When loading, disable the button and show spinner
+      const isDisabled = disabled || isLoading;
 
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        disabled={isDisabled}
-        aria-busy={isLoading}
-        aria-disabled={isDisabled}
-        {...props}
-      >
-        {isLoading ? (
-          <>
-            <Spinner size={spinnerSize} className="mr-1" label={loadingText || 'Loading'} />
-            <span>{loadingText || children}</span>
-          </>
-        ) : (
-          children
-        )}
-      </Comp>
-    );
-  }
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          disabled={isDisabled}
+          aria-busy={isLoading}
+          aria-disabled={isDisabled}
+          {...props}
+        >
+          {isLoading ? (
+            <>
+              <Spinner
+                size={spinnerSize}
+                className="mr-1"
+                label={loadingText || 'Loading'}
+              />
+              <span>{loadingText || children}</span>
+            </>
+          ) : (
+            children
+          )}
+        </Comp>
+      );
+    }
+  )
 );
 Button.displayName = 'Button';
 

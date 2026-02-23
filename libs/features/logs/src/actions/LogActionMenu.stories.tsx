@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { LogActionMenu } from './LogActionMenu';
+import { fn } from 'storybook/test';
+
 import type { LogEntry } from '@nasnet/core/types';
+
+import { LogActionMenu } from './LogActionMenu';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Mock log entries covering every topic that produces topic-specific actions.

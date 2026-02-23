@@ -149,10 +149,10 @@ func (m *KillSwitchManager) Disable(ctx context.Context, routingID string) error
 		return fmt.Errorf("kill switch not enabled for routing %s", routingID)
 	}
 
-	// Step 3: Remove firewall filter rule if it exists
+	// Step 3: Remove kill switch rule if it exists
 	if routing.KillSwitchRuleID != "" {
-		if rmErr := m.removeFilterRule(ctx, routing.KillSwitchRuleID); rmErr != nil {
-			return fmt.Errorf("failed to remove filter rule: %w", rmErr)
+		if rmErr := m.removeKillSwitchRule(ctx, routing.KillSwitchRuleID, KillSwitchMode(routing.KillSwitchMode)); rmErr != nil {
+			return fmt.Errorf("failed to remove kill switch rule: %w", rmErr)
 		}
 	}
 

@@ -88,6 +88,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
   const { form, rule, preview, description, visibleFields, errors } = builder;
   const { control, formState } = form;
 
+  // Type-safe control casting for react-hook-form compatibility
+  const typedControl = control as any;
+
   // Confirmation dialog state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -165,7 +168,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                 <RHFFormField
                   name="chain"
                   label="NAT Chain"
-                  control={control}
+                  control={typedControl}
                   error={errors.chain}
                   required
                 >
@@ -198,7 +201,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                 <RHFFormField
                   name="action"
                   label="NAT Action"
-                  control={control}
+                  control={typedControl}
                   error={errors.action}
                   required
                 >
@@ -249,7 +252,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="protocol"
                       label="Protocol"
-                      control={control}
+                      control={typedControl}
                       error={errors.protocol}
                     >
                       <Controller
@@ -282,7 +285,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="srcAddress"
                       label="Source Address"
-                      control={control}
+                      control={typedControl}
                       error={errors.srcAddress}
                       hint="IP or CIDR"
                     >
@@ -306,7 +309,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="dstAddress"
                       label="Destination Address"
-                      control={control}
+                      control={typedControl}
                       error={errors.dstAddress}
                       hint="IP or CIDR"
                     >
@@ -330,7 +333,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="srcPort"
                       label="Source Port"
-                      control={control}
+                      control={typedControl}
                       error={errors.srcPort}
                       hint="Port or range"
                     >
@@ -354,7 +357,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="dstPort"
                       label="Destination Port"
-                      control={control}
+                      control={typedControl}
                       error={errors.dstPort}
                       hint="Port or range"
                     >
@@ -405,7 +408,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="inInterface"
                         label="Input Interface"
-                        control={control}
+                        control={typedControl}
                         error={errors.inInterface}
                       >
                         <Controller
@@ -441,7 +444,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="outInterface"
                         label="Output Interface"
-                        control={control}
+                        control={typedControl}
                         error={errors.outInterface}
                       >
                         <Controller
@@ -477,7 +480,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="inInterfaceList"
                         label="Input Interface List"
-                        control={control}
+                        control={typedControl}
                         error={errors.inInterfaceList}
                       >
                         <Controller
@@ -512,7 +515,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="outInterfaceList"
                         label="Output Interface List"
-                        control={control}
+                        control={typedControl}
                         error={errors.outInterfaceList}
                       >
                         <Controller
@@ -573,7 +576,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="toAddresses"
                         label="Target Address"
-                        control={control}
+                        control={typedControl}
                         error={errors.toAddresses}
                         required={rule.action === 'dst-nat' || rule.action === 'src-nat'}
                       >
@@ -597,7 +600,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                       <RHFFormField
                         name="toPorts"
                         label="Target Port(s)"
-                        control={control}
+                        control={typedControl}
                         error={errors.toPorts}
                       >
                         <Controller
@@ -643,7 +646,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                   <RHFFormField
                     name="comment"
                     label="Comment"
-                    control={control}
+                    control={typedControl}
                     error={errors.comment}
                   >
                     <Controller
@@ -713,7 +716,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     <RHFFormField
                       name="logPrefix"
                       label="Log Prefix"
-                      control={control}
+                      control={typedControl}
                       error={errors.logPrefix}
                     >
                       <Controller

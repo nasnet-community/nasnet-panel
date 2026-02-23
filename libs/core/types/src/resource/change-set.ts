@@ -17,7 +17,14 @@ import type { ResourceCategory } from './resource';
 // =============================================================================
 
 /**
- * Change set lifecycle status values
+ * Change set lifecycle status values.
+ *
+ * Represents the progression of a change set through validation, application,
+ * and optional rollback stages. Used to track progress and control UI workflows.
+ *
+ * @constant
+ * @see ChangeSet.status for inclusion
+ * @see ChangeSetProgressEvent.status for progress updates
  */
 export const ChangeSetStatus = {
   /** Initial state - adding items, not yet validated */
@@ -42,6 +49,7 @@ export const ChangeSetStatus = {
   CANCELLED: 'CANCELLED',
 } as const;
 
+/** Inferred type for change set status */
 export type ChangeSetStatus =
   (typeof ChangeSetStatus)[keyof typeof ChangeSetStatus];
 
@@ -50,7 +58,11 @@ export type ChangeSetStatus =
 // =============================================================================
 
 /**
- * Type of operation to perform on a resource
+ * Type of operation to perform on a resource within a change set.
+ *
+ * @constant
+ * @see ChangeSetItem.operation for inclusion
+ * @see getOperationColor, getOperationLabel for UI helpers
  */
 export const ChangeOperation = {
   /** Create a new resource */
@@ -61,6 +73,7 @@ export const ChangeOperation = {
   DELETE: 'DELETE',
 } as const;
 
+/** Inferred type for change operations */
 export type ChangeOperation =
   (typeof ChangeOperation)[keyof typeof ChangeOperation];
 
@@ -69,7 +82,13 @@ export type ChangeOperation =
 // =============================================================================
 
 /**
- * Status of individual items within a change set
+ * Status of individual items within a change set.
+ *
+ * Tracks the progress and outcome of each operation in the change set.
+ *
+ * @constant
+ * @see ChangeSetItem.status for inclusion
+ * @see ChangeSetProgressEvent.currentItem for progress updates
  */
 export const ChangeSetItemStatus = {
   /** Waiting to be applied */
@@ -88,6 +107,7 @@ export const ChangeSetItemStatus = {
   SKIPPED: 'SKIPPED',
 } as const;
 
+/** Inferred type for change set item status */
 export type ChangeSetItemStatus =
   (typeof ChangeSetItemStatus)[keyof typeof ChangeSetItemStatus];
 
@@ -96,89 +116,96 @@ export type ChangeSetItemStatus =
 // =============================================================================
 
 /**
- * Individual item within a change set
+ * Individual item representing a single resource operation within a change set.
+ *
+ * Each item tracks the configuration to apply, previous state for rollback,
+ * dependencies, and application status.
+ *
+ * @template TConfig The configuration type for this resource
+ * @see ChangeSet.items for collection of items
+ * @see ChangeSetStatus for overall progress
  */
 export interface ChangeSetItem<TConfig = Record<string, unknown>> {
   /**
    * Unique identifier for this item within the change set
    */
-  id: string;
+  readonly id: string;
 
   /**
    * Resource type identifier (e.g., 'network.bridge', 'dhcp.server')
    */
-  resourceType: string;
+  readonly resourceType: string;
 
   /**
    * Resource category
    */
-  resourceCategory: ResourceCategory;
+  readonly resourceCategory: ResourceCategory;
 
   /**
    * Existing resource UUID (null for create operations)
    */
-  resourceUuid: string | null;
+  readonly resourceUuid: string | null;
 
   /**
    * User-friendly name for display
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Optional description
    */
-  description?: string;
+  readonly description?: string;
 
   /**
    * Operation to perform
    */
-  operation: ChangeOperation;
+  readonly operation: ChangeOperation;
 
   /**
    * New/updated configuration
    */
-  configuration: TConfig;
+  readonly configuration: TConfig;
 
   /**
    * Previous state before changes (for update/delete rollback)
    */
-  previousState: TConfig | null;
+  readonly previousState: TConfig | null;
 
   /**
    * Item IDs this depends on (must be applied first)
    * References other items in the same change set
    */
-  dependencies: string[];
+  readonly dependencies: readonly string[];
 
   /**
    * Current status of this item
    */
-  status: ChangeSetItemStatus;
+  readonly status: ChangeSetItemStatus;
 
   /**
    * Error message if failed
    */
-  error: string | null;
+  readonly error: string | null;
 
   /**
    * Timestamp when apply started
    */
-  applyStartedAt: Date | null;
+  readonly applyStartedAt: Date | null;
 
   /**
    * Timestamp when apply completed
    */
-  applyCompletedAt: Date | null;
+  readonly applyCompletedAt: Date | null;
 
   /**
    * Router-confirmed state after apply (for verification)
    */
-  confirmedState: TConfig | null;
+  readonly confirmedState: TConfig | null;
 
   /**
    * Order in which this item will be applied (computed from dependencies)
    */
-  applyOrder: number;
+  readonly applyOrder: number;
 }
 
 // =============================================================================
@@ -186,7 +213,11 @@ export interface ChangeSetItem<TConfig = Record<string, unknown>> {
 // =============================================================================
 
 /**
- * Rollback operation type
+ * Type of rollback operation to undo applied changes.
+ *
+ * @constant
+ * @see RollbackStep.operation for usage
+ * @see ChangeSet.rollbackPlan for rollback sequence
  */
 export const RollbackOperation = {
   /** Delete a created resource */
@@ -197,47 +228,54 @@ export const RollbackOperation = {
   REVERT: 'REVERT',
 } as const;
 
+/** Inferred type for rollback operations */
 export type RollbackOperation =
   (typeof RollbackOperation)[keyof typeof RollbackOperation];
 
 /**
- * Individual rollback step
+ * Individual step in a rollback sequence.
+ *
+ * Describes how to undo a single applied change. Steps are executed
+ * in reverse order of application (LIFO - Last In First Out).
+ *
+ * @template TConfig The configuration type for this resource
+ * @see ChangeSet.rollbackPlan for the full rollback plan
  */
 export interface RollbackStep<TConfig = Record<string, unknown>> {
   /**
    * Reference to the change set item being rolled back
    */
-  itemId: string;
+  readonly itemId: string;
 
   /**
    * Rollback operation to perform
    */
-  operation: RollbackOperation;
+  readonly operation: RollbackOperation;
 
   /**
    * State to restore (for RESTORE and REVERT operations)
    */
-  restoreState: TConfig | null;
+  readonly restoreState: TConfig | null;
 
   /**
    * Resource UUID on router (for DELETE operations)
    */
-  resourceUuid: string | null;
+  readonly resourceUuid: string | null;
 
   /**
    * Whether rollback succeeded
    */
-  success: boolean;
+  readonly success: boolean;
 
   /**
    * Error message if rollback failed
    */
-  error: string | null;
+  readonly error: string | null;
 
   /**
    * Order in rollback sequence (reverse of apply order)
    */
-  rollbackOrder: number;
+  readonly rollbackOrder: number;
 }
 
 // =============================================================================
@@ -245,43 +283,49 @@ export interface RollbackStep<TConfig = Record<string, unknown>> {
 // =============================================================================
 
 /**
- * Detailed error information for failed change sets
+ * Detailed error information for a failed change set.
+ *
+ * Provides comprehensive error details including which item failed,
+ * what was partially applied, and what manual cleanup may be needed.
+ *
+ * @see ChangeSet.error for inclusion
+ * @see ChangeSetStatus.FAILED for when this is populated
  */
 export interface ChangeSetError {
   /**
    * Error message
    */
-  message: string;
+  readonly message: string;
 
   /**
    * Item ID that caused the failure
    */
-  failedItemId: string;
+  readonly failedItemId: string;
 
   /**
    * Error code for programmatic handling
    */
-  code?: string;
+  readonly code?: string;
 
   /**
    * Items that were applied before failure
    */
-  partiallyAppliedItemIds: string[];
+  readonly partiallyAppliedItemIds: readonly string[];
 
   /**
    * Items that failed rollback (require manual intervention)
    */
-  failedRollbackItemIds: string[];
+  readonly failedRollbackItemIds: readonly string[];
 
   /**
    * Whether manual intervention is required
    */
-  requiresManualIntervention: boolean;
+  readonly requiresManualIntervention: boolean;
 
   /**
    * Stack trace for debugging (dev only)
    */
-  stack?: string;
+  readonly stack?: string;
 }
 
 // =============================================================================
@@ -289,102 +333,113 @@ export interface ChangeSetError {
 // =============================================================================
 
 /**
- * Validation error for a change set item
+ * Single validation error for a change set item.
+ *
+ * @see ChangeSetValidationResult.errors for blocking errors
+ * @see ChangeSetValidationResult.warnings for non-blocking warnings
  */
 export interface ChangeSetValidationError {
   /**
    * Item ID with validation error
    */
-  itemId: string;
+  readonly itemId: string;
 
   /**
-   * Field path within the item configuration
+   * Field path within the item configuration (dot-notation)
    */
-  field: string;
+  readonly field: string;
 
   /**
    * Error message
    */
-  message: string;
+  readonly message: string;
 
   /**
-   * Severity level
+   * Severity level (error blocks apply, warning is informational)
    */
-  severity: 'error' | 'warning';
+  readonly severity: 'error' | 'warning';
 
   /**
-   * Error code
+   * Error code for programmatic handling
    */
-  code?: string;
+  readonly code?: string;
 }
 
 /**
- * Conflict between change set items or with existing resources
+ * Conflict detected between change set items or with existing resources.
+ *
+ * @see ChangeSetValidationResult.conflicts for validation results
  */
 export interface ChangeSetConflict {
   /**
    * First conflicting item ID
    */
-  itemId1: string;
+  readonly itemId1: string;
 
   /**
    * Second conflicting item ID (or existing resource UUID)
    */
-  itemId2OrResourceUuid: string;
+  readonly itemId2OrResourceUuid: string;
 
   /**
-   * Whether the conflict is with an existing resource
+   * Whether the conflict is with an existing resource (vs another item)
    */
-  isExternalConflict: boolean;
+  readonly isExternalConflict: boolean;
 
   /**
    * Description of the conflict
    */
-  description: string;
+  readonly description: string;
 
   /**
    * Suggested resolution
    */
-  resolution?: string;
+  readonly resolution?: string;
 }
 
 /**
- * Full validation result for a change set
+ * Complete validation result for a change set.
+ *
+ * Contains all validation issues, conflicts, and dependency problems detected
+ * during the validation phase. Determines if the change set can be applied.
+ *
+ * @see ChangeSet.validation for inclusion
+ * @see ChangeSetStatus.VALIDATING, READY for validation flow
  */
 export interface ChangeSetValidationResult {
   /**
-   * Whether the change set can be applied
+   * Whether the change set can be applied (no blocking errors)
    */
-  canApply: boolean;
+  readonly canApply: boolean;
 
   /**
-   * Validation errors (blocking)
+   * Validation errors (blocking, must be fixed before apply)
    */
-  errors: ChangeSetValidationError[];
+  readonly errors: readonly ChangeSetValidationError[];
 
   /**
-   * Validation warnings (non-blocking)
+   * Validation warnings (non-blocking, informational)
    */
-  warnings: ChangeSetValidationError[];
+  readonly warnings: readonly ChangeSetValidationError[];
 
   /**
    * Detected conflicts
    */
-  conflicts: ChangeSetConflict[];
+  readonly conflicts: readonly ChangeSetConflict[];
 
   /**
    * Missing dependencies (items depend on resources that don't exist)
    */
-  missingDependencies: Array<{
-    itemId: string;
-    missingResourceType: string;
-    missingResourceId: string;
+  readonly missingDependencies: ReadonlyArray<{
+    readonly itemId: string;
+    readonly missingResourceType: string;
+    readonly missingResourceId: string;
   }>;
 
   /**
    * Circular dependencies detected
    */
-  circularDependencies: string[][] | null;
+  readonly circularDependencies: ReadonlyArray<readonly string[]> | null;
 }
 
 // =============================================================================
@@ -392,83 +447,92 @@ export interface ChangeSetValidationResult {
 // =============================================================================
 
 /**
- * A change set representing an atomic multi-resource operation
+ * Atomic multi-resource operation container.
+ *
+ * Bundles multiple resource changes (create, update, delete) that must either
+ * all succeed or all rollback together. Ensures consistency when operations
+ * depend on each other (e.g., creating a bridge, DHCP server, firewall rules).
+ *
+ * @template TConfig The configuration type for items in this change set
+ * @see ChangeSetItem for individual operations
+ * @see ChangeSetStatus for lifecycle progression
+ * @see ChangeSetProgressEvent for progress notifications
  */
 export interface ChangeSet<TConfig = Record<string, unknown>> {
   /**
    * Unique identifier (ULID)
    */
-  id: string;
+  readonly id: string;
 
   /**
    * Human-readable name
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Optional description
    */
-  description?: string;
+  readonly description?: string;
 
   /**
    * Router ID this change set applies to
    */
-  routerId: string;
+  readonly routerId: string;
 
   /**
    * Items in this change set
    */
-  items: ChangeSetItem<TConfig>[];
+  readonly items: readonly ChangeSetItem<TConfig>[];
 
   /**
-   * Current status
+   * Current status (draft, validating, ready, applying, etc.)
    */
-  status: ChangeSetStatus;
+  readonly status: ChangeSetStatus;
 
   /**
-   * Validation result (populated after validation)
+   * Validation result (populated after validation phase)
    */
-  validation: ChangeSetValidationResult | null;
+  readonly validation: ChangeSetValidationResult | null;
 
   /**
-   * Rollback plan (populated during/after apply)
+   * Rollback plan (populated during/after apply for failure recovery)
    */
-  rollbackPlan: RollbackStep<TConfig>[];
+  readonly rollbackPlan: readonly RollbackStep<TConfig>[];
 
   /**
    * Error information (if failed)
    */
-  error: ChangeSetError | null;
+  readonly error: ChangeSetError | null;
 
   /**
    * Timestamp when created
    */
-  createdAt: Date;
+  readonly createdAt: Date;
 
   /**
    * Timestamp when apply started
    */
-  applyStartedAt: Date | null;
+  readonly applyStartedAt: Date | null;
 
   /**
    * Timestamp when completed (success or failure)
    */
-  completedAt: Date | null;
+  readonly completedAt: Date | null;
 
   /**
    * User who created the change set
    */
-  createdBy?: string;
+  readonly createdBy?: string;
 
   /**
    * Source wizard/feature that created this change set
    */
-  source?: string;
+  readonly source?: string;
 
   /**
-   * Version for optimistic concurrency
+   * Version number for optimistic concurrency control
    */
-  version: number;
+  readonly version: number;
 }
 
 // =============================================================================
@@ -476,58 +540,64 @@ export interface ChangeSet<TConfig = Record<string, unknown>> {
 // =============================================================================
 
 /**
- * Progress event for real-time updates during apply
+ * Real-time progress event streamed during change set application.
+ *
+ * Sent via WebSocket or subscription to provide live updates on change set
+ * progress, including current item, completion percentage, and ETA.
+ *
+ * @see ChangeSet for the change set being applied
+ * @see ChangeSetStatus for status values
  */
 export interface ChangeSetProgressEvent {
   /**
    * Change set ID
    */
-  changeSetId: string;
+  readonly changeSetId: string;
 
   /**
    * Current status
    */
-  status: ChangeSetStatus;
+  readonly status: ChangeSetStatus;
 
   /**
    * Currently processing item (if applicable)
    */
-  currentItem: {
-    id: string;
-    name: string;
-    operation: ChangeOperation;
-    status: ChangeSetItemStatus;
+  readonly currentItem: {
+    readonly id: string;
+    readonly name: string;
+    readonly operation: ChangeOperation;
+    readonly status: ChangeSetItemStatus;
   } | null;
 
   /**
-   * Number of items applied
+   * Number of items applied so far
    */
-  appliedCount: number;
+  readonly appliedCount: number;
 
   /**
    * Total number of items
    */
-  totalCount: number;
+  readonly totalCount: number;
 
   /**
    * Progress percentage (0-100)
    */
-  progressPercent: number;
+  readonly progressPercent: number;
 
   /**
    * Estimated time remaining in milliseconds
    */
-  estimatedRemainingMs: number | null;
+  readonly estimatedRemainingMs: number | null;
 
   /**
    * Error if failed
    */
-  error: ChangeSetError | null;
+  readonly error: ChangeSetError | null;
 
   /**
    * Timestamp of this event
    */
-  timestamp: Date;
+  readonly timestamp: Date;
 }
 
 // =============================================================================
@@ -535,52 +605,57 @@ export interface ChangeSetProgressEvent {
 // =============================================================================
 
 /**
- * Summary of a change set for list displays
+ * Lightweight summary of a change set for list displays.
+ *
+ * Contains essential information for rendering change set lists without
+ * the full details of items and validation results.
+ *
+ * @see ChangeSet for the full change set interface
  */
 export interface ChangeSetSummary {
   /**
    * Change set ID
    */
-  id: string;
+  readonly id: string;
 
   /**
    * Name
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Current status
    */
-  status: ChangeSetStatus;
+  readonly status: ChangeSetStatus;
 
   /**
    * Number of items by operation type
    */
-  operationCounts: {
-    create: number;
-    update: number;
-    delete: number;
+  readonly operationCounts: {
+    readonly create: number;
+    readonly update: number;
+    readonly delete: number;
   };
 
   /**
    * Total items
    */
-  totalItems: number;
+  readonly totalItems: number;
 
   /**
    * Created at
    */
-  createdAt: Date;
+  readonly createdAt: Date;
 
   /**
    * Has errors
    */
-  hasErrors: boolean;
+  readonly hasErrors: boolean;
 
   /**
    * Has warnings
    */
-  hasWarnings: boolean;
+  readonly hasWarnings: boolean;
 }
 
 // =============================================================================
@@ -588,7 +663,19 @@ export interface ChangeSetSummary {
 // =============================================================================
 
 /**
- * Check if change set is in a pending (not yet applied) state
+ * Check if change set is in a pending (not yet applied) state.
+ *
+ * @param status Change set status
+ * @returns true if the change set hasn't been applied yet
+ *
+ * @example
+ * ```ts
+ * if (isChangeSetPending(status)) {
+ *   showValidateAndApplyButtons();
+ * }
+ * ```
+ *
+ * @see ChangeSetStatus for status values
  */
 export function isChangeSetPending(status: ChangeSetStatus): boolean {
   return (
@@ -596,13 +683,26 @@ export function isChangeSetPending(status: ChangeSetStatus): boolean {
       ChangeSetStatus.DRAFT,
       ChangeSetStatus.VALIDATING,
       ChangeSetStatus.READY,
-      // @ts-expect-error - Pre-existing type error, tracked separately
-    ].includes(status)
+      // Note: includes() check requires full type assertion due to TS limitation with const objects
+      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+    ].includes(status as never)
   );
 }
 
 /**
- * Check if change set is currently processing
+ * Check if change set is currently processing (validating, applying, or rolling back).
+ *
+ * @param status Change set status
+ * @returns true if the change set is in progress
+ *
+ * @example
+ * ```ts
+ * if (isChangeSetProcessing(status)) {
+ *   showProgressSpinner();
+ * }
+ * ```
+ *
+ * @see ChangeSetStatus for status values
  */
 export function isChangeSetProcessing(status: ChangeSetStatus): boolean {
   return (
@@ -610,13 +710,26 @@ export function isChangeSetProcessing(status: ChangeSetStatus): boolean {
       ChangeSetStatus.VALIDATING,
       ChangeSetStatus.APPLYING,
       ChangeSetStatus.ROLLING_BACK,
-      // @ts-expect-error - Pre-existing type error, tracked separately
-    ].includes(status)
+      // Note: includes() check requires full type assertion due to TS limitation with const objects
+      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+    ].includes(status as never)
   );
 }
 
 /**
- * Check if change set is in a final state
+ * Check if change set is in a final state (no more changes possible).
+ *
+ * @param status Change set status
+ * @returns true if the change set has completed (successfully or not)
+ *
+ * @example
+ * ```ts
+ * if (isChangeSetFinal(status)) {
+ *   disableAllActionButtons();
+ * }
+ * ```
+ *
+ * @see ChangeSetStatus for status values
  */
 export function isChangeSetFinal(status: ChangeSetStatus): boolean {
   return (
@@ -626,13 +739,26 @@ export function isChangeSetFinal(status: ChangeSetStatus): boolean {
       ChangeSetStatus.ROLLED_BACK,
       ChangeSetStatus.PARTIAL_FAILURE,
       ChangeSetStatus.CANCELLED,
-      // @ts-expect-error - Pre-existing type error, tracked separately
-    ].includes(status)
+      // Note: includes() check requires full type assertion due to TS limitation with const objects
+      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+    ].includes(status as never)
   );
 }
 
 /**
- * Check if change set can be cancelled
+ * Check if change set can be cancelled by the user.
+ *
+ * @param status Change set status
+ * @returns true if the change set can be cancelled (will stop after current item if applying)
+ *
+ * @example
+ * ```ts
+ * if (isChangeSetCancellable(status)) {
+ *   enableCancelButton();
+ * }
+ * ```
+ *
+ * @see ChangeSetStatus for status values
  */
 export function isChangeSetCancellable(status: ChangeSetStatus): boolean {
   return (
@@ -641,29 +767,63 @@ export function isChangeSetCancellable(status: ChangeSetStatus): boolean {
       ChangeSetStatus.VALIDATING,
       ChangeSetStatus.READY,
       ChangeSetStatus.APPLYING, // Will stop after current item
-      // @ts-expect-error - Pre-existing type error, tracked separately
-    ].includes(status)
+      // Note: includes() check requires full type assertion due to TS limitation with const objects
+      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+    ].includes(status as never)
   );
 }
 
 /**
- * Check if change set requires manual intervention
+ * Check if change set requires manual intervention.
+ *
+ * @param status Change set status
+ * @returns true if the change set failed partially and needs manual cleanup
+ *
+ * @example
+ * ```ts
+ * if (requiresManualIntervention(status)) {
+ *   showManualInterventionWarning();
+ * }
+ * ```
+ *
+ * @see ChangeSetError.requiresManualIntervention for details
  */
 export function requiresManualIntervention(status: ChangeSetStatus): boolean {
   return status === ChangeSetStatus.PARTIAL_FAILURE;
 }
 
 /**
- * Get display information for a change set status
+ * Display information for rendering a change set status in the UI.
+ *
+ * @see getChangeSetStatusDisplayInfo for populating this interface
  */
 export interface ChangeSetStatusDisplayInfo {
-  label: string;
-  description: string;
-  color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
-  icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'rollback';
-  showSpinner: boolean;
+  /** Display label */
+  readonly label: string;
+  /** Description of the status */
+  readonly description: string;
+  /** Color for status indicators (semantic colors) */
+  readonly color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
+  /** Icon name hint */
+  readonly icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'rollback';
+  /** Whether to show a spinner animation */
+  readonly showSpinner: boolean;
 }
 
+/**
+ * Get UI display information for a change set status.
+ *
+ * @param status Change set status
+ * @returns Display information (label, color, icon, spinner flag)
+ *
+ * @example
+ * ```ts
+ * const displayInfo = getChangeSetStatusDisplayInfo(ChangeSetStatus.APPLYING);
+ * return <Badge color={displayInfo.color}>{displayInfo.label}</Badge>;
+ * ```
+ *
+ * @see ChangeSetStatusDisplayInfo for the returned interface
+ */
 export function getChangeSetStatusDisplayInfo(
   status: ChangeSetStatus
 ): ChangeSetStatusDisplayInfo {
@@ -760,7 +920,20 @@ export function getChangeSetStatusDisplayInfo(
 }
 
 /**
- * Get display color for a change operation
+ * Get display color for a change operation.
+ *
+ * Maps operations to semantic colors: create (green), update (amber), delete (red).
+ *
+ * @param operation Change operation type
+ * @returns Color for rendering
+ *
+ * @example
+ * ```ts
+ * const color = getOperationColor(ChangeOperation.CREATE);
+ * return <span className={`text-${color}-500`}>Create</span>;
+ * ```
+ *
+ * @see ChangeOperation for operation types
  */
 export function getOperationColor(
   operation: ChangeOperation
@@ -778,7 +951,20 @@ export function getOperationColor(
 }
 
 /**
- * Get display label for a change operation
+ * Get display label for a change operation.
+ *
+ * Maps operations to human-readable labels for UI display.
+ *
+ * @param operation Change operation type
+ * @returns Localized display label
+ *
+ * @example
+ * ```ts
+ * const label = getOperationLabel(ChangeOperation.UPDATE);
+ * return <span>{label}</span>; // "Update"
+ * ```
+ *
+ * @see ChangeOperation for operation types
  */
 export function getOperationLabel(operation: ChangeOperation): string {
   switch (operation) {

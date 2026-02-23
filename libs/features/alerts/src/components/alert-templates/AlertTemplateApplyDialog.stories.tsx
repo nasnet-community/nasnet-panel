@@ -10,15 +10,19 @@
  * - Error state (failed to load template)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { MockedProvider } from '@apollo/client/testing';
-import { AlertTemplateApplyDialog } from './AlertTemplateApplyDialog';
+import { fn } from 'storybook/test';
+
 import {
   GET_ALERT_RULE_TEMPLATE_BY_ID,
   APPLY_ALERT_RULE_TEMPLATE,
   PREVIEW_ALERT_RULE_TEMPLATE,
 } from '@nasnet/api-client/queries';
+
+import { AlertTemplateApplyDialog } from './AlertTemplateApplyDialog';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

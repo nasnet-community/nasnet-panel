@@ -5,6 +5,7 @@
  * NAS-6.9: Implement Interface Traffic Statistics (Task 5)
  */
 
+import React, { useCallback } from 'react';
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { StatsTimeRangeInput } from '@nasnet/api-client/generated';
 
 /**
@@ -34,7 +36,7 @@ export interface TimeRangeSelectorProps {
 /**
  * Time range preset configurations
  */
-const TIME_RANGES: Array<{ value: TimeRangePreset; label: string }> = [
+const TIME_RANGE_PRESETS: Array<{ value: TimeRangePreset; label: string }> = [
   { value: '1h', label: 'Last hour' },
   { value: '6h', label: 'Last 6 hours' },
   { value: '24h', label: 'Last 24 hours' },
@@ -79,6 +81,8 @@ export function timeRangePresetToInput(preset: TimeRangePreset): StatsTimeRangeI
  * Useful for quickly switching between different historical time periods
  * in bandwidth charts.
  *
+ * @description Allows users to quickly switch between predefined historical data ranges for bandwidth analysis
+ *
  * @example
  * ```tsx
  * const [timeRange, setTimeRange] = useState<TimeRangePreset>('24h');
@@ -93,18 +97,23 @@ export function timeRangePresetToInput(preset: TimeRangePreset): StatsTimeRangeI
  * <BandwidthChart timeRange={timeRangeInput} />
  * ```
  */
-export function TimeRangeSelector({
+const TimeRangeSelector = React.memo(function TimeRangeSelector({
   value,
   onChange,
   className,
 }: TimeRangeSelectorProps) {
+  const handleChange = useCallback(
+    (val: string) => onChange(val as TimeRangePreset),
+    [onChange]
+  );
+
   return (
-    <Select value={value} onValueChange={(val) => onChange(val as TimeRangePreset)}>
-      <SelectTrigger className={className} aria-label="Time range">
+    <Select value={value} onValueChange={handleChange}>
+      <SelectTrigger className={cn(className)} aria-label="Time range">
         <SelectValue placeholder="Select time range" />
       </SelectTrigger>
       <SelectContent>
-        {TIME_RANGES.map((range) => (
+        {TIME_RANGE_PRESETS.map((range) => (
           <SelectItem key={range.value} value={range.value}>
             {range.label}
           </SelectItem>
@@ -112,4 +121,8 @@ export function TimeRangeSelector({
       </SelectContent>
     </Select>
   );
-}
+});
+
+TimeRangeSelector.displayName = 'TimeRangeSelector';
+
+export { TimeRangeSelector };

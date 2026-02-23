@@ -1,9 +1,35 @@
 /**
  * WebSocket Events
- * Defines all Socket.io event names used for real-time communication
+ *
+ * Defines all Socket.io event names used for real-time communication between client and server.
+ * Events are organized into three categories:
+ * - `SOCKET_EVENTS_EMIT`: Client → Server events (client sends, server listens)
+ * - `SOCKET_EVENTS_ON`: Server → Client events (server sends, client listens)
+ * - `SOCKET_EVENTS`: Combined object containing all events
+ *
+ * @module @nasnet/core/constants/socket-events
+ *
+ * @example
+ * ```ts
+ * import { SOCKET_EVENTS_EMIT, SOCKET_EVENTS_ON } from '@nasnet/core/constants';
+ * import { io } from 'socket.io-client';
+ *
+ * const socket = io('http://localhost:8080');
+ *
+ * // Emit an event from client to server
+ * socket.emit(SOCKET_EVENTS_EMIT.ROUTER_SUBSCRIBE, { routerId: 'router-123' });
+ *
+ * // Listen for server events
+ * socket.on(SOCKET_EVENTS_ON.ROUTER_STATUS_UPDATE, (data) => {
+ *   console.log('Router status updated:', data);
+ * });
+ * ```
  */
 
-// Client to Server events (Emit)
+/**
+ * Client to Server events (Emit).
+ * Events that the client sends to the server.
+ */
 export const SOCKET_EVENTS_EMIT = {
   // Connection
   CONNECT: 'connect',
@@ -47,7 +73,10 @@ export const SOCKET_EVENTS_EMIT = {
   SYSTEM_SHUTDOWN: 'system:shutdown'
 } as const;
 
-// Server to Client events (On/Listen)
+/**
+ * Server to Client events (On/Listen).
+ * Events that the server sends to the client.
+ */
 export const SOCKET_EVENTS_ON = {
   // Connection
   CONNECTED: 'connected',
@@ -112,12 +141,26 @@ export const SOCKET_EVENTS_ON = {
   SUCCESS: 'success'
 } as const;
 
-// Combined event type
+/**
+ * Combined event object containing all socket events.
+ * Convenience export for accessing any event by name.
+ */
 export const SOCKET_EVENTS = {
   ...SOCKET_EVENTS_EMIT,
   ...SOCKET_EVENTS_ON
 } as const;
 
+/**
+ * Union type of all socket event names.
+ */
 export type SocketEvent = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];
+
+/**
+ * Union type of all client → server event names.
+ */
 export type SocketEmitEvent = typeof SOCKET_EVENTS_EMIT[keyof typeof SOCKET_EVENTS_EMIT];
+
+/**
+ * Union type of all server → client event names.
+ */
 export type SocketOnEvent = typeof SOCKET_EVENTS_ON[keyof typeof SOCKET_EVENTS_ON];

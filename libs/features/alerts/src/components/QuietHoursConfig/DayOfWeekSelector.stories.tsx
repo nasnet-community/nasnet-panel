@@ -5,10 +5,12 @@
  * characteristics of the multi-select day picker component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { DayOfWeekSelector } from './DayOfWeekSelector';
+
 import type { DayOfWeek } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

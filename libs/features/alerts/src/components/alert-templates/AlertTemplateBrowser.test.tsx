@@ -15,6 +15,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing';
+import { useToast } from '@nasnet/ui/primitives';
+import { useTemplateGallery, TemplateGallery } from '@nasnet/ui/patterns';
 import { AlertTemplateBrowser } from './AlertTemplateBrowser';
 import {
   builtInTemplates,
@@ -25,22 +27,22 @@ import {
 
 // Mock UI dependencies
 vi.mock('@nasnet/ui/primitives', () => ({
-  useToast: () => ({
+  useToast: vi.fn(() => ({
     toast: vi.fn(),
-  }),
+  })),
 }));
 
 // Mock TemplateGallery pattern
 vi.mock('@nasnet/ui/patterns', () => ({
-  useTemplateGallery: (props: any) => ({
+  useTemplateGallery: vi.fn((props: any) => ({
     ...props,
     filteredTemplates: props.templates,
     selectedTemplate: null,
     searchQuery: '',
     categoryFilter: 'all',
     sortBy: 'name',
-  }),
-  TemplateGallery: ({ gallery, onApplyTemplate, loading }: any) => (
+  })),
+  TemplateGallery: vi.fn(({ gallery, onApplyTemplate, loading }: any) => (
     <div data-testid="template-gallery">
       {loading && <div data-testid="loading-spinner">Loading...</div>}
       {gallery.filteredTemplates?.map((template: any) => (
@@ -56,7 +58,7 @@ vi.mock('@nasnet/ui/patterns', () => ({
         </div>
       ))}
     </div>
-  ),
+  )),
 }));
 
 // =============================================================================
@@ -219,8 +221,10 @@ describe('AlertTemplateBrowser', () => {
       const user = userEvent.setup();
       const toast = vi.fn();
 
-      vi.mocked(require('@nasnet/ui/primitives').useToast).mockReturnValue({
+      vi.mocked(useToast).mockReturnValue({
         toast,
+        dismiss: vi.fn(),
+        toasts: [],
       });
 
       const mocks = createMocks();
@@ -252,8 +256,10 @@ describe('AlertTemplateBrowser', () => {
       const user = userEvent.setup();
       const toast = vi.fn();
 
-      vi.mocked(require('@nasnet/ui/primitives').useToast).mockReturnValue({
+      vi.mocked(useToast).mockReturnValue({
         toast,
+        dismiss: vi.fn(),
+        toasts: [],
       });
 
       const mocks = createMocks(builtInTemplates, false);
@@ -654,8 +660,10 @@ describe('AlertTemplateBrowser', () => {
       const onRuleCreated = vi.fn();
       const toast = vi.fn();
 
-      vi.mocked(require('@nasnet/ui/primitives').useToast).mockReturnValue({
+      vi.mocked(useToast).mockReturnValue({
         toast,
+        dismiss: vi.fn(),
+        toasts: [],
       });
 
       const mocks = createMocks();

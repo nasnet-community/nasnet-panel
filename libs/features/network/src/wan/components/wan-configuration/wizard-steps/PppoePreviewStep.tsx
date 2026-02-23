@@ -1,12 +1,14 @@
 /**
  * PPPoE Wizard - Step 4: Preview Configuration
+ * @description Review all PPPoE settings before applying configuration
  *
- * Review all settings before applying.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
+import { useMemo } from 'react';
 import { FormSection } from '@nasnet/ui/patterns';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
 import { Code, Network, User, Settings } from 'lucide-react';
 
 interface PppoeInterfaceData {
@@ -29,13 +31,21 @@ interface PppoeOptionsData {
 }
 
 interface PppoePreviewStepProps {
+  /** Router ID for context */
   routerId: string;
+  /** Stepper hook for wizard navigation and state management */
   stepper: UseStepperReturn;
+  /** Optional CSS class override */
+  className?: string;
 }
 
+/**
+ * @description Preview step for PPPoE configuration
+ */
 export function PppoePreviewStep({
   routerId,
   stepper,
+  className,
 }: PppoePreviewStepProps) {
   const interfaceData = stepper.getStepData<PppoeInterfaceData>('interface');
   const credentialsData = stepper.getStepData<PppoeCredentialsData>('credentials');
@@ -44,7 +54,7 @@ export function PppoePreviewStep({
   /**
    * Generate RouterOS command preview
    */
-  const generateCommandPreview = () => {
+  const commandPreview = useMemo(() => {
     const commands = [];
 
     // Main PPPoE client add command
@@ -64,10 +74,10 @@ export function PppoePreviewStep({
     commands.push(addCmd);
 
     return commands.join('\n\n');
-  };
+  }, [interfaceData, credentialsData, optionsData]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="Review Configuration"
         description="Please review your PPPoE configuration before applying"
@@ -76,7 +86,10 @@ export function PppoePreviewStep({
           {/* Interface Summary */}
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Network className="h-4 w-4 text-primary" />
+              <Network
+                className="h-4 w-4 text-primary"
+                aria-hidden="true"
+              />
               <h4 className="font-medium text-sm">Interface Configuration</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -90,7 +103,10 @@ export function PppoePreviewStep({
           {/* Credentials Summary */}
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <User className="h-4 w-4 text-primary" />
+              <User
+                className="h-4 w-4 text-primary"
+                aria-hidden="true"
+              />
               <h4 className="font-medium text-sm">ISP Credentials</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -112,14 +128,17 @@ export function PppoePreviewStep({
           {/* Options Summary */}
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Settings className="h-4 w-4 text-primary" />
+              <Settings
+                className="h-4 w-4 text-primary"
+                aria-hidden="true"
+              />
               <h4 className="font-medium text-sm">Advanced Options</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">MTU:</dt>
-              <dd>{optionsData?.mtu || 1492} bytes</dd>
+              <dd className="font-mono">{optionsData?.mtu || 1492} bytes</dd>
               <dt className="text-muted-foreground">MRU:</dt>
-              <dd>{optionsData?.mru || 1492} bytes</dd>
+              <dd className="font-mono">{optionsData?.mru || 1492} bytes</dd>
               <dt className="text-muted-foreground">Default Route:</dt>
               <dd>
                 {optionsData?.addDefaultRoute ? (
@@ -154,11 +173,14 @@ export function PppoePreviewStep({
       >
         <div className="rounded-lg border bg-muted p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Code className="h-4 w-4 text-primary" />
+            <Code
+              className="h-4 w-4 text-primary"
+              aria-hidden="true"
+            />
             <h4 className="font-medium text-sm">Command Preview</h4>
           </div>
           <pre className="text-xs font-mono overflow-x-auto bg-background p-3 rounded border">
-            {generateCommandPreview()}
+            {commandPreview}
           </pre>
           <p className="text-xs text-muted-foreground mt-2">
             <strong>Note:</strong> Password is masked for security. The actual
@@ -169,3 +191,5 @@ export function PppoePreviewStep({
     </div>
   );
 }
+
+PppoePreviewStep.displayName = 'PppoePreviewStep';

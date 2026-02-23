@@ -1,18 +1,28 @@
 /**
  * DHCP Wizard - Step 1: Interface Selection
- * Select interface for DHCP server and auto-calculate pool suggestions
+ * Select interface for DHCP server and auto-calculate pool suggestions.
+ *
+ * @description Allows users to select a network interface for DHCP server deployment.
+ * Automatically fetches interface details, displays IP address information, and calculates
+ * suggested address pool ranges based on the interface IP. Pre-fills subsequent step data
+ * with intelligent defaults to accelerate wizard completion.
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { InterfaceSelector } from '@nasnet/ui/patterns';
-import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
+import { InterfaceSelector, FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
-// Local interface type for wizard step
+import { calculateSuggestedPool } from '../../utils/pool-calculator';
+import { interfaceStepSchema, type InterfaceStepFormData } from './dhcp-wizard.schema';
+
+/**
+ * Local interface type for wizard step
+ */
 interface NetworkInterface {
   id: string;
   name: string;
@@ -20,15 +30,20 @@ interface NetworkInterface {
   ipAddress?: string;
   running?: boolean;
 }
-import { calculateSuggestedPool } from '../../utils/pool-calculator';
-import { interfaceStepSchema, type InterfaceStepFormData } from './dhcp-wizard.schema';
 
 interface WizardStepInterfaceProps {
+  /** Stepper instance providing access to wizard step data */
   stepper: UseStepperReturn;
+  /** Router IP address for interface queries */
   routerIp: string;
+  /** Optional CSS class names to apply to root container */
+  className?: string;
 }
 
-export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfaceProps) {
+/**
+ * Interface selection step component
+ */
+function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardStepInterfaceProps) {
   const [selectedInterface, setSelectedInterface] = useState<NetworkInterface | null>(null);
 
   const form = useForm<InterfaceStepFormData>({
@@ -36,8 +51,8 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
     defaultValues: stepper.getStepData('interface') || {},
   });
 
-  // Handle interface selection
-  const handleInterfaceSelect = (iface: NetworkInterface) => {
+  // Memoized interface selection handler
+  const handleInterfaceSelect = useCallback((iface: NetworkInterface) => {
     setSelectedInterface(iface);
     form.setValue('interface', iface.name);
 
@@ -59,7 +74,7 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
         console.error('Failed to calculate pool suggestion:', error);
       }
     }
-  };
+  }, [form, stepper]);
 
   // Save form data when proceeding
   useEffect(() => {
@@ -71,8 +86,16 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
     return () => subscription.unsubscribe();
   }, [form, stepper]);
 
+  // Memoized interface selector change handler
+  const handleSelectorChange = useCallback((value: string | string[]) => {
+    if (!value) return;
+    const interfaceId = typeof value === 'string' ? value : value[0];
+    const iface = { id: interfaceId, name: interfaceId } as NetworkInterface;
+    handleInterfaceSelect(iface);
+  }, [handleInterfaceSelect]);
+
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="Select Network Interface"
         description="Choose the interface where the DHCP server will operate"
@@ -86,10 +109,7 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
             <InterfaceSelector
               routerId={routerIp}
               value={selectedInterface?.id}
-              onChange={(value: any) => {
-                const iface = { id: value, name: value } as NetworkInterface;
-                handleInterfaceSelect(iface);
-              }}
+              onChange={handleSelectorChange}
             />
             {form.formState.errors.interface && (
               <p className="text-sm text-destructive mt-1">
@@ -126,3 +146,10 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
     </div>
   );
 }
+
+WizardStepInterfaceComponent.displayName = 'WizardStepInterface';
+
+/**
+ * Exported interface selection step component
+ */
+export const WizardStepInterface = WizardStepInterfaceComponent;

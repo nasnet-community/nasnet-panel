@@ -2,14 +2,26 @@
  * VariablesStep Component
  *
  * First step of template installation wizard.
- * Dynamic form generated from template.configVariables.
+ * Generates dynamic form from template.configVariables with real-time validation.
+ *
+ * @example
+ * ```tsx
+ * <VariablesStep
+ *   template={template}
+ *   variables={variables}
+ *   onVariablesChange={handleVariablesChange}
+ * />
+ * ```
+ *
+ * @see docs/design/ux-design/6-component-library.md#wizard-steps
  */
 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Form,
@@ -27,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { ServiceTemplate, TemplateVariable } from '@nasnet/api-client/generated';
 
 /**
@@ -39,10 +52,16 @@ export interface VariablesStepProps {
   variables: Record<string, unknown>;
   /** Callback when variables change */
   onVariablesChange: (variables: Record<string, unknown>) => void;
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
- * Build Zod schema from template variables
+ * Build Zod schema from template variables.
+ * Memoized to prevent unnecessary schema recreation.
+ *
+ * @param variables - Template variables to build schema from
+ * @returns Zod validation schema
  */
 function buildValidationSchema(variables: readonly TemplateVariable[]): z.ZodObject<any> {
   const shape: Record<string, z.ZodTypeAny> = {};
@@ -116,12 +135,19 @@ function buildValidationSchema(variables: readonly TemplateVariable[]): z.ZodObj
  * - Required field indicators
  * - Default values
  */
-export function VariablesStep({
+function VariablesStepComponent({
   template,
   variables,
   onVariablesChange,
+  className,
 }: VariablesStepProps) {
-  const schema = buildValidationSchema(template.configVariables);
+  const { t } = useTranslation('services');
+
+  // Build schema once and memoize
+  const schema = useMemo(
+    () => buildValidationSchema(template.configVariables),
+    [template.configVariables]
+  );
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -129,20 +155,28 @@ export function VariablesStep({
     mode: 'onChange',
   });
 
+  // Memoize watch callback to prevent unnecessary re-renders
+  const handleFormChange = useCallback(
+    (value: unknown) => {
+      onVariablesChange(value as Record<string, unknown>);
+    },
+    [onVariablesChange]
+  );
+
   // Watch for form changes and propagate up
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      onVariablesChange(value as Record<string, unknown>);
-    });
+    const subscription = form.watch(handleFormChange);
     return () => subscription.unsubscribe();
-  }, [form, onVariablesChange]);
+  }, [form, handleFormChange]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <div>
-        <h2 className="text-lg font-semibold">Configure Template Variables</h2>
+        <h2 className="text-lg font-semibold">
+          {t('wizard.configureVariables', 'Configure Template Variables')}
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Fill in the configuration values for your template
+          {t('wizard.configureVariablesDesc', 'Fill in the configuration values for your template')}
         </p>
       </div>
 
@@ -158,7 +192,7 @@ export function VariablesStep({
                   <FormLabel>
                     {variable.label}
                     {variable.required && (
-                      <span className="text-destructive ml-1">*</span>
+                      <span className="text-error ml-1" aria-label="required">*</span>
                     )}
                   </FormLabel>
                   <FormControl>
@@ -178,7 +212,7 @@ export function VariablesStep({
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={`Select ${variable.label}`} />
+                          <SelectValue placeholder={t('common.selectPlaceholder', `Select ${variable.label}`)} />
                         </SelectTrigger>
                         <SelectContent>
                           {variable.enumValues.map((value) => (
@@ -208,8 +242,8 @@ export function VariablesStep({
 
           {template.configVariables.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>This template has no configurable variables</p>
-              <p className="text-sm mt-1">Click Next to continue</p>
+              <p>{t('wizard.noVariables', 'This template has no configurable variables')}</p>
+              <p className="text-sm mt-1">{t('wizard.clickNext', 'Click Next to continue')}</p>
             </div>
           )}
         </form>
@@ -217,3 +251,6 @@ export function VariablesStep({
     </div>
   );
 }
+
+export const VariablesStep = React.memo(VariablesStepComponent);
+VariablesStep.displayName = 'VariablesStep';

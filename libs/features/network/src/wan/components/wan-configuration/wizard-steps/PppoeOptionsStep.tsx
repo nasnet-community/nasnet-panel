@@ -1,16 +1,17 @@
 /**
  * PPPoE Wizard - Step 3: Advanced Options
+ * @description Configure MTU, MRU, DNS, and routing options for PPPoE connection
  *
- * Configure MTU, MRU, DNS, and routing options.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label, Input, Switch, Button } from '@nasnet/ui/primitives';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
 import {
   pppoeOptionsStepSchema,
   type PppoeOptionsStepFormValues,
@@ -19,17 +20,31 @@ import {
 import { Settings, Zap } from 'lucide-react';
 
 interface PppoeOptionsStepProps {
+  /** Stepper hook for wizard navigation and state management */
   stepper: UseStepperReturn;
+  /** Optional CSS class override */
+  className?: string;
 }
 
-export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
+const DEFAULT_MTU_VALUE = 1492;
+const DEFAULT_MRU_VALUE = 1492;
+const DEFAULT_SHOULD_ADD_ROUTE = true;
+const DEFAULT_SHOULD_USE_PEER_DNS = true;
+
+/**
+ * @description Advanced options step for PPPoE configuration
+ */
+export function PppoeOptionsStep({
+  stepper,
+  className,
+}: PppoeOptionsStepProps) {
   const form = useForm<PppoeOptionsStepFormValues>({
     resolver: zodResolver(pppoeOptionsStepSchema) as any,
     defaultValues: stepper.getStepData('options') || {
-      mtu: 1492,
-      mru: 1492,
-      addDefaultRoute: true,
-      usePeerDNS: true,
+      mtu: DEFAULT_MTU_VALUE,
+      mru: DEFAULT_MRU_VALUE,
+      shouldAddDefaultRoute: DEFAULT_SHOULD_ADD_ROUTE,
+      shouldUsePeerDNS: DEFAULT_SHOULD_USE_PEER_DNS,
       comment: '',
     },
   });
@@ -45,13 +60,16 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
   /**
    * Apply MTU preset and sync MRU
    */
-  const applyMTUPreset = (mtu: number) => {
-    form.setValue('mtu', mtu, { shouldDirty: true });
-    form.setValue('mru', mtu, { shouldDirty: true }); // Usually same as MTU
-  };
+  const handleApplyMTUPreset = useCallback(
+    (mtu: number) => {
+      form.setValue('mtu', mtu, { shouldDirty: true });
+      form.setValue('mru', mtu, { shouldDirty: true }); // Usually same as MTU
+    },
+    [form]
+  );
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       {/* MTU/MRU Configuration */}
       <FormSection
         title="MTU & MRU Settings"
@@ -61,7 +79,10 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           {/* MTU Presets */}
           <div>
             <Label className="mb-2 flex items-center gap-2">
-              <Zap className="h-4 w-4" />
+              <Zap
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               Quick Presets
             </Label>
             <div className="grid grid-cols-2 gap-2">
@@ -71,12 +92,12 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => applyMTUPreset(preset.value)}
-                  className={
-                    form.watch('mtu') === preset.value
-                      ? 'border-primary bg-primary/10'
-                      : ''
-                  }
+                  onClick={() => handleApplyMTUPreset(preset.value)}
+                  className={cn(
+                    form.watch('mtu') === preset.value &&
+                      'border-primary bg-primary/10'
+                  )}
+                  aria-label={`Set MTU to ${preset.label} (${preset.value} bytes)`}
                 >
                   {preset.label}
                 </Button>
@@ -96,11 +117,16 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
               min={512}
               max={65535}
               step={8}
+              className="font-mono"
               {...form.register('mtu', { valueAsNumber: true })}
               aria-describedby="mtu-error mtu-help"
             />
             {form.formState.errors.mtu && (
-              <p id="mtu-error" className="text-sm text-error mt-1" role="alert">
+              <p
+                id="mtu-error"
+                className="text-sm text-destructive mt-1"
+                role="alert"
+              >
                 {form.formState.errors.mtu.message}
               </p>
             )}
@@ -121,11 +147,16 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
               min={512}
               max={65535}
               step={8}
+              className="font-mono"
               {...form.register('mru', { valueAsNumber: true })}
               aria-describedby="mru-error mru-help"
             />
             {form.formState.errors.mru && (
-              <p id="mru-error" className="text-sm text-error mt-1" role="alert">
+              <p
+                id="mru-error"
+                className="text-sm text-destructive mt-1"
+                role="alert"
+              >
                 {form.formState.errors.mru.message}
               </p>
             )}
@@ -146,13 +177,13 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="add-default-route">Add Default Route</Label>
-              <FieldHelp field="addDefaultRoute" />
+              <FieldHelp field="shouldAddDefaultRoute" />
             </div>
             <Switch
               id="add-default-route"
-              checked={form.watch('addDefaultRoute')}
+              checked={form.watch('shouldAddDefaultRoute')}
               onCheckedChange={(checked) =>
-                form.setValue('addDefaultRoute', checked, { shouldDirty: true })
+                form.setValue('shouldAddDefaultRoute', checked, { shouldDirty: true })
               }
               aria-label="Add default route via PPPoE gateway"
             />
@@ -162,13 +193,13 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="use-peer-dns">Use Peer DNS</Label>
-              <FieldHelp field="usePeerDNS" />
+              <FieldHelp field="shouldUsePeerDNS" />
             </div>
             <Switch
               id="use-peer-dns"
-              checked={form.watch('usePeerDNS')}
+              checked={form.watch('shouldUsePeerDNS')}
               onCheckedChange={(checked) =>
-                form.setValue('usePeerDNS', checked, { shouldDirty: true })
+                form.setValue('shouldUsePeerDNS', checked, { shouldDirty: true })
               }
               aria-label="Use DNS servers from ISP"
             />
@@ -197,7 +228,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           {form.formState.errors.comment && (
             <p
               id="comment-error"
-              className="text-sm text-error"
+              className="text-sm text-destructive"
               role="alert"
             >
               {form.formState.errors.comment.message}
@@ -211,3 +242,5 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
     </div>
   );
 }
+
+PppoeOptionsStep.displayName = 'PppoeOptionsStep';

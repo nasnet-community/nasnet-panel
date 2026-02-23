@@ -28,7 +28,12 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/ui/layouts/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/ui/layouts/tsconfig.lib.json",
+          "tsc --noEmit --project libs/ui/layouts/tsconfig.spec.json",
+          "tsc --noEmit --project libs/ui/layouts/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     },
     "check": {
@@ -38,7 +43,7 @@
           "nx run ui-layouts:typecheck",
           "nx run ui-layouts:lint"
         ],
-        "parallel": false
+        "parallel": true
       }
     }
   }

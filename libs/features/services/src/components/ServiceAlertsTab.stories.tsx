@@ -11,9 +11,10 @@
  * in your test environment for full data-driven stories.
  */
 
+import { ServiceAlertsTab } from './ServiceAlertsTab';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { ServiceAlertsTab } from './ServiceAlertsTab';
 
 // ---------------------------------------------------------------------------
 // Meta

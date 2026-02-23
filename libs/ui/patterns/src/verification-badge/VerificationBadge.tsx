@@ -53,18 +53,25 @@ import type { VerificationBadgeProps } from './verification-badge.types';
  * />
  * ```
  */
-export function VerificationBadge({
-  verification,
-  instanceId,
-  onVerificationChange,
-  showTimestamp = true,
-  showHash = false,
-  size = 'md',
-  variant = 'auto',
-  showLabel = false,
-  className,
-  id,
-}: VerificationBadgeProps) {
+const VerificationBadgeComponent = React.forwardRef<
+  HTMLDivElement,
+  VerificationBadgeProps
+>(
+  (
+    {
+      verification,
+      instanceId,
+      onVerificationChange,
+      showTimestamp = true,
+      showHash = false,
+      size = 'md',
+      variant = 'auto',
+      showLabel = false,
+      className,
+      id,
+    },
+    ref
+  ) => {
   // Compute state using the headless hook
   const state = useVerificationBadge({
     verification,
@@ -96,6 +103,7 @@ export function VerificationBadge({
   // This avoids hydration mismatches and works on first render
   return (
     <div
+      ref={ref}
       className={cn('contents', className)}
       role="status"
       aria-live="polite"
@@ -115,4 +123,8 @@ export function VerificationBadge({
       <span className="sr-only">{state.ariaLabel}</span>
     </div>
   );
-}
+});
+
+VerificationBadgeComponent.displayName = 'VerificationBadge';
+
+export const VerificationBadge = React.memo(VerificationBadgeComponent);

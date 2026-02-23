@@ -5,10 +5,15 @@
  * Dialog for saving an existing alert rule as a reusable template.
  * Allows users to name the template, add description, categorize it,
  * and optionally define variables for customization.
+ *
+ * @description Manages the save workflow: populate form with alert rule data,
+ * allow customization, validate with Zod schema, and persist to backend.
  */
 
+import React, { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@nasnet/ui/utils';
 import {
   Dialog,
   DialogContent,
@@ -73,6 +78,9 @@ export interface SaveTemplateDialogProps {
 
   /** Callback when template is successfully saved */
   onTemplateSaved?: (templateId: string) => void;
+
+  /** Optional CSS class name */
+  className?: string;
 }
 
 // =============================================================================
@@ -97,9 +105,19 @@ export interface SaveTemplateDialogProps {
  * 4. User optionally defines variables (future enhancement)
  * 5. Save creates custom template
  * 6. Template appears in browser with CUSTOM category
+ *
+ * @example
+ * ```tsx
+ * <SaveTemplateDialog
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   alertRule={selectedRule}
+ *   onTemplateSaved={(id) => console.log('Saved:', id)}
+ * />
+ * ```
  */
-export function SaveTemplateDialog(props: SaveTemplateDialogProps) {
-  const { open, onOpenChange, alertRule, onTemplateSaved } = props;
+function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
+  const { open, onOpenChange, alertRule, onTemplateSaved, className } = props;
 
   const { toast } = useToast();
 
@@ -148,21 +166,27 @@ export function SaveTemplateDialog(props: SaveTemplateDialogProps) {
     },
   });
 
-  // Handle form submission
-  const onSubmit = async (data: CustomAlertRuleTemplateInput) => {
-    await saveTemplate({
-      variables: {
-        input: data,
-      },
-    });
-  };
+  // Handle form submission with useCallback
+  const onSubmit = useCallback(
+    async (data: CustomAlertRuleTemplateInput) => {
+      await saveTemplate({
+        variables: {
+          input: data,
+        },
+      });
+    },
+    [saveTemplate]
+  );
 
-  // Get available categories
-  const categories = Object.values(ALERT_TEMPLATE_CATEGORIES);
+  // Memoize available categories
+  const categories = useMemo(
+    () => Object.values(ALERT_TEMPLATE_CATEGORIES),
+    []
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className={cn('sm:max-w-[600px]', className)}>
         <DialogHeader>
           <DialogTitle>Save as Template</DialogTitle>
           <DialogDescription>
@@ -263,3 +287,12 @@ export function SaveTemplateDialog(props: SaveTemplateDialogProps) {
     </Dialog>
   );
 }
+
+SaveTemplateDialogComponent.displayName = 'SaveTemplateDialog';
+
+/**
+ * Memoized save template dialog for preventing unnecessary re-renders.
+ * @description Compares props shallowly to determine if re-render is needed.
+ * Beneficial when parent component re-renders frequently.
+ */
+export const SaveTemplateDialog = React.memo(SaveTemplateDialogComponent);

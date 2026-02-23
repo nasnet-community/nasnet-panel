@@ -5,6 +5,10 @@
  * Mobile presenter for alert rule template browser.
  * Uses bottom sheet filters and vertical list for touch-friendly interface.
  *
+ * @description Provides full-width vertical list layout with bottom sheet for
+ * filters (slides up from bottom). All elements have 44px minimum touch targets
+ * per WCAG AAA. Sort tabs in header. Compact template cards for mobile viewing.
+ *
  * @see ADR-018: Headless Platform Presenters
  */
 
@@ -289,6 +293,13 @@ interface TemplateCardProps {
   onViewDetail?: () => void;
 }
 
+/**
+ * Compact template card component for mobile list
+ *
+ * @description Memoized card optimized for mobile with compact layout.
+ * Shows template name, category/severity badges, and condition/channel counts.
+ * Fully keyboard accessible with Enter/Space support and ARIA labels.
+ */
 const TemplateCardComponent = React.memo(function TemplateCardComponent({
   template,
   isSelected,
@@ -313,8 +324,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`${template.name} - ${template.severity} severity, ${categoryMeta.label} category`}
-      aria-selected={isSelected}
+      aria-label={`${template.name} - ${template.severity} severity, ${categoryMeta.label} category${isSelected ? ' (selected)' : ''}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -387,6 +397,8 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   );
 });
 
+TemplateCardComponent.displayName = 'TemplateCardComponent';
+
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -404,9 +416,14 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
  * - Empty state when no templates match
  * - Touch-friendly interactions
  *
+ * @description Uses full-width vertical list with bottom sheet filter panel.
+ * All buttons and interactive elements are 44px minimum for touch accessibility.
+ * Header includes title, filter trigger button, and sort tabs.
+ *
  * @param props - Component props
+ * @returns React element displaying mobile template browser UI
  */
-export function AlertTemplateBrowserMobile({
+export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrowserMobile({
   browser,
   onPreview,
   onViewDetail,
@@ -509,4 +526,6 @@ export function AlertTemplateBrowserMobile({
       </div>
     </div>
   );
-}
+});
+
+AlertTemplateBrowserMobile.displayName = 'AlertTemplateBrowserMobile';

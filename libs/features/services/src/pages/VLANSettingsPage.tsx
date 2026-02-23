@@ -5,9 +5,14 @@
  * - Pool Config: Configure VLAN pool range
  * - Allocations: View and filter allocations
  * - Diagnostics: Orphan cleanup tools
+ *
+ * @example
+ * ```tsx
+ * <VLANSettingsPage routerID="router-1" />
+ * ```
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -63,7 +68,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
   const [orphansDetected, setOrphansDetected] = useState(false);
   const [detectingOrphans, setDetectingOrphans] = useState(false);
 
-  const handleDetectOrphans = async () => {
+  const handleDetectOrphans = useCallback(async () => {
     setDetectingOrphans(true);
     try {
       await refetchAllocations();
@@ -76,9 +81,9 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
     } finally {
       setDetectingOrphans(false);
     }
-  };
+  }, [refetchAllocations]);
 
-  const handleCleanupOrphans = async () => {
+  const handleCleanupOrphans = useCallback(async () => {
     try {
       const count = await cleanupOrphanedVLANs(routerID);
       toast({ title: `Cleaned up ${count} orphaned VLAN allocation${count !== 1 ? 's' : ''}` });
@@ -94,12 +99,16 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
         variant: 'destructive',
       });
     }
-  };
+  }, [routerID, cleanupOrphanedVLANs, refetchAllocations, refetchPool]);
 
-  const handleConfigSuccess = () => {
+  const handleConfigSuccess = useCallback(() => {
     refetchPool();
     toast({ title: 'VLAN pool configuration updated' });
-  };
+  }, [refetchPool]);
+
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value as 'pool' | 'allocations' | 'diagnostics');
+  }, []);
 
   // Transform allocations for table
   const tableAllocations = allocations.map((alloc) => ({
@@ -138,7 +147,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
 
         {/* Main Content: Tabs */}
         <div className="flex-1 min-w-0">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="pool">Pool Config</TabsTrigger>
               <TabsTrigger value="allocations">Allocations</TabsTrigger>
@@ -179,6 +188,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                       onClick={handleDetectOrphans}
                       disabled={detectingOrphans}
                       variant="outline"
+                      className="min-h-[44px] min-w-[120px]"
+                      aria-label={detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'}
                     >
                       {detectingOrphans ? 'Detecting...' : 'Detect Orphans'}
                     </Button>
@@ -186,6 +197,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                       onClick={handleCleanupOrphans}
                       disabled={!orphansDetected || cleanupLoading}
                       variant="destructive"
+                      className="min-h-[44px] min-w-[120px]"
+                      aria-label={cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'}
                     >
                       {cleanupLoading ? 'Cleaning...' : 'Clean Up All'}
                     </Button>
@@ -238,7 +251,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
       )}
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="pool">Config</TabsTrigger>
           <TabsTrigger value="allocations">Allocs</TabsTrigger>
@@ -279,6 +292,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   disabled={detectingOrphans}
                   variant="outline"
                   className="w-full min-h-[44px]"
+                  aria-label={detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'}
                 >
                   {detectingOrphans ? 'Detecting...' : 'Detect Orphans'}
                 </Button>
@@ -287,13 +301,14 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   disabled={!orphansDetected || cleanupLoading}
                   variant="destructive"
                   className="w-full min-h-[44px]"
+                  aria-label={cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'}
                 >
                   {cleanupLoading ? 'Cleaning...' : 'Clean Up All'}
                 </Button>
               </div>
 
               {orphansDetected && (
-                <div className="p-3 bg-warning/10 border border-warning rounded-md">
+                <div className="p-3 bg-warning/10 border border-warning rounded-md" role="alert" aria-live="polite">
                   <p className="text-xs text-warning">
                     Detection complete. Review allocations and click "Clean Up
                     All" to release orphaned VLANs.
@@ -302,7 +317,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
               )}
 
               {cleanupCount !== undefined && cleanupCount > 0 && (
-                <div className="p-3 bg-success/10 border border-success rounded-md">
+                <div className="p-3 bg-success/10 border border-success rounded-md" role="status" aria-live="polite">
                   <p className="text-xs text-success">
                     Cleaned up {cleanupCount} orphaned VLAN allocation
                     {cleanupCount !== 1 ? 's' : ''}.

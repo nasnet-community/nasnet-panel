@@ -1,6 +1,10 @@
 /**
  * InAppNotificationPreferences Component
- * Per Task #6: Create preferences component for in-app notifications
+ *
+ * @description
+ * Provides UI controls for configuring in-app notification preferences.
+ * Per Task #6: Create preferences component for in-app notifications.
+ * All changes are automatically saved to the Zustand store.
  *
  * Features:
  * - Enable/disable toggle for in-app notifications
@@ -11,6 +15,7 @@
  */
 
 import * as React from 'react';
+import { Bell, BellOff, Volume2, VolumeX } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -24,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
   Switch,
+  Icon,
 } from '@nasnet/ui/primitives';
-import { Bell, BellOff, Volume2, VolumeX } from 'lucide-react';
 import {
   useAlertNotificationStore,
   useNotificationSettings,
@@ -140,11 +145,12 @@ function InAppNotificationPreferencesComponent({
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              {settings.enabled ? (
-                <Bell className="h-4 w-4 text-primary" aria-hidden="true" />
-              ) : (
-                <BellOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              )}
+              <Icon
+                icon={settings.enabled ? Bell : BellOff}
+                size="sm"
+                className={settings.enabled ? 'text-primary' : 'text-muted-foreground'}
+                aria-hidden="true"
+              />
               <Label htmlFor="notifications-enabled" className="font-medium">
                 Enable Notifications
               </Label>
@@ -224,11 +230,12 @@ function InAppNotificationPreferencesComponent({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  {settings.soundEnabled ? (
-                    <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" />
-                  ) : (
-                    <VolumeX className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  )}
+                  <Icon
+                    icon={settings.soundEnabled ? Volume2 : VolumeX}
+                    size="sm"
+                    className={settings.soundEnabled ? 'text-primary' : 'text-muted-foreground'}
+                    aria-hidden="true"
+                  />
                   <Label htmlFor="sound-enabled" className="font-medium">
                     Notification Sound
                   </Label>

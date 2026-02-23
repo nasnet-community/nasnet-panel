@@ -41,7 +41,7 @@ incorrect IP/gateway values can cause loss of access to the router.
       control: 'text',
       description: 'Router ID used for interface discovery',
     },
-    loading: {
+    isLoading: {
       control: 'boolean',
       description: 'Put the form into a submitting / loading state',
     },
@@ -137,7 +137,7 @@ export const Loading: Story = {
       primaryDNS: '8.8.8.8',
       secondaryDNS: '8.8.4.4',
     },
-    loading: true,
+    isLoading: true,
     onSubmit: async () => {},
     onCancel: () => {},
   },

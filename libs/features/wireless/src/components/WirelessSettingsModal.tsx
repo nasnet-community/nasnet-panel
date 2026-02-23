@@ -36,6 +36,8 @@ export interface WirelessSettingsModalProps {
  * - Integrates with mutation hook for all settings
  * - Scrollable content for mobile devices
  *
+ * @description Modal dialog for editing comprehensive wireless settings with unsaved changes detection
+ *
  * @example
  * ```tsx
  * const [showModal, setShowModal] = useState(false);
@@ -47,7 +49,7 @@ export interface WirelessSettingsModalProps {
  * />
  * ```
  */
-export function WirelessSettingsModal({
+function WirelessSettingsModalComponent({
   interface: iface,
   open,
   onOpenChange,
@@ -60,7 +62,7 @@ export function WirelessSettingsModal({
   /**
    * Handle form submission with all settings
    */
-  const handleSubmit = (data: WirelessSettingsFormData) => {
+  const handleSubmit = React.useCallback((data: WirelessSettingsFormData) => {
     // Build comprehensive update request
     updateMutation.mutate(
       {
@@ -93,12 +95,12 @@ export function WirelessSettingsModal({
         },
       }
     );
-  };
+  }, [iface, routerIp, updateMutation, onOpenChange]);
 
   /**
    * Handle cancel - check for unsaved changes
    */
-  const handleCancel = () => {
+  const handleCancel = React.useCallback(() => {
     if (isDirty) {
       // Show unsaved changes warning
       setShowUnsavedWarning(true);
@@ -106,23 +108,23 @@ export function WirelessSettingsModal({
       // No changes, just close
       onOpenChange(false);
     }
-  };
+  }, [isDirty, onOpenChange]);
 
   /**
    * Handle discard changes confirmation
    */
-  const handleDiscardChanges = () => {
+  const handleDiscardChanges = React.useCallback(() => {
     setShowUnsavedWarning(false);
     setIsDirty(false);
     onOpenChange(false);
-  };
+  }, [onOpenChange]);
 
   /**
    * Handle keep editing
    */
-  const handleKeepEditing = () => {
+  const handleKeepEditing = React.useCallback(() => {
     setShowUnsavedWarning(false);
-  };
+  }, []);
 
   /**
    * Track form dirty state
@@ -177,3 +179,6 @@ export function WirelessSettingsModal({
     </>
   );
 }
+
+export const WirelessSettingsModal = React.memo(WirelessSettingsModalComponent);
+WirelessSettingsModal.displayName = 'WirelessSettingsModal';

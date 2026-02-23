@@ -3,12 +3,23 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/core/types/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:core"],
+  "tags": ["type:lib", "scope:shared"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/core/types/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/core/types/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/core/types/tsconfig.lib.json",
+          "tsc --noEmit --project libs/core/types/tsconfig.spec.json",
+          "tsc --noEmit --project libs/core/types/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     }
   }

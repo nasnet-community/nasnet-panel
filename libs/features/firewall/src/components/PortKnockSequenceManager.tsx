@@ -1,6 +1,7 @@
 /**
  * Port Knock Sequence Manager (Platform Wrapper)
  *
+ * @description
  * Wrapper component that detects platform and renders the appropriate presenter.
  * Manages the list of port knock sequences with CRUD operations.
  *
@@ -15,7 +16,8 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
-import { useMediaQuery } from '@nasnet/ui/primitives';
+import React, { useCallback } from 'react';
+import { usePlatform } from '@nasnet/ui/patterns';
 import { PortKnockSequenceManagerDesktop } from './PortKnockSequenceManagerDesktop';
 import { PortKnockSequenceManagerMobile } from './PortKnockSequenceManagerMobile';
 
@@ -33,29 +35,40 @@ export interface PortKnockSequenceManagerProps {
  * - Mobile: Card-based layout with touch-friendly controls
  *
  * @param props - Component props
+ * @param props.className - Optional CSS class name for styling
+ * @param props.onEdit - Callback when editing a sequence (receives sequenceId)
+ * @param props.onCreate - Callback when creating a new sequence
  * @returns Platform-appropriate port knock sequence manager
  */
-export function PortKnockSequenceManager({
-  className,
-  onEdit,
-  onCreate,
-}: PortKnockSequenceManagerProps) {
-  // Platform detection: <640px = Mobile, >=640px = Desktop
-  const isMobile = useMediaQuery('(max-width: 640px)');
+const PortKnockSequenceManagerComponent = React.memo(
+  function PortKnockSequenceManagerComponent({
+    className,
+    onEdit,
+    onCreate,
+  }: PortKnockSequenceManagerProps) {
+    // Platform detection: Mobile (<640px), Tablet (640-1024px), Desktop (>1024px)
+    const platform = usePlatform();
 
-  return isMobile ? (
-    <PortKnockSequenceManagerMobile
-      className={className}
-      onEdit={onEdit}
-      onCreate={onCreate}
-    />
-  ) : (
-    <PortKnockSequenceManagerDesktop
-      className={className}
-      onEdit={onEdit}
-      onCreate={onCreate}
-    />
-  );
-}
+    // Memoize callbacks for stable references
+    const memoizedOnEdit = useCallback(onEdit || (() => {}), [onEdit]);
+    const memoizedOnCreate = useCallback(onCreate || (() => {}), [onCreate]);
 
-PortKnockSequenceManager.displayName = 'PortKnockSequenceManager';
+    return platform === 'mobile' ? (
+      <PortKnockSequenceManagerMobile
+        className={className}
+        onEdit={memoizedOnEdit}
+        onCreate={memoizedOnCreate}
+      />
+    ) : (
+      <PortKnockSequenceManagerDesktop
+        className={className}
+        onEdit={memoizedOnEdit}
+        onCreate={memoizedOnCreate}
+      />
+    );
+  }
+);
+
+PortKnockSequenceManagerComponent.displayName = 'PortKnockSequenceManager';
+
+export const PortKnockSequenceManager = PortKnockSequenceManagerComponent;

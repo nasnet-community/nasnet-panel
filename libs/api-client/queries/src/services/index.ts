@@ -4,6 +4,16 @@
  * This module provides React hooks for managing service instances on MikroTik routers.
  * Services are downloadable features from the Feature Marketplace (Tor, sing-box, Xray-core, etc.)
  *
+ * This is the barrel export module for the services domain. Import from this module for convenience:
+ * ```tsx
+ * import { useAvailableServices } from '@nasnet/api-client/queries/services';
+ * ```
+ *
+ * Or import from the main queries index:
+ * ```tsx
+ * import { useAvailableServices } from '@nasnet/api-client/queries';
+ * ```
+ *
  * ## Usage
  *
  * ### Browsing Available Services
@@ -67,7 +77,7 @@
  * ```
  */
 
-// Query Hooks
+// Query Hooks (use direct relative imports to avoid barrel re-export cycles)
 export { useAvailableServices } from './useAvailableServices';
 export type { AvailableService } from './useAvailableServices';
 

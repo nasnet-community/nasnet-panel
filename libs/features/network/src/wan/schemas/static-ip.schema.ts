@@ -1,5 +1,5 @@
 /**
- * Static IP WAN Configuration Validation Schema
+ * @description Static IP WAN Configuration Validation Schema
  *
  * Zod schemas for validating static IP WAN configuration.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 4: Static IP)
@@ -8,19 +8,17 @@
 import { z } from 'zod';
 
 /**
- * Helper function to validate CIDR notation
- * Examples: "203.0.113.10/30", "192.168.1.1/24"
+ * @description Helper regex to validate CIDR notation (e.g. 203.0.113.10/30)
  */
-const cidrRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+const CIDR_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
- * Helper function to validate IPv4 address
- * Examples: "203.0.113.1", "8.8.8.8", "192.168.1.1"
+ * @description Helper regex to validate IPv4 address (e.g. 203.0.113.1)
  */
-const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
- * Schema for static IP WAN configuration form
+ * @description Schema for static IP WAN configuration form
  *
  * Validates complete static IP configuration including:
  * - Interface selection (required)
@@ -28,74 +26,60 @@ const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|
  * - Gateway IP address (required)
  * - DNS servers (optional but recommended)
  * - Comment (optional)
- *
- * Validation constraints:
- * - Address must be in CIDR notation (e.g., "203.0.113.10/30")
- * - Gateway must be a valid IPv4 address
- * - DNS servers must be valid IPv4 addresses
- * - Gateway should be reachable from the configured address
  */
 export const staticIPSchema = z
   .object({
     /**
-     * Physical interface name for static IP
-     * Examples: "ether1", "ether2", "sfp1"
+     * Physical interface name for static IP (e.g. ether1, ether2, sfp1)
      */
     interface: z
       .string({
         required_error: 'Interface is required',
         invalid_type_error: 'Interface must be a valid string',
       })
-      .min(1, 'Interface cannot be empty')
-      .max(64, 'Interface name too long'),
+      .min(1, 'Please select a physical interface')
+      .max(64, 'Interface name exceeds maximum length of 64 characters'),
 
     /**
-     * IP address in CIDR notation
-     * Examples: "203.0.113.10/30", "192.168.1.100/24"
-     * IMPORTANT: Must include subnet mask (e.g., /30, /24)
+     * IP address in CIDR notation (e.g. 203.0.113.10/30 or 192.168.1.100/24)
      */
     address: z
       .string({
         required_error: 'IP address is required',
         invalid_type_error: 'IP address must be a valid string',
       })
-      .min(1, 'IP address cannot be empty')
-      .regex(cidrRegex, 'IP address must be in CIDR notation (e.g., 203.0.113.10/30)'),
+      .min(1, 'Please enter an IP address with subnet mask')
+      .regex(CIDR_REGEX, 'IP must be in CIDR notation (e.g. 203.0.113.10/30)'),
 
     /**
-     * Gateway IP address
-     * Examples: "203.0.113.9", "192.168.1.1"
-     * IMPORTANT: Must be reachable from the configured IP address
+     * Gateway IP address in IPv4 format (e.g. 203.0.113.9 or 192.168.1.1)
      */
     gateway: z
       .string({
         required_error: 'Gateway is required',
         invalid_type_error: 'Gateway must be a valid string',
       })
-      .min(1, 'Gateway cannot be empty')
-      .regex(ipv4Regex, 'Gateway must be a valid IPv4 address'),
+      .min(1, 'Please enter the gateway IP address')
+      .regex(IPV4_REGEX, 'Gateway must be a valid IPv4 address'),
 
     /**
-     * Primary DNS server (optional but recommended)
-     * Examples: "1.1.1.1", "8.8.8.8", "9.9.9.9"
+     * Primary DNS server in IPv4 format (optional, e.g. 1.1.1.1 or 8.8.8.8)
      */
     primaryDNS: z
       .string()
-      .regex(ipv4Regex, 'Primary DNS must be a valid IPv4 address')
+      .regex(IPV4_REGEX, 'Primary DNS must be a valid IPv4 address')
       .optional(),
 
     /**
-     * Secondary DNS server (optional)
-     * Examples: "1.0.0.1", "8.8.4.4", "9.9.9.10"
+     * Secondary DNS server in IPv4 format (optional)
      */
     secondaryDNS: z
       .string()
-      .regex(ipv4Regex, 'Secondary DNS must be a valid IPv4 address')
+      .regex(IPV4_REGEX, 'Secondary DNS must be a valid IPv4 address')
       .optional(),
 
     /**
-     * Optional comment for identification
-     * RouterOS limit: 255 characters
+     * Optional comment for identification (max 255 characters)
      */
     comment: z
       .string()
@@ -105,21 +89,18 @@ export const staticIPSchema = z
   .refine(
     (data) => {
       // Validate that gateway is in the same subnet as the IP address
-      // This is a basic check - more sophisticated subnet validation could be added
       if (!data.address || !data.gateway) return true;
 
       try {
-        // Extract IP and subnet mask
         const [ip, mask] = data.address.split('/');
         const ipParts = ip.split('.').map(Number);
         const gatewayParts = data.gateway.split('.').map(Number);
         const maskBits = parseInt(mask, 10);
 
-        // For point-to-point links (/30, /31), gateway can be different
+        // For point-to-point links (/30, /31), gateway can differ
         if (maskBits >= 30) return true;
 
-        // For larger subnets, check first 3 octets match
-        // This is a simplified check - more precise subnet math could be added
+        // For larger subnets, verify first 3 octets match
         if (maskBits >= 24) {
           return (
             ipParts[0] === gatewayParts[0] &&
@@ -128,9 +109,9 @@ export const staticIPSchema = z
           );
         }
 
-        return true; // Allow other subnet sizes for now
+        return true;
       } catch {
-        return true; // Skip validation if parsing fails
+        return true;
       }
     },
     {
@@ -141,16 +122,14 @@ export const staticIPSchema = z
   );
 
 /**
- * TypeScript type inferred from staticIPSchema
- * Use this for form values and component props
+ * @description TypeScript type inferred from staticIPSchema
  */
 export type StaticIPFormValues = z.infer<typeof staticIPSchema>;
 
 /**
- * Default values for static IP form
- * Used to initialize React Hook Form
+ * @description Default values for static IP form
  */
-export const staticIPDefaultValues: Partial<StaticIPFormValues> = {
+export const STATIC_IP_DEFAULT_VALUES: Partial<StaticIPFormValues> = {
   interface: '',
   address: '',
   gateway: '',
@@ -160,7 +139,7 @@ export const staticIPDefaultValues: Partial<StaticIPFormValues> = {
 };
 
 /**
- * Common DNS server presets
+ * @description Common DNS server presets for static IP configuration
  */
 export const DNS_PRESETS = {
   CLOUDFLARE: {
@@ -186,7 +165,7 @@ export const DNS_PRESETS = {
 } as const;
 
 /**
- * Common subnet mask presets for WAN connections
+ * @description Common subnet mask presets for WAN connections
  */
 export const SUBNET_PRESETS = {
   POINT_TO_POINT: { mask: '/30', label: 'Point-to-Point (/30 - 2 hosts)' },

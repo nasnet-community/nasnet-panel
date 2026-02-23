@@ -1,18 +1,61 @@
 /**
  * ResponsiveShell Component
- * Automatically switches between MobileAppShell and AppShell based on platform
  *
- * Implements ADR-018: Headless + Platform Presenters pattern
- * - Mobile (<640px): Uses MobileAppShell with BottomNavigation
- * - Tablet (640-1024px): Uses AppShell with CollapsibleSidebar (always visible)
- * - Desktop (>1024px): Uses AppShell with CollapsibleSidebar (collapse state persisted)
+ * The top-level layout wrapper that automatically adapts to viewport size,
+ * selecting between MobileAppShell and AppShell layouts. Implements the
+ * Headless + Platform Presenters architecture pattern.
  *
- * @see Docs/design/ux-design/2-core-user-experience.md Section 2.3
+ * **Platform Behavior:**
+ * - Mobile (<640px): MobileAppShell with bottom tab navigation
+ * - Tablet (640-1024px): AppShell with expanded sidebar navigation
+ * - Desktop (>1024px): AppShell with collapsible sidebar (state persisted)
+ *
+ * **Features:**
+ * - Automatic platform detection via viewport width + user agent
+ * - Optional forced platform override for testing/preview
+ * - Sidebar collapse toggle (Ctrl+B / Cmd+B keyboard shortcut)
+ * - Full keyboard navigation support
+ * - Respects `prefers-reduced-motion` for animations
+ * - Semantic HTML with proper ARIA labels
+ *
+ * @example
+ * ```tsx
+ * // Basic usage (auto-detects platform)
+ * <ResponsiveShell
+ *   sidebar={<Sidebar />}
+ *   header={<Header />}
+ *   mobileNavigationProps={{ activeId: 'home', items: [...] }}
+ * >
+ *   <PageContent />
+ * </ResponsiveShell>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With controlled sidebar state (wired to Zustand store)
+ * function AppLayout({ children }) {
+ *   const { desktopCollapsed, toggle } = useSidebarStore();
+ *   return (
+ *     <ResponsiveShell
+ *       sidebar={<NavigationSidebar />}
+ *       sidebarCollapsed={desktopCollapsed}
+ *       onSidebarToggle={toggle}
+ *     >
+ *       {children}
+ *     </ResponsiveShell>
+ *   );
+ * }
+ * ```
+ *
+ * @see {@link ResponsiveShellProps} for prop interface
+ * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md for implementation details
+ * @see Docs/architecture/adrs/018-headless-platform-presenters.md
  */
 
 import * as React from 'react';
+import { ChevronLeft } from 'lucide-react';
 
-import { cn } from '@nasnet/ui/primitives';
+import { cn, Icon } from '@nasnet/ui/primitives';
 
 import { AppShell } from '../app-shell';
 import { MobileAppShell, type MobileAppShellProps } from '../mobile-app-shell';
@@ -129,136 +172,129 @@ export interface ResponsiveShellProps {
  * }
  * ```
  */
-export const ResponsiveShell = React.forwardRef<
-  HTMLDivElement,
-  ResponsiveShellProps
->(
-  (
-    {
-      children,
-      sidebar,
-      header,
-      footer,
-      banner,
-      mobileHeaderProps,
-      mobileNavigationProps,
-      statusBannerProps,
-      forcePlatform,
-      sidebarCollapsed = false,
-      onSidebarToggle,
-      className,
-    },
-    ref
-  ) => {
-    const detectedPlatform = usePlatform();
-    const platform = forcePlatform ?? detectedPlatform;
-    const prefersReducedMotion = useReducedMotion();
-    const { motionClass } = useMotionClasses();
+export const ResponsiveShell = React.memo(
+  React.forwardRef<
+    HTMLDivElement,
+    ResponsiveShellProps
+  >(
+    (
+      {
+        children,
+        sidebar,
+        header,
+        footer,
+        banner,
+        mobileHeaderProps,
+        mobileNavigationProps,
+        statusBannerProps,
+        forcePlatform,
+        sidebarCollapsed = false,
+        onSidebarToggle,
+        className,
+      },
+      ref
+    ) => {
+      const detectedPlatform = usePlatform();
+      const platform = forcePlatform ?? detectedPlatform;
+      const prefersReducedMotion = useReducedMotion();
+      const { motionClass } = useMotionClasses();
 
-    // Keyboard shortcut for sidebar toggle (Cmd+B / Ctrl+B)
-    React.useEffect(() => {
-      if (platform === 'mobile' || !onSidebarToggle) return;
+      // Keyboard shortcut for sidebar toggle (Cmd+B / Ctrl+B)
+      React.useEffect(() => {
+        if (platform === 'mobile' || !onSidebarToggle) return;
 
-      const handleKeyDown = (event: KeyboardEvent) => {
-        // Cmd+B (Mac) or Ctrl+B (Windows/Linux)
-        if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
-          event.preventDefault();
-          onSidebarToggle();
-        }
-      };
+        const handleKeyDown = (event: KeyboardEvent) => {
+          // Cmd+B (Mac) or Ctrl+B (Windows/Linux)
+          if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
+            event.preventDefault();
+            onSidebarToggle();
+          }
+        };
 
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [platform, onSidebarToggle]);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [platform, onSidebarToggle]);
 
-    // Render mobile layout
-    if (platform === 'mobile') {
+      // Render mobile layout
+      if (platform === 'mobile') {
+        return (
+          <MobileAppShell
+            ref={ref}
+            header={mobileHeaderProps}
+            navigation={mobileNavigationProps}
+            statusBanner={statusBannerProps}
+            className={cn(motionClass, className)}
+          >
+            {children}
+          </MobileAppShell>
+        );
+      }
+
+      // Determine sidebar collapse state based on platform rules:
+      // - Tablet: Always expanded (collapsible but starts expanded)
+      // - Desktop: Respects persisted preference
+      const effectiveCollapsed = platform === 'tablet' ? false : sidebarCollapsed;
+
+      // Create enhanced sidebar with collapse behavior
+      const enhancedSidebar = sidebar ? (
+        <div
+          className={cn(
+            'h-full flex flex-col',
+            !prefersReducedMotion && 'transition-all duration-200 ease-out'
+          )}
+        >
+          {sidebar}
+          {/* Collapse toggle button (tablet/desktop) */}
+          {onSidebarToggle && (
+            <button
+              type="button"
+              onClick={onSidebarToggle}
+              className={cn(
+                'absolute -right-3 top-1/2 -translate-y-1/2 z-10',
+                'w-6 h-6 rounded-full',
+                'bg-muted',
+                'border border-border',
+                'flex items-center justify-center',
+                'hover:bg-accent',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                !prefersReducedMotion && 'transition-colors duration-150'
+              )}
+              aria-expanded={!effectiveCollapsed}
+              aria-label={effectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={`${effectiveCollapsed ? 'Expand' : 'Collapse'} sidebar (${
+                navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'
+              }+B)`}
+            >
+              <Icon
+                icon={ChevronLeft}
+                className={cn(
+                  'w-4 h-4 text-muted-foreground',
+                  !prefersReducedMotion && 'transition-transform duration-200',
+                  effectiveCollapsed && 'rotate-180'
+                )}
+                aria-hidden="true"
+              />
+            </button>
+          )}
+        </div>
+      ) : undefined;
+
+      // Render tablet/desktop layout
       return (
-        <MobileAppShell
+        <AppShell
           ref={ref}
-          header={mobileHeaderProps}
-          navigation={mobileNavigationProps}
-          statusBanner={statusBannerProps}
+          header={header}
+          footer={footer}
+          banner={banner}
+          sidebar={enhancedSidebar}
+          sidebarCollapsed={effectiveCollapsed}
           className={cn(motionClass, className)}
         >
           {children}
-        </MobileAppShell>
+        </AppShell>
       );
     }
-
-    // Determine sidebar collapse state based on platform rules:
-    // - Tablet: Always expanded (collapsible but starts expanded)
-    // - Desktop: Respects persisted preference
-    const effectiveCollapsed = platform === 'tablet' ? false : sidebarCollapsed;
-
-    // Create enhanced sidebar with collapse behavior
-    const enhancedSidebar = sidebar ? (
-      <div
-        className={cn(
-          'h-full flex flex-col',
-          !prefersReducedMotion && 'transition-all duration-200 ease-out'
-        )}
-      >
-        {sidebar}
-        {/* Collapse toggle button (tablet/desktop) */}
-        {onSidebarToggle && (
-          <button
-            type="button"
-            onClick={onSidebarToggle}
-            className={cn(
-              'absolute -right-3 top-1/2 -translate-y-1/2 z-10',
-              'w-6 h-6 rounded-full',
-              'bg-muted',
-              'border border-border',
-              'flex items-center justify-center',
-              'hover:bg-accent',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              !prefersReducedMotion && 'transition-colors duration-150'
-            )}
-            aria-expanded={!effectiveCollapsed}
-            aria-label={effectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={`${effectiveCollapsed ? 'Expand' : 'Collapse'} sidebar (${
-              navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'
-            }+B)`}
-          >
-            <svg
-              className={cn(
-                'w-4 h-4 text-muted-foreground',
-                !prefersReducedMotion && 'transition-transform duration-200',
-                effectiveCollapsed && 'rotate-180'
-              )}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-        )}
-      </div>
-    ) : undefined;
-
-    // Render tablet/desktop layout
-    return (
-      <AppShell
-        ref={ref}
-        header={header}
-        footer={footer}
-        banner={banner}
-        sidebar={enhancedSidebar}
-        sidebarCollapsed={effectiveCollapsed}
-        className={cn(motionClass, className)}
-      >
-        {children}
-      </AppShell>
-    );
-  }
+  )
 );
 
 ResponsiveShell.displayName = 'ResponsiveShell';

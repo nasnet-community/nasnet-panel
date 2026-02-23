@@ -139,5 +139,3 @@ export function useAsyncValidation<T extends ZodSchema>({
     cancel,
   };
 }
-
-export default useAsyncValidation;

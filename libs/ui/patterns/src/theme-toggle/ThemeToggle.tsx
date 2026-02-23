@@ -1,18 +1,3 @@
-import { Moon, Sun, Monitor } from 'lucide-react';
-
-import { useThemeStore, type ThemeMode } from '@nasnet/state/stores';
-import { Button, cn } from '@nasnet/ui/primitives';
-
-/**
- * ThemeToggle Props
- */
-export interface ThemeToggleProps {
-  /**
-   * Optional className for styling
-   */
-  className?: string;
-}
-
 /**
  * ThemeToggle Component
  *
@@ -24,46 +9,72 @@ export interface ThemeToggleProps {
  * Features:
  * - Three-state toggle: Light → Dark → System → Light
  * - Displays appropriate icon for each mode
- * - Keyboard accessible
- * - Screen reader friendly with aria-label
+ * - Keyboard accessible with full keyboard support
+ * - Screen reader friendly with descriptive aria-label
+ * - Smooth icon rotation animation on hover
+ * - Persistent state via Zustand store
  *
- * Usage:
+ * @example
  * ```tsx
  * <ThemeToggle />
+ * <ThemeToggle className="ml-2" />
  * ```
- *
- * @param props - Component props
- * @returns Theme toggle button
  */
-export function ThemeToggle({ className }: ThemeToggleProps) {
+
+import { Moon, Sun, Monitor } from 'lucide-react';
+
+import { useThemeStore, type ThemeMode } from '@nasnet/state/stores';
+import { Button, cn } from '@nasnet/ui/primitives';
+import { useMemo, useCallback, memo } from 'react';
+
+/**
+ * Props for ThemeToggle component
+ * Controls styling of the theme toggle button
+ */
+export interface ThemeToggleProps {
+  /**
+   * Optional className for styling
+   */
+  className?: string;
+}
+
+/**
+ * ThemeToggle Component
+ */
+function ThemeToggleComponent({ className }: ThemeToggleProps) {
   const { theme, setTheme } = useThemeStore();
 
   /**
    * Cycle through theme modes: Light → Dark → System → Light
    */
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     const nextTheme: ThemeMode =
       theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
     setTheme(nextTheme);
-  };
+  }, [theme, setTheme]);
 
-  // Determine which icon to show based on current theme mode
-  const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
-
-  // Create readable labels for screen readers
-  const currentLabel =
-    theme === 'light'
-      ? 'light mode'
-      : theme === 'dark'
+  // Memoize icon selection and labels for performance
+  const { Icon, currentLabel, nextLabel, ariaLabel } = useMemo(() => {
+    const icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
+    const current =
+      theme === 'light'
+        ? 'light mode'
+        : theme === 'dark'
+          ? 'dark mode'
+          : 'system mode';
+    const next =
+      theme === 'light'
         ? 'dark mode'
-        : 'system mode';
-  const nextLabel =
-    theme === 'light'
-      ? 'dark mode'
-      : theme === 'dark'
-        ? 'system mode'
-        : 'light mode';
-  const ariaLabel = `Switch to ${nextLabel} (current: ${currentLabel})`;
+        : theme === 'dark'
+          ? 'system mode'
+          : 'light mode';
+    return {
+      Icon: icon,
+      currentLabel: current,
+      nextLabel: next,
+      ariaLabel: `Switch to ${next} (current: ${current})`,
+    };
+  }, [theme]);
 
   return (
     <Button
@@ -75,9 +86,13 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         className
       )}
       aria-label={ariaLabel}
+      aria-pressed={theme === 'dark'}
       title={ariaLabel}
     >
       <Icon className="h-5 w-5 text-muted-foreground transition-transform duration-300 hover:rotate-12" />
     </Button>
   );
 }
+
+export const ThemeToggle = memo(ThemeToggleComponent);
+ThemeToggle.displayName = 'ThemeToggle';

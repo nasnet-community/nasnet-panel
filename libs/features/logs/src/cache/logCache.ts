@@ -33,7 +33,9 @@ const defaultConfig: LogCacheConfig = {
 };
 
 /**
- * Opens the IndexedDB database
+ * @description Opens or creates the IndexedDB database for log caching.
+ * Creates object store and indexes on first initialization.
+ * @returns Promise resolving to the opened IDBDatabase instance
  */
 async function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -69,7 +71,9 @@ export class LogCache {
   }
 
   /**
-   * Initialize the cache (open database)
+   * @description Initialize the log cache by opening the IndexedDB database.
+   * Safe to call multiple times — only opens database if not already initialized.
+   * @returns Promise that resolves when database is ready
    */
   async init(): Promise<void> {
     if (!this.db) {
@@ -78,7 +82,11 @@ export class LogCache {
   }
 
   /**
-   * Store log entries in the cache
+   * @description Store log entries in the cache for a specific router.
+   * Each entry is tagged with routerIp, cachedAt timestamp, and expiresAt time.
+   * @param routerIp - Router IP address to associate with these logs
+   * @param logs - Array of LogEntry objects to cache
+   * @returns Promise that resolves when all logs are stored
    */
   async storeLogs(routerIp: string, logs: LogEntry[]): Promise<void> {
     await this.init();
@@ -107,7 +115,11 @@ export class LogCache {
   }
 
   /**
-   * Retrieve cached logs for a router
+   * @description Retrieve cached logs for a specific router, filtering expired entries.
+   * Results are sorted by timestamp in descending order (newest first).
+   * @param routerIp - Router IP address to retrieve logs for
+   * @param limit - Maximum number of logs to return (default: 100)
+   * @returns Promise resolving to array of valid (non-expired) CachedLogEntry objects
    */
   async getLogs(routerIp: string, limit = 100): Promise<CachedLogEntry[]> {
     await this.init();
@@ -136,7 +148,9 @@ export class LogCache {
   }
 
   /**
-   * Clear expired entries from the cache
+   * @description Remove all expired log entries from the cache based on expiresAt time.
+   * Should be called periodically to free up space and keep cache clean.
+   * @returns Promise resolving to the number of entries deleted
    */
   async cleanupExpired(): Promise<number> {
     await this.init();
@@ -167,7 +181,9 @@ export class LogCache {
   }
 
   /**
-   * Clear all cached logs
+   * @description Delete all cached log entries from the database.
+   * Use with caution — this operation cannot be undone without re-caching logs.
+   * @returns Promise that resolves when cache is completely cleared
    */
   async clearAll(): Promise<void> {
     await this.init();
@@ -184,7 +200,9 @@ export class LogCache {
   }
 
   /**
-   * Get cache statistics
+   * @description Retrieve cache statistics including total entry count and timestamp bounds.
+   * Returns null values if cache is empty.
+   * @returns Promise resolving to statistics object with totalEntries, oldestEntry, newestEntry
    */
   async getStats(): Promise<{
     totalEntries: number;
@@ -240,7 +258,8 @@ export class LogCache {
   }
 
   /**
-   * Close the database connection
+   * @description Close the IndexedDB database connection.
+   * Should be called when the cache is no longer needed to free up resources.
    */
   close(): void {
     if (this.db) {
@@ -254,7 +273,14 @@ export class LogCache {
 let cacheInstance: LogCache | null = null;
 
 /**
- * Get the shared log cache instance
+ * @description Get or create the shared singleton LogCache instance.
+ * Uses lazy initialization pattern — database opens only when needed.
+ * All hooks should use this function rather than creating LogCache directly.
+ * @param config - Optional partial configuration (only used on first instantiation)
+ * @returns The shared LogCache singleton instance
+ * @example
+ * const cache = getLogCache({ ttlDays: 14, maxEntries: 20000 });
+ * const logs = await cache.getLogs('192.168.1.1');
  */
 export function getLogCache(config?: Partial<LogCacheConfig>): LogCache {
   if (!cacheInstance) {

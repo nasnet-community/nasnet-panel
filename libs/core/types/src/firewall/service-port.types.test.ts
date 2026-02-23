@@ -76,7 +76,7 @@ describe('ServicePortDefinitionSchema', () => {
       protocol: 'tcp',
       category: 'custom',
       description: 'My custom application',
-      builtIn: false,
+      isBuiltIn: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -87,7 +87,7 @@ describe('ServicePortDefinitionSchema', () => {
     expect(result.protocol).toBe('tcp');
   });
 
-  it('should default builtIn to false', () => {
+  it('should default isBuiltIn to false', () => {
     const service = {
       port: 9999,
       service: 'test-service',
@@ -96,7 +96,7 @@ describe('ServicePortDefinitionSchema', () => {
     };
 
     const result = ServicePortDefinitionSchema.parse(service);
-    expect(result.builtIn).toBe(false);
+    expect(result.isBuiltIn).toBe(false);
   });
 
   it('should reject invalid port numbers', () => {
@@ -203,7 +203,7 @@ describe('CustomServicePortInputSchema', () => {
     expect(result.service).toBe('my-custom-app');
   });
 
-  it('should not include builtIn or timestamps', () => {
+  it('should not include isBuiltIn or timestamps', () => {
     const input = {
       port: 9999,
       service: 'test',
@@ -211,7 +211,7 @@ describe('CustomServicePortInputSchema', () => {
     };
 
     const result = CustomServicePortInputSchema.parse(input);
-    expect(result).not.toHaveProperty('builtIn');
+    expect(result).not.toHaveProperty('isBuiltIn');
     expect(result).not.toHaveProperty('createdAt');
     expect(result).not.toHaveProperty('updatedAt');
   });
@@ -319,8 +319,8 @@ describe('ServiceGroupInputSchema', () => {
 
 describe('hasBuiltInConflict', () => {
   const builtInServices: ServicePortDefinition[] = [
-    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', builtIn: true },
-    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', builtIn: true },
+    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', isBuiltIn: true },
+    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', isBuiltIn: true },
   ];
 
   it('should detect case-insensitive conflicts with built-in services', () => {
@@ -342,8 +342,8 @@ describe('hasBuiltInConflict', () => {
 
 describe('hasCustomConflict', () => {
   const customServices: ServicePortDefinition[] = [
-    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', builtIn: false },
-    { port: 9000, service: 'custom-service', protocol: 'udp', category: 'custom', builtIn: false },
+    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', isBuiltIn: false },
+    { port: 9000, service: 'custom-service', protocol: 'udp', category: 'custom', isBuiltIn: false },
   ];
 
   it('should detect case-insensitive conflicts with custom services', () => {
@@ -366,12 +366,12 @@ describe('hasCustomConflict', () => {
 
 describe('mergeServices', () => {
   const builtInServices: ServicePortDefinition[] = [
-    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', builtIn: true },
-    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', builtIn: true },
+    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', isBuiltIn: true },
+    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', isBuiltIn: true },
   ];
 
   const customServices: ServicePortDefinition[] = [
-    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', builtIn: false },
+    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', isBuiltIn: false },
   ];
 
   it('should merge built-in and custom services', () => {
@@ -384,17 +384,17 @@ describe('mergeServices', () => {
 
   it('should preserve built-in flag', () => {
     const merged = mergeServices(builtInServices, customServices);
-    expect(merged[0].builtIn).toBe(true);
-    expect(merged[1].builtIn).toBe(true);
-    expect(merged[2].builtIn).toBe(false);
+    expect(merged[0].isBuiltIn).toBe(true);
+    expect(merged[1].isBuiltIn).toBe(true);
+    expect(merged[2].isBuiltIn).toBe(false);
   });
 });
 
 describe('findServiceByPort', () => {
   const services: ServicePortDefinition[] = [
-    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', builtIn: true },
-    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', builtIn: true },
-    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', builtIn: false },
+    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', isBuiltIn: true },
+    { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', isBuiltIn: true },
+    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', isBuiltIn: false },
   ];
 
   it('should find service by port number', () => {
@@ -413,8 +413,8 @@ describe('findServiceByPort', () => {
 
 describe('findServiceByName', () => {
   const services: ServicePortDefinition[] = [
-    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', builtIn: true },
-    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', builtIn: false },
+    { port: 80, service: 'HTTP', protocol: 'tcp', category: 'web', isBuiltIn: true },
+    { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', isBuiltIn: false },
   ];
 
   it('should find service by name (case-insensitive)', () => {

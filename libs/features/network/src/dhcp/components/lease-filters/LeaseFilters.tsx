@@ -13,13 +13,14 @@
 
 import * as React from 'react';
 import { X } from 'lucide-react';
-import { Button } from '@nasnet/ui/primitives';
 import {
+  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { cn } from '@nasnet/ui/utils';
@@ -35,6 +36,11 @@ const LEASE_STATUS_OPTIONS = [
   { value: 'offered', label: 'Offered' },
   { value: 'static', label: 'Static' },
 ] as const;
+
+/**
+ * Max width for filter controls
+ */
+const MAX_FILTER_CONTROLS_WIDTH = 160;
 
 export interface LeaseFiltersProps {
   /**
@@ -172,32 +178,38 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
           {/* Status Filter Badge */}
           {leaseStatusFilter !== 'all' && (
             <div className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-sm">
-              <span className="text-primary">
+              <span className="text-primary font-mono">
                 Status: {LEASE_STATUS_OPTIONS.find(opt => opt.value === leaseStatusFilter)?.label}
               </span>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setLeaseStatusFilter('all')}
-                className="rounded-sm text-primary hover:bg-primary/20 min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="h-6 w-6 p-0 min-h-[32px] min-w-[32px]"
                 aria-label="Remove status filter"
               >
-                <X className="h-3 w-3" />
-              </button>
+                <Icon icon={X} size="sm" />
+              </Button>
             </div>
           )}
 
           {/* Server Filter Badge */}
           {leaseServerFilter !== 'all' && (
             <div className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-sm">
-              <span className="text-primary">
+              <span className="text-primary font-mono">
                 Server: {servers.find(s => s.id === leaseServerFilter)?.name || leaseServerFilter}
               </span>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setLeaseServerFilter('all')}
-                className="rounded-sm text-primary hover:bg-primary/20 min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="h-6 w-6 p-0 min-h-[32px] min-w-[32px]"
                 aria-label="Remove server filter"
               >
-                <X className="h-3 w-3" />
-              </button>
+                <Icon icon={X} size="sm" />
+              </Button>
             </div>
           )}
         </div>

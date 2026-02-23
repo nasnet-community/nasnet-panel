@@ -1,5 +1,8 @@
+import React from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
 import { MoreVertical } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useConnectionStore, useAlertNotificationStore, useUnreadCount, useNotifications } from '@nasnet/state/stores';
 import type { InAppNotification } from '@nasnet/state/stores';
@@ -20,7 +23,8 @@ import { Button } from '@nasnet/ui/primitives';
  * - Real-time connection status display
  * - Theme toggle and settings access
  */
-export function AppHeader() {
+export const AppHeader = React.memo(function AppHeader() {
+  const { t } = useTranslation('common');
   const { state, currentRouterIp } = useConnectionStore();
   const navigate = useNavigate();
 
@@ -56,22 +60,22 @@ export function AppHeader() {
     switch (state) {
       case 'connected':
         return {
-          text: 'Online',
-          dotClass: 'bg-green-500',
-          textClass: 'text-green-500 dark:text-green-400',
+          text: t('header.status.online'),
+          dotClass: 'bg-success',
+          textClass: 'text-success',
         };
       case 'reconnecting':
         return {
-          text: 'Reconnecting',
-          dotClass: 'bg-amber-500 animate-pulse',
-          textClass: 'text-amber-500 dark:text-amber-400',
+          text: t('header.status.reconnecting'),
+          dotClass: 'bg-warning animate-pulse',
+          textClass: 'text-warning',
         };
       case 'disconnected':
       default:
         return {
-          text: 'Offline',
-          dotClass: 'bg-red-500',
-          textClass: 'text-red-500 dark:text-red-400',
+          text: t('header.status.offline'),
+          dotClass: 'bg-error',
+          textClass: 'text-error',
         };
     }
   };
@@ -79,9 +83,9 @@ export function AppHeader() {
   const statusConfig = getStatusConfig();
 
   // Display router IP when connected, otherwise show app name
-  const displayName = currentRouterIp && state === 'connected' 
-    ? currentRouterIp 
-    : 'NasNetConnect';
+  const displayName = currentRouterIp && state === 'connected'
+    ? currentRouterIp
+    : t('app.name');
 
   return (
     <div className="flex h-full items-center justify-between px-4 py-3">
@@ -123,11 +127,12 @@ export function AppHeader() {
           variant="ghost"
           size="icon"
           className="rounded-full min-h-[44px] min-w-[44px]"
-          aria-label="More options"
+          aria-label={t('button.moreOptions')}
         >
           <MoreVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         </Button>
       </div>
     </div>
   );
-}
+});
+AppHeader.displayName = 'AppHeader';

@@ -5,8 +5,11 @@
  * NAS-6.9: Implement Interface Traffic Statistics (Task 9 - Accessibility)
  */
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { InterfaceStats } from '@nasnet/api-client/generated';
+
+/** Maximum announcement frequency (5 seconds) to prevent screen reader spam */
+const DEBOUNCE_ANNOUNCEMENT_MS = 5000;
 
 /**
  * Props for StatsLiveRegion component
@@ -57,6 +60,8 @@ function formatBytesForAnnouncement(bytes: string): string {
  * - Atomic updates (entire message read together)
  * - Screen-reader only (visually hidden)
  *
+ * @description Accessible live region for announcing real-time interface statistics changes to screen reader users
+ *
  * @example
  * ```tsx
  * <StatsLiveRegion
@@ -65,13 +70,12 @@ function formatBytesForAnnouncement(bytes: string): string {
  * />
  * ```
  */
-export function StatsLiveRegion({ stats, interfaceName }: StatsLiveRegionProps) {
+const StatsLiveRegion = React.memo(function StatsLiveRegion({
+  stats,
+  interfaceName,
+}: StatsLiveRegionProps) {
   const lastAnnouncementRef = useRef<number>(0);
   const timeoutRef = useRef<NodeJS.Timeout>();
-
-  // Debounce announcements to prevent spam
-  // Maximum 1 announcement per 5 seconds
-  const DEBOUNCE_MS = 5000;
 
   useEffect(() => {
     if (!stats) return;
@@ -80,7 +84,7 @@ export function StatsLiveRegion({ stats, interfaceName }: StatsLiveRegionProps) 
     const timeSinceLastAnnouncement = now - lastAnnouncementRef.current;
 
     // Skip if we announced recently
-    if (timeSinceLastAnnouncement < DEBOUNCE_MS) {
+    if (timeSinceLastAnnouncement < DEBOUNCE_ANNOUNCEMENT_MS) {
       return;
     }
 
@@ -128,4 +132,8 @@ export function StatsLiveRegion({ stats, interfaceName }: StatsLiveRegionProps) 
       {announcement}
     </div>
   );
-}
+});
+
+StatsLiveRegion.displayName = 'StatsLiveRegion';
+
+export { StatsLiveRegion };

@@ -1,0 +1,78 @@
+{
+  "title": "وای‌فای",
+  "overview": "نمای کلی وای‌فای",
+  "interfaces": {
+    "title": "رابط‌های بی‌سیم",
+    "name": "رابط",
+    "ssid": "SSID",
+    "band": "باند",
+    "channel": "کانال",
+    "frequency": "فرکانس",
+    "width": "عرض کانال",
+    "mode": "حالت",
+    "security": "امنیت",
+    "clients": "کلاینت‌های متصل",
+    "txPower": "توان ارسال",
+    "noiseFloor": "سطح نویز",
+    "signalStrength": "قدرت سیگنال",
+    "enabled": "فعال",
+    "disabled": "غیرفعال",
+    "enable": "فعال‌سازی رابط",
+    "disable": "غیرفعال‌سازی رابط",
+    "noInterfaces": "رابط بی‌سیمی یافت نشد"
+  },
+  "clients": {
+    "title": "کلاینت‌های متصل",
+    "macAddress": "آدرس MAC",
+    "hostname": "نام میزبان",
+    "signal": "سیگنال",
+    "txRate": "نرخ ارسال",
+    "rxRate": "نرخ دریافت",
+    "uptime": "مدت اتصال",
+    "interface": "رابط",
+    "band": "باند",
+    "noClients": "کلاینت بی‌سیم متصلی وجود ندارد"
+  },
+  "security": {
+    "title": "خلاصه امنیت",
+    "level": "سطح امنیت",
+    "high": "امنیت بالا",
+    "medium": "امنیت متوسط",
+    "low": "امنیت پایین",
+    "none": "بدون امنیت",
+    "wpa3": "WPA3",
+    "wpa2": "WPA2",
+    "wpa": "WPA",
+    "wep": "WEP (ناامن)",
+    "open": "باز (بدون رمزنگاری)",
+    "recommendation": "توصیه امنیتی"
+  },
+  "settings": {
+    "title": "تنظیمات وای‌فای",
+    "ssid": "نام شبکه (SSID)",
+    "password": "رمز عبور",
+    "security": "حالت امنیتی",
+    "channel": "کانال",
+    "channelWidth": "عرض کانال",
+    "band": "باند فرکانسی",
+    "txPower": "توان ارسال",
+    "hideSSID": "مخفی‌سازی SSID",
+    "autoChannel": "کانال خودکار",
+    "band2g": "۲.۴ گیگاهرتز",
+    "band5g": "۵ گیگاهرتز",
+    "band6g": "۶ گیگاهرتز"
+  },
+  "status": {
+    "allInterfacesUp": "تمام رابط‌های بی‌سیم عملیاتی",
+    "someInterfacesDown": "{{count}} رابط غیرفعال",
+    "someInterfacesDown_other": "{{count}} رابط غیرفعال",
+    "noInterfacesConfigured": "رابط بی‌سیمی پیکربندی نشده",
+    "totalClients": "کل کلاینت‌ها"
+  },
+  "quickActions": {
+    "toggleInterface": "تغییر وضعیت رابط",
+    "changePassword": "تغییر رمز عبور",
+    "scanChannels": "اسکن کانال‌ها",
+    "viewClients": "مشاهده کلاینت‌ها"
+  }
+}

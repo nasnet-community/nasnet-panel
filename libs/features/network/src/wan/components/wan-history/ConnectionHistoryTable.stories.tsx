@@ -5,9 +5,10 @@
  * large dataset (pagination), and single-event view.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionHistoryTable } from './ConnectionHistoryTable';
+
 import type { ConnectionEventData } from '../../types/wan.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data helpers

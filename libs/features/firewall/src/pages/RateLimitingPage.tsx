@@ -16,14 +16,14 @@
 
 import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRateLimitingUIStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { useRateLimitingUIStore, useConnectionStore } from '@nasnet/state/stores';
 import {
   RateLimitRulesTable,
   RateLimitRuleEditor,
   SynFloodConfigPanel,
   BlockedIPsTable,
   RateLimitStatsOverview,
+  usePlatform,
 } from '@nasnet/ui/patterns';
 import {
   Button,
@@ -45,25 +45,7 @@ import {
   AlertDescription,
 } from '@nasnet/ui/primitives';
 import { Plus, RefreshCw, Download, AlertTriangle, Info } from 'lucide-react';
-
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-function usePlatform() {
-  const [platform, setPlatform] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-
-  // Simple platform detection based on window width
-  // In production, this would use a more robust hook
-  if (typeof window !== 'undefined') {
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  }
-
-  return platform;
-}
+import { cn } from '@nasnet/ui/utils';
 
 // ============================================================================
 // Empty State Component
@@ -74,7 +56,10 @@ interface EmptyStateProps {
   onAddRule: () => void;
 }
 
-function EmptyState({ tab, onAddRule }: EmptyStateProps) {
+/**
+ * @description Empty state shown when no rules or data exist
+ */
+const EmptyState = memo(function EmptyState({ tab, onAddRule }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   if (tab === 'rate-limits') {
@@ -88,7 +73,7 @@ function EmptyState({ tab, onAddRule }: EmptyStateProps) {
         </CardHeader>
         <CardContent className="flex justify-center">
           <Button onClick={onAddRule} aria-label="Add rate limit rule" className="min-h-[44px]">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             {t('rateLimiting.buttons.addRateLimit')}
           </Button>
         </CardContent>
@@ -110,7 +95,7 @@ function EmptyState({ tab, onAddRule }: EmptyStateProps) {
   }
 
   return null;
-}
+});
 
 // ============================================================================
 // Main Component
@@ -120,7 +105,9 @@ function EmptyState({ tab, onAddRule }: EmptyStateProps) {
  * RateLimitingPage Component
  *
  * Main page for rate limiting management with 3-tab layout.
+ * Includes rate limit rules, SYN flood protection, and blocked IP statistics.
  *
+ * @description Rate limiting and DDoS protection configuration
  * @returns Rate limiting page component
  */
 export const RateLimitingPage = memo(function RateLimitingPage() {
@@ -187,7 +174,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
           <div className="flex gap-2">
             {selectedTab === 'rate-limits' && (
               <Button onClick={handleAddRule} aria-label="Add new rate limit rule" className="min-h-[44px]">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                 {t('rateLimiting.buttons.addRateLimit')}
               </Button>
             )}
@@ -202,12 +189,13 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
                   className="min-h-[44px]"
                 >
                   <RefreshCw
-                    className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`}
+                    className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
+                    aria-hidden="true"
                   />
                   {t('rateLimiting.statistics.refresh')}
                 </Button>
                 <Button variant="outline" onClick={handleExportCSV} aria-label="Export statistics as CSV" className="min-h-[44px]">
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-2" aria-hidden="true" />
                   {t('rateLimiting.statistics.exportCSV')}
                 </Button>
                 {hasBlockedIPs && (
@@ -256,7 +244,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
             <TabsContent value="syn-flood" className="p-4 m-0 space-y-4">
               {/* Info Alert */}
               <Alert>
-                <Info className="h-4 w-4" />
+                <Info className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
                   {t('rateLimiting.synFlood.description')}
                 </AlertDescription>
@@ -264,7 +252,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
 
               {/* Warning Alert */}
               <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
                   {t('rateLimiting.synFlood.warning')}
                 </AlertDescription>

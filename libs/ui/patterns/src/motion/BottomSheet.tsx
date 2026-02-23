@@ -5,7 +5,7 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import {
+import React, {
   type ReactNode,
   useCallback,
   useRef,
@@ -256,7 +256,7 @@ export interface BottomSheetHeaderProps {
  *
  * Header section for BottomSheet with standard styling.
  */
-export function BottomSheetHeader({
+export const BottomSheetHeader = React.memo(function BottomSheetHeader({
   children,
   className,
 }: BottomSheetHeaderProps) {
@@ -271,7 +271,9 @@ export function BottomSheetHeader({
       {children}
     </div>
   );
-}
+});
+
+BottomSheetHeader.displayName = 'BottomSheetHeader';
 
 // ============================================================================
 // BottomSheetContent Component
@@ -287,12 +289,14 @@ export interface BottomSheetContentProps {
  *
  * Content section for BottomSheet with standard padding.
  */
-export function BottomSheetContent({
+export const BottomSheetContent = React.memo(function BottomSheetContent({
   children,
   className,
 }: BottomSheetContentProps) {
   return <div className={cn('p-4', className)}>{children}</div>;
-}
+});
+
+BottomSheetContent.displayName = 'BottomSheetContent';
 
 // ============================================================================
 // BottomSheetFooter Component
@@ -308,7 +312,7 @@ export interface BottomSheetFooterProps {
  *
  * Footer section for BottomSheet, typically for actions.
  */
-export function BottomSheetFooter({
+export const BottomSheetFooter = React.memo(function BottomSheetFooter({
   children,
   className,
 }: BottomSheetFooterProps) {
@@ -323,7 +327,9 @@ export function BottomSheetFooter({
       {children}
     </div>
   );
-}
+});
+
+BottomSheetFooter.displayName = 'BottomSheetFooter';
 
 // ============================================================================
 // useBottomSheet Hook

@@ -6,8 +6,9 @@
  * Sheet used for creating and editing sequences.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { PortKnockingPage } from './PortKnockingPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Meta

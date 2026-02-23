@@ -7,7 +7,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 3
  */
 
-
+import React from 'react';
 import {
   DndContext,
   closestCenter,
@@ -53,7 +53,8 @@ import {
   TableRow,
   Badge,
   Card,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { PortKnockVisualizer } from '../port-knock-visualizer';
 
@@ -175,7 +176,7 @@ function SortableRow({
 // Main Component
 // ============================================================================
 
-export function PortKnockSequenceFormDesktop({
+function PortKnockSequenceFormDesktopComponent({
   formState,
   isEditMode = false,
   isSubmitting = false,
@@ -432,4 +433,5 @@ export function PortKnockSequenceFormDesktop({
   );
 }
 
+export const PortKnockSequenceFormDesktop = React.memo(PortKnockSequenceFormDesktopComponent);
 PortKnockSequenceFormDesktop.displayName = 'PortKnockSequenceFormDesktop';

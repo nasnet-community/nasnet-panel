@@ -4,9 +4,9 @@
  * Follows card-based UI pattern from UX design specification
  */
 
-import { forwardRef } from 'react';
-import { Card, CardContent, CardHeader, cn } from '@nasnet/ui/primitives';
+import * as React from 'react';
 import { Wifi, Radio, Signal } from 'lucide-react';
+import { Card, CardContent, CardHeader, cn, Icon } from '@nasnet/ui/primitives';
 import type { WirelessInterface } from '@nasnet/core/types';
 import { InterfaceToggle } from './InterfaceToggle';
 
@@ -28,6 +28,8 @@ export interface WirelessInterfaceCardProps {
  * - Frequency band badge (2.4GHz, 5GHz, 6GHz)
  * - Connected client count
  *
+ * @description Responsive card displaying wireless interface status and key metrics
+ *
  * @example
  * ```tsx
  * <WirelessInterfaceCard
@@ -36,19 +38,41 @@ export interface WirelessInterfaceCardProps {
  * />
  * ```
  */
-export const WirelessInterfaceCard = forwardRef<
-  HTMLDivElement,
-  WirelessInterfaceCardProps
->(({ interface: iface, onClick, className }, ref) => {
-  // Determine band badge color
-  const bandColor =
-    iface.band === '2.4GHz'
+function WirelessInterfaceCardComponent(
+  { interface: iface, onClick, className }: WirelessInterfaceCardProps,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
+  // Determine band badge color using semantic tokens
+  const bandColor = React.useMemo(() => {
+    return iface.band === '2.4GHz'
       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
       : iface.band === '5GHz'
         ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300'
         : iface.band === '6GHz'
           ? 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300'
           : 'bg-muted text-muted-foreground';
+  }, [iface.band]);
+
+  // Memoize click handler
+  const handleClick = React.useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
+  // Memoize keyboard handler
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick?.();
+      }
+    },
+    [onClick]
+  );
+
+  // Memoize stop propagation handler
+  const handleToggleClick = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
     <Card
@@ -60,20 +84,15 @@ export const WirelessInterfaceCard = forwardRef<
         'rounded-2xl md:rounded-3xl cursor-pointer hover:shadow-lg transition-shadow focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className
       )}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           {/* Interface name and icon */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-muted">
-              <Wifi className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+              <Icon icon={Wifi} className="text-muted-foreground" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
@@ -88,7 +107,7 @@ export const WirelessInterfaceCard = forwardRef<
           {/* Interface Toggle */}
           <InterfaceToggle
             interface={iface}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleToggleClick}
           />
         </div>
       </CardHeader>
@@ -98,7 +117,7 @@ export const WirelessInterfaceCard = forwardRef<
         <div className="flex items-center gap-4">
           {/* Band badge */}
           <div className="flex items-center gap-1.5">
-            <Radio className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Icon icon={Radio} size="sm" className="text-muted-foreground" aria-hidden="true" />
             <span className={cn('px-2 py-0.5 rounded-md text-xs font-medium', bandColor)}>
               {iface.band}
             </span>
@@ -106,7 +125,7 @@ export const WirelessInterfaceCard = forwardRef<
 
           {/* Client count */}
           <div className="flex items-center gap-1.5">
-            <Signal className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Icon icon={Signal} size="sm" className="text-muted-foreground" aria-hidden="true" />
             <span className="text-sm text-muted-foreground">
               {iface.connectedClients} {iface.connectedClients === 1 ? 'client' : 'clients'}
             </span>
@@ -122,6 +141,9 @@ export const WirelessInterfaceCard = forwardRef<
       </CardContent>
     </Card>
   );
-});
+}
 
+export const WirelessInterfaceCard = React.memo(
+  React.forwardRef(WirelessInterfaceCardComponent)
+);
 WirelessInterfaceCard.displayName = 'WirelessInterfaceCard';

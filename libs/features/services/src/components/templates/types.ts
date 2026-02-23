@@ -2,6 +2,18 @@
  * Templates Component Types
  *
  * TypeScript interfaces for template browsing and management components.
+ * Defines types for the TemplatesBrowser, TemplateFilters, and TemplateInstallWizard
+ * components that enable discovery, configuration, and installation of service templates.
+ *
+ * Template categories use semantic category accent tokens from DESIGN_TOKENS.md:
+ * - 'privacy' uses Green
+ * - 'proxy' uses Blue
+ * - 'dns' uses Pink
+ * - 'monitoring' uses Purple
+ * - Custom categories mapped to available accent colors
+ *
+ * @see {@link DESIGN_TOKENS.md} for category accent color definitions
+ * @see {@link 6-component-library.md} for TemplatesBrowser pattern documentation
  */
 
 import type { ServiceTemplate, ServiceTemplateCategory, TemplateScope, TemplateInstallProgress } from '@nasnet/api-client/generated';
@@ -14,33 +26,63 @@ export type TemplateSortBy = 'name' | 'updated' | 'category' | 'services';
 
 /**
  * Template browser filters
+ *
+ * Defines all available filter/sort options for the TemplatesBrowser pattern component.
+ * Used with TemplateFilters pattern to allow users to discover templates matching their needs.
+ *
+ * @example
+ * ```tsx
+ * const [filters, setFilters] = useState<TemplateBrowserFilters>(DEFAULT_FILTERS);
+ * <TemplateFilters filters={filters} onFiltersChange={setFilters} hasActiveFilters={...} />
+ * ```
  */
 export interface TemplateBrowserFilters {
-  /** Text search query */
+  /** Text search query - searches template name, description, and tags */
   searchQuery: string;
-  /** Filter by category */
+  /** Filter by category - use null to show all categories */
   category: ServiceTemplateCategory | null;
-  /** Filter by scope */
+  /** Filter by scope - global, per-device, or per-vlan */
   scope: TemplateScope | null;
-  /** Show built-in templates */
+  /** Include built-in templates from NasNetConnect marketplace */
   showBuiltIn: boolean;
-  /** Show custom templates */
+  /** Include custom templates created by user/organization */
   showCustom: boolean;
-  /** Sort order */
+  /** Sort order by name, updated date, category, or service count */
   sortBy: TemplateSortBy;
 }
 
 /**
  * Template browser props
+ *
+ * Props for the TemplatesBrowser pattern component - a browsable catalog of service templates
+ * with filtering, sorting, and installation capabilities.
+ *
+ * When user selects a template:
+ * - For installation: trigger onInstall callback → open TemplateInstallWizard
+ * - For details: trigger onViewDetails callback → show DetailPanel with changelog, reviews, etc.
+ *
+ * @example
+ * ```tsx
+ * <TemplatesBrowser
+ *   routerId={routerId}
+ *   onInstall={(template) => {
+ *     setSelectedTemplate(template);
+ *     setWizardOpen(true);
+ *   }}
+ *   onViewDetails={(template) => {
+ *     setDetailTemplate(template);
+ *   }}
+ * />
+ * ```
  */
 export interface TemplatesBrowserProps {
-  /** Router ID */
+  /** Router ID - used to filter templates by capability/compatibility */
   routerId: string;
-  /** Callback when template is selected for installation */
+  /** Callback when "Install" is clicked on a template */
   onInstall?: (template: ServiceTemplate) => void;
-  /** Callback when template is selected for viewing details */
+  /** Callback when "View Details" is clicked on a template */
   onViewDetails?: (template: ServiceTemplate) => void;
-  /** Additional CSS classes */
+  /** Optional CSS classes for styling/layout (uses cn() utility) */
   className?: string;
 }
 

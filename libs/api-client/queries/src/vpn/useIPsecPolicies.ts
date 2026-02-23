@@ -34,7 +34,7 @@ interface IPsecPolicyRaw {
  */
 function transformIPsecPolicy(raw: IPsecPolicyRaw): IPsecPolicy {
   const ipsecProtocols = raw['ipsec-protocols']?.split(',').map(p => p.trim()) || ['esp'];
-  
+
   return {
     id: raw['.id'],
     peer: raw.peer,
@@ -46,10 +46,10 @@ function transformIPsecPolicy(raw: IPsecPolicyRaw): IPsecPolicy {
     action: (raw.action as IPsecPolicy['action']) || 'encrypt',
     level: (raw.level as IPsecPolicy['level']) || 'require',
     ipsecProtocols: ipsecProtocols as IPsecPolicy['ipsecProtocols'],
-    tunnel: raw.tunnel === 'yes',
+    isTunnel: raw.tunnel === 'yes',
     proposal: raw.proposal,
-    disabled: raw.disabled === 'true',
-    active: raw.active === 'yes',
+    isDisabled: raw.disabled === 'true',
+    isActive: raw.active === 'yes',
     comment: raw.comment,
   };
 }

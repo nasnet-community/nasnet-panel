@@ -5,13 +5,13 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InterfaceSelector, FormSection, FieldHelp } from '@nasnet/ui/patterns';
+import type { UseStepperReturn, RouterInterface } from '@nasnet/ui/patterns';
 import { Label, Input } from '@nasnet/ui/primitives';
-import type { UseStepperReturn } from '@nasnet/ui/patterns';
-import type { RouterInterface } from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
 import {
   pppoeInterfaceStepSchema,
   type PppoeInterfaceStepFormValues,
@@ -21,11 +21,13 @@ import { Network } from 'lucide-react';
 interface PppoeInterfaceStepProps {
   routerId: string;
   stepper: UseStepperReturn;
+  className?: string;
 }
 
-export function PppoeInterfaceStep({
+export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
   routerId,
   stepper,
+  className,
 }: PppoeInterfaceStepProps) {
   const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
     null
@@ -39,8 +41,10 @@ export function PppoeInterfaceStep({
     },
   });
 
-  // Handle interface selection
-  const handleInterfaceSelect = (value: string | string[]) => {
+  /**
+   * Handle interface selection
+   */
+  const handleInterfaceSelect = useCallback((value: string | string[]) => {
     const selectedId = Array.isArray(value) ? value[0] : value;
     // In a real implementation, we'd fetch the interface details by ID
     // For now, we just store the ID
@@ -48,7 +52,7 @@ export function PppoeInterfaceStep({
       shouldValidate: true,
       shouldDirty: true,
     });
-  };
+  }, [form]);
 
   // Auto-save form data to stepper
   useEffect(() => {
@@ -59,7 +63,7 @@ export function PppoeInterfaceStep({
   }, [form, stepper]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="PPPoE Interface Configuration"
         description="Select the physical interface and provide a name for the PPPoE connection"
@@ -69,7 +73,7 @@ export function PppoeInterfaceStep({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="pppoe-name">
-                <Network className="inline h-4 w-4 mr-1" />
+                <Network className="inline h-4 w-4 mr-1" aria-hidden="true" />
                 PPPoE Interface Name
               </Label>
               <FieldHelp field="name" />
@@ -80,9 +84,10 @@ export function PppoeInterfaceStep({
               placeholder="pppoe-wan"
               {...form.register('name')}
               aria-describedby="name-error name-help"
+              className="font-mono text-sm"
             />
             {form.formState.errors.name && (
-              <p id="name-error" className="text-sm text-error mt-1" role="alert">
+              <p id="name-error" className="text-sm text-destructive mt-1" role="alert">
                 {form.formState.errors.name.message}
               </p>
             )}
@@ -95,7 +100,7 @@ export function PppoeInterfaceStep({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="interface-selector">Physical Interface</Label>
-              <FieldHelp field="interface" />
+              <FieldHelp field="interface" aria-label="Help about physical interface selection" />
             </div>
             <InterfaceSelector
               id="interface-selector"
@@ -106,7 +111,7 @@ export function PppoeInterfaceStep({
             />
             {form.formState.errors.interface && (
               <p
-                className="text-sm text-error mt-1"
+                className="text-sm text-destructive mt-1"
                 role="alert"
                 id="interface-error"
               >
@@ -124,7 +129,7 @@ export function PppoeInterfaceStep({
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Name:</span>
-                  <span className="ml-2 font-mono">
+                  <span className="ml-2 font-mono text-xs">
                     {selectedInterface.name}
                   </span>
                 </div>
@@ -135,7 +140,7 @@ export function PppoeInterfaceStep({
                 {selectedInterface.mac && (
                   <div className="col-span-2">
                     <span className="text-muted-foreground">MAC:</span>
-                    <span className="ml-2 font-mono">
+                    <span className="ml-2 font-mono text-xs">
                       {selectedInterface.mac}
                     </span>
                   </div>
@@ -143,7 +148,7 @@ export function PppoeInterfaceStep({
               </div>
               <p className="text-xs text-muted-foreground pt-2 border-t">
                 <strong>Note:</strong> PPPoE will create a virtual interface named{' '}
-                <code className="bg-muted px-1 py-0.5 rounded">
+                <code className="bg-muted px-1 py-0.5 rounded font-mono text-xs">
                   {form.watch('name')}
                 </code>{' '}
                 bound to this physical interface.
@@ -154,4 +159,6 @@ export function PppoeInterfaceStep({
       </FormSection>
     </div>
   );
-}
+});
+
+PppoeInterfaceStep.displayName = 'PppoeInterfaceStep';

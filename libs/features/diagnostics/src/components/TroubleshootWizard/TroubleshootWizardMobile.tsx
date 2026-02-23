@@ -1,9 +1,7 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizardMobile.tsx
+import { memo, useState, useCallback } from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { Button } from '@nasnet/ui/primitives';
-import { Card } from '@nasnet/ui/primitives';
-import { Progress } from '@nasnet/ui/primitives';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
+import { Button, Card, Progress, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
 import { VStepper } from '@nasnet/ui/patterns';
 import { useTroubleshootWizard } from '../../hooks/useTroubleshootWizard';
 import { DiagnosticStep } from './DiagnosticStep';
@@ -12,15 +10,30 @@ import { WizardSummary } from './WizardSummary';
 import { StepAnnouncer } from './StepAnnouncer';
 import { TroubleshootWizardSkeletonMobile } from './TroubleshootWizardSkeleton';
 import type { ISPInfo } from '../../types/troubleshoot.types';
-import { memo, useState } from 'react';
 
+/**
+ * Props for TroubleshootWizardMobile presenter
+ */
 interface TroubleshootWizardMobileProps {
+  /** Router UUID to run diagnostics against */
   routerId: string;
+  /** Auto-start wizard on mount (default: false) */
   autoStart?: boolean;
+  /** Callback when wizard is closed/cancelled */
   onClose?: () => void;
+  /** ISP information for contact suggestions */
   ispInfo?: ISPInfo;
 }
 
+/**
+ * Mobile presenter for No Internet Troubleshooting Wizard (<640px)
+ *
+ * Displays touch-optimized wizard with 44px+ touch targets,
+ * vertical step list, bottom sheet for fix details, and
+ * progress bar for mobile context.
+ *
+ * @see TroubleshootWizard for responsive wrapper
+ */
 export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
   routerId,
   autoStart = false,
@@ -41,13 +54,37 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
     },
   });
 
-  // Show loading skeleton while initializing
+  // Memoize sheet open/close handlers
+  const handleOpenFixSheet = useCallback(() => {
+    setShowFixSheet(true);
+  }, []);
+
+  const handleCloseFixSheet = useCallback(() => {
+    setShowFixSheet(false);
+  }, []);
+
+  const handleFixApply = useCallback(() => {
+    wizard.applyFix();
+    setShowFixSheet(false);
+  }, [wizard]);
+
+  const handleFixSkip = useCallback(() => {
+    wizard.skipFix();
+    setShowFixSheet(false);
+  }, [wizard]);
+
+  const handleCompletionClose = useCallback(() => {
+    wizard.restart();
+    onClose?.();
+  }, [wizard, onClose]);
+
   if (wizard.isInitializing) {
     return <TroubleshootWizardSkeletonMobile />;
   }
 
   // Show summary when completed
   if (wizard.isCompleted) {
+
     return (
       <div className="p-4">
         <WizardSummary
@@ -67,10 +104,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
           }}
           steps={wizard.steps}
           onRestart={wizard.restart}
-          onClose={() => {
-            wizard.restart();
-            onClose?.();
-          }}
+          onClose={handleCompletionClose}
         />
         <StepAnnouncer
           currentStep={wizard.currentStep}
@@ -167,7 +201,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
       {/* Fix Action Buttons (Fixed Bottom) */}
       {wizard.isAwaitingFixDecision && wizard.currentStep.fix && !showFixSheet && (
-        <div className="p-4 border-t bg-background sticky bottom-0">
+        <div className="p-4 border-t bg-background sticky bottom-0 z-20">
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -179,7 +213,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             </Button>
             {wizard.currentStep.fix.isManualFix ? (
               <Button
-                onClick={() => setShowFixSheet(true)}
+                onClick={handleOpenFixSheet}
                 variant="secondary"
                 className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="View manual fix steps"
@@ -188,7 +222,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
               </Button>
             ) : (
               <Button
-                onClick={() => setShowFixSheet(true)}
+                onClick={handleOpenFixSheet}
                 className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="View automatic fix details"
               >
@@ -200,7 +234,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
       )}
 
       {/* Fix Details Sheet */}
-      <Sheet open={showFixSheet} onOpenChange={setShowFixSheet}>
+      <Sheet open={showFixSheet} onOpenChange={handleCloseFixSheet}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{wizard.currentStep.fix?.title}</SheetTitle>
@@ -210,14 +244,8 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
               <FixSuggestion
                 fix={wizard.currentStep.fix}
                 status={wizard.isApplyingFix ? 'applying' : 'idle'}
-                onApply={() => {
-                  wizard.applyFix();
-                  setShowFixSheet(false);
-                }}
-                onSkip={() => {
-                  wizard.skipFix();
-                  setShowFixSheet(false);
-                }}
+                onApply={handleFixApply}
+                onSkip={handleFixSkip}
                 showCommandPreview={false}
                 ispInfo={ispInfo}
               />
@@ -238,3 +266,5 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
     </div>
   );
 });
+
+TroubleshootWizardMobile.displayName = 'TroubleshootWizardMobile';

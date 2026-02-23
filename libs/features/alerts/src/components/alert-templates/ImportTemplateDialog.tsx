@@ -2,10 +2,11 @@
  * ImportTemplateDialog Component
  * NAS-18.12: Alert Rule Templates Feature
  *
- * Dialog for importing alert rule templates from JSON files.
+ * @description Dialog for importing alert rule templates from JSON files.
  * Supports file upload or JSON paste with validation.
  */
 
+import * as React from 'react';
 import { useState, useCallback } from 'react';
 import {
   Dialog,
@@ -28,14 +29,17 @@ import { alertRuleTemplateImportSchema } from '../../schemas/alert-rule-template
 // Props Interface
 // =============================================================================
 
+/**
+ * Props for ImportTemplateDialog component
+ */
 export interface ImportTemplateDialogProps {
-  /** Whether the dialog is open */
+  /** @description Whether the dialog is open */
   open: boolean;
 
-  /** Callback when dialog is closed */
-  onOpenChange: (open: boolean) => void;
+  /** @description Callback when dialog is closed */
+  onOpenChange: (isOpen: boolean) => void;
 
-  /** Callback when template is successfully imported */
+  /** @description Callback when template is successfully imported */
   onTemplateImported?: (templateId: string) => void;
 }
 
@@ -46,29 +50,14 @@ export interface ImportTemplateDialogProps {
 /**
  * ImportTemplateDialog - Import alert rule template from JSON
  *
- * Features:
- * - File upload (.json files)
- * - JSON paste into textarea
- * - Client-side validation with Zod schema
- * - Server-side validation via GraphQL mutation
- * - Error display with specific field errors
- * - Success feedback with toast notification
+ * @description Dialog for importing alert rule templates with file upload
+ * or JSON paste, including client and server-side validation.
  *
- * Workflow:
- * 1. User opens dialog
- * 2. User uploads .json file OR pastes JSON
- * 3. Client validates JSON structure
- * 4. Server validates template data
- * 5. Template is imported and appears in browser
- *
- * Validation:
- * - JSON must be valid
- * - Must match AlertRuleTemplate schema
- * - Event type must exist
- * - Conditions must be valid
- * - Variables must be properly defined
+ * @param props - Component props
+ * @returns React component
  */
-export function ImportTemplateDialog(props: ImportTemplateDialogProps) {
+export const ImportTemplateDialog = React.memo(
+  function ImportTemplateDialog(props: ImportTemplateDialogProps) {
   const { open, onOpenChange, onTemplateImported } = props;
 
   const { toast } = useToast();
@@ -76,7 +65,7 @@ export function ImportTemplateDialog(props: ImportTemplateDialogProps) {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Import template mutation
-  const [importTemplate, { loading }] = useImportAlertRuleTemplate({
+  const [importTemplate, { loading: isImporting }] = useImportAlertRuleTemplate({
     onCompleted: (result) => {
       if (result.importAlertRuleTemplate.template) {
         toast({
@@ -220,8 +209,13 @@ export function ImportTemplateDialog(props: ImportTemplateDialogProps) {
   "variables": [...]
 }`}
               rows={12}
-              className="font-mono text-sm"
+              className="font-mono text-sm text-mono"
+              aria-label="JSON template input"
+              aria-describedby="json-input-description"
             />
+            <p id="json-input-description" className="text-xs text-muted-foreground">
+              Paste the JSON content of your alert template
+            </p>
           </div>
 
           {/* Validation Error */}
@@ -233,14 +227,17 @@ export function ImportTemplateDialog(props: ImportTemplateDialogProps) {
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isImporting}>
             Cancel
           </Button>
-          <Button onClick={handleImport} disabled={loading || !jsonInput.trim()}>
-            {loading ? 'Importing...' : 'Import Template'}
+          <Button onClick={handleImport} disabled={isImporting || !jsonInput.trim()}>
+            {isImporting ? 'Importing...' : 'Import Template'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+  }
+);
+
+ImportTemplateDialog.displayName = 'ImportTemplateDialog';

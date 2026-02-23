@@ -4,6 +4,7 @@
  * Desktop layout for VLAN configuration form with data table density.
  */
 
+import { memo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import {
   Input,
@@ -19,28 +20,33 @@ import {
   Alert,
   AlertDescription,
 } from '@nasnet/ui/primitives';
-import { InterfaceSelector } from '@nasnet/ui/patterns';
+import { InterfaceSelector, Icon } from '@nasnet/ui/patterns';
 import { AlertTriangle, Info, Loader2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import type { VlanFormValues } from '../../schemas';
 
+/**
+ * VlanFormDesktop Props
+ * @interface VlanFormDesktopProps
+ */
 export interface VlanFormDesktopProps {
   form: UseFormReturn<VlanFormValues>;
   routerId: string;
   onSubmit: () => void;
   onCancel: () => void;
-  loading: boolean;
+  isLoading: boolean;
   mode: 'create' | 'edit';
   warnings: string[];
   checkingDuplicate: boolean;
   isDuplicateVlanId: boolean;
 }
 
-export function VlanFormDesktop({
+function VlanFormDesktopContent({
   form,
   routerId,
   onSubmit,
   onCancel,
-  loading,
+  isLoading,
   mode,
   warnings,
   checkingDuplicate,
@@ -100,13 +106,14 @@ export function VlanFormDesktop({
                 min={1}
                 max={4094}
                 placeholder="10"
+                className="font-mono"
                 {...register('vlanId', { valueAsNumber: true })}
                 aria-invalid={errors.vlanId ? 'true' : 'false'}
                 aria-describedby={errors.vlanId ? 'vlanId-error' : undefined}
               />
               {checkingDuplicate && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
                 </div>
               )}
             </div>
@@ -158,6 +165,7 @@ export function VlanFormDesktop({
               min={68}
               max={65535}
               placeholder="1500 (default from parent)"
+              className="font-mono"
               {...register('mtu', {
                 valueAsNumber: true,
                 setValueAs: (v) => (v === '' || isNaN(v) ? null : v),
@@ -216,8 +224,8 @@ export function VlanFormDesktop({
 
           {/* Warnings */}
           {warnings.length > 0 && (
-            <Alert variant="warning">
-              <AlertTriangle className="h-4 w-4" />
+            <Alert variant="warning" role="alert" aria-live="polite">
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
               <AlertDescription>
                 <ul className="list-disc list-inside space-y-1">
                   {warnings.map((warning, index) => (
@@ -230,8 +238,8 @@ export function VlanFormDesktop({
 
           {/* Info about VLAN creation */}
           {mode === 'create' && (
-            <Alert>
-              <Info className="h-4 w-4" />
+            <Alert role="status" aria-live="polite">
+              <Info className="h-4 w-4" aria-hidden="true" />
               <AlertDescription>
                 Creating a VLAN interface adds an 802.1Q VLAN tag to traffic on
                 the parent interface. Configure bridge ports or switch settings
@@ -242,14 +250,14 @@ export function VlanFormDesktop({
         </CardContent>
 
         <CardFooter className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={loading || isDuplicateVlanId || checkingDuplicate}
+            disabled={isLoading || isDuplicateVlanId || checkingDuplicate}
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
             {mode === 'create' ? 'Create VLAN' : 'Save Changes'}
           </Button>
         </CardFooter>
@@ -257,3 +265,6 @@ export function VlanFormDesktop({
     </Card>
   );
 }
+
+export const VlanFormDesktop = memo(VlanFormDesktopContent);
+VlanFormDesktop.displayName = 'VlanFormDesktop';

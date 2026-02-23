@@ -3,6 +3,7 @@
  * TanStack Query hooks for all API endpoints
  */
 
+// Re-export from domain modules (non-service related)
 export * from './alerts';
 export * from './router';
 export * from './wireless';
@@ -14,6 +15,7 @@ export * from './system';
 export * from './discovery';
 export * from './batch';
 export * from './resources';
+
 // Re-export change-set but hide conflicting names (MutationResult, SubscriptionResult)
 export {
   useChangeSet,
@@ -51,10 +53,500 @@ export type {
   UseChangeSetStatusOptions,
   UseChangeSetSubscriptionsOptions,
 } from './change-set';
+
+// Re-export from remaining domains
 export * from './diagnostics';
 export * from './network';
-export * from './services';
 export * from './notifications';
 export * from './storage';
 export * from './oui';
 export * from './wan';
+
+// Import services exports directly from submodules to avoid barrel re-export cycles
+// Re-export query hooks
+export { useAvailableServices } from './services/useAvailableServices';
+export type { AvailableService } from './services/useAvailableServices';
+
+export { useServiceInstances, useServiceInstance } from './services/useServiceInstances';
+export type { ServiceInstance, ServiceStatus } from './services/useServiceInstances';
+
+export { useInstallService } from './services/useInstallService';
+export type {
+  InstallServiceInput,
+  InstallServiceVariables,
+} from './services/useInstallService';
+
+export { useInstanceMutations } from './services/useInstanceMutations';
+
+export {
+  useFeatureVerification,
+  useInstanceVerificationStatus,
+} from './services/useFeatureVerification';
+export type {
+  GetFeatureVerificationVariables,
+  GetFeatureVerificationResult,
+  GetInstanceVerificationStatusVariables,
+  GetInstanceVerificationStatusResult,
+} from './services/useFeatureVerification';
+
+export { useReverifyFeature } from './services/useReverifyFeature';
+export type {
+  ReverifyInstanceVariables,
+  ReverifyInstanceResult,
+} from './services/useReverifyFeature';
+
+export {
+  useInstallProgress,
+  useInstallProgress as useInstallProgressSubscription,
+  useInstanceStatusChanged,
+  useInstanceMonitoring,
+} from './services/useInstanceSubscriptions';
+export type {
+  InstallProgress,
+  InstanceStatusChanged,
+} from './services/useInstanceSubscriptions';
+
+export {
+  useVirtualInterfaces,
+  useVirtualInterface,
+} from './services/useVirtualInterfaces';
+export type {
+  VirtualInterface,
+  GatewayType,
+  GatewayStatus,
+  VirtualInterfaceStatus,
+} from './services/useVirtualInterfaces';
+
+export { useBridgeStatus } from './services/useBridgeStatus';
+export type { BridgeStatus } from './services/useBridgeStatus';
+
+export {
+  useInstanceIsolation,
+} from './services/useInstanceIsolation';
+export type {
+  GetInstanceIsolationVariables,
+  GetInstanceIsolationResult,
+} from './services/useInstanceIsolation';
+
+export { useGatewayStatus, formatUptime } from './services/useGatewayStatus';
+export { GatewayState } from './services/useGatewayStatus';
+export type { GatewayInfo, UseGatewayStatusOptions } from './services/useGatewayStatus';
+
+export { useInstanceHealth } from './services/useInstanceHealth';
+export { useInstanceHealthSubscription } from './services/useInstanceHealthSubscription';
+export { useConfigureHealthCheck, validateHealthCheckConfig } from './services/useConfigureHealthCheck';
+
+export {
+  usePortAllocations,
+  useCheckPortAvailability,
+  useOrphanedPorts,
+} from './services/usePortRegistry';
+export type {
+  PortAllocationFilters,
+  PortAllocationSort,
+  UsePortAllocationsReturn,
+} from './services/usePortRegistry';
+
+export {
+  useDependencies,
+  useDependents,
+  useDependencyGraph,
+} from './services/useDependencies';
+export type {
+  DependencyType,
+  ServiceDependency,
+  ServiceInstanceRef,
+  DependencyGraph,
+  DependencyGraphNode,
+  DependencyGraphEdge,
+} from './services/useDependencies';
+
+export { useDependencyMutations } from './services/useDependencyMutations';
+export type {
+  AddDependencyInput,
+  RemoveDependencyInput,
+} from './services/useDependencyMutations';
+
+export { useBootSequenceProgress } from './services/useBootSequenceProgress';
+export type {
+  BootSequenceProgress,
+  BootSequenceEvent,
+  BootSequenceEventType,
+} from './services/useBootSequenceProgress';
+
+export { useVLANAllocations } from './services/useVLANAllocations';
+export type {
+  VLANAllocation,
+  VLANAllocationStatus,
+  ServiceInstanceRef as VLANServiceInstanceRef,
+  RouterRef as VLANRouterRef,
+} from './services/useVLANAllocations';
+
+export { useVLANPoolStatus } from './services/useVLANPoolStatus';
+export type { VLANPoolStatus } from './services/useVLANPoolStatus';
+
+export { useCleanupOrphanedVLANs } from './services/useCleanupOrphanedVLANs';
+
+export { useUpdateVLANPoolConfig } from './services/useUpdateVLANPoolConfig';
+export type { UpdateVLANPoolConfigInput } from './services/useUpdateVLANPoolConfig';
+
+export {
+  useSystemResources,
+  useSetResourceLimits,
+  useResourceUsageSubscription,
+} from './services/useSystemResources';
+export type {
+  SystemResources,
+  InstanceResourceUsage,
+  ResourceUsage,
+  ResourceLimits,
+  ResourceRequirements,
+  ResourceStatus,
+  SetResourceLimitsInput,
+  ResourceLimitsPayload,
+  GetSystemResourcesVariables,
+  GetSystemResourcesResult,
+  SetResourceLimitsVariables,
+  SetResourceLimitsResult,
+  ResourceUsageChangedVariables,
+  ResourceUsageChangedResult,
+} from './services/useSystemResources';
+
+export {
+  useDeviceRoutingMatrix,
+  useDeviceRoutings,
+  useDeviceRouting,
+  useAssignDeviceRouting,
+  useRemoveDeviceRouting,
+  useBulkAssignRouting,
+  useDeviceRoutingSubscription,
+} from './services/useDeviceRouting';
+export type {
+  DeviceRoutingMatrix,
+  DeviceRouting,
+  AssignDeviceRoutingInput,
+  BulkAssignRoutingInput,
+  BulkRoutingResult,
+  DeviceRoutingEvent,
+  RoutingMode,
+  DeviceRoutingFilters,
+  BulkAssignProgress,
+} from './services/useDeviceRouting';
+
+export {
+  useKillSwitchStatus,
+  useSetKillSwitch,
+  useKillSwitchSubscription,
+} from './services/useKillSwitch';
+export type {
+  KillSwitchStatus,
+  SetKillSwitchInput,
+} from './services/useKillSwitch';
+
+export {
+  useRoutingSchedules,
+  useRoutingSchedule,
+  useCreateSchedule,
+  useUpdateSchedule,
+  useDeleteSchedule,
+} from './services/useSchedules';
+export type {
+  CreateScheduleVariables,
+  UpdateScheduleVariables,
+  DeleteScheduleVariables,
+  RoutingSchedulesVariables,
+  RoutingScheduleVariables,
+} from './services/useSchedules';
+
+export { serviceQueryKeys, serviceQueryKeys as serviceKeys } from './services/queryKeys';
+
+// GraphQL Documents (for advanced usage)
+export {
+  GET_AVAILABLE_SERVICES,
+  GET_SERVICE_INSTANCES,
+  GET_SERVICE_INSTANCE,
+  INSTALL_SERVICE,
+  START_INSTANCE,
+  STOP_INSTANCE,
+  RESTART_INSTANCE,
+  DELETE_INSTANCE,
+  SUBSCRIBE_INSTALL_PROGRESS,
+  SUBSCRIBE_INSTANCE_STATUS_CHANGED,
+  GET_DEPENDENCIES,
+  GET_DEPENDENTS,
+  GET_DEPENDENCY_GRAPH,
+  GET_BOOT_SEQUENCE_PROGRESS,
+  ADD_DEPENDENCY,
+  REMOVE_DEPENDENCY,
+  TRIGGER_BOOT_SEQUENCE,
+  SUBSCRIBE_BOOT_SEQUENCE_EVENTS,
+} from './services/services.graphql';
+
+export {
+  GET_PORT_ALLOCATIONS,
+  CHECK_PORT_AVAILABILITY,
+  DETECT_ORPHANED_PORTS,
+  CLEANUP_ORPHANED_PORTS,
+} from './services/usePortRegistry';
+
+export {
+  GET_FEATURE_VERIFICATION,
+  GET_INSTANCE_VERIFICATION_STATUS,
+} from './services/useFeatureVerification';
+export { REVERIFY_INSTANCE, REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './services/useReverifyFeature';
+
+export {
+  GET_VIRTUAL_INTERFACES,
+  GET_VIRTUAL_INTERFACE,
+} from './services/useVirtualInterfaces';
+export { GET_BRIDGE_STATUS } from './services/useBridgeStatus';
+
+export {
+  GET_INSTANCE_ISOLATION,
+} from './services/useInstanceIsolation';
+
+export {
+  INSTANCE_HEALTH_QUERY,
+} from './services/useInstanceHealth';
+
+export {
+  INSTANCE_HEALTH_CHANGED_SUBSCRIPTION,
+} from './services/useInstanceHealthSubscription';
+
+export {
+  CONFIGURE_HEALTH_CHECK_MUTATION,
+} from './services/useConfigureHealthCheck';
+
+export {
+  GET_VLAN_ALLOCATIONS,
+  GET_VLAN_POOL_STATUS,
+  DETECT_ORPHANED_VLANS,
+  CLEANUP_ORPHANED_VLANS,
+  UPDATE_VLAN_POOL_CONFIG,
+} from './services/vlan.graphql';
+
+export {
+  GET_SYSTEM_RESOURCES,
+  SET_RESOURCE_LIMITS,
+  SUBSCRIBE_RESOURCE_USAGE,
+} from './services/useSystemResources';
+
+export {
+  GET_DEVICE_ROUTING_MATRIX,
+  GET_DEVICE_ROUTINGS,
+  GET_DEVICE_ROUTING,
+  ASSIGN_DEVICE_ROUTING,
+  REMOVE_DEVICE_ROUTING,
+  BULK_ASSIGN_ROUTING,
+  SUBSCRIBE_DEVICE_ROUTING_CHANGES,
+} from './services/device-routing.graphql';
+
+export {
+  GET_KILL_SWITCH_STATUS,
+  SET_KILL_SWITCH,
+  SUBSCRIBE_KILL_SWITCH_CHANGES,
+} from './services/kill-switch.graphql';
+
+export {
+  useServiceAlerts,
+  useServiceAlertSubscription,
+  useAcknowledgeAlert,
+  useAcknowledgeAlerts,
+} from './services/useServiceAlerts';
+export type {
+  ServiceAlert,
+  AlertRule,
+  AlertSeverity,
+  AlertAction,
+  AlertEscalation,
+  EscalationStatus,
+  AlertConnection,
+  AlertEvent,
+  GetServiceAlertsVariables,
+  GetServiceAlertsResult,
+  AcknowledgeAlertVariables,
+  AcknowledgeAlertResult,
+  AcknowledgeAlertsVariables,
+  AcknowledgeAlertsResult,
+  ServiceAlertEventsVariables,
+  ServiceAlertEventsResult,
+} from './services/useServiceAlerts';
+
+export {
+  GET_SERVICE_ALERTS,
+  SERVICE_ALERT_EVENTS,
+  ACKNOWLEDGE_ALERT,
+  ACKNOWLEDGE_ALERTS,
+} from './services/useServiceAlerts';
+
+export {
+  useServiceLogFile,
+  useServiceLogsSubscription,
+  useServiceLogs,
+} from './services/useServiceLogs';
+export type { LogLevel, LogEntry, ServiceLogFile } from './services/useServiceLogs';
+
+export {
+  useDiagnosticHistory,
+  useAvailableDiagnostics,
+  useRunDiagnostics,
+  useDiagnosticsProgressSubscription,
+  getStartupDiagnostics,
+  hasFailures,
+} from './services/useDiagnostics';
+export type {
+  DiagnosticStatus,
+  DiagnosticResult,
+  StartupDiagnostics,
+  DiagnosticTest,
+  DiagnosticSuite,
+  DiagnosticsProgress,
+  RunDiagnosticsInput,
+  RunDiagnosticsPayload,
+} from './services/useDiagnostics';
+
+export {
+  GET_SERVICE_LOG_FILE,
+  GET_DIAGNOSTIC_HISTORY,
+  GET_AVAILABLE_DIAGNOSTICS,
+  RUN_SERVICE_DIAGNOSTICS,
+  SUBSCRIBE_SERVICE_LOGS,
+  SUBSCRIBE_DIAGNOSTICS_PROGRESS,
+} from './services/logs-diagnostics.graphql';
+
+export {
+  useServiceTrafficStats,
+  useServiceDeviceBreakdown,
+  useSetTrafficQuota,
+  useResetTrafficQuota,
+  useServiceTrafficSubscription,
+  useTrafficMonitoring,
+} from './services/useServiceTrafficStats';
+export type {
+  UseServiceTrafficStatsOptions,
+  UseServiceDeviceBreakdownOptions,
+  UseServiceTrafficSubscriptionOptions,
+  UseSetTrafficQuotaOptions,
+  UseResetTrafficQuotaOptions,
+} from './services/useServiceTrafficStats';
+
+export {
+  GET_SERVICE_TRAFFIC_STATS,
+  GET_SERVICE_DEVICE_BREAKDOWN,
+  SET_TRAFFIC_QUOTA,
+  RESET_TRAFFIC_QUOTA,
+  SUBSCRIBE_SERVICE_TRAFFIC_UPDATED,
+} from './services/traffic-stats.graphql';
+
+export {
+  useExportService,
+  useGenerateConfigQR,
+  useImportService,
+  useServiceSharing,
+} from './services/useServiceSharing';
+
+export {
+  EXPORT_SERVICE_CONFIG,
+  GENERATE_CONFIG_QR,
+  IMPORT_SERVICE_CONFIG,
+} from './services/service-sharing.graphql';
+
+export { useServiceTemplates } from './services/useServiceTemplates';
+export type {
+  UseServiceTemplatesOptions,
+  UseServiceTemplatesReturn,
+} from './services/useServiceTemplates';
+
+export { useInstallTemplate } from './services/useInstallTemplate';
+export type {
+  UseInstallTemplateOptions,
+  UseInstallTemplateReturn,
+} from './services/useInstallTemplate';
+
+export { useExportAsTemplate } from './services/useExportAsTemplate';
+export type {
+  UseExportAsTemplateOptions,
+  UseExportAsTemplateReturn,
+} from './services/useExportAsTemplate';
+
+export { useImportTemplate } from './services/useImportTemplate';
+export type {
+  UseImportTemplateOptions,
+  UseImportTemplateReturn,
+} from './services/useImportTemplate';
+
+export { useDeleteTemplate } from './services/useDeleteTemplate';
+export type {
+  DeleteTemplateInput,
+  UseDeleteTemplateOptions,
+  UseDeleteTemplateReturn,
+} from './services/useDeleteTemplate';
+
+export { useTemplateInstallProgress } from './services/useTemplateInstallProgress';
+export type {
+  UseTemplateInstallProgressOptions,
+  UseTemplateInstallProgressReturn,
+} from './services/useTemplateInstallProgress';
+
+export {
+  GET_SERVICE_TEMPLATES,
+  GET_SERVICE_TEMPLATE,
+  INSTALL_SERVICE_TEMPLATE,
+  EXPORT_AS_TEMPLATE,
+  IMPORT_SERVICE_TEMPLATE,
+  DELETE_SERVICE_TEMPLATE,
+  TEMPLATE_INSTALL_PROGRESS,
+} from './services/templates.graphql';
+
+export {
+  useAvailableUpdates,
+  useCheckForUpdates,
+  useUpdateInstance,
+  useUpdateAllInstances,
+  useRollbackInstance,
+  useUpdateProgress,
+} from './services/useUpdates';
+export type {
+  UpdateSeverity,
+  UpdateStage,
+  AvailableUpdate,
+  UpdateCheckResult,
+  UpdateProgressEvent,
+  UpdateResult,
+  GetAvailableUpdatesVariables,
+  GetAvailableUpdatesResult,
+  CheckForUpdatesVariables,
+  CheckForUpdatesResult,
+  UpdateInstanceVariables,
+  UpdateInstanceResult,
+  UpdateAllInstancesVariables,
+  UpdateAllInstancesResult,
+  RollbackInstanceVariables,
+  RollbackInstanceResult,
+  UpdateProgressVariables,
+  UpdateProgressResult,
+} from './services/useUpdates';
+
+export {
+  GET_AVAILABLE_UPDATES,
+  CHECK_FOR_UPDATES,
+  UPDATE_INSTANCE,
+  UPDATE_ALL_INSTANCES,
+  ROLLBACK_INSTANCE,
+  UPDATE_PROGRESS,
+} from './services/updates.graphql';
+
+export {
+  useServiceConfigSchema,
+  useInstanceConfig,
+  useValidateServiceConfig,
+  useApplyServiceConfig,
+  useServiceConfigOperations,
+} from './services/useServiceConfig';
+
+export {
+  GET_SERVICE_CONFIG_SCHEMA,
+  GET_INSTANCE_CONFIG,
+  VALIDATE_SERVICE_CONFIG,
+  APPLY_SERVICE_CONFIG,
+} from './services/service-config.graphql';

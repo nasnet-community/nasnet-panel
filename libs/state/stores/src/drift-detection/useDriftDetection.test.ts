@@ -39,12 +39,12 @@ function createMockResource(
       createdAt: '2026-01-01T00:00:00Z',
       createdBy: 'admin',
       updatedAt: '2026-01-01T00:00:00Z',
-      state: 'active',
+      state: 'ACTIVE',
       version: 1,
       tags: [],
       isFavorite: false,
       isPinned: false,
-    } as ResourceMetadata,
+    } as unknown as ResourceMetadata,
   };
 }
 

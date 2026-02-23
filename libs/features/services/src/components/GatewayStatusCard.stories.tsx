@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { GatewayStatusCard } from './GatewayStatusCard';
 import { GatewayState } from '@nasnet/api-client/queries';
+
+import { GatewayStatusCard } from './GatewayStatusCard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof GatewayStatusCard> = {
   title: 'Features/Services/GatewayStatusCard',

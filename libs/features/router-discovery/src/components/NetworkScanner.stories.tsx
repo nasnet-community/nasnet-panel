@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import type { ScanResult } from '@nasnet/core/types';
+
 import { NetworkScanner } from './NetworkScanner';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof NetworkScanner> = {
   title: 'Features/RouterDiscovery/NetworkScanner',
@@ -28,7 +30,7 @@ type Story = StoryObj<typeof NetworkScanner>;
 
 // ─── Mock callback helpers ────────────────────────────────────────────────────
 
-const mockResults: ScanResult[] = [
+const _mockResults: ScanResult[] = [
   {
     ipAddress: '192.168.88.1',
     isReachable: true,
@@ -96,7 +98,7 @@ export const CustomSubnet: Story = {
  * props passed to onScanComplete once results arrive.
  *
  * Note: because NetworkScanner owns its state, this story shows the idle view
- * but documents what the result list looks like (see mockResults above).
+ * but documents what the result list looks like (see _mockResults above).
  */
 export const WithResultsCallback: Story = {
   args: {

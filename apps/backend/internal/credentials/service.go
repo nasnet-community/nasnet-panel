@@ -15,6 +15,8 @@ import (
 	"time"
 
 	"backend/generated/ent"
+	entRouter "backend/generated/ent/router"
+	"backend/generated/ent/routersecret"
 	"backend/internal/common/ulid"
 	"backend/internal/encryption"
 )
@@ -93,7 +95,7 @@ func (s *Service) Create(ctx context.Context, client *ent.Client, routerID strin
 	}
 
 	// Verify router exists
-	exists, err := client.Router.Query().Where().Count(ctx)
+	exists, err := client.Router.Query().Where(entRouter.ID(routerID)).Count(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify router: %w", err)
 	}
@@ -140,7 +142,7 @@ func (s *Service) Update(ctx context.Context, client *ent.Client, routerID strin
 
 	// Find existing secret
 	secret, err := client.RouterSecret.Query().
-		Where().
+		Where(routersecret.RouterID(routerID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -178,7 +180,7 @@ func (s *Service) Update(ctx context.Context, client *ent.Client, routerID strin
 // WARNING: The returned Credentials contain plaintext values - handle with care.
 func (s *Service) Get(ctx context.Context, client *ent.Client, routerID string) (*Credentials, error) {
 	secret, err := client.RouterSecret.Query().
-		Where().
+		Where(routersecret.RouterID(routerID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -210,7 +212,7 @@ func (s *Service) Get(ctx context.Context, client *ent.Client, routerID string) 
 // Safe for API responses and logging.
 func (s *Service) GetInfo(ctx context.Context, client *ent.Client, routerID string) (*CredentialInfo, error) {
 	secret, err := client.RouterSecret.Query().
-		Where().
+		Where(routersecret.RouterID(routerID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -239,7 +241,7 @@ func (s *Service) GetInfo(ctx context.Context, client *ent.Client, routerID stri
 // Delete removes credentials for a router.
 func (s *Service) Delete(ctx context.Context, client *ent.Client, routerID string) error {
 	_, err := client.RouterSecret.Delete().
-		Where().
+		Where(routersecret.RouterID(routerID)).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete credentials: %w", err)
@@ -253,7 +255,7 @@ func (s *Service) Exists(ctx context.Context, client *ent.Client, routerID strin
 		return false, ErrNoDatabaseClient
 	}
 	count, err := client.RouterSecret.Query().
-		Where().
+		Where(routersecret.RouterID(routerID)).
 		Count(ctx)
 	if err != nil {
 		return false, fmt.Errorf("failed to check credentials: %w", err)

@@ -12,8 +12,9 @@
  * reviewed without a live router connection.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { FirewallDetailTabs } from './FirewallDetailTabs';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof FirewallDetailTabs> = {
   title: 'Features/Firewall/FirewallDetailTabs',

@@ -1,6 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from 'storybook/test';
 import type { BatchJob } from '@nasnet/api-client/queries';
+
 import { ExecutionProgress } from './ExecutionProgress';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ExecutionProgress> = {
   title: 'Features/ConfigurationImport/ExecutionProgress',
@@ -49,7 +52,7 @@ export const Pending: Story = {
       ...baseJob,
       status: 'pending',
     },
-    onCancel: () => console.log('cancel clicked'),
+    onCancel: fn(),
   },
   parameters: {
     docs: {
@@ -83,7 +86,7 @@ export const Running: Story = {
         },
       ],
     },
-    onCancel: () => console.log('cancel clicked'),
+    onCancel: fn(),
     isCancelling: false,
   },
   parameters: {
@@ -112,7 +115,7 @@ export const Cancelling: Story = {
       },
       errors: [],
     },
-    onCancel: () => console.log('cancel clicked'),
+    onCancel: fn(),
     isCancelling: true,
   },
   parameters: {
@@ -188,7 +191,7 @@ export const Failed: Story = {
       ],
       rollbackEnabled: false,
     },
-    onRetry: () => console.log('retry clicked'),
+    onRetry: fn(),
   },
   parameters: {
     docs: {
@@ -231,7 +234,7 @@ export const RolledBack: Story = {
       rollbackEnabled: true,
       rollbackCount: 4,
     },
-    onRetry: () => console.log('retry clicked'),
+    onRetry: fn(),
   },
   parameters: {
     docs: {
@@ -263,7 +266,7 @@ export const FetchError: Story = {
     job: null,
     isLoading: false,
     error: new Error('Network request timed out — could not reach rosproxy at 192.168.88.1:8728'),
-    onRetry: () => console.log('retry tracking'),
+    onRetry: fn(),
   },
   parameters: {
     docs: {

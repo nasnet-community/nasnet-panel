@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 
-import { expect, within, userEvent, waitFor } from '@storybook/test';
+import { expect, within, userEvent, waitFor } from 'storybook/test';
 
 import { ServiceImportDialog } from './ServiceImportDialog';
 import { ServiceImportDialogDesktop } from './ServiceImportDialogDesktop';
@@ -401,8 +401,8 @@ export const ImportConflictResolutionInteraction: Story = {
     }
 
     // Step 4: Click Apply button
-    const applyButton = canvas.getByRole('button', { name: /apply|import/i });
-    if (await applyButton.isEnabled()) {
+    const applyButton = canvas.getByRole('button', { name: /apply|import/i }) as HTMLButtonElement;
+    if (!applyButton.disabled) {
       await user.click(applyButton);
 
       // Verify success message or completion

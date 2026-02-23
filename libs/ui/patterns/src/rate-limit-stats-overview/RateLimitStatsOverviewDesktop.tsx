@@ -5,6 +5,8 @@
  * NAS-7.11: Implement Connection Rate Limiting
  */
 
+import { memo } from 'react';
+
 import { TrendingUp, TrendingDown, Download, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -76,7 +78,7 @@ function ChartTooltip({ active, payload }: any) {
  * <RateLimitStatsOverviewDesktop routerId="192.168.1.1" />
  * ```
  */
-export function RateLimitStatsOverviewDesktop(props: RateLimitStatsOverviewProps) {
+export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOverviewDesktop(props: RateLimitStatsOverviewProps) {
   const { className } = props;
   const { state, actions } = useRateLimitStatsOverview(props);
 
@@ -285,4 +287,6 @@ export function RateLimitStatsOverviewDesktop(props: RateLimitStatsOverviewProps
       </div>
     </div>
   );
-}
+});
+
+RateLimitStatsOverviewDesktop.displayName = 'RateLimitStatsOverviewDesktop';

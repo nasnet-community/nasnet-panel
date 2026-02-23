@@ -4,10 +4,25 @@
  * Modal warning users their session will expire soon with option to extend.
  * Follows the Headless + Platform Presenter pattern (ADR-018).
  *
+ * Features:
+ * - Countdown timer with visual progress bar
+ * - Three urgency levels: normal (blue), urgent (amber), critical (red)
+ * - Extend session or logout options
+ * - Modal cannot be dismissed by clicking outside or pressing Escape
+ * - Screen reader announcement via ARIA live regions
+ *
  * @see NAS-4.9: Implement Connection & Auth Stores
+ * @example
+ * ```tsx
+ * <SessionExpiringDialog
+ *   warningThreshold={300}
+ *   onExtendSession={handleRefreshToken}
+ *   onSessionExpired={() => navigate('/login')}
+ * />
+ * ```
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo, memo } from 'react';
 
 import { Clock, AlertTriangle, LogOut, RefreshCw } from 'lucide-react';
 
@@ -25,6 +40,10 @@ import {
 
 // ===== Types =====
 
+/**
+ * Props for SessionExpiringDialog component
+ * Controls countdown behavior and callbacks
+ */
 export interface SessionExpiringDialogProps {
   /**
    * Time in seconds before expiry to show the warning
@@ -113,9 +132,17 @@ function formatTime(seconds: number): string {
  * Session Expiring Dialog
  *
  * Shows when session is about to expire with:
- * - Countdown timer
+ * - Countdown timer (MM:SS format)
+ * - Visual progress bar indicating urgency
  * - Option to extend session
  * - Option to logout
+ *
+ * Urgency levels:
+ * - Normal (>1 minute): Blue clock icon
+ * - Urgent (30-60 seconds): Amber icon
+ * - Critical (<30 seconds): Red alert icon with pulse animation
+ *
+ * The dialog cannot be dismissed and takes focus until resolved.
  *
  * @example
  * ```tsx
@@ -134,7 +161,7 @@ function formatTime(seconds: number): string {
  * />
  * ```
  */
-export function SessionExpiringDialog({
+function SessionExpiringDialogComponent({
   warningThreshold = 300,
   onExtendSession,
   onSessionExpired,
@@ -144,6 +171,15 @@ export function SessionExpiringDialog({
   const { timeRemaining, isExpiring, isExpired, logout, isAuthenticated } = useSessionExpiring(warningThreshold);
   const [isExtending, setIsExtending] = useState(false);
   const [extendError, setExtendError] = useState<string | null>(null);
+
+  // Memoize urgency levels to prevent unnecessary recalculations
+  const urgencyLevels = useMemo(() => {
+    const remaining = timeRemaining ?? 0;
+    return {
+      isUrgent: remaining <= 60,
+      isCritical: remaining <= 30,
+    };
+  }, [timeRemaining]);
 
   // Handle session expiry
   useEffect(() => {
@@ -183,9 +219,7 @@ export function SessionExpiringDialog({
   // Calculate progress percentage (inverse - fills up as time runs out)
   const progress = ((warningThreshold - timeRemaining) / warningThreshold) * 100;
 
-  // Determine urgency level
-  const isUrgent = timeRemaining <= 60; // Last minute
-  const isCritical = timeRemaining <= 30; // Last 30 seconds
+  const { isUrgent, isCritical } = urgencyLevels;
 
   return (
     <Dialog open={isExpiring} onOpenChange={() => {}}>
@@ -197,6 +231,9 @@ export function SessionExpiringDialog({
         )}
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
+        role="alertdialog"
+        aria-labelledby="session-expiring-title"
+        aria-describedby="session-expiring-description"
       >
         <DialogHeader>
           <div className="flex items-center gap-3">
@@ -209,6 +246,7 @@ export function SessionExpiringDialog({
                     ? 'bg-semantic-warning/10'
                     : 'bg-semantic-info/10'
               )}
+              aria-hidden="true"
             >
               {isCritical ? (
                 <AlertTriangle className="h-6 w-6 text-semantic-error" />
@@ -221,9 +259,9 @@ export function SessionExpiringDialog({
                 />
               )}
             </div>
-            <DialogTitle>Session Expiring</DialogTitle>
+            <DialogTitle id="session-expiring-title">Session Expiring</DialogTitle>
           </div>
-          <DialogDescription className="pt-2">
+          <DialogDescription id="session-expiring-description" className="pt-2">
             Your session will expire soon. Would you like to stay signed in?
           </DialogDescription>
         </DialogHeader>
@@ -301,4 +339,7 @@ export function SessionExpiringDialog({
     </Dialog>
   );
 }
+
+export const SessionExpiringDialog = memo(SessionExpiringDialogComponent);
+SessionExpiringDialog.displayName = 'SessionExpiringDialog';
 

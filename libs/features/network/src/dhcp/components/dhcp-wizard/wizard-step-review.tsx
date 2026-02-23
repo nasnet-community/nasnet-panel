@@ -1,32 +1,46 @@
 /**
  * DHCP Wizard - Step 4: Review & Create
- * Display summary and RouterOS command preview before creation
+ * Display comprehensive configuration summary and RouterOS commands before creation.
+ *
+ * @description Shows a final review of all DHCP settings including interface, pool configuration,
+ * network settings, and auto-generated RouterOS commands that will be executed. Provides
+ * immediate feedback on the exact changes that will be applied to the router.
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
+import { useMemo } from 'react';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
 import { ConfigPreview, FormSection } from '@nasnet/ui/patterns';
 import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { calculatePoolSize } from '../../utils/pool-calculator';
 import type { InterfaceStepFormData, PoolStepFormData, NetworkStepFormData } from './dhcp-wizard.schema';
 
 interface WizardStepReviewProps {
+  /** Stepper instance providing access to wizard step data */
   stepper: UseStepperReturn;
+  /** Optional CSS class names to apply to root container */
+  className?: string;
 }
 
-export function WizardStepReview({ stepper }: WizardStepReviewProps) {
+/**
+ * Review step component - displays configuration summary and RouterOS commands
+ */
+function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps) {
   const interfaceData = stepper.getStepData('interface') as InterfaceStepFormData;
   const poolData = stepper.getStepData('pool') as PoolStepFormData;
   const networkData = stepper.getStepData('network') as NetworkStepFormData;
 
   // Calculate pool size
-  const poolSize = poolData?.poolStart && poolData?.poolEnd
-    ? calculatePoolSize(poolData.poolStart, poolData.poolEnd)
-    : 0;
+  const poolSize = useMemo(() => {
+    return poolData?.poolStart && poolData?.poolEnd
+      ? calculatePoolSize(poolData.poolStart, poolData.poolEnd)
+      : 0;
+  }, [poolData?.poolStart, poolData?.poolEnd]);
 
   // Generate RouterOS commands for preview
-  const commands = [
+  const commands = useMemo(() => [
     {
       command: `/ip pool add name=pool-dhcp-${interfaceData?.interface || 'default'} ranges=${poolData?.poolStart || ''}-${poolData?.poolEnd || ''}`,
       description: 'Create IP address pool',
@@ -39,10 +53,10 @@ export function WizardStepReview({ stepper }: WizardStepReviewProps) {
       command: `/ip dhcp-server add name=dhcp-${interfaceData?.interface || 'default'} interface=${interfaceData?.interface || ''} address-pool=pool-dhcp-${interfaceData?.interface || 'default'} lease-time=${networkData?.leaseTime || '1d'} disabled=no`,
       description: 'Create and enable DHCP server',
     },
-  ];
+  ], [interfaceData, poolData, networkData]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <FormSection
         title="Review Configuration"
         description="Review your DHCP server settings before creation"
@@ -139,3 +153,10 @@ export function WizardStepReview({ stepper }: WizardStepReviewProps) {
     </div>
   );
 }
+
+WizardStepReviewComponent.displayName = 'WizardStepReview';
+
+/**
+ * Exported review step component with memo optimization
+ */
+export const WizardStepReview = WizardStepReviewComponent;

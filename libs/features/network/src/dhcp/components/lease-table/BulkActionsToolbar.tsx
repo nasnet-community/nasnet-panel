@@ -12,10 +12,9 @@
  * @module features/network/dhcp/components/lease-table
  */
 
-import * as React from 'react';
+import { memo, useState, useCallback } from 'react';
 import { Lock, Trash2, X } from 'lucide-react';
-
-import { Button } from '@nasnet/ui/primitives';
+import { Button, Icon } from '@nasnet/ui/primitives';
 import { ConfirmationDialog } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 
@@ -67,7 +66,7 @@ export interface BulkActionsToolbarProps {
  * />
  * ```
  */
-export function BulkActionsToolbar({
+function BulkActionsToolbarComponent({
   selectedCount,
   onMakeStatic,
   onDelete,
@@ -75,27 +74,27 @@ export function BulkActionsToolbar({
   isLoading = false,
   className,
 }: BulkActionsToolbarProps) {
-  const [showMakeStaticConfirm, setShowMakeStaticConfirm] = React.useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-
-  // Don't render if no items selected
-  if (selectedCount === 0) return null;
+  const [showMakeStaticConfirm, setShowMakeStaticConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   /**
    * Handle "Make All Static" with confirmation
    */
-  const handleMakeStaticConfirm = () => {
+  const handleMakeStaticConfirm = useCallback(() => {
     setShowMakeStaticConfirm(false);
     onMakeStatic();
-  };
+  }, [onMakeStatic]);
 
   /**
    * Handle "Delete Selected" with confirmation
    */
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = useCallback(() => {
     setShowDeleteConfirm(false);
     onDelete();
-  };
+  }, [onDelete]);
+
+  // Don't render if no items selected
+  if (selectedCount === 0) return null;
 
   return (
     <>
@@ -124,7 +123,7 @@ export function BulkActionsToolbar({
             className="gap-2"
             aria-label="Make selected leases static"
           >
-            <Lock className="h-4 w-4" />
+            <Icon icon={Lock} className="h-4 w-4" aria-hidden="true" />
             Make All Static
           </Button>
 
@@ -136,7 +135,7 @@ export function BulkActionsToolbar({
             className="gap-2"
             aria-label="Delete selected leases"
           >
-            <Trash2 className="h-4 w-4" />
+            <Icon icon={Trash2} className="h-4 w-4" aria-hidden="true" />
             Delete Selected
           </Button>
 
@@ -147,7 +146,7 @@ export function BulkActionsToolbar({
             disabled={isLoading}
             aria-label="Clear selection"
           >
-            <X className="h-4 w-4" />
+            <Icon icon={X} className="h-4 w-4" aria-hidden="true" />
             Clear
           </Button>
         </div>
@@ -187,3 +186,7 @@ export function BulkActionsToolbar({
     </>
   );
 }
+
+// Export with memo wrapper and displayName
+export const BulkActionsToolbar = memo(BulkActionsToolbarComponent);
+BulkActionsToolbar.displayName = 'BulkActionsToolbar';

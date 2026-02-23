@@ -24,6 +24,7 @@ func initMonitoringAndTraffic(
 	routerPort *router.MockAdapter,
 	sugar *zap.SugaredLogger,
 	logger zerolog.Logger,
+	vifComponents *bootstrap.VIFComponents,
 ) (*bootstrap.MonitoringComponents, *bootstrap.TrafficComponents, *bootstrap.SchedulingComponents, error) {
 	// Initialize Monitoring Services (telemetry, stats poller)
 	monitoring, err := bootstrap.InitializeMonitoringServices(
@@ -48,11 +49,10 @@ func initMonitoringAndTraffic(
 	}
 
 	// Initialize Scheduling Services (schedule service, evaluator)
-	// Note: Passing nil for kill switch coordinator (will be implemented in Story 8.13)
 	scheduling, err := bootstrap.InitializeScheduling(
 		systemDB,
 		eventBus,
-		nil, // TODO: implement proper KillSwitchCoordinator in Story 8.13
+		vifComponents.KillSwitchManager,
 		logger,
 	)
 	if err != nil {

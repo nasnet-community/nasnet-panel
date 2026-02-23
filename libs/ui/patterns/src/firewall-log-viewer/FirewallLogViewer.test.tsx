@@ -10,16 +10,13 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { axe, toHaveNoViolations } from 'vitest-axe/matchers';
+import { axe } from 'vitest-axe';
 
 import type { FirewallLogEntry } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { FirewallLogViewer } from './FirewallLogViewer';
 import { useFirewallLogViewer } from './use-firewall-log-viewer';
-
-// Extend matchers
-expect.extend(toHaveNoViolations);
 
 // Mock dependencies
 vi.mock('@nasnet/ui/layouts', () => ({
@@ -64,6 +61,8 @@ describe('FirewallLogViewer', () => {
     {
       id: 'log-1',
       timestamp: new Date('2024-01-15T10:30:00Z'),
+      topic: 'firewall',
+      severity: 'info',
       message: 'drop all from 192.168.1.100:45678 to 10.0.0.5:80',
       parsed: {
         action: 'drop',
@@ -72,7 +71,7 @@ describe('FirewallLogViewer', () => {
         srcPort: 45678,
         dstIp: '10.0.0.5',
         dstPort: 80,
-        protocol: 'tcp',
+        protocol: 'TCP',
         prefix: 'BLOCKED',
         interfaceIn: 'ether1',
         interfaceOut: 'ether2',
@@ -81,6 +80,8 @@ describe('FirewallLogViewer', () => {
     {
       id: 'log-2',
       timestamp: new Date('2024-01-15T10:31:00Z'),
+      topic: 'firewall',
+      severity: 'info',
       message: 'accept established from 10.0.0.5:443 to 192.168.1.200:54321',
       parsed: {
         action: 'accept',
@@ -89,20 +90,22 @@ describe('FirewallLogViewer', () => {
         srcPort: 443,
         dstIp: '192.168.1.200',
         dstPort: 54321,
-        protocol: 'tcp',
+        protocol: 'TCP',
         prefix: 'ALLOWED',
       },
     },
     {
       id: 'log-3',
       timestamp: new Date('2024-01-15T10:32:00Z'),
+      topic: 'firewall',
+      severity: 'info',
       message: 'reject icmp from 8.8.8.8 to 192.168.1.1',
       parsed: {
         action: 'reject',
         chain: 'input',
         srcIp: '8.8.8.8',
         dstIp: '192.168.1.1',
-        protocol: 'icmp',
+        protocol: 'ICMP',
       },
     },
   ];

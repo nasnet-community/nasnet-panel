@@ -8,7 +8,32 @@
   "bracketSameLine": false,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "printWidth": 80,
+
+  "printWidth": 100,
   "proseWrap": "preserve",
-  "plugins": ["prettier-plugin-tailwindcss"]
+
+  "jsxSingleQuote": false,
+  "singleAttributePerLine": true,
+  "experimentalTernaries": true,
+  "embeddedLanguageFormatting": "auto",
+
+  "tailwindFunctions": ["cn", "clsx", "cva"],
+  "tailwindStylesheet": "apps/connect/src/styles.css",
+
+  "plugins": ["prettier-plugin-tailwindcss"],
+
+  "overrides": [
+    {
+      "files": ["*.graphql", "*.gql"],
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "proseWrap": "always"
+      }
+    }
+  ]
 }

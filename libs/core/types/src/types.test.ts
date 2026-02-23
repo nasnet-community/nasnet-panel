@@ -19,7 +19,7 @@ describe('Type Definitions', () => {
         id: 'wan1',
         name: 'WAN Interface',
         type: 'dhcp',
-        enabled: true
+        isEnabled: true
       };
       expect(wanLink.id).toBe('wan1');
       expect(wanLink.type).toBe('dhcp');
@@ -31,7 +31,7 @@ describe('Type Definitions', () => {
         name: 'VPN Connection',
         protocol: 'wireguard',
         status: 'disconnected',
-        enabled: true
+        isEnabled: true
       };
       expect(vpnConn.protocol).toBe('wireguard');
       expect(vpnConn.status).toBe('disconnected');
@@ -39,12 +39,12 @@ describe('Type Definitions', () => {
 
     it('should have LAN type definition', () => {
       const lanInterface: LANInterface = {
-        name: 'eth0',
-        ipAddress: '192.168.1.1',
-        netmask: '255.255.255.0',
-        enabled: true
+        id: 'ether1',
+        name: 'ether1',
+        type: 'ethernet',
+        isEnabled: true
       };
-      expect(lanInterface.name).toBe('eth0');
+      expect(lanInterface.name).toBe('ether1');
     });
 
     it('should have Firewall rule type definition', () => {
@@ -53,7 +53,8 @@ describe('Type Definitions', () => {
         chain: 'input',
         protocol: 'tcp',
         action: 'accept',
-        enabled: true
+        disabled: false,
+        order: 1
       };
       expect(rule.chain).toBe('input');
       expect(rule.action).toBe('accept');
@@ -64,8 +65,7 @@ describe('Type Definitions', () => {
     it('should have ApiResponse type', () => {
       const response: ApiResponse<{ message: string }> = {
         success: true,
-        data: { message: 'test' },
-        timestamp: new Date().toISOString()
+        data: { message: 'test' }
       };
       expect(response.success).toBe(true);
       expect(response.data.message).toBe('test');
@@ -77,8 +77,7 @@ describe('Type Definitions', () => {
         error: {
           code: 'INVALID_REQUEST',
           message: 'Invalid request'
-        },
-        timestamp: new Date().toISOString()
+        }
       };
       expect(error.success).toBe(false);
       expect(error.error.code).toBe('INVALID_REQUEST');
@@ -86,13 +85,15 @@ describe('Type Definitions', () => {
 
     it('should have RouterStatusResponse type', () => {
       const status: RouterStatusResponse = {
+        isOnline: true,
         uptime: 86400,
-        cpu: 45,
-        memory: 60,
-        disk: 70
+        cpuUsage: 45,
+        memoryUsage: 60,
+        diskUsage: 70,
+        timestamp: new Date()
       };
       expect(status.uptime).toBe(86400);
-      expect(status.cpu).toBe(45);
+      expect(status.cpuUsage).toBe(45);
     });
   });
 
@@ -108,13 +109,15 @@ describe('Type Definitions', () => {
           language: 'en'
         },
         router: {
-          port: 80,
-          retries: 2
+          defaultPort: 8728,
+          retryAttempts: 2,
+          retryDelay: 1000
         },
         features: {
-          vpn: true,
-          firewall: true,
-          dhcp: true
+          isWireGuardVPNEnabled: true,
+          isDHCPMonitoringEnabled: true,
+          isFirewallViewerEnabled: true,
+          isSafetyPipelineEnabled: true
         }
       };
       expect(config.api.baseUrl).toBe('http://localhost:3000');
@@ -124,10 +127,12 @@ describe('Type Definitions', () => {
     it('should have RouterConnectionConfig type', () => {
       const connConfig: RouterConnectionConfig = {
         address: '192.168.1.1',
-        port: 80,
+        port: 8728,
         username: 'admin',
         password: 'password',
-        timeout: 5000
+        timeout: 5000,
+        useTLS: false,
+        verifyCertificate: false
       };
       expect(connConfig.address).toBe('192.168.1.1');
     });
@@ -135,18 +140,22 @@ describe('Type Definitions', () => {
     it('should have ApplicationState type', () => {
       const state: ApplicationState = {
         currentRouter: {
-          id: 'router1',
-          name: 'Main Router',
           address: '192.168.1.1',
-          port: 80,
-          lastConnected: new Date()
+          port: 8728,
+          username: 'admin',
+          password: 'secret',
+          useTLS: false,
+          verifyCertificate: false,
+          timeout: 10000
         },
+        savedRouters: [],
         userPreferences: {
           theme: 'dark',
-          language: 'fa'
+          language: 'fa',
+          autoRefreshInterval: 5000
         }
       };
-      expect(state.currentRouter.name).toBe('Main Router');
+      expect(state.currentRouter?.address).toBe('192.168.1.1');
       expect(state.userPreferences.theme).toBe('dark');
     });
   });

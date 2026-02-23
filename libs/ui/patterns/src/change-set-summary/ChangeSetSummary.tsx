@@ -19,6 +19,7 @@ import {
   isChangeSetProcessing,
 } from '@nasnet/core/types';
 import { cn } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 
 // =============================================================================
@@ -90,6 +91,9 @@ export interface ChangeSetSummaryProps
 
   /** Compact mode for list views */
   compact?: boolean;
+
+  /** Manual platform presenter override: 'mobile' | 'tablet' | 'desktop' */
+  presenter?: 'mobile' | 'tablet' | 'desktop';
 }
 
 // =============================================================================
@@ -117,6 +121,8 @@ const OperationBadge = React.memo(function OperationBadge({
     </span>
   );
 });
+
+OperationBadge.displayName = 'OperationBadge';
 
 /**
  * Status badge for change set
@@ -150,19 +156,57 @@ const StatusBadge = React.memo(function StatusBadge({
   );
 });
 
+StatusBadge.displayName = 'StatusBadge';
+
 /**
- * Change Set Summary Component
- *
- * @example
- * ```tsx
- * <ChangeSetSummary
- *   summary={changeSetSummary}
- *   interactive
- *   onClick={() => openChangeSet(id)}
- * />
- * ```
+ * Headless hook: handles all business logic for ChangeSetSummary
  */
-const ChangeSetSummaryBase = React.forwardRef<
+export function useChangeSetSummary(
+  summary: ChangeSetSummaryData,
+  {
+    interactive = false,
+    onClick,
+  }: Pick<ChangeSetSummaryProps, 'interactive' | 'onClick'>
+) {
+  const handleClick = React.useCallback(() => {
+    if (interactive && onClick) {
+      onClick();
+    }
+  }, [interactive, onClick]);
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (interactive && onClick && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        onClick();
+      }
+    },
+    [interactive, onClick]
+  );
+
+  const formattedDate = React.useMemo(() => {
+    const date = new Date(summary.createdAt);
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }, [summary.createdAt]);
+
+  return {
+    handleClick,
+    handleKeyDown,
+    formattedDate,
+    summary,
+    interactive,
+  };
+}
+
+/**
+ * Desktop presenter for ChangeSetSummary
+ */
+const ChangeSetSummaryDesktop = React.forwardRef<
   HTMLDivElement,
   ChangeSetSummaryProps
 >(
@@ -276,8 +320,69 @@ const ChangeSetSummaryBase = React.forwardRef<
   }
 );
 
-ChangeSetSummaryBase.displayName = 'ChangeSetSummary';
+ChangeSetSummaryDesktop.displayName = 'ChangeSetSummaryDesktop';
 
-export const ChangeSetSummary = React.memo(ChangeSetSummaryBase);
+/**
+ * Mobile presenter for ChangeSetSummary
+ */
+const ChangeSetSummaryMobile = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
+  (props, ref) => (
+    <ChangeSetSummaryDesktop ref={ref} {...props} compact />
+  )
+);
+
+ChangeSetSummaryMobile.displayName = 'ChangeSetSummaryMobile';
+
+/**
+ * Tablet presenter for ChangeSetSummary
+ */
+const ChangeSetSummaryTablet = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
+  (props, ref) => (
+    <ChangeSetSummaryDesktop ref={ref} {...props} />
+  )
+);
+
+ChangeSetSummaryTablet.displayName = 'ChangeSetSummaryTablet';
+
+/**
+ * Auto-detecting wrapper component with platform presenter selection
+ *
+ * @example
+ * ```tsx
+ * <ChangeSetSummary
+ *   summary={changeSetSummary}
+ *   interactive
+ *   onClick={() => openChangeSet(id)}
+ * />
+ * ```
+ */
+const ChangeSetSummaryRoot = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
+  ({ presenter, ...props }, ref) => {
+    const platform = usePlatform();
+    const selectedPresenter = presenter || platform;
+
+    const PresenterComponent = React.useMemo(() => {
+      switch (selectedPresenter) {
+        case 'mobile':
+          return ChangeSetSummaryMobile;
+        case 'tablet':
+          return ChangeSetSummaryTablet;
+        case 'desktop':
+        default:
+          return ChangeSetSummaryDesktop;
+      }
+    }, [selectedPresenter]);
+
+    return (
+      <React.Suspense fallback={<div className="animate-pulse h-24 bg-muted rounded-lg" />}>
+        <PresenterComponent ref={ref} {...props} />
+      </React.Suspense>
+    );
+  }
+);
+
+ChangeSetSummaryRoot.displayName = 'ChangeSetSummary';
+
+export const ChangeSetSummary = React.memo(ChangeSetSummaryRoot);
 
 export { summaryVariants, operationBadgeVariants };

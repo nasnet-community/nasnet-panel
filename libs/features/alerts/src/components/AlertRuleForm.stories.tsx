@@ -9,11 +9,13 @@
  * no-op callbacks for onSuccess / onCancel.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { AlertRuleForm } from './AlertRuleForm';
+
 import type { AlertRuleFormData } from '../schemas/alert-rule.schema';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

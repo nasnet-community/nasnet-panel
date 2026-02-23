@@ -464,6 +464,13 @@ export {
 export * from './common';
 export * from './domain';
 
+// Re-export from primitives and layouts for convenience
+export { Icon } from '@nasnet/ui/primitives';
+export type { IconProps } from '@nasnet/ui/primitives';
+
+export { usePlatform } from '@nasnet/ui/layouts';
+export type { Platform } from '@nasnet/ui/layouts';
+
 // StaleIndicator - Indicator for stale data that needs refresh
 export * from './stale-indicator';
 
@@ -1486,3 +1493,26 @@ export type {
   UseUpdateIndicatorReturn,
   UpdateProgressBarProps,
 } from './update-indicator';
+
+// ============================================================================
+// Routing Chain Visualization (NAS-8.10)
+// ============================================================================
+
+// RoutingChainViz - Multi-hop routing chain visualization
+// Headless hook + Platform Presenters pattern (Horizontal for desktop, Vertical for mobile)
+export {
+  RoutingChainViz,
+  RoutingChainVizDesktop,
+  RoutingChainVizMobile,
+  useRoutingChainViz,
+} from './routing-chain-viz';
+export type {
+  RoutingChainVizProps,
+  RoutingChainVizPresenterProps,
+  RoutingChainData,
+  ChainHopData,
+  RoutingMode,
+  KillSwitchMode,
+  HopHealth,
+  UseRoutingChainVizReturn,
+} from './routing-chain-viz';

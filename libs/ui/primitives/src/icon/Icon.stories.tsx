@@ -25,30 +25,46 @@ const meta: Meta<typeof Icon> = {
   component: Icon,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'Unified icon wrapper ensuring consistent sizing, accessibility, and semantic token usage. Accepts any lucide-react icon component via the icon prop. When a label is provided, the icon renders with aria-label and role="img"; otherwise it is hidden from assistive technology with aria-hidden="true".',
+          'Unified icon wrapper ensuring consistent sizing, accessibility, and semantic token usage across the application. Supports any lucide-react icon component. When a label is provided, the icon renders with aria-label and role="img"; otherwise it is hidden from assistive technology with aria-hidden="true" (decorative). Always use semantic color tokens (text-primary, text-success, text-error, text-warning, text-info, text-muted) for WCAG AAA 7:1 contrast compliance. Platform-responsive sizing: mobile (20-24px) for touch, desktop (16-20px) for density.',
       },
     },
   },
   argTypes: {
     icon: {
-      description: 'The lucide-react icon component to render',
+      description: 'The lucide-react icon component to render (import from lucide-react)',
+      table: {
+        type: { summary: 'LucideIcon' },
+      },
     },
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl', 16, 20, 24, 32, 48],
-      description: 'Size preset or custom pixel value',
+      description:
+        'Size preset (sm=16px, md=20px, lg=24px, xl=32px) or custom pixel value. Mobile: use lg/24px, Desktop: use md/20px',
+      table: {
+        type: { summary: "'sm' | 'md' | 'lg' | 'xl' | number" },
+        defaultValue: { summary: "'md'" },
+      },
     },
     label: {
       control: 'text',
-      description: 'Accessible label. When provided, sets aria-label and role="img".',
+      description:
+        'Accessible label for screen readers. If provided, sets aria-label and role="img". If omitted, icon is hidden with aria-hidden="true" (decorative).',
+      table: {
+        type: { summary: 'string' },
+      },
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes for color and styling',
+      description:
+        'Additional CSS classes for styling. Use semantic color tokens only: text-primary, text-success, text-error, text-warning, text-info, text-muted. Never use hardcoded colors like text-cyan-500.',
+      table: {
+        type: { summary: 'string' },
+      },
     },
   },
 };
@@ -148,35 +164,35 @@ export const NetworkContextIcons: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Wifi} size="lg" className="text-cyan-500" />
+        <Icon icon={Wifi} size="lg" className="text-networkWireless" label="WiFi" />
         <span className="text-xs text-muted-foreground">WiFi</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Shield} size="lg" className="text-orange-500" />
+        <Icon icon={Shield} size="lg" className="text-categoryFirewall" label="Firewall" />
         <span className="text-xs text-muted-foreground">Firewall</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Lock} size="lg" className="text-green-500" />
+        <Icon icon={Lock} size="lg" className="text-networkVpn" label="VPN" />
         <span className="text-xs text-muted-foreground">VPN</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Globe} size="lg" className="text-blue-500" />
+        <Icon icon={Globe} size="lg" className="text-networkWan" label="WAN" />
         <span className="text-xs text-muted-foreground">WAN</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Server} size="lg" className="text-gray-500" />
+        <Icon icon={Server} size="lg" className="text-categorySystem" label="Server" />
         <span className="text-xs text-muted-foreground">Server</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Cpu} size="lg" className="text-purple-500" />
+        <Icon icon={Cpu} size="lg" className="text-categoryMonitoring" label="CPU" />
         <span className="text-xs text-muted-foreground">CPU</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={HardDrive} size="lg" className="text-indigo-500" />
+        <Icon icon={HardDrive} size="lg" className="text-categoryNetworking" label="Storage" />
         <span className="text-xs text-muted-foreground">Storage</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Terminal} size="lg" className="text-gray-700" />
+        <Icon icon={Terminal} size="lg" className="text-muted" label="CLI" />
         <span className="text-xs text-muted-foreground">CLI</span>
       </div>
     </div>
@@ -204,4 +220,131 @@ export const InlineWithText: Story = {
       </div>
     </div>
   ),
+};
+
+export const MobileViewport: Story = {
+  args: {
+    icon: Wifi,
+    size: 'lg',
+    label: 'WiFi status',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+};
+
+export const TabletViewport: Story = {
+  args: {
+    icon: Router,
+    size: 'md',
+    label: 'Router device',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+};
+
+export const DesktopViewport: Story = {
+  args: {
+    icon: Settings,
+    size: 'md',
+    label: 'Settings',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+};
+
+export const DarkModeVariant: Story = {
+  args: {
+    icon: CheckCircle,
+    size: 'lg',
+    className: 'text-success',
+    label: 'Success indicator',
+  },
+  parameters: {
+    backgrounds: {
+      default: 'dark',
+    },
+  },
+};
+
+export const AccessibilityCompliance: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="mb-3 text-sm font-medium">Decorative Icons (aria-hidden)</h3>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Icon icon={Wifi} size="md" />
+            <span className="text-xs text-muted-foreground">No label (decorative)</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-medium">Semantic Icons with Labels (aria-label)</h3>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Icon icon={CheckCircle} size="md" className="text-success" label="Connected" />
+            <span className="text-xs text-muted-foreground">With label</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Icon icon={XCircle} size="md" className="text-error" label="Disconnected" />
+            <span className="text-xs text-muted-foreground">With label</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-medium">Semantic Color Compliance (7:1 Contrast)</h3>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <Icon icon={CheckCircle} size="lg" className="text-success" label="Success" />
+            <span className="text-sm">Success (Green #22C55E)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Icon icon={AlertTriangle} size="lg" className="text-warning" label="Warning" />
+            <span className="text-sm">Warning (Amber #F59E0B)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Icon icon={XCircle} size="lg" className="text-error" label="Error" />
+            <span className="text-sm">Error (Red #EF4444)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Icon icon={Activity} size="lg" className="text-info" label="Info" />
+            <span className="text-sm">Info (Blue #0EA5E9)</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-medium">Touch Target Sizes (44px minimum)</h3>
+        <div className="flex flex-col gap-2">
+          <button className="flex items-center justify-center gap-2 rounded border border-border p-3">
+            <Icon icon={Wifi} size="lg" label="WiFi status" />
+            <span className="text-sm">Mobile (lg=24px icon in 44px target)</span>
+          </button>
+          <button className="flex items-center justify-center gap-2 rounded border border-border p-2">
+            <Icon icon={Settings} size="md" label="Settings" />
+            <span className="text-sm">Desktop (md=20px icon in 36px target)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates WCAG AAA accessibility compliance: decorative icons hidden from screen readers with aria-hidden="true", semantic icons properly labeled with aria-label, 7:1 contrast ratio maintained for all semantic colors, and proper touch target sizing (44px minimum for mobile).',
+      },
+    },
+  },
 };

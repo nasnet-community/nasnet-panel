@@ -8,3 +8,11 @@ export {
   TableCell,
   TableCaption,
 } from './table';
+export type {
+  TableProps,
+  TableSectionProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+  TableCaptionProps,
+} from './table';

@@ -1,11 +1,8 @@
+import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-
 import { InterfaceType, InterfaceStatus } from '@nasnet/api-client/generated';
 import { GET_INTERFACES, INTERFACE_STATUS_CHANGED } from '@nasnet/api-client/queries';
-
 import { InterfaceList } from './InterfaceList';
-
-import type { Meta, StoryObj } from '@storybook/react';
 
 const mockInterfaces = [
   {
@@ -148,6 +145,8 @@ const mocks = [
   },
 ];
 
+type Story = StoryObj<typeof InterfaceList>;
+
 const meta: Meta<typeof InterfaceList> = {
   title: 'Features/Network/InterfaceList',
   component: InterfaceList,
@@ -167,7 +166,6 @@ const meta: Meta<typeof InterfaceList> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof InterfaceList>;
 
 export const Default: Story = {
   args: {
@@ -247,7 +245,7 @@ export const Empty: Story = {
   ],
 };
 
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     routerId: 'router-1',
   },

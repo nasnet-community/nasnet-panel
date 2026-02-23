@@ -11,19 +11,43 @@ import type { ZodSchema, z } from 'zod';
 
 /**
  * Risk-based validation strategy.
- * - low: Client-side Zod only (WiFi password, display name)
- * - medium: Zod + Backend API (firewall rules, DHCP settings)
- * - high: Zod + Backend + Dry-Run + Preview + Confirm (WAN changes, VPN deletion)
+ *
+ * Determines the depth and rigor of validation applied to form data:
+ * - `low`: Client-side Zod only (WiFi password, display name)
+ * - `medium`: Zod + Backend API (firewall rules, DHCP settings)
+ * - `high`: Zod + Backend + Dry-Run + Preview + Confirm (WAN changes, VPN deletion)
+ *
+ * @see ValidationConfig
+ * @see ValidationResult
  */
 export type ValidationStrategy = 'low' | 'medium' | 'high';
 
 /**
  * Form field modes for different interaction states.
+ *
+ * - `editable`: User can modify the field value
+ * - `readonly`: Field is displayed but not editable
+ * - `hidden`: Field is not displayed to user
+ * - `computed`: Value is automatically calculated from other fields
+ *
+ * @see DynamicFieldProps
  */
 export type FieldMode = 'editable' | 'readonly' | 'hidden' | 'computed';
 
 /**
  * 7-Stage validation pipeline stages.
+ *
+ * Represents the ordered sequence of validation checks executed on form data:
+ * - `schema`: Zod schema validation
+ * - `syntax`: Syntax and format validation
+ * - `cross-resource`: Conflicts with other resources (IPs, ports, names)
+ * - `dependencies`: Field dependency validation
+ * - `network`: Network connectivity and availability checks
+ * - `platform`: Platform-specific rules (RouterOS version, capabilities)
+ * - `dry-run`: Actual backend dry-run execution
+ *
+ * @see ValidationStageResult
+ * @see ValidationPipelineResult
  */
 export type ValidationStage =
   | 'schema'
@@ -36,6 +60,15 @@ export type ValidationStage =
 
 /**
  * Status of a validation stage.
+ *
+ * Indicates the current state of a validation stage:
+ * - `pending`: Stage has not been executed yet
+ * - `running`: Stage is currently being executed
+ * - `passed`: Stage completed successfully
+ * - `failed`: Stage completed with errors
+ * - `skipped`: Stage was skipped based on validation strategy
+ *
+ * @see ValidationStageResult
  */
 export type ValidationStageStatus =
   | 'pending'
@@ -46,12 +79,28 @@ export type ValidationStageStatus =
 
 /**
  * Result of a single validation stage.
+ *
+ * Contains all information about the execution and outcome of a validation stage,
+ * including errors, warnings, and performance metrics.
+ *
+ * @see ValidationStage
+ * @see ValidationError
+ * @see ValidationWarning
  */
 export interface ValidationStageResult {
+  /** The validation stage this result belongs to */
   stage: ValidationStage;
+
+  /** Current status of the stage */
   status: ValidationStageStatus;
-  errors: ValidationError[];
-  warnings: ValidationWarning[];
+
+  /** Blocking errors that occurred during this stage */
+  readonly errors: readonly ValidationError[];
+
+  /** Non-blocking warnings from this stage */
+  readonly warnings: readonly ValidationWarning[];
+
+  /** Duration of stage execution in milliseconds */
   durationMs?: number;
 }
 
@@ -161,6 +210,27 @@ export interface ValidationPipelineResult {
 
 /**
  * Options for the useAsyncValidation hook.
+ *
+ * Configures asynchronous field validation with debouncing support.
+ * Combines synchronous Zod validation with async server-side validation.
+ *
+ * @template T - Zod schema type for field validation
+ *
+ * @property schema - Zod schema used for synchronous validation before async validation
+ * @property validateFn - Async function that validates the field value and returns error message or null
+ * @property debounceMs - Milliseconds to debounce async validation calls (default: 300)
+ *
+ * @example
+ * ```tsx
+ * const options: UseAsyncValidationOptions<typeof emailSchema> = {
+ *   schema: z.string().email(),
+ *   validateFn: async (email) => {
+ *     const exists = await checkEmailExists(email);
+ *     return exists ? 'Email already registered' : null;
+ *   },
+ *   debounceMs: 500,
+ * };
+ * ```
  */
 export interface UseAsyncValidationOptions<T extends ZodSchema> {
   schema: T;

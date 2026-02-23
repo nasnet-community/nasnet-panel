@@ -9,7 +9,6 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
-import { useState } from 'react';
 
 import { within, userEvent, expect, waitFor } from 'storybook/test';
 

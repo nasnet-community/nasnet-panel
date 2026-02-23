@@ -98,7 +98,7 @@ export interface FormSectionHeaderProps {
  */
 export interface FormSectionErrorsProps {
   /** Array of error messages to display */
-  errors: string[];
+  errors?: string[];
 
   /** Optional className for custom styling */
   className?: string;

@@ -1,11 +1,13 @@
 /**
  * MetricDisplay Mobile Presenter
  *
- * Touch-optimized presenter for mobile devices.
- * Features larger touch targets, simplified layout.
+ * Touch-optimized presenter for mobile devices (<640px).
+ * Features 44px minimum touch targets, simplified vertical layout, and reduced motion support.
  *
  * @see ADR-018 for Headless + Presenter architecture
  */
+
+import { memo, useCallback } from 'react';
 
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 
@@ -18,12 +20,13 @@ import type { MetricDisplayProps } from './types';
 /**
  * Mobile-optimized MetricDisplay presenter
  *
- * - Full-width card layout
- * - 44px minimum touch target
- * - Larger text for readability
- * - Vertical stacking for narrow screens
+ * - Full-width card layout for narrow screens
+ * - 44px minimum touch target for accessibility
+ * - Larger text for improved readability on small screens
+ * - Vertical stacking for mobile scrolling
+ * - Active scale feedback for touch interaction
  */
-export function MetricDisplayMobile(props: MetricDisplayProps) {
+function MetricDisplayMobileComponent(props: MetricDisplayProps) {
   const { label, icon: Icon, description, isLoading, onClick, className } = props;
 
   const {
@@ -45,11 +48,23 @@ export function MetricDisplayMobile(props: MetricDisplayProps) {
         ? Minus
         : null;
 
+  // Memoize keyboard handler for stable reference
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isInteractive) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick?.();
+      }
+    },
+    [isInteractive, onClick]
+  );
+
   if (isLoading) {
     return (
       <div
         className={cn(
-          'bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700',
+          'bg-card dark:bg-slate-800 rounded-2xl border border-border dark:border-slate-700',
           sizeClasses.container,
           className
         )}
@@ -66,10 +81,11 @@ export function MetricDisplayMobile(props: MetricDisplayProps) {
     <Component
       {...ariaProps}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       className={cn(
-        'w-full text-left bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700',
+        'w-full text-left bg-card dark:bg-slate-800 rounded-2xl border border-border dark:border-slate-700',
         'transition-all duration-200',
-        isInteractive && 'min-h-[44px] active:scale-[0.98] active:bg-slate-50 dark:active:bg-slate-700/50',
+        isInteractive && 'min-h-[44px] active:scale-[0.98] active:bg-muted',
         sizeClasses.container,
         className
       )}
@@ -79,14 +95,14 @@ export function MetricDisplayMobile(props: MetricDisplayProps) {
         {Icon && (
           <Icon
             className={cn(
-              'text-slate-500 dark:text-slate-400 flex-shrink-0',
+              'text-muted-foreground flex-shrink-0',
               sizeClasses.icon
             )}
           />
         )}
         <span
           className={cn(
-            'font-medium text-slate-600 dark:text-slate-400',
+            'font-medium text-muted-foreground',
             sizeClasses.label
           )}
         >
@@ -111,10 +127,14 @@ export function MetricDisplayMobile(props: MetricDisplayProps) {
 
       {/* Description */}
       {description && (
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-xs text-muted-foreground">
           {description}
         </p>
       )}
     </Component>
   );
 }
+
+MetricDisplayMobileComponent.displayName = 'MetricDisplayMobile';
+
+export const MetricDisplayMobile = memo(MetricDisplayMobileComponent);

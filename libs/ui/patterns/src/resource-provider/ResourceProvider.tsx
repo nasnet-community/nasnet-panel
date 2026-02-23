@@ -243,45 +243,77 @@ ResourceProvider.displayName = 'ResourceProvider';
 /**
  * Renders children only when resource is loading
  */
-export const ResourceLoading: React.FC<{
+export const ResourceLoading = React.memo(function ResourceLoading({
+  children,
+  fallback = null,
+}: {
   children: React.ReactNode;
   fallback?: React.ReactNode;
-}> = ({ children, fallback = null }) => {
+}) {
   const { loading } = useResourceContext();
   return loading ? <>{children}</> : <>{fallback}</>;
-};
+}) as React.FC<{
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}>;
+
+ResourceLoading.displayName = 'ResourceLoading';
 
 /**
  * Renders children only when resource has an error
  */
-export const ResourceError: React.FC<{
+export const ResourceError = React.memo(function ResourceError({
+  children,
+}: {
   children: (error: string) => React.ReactNode;
-}> = ({ children }) => {
+}) {
   const { error } = useResourceContext();
   return error ? <>{children(error)}</> : null;
-};
+}) as React.FC<{
+  children: (error: string) => React.ReactNode;
+}>;
+
+ResourceError.displayName = 'ResourceError';
 
 /**
  * Renders children only when resource is loaded
  */
-export const ResourceLoaded: React.FC<{
+export const ResourceLoaded = React.memo(function ResourceLoaded({
+  children,
+  fallback = null,
+}: {
   children: React.ReactNode;
   fallback?: React.ReactNode;
-}> = ({ children, fallback = null }) => {
+}) {
   const { resource, loading } = useResourceContext();
   return !loading && resource ? <>{children}</> : <>{fallback}</>;
-};
+}) as React.FC<{
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}>;
+
+ResourceLoaded.displayName = 'ResourceLoaded';
 
 /**
  * Renders children only when resource is in specific states
  */
-export const ResourceState: React.FC<{
+export const ResourceState = React.memo(function ResourceState({
+  states,
+  children,
+  fallback = null,
+}: {
   states: ResourceLifecycleState[];
   children: React.ReactNode;
   fallback?: React.ReactNode;
-}> = ({ states, children, fallback = null }) => {
+}) {
   const { state } = useResourceContext();
   return state && states.includes(state) ? <>{children}</> : <>{fallback}</>;
-};
+}) as React.FC<{
+  states: ResourceLifecycleState[];
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}>;
+
+ResourceState.displayName = 'ResourceState';
 
 export default ResourceProvider;

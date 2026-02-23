@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -34,7 +34,7 @@ type trafficPollingSession struct {
 	routerID    string
 	vlanID      int
 	interval    time.Duration
-	subscribers []chan *graphql.ServiceTrafficStats
+	subscribers []chan *model.ServiceTrafficStats
 	subMu       sync.RWMutex
 	cancelFunc  context.CancelFunc
 }
@@ -55,7 +55,7 @@ func (p *ServiceTrafficPoller) Subscribe(
 	instanceID, routerID string,
 	vlanID int,
 	interval time.Duration,
-) (<-chan *graphql.ServiceTrafficStats, error) {
+) (<-chan *model.ServiceTrafficStats, error) {
 	// Enforce rate limiting
 	if interval < MinTrafficPollingInterval {
 		interval = MinTrafficPollingInterval
@@ -77,7 +77,7 @@ func (p *ServiceTrafficPoller) Subscribe(
 			routerID:    routerID,
 			vlanID:      vlanID,
 			interval:    interval,
-			subscribers: make([]chan *graphql.ServiceTrafficStats, 0),
+			subscribers: make([]chan *model.ServiceTrafficStats, 0),
 			cancelFunc:  cancel,
 		}
 		p.sessions[instanceID] = session
@@ -88,7 +88,7 @@ func (p *ServiceTrafficPoller) Subscribe(
 	}
 
 	// Create subscriber channel with buffer to prevent blocking
-	ch := make(chan *graphql.ServiceTrafficStats, 10)
+	ch := make(chan *model.ServiceTrafficStats, 10)
 
 	// Add subscriber to session
 	session.subMu.Lock()
@@ -153,14 +153,14 @@ func (p *ServiceTrafficPoller) fetchAndBroadcast(ctx context.Context, session *t
 	txBytes := parseBytes(getStringOrEmpty(data, "tx-byte"))
 	rxBytes := parseBytes(getStringOrEmpty(data, "rx-byte"))
 
-	stats := &graphql.ServiceTrafficStats{
+	stats := &model.ServiceTrafficStats{
 		InstanceID:            session.instanceID,
 		TotalUploadBytes:      txBytes,
 		TotalDownloadBytes:    rxBytes,
 		CurrentPeriodUpload:   txBytes,
 		CurrentPeriodDownload: rxBytes,
-		History:               []*graphql.TrafficDataPoint{},
-		DeviceBreakdown:       []*graphql.DeviceTrafficBreakdown{},
+		History:               []*model.TrafficDataPoint{},
+		DeviceBreakdown:       []*model.DeviceTrafficBreakdown{},
 		Quota:                 nil,
 		LastUpdated:           time.Now(),
 	}
@@ -183,7 +183,7 @@ func (p *ServiceTrafficPoller) fetchAndBroadcast(ctx context.Context, session *t
 }
 
 // unsubscribe removes a subscriber channel from a traffic session
-func (p *ServiceTrafficPoller) unsubscribe(instanceID string, ch chan *graphql.ServiceTrafficStats) {
+func (p *ServiceTrafficPoller) unsubscribe(instanceID string, ch chan *model.ServiceTrafficStats) {
 	p.sessionsMu.Lock()
 	defer p.sessionsMu.Unlock()
 

@@ -119,8 +119,14 @@ func (s *PortMirrorService) CreatePortMirror(
 		return nil, fmt.Errorf("failed to create port mirror: %w", err)
 	}
 
-	// Publish event - TODO: Publish port mirror created event //nolint:revive
-	_ = s.eventBus
+	// Publish port mirror created event
+	if s.eventBus != nil {
+		event := events.NewGenericEvent("port_mirror.created", events.PriorityNormal, "port-mirror-service", map[string]interface{}{
+			"mirror_id":             mirror.ID,
+			"destination_interface": mirror.DestinationInterface.ID,
+		})
+		_ = s.eventBus.Publish(ctx, event) //nolint:errcheck // non-critical event
+	}
 
 	// Enrich with statistics
 	stats, err := s.getPortMirrorStats(ctx, mirror.DestinationInterface.ID)
@@ -160,8 +166,13 @@ func (s *PortMirrorService) UpdatePortMirror(
 		return nil, fmt.Errorf("failed to update port mirror: %w", err)
 	}
 
-	// Publish event
-	if s.eventBus != nil { //nolint:revive,staticcheck // intentional no-op
+	// Publish port mirror updated event
+	if s.eventBus != nil {
+		event := events.NewGenericEvent("port_mirror.updated", events.PriorityNormal, "port-mirror-service", map[string]interface{}{
+			"mirror_id":             mirror.ID,
+			"destination_interface": mirror.DestinationInterface.ID,
+		})
+		_ = s.eventBus.Publish(ctx, event) //nolint:errcheck // non-critical event
 	}
 
 	// Enrich with statistics
@@ -191,8 +202,12 @@ func (s *PortMirrorService) DeletePortMirror(ctx context.Context, routerID, mirr
 		return fmt.Errorf("failed to delete port mirror: %w", err)
 	}
 
-	// Publish event
-	if s.eventBus != nil { //nolint:revive,staticcheck // intentional no-op
+	// Publish port mirror deleted event
+	if s.eventBus != nil {
+		event := events.NewGenericEvent("port_mirror.deleted", events.PriorityNormal, "port-mirror-service", map[string]interface{}{
+			"mirror_id": mirrorID,
+		})
+		_ = s.eventBus.Publish(ctx, event) //nolint:errcheck // non-critical event
 	}
 
 	return nil

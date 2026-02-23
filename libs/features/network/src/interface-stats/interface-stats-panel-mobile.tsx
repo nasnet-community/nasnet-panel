@@ -2,43 +2,58 @@
  * InterfaceStatsPanelMobile Component
  * Mobile presenter for interface statistics panel
  *
+ * @description
+ * Displays interface statistics in a mobile-optimized stacked card layout.
+ * Emphasizes bandwidth rates, minimizes technical details, uses larger
+ * touch targets (44px minimum), and optimizes for vertical scrolling.
+ *
  * NAS-6.9: Implement Interface Traffic Statistics
  * ADR-018: Headless + Platform Presenters
  */
 
-import { memo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import { memo, useMemo } from 'react';
+
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { useInterfaceStatsPanel } from './use-interface-stats-panel';
-import { StatsCounter } from './stats-counter';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle , Alert, AlertDescription , Skeleton } from '@nasnet/ui/primitives';
+
 import { ErrorRateIndicator } from './error-rate-indicator';
+import { StatsCounter } from './stats-counter';
+import { useInterfaceStatsPanel } from './use-interface-stats-panel';
+
 import type { InterfaceStatsPanelProps } from './interface-stats-panel.types';
 
+/** Kilobits constant for decimal calculations */
+const K_BITS_DECIMAL = 1000n;
+
+/** Bandwidth units for decimal formatting (bps, Kbps, Mbps, Gbps, Tbps) */
+const BANDWIDTH_UNITS = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'];
+
+/** Error rate threshold above which warning is displayed */
+const ERROR_RATE_THRESHOLD = 0.1;
+
 /**
- * Formats BigInt bandwidth to bits per second with unit
+ * Formats BigInt bandwidth to bits per second with appropriate unit
+ * @param bytesPerSec - Bytes per second as BigInt
+ * @returns Formatted bandwidth string (e.g., "1.23 Mbps")
  */
 function formatBitsPerSecBigInt(bytesPerSec: bigint): string {
   const bitsPerSec = bytesPerSec * 8n;
 
-  const k = 1000n;
-  const sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'];
-
   let value = bitsPerSec;
   let unitIndex = 0;
 
-  while (value >= k && unitIndex < sizes.length - 1) {
-    value = value / k;
+  while (value >= K_BITS_DECIMAL && unitIndex < BANDWIDTH_UNITS.length - 1) {
+    value = value / K_BITS_DECIMAL;
     unitIndex++;
   }
 
-  const divisor = k ** BigInt(unitIndex);
+  const divisor = K_BITS_DECIMAL ** BigInt(unitIndex);
   const integerPart = bitsPerSec / divisor;
   const remainder = bitsPerSec % divisor;
   const decimalValue = Number(integerPart) + Number(remainder) / Number(divisor);
 
-  return `${decimalValue.toFixed(2)} ${sizes[unitIndex]}`;
+  return `${decimalValue.toFixed(2)} ${BANDWIDTH_UNITS[unitIndex]}`;
 }
 
 /**
@@ -66,7 +81,10 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
 
   const { stats, rates, errorRate, loading, error, hasErrors } = statsState;
 
-  // Loading state
+  // Memoize high error rate check to avoid recalculation
+  const isHighErrorRate = useMemo(() => errorRate > ERROR_RATE_THRESHOLD, [errorRate]);
+
+  // Loading state with skeleton placeholders
   if (loading && !stats) {
     return (
       <div className={className}>
@@ -87,7 +105,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
     );
   }
 
-  // Error state
+  // Error state with actionable message
   if (error && !stats) {
     return (
       <div className={className}>
@@ -98,8 +116,10 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           </CardHeader>
           <CardContent>
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">{error.message}</AlertDescription>
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertDescription className="text-sm">
+                {error.message || 'Could not retrieve statistics. Check router connection.'}
+              </AlertDescription>
             </Alert>
           </CardContent>
         </Card>
@@ -119,7 +139,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
-                {interfaceName}
+                <span className="truncate">{interfaceName}</span>
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
                 Real-time statistics
@@ -150,12 +170,12 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-1/20">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-1/20" aria-hidden="true">
                           <ArrowUp className="h-5 w-5 text-chart-1" />
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <div className="text-sm text-muted-foreground">TX Rate</div>
-                          <div className="text-xl font-bold tabular-nums">
+                          <div className="text-xl font-bold font-mono tabular-nums truncate">
                             {formatBitsPerSecBigInt(rates.txRate)}
                           </div>
                         </div>
@@ -168,12 +188,12 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-2/20">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-2/20" aria-hidden="true">
                           <ArrowDown className="h-5 w-5 text-chart-2" />
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <div className="text-sm text-muted-foreground">RX Rate</div>
-                          <div className="text-xl font-bold tabular-nums">
+                          <div className="text-xl font-bold font-mono tabular-nums truncate">
                             {formatBitsPerSecBigInt(rates.rxRate)}
                           </div>
                         </div>
@@ -214,11 +234,11 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
             <ErrorRateIndicator rate={errorRate} trend={0} threshold={0.1} />
 
             {/* High Error Warning */}
-            {errorRate > 0.1 && (
+            {isHighErrorRate && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription className="text-sm">
-                  High error rate detected - check cable connections
+                  High error rate detected ({(ERROR_RATE_THRESHOLD * 100).toFixed(1)}+%) - check cable connections.
                 </AlertDescription>
               </Alert>
             )}
@@ -228,3 +248,5 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
     </div>
   );
 });
+
+InterfaceStatsPanelMobile.displayName = 'InterfaceStatsPanelMobile';

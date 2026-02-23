@@ -91,7 +91,7 @@ interface ActionButtonProps {
   disabled?: boolean;
 }
 
-function ActionButton({
+const ActionButton = React.memo(function ActionButton({
   icon,
   title,
   description,
@@ -120,7 +120,9 @@ function ActionButton({
       <p className="text-sm text-muted-foreground text-left">{description}</p>
     </button>
   );
-}
+});
+
+ActionButton.displayName = 'ActionButton';
 
 // =============================================================================
 // Main Component
@@ -146,7 +148,10 @@ function ActionButton({
  * />
  * ```
  */
-export function DriftResolutionModal({
+const DriftResolutionModalBase = React.forwardRef<
+  HTMLDivElement,
+  DriftResolutionModalProps
+>(function DriftResolutionModal({
   open,
   onOpenChange,
   result,
@@ -155,7 +160,7 @@ export function DriftResolutionModal({
   onResolve,
   isResolving = false,
   error,
-}: DriftResolutionModalProps) {
+}, ref) {
   const [state, setState] = React.useState<ModalState>('diff');
   const [selectedFields, setSelectedFields] = React.useState<string[]>([]);
 
@@ -199,8 +204,9 @@ export function DriftResolutionModal({
   const selectedCount = selectedFields.length;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+    <div ref={ref}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <svg
@@ -458,5 +464,10 @@ export function DriftResolutionModal({
         )}
       </DialogContent>
     </Dialog>
+    </div>
   );
-}
+});
+
+DriftResolutionModalBase.displayName = 'DriftResolutionModal';
+
+export const DriftResolutionModal = React.memo(DriftResolutionModalBase);

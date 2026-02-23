@@ -33,12 +33,18 @@ func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*Looku
 	// Route based on record type and server
 	var records []Record
 	var lookupErr error
+	var authoritative bool
 
-	// Use RouterOS native lookup for A/AAAA records when using router's DNS
+	// Use RouterOS native lookup for A/AAAA records when using router's DNS.
+	// lookupViaRouterOS detects whether the answer came from the router's own
+	// static DNS table (authoritative=true) or was forwarded/cached (authoritative=false).
+	// lookupViaGoResolver uses Go's net package which does not expose the DNS AA flag,
+	// so authoritative is always false for that path.
 	if (input.RecordType == "A" || input.RecordType == "AAAA") && (input.Server == nil || *input.Server == "") {
-		records, lookupErr = s.lookupViaRouterOS(ctx, input)
+		records, authoritative, lookupErr = s.lookupViaRouterOS(ctx, input)
 	} else {
 		records, lookupErr = s.lookupViaGoResolver(ctx, input, server)
+		authoritative = false // Go's net.Resolver does not expose the DNS AA flag
 	}
 
 	queryTime := int(time.Since(start).Milliseconds())
@@ -53,7 +59,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*Looku
 			Records:       []Record{},
 			Server:        server,
 			QueryTime:     queryTime,
-			Authoritative: false,
+			Authoritative: authoritative,
 			Error:         &errorMsg,
 			Timestamp:     time.Now().Format(time.RFC3339),
 		}, nil
@@ -67,7 +73,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*Looku
 		Records:       records,
 		Server:        server,
 		QueryTime:     queryTime,
-		Authoritative: false, // TODO: Detect from DNS response flags
+		Authoritative: authoritative,
 		Timestamp:     time.Now().Format(time.RFC3339),
 	}, nil
 }

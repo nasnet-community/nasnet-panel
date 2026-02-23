@@ -102,7 +102,7 @@ const variantConfig = {
  * <ProgressBar label="Loading..." />
  * ```
  */
-export function ProgressBar({
+export const ProgressBar = React.memo(function ProgressBar({
   value,
   label,
   showPercentage = false,
@@ -183,6 +183,6 @@ export function ProgressBar({
       )}
     </div>
   );
-}
+});
 
 ProgressBar.displayName = 'ProgressBar';

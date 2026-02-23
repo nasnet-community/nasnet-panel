@@ -37,7 +37,16 @@ export const PLATFORM_THRESHOLDS = {
 } as const;
 
 /**
- * Convert breakpoint to platform
+ * Convert breakpoint identifier to platform designation
+ *
+ * Mapping:
+ * - xs → mobile
+ * - sm, md → tablet
+ * - lg, xl → desktop
+ *
+ * @param breakpoint - Breakpoint identifier
+ * @returns Corresponding platform
+ * @internal
  */
 function breakpointToPlatform(breakpoint: Breakpoint): Platform {
   switch (breakpoint) {
@@ -55,7 +64,18 @@ function breakpointToPlatform(breakpoint: Breakpoint): Platform {
 }
 
 /**
- * Detect platform from viewport width directly
+ * Detect platform directly from viewport width
+ *
+ * Useful for server-side rendering or pre-calculating platform values.
+ * For React components, use `usePlatform()` hook instead.
+ *
+ * @param width - Viewport width in pixels
+ * @returns Platform designation ('mobile' | 'tablet' | 'desktop')
+ *
+ * @example
+ * ```tsx
+ * const platform = detectPlatform(768); // Returns 'tablet'
+ * ```
  */
 export function detectPlatform(width: number): Platform {
   if (width < PLATFORM_THRESHOLDS.MOBILE_MAX) return 'mobile';
@@ -114,12 +134,21 @@ export function usePlatform(debounceMs = 100): Platform {
 /**
  * Hook that returns both platform and breakpoint for more granular control
  *
+ * Use when you need both coarse-grained platform detection and fine-grained
+ * breakpoint information for responsive logic.
+ *
+ * @param debounceMs - Debounce delay in milliseconds (default: 100)
+ * @returns Object with platform ('mobile'|'tablet'|'desktop') and breakpoint ('xs'|'sm'|'md'|'lg'|'xl')
+ *
  * @example
  * ```tsx
  * const { platform, breakpoint } = usePlatformWithBreakpoint();
  *
- * // Use platform for layout shell selection
- * // Use breakpoint for finer-grained responsive adjustments
+ * // Use platform for layout shell selection (MobileAppShell vs AppShell)
+ * // Use breakpoint for finer-grained adjustments (column count, spacing, etc.)
+ * if (platform === 'tablet' && breakpoint === 'md') {
+ *   // Show 2-column layout on medium tablets
+ * }
  * ```
  */
 export function usePlatformWithBreakpoint(debounceMs = 100) {
@@ -130,7 +159,18 @@ export function usePlatformWithBreakpoint(debounceMs = 100) {
 }
 
 /**
- * Check if current platform is mobile
+ * Check if current platform is mobile (<640px)
+ *
+ * @param debounceMs - Debounce delay in milliseconds (default: 100)
+ * @returns true if current viewport is mobile
+ *
+ * @example
+ * ```tsx
+ * const isMobile = useIsMobile();
+ * if (isMobile) {
+ *   // Mobile-specific logic
+ * }
+ * ```
  */
 export function useIsMobile(debounceMs = 100): boolean {
   const platform = usePlatform(debounceMs);
@@ -138,7 +178,10 @@ export function useIsMobile(debounceMs = 100): boolean {
 }
 
 /**
- * Check if current platform is tablet
+ * Check if current platform is tablet (640-1024px)
+ *
+ * @param debounceMs - Debounce delay in milliseconds (default: 100)
+ * @returns true if current viewport is tablet
  */
 export function useIsTablet(debounceMs = 100): boolean {
   const platform = usePlatform(debounceMs);
@@ -146,7 +189,10 @@ export function useIsTablet(debounceMs = 100): boolean {
 }
 
 /**
- * Check if current platform is desktop
+ * Check if current platform is desktop (>1024px)
+ *
+ * @param debounceMs - Debounce delay in milliseconds (default: 100)
+ * @returns true if current viewport is desktop
  */
 export function useIsDesktop(debounceMs = 100): boolean {
   const platform = usePlatform(debounceMs);
@@ -155,7 +201,21 @@ export function useIsDesktop(debounceMs = 100): boolean {
 
 /**
  * Check if current platform supports touch-first interaction
- * (mobile or tablet)
+ *
+ * Returns true for mobile and tablet platforms, false for desktop.
+ * Useful for touch-specific UI adaptations.
+ *
+ * @param debounceMs - Debounce delay in milliseconds (default: 100)
+ * @returns true if platform is mobile or tablet (touch-capable)
+ *
+ * @example
+ * ```tsx
+ * const isTouchPlatform = useIsTouchPlatform();
+ * if (isTouchPlatform) {
+ *   // Increase button size for touch
+ *   // Use swipe gestures instead of drag-drop
+ * }
+ * ```
  */
 export function useIsTouchPlatform(debounceMs = 100): boolean {
   const platform = usePlatform(debounceMs);
@@ -165,14 +225,27 @@ export function useIsTouchPlatform(debounceMs = 100): boolean {
 /**
  * Platform-specific configuration helper
  *
+ * Returns the configuration object matching the current platform.
+ * Useful for adapting layout configurations, animation timings, or other
+ * platform-dependent behavior without conditional rendering.
+ *
+ * @template T - Type of configuration object
+ * @param config - Configuration object with keys for each platform
+ * @returns Configuration object for current platform
+ *
  * @example
  * ```tsx
- * const config = usePlatformConfig({
+ * const layout = usePlatformConfig({
  *   mobile: { columns: 1, gap: 'sm' },
  *   tablet: { columns: 2, gap: 'md' },
  *   desktop: { columns: 3, gap: 'lg' },
  * });
- * // Returns the config for current platform
+ *
+ * return (
+ *   <Grid columns={layout.columns} gap={layout.gap}>
+ *     {items}
+ *   </Grid>
+ * );
  * ```
  */
 export function usePlatformConfig<T>(config: Record<Platform, T>): T {

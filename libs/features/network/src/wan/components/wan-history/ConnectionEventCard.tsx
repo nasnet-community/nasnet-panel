@@ -1,11 +1,16 @@
 /**
  * Connection Event Card Component
  *
- * Display individual connection events in timeline format.
+ * Display individual WAN connection events in a timeline format with visual
+ * status indicators, timestamps, and event-specific details (IP, gateway, reason).
+ *
+ * Includes both full and compact presentations for different viewport contexts.
+ *
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 6: Connection History)
  */
 
 import { formatDistanceToNow, format } from 'date-fns';
+import { useMemo } from 'react';
 import {
   CheckCircle2,
   XCircle,
@@ -15,15 +20,22 @@ import {
   Clock,
 } from 'lucide-react';
 import { Badge } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { ConnectionEventData } from '../../types/wan.types';
 
 export interface ConnectionEventCardProps {
+  /** Connection event data to display */
   event: ConnectionEventData;
+  /** Show WAN interface ID in the header (default: true) */
   showInterface?: boolean;
+  /** Additional CSS classes */
+  className?: string;
 }
 
 /**
- * Get icon and color for event type
+ * Get visual display properties for event type
+ * @description Returns icon, colors, and label based on connection event type
+ * Uses semantic color tokens (success, warning, destructive, muted)
  */
 const getEventDisplay = (eventType: string) => {
   switch (eventType) {
@@ -37,15 +49,15 @@ const getEventDisplay = (eventType: string) => {
     case 'DISCONNECTED':
       return {
         icon: <XCircle className="h-4 w-4" />,
-        color: 'text-error',
-        bgColor: 'bg-error/10',
+        color: 'text-destructive',
+        bgColor: 'bg-destructive/10',
         label: 'Disconnected',
       };
     case 'AUTH_FAILED':
       return {
         icon: <AlertCircle className="h-4 w-4" />,
-        color: 'text-error',
-        bgColor: 'bg-error/10',
+        color: 'text-destructive',
+        bgColor: 'bg-destructive/10',
         label: 'Auth Failed',
       };
     case 'IP_CHANGED':
@@ -74,22 +86,45 @@ const getEventDisplay = (eventType: string) => {
 
 /**
  * Connection Event Card - Timeline item for connection events
+ *
+ * Displays a single connection event with visual timeline indicator, timestamp,
+ * and event-specific details. Uses semantic color tokens based on event type.
  */
-export function ConnectionEventCard({
+function ConnectionEventCardComponent({
   event,
   showInterface = true,
+  className,
 }: ConnectionEventCardProps) {
-  const display = getEventDisplay(event.eventType);
-  const timestamp = new Date(event.timestamp);
-  const relativeTime = formatDistanceToNow(timestamp, { addSuffix: true });
-  const absoluteTime = format(timestamp, 'PPpp'); // e.g., "Apr 29, 2023, 9:30:00 AM"
+  const display = useMemo(() => getEventDisplay(event.eventType), [event.eventType]);
+  const timestamp = useMemo(() => new Date(event.timestamp), [event.timestamp]);
+  const relativeTime = useMemo(
+    () => formatDistanceToNow(timestamp, { addSuffix: true }),
+    [timestamp]
+  );
+  const absoluteTime = useMemo(
+    () => format(timestamp, 'PPpp'),
+    [timestamp]
+  );
+
+  const formatDuration = (seconds: number): string => {
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}m ${secs}s`;
+    }
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${mins}m`;
+  };
 
   return (
-    <div className="flex gap-3 group">
+    <div className={cn('flex gap-3 group', className)}>
       {/* Timeline dot and line */}
       <div className="flex flex-col items-center">
         <div
-          className={`rounded-full p-2 ${display.bgColor} ${display.color}`}
+          className={cn('rounded-full p-2', display.bgColor, display.color)}
+          aria-hidden="true"
         >
           {display.icon}
         </div>
@@ -104,7 +139,7 @@ export function ConnectionEventCard({
               {display.label}
             </Badge>
             {showInterface && event.wanInterfaceId && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-mono">
                 {event.wanInterfaceId}
               </span>
             )}
@@ -143,14 +178,9 @@ export function ConnectionEventCard({
           {/* Duration (for disconnection events) */}
           {event.duration && event.duration > 0 && (
             <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-3 w-3 text-muted-foreground" />
+              <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
               <span className="text-muted-foreground">
-                Duration:{' '}
-                {event.duration < 60
-                  ? `${event.duration}s`
-                  : event.duration < 3600
-                  ? `${Math.floor(event.duration / 60)}m ${event.duration % 60}s`
-                  : `${Math.floor(event.duration / 3600)}h ${Math.floor((event.duration % 3600) / 60)}m`}
+                Duration: {formatDuration(event.duration)}
               </span>
             </div>
           )}
@@ -165,26 +195,41 @@ export function ConnectionEventCard({
   );
 }
 
+export const ConnectionEventCard = Object.assign(
+  ConnectionEventCardComponent,
+  { displayName: 'ConnectionEventCard' }
+) as typeof ConnectionEventCardComponent & { displayName: string };
+
 /**
  * Compact version for mobile/narrow views
+ *
+ * Condensed layout optimized for small viewports, omitting timeline connector
+ * and reducing detail visibility while maintaining essential information.
  */
-export function ConnectionEventCardCompact({
+function ConnectionEventCardCompactComponent({
   event,
   showInterface = true,
+  className,
 }: ConnectionEventCardProps) {
-  const display = getEventDisplay(event.eventType);
-  const timestamp = new Date(event.timestamp);
-  const relativeTime = formatDistanceToNow(timestamp, { addSuffix: true });
+  const display = useMemo(() => getEventDisplay(event.eventType), [event.eventType]);
+  const timestamp = useMemo(() => new Date(event.timestamp), [event.timestamp]);
+  const relativeTime = useMemo(
+    () => formatDistanceToNow(timestamp, { addSuffix: true }),
+    [timestamp]
+  );
 
   return (
-    <div className="flex items-start gap-3 p-3 rounded-lg border">
-      <div className={`rounded-full p-2 ${display.bgColor} ${display.color}`}>
+    <div className={cn('flex items-start gap-3 p-3 rounded-lg border', className)}>
+      <div
+        className={cn('rounded-full p-2', display.bgColor, display.color)}
+        aria-hidden="true"
+      >
         {display.icon}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <Badge variant="outline" className={`${display.color} text-xs`}>
+          <Badge variant="outline" className={cn(display.color, 'text-xs')}>
             {display.label}
           </Badge>
           <time className="text-xs text-muted-foreground">{relativeTime}</time>
@@ -205,3 +250,8 @@ export function ConnectionEventCardCompact({
     </div>
   );
 }
+
+export const ConnectionEventCardCompact = Object.assign(
+  ConnectionEventCardCompactComponent,
+  { displayName: 'ConnectionEventCardCompact' }
+) as typeof ConnectionEventCardCompactComponent & { displayName: string };

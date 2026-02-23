@@ -67,7 +67,9 @@ func NewResourceLimiter(config ResourceLimiterConfig) (*ResourceLimiter, error) 
 		return nil, fmt.Errorf("EventBus is required")
 	}
 
-	if config.Logger == (zerolog.Logger{}) {
+	// zerolog.Logger contains []byte and cannot be compared with ==
+	// Use Nop() as default if no logger output is configured
+	if config.Logger.GetLevel() == zerolog.Disabled {
 		config.Logger = zerolog.Nop()
 	}
 
@@ -289,14 +291,21 @@ func (rl *ResourceLimiter) monitorLoop(ctx context.Context, pid int, instanceID,
 func (rl *ResourceLimiter) emitResourceWarning(ctx context.Context, instanceID, featureID string, pid int, usage *ResourceUsage, limitMB int) {
 	usagePercent := float64(usage.MemoryMB) / float64(limitMB) * 100
 
-	// Use the ResourceWarningEvent from types.go
+	// Use the ResourceWarningEvent from domain_events_extended.go
 	event := events.NewResourceWarningEvent(
 		instanceID,
 		featureID,
-		float64(usage.MemoryMB),
-		limitMB,
-		usagePercent,
-		"resource-limiter",
+		"",                                        // routerID
+		"memory",                                   // resourceType
+		fmt.Sprintf("%.0fMB", float64(usage.MemoryMB)), // currentUsage
+		fmt.Sprintf("%dMB", limitMB),               // limitValue
+		time.Now().UTC().Format(time.RFC3339),       // detectedAt
+		"consider reducing memory usage",            // recommendedAction
+		"",                                          // cgroupPath
+		"",                                          // trendDirection
+		"resource-limiter",                          // source
+		int(ResourceWarningThreshold*100),           // thresholdPercent
+		usagePercent,                                // usagePercent
 	)
 
 	if err := rl.publisher.Publish(ctx, event); err != nil {

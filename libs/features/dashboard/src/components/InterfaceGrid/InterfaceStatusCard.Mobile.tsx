@@ -9,8 +9,8 @@
  * - Touch feedback
  */
 
-import { Card, CardContent } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+import React, { useCallback } from 'react';
+import { Card, CardContent, cn } from '@nasnet/ui/primitives';
 import { InterfaceTypeIcon } from '@nasnet/ui/patterns/network-inputs/interface-selector';
 import { CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -18,7 +18,7 @@ import { useInterfaceStatusCard } from './useInterfaceStatusCard';
 import { formatTrafficRate } from './utils';
 import type { InterfaceStatusCardProps, InterfaceStatus } from './types';
 
-// Status configuration - same as Desktop but for mobile
+// Status configuration - uses semantic status color tokens
 const STATUS_CONFIG: Record<
   InterfaceStatus,
   {
@@ -31,28 +31,32 @@ const STATUS_CONFIG: Record<
   up: {
     icon: CheckCircle2,
     label: 'Up',
-    bgClass: 'bg-success/10',
-    iconClass: 'text-success',
+    bgClass: 'bg-statusConnected/10',
+    iconClass: 'text-statusConnected',
   },
   down: {
     icon: XCircle,
     label: 'Down',
-    bgClass: 'bg-destructive/10',
-    iconClass: 'text-destructive',
+    bgClass: 'bg-statusError/10',
+    iconClass: 'text-statusError',
   },
   disabled: {
     icon: MinusCircle,
     label: 'Disabled',
-    bgClass: 'bg-muted',
-    iconClass: 'text-muted-foreground',
+    bgClass: 'bg-statusDisconnected/10',
+    iconClass: 'text-statusDisconnected',
   },
 };
 
 /**
  * Mobile presenter for InterfaceStatusCard.
  * Optimized for touch interaction with minimum 44px touch targets.
+ *
+ * @description
+ * Simplified compact layout for mobile screens showing interface name, status icon,
+ * combined traffic rates, and IP address on separate lines for readability.
  */
-export function InterfaceStatusCardMobile({
+const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCardMobile({
   interface: iface,
   onSelect,
   className,
@@ -69,16 +73,21 @@ export function InterfaceStatusCardMobile({
   const status = STATUS_CONFIG[iface.status];
   const StatusIcon = status.icon;
 
+  // Memoize click handler with correct dependencies
+  const memoizedHandleClick = useCallback(() => {
+    handleClick();
+  }, [handleClick]);
+
   return (
     <Card
       role="article"
       aria-label={ariaLabel}
       aria-describedby={detailsId}
       tabIndex={0}
-      onClick={handleClick}
+      onClick={memoizedHandleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'cursor-pointer transition-all min-h-[44px]', // 44px touch target
+        'cursor-pointer transition-all min-h-[44px]', // 44px touch target (WCAG AAA)
         'active:bg-accent', // Touch feedback
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         status.bgClass,
@@ -122,4 +131,8 @@ export function InterfaceStatusCardMobile({
       </CardContent>
     </Card>
   );
-}
+});
+
+InterfaceStatusCardMobileComponent.displayName = 'InterfaceStatusCardMobile';
+
+export { InterfaceStatusCardMobileComponent as InterfaceStatusCardMobile };

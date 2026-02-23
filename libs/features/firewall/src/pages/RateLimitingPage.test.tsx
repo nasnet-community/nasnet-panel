@@ -17,8 +17,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { RateLimitingPage } from './RateLimitingPage';
-import { useRateLimitingUIStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { useRateLimitingUIStore, useConnectionStore } from '@nasnet/state/stores';
 import * as queries from '@nasnet/api-client/queries';
 
 // Extend Jest matchers

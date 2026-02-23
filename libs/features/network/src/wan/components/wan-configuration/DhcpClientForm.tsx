@@ -8,9 +8,12 @@
  * - Optional comment
  *
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 2: DHCP)
+ *
+ * @description Manages DHCP WAN client configuration with validation and safety warnings.
+ * Includes interface selection, default route toggle, DNS/NTP settings, and optional comments.
  */
 
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -26,10 +29,11 @@ import {
   DialogFooter,
 } from '@nasnet/ui/primitives';
 import { FormSection, FieldHelp, InterfaceSelector } from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
 import type { RouterInterface } from '@nasnet/ui/patterns';
 import {
   dhcpClientSchema,
-  dhcpClientDefaultValues,
+  DHCP_CLIENT_DEFAULT_VALUES,
   type DhcpClientFormValues,
 } from '../../schemas/dhcp-client.schema';
 import { AlertTriangle, Network } from 'lucide-react';
@@ -95,7 +99,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
   const form = useForm<DhcpClientFormValues>({
     resolver: zodResolver(dhcpClientSchema) as any,
     defaultValues: {
-      ...dhcpClientDefaultValues,
+      ...DHCP_CLIENT_DEFAULT_VALUES,
       ...initialValues,
     },
   });
@@ -104,7 +108,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
    * Handle interface selection
    * Updates form value and stores interface object
    */
-  const handleInterfaceSelect = (interfaceId: string | string[]) => {
+  const handleInterfaceSelect = useCallback((interfaceId: string | string[]) => {
     // InterfaceSelector onChange returns the ID, need to find the interface
     // For now, just update the form field with the ID
     const selectedId = Array.isArray(interfaceId) ? interfaceId[0] : interfaceId;
@@ -121,15 +125,15 @@ export const DhcpClientForm = memo(function DhcpClientForm({
       status: 'up',
       mac: '',
     } as RouterInterface);
-  };
+  }, [form]);
 
   /**
    * Handle form submission with safety checks
    * Shows warning if adding default route that might conflict
    */
-  const handleFormSubmit = ((values: DhcpClientFormValues) => {
+  const handleFormSubmit = useCallback((values: DhcpClientFormValues) => {
     // Check if we're adding a default route
-    if (values.addDefaultRoute) {
+    if (values.shouldAddDefaultRoute) {
       // TODO: In Phase 6, check for existing default routes
       // For now, show warning to user
       setPendingFormValues(values);
@@ -138,26 +142,26 @@ export const DhcpClientForm = memo(function DhcpClientForm({
       // No default route, submit directly
       onSubmit(values);
     }
-  }) as any;
+  }, [onSubmit]);
 
   /**
    * Confirm default route warning and proceed with submission
    */
-  const handleConfirmDefaultRoute = () => {
+  const handleConfirmDefaultRoute = useCallback(() => {
     if (pendingFormValues) {
       onSubmit(pendingFormValues);
     }
     setShowDefaultRouteWarning(false);
     setPendingFormValues(null);
-  };
+  }, [pendingFormValues, onSubmit]);
 
   /**
    * Cancel default route warning
    */
-  const handleCancelDefaultRoute = () => {
+  const handleCancelDefaultRoute = useCallback(() => {
     setShowDefaultRouteWarning(false);
     setPendingFormValues(null);
-  };
+  }, []);
 
   return (
     <>
@@ -203,7 +207,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
-                    <span className="ml-2 font-mono">{selectedInterface.name}</span>
+                    <code className="ml-2 font-mono">{selectedInterface.name}</code>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Type:</span>
@@ -212,9 +216,9 @@ export const DhcpClientForm = memo(function DhcpClientForm({
                   {selectedInterface.mac && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">MAC:</span>
-                      <span className="ml-2 font-mono">
+                      <code className="ml-2 font-mono">
                         {selectedInterface.mac}
-                      </span>
+                      </code>
                     </div>
                   )}
                 </div>
@@ -232,14 +236,14 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             {/* Add Default Route */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Label htmlFor="addDefaultRoute">Add Default Route</Label>
-                <FieldHelp field="addDefaultRoute" />
+                <Label htmlFor="shouldAddDefaultRoute">Add Default Route</Label>
+                <FieldHelp field="shouldAddDefaultRoute" />
               </div>
               <Switch
-                id="addDefaultRoute"
-                checked={form.watch('addDefaultRoute')}
+                id="shouldAddDefaultRoute"
+                checked={form.watch('shouldAddDefaultRoute')}
                 onCheckedChange={(checked) =>
-                  form.setValue('addDefaultRoute', checked, {
+                  form.setValue('shouldAddDefaultRoute', checked, {
                     shouldDirty: true,
                   })
                 }
@@ -251,14 +255,14 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             {/* Use Peer DNS */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Label htmlFor="usePeerDNS">Use Peer DNS</Label>
-                <FieldHelp field="usePeerDNS" />
+                <Label htmlFor="shouldUsePeerDNS">Use Peer DNS</Label>
+                <FieldHelp field="shouldUsePeerDNS" />
               </div>
               <Switch
-                id="usePeerDNS"
-                checked={form.watch('usePeerDNS')}
+                id="shouldUsePeerDNS"
+                checked={form.watch('shouldUsePeerDNS')}
                 onCheckedChange={(checked) =>
-                  form.setValue('usePeerDNS', checked, { shouldDirty: true })
+                  form.setValue('shouldUsePeerDNS', checked, { shouldDirty: true })
                 }
                 disabled={loading}
                 aria-label="Use DNS servers from DHCP"
@@ -268,14 +272,14 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             {/* Use Peer NTP */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Label htmlFor="usePeerNTP">Use Peer NTP</Label>
-                <FieldHelp field="usePeerNTP" />
+                <Label htmlFor="shouldUsePeerNTP">Use Peer NTP</Label>
+                <FieldHelp field="shouldUsePeerNTP" />
               </div>
               <Switch
-                id="usePeerNTP"
-                checked={form.watch('usePeerNTP')}
+                id="shouldUsePeerNTP"
+                checked={form.watch('shouldUsePeerNTP')}
                 onCheckedChange={(checked) =>
-                  form.setValue('usePeerNTP', checked, { shouldDirty: true })
+                  form.setValue('shouldUsePeerNTP', checked, { shouldDirty: true })
                 }
                 disabled={loading}
                 aria-label="Use NTP servers from DHCP"
@@ -322,7 +326,6 @@ export const DhcpClientForm = memo(function DhcpClientForm({
               variant="outline"
               onClick={onCancel}
               disabled={loading}
-              aria-label="Cancel DHCP configuration"
               className="min-h-[44px]"
             >
               Cancel
@@ -346,7 +349,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
               Default Route Warning
             </DialogTitle>
             <DialogDescription className="space-y-3">
@@ -375,7 +378,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </Button>
             <Button
               onClick={handleConfirmDefaultRoute}
-              className="bg-warning hover:bg-warning/90 min-h-[44px]"
+              className={cn('min-h-[44px]', 'bg-warning hover:bg-warning/90')}
             >
               I Understand, Proceed
             </Button>
@@ -385,3 +388,5 @@ export const DhcpClientForm = memo(function DhcpClientForm({
     </>
   );
 });
+
+DhcpClientForm.displayName = 'DhcpClientForm';

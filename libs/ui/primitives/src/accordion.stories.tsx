@@ -14,12 +14,15 @@ const meta: Meta<typeof Accordion> = {
   component: Accordion,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'Accordion component built on @radix-ui/react-collapsible. Supports single and multiple open items simultaneously. Commonly used in mobile layouts for collapsible settings sections, configuration panels, and FAQ-style content.',
+          'Accordion component built on @radix-ui/react-collapsible. Supports single and multiple open items simultaneously. Commonly used in mobile layouts for collapsible settings sections, configuration panels, and FAQ-style content. Fully accessible with keyboard navigation (Tab, Enter/Space) and screen reader support. Respects prefers-reduced-motion for animations.',
       },
+    },
+    viewport: {
+      defaultViewport: 'mobile1',
     },
   },
   argTypes: {
@@ -29,13 +32,6 @@ const meta: Meta<typeof Accordion> = {
       description: 'Whether only one or multiple items can be open at once',
     },
   },
-  decorators: [
-    (Story) => (
-      <div className="w-[360px]">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;
@@ -210,7 +206,7 @@ export const Controlled: Story = {
             </button>
           ))}
         </div>
-        <Accordion type="single" value={value} onValueChange={setValue}>
+        <Accordion type="single" value={value} onValueChange={(newValue) => setValue(Array.isArray(newValue) ? newValue[0] ?? '' : newValue)}>
           <AccordionItem value="step-1">
             <AccordionTrigger>Step 1: Router Discovery</AccordionTrigger>
             <AccordionContent>
@@ -258,6 +254,155 @@ export const NoneOpenByDefault: Story = {
             <p className="text-sm text-error">
               Factory reset will wipe all router configuration. This action cannot be undone.
             </p>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  ),
+};
+
+export const Mobile: Story = {
+  render: () => (
+    <Accordion type="single" defaultValue="item-1">
+      <AccordionItem value="item-1">
+        <AccordionTrigger>Network Settings</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Status</span>
+              <span className="text-success font-medium">Connected</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Signal</span>
+              <span>-62 dBm</span>
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger>Security</AccordionTrigger>
+        <AccordionContent>
+          <p className="text-sm text-muted-foreground">WPA3 Enabled</p>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  ),
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+};
+
+export const Tablet: Story = {
+  render: () => (
+    <Accordion type="multiple" defaultValue={['vpn', 'firewall']}>
+      <AccordionItem value="vpn">
+        <AccordionTrigger>VPN Configuration</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Type</span>
+              <span>WireGuard</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Status</span>
+              <span className="text-success">Connected</span>
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="firewall">
+        <AccordionTrigger>Firewall Rules</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Rules</span>
+              <span>24 active</span>
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  ),
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+};
+
+export const Desktop: Story = {
+  render: () => (
+    <div className="max-w-2xl">
+      <Accordion type="single" defaultValue="general">
+        <AccordionItem value="general">
+          <AccordionTrigger>General Configuration</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Router Name</span>
+                <span className="font-mono">MikroTik-Primary</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Model</span>
+                <span className="font-mono">RB4011iGS</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Firmware</span>
+                <span className="font-mono">7.13.2</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Uptime</span>
+                <span>45 days 3 hours</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="network">
+          <AccordionTrigger>Network Interfaces (4 interfaces)</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm">
+              {['ether1', 'ether2', 'ether3', 'ether4'].map((iface) => (
+                <div key={iface} className="flex justify-between border-b pb-2 last:border-b-0">
+                  <span className="text-muted-foreground font-mono">{iface}</span>
+                  <span className="text-success">Up (1 Gbps)</span>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  ),
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+};
+
+export const WithLongContent: Story = {
+  render: () => (
+    <Accordion type="single">
+      <AccordionItem value="docs">
+        <AccordionTrigger>Documentation & Help</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-3 text-sm">
+            <p>
+              <strong>Router Configuration Help</strong>
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              This section covers the basic configuration of your MikroTik router. You can expand or collapse
+              sections to find specific information. All settings are applied immediately to the router.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Network interfaces configuration</li>
+              <li>DHCP server setup</li>
+              <li>DNS resolver settings</li>
+              <li>Firewall and NAT rules</li>
+              <li>Routing and bridging</li>
+            </ul>
           </div>
         </AccordionContent>
       </AccordionItem>

@@ -37,8 +37,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
   Select,
   SelectContent,
   SelectItem,

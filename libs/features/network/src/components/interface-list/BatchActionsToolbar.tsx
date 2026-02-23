@@ -1,22 +1,36 @@
-import { useState } from 'react';
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@nasnet/ui/primitives';
+import { useState, useCallback, memo } from 'react';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  useToast,
+} from '@nasnet/ui/primitives';
 import { useBatchInterfaceOperation } from '@nasnet/api-client/queries';
 import { BatchInterfaceAction } from '@nasnet/api-client/generated';
-import { useToast } from '@nasnet/ui/primitives';
 import { BatchConfirmDialog } from './BatchConfirmDialog';
 
 export interface BatchActionsToolbarProps {
+  /** Router ID for API requests */
   routerId: string;
+  /** Set of selected interface IDs */
   selectedIds: Set<string>;
-  selectedInterfaces: any[]; // Full interface objects for safety checks
+  /** Full interface objects for safety checks and context */
+  selectedInterfaces: any[];
+  /** Callback to clear the current selection */
   onClearSelection: () => void;
 }
 
 /**
- * Batch Actions Toolbar Component
- * Provides bulk enable/disable operations with safety checks
+ * Batch Actions Toolbar Component.
+ *
+ * Provides bulk enable/disable operations on selected interfaces with safety
+ * checks via confirmation dialog and comprehensive error handling.
+ *
+ * @description Toolbar for batch interface operations with confirmation and status feedback
  */
-export function BatchActionsToolbar({
+export const BatchActionsToolbar = memo(function BatchActionsToolbar({
   routerId,
   selectedIds,
   selectedInterfaces,
@@ -26,21 +40,12 @@ export function BatchActionsToolbar({
   const { toast } = useToast();
   const [confirmDialog, setConfirmDialog] = useState<BatchInterfaceAction | null>(null);
 
-  const handleMenuClick = (action: BatchInterfaceAction) => {
+  const handleMenuClick = useCallback((action: BatchInterfaceAction) => {
     // Show confirmation dialog before executing
     setConfirmDialog(action);
-  };
+  }, []);
 
-  const handleConfirm = async () => {
-    if (!confirmDialog) return;
-
-    const action = confirmDialog;
-    setConfirmDialog(null);
-
-    await handleBatchAction(action);
-  };
-
-  const handleBatchAction = async (action: BatchInterfaceAction) => {
+  const handleBatchAction = useCallback(async (action: BatchInterfaceAction) => {
     try {
       const result = await batchOperation({
         variables: {
@@ -75,10 +80,19 @@ export function BatchActionsToolbar({
       toast({
         title: 'Batch operation failed',
         description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
+        variant: 'error',
       });
     }
-  };
+  }, [batchOperation, routerId, selectedIds, onClearSelection, toast]);
+
+  const handleConfirm = useCallback(async () => {
+    if (!confirmDialog) return;
+
+    const action = confirmDialog;
+    setConfirmDialog(null);
+
+    await handleBatchAction(action);
+  }, [confirmDialog, handleBatchAction]);
 
   return (
     <div className="flex items-center gap-2">
@@ -120,4 +134,6 @@ export function BatchActionsToolbar({
       />
     </div>
   );
-}
+});
+
+BatchActionsToolbar.displayName = 'BatchActionsToolbar';

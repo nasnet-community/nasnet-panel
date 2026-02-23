@@ -9,18 +9,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Switch } from '@nasnet/ui/primitives';
-import {
+  Input,
+  Button,
+  Switch,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@nasnet/ui/primitives';
-import { Textarea } from '@nasnet/ui/primitives';
 import { memo, useState } from 'react';
 import { SafetyConfirmation } from '@nasnet/ui/patterns';
 import type { Bridge } from '@nasnet/api-client/generated';

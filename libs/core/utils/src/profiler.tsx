@@ -84,8 +84,10 @@ export interface ProfilerWrapperProps extends PropsWithChildren {
  *
  * Uses React's built-in Profiler API to measure render times and
  * logs warnings when renders exceed the frame budget.
+ *
+ * @internal Memoized for performance when used with dynamic children
  */
-export function ProfilerWrapper({
+export const ProfilerWrapper = React.memo(function ProfilerWrapper({
   id,
   children,
   onRenderThreshold = RENDER_BUDGET_MS,
@@ -142,15 +144,16 @@ export function ProfilerWrapper({
       {children}
     </Profiler>
   );
-}
-
-ProfilerWrapper.displayName = 'ProfilerWrapper';
+});
 
 /**
  * Hook for collecting render statistics
  *
- * Useful for aggregating performance data over time.
+ * Useful for aggregating performance data over time and monitoring
+ * component performance in development.
  *
+ * @param id - Identifier for the component being profiled
+ * @returns Stats object, collectRender callback, and reset function
  * @example
  * ```tsx
  * const { stats, reset, collectRender } = useRenderStats('DataTable');
@@ -173,7 +176,7 @@ ProfilerWrapper.displayName = 'ProfilerWrapper';
  * }, [stats, reset]);
  * ```
  */
-export function useRenderStats(id: string) {
+export function useRenderStats(_id: string) {
   const [stats, setStats] = React.useState({
     renderCount: 0,
     slowRenderCount: 0,
@@ -213,6 +216,13 @@ export function useRenderStats(id: string) {
 /**
  * Higher-order component to wrap any component with profiling
  *
+ * Automatically memoizes the wrapped component and passes through all props.
+ * Useful for development performance debugging.
+ *
+ * @param Component - Component to wrap with profiling
+ * @param id - Profiler identifier (should match component name)
+ * @param options - Optional ProfilerWrapper configuration
+ * @returns Memoized component with profiling enabled
  * @example
  * ```tsx
  * const ProfiledDataTable = withProfiler(DataTable, 'DataTable');
@@ -226,20 +236,24 @@ export function withProfiler<P extends object>(
   id: string,
   options?: Omit<ProfilerWrapperProps, 'id' | 'children'>
 ): React.ComponentType<P> {
-  const Wrapped = (props: P) => (
+  const Wrapped = React.memo((props: P) => (
     <ProfilerWrapper id={id} {...options}>
       <Component {...props} />
     </ProfilerWrapper>
-  );
+  ));
 
   Wrapped.displayName = `withProfiler(${Component.displayName || Component.name || 'Component'})`;
 
-  return Wrapped;
+  return Wrapped as unknown as React.ComponentType<P>;
 }
 
 /**
- * Utility to measure execution time of any function
+ * Utility to measure synchronous function execution time
  *
+ * Useful for profiling expensive synchronous operations.
+ *
+ * @param fn - Function to measure
+ * @returns Object with function result and execution duration in milliseconds
  * @example
  * ```tsx
  * const { result, duration } = measureTime(() => {
@@ -260,7 +274,20 @@ export function measureTime<T>(fn: () => T): { result: T; duration: number } {
 }
 
 /**
- * Async version of measureTime
+ * Async version of measureTime for Promise-based operations
+ *
+ * Useful for profiling asynchronous operations like API calls.
+ *
+ * @param fn - Async function to measure
+ * @returns Promise with function result and execution duration in milliseconds
+ * @example
+ * ```tsx
+ * const { result, duration } = await measureTimeAsync(async () => {
+ *   return await fetchRouterStatus();
+ * });
+ *
+ * console.log(`API call took ${duration}ms`);
+ * ```
  */
 export async function measureTimeAsync<T>(
   fn: () => Promise<T>

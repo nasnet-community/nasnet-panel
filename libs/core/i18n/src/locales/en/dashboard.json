@@ -1,0 +1,87 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome to NasNetConnect",
+  "overview": "System Overview",
+  "routerHealth": {
+    "title": "Router Health",
+    "healthy": "All Systems Operational",
+    "degraded": "Some Issues Detected",
+    "critical": "Critical Issues",
+    "cpu": "CPU Usage",
+    "memory": "Memory Usage",
+    "disk": "Disk Usage",
+    "temperature": "Temperature",
+    "uptime": "Uptime",
+    "model": "Model",
+    "version": "RouterOS Version",
+    "firmware": "Firmware"
+  },
+  "bandwidth": {
+    "title": "Bandwidth",
+    "chart": "Bandwidth Chart",
+    "upload": "Upload",
+    "download": "Download",
+    "peak": "Peak",
+    "average": "Average",
+    "total": "Total",
+    "timeRange": "Time Range",
+    "last5min": "Last 5 Minutes",
+    "last15min": "Last 15 Minutes",
+    "last1hour": "Last 1 Hour",
+    "last24hours": "Last 24 Hours",
+    "interfaceFilter": "Interface Filter",
+    "allInterfaces": "All Interfaces",
+    "noData": "No bandwidth data available"
+  },
+  "recentLogs": {
+    "title": "Recent Logs",
+    "viewAll": "View All Logs",
+    "noLogs": "No recent log entries",
+    "topic": "Topic",
+    "message": "Message",
+    "time": "Time",
+    "filterByTopic": "Filter by Topic",
+    "allTopics": "All Topics",
+    "system": "System",
+    "firewall": "Firewall",
+    "dhcp": "DHCP",
+    "wireless": "Wireless",
+    "interface": "Interface",
+    "critical": "Critical",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "resources": {
+    "title": "System Resources",
+    "cpuLoad": "CPU Load",
+    "memoryUsage": "Memory Usage",
+    "diskUsage": "Disk Usage",
+    "freeMemory": "Free Memory",
+    "totalMemory": "Total Memory",
+    "freeDisk": "Free Disk Space",
+    "totalDisk": "Total Disk Space",
+    "processes": "Running Processes"
+  },
+  "interfaceGrid": {
+    "title": "Interfaces",
+    "showAll": "Show All",
+    "hideInactive": "Hide Inactive",
+    "gridView": "Grid View",
+    "listView": "List View",
+    "compactView": "Compact View"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "reboot": "Reboot Router",
+    "backup": "Create Backup",
+    "update": "Check Updates",
+    "terminal": "Terminal"
+  },
+  "cachedData": {
+    "label": "Cached Data",
+    "lastUpdated": "Last updated {{time}}",
+    "stale": "Data may be stale",
+    "refreshing": "Refreshing..."
+  }
+}

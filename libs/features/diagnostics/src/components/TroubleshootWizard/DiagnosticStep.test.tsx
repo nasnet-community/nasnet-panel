@@ -31,8 +31,8 @@ describe('DiagnosticStep', () => {
     name: 'WAN Interface Check',
     description: 'Checking WAN interface status',
     status: 'pending',
-    result: null,
-    fix: null,
+    result: undefined,
+    fix: undefined,
     ...overrides,
   });
 
@@ -68,7 +68,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: false,
           message: 'This should not be visible',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 100,
         },
       });
@@ -108,7 +108,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: false,
           message: 'Checking interface status...',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 0,
         },
       });
@@ -124,7 +124,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: false,
           message: 'Running...',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 500,
         },
       });
@@ -142,7 +142,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: true,
           message: 'WAN interface is enabled and running',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 150,
         },
       });
@@ -159,7 +159,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: true,
           message: 'Check passed',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 100,
         },
       });
@@ -177,7 +177,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: true,
           message: 'WAN interface is enabled',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 100,
         },
       });
@@ -194,7 +194,7 @@ describe('DiagnosticStep', () => {
         result: {
           success: true,
           message: 'Check passed',
-          issueCode: null,
+          issueCode: undefined,
           executionTimeMs: 1500, // 1.5 seconds
         },
       });
@@ -312,7 +312,7 @@ describe('DiagnosticStep', () => {
     it('should color badge based on status', () => {
       const stepPassed = createStep({
         status: 'passed',
-        result: { success: true, message: '', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: '', issueCode: undefined, executionTimeMs: 100 },
       });
 
       const { rerender, container } = render(
@@ -341,7 +341,7 @@ describe('DiagnosticStep', () => {
       const onClick = vi.fn();
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: 'Passed', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
@@ -357,7 +357,7 @@ describe('DiagnosticStep', () => {
       const onClick = vi.fn();
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: 'Passed', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
@@ -374,7 +374,7 @@ describe('DiagnosticStep', () => {
       const onClick = vi.fn();
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: 'Passed', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
@@ -390,7 +390,7 @@ describe('DiagnosticStep', () => {
       const onClick = vi.fn();
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: 'Passed', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
@@ -445,7 +445,7 @@ describe('DiagnosticStep', () => {
     it('should have proper ARIA label for passed step', () => {
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: '', issueCode: null, executionTimeMs: 100 },
+        result: { success: true, message: '', issueCode: undefined, executionTimeMs: 100 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} />);
@@ -490,7 +490,7 @@ describe('DiagnosticStep', () => {
 
   describe('Edge Cases', () => {
     it('should handle missing result gracefully', () => {
-      const step = createStep({ status: 'passed', result: null });
+      const step = createStep({ status: 'passed', result: undefined });
 
       render(<DiagnosticStep {...defaultProps} step={step} />);
 
@@ -500,7 +500,7 @@ describe('DiagnosticStep', () => {
     it('should handle zero execution time', () => {
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: '', issueCode: null, executionTimeMs: 0 },
+        result: { success: true, message: '', issueCode: undefined, executionTimeMs: 0 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} />);
@@ -522,7 +522,7 @@ describe('DiagnosticStep', () => {
     it('should format execution time correctly', () => {
       const step = createStep({
         status: 'passed',
-        result: { success: true, message: '', issueCode: null, executionTimeMs: 12345 },
+        result: { success: true, message: '', issueCode: undefined, executionTimeMs: 12345 },
       });
 
       render(<DiagnosticStep {...defaultProps} step={step} />);

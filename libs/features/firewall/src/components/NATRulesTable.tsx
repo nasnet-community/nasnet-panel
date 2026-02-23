@@ -1,10 +1,13 @@
 /**
  * NAT Rules Table Component
  * Displays NAT rules in a sortable table with row actions
- * Epic 0.6, Story 0.6.2
+ *
+ * @description Table showing all NAT rules (source/destination NAT) with sorting and actions
+ * @see Epic 0.6, Story 0.6.2
  */
 
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useCallback } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   useNATRules,
   useDeleteNATRule,
@@ -32,17 +35,17 @@ import { MoreVertical, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
 import type { NATRule } from '@nasnet/core/types';
 
 /**
- * Action badge using Badge component with semantic variants for NAT actions
+ * @description Action badge using Badge component with semantic variants for NAT actions
  */
 const NATActionBadge = memo(function NATActionBadge({ action }: { action: string }) {
-  const variantMap: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
+  const VARIANT_MAP: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
     masquerade: 'info',
     'dst-nat': 'secondary',
     'src-nat': 'default',
     redirect: 'warning',
   };
 
-  const variant = variantMap[action] || 'outline';
+  const variant = VARIANT_MAP[action] || 'outline';
 
   return (
     <Badge variant={variant} className="text-xs">
@@ -52,7 +55,7 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
 });
 
 /**
- * Chain badge component
+ * @description Chain badge component with monospace font
  */
 const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
@@ -63,8 +66,13 @@ const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
 });
 
 export interface NATRulesTableProps {
+  /** Optional CSS class name */
   className?: string;
+
+  /** Filter by specific chain (srcnat/dstnat) */
   chain?: string;
+
+  /** Callback when edit action is clicked */
   onEditRule?: (rule: NATRule) => void;
 }
 
@@ -80,6 +88,7 @@ export interface NATRulesTableProps {
  * - Auto-refresh with 5-minute cache
  * - Sortable by any column
  *
+ * @description Table display of firewall NAT rules with sorting and row actions
  * @param props - Component props
  * @returns NAT rules table component
  */
@@ -101,7 +110,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Filter out disabled rules if needed
   const visibleRules = showDisabledRules ? rules : rules?.filter((r) => !r.disabled);
 
-  // Sorted rules
+  // Sorted rules with useMemo for stability
   const sortedRules = useMemo(() => {
     if (!visibleRules) return [];
 
@@ -128,25 +137,23 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Handlers
   // ========================================
 
-  // Handle column header click for sorting
-  const handleSort = (column: keyof NATRule) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
+  // Handle column header click for sorting with useCallback
+  const handleSort = useCallback((column: keyof NATRule) => {
+    setSortDirection((prevDirection) =>
+      sortColumn === column ? (prevDirection === 'asc' ? 'desc' : 'asc') : 'asc'
+    );
+    setSortColumn(column);
+  }, [sortColumn]);
 
-  const handleEdit = (rule: NATRule) => {
+  const handleEdit = useCallback((rule: NATRule) => {
     onEditRule?.(rule);
-  };
+  }, [onEditRule]);
 
-  const handleDelete = (ruleId: string) => {
+  const handleDelete = useCallback((ruleId: string) => {
     setRuleToDelete(ruleId);
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!ruleToDelete) return;
 
     try {
@@ -164,14 +171,14 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
         variant: 'destructive',
       });
     }
-  };
+  }, [ruleToDelete, deleteRuleMutation]);
 
-  const handleToggle = async (ruleId: string, disabled: boolean) => {
+  const handleToggle = useCallback(async (ruleId: string, isDisabled: boolean) => {
     try {
-      await toggleRuleMutation.mutateAsync({ ruleId, disabled });
+      await toggleRuleMutation.mutateAsync({ ruleId, disabled: isDisabled });
       toast({
-        title: disabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
-        description: `The NAT rule has been ${disabled ? 'disabled' : 'enabled'}.`,
+        title: isDisabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
+        description: `The NAT rule has been ${isDisabled ? 'disabled' : 'enabled'}.`,
         variant: 'default',
       });
     } catch (error) {
@@ -181,7 +188,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
         variant: 'destructive',
       });
     }
-  };
+  }, [toggleRuleMutation]);
 
   // Loading state
   if (isLoading) {
@@ -269,23 +276,23 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                 <TableCell>
                   <NATActionBadge action={rule.action} />
                 </TableCell>
-                <TableCell className={rule.disabled ? 'line-through' : ''}>
+                <TableCell className={cn(rule.disabled && 'line-through')}>
                   {rule.protocol || '-'}
                 </TableCell>
-                <TableCell className={rule.disabled ? 'line-through' : ''}>
+                <TableCell className={cn('font-mono text-xs', rule.disabled && 'line-through')}>
                   {rule.srcAddress || '-'}
                 </TableCell>
-                <TableCell className={rule.disabled ? 'line-through' : ''}>
+                <TableCell className={cn('font-mono text-xs', rule.disabled && 'line-through')}>
                   {rule.dstAddress || '-'}
                 </TableCell>
-                <TableCell className={`font-medium ${rule.disabled ? 'line-through' : ''}`}>
+                <TableCell className={cn('font-medium font-mono text-xs', rule.disabled && 'line-through')}>
                   {rule.toAddresses || '-'}
                 </TableCell>
-                <TableCell className={`font-medium ${rule.disabled ? 'line-through' : ''}`}>
+                <TableCell className={cn('font-medium font-mono text-xs', rule.disabled && 'line-through')}>
                   {rule.toPorts || '-'}
                 </TableCell>
                 <TableCell
-                  className={`text-sm text-muted-foreground ${rule.disabled ? 'line-through' : ''}`}
+                  className={cn('text-sm text-muted-foreground', rule.disabled && 'line-through')}
                 >
                   {rule.comment || ''}
                 </TableCell>
@@ -298,7 +305,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                         className="h-8 w-8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={`Actions for rule ${rule.order}`}
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        <MoreVertical className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

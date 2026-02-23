@@ -7,6 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import {
@@ -38,7 +39,7 @@ import type { InstanceManagerProps } from './types';
  * - Simplified bulk actions
  * - Pull-to-refresh ready
  */
-export function InstanceManagerMobile(props: InstanceManagerProps) {
+function InstanceManagerMobileComponent(props: InstanceManagerProps) {
   const { loading, error, showMetrics, emptyState, className } = props;
 
   const {
@@ -236,3 +237,9 @@ export function InstanceManagerMobile(props: InstanceManagerProps) {
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const InstanceManagerMobile = memo(InstanceManagerMobileComponent);
+
+// Set display name for React DevTools
+InstanceManagerMobile.displayName = 'InstanceManagerMobile';

@@ -1,6 +1,7 @@
 /**
  * NtfyChannelForm - Platform Detector
  *
+ * @description
  * Auto-detects platform (Mobile/Desktop) and renders the appropriate presenter.
  * Follows Headless + Platform Presenter pattern from PLATFORM_PRESENTER_GUIDE.md
  *
@@ -10,7 +11,7 @@
  */
 
 import { memo } from 'react';
-import { useMediaQuery } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { useNtfyChannelForm, type UseNtfyChannelFormOptions } from '../../hooks/useNtfyChannelForm';
 import { NtfyChannelFormDesktop } from './NtfyChannelFormDesktop';
 import { NtfyChannelFormMobile } from './NtfyChannelFormMobile';
@@ -51,8 +52,8 @@ export interface NtfyChannelFormProps extends UseNtfyChannelFormOptions {
 function NtfyChannelFormComponent(props: NtfyChannelFormProps) {
   const { className, ...hookOptions } = props;
 
-  // Platform detection (mobile: <640px)
-  const isMobile = useMediaQuery('(max-width: 640px)');
+  // Platform detection
+  const platform = usePlatform();
 
   // Initialize headless hook
   const ntfyForm = useNtfyChannelForm(hookOptions);
@@ -60,7 +61,7 @@ function NtfyChannelFormComponent(props: NtfyChannelFormProps) {
   // Render appropriate presenter
   return (
     <div className={className}>
-      {isMobile ? (
+      {platform === 'mobile' ? (
         <NtfyChannelFormMobile ntfyForm={ntfyForm} />
       ) : (
         <NtfyChannelFormDesktop ntfyForm={ntfyForm} />

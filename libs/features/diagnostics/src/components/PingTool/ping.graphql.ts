@@ -1,15 +1,24 @@
 /**
  * GraphQL Operations for Ping Diagnostic Tool
  *
- * Mutations:
- * - RUN_PING: Start a new ping test
- * - STOP_PING: Stop a running ping test
+ * Provides mutations, subscriptions, and queries for managing ping diagnostic tests.
  *
- * Subscriptions:
- * - PING_RESULTS: Stream ping results in real-time
+ * @module PingTool GraphQL
  *
- * Queries:
- * - PING_JOB_STATUS: Get current status of a ping job
+ * Operations:
+ * - `RUN_PING`: Mutation to start a new ping test
+ * - `STOP_PING`: Mutation to stop a running ping test
+ * - `PING_RESULTS`: Subscription for real-time ping result streaming
+ * - `PING_JOB_STATUS`: Query to get current status of a ping job
+ *
+ * @example
+ * ```tsx
+ * import { RUN_PING, PING_RESULTS } from './ping.graphql';
+ * import { useMutation, useSubscription } from '@apollo/client';
+ *
+ * const [runPing] = useMutation(RUN_PING);
+ * const { data } = useSubscription(PING_RESULTS, { variables: { jobId } });
+ * ```
  */
 
 import { gql } from '@apollo/client';

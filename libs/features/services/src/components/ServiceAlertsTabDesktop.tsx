@@ -16,17 +16,10 @@
  */
 
 import * as React from 'react';
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import {
-  AlertTriangle,
-  Info,
-  CheckCircle2,
-  Loader2,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Loader2, AlertTriangle, Search, CheckCircle2, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import {
   Badge,
@@ -48,29 +41,40 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
-
 import { useServiceAlertsTab } from '../hooks/useServiceAlertsTab';
 import type { ServiceAlertsTabProps } from './ServiceAlertsTab';
 import type { ServiceAlert, AlertSeverity } from '@nasnet/api-client/queries';
 
 /**
- * Get severity badge variant and icon
+ * Get severity badge variant and icon name
  */
 function getSeverityDisplay(severity: AlertSeverity): {
   variant: 'error' | 'warning' | 'info';
-  icon: React.ElementType;
+  iconName: string;
 } {
   switch (severity) {
     case 'CRITICAL':
-      return { variant: 'error', icon: AlertTriangle };
+      return { variant: 'error', iconName: 'alert-triangle' };
     case 'WARNING':
-      return { variant: 'warning', icon: AlertTriangle };
+      return { variant: 'warning', iconName: 'alert-triangle' };
     case 'INFO':
     default:
-      return { variant: 'info', icon: Info };
+      return { variant: 'info', iconName: 'info' };
   }
+}
+
+/**
+ * Get icon component from icon name
+ */
+function getIconComponent(iconName: string): React.ComponentType<any> {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    'alert-triangle': AlertTriangle,
+    'info': Info,
+  };
+  return iconMap[iconName] || Info;
 }
 
 /**
@@ -83,8 +87,11 @@ function getSeverityDisplay(severity: AlertSeverity): {
  * - Bulk acknowledge action
  * - Pagination with page size selector
  * - Search and severity filter
+ *
+ * @description Desktop-optimized presenter for service alert management with rich
+ * table display, pagination, and bulk operations.
  */
-export function ServiceAlertsTabDesktop({
+function ServiceAlertsTabDesktopComponent({
   routerId,
   instanceId,
   className,
@@ -153,7 +160,7 @@ export function ServiceAlertsTabDesktop({
         <Card>
           <CardContent className="p-12">
             <div className="flex flex-col items-center justify-center gap-4">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <Icon icon={Loader2} className="h-10 w-10 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Loading alerts...</p>
             </div>
           </CardContent>
@@ -169,7 +176,7 @@ export function ServiceAlertsTabDesktop({
         <Card className="border-destructive">
           <CardContent className="p-8">
             <div className="flex flex-col items-center gap-4">
-              <AlertTriangle className="h-10 w-10 text-destructive" />
+              <Icon icon={AlertTriangle} className="h-10 w-10 text-destructive" />
               <div className="text-center">
                 <h3 className="font-semibold text-lg mb-2">Error Loading Alerts</h3>
                 <p className="text-sm text-muted-foreground">{error.message}</p>
@@ -210,13 +217,14 @@ export function ServiceAlertsTabDesktop({
             {/* Search */}
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search alerts..."
                   value={filters.searchTerm || ''}
                   onChange={handleSearch}
                   className="pl-9"
+                  aria-label="Search alerts by title or message"
                 />
               </div>
             </div>
@@ -243,15 +251,16 @@ export function ServiceAlertsTabDesktop({
                 variant="outline"
                 onClick={acknowledgeBulk}
                 disabled={acknowledging}
+                aria-label={`Acknowledge ${selectedAlertIds.size} alerts`}
               >
                 {acknowledging ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Icon icon={Loader2} className="h-4 w-4 animate-spin mr-2" />
                     Acknowledging...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <Icon icon={CheckCircle2} className="h-4 w-4 mr-2" />
                     Acknowledge {selectedAlertIds.size}
                   </>
                 )}
@@ -292,7 +301,7 @@ export function ServiceAlertsTabDesktop({
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2">
-                    <Info className="h-8 w-8 text-muted-foreground" />
+                    <Icon icon={Info} className="h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       {filters.severity || filters.searchTerm
                         ? 'No alerts match your filters.'
@@ -304,7 +313,6 @@ export function ServiceAlertsTabDesktop({
             ) : (
               filteredAlerts.map((alert) => {
                 const severityDisplay = getSeverityDisplay(alert.severity);
-                const SeverityIcon = severityDisplay.icon;
                 const isSelected = selectedAlertIds.has(alert.id);
 
                 return (
@@ -340,7 +348,7 @@ export function ServiceAlertsTabDesktop({
                         variant={severityDisplay.variant}
                         className="inline-flex items-center gap-1"
                       >
-                        <SeverityIcon className="h-3 w-3" />
+                        <Icon icon={getIconComponent(severityDisplay.iconName) as LucideIcon} className="h-3 w-3" />
                         {alert.severity}
                       </Badge>
                     </TableCell>
@@ -358,7 +366,7 @@ export function ServiceAlertsTabDesktop({
                       {alert.acknowledgedAt ? (
                         <div className="text-xs text-muted-foreground">
                           <div className="flex items-center gap-1 text-success">
-                            <CheckCircle2 className="h-3 w-3" />
+                            <Icon icon={CheckCircle2} className="h-3 w-3" />
                             Acknowledged
                           </div>
                           <div className="mt-0.5">
@@ -378,8 +386,9 @@ export function ServiceAlertsTabDesktop({
                           size="sm"
                           onClick={() => acknowledgeAlert(alert.id)}
                           disabled={acknowledging}
+                          aria-label={`Acknowledge alert: ${alert.title}`}
                         >
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          <Icon icon={CheckCircle2} className="h-4 w-4 mr-1" />
                           Acknowledge
                         </Button>
                       )}
@@ -434,8 +443,9 @@ export function ServiceAlertsTabDesktop({
                     size="sm"
                     onClick={prevPage}
                     disabled={pagination.currentPage === 1}
+                    aria-label="Go to previous page"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <Icon icon={ChevronLeft} className="h-4 w-4" />
                     Previous
                   </Button>
                   <Button
@@ -443,9 +453,10 @@ export function ServiceAlertsTabDesktop({
                     size="sm"
                     onClick={nextPage}
                     disabled={pagination.currentPage === pagination.totalPages}
+                    aria-label="Go to next page"
                   >
                     Next
-                    <ChevronRight className="h-4 w-4" />
+                    <Icon icon={ChevronRight} className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -457,4 +468,5 @@ export function ServiceAlertsTabDesktop({
   );
 }
 
+export const ServiceAlertsTabDesktop = memo(ServiceAlertsTabDesktopComponent);
 ServiceAlertsTabDesktop.displayName = 'ServiceAlertsTab.Desktop';

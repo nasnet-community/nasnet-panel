@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 /**
- * VLAN naming pattern
+ * VLAN naming pattern constant
  *
  * Valid VLAN names must:
  * - Be 1-100 characters long
@@ -19,7 +19,28 @@ import { z } from 'zod';
  * - Valid: "vlan-10", "guest_network", "iot-devices", "VLAN100"
  * - Invalid: "vlan 10" (space), "test@vlan" (special char), "" (empty)
  */
-const vlanNamePattern = /^[a-zA-Z0-9_-]+$/;
+const VLAN_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+/** VLAN ID minimum (IEEE 802.1Q range) */
+const VLAN_ID_MIN = 1;
+
+/** VLAN ID maximum (IEEE 802.1Q range) */
+const VLAN_ID_MAX = 4094;
+
+/** Maximum VLAN name length in characters */
+const VLAN_NAME_MAX_LENGTH = 100;
+
+/** Maximum comment/description length in characters */
+const VLAN_COMMENT_MAX_LENGTH = 255;
+
+/** MTU minimum in bytes */
+const MTU_MIN_BYTES = 68;
+
+/** MTU maximum in bytes */
+const MTU_MAX_BYTES = 65535;
+
+/** MTU jumbo frame standard in bytes */
+const MTU_JUMBO_FRAMES = 9000;
 
 /**
  * Schema for VLAN form
@@ -47,9 +68,9 @@ export const vlanSchema = z.object({
       required_error: 'VLAN name is required',
     })
     .min(1, 'VLAN name is required')
-    .max(100, 'Name too long (max 100 characters)')
+    .max(VLAN_NAME_MAX_LENGTH, `Name too long (max ${VLAN_NAME_MAX_LENGTH} characters)`)
     .regex(
-      vlanNamePattern,
+      VLAN_NAME_PATTERN,
       'Name must contain only letters, digits, hyphens, and underscores'
     ),
 
@@ -69,8 +90,8 @@ export const vlanSchema = z.object({
       invalid_type_error: 'VLAN ID must be a number',
     })
     .int('VLAN ID must be an integer')
-    .min(1, 'VLAN ID must be between 1 and 4094')
-    .max(4094, 'VLAN ID must be between 1 and 4094'),
+    .min(VLAN_ID_MIN, `VLAN ID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`)
+    .max(VLAN_ID_MAX, `VLAN ID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`),
 
   /**
    * Parent interface ID
@@ -105,8 +126,8 @@ export const vlanSchema = z.object({
       invalid_type_error: 'MTU must be a number',
     })
     .int('MTU must be an integer')
-    .min(68, 'MTU must be at least 68 bytes')
-    .max(65535, 'MTU cannot exceed 65535 bytes')
+    .min(MTU_MIN_BYTES, `MTU must be at least ${MTU_MIN_BYTES} bytes`)
+    .max(MTU_MAX_BYTES, `MTU cannot exceed ${MTU_MAX_BYTES} bytes`)
     .optional()
     .nullable(),
 
@@ -118,7 +139,7 @@ export const vlanSchema = z.object({
    */
   comment: z
     .string()
-    .max(255, 'Comment too long (max 255 characters)')
+    .max(VLAN_COMMENT_MAX_LENGTH, `Comment too long (max ${VLAN_COMMENT_MAX_LENGTH} characters)`)
     .optional()
     .nullable(),
 
@@ -158,10 +179,10 @@ export function getVlanWarnings(values: VlanFormValues): string[] {
     );
   }
 
-  // MTU larger than typical Ethernet may not work on all hardware
-  if (values.mtu && values.mtu > 9000) {
+  // MTU larger than jumbo frames may not work on all hardware
+  if (values.mtu && values.mtu > MTU_JUMBO_FRAMES) {
     warnings.push(
-      'MTU larger than 9000 bytes may not be supported by all network hardware.'
+      `MTU larger than ${MTU_JUMBO_FRAMES} bytes may not be supported by all network hardware.`
     );
   }
 

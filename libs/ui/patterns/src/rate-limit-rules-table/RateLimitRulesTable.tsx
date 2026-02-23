@@ -11,6 +11,8 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { RateLimitRulesTableDesktop } from './RateLimitRulesTableDesktop';
@@ -50,7 +52,7 @@ import type { RateLimitRulesTableProps } from './types';
  * />
  * ```
  */
-export function RateLimitRulesTable(props: RateLimitRulesTableProps) {
+export const RateLimitRulesTable = memo(function RateLimitRulesTable(props: RateLimitRulesTableProps) {
   const platform = usePlatform();
 
   // Get business logic from headless hook
@@ -127,4 +129,6 @@ export function RateLimitRulesTable(props: RateLimitRulesTableProps) {
       closeStats={closeStats}
     />
   );
-}
+});
+
+RateLimitRulesTable.displayName = 'RateLimitRulesTable';

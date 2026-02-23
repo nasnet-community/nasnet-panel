@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "composite": true
+  },
+  "include": [
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
+  ]
+}

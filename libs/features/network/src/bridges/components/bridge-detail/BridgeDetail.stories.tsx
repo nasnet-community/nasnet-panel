@@ -10,11 +10,13 @@
  * All presenter props are plain TypeScript – no provider setup needed.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Bridge } from '@nasnet/api-client/generated';
+
 import { BridgeDetailDesktop } from './BridgeDetailDesktop';
 import { BridgeDetailMobile } from './BridgeDetailMobile';
-import type { Bridge } from '@nasnet/api-client/generated';
+
 import type { BridgeFormData } from './bridge-form';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data

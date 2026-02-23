@@ -3,7 +3,10 @@
  * Shows security profile status per interface
  */
 
+import React from 'react';
+
 import { Shield, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { WirelessInterface } from '@nasnet/core/types';
 
@@ -16,30 +19,31 @@ interface WifiSecuritySummaryProps {
 
 function getSecurityInfo(securityProfile: string) {
   const profile = securityProfile.toLowerCase();
-  
+
   if (profile.includes('wpa3')) {
-    return { level: 'strong', label: 'WPA3', icon: ShieldCheck, color: 'text-emerald-500', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-200 dark:border-emerald-800' };
+    return { level: 'strong', label: 'WPA3', icon: ShieldCheck, color: 'text-success', bgColor: 'bg-success/10', borderColor: 'border-success/30' };
   }
   if (profile.includes('wpa2')) {
-    return { level: 'good', label: 'WPA2', icon: Shield, color: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-900/30', borderColor: 'border-green-200 dark:border-green-800' };
+    return { level: 'good', label: 'WPA2', icon: Shield, color: 'text-success', bgColor: 'bg-success/10', borderColor: 'border-success/30' };
   }
   if (profile.includes('wpa') || profile.includes('wep')) {
-    return { level: 'weak', label: profile.includes('wep') ? 'WEP' : 'WPA', icon: ShieldAlert, color: 'text-amber-500', bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-200 dark:border-amber-800' };
+    return { level: 'weak', label: profile.includes('wep') ? 'WEP' : 'WPA', icon: ShieldAlert, color: 'text-warning', bgColor: 'bg-warning/10', borderColor: 'border-warning/30' };
   }
   if (profile === 'default' || profile === 'none' || profile === '') {
-    return { level: 'none', label: 'Open', icon: ShieldX, color: 'text-red-500', bgColor: 'bg-red-100 dark:bg-red-900/30', borderColor: 'border-red-200 dark:border-red-800' };
+    return { level: 'none', label: 'Open', icon: ShieldX, color: 'text-error', bgColor: 'bg-error/10', borderColor: 'border-error/30' };
   }
-  return { level: 'unknown', label: securityProfile || 'Unknown', icon: Shield, color: 'text-slate-500', bgColor: 'bg-slate-100 dark:bg-slate-800', borderColor: 'border-slate-200 dark:border-slate-700' };
+  return { level: 'unknown', label: securityProfile || 'Unknown', icon: Shield, color: 'text-muted-foreground', bgColor: 'bg-muted', borderColor: 'border-border' };
 }
 
-export function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySummaryProps) {
+export const WifiSecuritySummary = React.memo(function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySummaryProps) {
+  const { t } = useTranslation('wifi');
   if (isLoading) {
     return (
       <section>
-        <SectionHeader title="Security Status" />
+        <SectionHeader title={t('security.title')} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 h-24" />
+            <div key={i} className="bg-muted rounded-xl p-4 h-24" />
           ))}
         </div>
       </section>
@@ -50,7 +54,7 @@ export function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySumma
 
   return (
     <section>
-      <SectionHeader title="Security Status" />
+      <SectionHeader title={t('security.title')} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {interfaces.map((iface) => {
           const security = getSecurityInfo(iface.securityProfile);
@@ -59,14 +63,14 @@ export function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySumma
             <div key={iface.id} className={`rounded-xl p-4 border ${security.bgColor} ${security.borderColor}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white">{iface.name}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{iface.ssid || 'Not configured'}</p>
+                  <p className="font-medium text-foreground">{iface.name}</p>
+                  <p className="text-sm text-muted-foreground">{iface.ssid || t('status.notConfigured')}</p>
                 </div>
                 <Icon className={`w-5 h-5 ${security.color}`} />
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <span className={`px-2 py-0.5 text-xs font-medium rounded ${security.color} ${security.bgColor}`}>{security.label}</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">{iface.securityProfile || 'No profile'}</span>
+                <span className="text-xs text-muted-foreground">{iface.securityProfile || t('status.noProfile')}</span>
               </div>
             </div>
           );
@@ -74,7 +78,9 @@ export function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySumma
       </div>
     </section>
   );
-}
+});
+
+WifiSecuritySummary.displayName = 'WifiSecuritySummary';
 
 
 

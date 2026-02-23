@@ -63,8 +63,8 @@ func (b *BridgeOrchestrator) SetupBridge(
 		Str("feature_id", manifest.ID).
 		Msg("Setting up virtual interface bridge")
 
-	// Allocate VLAN ID
-	vlanID, err := b.vlanAllocator.Allocate(ctx)
+	// Allocate VLAN ID using router/instance context for DB-backed allocator.
+	vlanID, err := b.vlanAllocator.Allocate(ctx, instance.RouterID, instance.ID, manifest.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to allocate VLAN ID: %w", err)
 	}
@@ -72,7 +72,7 @@ func (b *BridgeOrchestrator) SetupBridge(
 	// Track cleanup for VLAN on failure
 	defer func() {
 		if err != nil {
-			if releaseErr := b.vlanAllocator.Release(ctx, vlanID); releaseErr != nil {
+			if releaseErr := b.vlanAllocator.Release(ctx, instance.RouterID, vlanID); releaseErr != nil {
 				log.Error().Err(releaseErr).Msg("Failed to release VLAN ID during cleanup")
 			}
 		}
@@ -191,7 +191,7 @@ func (b *BridgeOrchestrator) TeardownBridge(
 
 	// Release VLAN if allocated
 	if instance.VlanID != nil {
-		if err := b.vlanAllocator.Release(ctx, *instance.VlanID); err != nil {
+		if err := b.vlanAllocator.Release(ctx, instance.RouterID, *instance.VlanID); err != nil {
 			log.Warn().Err(err).Int("vlan_id", *instance.VlanID).Msg("Failed to release VLAN ID")
 		}
 	}

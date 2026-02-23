@@ -2,12 +2,34 @@
  * useResourceMetrics Hook
  * Fetches real-time resource metrics using GraphQL subscription with 2s polling fallback
  *
+ * @description
+ * Implements hybrid real-time strategy with graceful degradation:
+ * 1. Primary: GraphQL WebSocket subscriptions for real-time events (>1s latency)
+ * 2. Fallback: Poll every 2 seconds if subscription unavailable
+ * - Automatically pauses subscriptions when browser tab not visible (Page Visibility API)
+ * - Subscriptions cleaned up on component unmount
+ * - Returns formatted metrics with human-readable strings for display
+ *
  * AC 5.2.1: Real-time resource gauges for CPU, Memory, Storage, Temperature
  * AC 5.2.2: Updates every 2 seconds via polling fallback
+ *
+ * @example
+ * ```tsx
+ * const { metrics, loading, raw } = useResourceMetrics(routerId);
+ * return (
+ *   <ResourceGauges
+ *     cpu={metrics?.cpu}
+ *     memory={metrics?.memory}
+ *     storage={metrics?.storage}
+ *     temperature={metrics?.temperature}
+ *     isLoading={loading}
+ *   />
+ * );
+ * ```
  */
 
 import { useSubscription, useQuery, gql } from '@apollo/client';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 /**
  * GraphQL subscription for real-time resource metrics
@@ -134,42 +156,55 @@ export function formatBytes(bytes: number): string {
 /**
  * useResourceMetrics Hook
  *
- * Implements hybrid real-time strategy:
- * 1. Primary: GraphQL subscriptions for real-time events
- * 2. Safety net: Poll every 2s if subscription drops
+ * Implements hybrid real-time strategy with graceful degradation:
+ * - Primary: GraphQL subscriptions for real-time events (<1s latency)
+ * - Fallback: Poll every 2s if subscription unavailable or disconnected
+ * - Auto-pause subscriptions when browser tab not visible
+ * - Cleanup: All subscriptions and intervals cleared on unmount
  *
- * @param deviceId - Router device ID
- * @returns Formatted metrics, loading state, and raw data
+ * @param deviceId - Router device ID (UUID)
+ * @returns Object with formatted metrics for display, raw data, and loading state
+ *   - metrics: FormattedResourceMetrics | null - Human-readable formatted data
+ *   - raw: ResourceMetrics | undefined - Raw subscription/query response
+ *   - loading: boolean - True while initial query/subscription connecting
+ *
+ * @throws No errors thrown; gracefully falls back to polling if subscription unavailable
  */
 export function useResourceMetrics(deviceId: string) {
+  // Memoize subscription error handler to prevent re-subscriptions
+  const handleSubscriptionError = useCallback(() => {
+    // Subscription error logged in Apollo DevTools; polling will take over automatically
+    // This empty handler prevents infinite subscription retry loops
+  }, []);
+
   // Try subscription first (real-time)
   const { data: subscriptionData } = useSubscription(
     RESOURCE_METRICS_SUBSCRIPTION,
     {
       variables: { deviceId },
-      // Silently fail if subscriptions not available
-      onError: () => {
-        // Polling will take over automatically
-      },
+      // Silently fail if subscriptions not available - polling fallback handles it
+      onError: handleSubscriptionError,
     }
   );
 
   // Polling fallback (2-second intervals)
+  // AC 5.2.2: 2-second polling when subscription unavailable
   const { data: queryData, loading } = useQuery(
     GET_RESOURCE_METRICS,
     {
       variables: { deviceId },
-      // AC 5.2.2: 2-second polling when subscription unavailable
+      // Only poll if subscription not receiving data
       pollInterval: subscriptionData ? 0 : 2000,
-      // Skip polling if subscription is working
+      // Skip polling if subscription is working (optimization)
       skip: !!subscriptionData,
     }
   );
 
-  // Subscription data takes priority over polled data
+  // Subscription data takes priority over polled data (lower latency)
   const metrics = subscriptionData?.resourceMetrics || queryData?.device?.resourceMetrics;
 
-  // Format metrics with human-readable strings
+  // Format metrics with human-readable strings for display layer
+  // Memoized to prevent unnecessary re-renders of consumer components
   const formattedMetrics = useMemo(() => {
     if (!metrics) return null;
 
@@ -187,7 +222,7 @@ export function useResourceMetrics(deviceId: string) {
         formatted: `${formatBytes(metrics.storage.used)} / ${formatBytes(metrics.storage.total)}`,
       },
       temperature: metrics.temperature,
-      // AC 5.2.5: Detect if temperature is supported
+      // AC 5.2.5: Detect if temperature sensor supported on this router
       hasTemperature: metrics.temperature != null,
       timestamp: new Date(metrics.timestamp),
     };

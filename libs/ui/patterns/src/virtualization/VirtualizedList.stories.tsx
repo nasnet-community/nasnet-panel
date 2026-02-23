@@ -24,7 +24,7 @@ import type { Meta, StoryObj } from '@storybook/react';
  * - <16ms render budget per frame
  * - Memory efficient (only renders visible items)
  */
-const meta: Meta<typeof VirtualizedList> = {
+const meta: Meta = {
   title: 'Performance/VirtualizedList',
   component: VirtualizedList,
   parameters: {
@@ -40,7 +40,7 @@ const meta: Meta<typeof VirtualizedList> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof VirtualizedList>;
+type Story = StoryObj;
 
 // Mock data generator
 interface MockItem {
@@ -98,7 +98,11 @@ export const Default: Story = {
     items: generateItems(1000),
     estimateSize: 60,
     height: 400,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
 };
 
@@ -110,7 +114,11 @@ export const LargeDataset: Story = {
     items: generateItems(10000),
     estimateSize: 60,
     height: 500,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {
@@ -130,7 +138,11 @@ export const CardItems: Story = {
     items: generateItems(500),
     estimateSize: 100,
     height: 500,
-    renderItem: ({ item }) => <CardItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <CardItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {
@@ -150,7 +162,11 @@ export const WithKeyboardNavigation: Story = {
     estimateSize: 60,
     height: 400,
     enableKeyboardNav: true,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {
@@ -195,7 +211,11 @@ export const WithFiltering: Story = {
           items={filteredItems}
           estimateSize={60}
           height={400}
-          renderItem={({ item }) => <SimpleItemRenderer item={item} />}
+          renderItem={({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+            <div ref={measureRef}>
+              <SimpleItemRenderer item={item} />
+            </div>
+          )}
         />
       </div>
     );
@@ -218,7 +238,11 @@ export const SmallList: Story = {
     items: generateItems(10),
     estimateSize: 60,
     height: 400,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {
@@ -239,7 +263,11 @@ export const ForceVirtualization: Story = {
     estimateSize: 60,
     height: 400,
     forceVirtualization: true,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {
@@ -260,7 +288,11 @@ export const CustomOverscan: Story = {
     estimateSize: 60,
     height: 400,
     overscan: 10,
-    renderItem: ({ item }) => <SimpleItemRenderer item={item} />,
+    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+      <div ref={measureRef}>
+        <SimpleItemRenderer item={item} />
+      </div>
+    ),
   },
   parameters: {
     docs: {

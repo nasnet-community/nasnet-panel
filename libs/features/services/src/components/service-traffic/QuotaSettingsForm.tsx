@@ -2,11 +2,20 @@
  * QuotaSettingsForm Component
  * NAS-8.8: Implement Traffic Statistics and Quota Management
  *
- * Form for configuring traffic quota with validation:
- * - Quota period (daily/weekly/monthly)
- * - Limit in bytes (with GB/TB input)
+ * @description
+ * Form for configuring traffic quota limits with validation and error handling.
+ * Supports quota periods, limit configuration in GB, warning thresholds, and
+ * action selection when limits are reached. Provides visual feedback for
+ * success/error states.
+ *
+ * Features:
+ * - React Hook Form with Zod validation
+ * - Period selection (daily/weekly/monthly)
+ * - Limit input in GB (converted to bytes)
  * - Warning threshold percentage
- * - Action when quota exceeded (log/alert/stop/throttle)
+ * - Action selection with descriptions
+ * - Remove quota button
+ * - Success/error feedback
  *
  * Uses React Hook Form + Zod validation
  */
@@ -16,6 +25,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Save, AlertCircle, Trash2 } from 'lucide-react';
+import { useCallback } from 'react';
 
 import {
   useSetTrafficQuota,
@@ -91,30 +101,24 @@ export interface QuotaSettingsFormProps {
 /**
  * Converts GB to bytes
  */
-function gbToBytes(gb: number): number {
+const gbToBytes = (gb: number): number => {
   return Math.floor(gb * 1024 * 1024 * 1024);
-}
+};
 
 /**
  * Converts bytes to GB
  */
-function bytesToGB(bytes: number): number {
+const bytesToGB = (bytes: number): number => {
   return bytes / (1024 * 1024 * 1024);
-}
+};
 
 /**
  * QuotaSettingsForm component
  *
- * Features:
- * - React Hook Form with Zod validation
- * - Period selection (daily/weekly/monthly)
- * - Limit input in GB (converted to bytes)
- * - Warning threshold percentage
- * - Action selection with descriptions
- * - Remove quota button
- * - Success/error feedback
+ * Displays and manages traffic quota configuration with validation,
+ * success/error feedback, and quota removal option.
  */
-export function QuotaSettingsForm({
+export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
   routerID,
   instanceID,
   currentQuota,
@@ -139,8 +143,8 @@ export function QuotaSettingsForm({
     },
   });
 
-  // Handle form submission
-  const handleSubmit = async (values: QuotaSettingsFormData) => {
+  // Handle form submission with memoized callback
+  const handleSubmit = useCallback(async (values: QuotaSettingsFormData) => {
     setSuccessMessage(null);
 
     try {
@@ -173,10 +177,10 @@ export function QuotaSettingsForm({
         message: errorObj.message,
       });
     }
-  };
+  }, [setQuota, routerID, instanceID, onSuccess, onError, form]);
 
-  // Handle quota removal
-  const handleRemoveQuota = async () => {
+  // Handle quota removal with memoized callback
+  const handleRemoveQuota = useCallback(async () => {
     setSuccessMessage(null);
 
     try {
@@ -205,7 +209,7 @@ export function QuotaSettingsForm({
       const errorObj = err instanceof Error ? err : new Error(String(err));
       onError?.(errorObj);
     }
-  };
+  }, [resetQuota, routerID, instanceID, onSuccess, onError, form]);
 
   // Reset form when current quota changes
   React.useEffect(() => {
@@ -220,7 +224,7 @@ export function QuotaSettingsForm({
   }, [currentQuota, form]);
 
   return (
-    <Card className={className}>
+    <Card className={cn('', className)}>
       <CardHeader>
         <CardTitle>Traffic Quota Settings</CardTitle>
         <CardDescription>
@@ -228,7 +232,7 @@ export function QuotaSettingsForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" noValidate>
           {/* Success Message */}
           {successMessage && (
             <Alert className="border-green-500 bg-green-50 text-green-900">
@@ -378,4 +382,6 @@ export function QuotaSettingsForm({
       </CardContent>
     </Card>
   );
-}
+});
+
+QuotaSettingsForm.displayName = 'QuotaSettingsForm';

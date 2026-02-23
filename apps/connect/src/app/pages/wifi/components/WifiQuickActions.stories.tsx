@@ -120,3 +120,23 @@ export const RefreshingWithRestartAvailable: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    onRefresh: () => undefined,
+    isRefreshing: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    onRefresh: () => undefined,
+    isRefreshing: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

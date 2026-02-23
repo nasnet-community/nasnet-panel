@@ -109,24 +109,25 @@ export interface ServiceTemplateCardProps {
 
 /**
  * Scope color mapping for badges
+ * Uses semantic color tokens from design system
  */
 export const SCOPE_COLORS: Record<
   TemplateScope,
   { bg: string; text: string; label: string }
 > = {
   'built-in': {
-    bg: 'bg-blue-100 dark:bg-blue-900/30',
-    text: 'text-blue-700 dark:text-blue-300',
+    bg: 'bg-secondary/10 dark:bg-secondary/20',
+    text: 'text-secondary dark:text-secondary',
     label: 'Built-in',
   },
   custom: {
-    bg: 'bg-amber-100 dark:bg-amber-900/30',
-    text: 'text-amber-700 dark:text-amber-300',
+    bg: 'bg-warning/10 dark:bg-warning/20',
+    text: 'text-warning dark:text-warning',
     label: 'Custom',
   },
   shared: {
-    bg: 'bg-green-100 dark:bg-green-900/30',
-    text: 'text-green-700 dark:text-green-300',
+    bg: 'bg-success/10 dark:bg-success/20',
+    text: 'text-success dark:text-success',
     label: 'Shared',
   },
 };

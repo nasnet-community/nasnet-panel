@@ -1,3 +1,4 @@
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,25 +10,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Switch } from '@nasnet/ui/primitives';
-import {
+  Input,
+  Button,
+  Switch,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@nasnet/ui/primitives';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Alert,
+  AlertDescription,
+  Icon,
 } from '@nasnet/ui/primitives';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
 import { AlertTriangle } from 'lucide-react';
 import { VlanSelector } from './VlanSelector';
 import type { BridgePort } from '@nasnet/api-client/generated';
@@ -35,14 +34,19 @@ import { useUpdateBridgePort } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 
 // Bridge port editor schema with validation
+const VLAN_MIN = 1;
+const VLAN_MAX = 4094;
+const PATH_COST_MIN = 1;
+const PATH_COST_MAX = 65535;
+
 const bridgePortEditorSchema = z.object({
-  pvid: z.number().int().min(1).max(4094),
+  pvid: z.number().int().min(VLAN_MIN).max(VLAN_MAX),
   frameTypes: z.enum(['ADMIT_ALL', 'ADMIT_ONLY_UNTAGGED_AND_PRIORITY', 'ADMIT_ONLY_VLAN_TAGGED']),
   ingressFiltering: z.boolean(),
-  taggedVlans: z.array(z.number().int().min(1).max(4094)),
-  untaggedVlans: z.array(z.number().int().min(1).max(4094)),
+  taggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
+  untaggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
   edge: z.boolean(),
-  pathCost: z.number().int().min(1).max(65535).optional(),
+  pathCost: z.number().int().min(PATH_COST_MIN).max(PATH_COST_MAX).optional(),
 }).refine((data) => {
   // Ensure no overlap between tagged and untagged VLANs
   const taggedSet = new Set(data.taggedVlans);
@@ -59,6 +63,7 @@ export interface BridgePortEditorProps {
   port: BridgePort | null;
   open: boolean;
   onClose: () => void;
+  className?: string;
 }
 
 /**
@@ -71,37 +76,37 @@ export interface BridgePortEditorProps {
  * - Untagged VLANs multi-select
  * - Edge port toggle
  * - Path cost input
+ *
+ * @description Form for editing per-port VLAN configuration and spanning tree parameters.
+ * Includes validation to prevent tagged/untagged VLAN overlap and helpful warnings for
+ * common misconfigurations (PVID not in untagged list).
  */
-export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps) {
+function BridgePortEditorComponent({ port, open, onClose, className }: BridgePortEditorProps) {
   const [updateBridgePort, { loading: updating }] = useUpdateBridgePort();
+
+  const defaultValues = useMemo<BridgePortEditorData>(() => ({
+    pvid: port?.pvid || 1,
+    frameTypes: (port?.frameTypes as any) || 'ADMIT_ALL',
+    ingressFiltering: port?.ingressFiltering || false,
+    taggedVlans: [...(port?.taggedVlans || [])] as number[],
+    untaggedVlans: [...(port?.untaggedVlans || [])] as number[],
+    edge: port?.edge || false,
+    pathCost: port?.pathCost,
+  }), [port]);
 
   const form = useForm<BridgePortEditorData>({
     resolver: zodResolver(bridgePortEditorSchema) as any,
-    defaultValues: {
-      pvid: port?.pvid || 1,
-      frameTypes: (port?.frameTypes as any) || 'ADMIT_ALL',
-      ingressFiltering: port?.ingressFiltering || false,
-      taggedVlans: [...(port?.taggedVlans || [])] as number[],
-      untaggedVlans: [...(port?.untaggedVlans || [])] as number[],
-      edge: port?.edge || false,
-      pathCost: port?.pathCost,
-    },
+    defaultValues,
   });
 
   // Reset form when port changes
-  if (port && open) {
-    form.reset({
-      pvid: port.pvid || 1,
-      frameTypes: (port.frameTypes as any) || 'ADMIT_ALL',
-      ingressFiltering: port.ingressFiltering || false,
-      taggedVlans: [...(port.taggedVlans || [])] as number[],
-      untaggedVlans: [...(port.untaggedVlans || [])] as number[],
-      edge: port.edge || false,
-      pathCost: port.pathCost,
-    });
-  }
+  useEffect(() => {
+    if (port && open) {
+      form.reset(defaultValues);
+    }
+  }, [port, open, defaultValues, form]);
 
-  const handleSubmit = async (data: BridgePortEditorData) => {
+  const handleSubmit = useCallback(async (data: BridgePortEditorData) => {
     if (!port) return;
 
     try {
@@ -144,20 +149,28 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
       toast.error('Failed to update port settings');
       console.error(err);
     }
-  };
+  }, [port, updateBridgePort, onClose]);
 
   // Check if PVID is in untagged VLANs
   const pvid = form.watch('pvid');
   const untaggedVlans = form.watch('untaggedVlans');
-  const pvidNotInUntagged = pvid && untaggedVlans.length > 0 && !untaggedVlans.includes(pvid);
+  const pvidNotInUntagged = useMemo(
+    () => pvid && untaggedVlans.length > 0 && !untaggedVlans.includes(pvid),
+    [pvid, untaggedVlans]
+  );
+
+  const handleCloseDialog = useCallback(
+    (isOpen: boolean) => !isOpen && onClose(),
+    [onClose]
+  );
 
   if (!port) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+    <Dialog open={open} onOpenChange={handleCloseDialog}>
+      <DialogContent className={`max-h-[90vh] overflow-y-auto sm:max-w-2xl ${className || ''}`}>
         <DialogHeader>
-          <DialogTitle>Configure Port: {port.interface.name}</DialogTitle>
+          <DialogTitle className="font-mono text-base">Configure Port: {port.interface.name}</DialogTitle>
           <DialogDescription>
             Configure VLAN settings and spanning tree parameters for this bridge port
           </DialogDescription>
@@ -168,9 +181,9 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
             {/* PVID Warning */}
             {pvidNotInUntagged && (
               <Alert variant="warning">
-                <AlertTriangle className="h-4 w-4" />
+                <Icon icon={AlertTriangle} className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
-                  PVID {pvid} is not in the untagged VLANs list. This is a common
+                  PVID <span className="font-mono">{pvid}</span> is not in the untagged VLANs list. This is a common
                   misconfiguration. Consider adding it to untagged VLANs.
                 </AlertDescription>
               </Alert>
@@ -187,14 +200,15 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
                     <Input
                       {...field}
                       type="number"
-                      min={1}
-                      max={4094}
+                      min={VLAN_MIN}
+                      max={VLAN_MAX}
                       disabled={updating}
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      className="font-mono"
                     />
                   </FormControl>
                   <FormDescription>
-                    Default VLAN ID for untagged traffic (1-4094)
+                    Default VLAN ID for untagged traffic ({VLAN_MIN}-{VLAN_MAX})
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -333,15 +347,16 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
                       <Input
                         {...field}
                         type="number"
-                        min={1}
-                        max={65535}
+                        min={PATH_COST_MIN}
+                        max={PATH_COST_MAX}
                         disabled={updating}
                         onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                         value={field.value || ''}
+                        className="font-mono"
                       />
                     </FormControl>
                     <FormDescription>
-                      STP path cost (1-65535, lower is preferred)
+                      STP path cost ({PATH_COST_MIN}-{PATH_COST_MAX}, lower is preferred)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -369,3 +384,7 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
     </Dialog>
   );
 }
+
+BridgePortEditorComponent.displayName = 'BridgePortEditor';
+
+export const BridgePortEditor = memo(BridgePortEditorComponent);

@@ -4,7 +4,10 @@
  * Implements FR0-14: Users can view list of wireless interfaces with status
  */
 
+import React from 'react';
+
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { useWirelessInterfaces, useWirelessClients } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -26,7 +29,8 @@ import {
  * - Lists connected clients with signal info
  * - Shows security status per interface
  */
-export function WifiPage() {
+export const WifiPage = React.memo(function WifiPage() {
+  const { t } = useTranslation('wifi');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const queryClient = useQueryClient();
 
@@ -63,7 +67,7 @@ export function WifiPage() {
       <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
         <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center" role="alert">
           <h3 className="text-lg font-semibold text-destructive mb-2">
-            Failed to load WiFi data
+            {t('status.failedToLoad')}
           </h3>
           <p className="text-sm text-destructive/80 mb-4">
             {interfacesError.message}
@@ -74,7 +78,7 @@ export function WifiPage() {
             onClick={handleRefresh}
             className="min-h-[44px]"
           >
-            Try Again
+            {t('button.tryAgain', { ns: 'common' })}
           </Button>
         </div>
       </div>
@@ -87,10 +91,10 @@ export function WifiPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
-            WiFi Management
+            {t('title')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Monitor and manage your wireless networks
+            {t('overview')}
           </p>
         </div>
         <WifiQuickActions onRefresh={handleRefresh} isRefreshing={isRefreshing} />
@@ -119,4 +123,6 @@ export function WifiPage() {
       />
     </div>
   );
-}
+});
+
+WifiPage.displayName = 'WifiPage';

@@ -4,9 +4,23 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
+import * as React from 'react';
 import { useVlanList } from './use-vlan-list';
 import { GET_VLANS } from '@nasnet/api-client/queries';
 import { ReactNode } from 'react';
+import type { FC } from 'react';
+
+// VLAN type for testing
+interface VlanType {
+  id: string;
+  name: string;
+  vlanId: number;
+  interface: { id: string; name: string; type: string };
+  mtu: number | null;
+  comment: string | null;
+  disabled: boolean;
+  running: boolean;
+}
 
 // Mock data
 const mockVlans = [
@@ -56,11 +70,8 @@ const mocks = [
   },
 ];
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <MockedProvider mocks={mocks} addTypename={false}>
-    {children}
-  </MockedProvider>
-);
+const wrapper: FC<{ children: ReactNode }> = ({ children }) =>
+  React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
 describe('useVlanList', () => {
   it('should fetch and return VLANs', async () => {
@@ -108,7 +119,7 @@ describe('useVlanList', () => {
     });
 
     expect(result.current.vlans).toHaveLength(2);
-    expect(result.current.vlans.every((v) => v.interface.id === 'bridge1')).toBe(true);
+    expect(result.current.vlans.every((v: VlanType) => v.interface.id === 'bridge1')).toBe(true);
   });
 
   it('should filter VLANs by VLAN ID range', async () => {
@@ -124,7 +135,7 @@ describe('useVlanList', () => {
     });
 
     expect(result.current.vlans).toHaveLength(2);
-    expect(result.current.vlans.every((v) => v.vlanId >= 10 && v.vlanId <= 20)).toBe(true);
+    expect(result.current.vlans.every((v: VlanType) => v.vlanId >= 10 && v.vlanId <= 20)).toBe(true);
   });
 
   it('should handle selection toggling', async () => {

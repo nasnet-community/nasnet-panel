@@ -5,10 +5,12 @@
  * and states, using MockedProvider to simulate GraphQL data.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { MockedProvider } from '@apollo/client/testing';
 import { gql } from '@apollo/client';
+import { MockedProvider } from '@apollo/client/testing';
+
 import { AlertBadge } from './AlertBadge';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // GraphQL mock query (matches the internal GET_ALERTS query in useAlerts hook)
@@ -56,7 +58,7 @@ const GET_ALERTS = gql`
   }
 `;
 
-const ALERT_EVENTS_SUBSCRIPTION = gql`
+const _ALERT_EVENTS_SUBSCRIPTION = gql`
   subscription AlertEvents($deviceId: ID) {
     alertEvents(deviceId: $deviceId) {
       alert {

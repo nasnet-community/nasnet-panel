@@ -6,8 +6,9 @@
  * badges rendered side-by-side to allow quick visual comparison.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { SecurityLevelBadge } from './SecurityLevelBadge';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof SecurityLevelBadge> = {
   title: 'Features/Wireless/SecurityLevelBadge',

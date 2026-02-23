@@ -61,26 +61,66 @@ export interface SystemInfo {
 }
 
 /**
+ * CPU Resource Display
+ * CPU load and status information
+ */
+export interface CPUResourceDisplay {
+  /** CPU usage percentage (0-100) */
+  percentage: number;
+
+  /** Visual status indicator */
+  status: ResourceStatus;
+}
+
+/**
+ * Memory Resource Display
+ * Memory usage and availability information
+ */
+export interface MemoryResourceDisplay {
+  /** Used memory in bytes */
+  usedBytes: number;
+
+  /** Total memory in bytes */
+  totalBytes: number;
+
+  /** Memory usage percentage (0-100) */
+  percentage: number;
+
+  /** Visual status indicator */
+  status: ResourceStatus;
+}
+
+/**
+ * Disk Resource Display
+ * Disk space usage and availability information
+ */
+export interface DiskResourceDisplay {
+  /** Used disk space in bytes */
+  usedBytes: number;
+
+  /** Total disk space in bytes */
+  totalBytes: number;
+
+  /** Disk usage percentage (0-100) */
+  percentage: number;
+
+  /** Visual status indicator */
+  status: ResourceStatus;
+}
+
+/**
  * Resource Display State
  * Computed display values with status thresholds
  */
 export interface ResourceDisplay {
-  cpu: {
-    percentage: number;
-    status: ResourceStatus;
-  };
-  memory: {
-    usedBytes: number;
-    totalBytes: number;
-    percentage: number;
-    status: ResourceStatus;
-  };
-  disk: {
-    usedBytes: number;
-    totalBytes: number;
-    percentage: number;
-    status: ResourceStatus;
-  };
+  /** CPU resource metrics */
+  cpu: CPUResourceDisplay;
+
+  /** Memory resource metrics */
+  memory: MemoryResourceDisplay;
+
+  /** Disk resource metrics */
+  disk: DiskResourceDisplay;
 }
 
 /**
@@ -94,9 +134,18 @@ export type ResourceStatus = 'healthy' | 'warning' | 'critical';
  * Overall dashboard data and loading state
  */
 export interface DashboardState {
+  /** Current system resource metrics */
   systemResource: SystemResource | null;
+
+  /** Current system information */
   systemInfo: SystemInfo | null;
+
+  /** Whether data is currently being fetched */
   isLoading: boolean;
+
+  /** Timestamp of last successful data update */
   lastUpdated: Date | null;
-  error: string | null;
+
+  /** Error message if loading failed */
+  errorMessage: string | null;
 }

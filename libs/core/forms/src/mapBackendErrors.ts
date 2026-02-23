@@ -71,6 +71,15 @@ export function clearServerErrors<T extends FieldValues>(
  *
  * @param error - Backend validation error
  * @returns Object with type and message for React Hook Form
+ *
+ * @example
+ * ```typescript
+ * const error = toFormError({
+ *   fieldPath: 'email',
+ *   message: 'Email already exists'
+ * });
+ * // { type: 'server', message: 'Email already exists' }
+ * ```
  */
 export function toFormError(error: ValidationError): {
   type: string;
@@ -87,6 +96,19 @@ export function toFormError(error: ValidationError): {
  *
  * @param errors - Array of backend validation errors
  * @returns Map of field paths to arrays of errors
+ *
+ * @example
+ * ```typescript
+ * const grouped = groupErrorsByField([
+ *   { fieldPath: 'email', message: 'Already exists' },
+ *   { fieldPath: 'email', message: 'Invalid format' },
+ *   { fieldPath: 'name', message: 'Too short' }
+ * ]);
+ * // Map {
+ * //   'email' => [{ fieldPath: 'email', message: 'Already exists' }, ...],
+ * //   'name' => [{ fieldPath: 'name', message: 'Too short' }]
+ * // }
+ * ```
  */
 export function groupErrorsByField(
   errors: ValidationError[]
@@ -106,7 +128,16 @@ export function groupErrorsByField(
  * Creates a formatted error message from multiple errors on the same field.
  *
  * @param errors - Array of validation errors for a single field
- * @returns Combined error message
+ * @returns Combined error message joined with periods
+ *
+ * @example
+ * ```typescript
+ * const message = combineFieldErrors([
+ *   { fieldPath: 'email', message: 'Already exists' },
+ *   { fieldPath: 'email', message: 'Invalid domain' }
+ * ]);
+ * // "Already exists. Invalid domain"
+ * ```
  */
 export function combineFieldErrors(errors: ValidationError[]): string {
   if (errors.length === 0) return '';

@@ -4,18 +4,33 @@
  * Displays side-by-side comparison of DNS lookup results from multiple servers,
  * highlighting differences in query times and resolved records.
  *
+ * @description Renders a grid of DNS lookup results with performance indicators.
+ * Highlights the fastest response time with a success ring and visual badge.
+ * Detects discrepancies when different servers return different numbers of records.
+ * Includes a summary section with query statistics.
+ *
  * @see Story NAS-5.9 - Implement DNS Lookup Tool - Task 5.9.7
+ * @see ADR-017 Three-Layer Component Architecture
+ * @example
+ * ```tsx
+ * <DnsServerComparison
+ *   results={[
+ *     { hostname: 'example.com', recordType: 'A', status: 'SUCCESS', records: [...], ... },
+ *   ]}
+ * />
+ * ```
  */
 
-import { memo } from 'react';
-import { Card, CardHeader, CardContent, Badge } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+import { memo, useMemo } from 'react';
+import { Card, CardHeader, CardContent, Badge, cn } from '@nasnet/ui/primitives';
 import type { DnsLookupResult } from './DnsLookupTool.types';
 import { DnsResults } from './DnsResults';
 import { isErrorStatus } from './dnsLookup.utils';
 
 export interface DnsServerComparisonProps {
+  /** Array of DNS lookup results to compare */
   results: DnsLookupResult[];
+  /** Optional CSS class for custom styling */
   className?: string;
 }
 
@@ -23,6 +38,12 @@ export const DnsServerComparison = memo(function DnsServerComparison({
   results,
   className,
 }: DnsServerComparisonProps) {
+  // Memoize fastest time calculation
+  const fastestTime = useMemo(
+    () => Math.min(...results.map((r) => r.queryTime)),
+    [results]
+  );
+
   if (results.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -30,9 +51,6 @@ export const DnsServerComparison = memo(function DnsServerComparison({
       </div>
     );
   }
-
-  // Find fastest query time
-  const fastestTime = Math.min(...results.map((r) => r.queryTime));
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -56,7 +74,9 @@ export const DnsServerComparison = memo(function DnsServerComparison({
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold font-mono">{result.server}</h3>
+                  <h3 className="text-sm font-semibold font-mono break-all">
+                    {result.server}
+                  </h3>
                   {isFastest && !hasError && (
                     <Badge variant="default" className="bg-success text-success-foreground">
                       Fastest
@@ -87,13 +107,16 @@ export const DnsServerComparison = memo(function DnsServerComparison({
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">Successful queries:</span>
-            <span className="ml-2 font-mono">
+            <span className="ml-2 font-mono tabular-nums">
               {results.filter((r) => !isErrorStatus(r.status)).length} / {results.length}
             </span>
           </div>
           <div>
             <span className="text-muted-foreground">Fastest response:</span>
-            <span className="ml-2 font-mono text-success">{fastestTime}ms</span>
+            <span className="ml-2 font-mono tabular-nums text-success">
+              {fastestTime}
+              ms
+            </span>
           </div>
         </div>
 

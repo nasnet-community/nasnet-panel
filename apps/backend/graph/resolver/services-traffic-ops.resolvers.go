@@ -7,31 +7,393 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/generated/ent"
+	"backend/generated/ent/serviceinstance"
+	"backend/internal/events"
 	"context"
 	"fmt"
+	"time"
 )
 
 // SetTrafficQuota is the resolver for the setTrafficQuota field.
 func (r *mutationResolver) SetTrafficQuota(ctx context.Context, input graphql1.SetTrafficQuotaInput) (*graphql1.TrafficQuotaPayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.QuotaEnforcer == nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: "quota enforcer not available"}},
+		}, nil
+	}
+
+	period, err := mapQuotaPeriod(input.Period)
+	if err != nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	action, err := mapQuotaAction(input.Action)
+	if err != nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: err.Error()}},
+		}, nil
+	}
+
+	if err := r.QuotaEnforcer.SetQuota(ctx, input.InstanceID, int64(input.LimitBytes), period, action); err != nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: fmt.Sprintf("failed to set quota: %v", err)}},
+		}, nil
+	}
+
+	// Fetch the updated instance to return the quota
+	instance, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
+	if err != nil {
+		// Quota was set, but we couldn't fetch the result — still a success
+		return &graphql1.TrafficQuotaPayload{Success: true}, nil
+	}
+
+	return &graphql1.TrafficQuotaPayload{
+		Success: true,
+		Quota:   buildTrafficQuotaFromInstance(instance),
+	}, nil
 }
 
 // ResetTrafficQuota is the resolver for the resetTrafficQuota field.
 func (r *mutationResolver) ResetTrafficQuota(ctx context.Context, routerID string, instanceID string) (*graphql1.TrafficQuotaPayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.QuotaEnforcer == nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: "quota enforcer not available"}},
+		}, nil
+	}
+
+	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
+	if err != nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: fmt.Sprintf("instance not found: %v", err)}},
+		}, nil
+	}
+
+	if err := r.QuotaEnforcer.ResetQuota(ctx, instance); err != nil {
+		return &graphql1.TrafficQuotaPayload{
+			Success: false,
+			Errors:  []*graphql1.MutationError{{Message: fmt.Sprintf("failed to reset quota: %v", err)}},
+		}, nil
+	}
+
+	// Re-fetch after reset to get updated fields
+	instance, err = r.db.ServiceInstance.Get(ctx, instanceID)
+	if err != nil {
+		return &graphql1.TrafficQuotaPayload{Success: true}, nil
+	}
+
+	return &graphql1.TrafficQuotaPayload{
+		Success: true,
+		Quota:   buildTrafficQuotaFromInstance(instance),
+	}, nil
 }
 
 // ServiceTrafficStats is the resolver for the serviceTrafficStats field.
 func (r *queryResolver) ServiceTrafficStats(ctx context.Context, routerID string, instanceID string, historyHours *int) (*graphql1.ServiceTrafficStats, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.TrafficAggregator == nil {
+		return nil, fmt.Errorf("traffic aggregator not available")
+	}
+
+	hours := 24
+	if historyHours != nil && *historyHours > 0 {
+		hours = *historyHours
+	}
+
+	endTime := time.Now()
+	startTime := endTime.Add(-time.Duration(hours) * time.Hour)
+
+	records, err := r.TrafficAggregator.GetHourlyTraffic(ctx, instanceID, startTime, endTime)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch traffic history: %w", err)
+	}
+
+	// Build history data points and aggregate totals
+	history := make([]*graphql1.TrafficDataPoint, 0, len(records))
+	var totalUpload, totalDownload int64
+	for _, rec := range records {
+		history = append(history, &graphql1.TrafficDataPoint{
+			Timestamp:     rec.HourStart,
+			UploadBytes:   int(rec.TxBytes),
+			DownloadBytes: int(rec.RxBytes),
+			TotalBytes:    int(rec.TxBytes + rec.RxBytes),
+		})
+		totalUpload += rec.TxBytes
+		totalDownload += rec.RxBytes
+	}
+
+	// Fetch instance for quota and period info
+	var quota *graphql1.TrafficQuota
+	var periodUpload, periodDownload int64
+	instance, instanceErr := r.db.ServiceInstance.Get(ctx, instanceID)
+	if instanceErr == nil {
+		if instance.QuotaBytes != nil {
+			quota = buildTrafficQuotaFromInstance(instance)
+		}
+
+		// Current period totals: from period start to now
+		if instance.QuotaResetAt != nil {
+			periodDur := quotaPeriodDuration(instance.QuotaPeriod)
+			periodStart := instance.QuotaResetAt.Add(-periodDur)
+			periodRecords, periodErr := r.TrafficAggregator.GetHourlyTraffic(ctx, instanceID, periodStart, endTime)
+			if periodErr == nil {
+				for _, rec := range periodRecords {
+					periodUpload += rec.TxBytes
+					periodDownload += rec.RxBytes
+				}
+			}
+		} else {
+			periodUpload = totalUpload
+			periodDownload = totalDownload
+		}
+	} else {
+		periodUpload = totalUpload
+		periodDownload = totalDownload
+	}
+
+	lastUpdated := endTime
+	if len(records) > 0 {
+		lastUpdated = records[len(records)-1].HourStart
+	}
+
+	return &graphql1.ServiceTrafficStats{
+		InstanceID:            instanceID,
+		TotalUploadBytes:      int(totalUpload),
+		TotalDownloadBytes:    int(totalDownload),
+		CurrentPeriodUpload:   int(periodUpload),
+		CurrentPeriodDownload: int(periodDownload),
+		History:               history,
+		DeviceBreakdown:       []*graphql1.DeviceTrafficBreakdown{},
+		Quota:                 quota,
+		LastUpdated:           lastUpdated,
+	}, nil
 }
 
 // ServiceDeviceBreakdown is the resolver for the serviceDeviceBreakdown field.
 func (r *queryResolver) ServiceDeviceBreakdown(ctx context.Context, routerID string, instanceID string) ([]*graphql1.DeviceTrafficBreakdown, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.DeviceTrafficTracker == nil {
+		return nil, fmt.Errorf("device traffic tracker not available")
+	}
+
+	breakdown, err := r.DeviceTrafficTracker.GetDeviceBreakdown(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get device breakdown: %w", err)
+	}
+
+	return breakdown, nil
 }
 
 // ServiceTrafficUpdated is the resolver for the serviceTrafficUpdated field.
 func (r *subscriptionResolver) ServiceTrafficUpdated(ctx context.Context, routerID string, instanceID string) (<-chan *graphql1.TrafficStatsEvent, error) {
-	return nil, fmt.Errorf("not implemented")
+	ch := make(chan *graphql1.TrafficStatsEvent, 10)
+
+	if r.EventBus == nil {
+		close(ch)
+		return ch, nil
+	}
+
+	// Handler dispatches quota events for this instance as TrafficStatsEvents
+	handler := func(hCtx context.Context, event events.Event) error {
+		var statsEvent *graphql1.TrafficStatsEvent
+
+		switch e := event.(type) {
+		case *events.QuotaWarning80Event:
+			if e.InstanceID != instanceID {
+				return nil
+			}
+			statsEvent = &graphql1.TrafficStatsEvent{
+				InstanceID:        e.InstanceID,
+				RouterID:          e.RouterID,
+				TotalUploadBytes:  int(e.UsedBytes),
+				QuotaWarning:      true,
+				QuotaLimitReached: false,
+				Timestamp:         e.GetTimestamp(),
+			}
+		case *events.QuotaWarning90Event:
+			if e.InstanceID != instanceID {
+				return nil
+			}
+			statsEvent = &graphql1.TrafficStatsEvent{
+				InstanceID:        e.InstanceID,
+				RouterID:          e.RouterID,
+				TotalUploadBytes:  int(e.UsedBytes),
+				QuotaWarning:      true,
+				QuotaLimitReached: false,
+				Timestamp:         e.GetTimestamp(),
+			}
+		case *events.QuotaExceededEvent:
+			if e.InstanceID != instanceID {
+				return nil
+			}
+			statsEvent = &graphql1.TrafficStatsEvent{
+				InstanceID:        e.InstanceID,
+				RouterID:          e.RouterID,
+				TotalUploadBytes:  int(e.UsedBytes),
+				QuotaWarning:      true,
+				QuotaLimitReached: true,
+				Timestamp:         e.GetTimestamp(),
+			}
+		default:
+			return nil
+		}
+
+		if statsEvent != nil {
+			select {
+			case ch <- statsEvent:
+			case <-hCtx.Done():
+			default:
+			}
+		}
+		return nil
+	}
+
+	for _, eventType := range []string{
+		events.EventTypeQuotaWarning80,
+		events.EventTypeQuotaWarning90,
+		events.EventTypeQuotaExceeded,
+	} {
+		if subErr := r.EventBus.Subscribe(eventType, handler); subErr != nil {
+			close(ch)
+			return nil, fmt.Errorf("failed to subscribe to %s events: %w", eventType, subErr)
+		}
+	}
+
+	go func() {
+		<-ctx.Done()
+		close(ch)
+	}()
+
+	return ch, nil
+}
+
+// =============================================================================
+// Helper functions
+// =============================================================================
+
+// mapQuotaPeriod converts a GraphQL QuotaPeriod to the ent serviceinstance.QuotaPeriod enum.
+func mapQuotaPeriod(period graphql1.QuotaPeriod) (serviceinstance.QuotaPeriod, error) {
+	switch period {
+	case graphql1.QuotaPeriodDaily:
+		return serviceinstance.QuotaPeriodDaily, nil
+	case graphql1.QuotaPeriodWeekly:
+		return serviceinstance.QuotaPeriodWeekly, nil
+	case graphql1.QuotaPeriodMonthly:
+		return serviceinstance.QuotaPeriodMonthly, nil
+	default:
+		return "", fmt.Errorf("unknown quota period: %s", period)
+	}
+}
+
+// mapQuotaAction converts a GraphQL QuotaAction to the ent serviceinstance.QuotaAction enum.
+func mapQuotaAction(action graphql1.QuotaAction) (serviceinstance.QuotaAction, error) {
+	switch action {
+	case graphql1.QuotaActionLogOnly:
+		return serviceinstance.QuotaActionLOG_ONLY, nil
+	case graphql1.QuotaActionAlert:
+		return serviceinstance.QuotaActionALERT, nil
+	case graphql1.QuotaActionStopService:
+		return serviceinstance.QuotaActionSTOP_SERVICE, nil
+	case graphql1.QuotaActionThrottle:
+		return serviceinstance.QuotaActionTHROTTLE, nil
+	default:
+		return "", fmt.Errorf("unknown quota action: %s", action)
+	}
+}
+
+// buildTrafficQuotaFromInstance constructs a GraphQL TrafficQuota from an ent.ServiceInstance.
+func buildTrafficQuotaFromInstance(instance *ent.ServiceInstance) *graphql1.TrafficQuota {
+	if instance == nil || instance.QuotaBytes == nil {
+		return nil
+	}
+
+	quotaBytes := *instance.QuotaBytes
+	usedBytes := instance.QuotaUsedBytes
+	remainingBytes := quotaBytes - usedBytes
+	if remainingBytes < 0 {
+		remainingBytes = 0
+	}
+
+	var usagePercent float64
+	if quotaBytes > 0 {
+		usagePercent = float64(usedBytes) / float64(quotaBytes) * 100.0
+	}
+
+	period := graphql1.QuotaPeriodMonthly
+	if instance.QuotaPeriod != nil {
+		switch *instance.QuotaPeriod {
+		case serviceinstance.QuotaPeriodDaily:
+			period = graphql1.QuotaPeriodDaily
+		case serviceinstance.QuotaPeriodWeekly:
+			period = graphql1.QuotaPeriodWeekly
+		case serviceinstance.QuotaPeriodMonthly:
+			period = graphql1.QuotaPeriodMonthly
+		}
+	}
+
+	action := graphql1.QuotaActionLogOnly
+	if instance.QuotaAction != nil {
+		switch *instance.QuotaAction {
+		case serviceinstance.QuotaActionLOG_ONLY:
+			action = graphql1.QuotaActionLogOnly
+		case serviceinstance.QuotaActionALERT:
+			action = graphql1.QuotaActionAlert
+		case serviceinstance.QuotaActionSTOP_SERVICE:
+			action = graphql1.QuotaActionStopService
+		case serviceinstance.QuotaActionTHROTTLE:
+			action = graphql1.QuotaActionThrottle
+		}
+	}
+
+	now := time.Now()
+	periodDur := quotaPeriodDuration(instance.QuotaPeriod)
+	periodStartedAt := now.Add(-periodDur)
+	periodEndsAt := now.Add(periodDur - periodDur) // same as now if reset not set
+	if instance.QuotaResetAt != nil {
+		periodEndsAt = *instance.QuotaResetAt
+		periodStartedAt = periodEndsAt.Add(-periodDur)
+	}
+
+	warningThreshold := 80 // default
+
+	return &graphql1.TrafficQuota{
+		ID:               instance.ID,
+		InstanceID:       instance.ID,
+		LimitBytes:       int(quotaBytes),
+		Period:           period,
+		Action:           action,
+		ConsumedBytes:    int(usedBytes),
+		RemainingBytes:   int(remainingBytes),
+		UsagePercent:     usagePercent,
+		LimitReached:     usagePercent >= 100.0,
+		WarningThreshold: warningThreshold,
+		WarningTriggered: usagePercent >= float64(warningThreshold),
+		PeriodStartedAt:  periodStartedAt,
+		PeriodEndsAt:     periodEndsAt,
+		CreatedAt:        instance.CreatedAt,
+		UpdatedAt:        instance.UpdatedAt,
+	}
+}
+
+// quotaPeriodDuration returns the duration for a given quota period.
+func quotaPeriodDuration(period *serviceinstance.QuotaPeriod) time.Duration {
+	if period == nil {
+		return 24 * time.Hour
+	}
+	switch *period {
+	case serviceinstance.QuotaPeriodDaily:
+		return 24 * time.Hour
+	case serviceinstance.QuotaPeriodWeekly:
+		return 7 * 24 * time.Hour
+	case serviceinstance.QuotaPeriodMonthly:
+		return 30 * 24 * time.Hour
+	default:
+		return 24 * time.Hour
+	}
 }

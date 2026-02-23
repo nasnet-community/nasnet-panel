@@ -1,3 +1,23 @@
+/**
+ * @fileoverview Sheet (Drawer) component
+ *
+ * A slide-in panel component for content that slides in from any edge of the viewport.
+ * Built on Radix UI Dialog primitive. Supports four entry directions: top, bottom, left, right.
+ * Commonly used for mobile navigation, detail panels, and filtering interfaces.
+ *
+ * @example
+ * ```tsx
+ * <Sheet>
+ *   <SheetTrigger>Open</SheetTrigger>
+ *   <SheetContent side="right">
+ *     <SheetHeader>
+ *       <SheetTitle>Sheet Title</SheetTitle>
+ *     </SheetHeader>
+ *     Content here
+ *   </SheetContent>
+ * </Sheet>
+ * ```
+ */
 "use client"
 
 import * as React from "react"
@@ -16,19 +36,37 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = SheetPrimitive.Portal
 
-const SheetOverlay = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Overlay
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-    ref={ref}
-  />
-))
+/**
+ * SheetOverlay - Semi-transparent backdrop behind the sheet.
+ *
+ * Provides visual separation and prevents interaction with underlying content.
+ * Automatically manages focus and keyboard interactions via Radix Dialog.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * // Typically used internally within SheetContent, not directly
+ * <SheetPortal>
+ *   <SheetOverlay />
+ *   <SheetContent>Content</SheetContent>
+ * </SheetPortal>
+ * ```
+ */
+const SheetOverlay = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof SheetPrimitive.Overlay>,
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+  >(({ className, ...props }, ref) => (
+    <SheetPrimitive.Overlay
+      className={cn(
+        "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        className
+      )}
+      {...props}
+      ref={ref}
+    />
+  ))
+)
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
 const sheetVariants = cva(
@@ -50,81 +88,184 @@ const sheetVariants = cva(
   }
 )
 
+/**
+ * Props for SheetContent component
+ */
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
-const SheetContent = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Content>,
-  SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <SheetPrimitive.Content
-      ref={ref}
-      className={cn(sheetVariants({ side }), className)}
-      {...props}
-    >
-      {children}
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
-    </SheetPrimitive.Content>
-  </SheetPortal>
-))
+/**
+ * SheetContent - Main container for sheet content.
+ *
+ * Slides in from the specified side with overlay backdrop.
+ * Includes automatic close button in top-right corner with proper accessibility.
+ *
+ * @component
+ * @prop {SheetContentProps} props - Component props
+ * @prop {'top' | 'bottom' | 'left' | 'right'} [side='right'] - Direction from which sheet slides in
+ * @prop {string} [className] - Optional CSS classes for custom styling
+ * @example
+ * ```tsx
+ * <Sheet>
+ *   <SheetTrigger>Open</SheetTrigger>
+ *   <SheetContent side="right">
+ *     <SheetHeader>
+ *       <SheetTitle>Title</SheetTitle>
+ *     </SheetHeader>
+ *     Content here
+ *   </SheetContent>
+ * </Sheet>
+ * ```
+ */
+const SheetContent = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof SheetPrimitive.Content>,
+    SheetContentProps
+  >(({ side = "right", className, children, ...props }, ref) => (
+    <SheetPortal>
+      <SheetOverlay />
+      <SheetPrimitive.Content
+        ref={ref}
+        className={cn(sheetVariants({ side }), className)}
+        {...props}
+      >
+        {children}
+        <SheetPrimitive.Close
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+          aria-label="Close panel"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </SheetPrimitive.Close>
+      </SheetPrimitive.Content>
+    </SheetPortal>
+  ))
+)
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
-const SheetHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col space-y-2 text-center sm:text-left",
-      className
-    )}
-    {...props}
-  />
+/**
+ * SheetHeader - Container for sheet title and description.
+ *
+ * Flexbox column layout with centered text on mobile, left-aligned on desktop.
+ * Used to wrap SheetTitle and SheetDescription components.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <SheetHeader>
+ *   <SheetTitle>Settings</SheetTitle>
+ *   <SheetDescription>Manage your preferences here.</SheetDescription>
+ * </SheetHeader>
+ * ```
+ */
+const SheetHeader = React.memo(
+  ({
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement>) => (
+    <div
+      className={cn(
+        "flex flex-col space-y-2 text-center sm:text-left",
+        className
+      )}
+      {...props}
+    />
+  )
 )
 SheetHeader.displayName = "SheetHeader"
 
-const SheetFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    )}
-    {...props}
-  />
+/**
+ * SheetFooter - Container for sheet action buttons.
+ *
+ * Flexbox layout with column-reverse on mobile (buttons stack bottom-to-top),
+ * row on desktop (buttons align to the right). Typically contains action buttons
+ * like Save, Cancel, etc.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <SheetFooter>
+ *   <SheetClose asChild>
+ *     <Button variant="outline">Cancel</Button>
+ *   </SheetClose>
+ *   <Button>Save</Button>
+ * </SheetFooter>
+ * ```
+ */
+const SheetFooter = React.memo(
+  ({
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement>) => (
+    <div
+      className={cn(
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+        className
+      )}
+      {...props}
+    />
+  )
 )
 SheetFooter.displayName = "SheetFooter"
 
-const SheetTitle = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className)}
-    {...props}
-  />
-))
+/**
+ * SheetTitle - Primary heading within the sheet.
+ *
+ * Semantic title element with appropriate text styling (text-lg, font-semibold).
+ * Automatically announced to screen readers as the sheet's accessible name.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <SheetHeader>
+ *   <SheetTitle>Edit Settings</SheetTitle>
+ * </SheetHeader>
+ * ```
+ */
+const SheetTitle = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof SheetPrimitive.Title>,
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+  >(({ className, ...props }, ref) => (
+    <SheetPrimitive.Title
+      ref={ref}
+      className={cn("text-lg font-semibold text-foreground", className)}
+      {...props}
+    />
+  ))
+)
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
-const SheetDescription = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Description
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
+/**
+ * SheetDescription - Secondary text or supporting information in sheet.
+ *
+ * Rendered in muted color (text-muted-foreground) for visual distinction.
+ * Automatically announced to screen readers after SheetTitle.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <SheetHeader>
+ *   <SheetTitle>Edit Settings</SheetTitle>
+ *   <SheetDescription>
+ *     Update your preferences and configuration options below.
+ *   </SheetDescription>
+ * </SheetHeader>
+ * ```
+ */
+const SheetDescription = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof SheetPrimitive.Description>,
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+  >(({ className, ...props }, ref) => (
+    <SheetPrimitive.Description
+      ref={ref}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  ))
+)
 SheetDescription.displayName = SheetPrimitive.Description.displayName
 
 export {

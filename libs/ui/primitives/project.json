@@ -23,13 +23,28 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/ui/primitives/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": [
+          "libs/ui/primitives/**/*.{ts,tsx,js,jsx}",
+          "libs/ui/primitives/.storybook/**/*.{ts,tsx}"
+        ]
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/ui/primitives/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/ui/primitives/tsconfig.lib.json",
+          "tsc --noEmit --project libs/ui/primitives/tsconfig.spec.json",
+          "tsc --noEmit --project libs/ui/primitives/tsconfig.storybook.json",
+          "tsc --noEmit --project libs/ui/primitives/.storybook/tsconfig.json"
+        ],
+        "parallel": true
+      }
+    },
+    "typecheck:storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/ui/primitives/.storybook/tsconfig.json"
       }
     },
     "check": {
@@ -39,7 +54,7 @@
           "nx run ui-primitives:typecheck",
           "nx run ui-primitives:lint"
         ],
-        "parallel": false
+        "parallel": true
       }
     },
     "storybook": {

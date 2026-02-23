@@ -3,8 +3,7 @@
  * @module useAlertEscalations
  */
 
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 // GraphQL query for alert escalations
 const ALERT_ESCALATIONS_QUERY = gql`

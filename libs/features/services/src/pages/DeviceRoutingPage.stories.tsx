@@ -8,8 +8,9 @@
  * @module @nasnet/features/services/pages
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { DeviceRoutingPage } from './DeviceRoutingPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * DeviceRoutingPage — device-to-service routing management

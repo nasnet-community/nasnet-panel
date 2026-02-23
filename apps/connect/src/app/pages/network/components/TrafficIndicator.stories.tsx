@@ -177,3 +177,17 @@ export const LowTraffic: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

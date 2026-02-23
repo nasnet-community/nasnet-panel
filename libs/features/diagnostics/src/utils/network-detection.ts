@@ -4,12 +4,13 @@ import { DETECT_WAN_INTERFACE, DETECT_GATEWAY } from '@nasnet/api-client/queries
 import { DiagnosticError } from '../types/troubleshoot.types';
 
 /**
- * Get WAN interface name from default route via GraphQL query
- * This is called in the 'initializing' state of the machine
+ * @description Detect the WAN interface name by querying the default route configuration.
+ * Called during the 'initializing' state to identify which interface connects to the internet.
+ * Required for subsequent network diagnostics (gateway, internet, DNS checks).
  *
- * @param routerId - The router to query
- * @returns The detected WAN interface name (e.g., 'ether1')
- * @throws DiagnosticError if no default route is configured
+ * @param routerId - The router UUID to query for default route configuration
+ * @returns Promise<string> the detected WAN interface name (e.g., 'ether1', 'pppoe-out')
+ * @throws DiagnosticError if no default route is configured (network isolation issue)
  */
 export async function detectWanInterface(routerId: string): Promise<string> {
   try {
@@ -20,7 +21,7 @@ export async function detectWanInterface(routerId: string): Promise<string> {
     });
 
     if (!data?.detectWanInterface) {
-      throw new DiagnosticError('NO_DEFAULT_ROUTE', 'No default route configured');
+      throw new DiagnosticError('NO_DEFAULT_ROUTE', 'No default route configured. Add a default route or DHCP client to enable internet access.');
     }
 
     return data.detectWanInterface;
@@ -28,20 +29,19 @@ export async function detectWanInterface(routerId: string): Promise<string> {
     if (error instanceof DiagnosticError) {
       throw error;
     }
-    throw new DiagnosticError(
-      'DETECTION_FAILED',
-      error instanceof Error ? error.message : 'Failed to detect WAN interface'
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Failed to detect WAN interface. Verify the router is reachable and has network configuration.';
+    throw new DiagnosticError('DETECTION_FAILED', errorMessage);
   }
 }
 
 /**
- * Get default gateway IP from DHCP client or static route via GraphQL query
- * This is called in the 'initializing' state of the machine
+ * @description Detect the default gateway IP address from DHCP client or static route configuration.
+ * Called during the 'initializing' state to identify the upstream router/gateway.
+ * Returns null gracefully if no gateway is configured (not an error).
  *
- * @param routerId - The router to query
- * @returns The detected gateway IP address or null if none found
- * @throws DiagnosticError if detection fails (but not if no gateway is found)
+ * @param routerId - The router UUID to query for gateway configuration
+ * @returns Promise<string | null> the detected gateway IP (e.g., '192.168.1.1') or null if not configured
+ * @throws DiagnosticError if query fails (network/API issue), but NOT if gateway is simply missing
  */
 export async function detectGateway(routerId: string): Promise<string | null> {
   try {
@@ -55,9 +55,7 @@ export async function detectGateway(routerId: string): Promise<string | null> {
     // This is not necessarily an error - the user may need to configure it
     return data?.detectGateway || null;
   } catch (error) {
-    throw new DiagnosticError(
-      'DETECTION_FAILED',
-      error instanceof Error ? error.message : 'Failed to detect gateway'
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Failed to detect gateway. Check that the router is connected and DHCP is configured.';
+    throw new DiagnosticError('DETECTION_FAILED', errorMessage);
   }
 }

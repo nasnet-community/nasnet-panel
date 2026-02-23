@@ -16,7 +16,7 @@ import {
   useSortableList,
 } from '../index';
 
-import type { SortableItemData, ReorderEvent, SortableItemRenderOptions } from '../types';
+import type { SortableItemData, SortableItemRenderOptions } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================

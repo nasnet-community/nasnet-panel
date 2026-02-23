@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
+import { useTranslation } from '@nasnet/core/i18n';
 import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
 import { useToast } from '@nasnet/ui/primitives';
 
@@ -28,7 +29,8 @@ import { useToast } from '@nasnet/ui/primitives';
  *
  * Renders the templates browser and handles wizard modal state.
  */
-function TemplatesPage() {
+export function TemplatesPage() {
+  const { t } = useTranslation('services');
   const { id: routerId } = Route.useParams();
   const { toast } = useToast();
 
@@ -62,8 +64,12 @@ function TemplatesPage() {
   const handleInstallComplete = (instanceIDs: string[]) => {
     const count = instanceIDs.length;
     toast({
-      title: 'Template Installed',
-      description: `Successfully installed ${count} service${count !== 1 ? 's' : ''} from template "${selectedTemplate?.name}"`,
+      title: t('templates.installSuccess'),
+      description: t('templates.installSuccessMessage', {
+        count,
+        templateName: selectedTemplate?.name || '',
+        defaultValue: `Successfully installed ${count} service${count !== 1 ? 's' : ''} from template "${selectedTemplate?.name}"`,
+      }),
       variant: 'success',
     });
     handleWizardClose();

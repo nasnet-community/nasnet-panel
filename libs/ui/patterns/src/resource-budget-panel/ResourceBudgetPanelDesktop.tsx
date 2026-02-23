@@ -9,6 +9,8 @@
  * - Hover states
  */
 
+import React, { useCallback } from 'react';
+
 import { ArrowDown, ArrowUp, Server } from 'lucide-react';
 
 import {
@@ -43,7 +45,7 @@ const STATUS_COLORS = {
 /**
  * Sort header component
  */
-function SortHeader({
+const SortHeader = React.memo(function SortHeader({
   column,
   currentColumn,
   currentDirection,
@@ -58,6 +60,10 @@ function SortHeader({
 }) {
   const isActive = column === currentColumn;
 
+  const handleClick = useCallback(() => {
+    onSort(column);
+  }, [column, onSort]);
+
   return (
     <TableHead
       className={cn(
@@ -65,7 +71,7 @@ function SortHeader({
         'hover:bg-gray-100 dark:hover:bg-gray-800',
         isActive && 'bg-gray-50 dark:bg-gray-900'
       )}
-      onClick={() => onSort(column)}
+      onClick={handleClick}
     >
       <div className="flex items-center gap-2">
         {children}
@@ -79,7 +85,9 @@ function SortHeader({
       </div>
     </TableHead>
   );
-}
+});
+
+SortHeader.displayName = 'SortHeader';
 
 /**
  * Desktop presenter for ResourceBudgetPanel
@@ -87,7 +95,9 @@ function SortHeader({
  * Displays resource budget as a sortable data table.
  * Optimized for keyboard navigation and larger screens.
  */
-export function ResourceBudgetPanelDesktop(props: ResourceBudgetPanelProps) {
+export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPanelDesktop(
+  props: ResourceBudgetPanelProps
+) {
   const {
     showSystemTotals = true,
     enableSorting = true,
@@ -279,4 +289,6 @@ export function ResourceBudgetPanelDesktop(props: ResourceBudgetPanelProps) {
       </Card>
     </div>
   );
-}
+});
+
+ResourceBudgetPanelDesktop.displayName = 'ResourceBudgetPanelDesktop';

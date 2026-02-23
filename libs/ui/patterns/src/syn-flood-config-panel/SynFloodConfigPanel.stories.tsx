@@ -8,7 +8,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+import { useForm } from 'react-hook-form';
 
 import { SynFloodConfigPanel } from './SynFloodConfigPanel';
 import {
@@ -17,8 +18,46 @@ import {
   mockSynFloodDisabled,
   mockSynFloodStrict,
 } from '../__test-utils__/rate-limit-fixtures';
+import { useSynFloodConfigPanel } from './use-syn-flood-config-panel';
 
 import type { Meta, StoryObj } from '@storybook/react';
+import type { UseSynFloodConfigPanelReturn } from './use-syn-flood-config-panel';
+import type { SynFloodFormValues } from './types';
+
+/**
+ * Helper to create a UseSynFloodConfigPanelReturn mock
+ */
+function createMockConfigHook(config: typeof mockSynFloodDrop): UseSynFloodConfigPanelReturn {
+  const form = useForm<SynFloodFormValues>({
+    defaultValues: {
+      enabled: config.isEnabled,
+      synLimit: String(config.synLimit),
+      burst: String(config.burst),
+      action: config.action,
+    },
+  });
+
+  return {
+    form,
+    isDirty: false,
+    isSubmitting: false,
+    handleSubmit: fn(),
+    handleReset: fn(),
+    formToConfig: (values) => ({
+      isEnabled: values.enabled,
+      synLimit: parseInt(values.synLimit, 10),
+      burst: parseInt(values.burst, 10),
+      action: values.action,
+    }),
+    configToForm: (cfg) => ({
+      enabled: cfg.isEnabled,
+      synLimit: String(cfg.synLimit),
+      burst: String(cfg.burst),
+      action: cfg.action,
+    }),
+    isLowSynLimit: fn(),
+  };
+}
 
 /**
  * SynFloodConfigPanel - SYN flood protection configuration
@@ -97,29 +136,21 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {
-    config: {
+    configHook: {
       control: 'object',
-      description: 'Current SYN flood protection configuration',
+      description: 'Config hook return value',
     },
     loading: {
       control: 'boolean',
       description: 'Is panel loading',
     },
-    saving: {
-      control: 'boolean',
-      description: 'Is save operation in progress',
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes',
     },
-    showPresets: {
-      control: 'boolean',
-      description: 'Show preset configuration buttons',
-    },
-    onUpdate: { action: 'updated' },
   },
   args: {
     loading: false,
-    saving: false,
-    showPresets: true,
-    onUpdate: fn(),
   },
 } satisfies Meta<typeof SynFloodConfigPanel>;
 
@@ -138,7 +169,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Disabled: Story = {
   args: {
-    config: mockSynFloodDisabled,
+    configHook: createMockConfigHook(mockSynFloodDisabled),
   },
   parameters: {
     docs: {
@@ -162,7 +193,7 @@ export const Disabled: Story = {
  */
 export const EnabledDrop: Story = {
   args: {
-    config: mockSynFloodDrop,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     docs: {
@@ -186,7 +217,7 @@ export const EnabledDrop: Story = {
  */
 export const EnabledTarpit: Story = {
   args: {
-    config: mockSynFloodTarpit,
+    configHook: createMockConfigHook(mockSynFloodTarpit),
   },
   parameters: {
     docs: {
@@ -210,7 +241,7 @@ export const EnabledTarpit: Story = {
  */
 export const StrictProtection: Story = {
   args: {
-    config: mockSynFloodStrict,
+    configHook: createMockConfigHook(mockSynFloodStrict),
   },
   parameters: {
     docs: {
@@ -233,8 +264,7 @@ export const StrictProtection: Story = {
  */
 export const WithPresets: Story = {
   args: {
-    config: mockSynFloodDrop,
-    showPresets: true,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     docs: {
@@ -258,12 +288,12 @@ export const WithPresets: Story = {
  */
 export const CustomConfig: Story = {
   args: {
-    config: {
-      enabled: true,
+    configHook: createMockConfigHook({
+      isEnabled: true,
       synLimit: 75,
       burst: 8,
       action: 'drop',
-    },
+    }),
   },
   parameters: {
     docs: {
@@ -285,7 +315,7 @@ export const CustomConfig: Story = {
  */
 export const Loading: Story = {
   args: {
-    config: mockSynFloodDisabled,
+    configHook: createMockConfigHook(mockSynFloodDisabled),
     loading: true,
   },
   parameters: {
@@ -309,8 +339,7 @@ export const Loading: Story = {
  */
 export const Saving: Story = {
   args: {
-    config: mockSynFloodDrop,
-    saving: true,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     docs: {
@@ -333,7 +362,7 @@ export const Saving: Story = {
  */
 export const MobileView: Story = {
   args: {
-    config: mockSynFloodDrop,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     viewport: {
@@ -360,7 +389,7 @@ export const MobileView: Story = {
  */
 export const DesktopView: Story = {
   args: {
-    config: mockSynFloodTarpit,
+    configHook: createMockConfigHook(mockSynFloodTarpit),
   },
   parameters: {
     viewport: {
@@ -386,12 +415,12 @@ export const DesktopView: Story = {
  */
 export const WithErrors: Story = {
   args: {
-    config: {
-      enabled: true,
+    configHook: createMockConfigHook({
+      isEnabled: true,
       synLimit: 0, // Invalid: must be > 0
       burst: 1000, // Invalid: unreasonably high
       action: 'drop',
-    },
+    }),
   },
   parameters: {
     docs: {
@@ -415,8 +444,7 @@ export const WithErrors: Story = {
  */
 export const NoPresets: Story = {
   args: {
-    config: mockSynFloodDrop,
-    showPresets: false,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     docs: {
@@ -439,7 +467,7 @@ export const NoPresets: Story = {
  */
 export const AccessibilityTest: Story = {
   args: {
-    config: mockSynFloodDrop,
+    configHook: createMockConfigHook(mockSynFloodDrop),
   },
   parameters: {
     a11y: {

@@ -19,7 +19,7 @@ describe('ARPTable', () => {
       macAddress: 'AA:BB:CC:DD:EE:FF',
       interface: 'bridge',
       status: 'complete',
-      dynamic: true,
+      isDynamic: true,
     },
     {
       id: '*2',
@@ -27,7 +27,7 @@ describe('ARPTable', () => {
       macAddress: '11:22:33:44:55:66',
       interface: 'ether1',
       status: 'incomplete',
-      dynamic: true,
+      isDynamic: true,
     },
     {
       id: '*3',
@@ -35,7 +35,7 @@ describe('ARPTable', () => {
       macAddress: 'FF:EE:DD:CC:BB:AA',
       interface: 'ether2',
       status: 'complete',
-      dynamic: false,
+      isDynamic: false,
     },
   ];
 

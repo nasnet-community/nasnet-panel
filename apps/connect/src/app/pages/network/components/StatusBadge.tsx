@@ -5,9 +5,11 @@
 
 import { memo } from 'react';
 
+import { useTranslation } from 'react-i18next';
+
 import { type InterfaceStatus } from '@nasnet/core/types';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface StatusBadgeProps {
   status: InterfaceStatus;
@@ -22,6 +24,7 @@ export const StatusBadge = memo(function StatusBadge({
   showLabel = true,
   className,
 }: StatusBadgeProps) {
+  const { t } = useTranslation('network');
   const isRunning = status === 'running';
 
   const sizeClasses = {
@@ -37,12 +40,12 @@ export const StatusBadge = memo(function StatusBadge({
   return (
     <span
       role="status"
-      aria-label={isRunning ? 'Running' : 'Disabled'}
+      aria-label={isRunning ? t('interfaces.running') : t('interfaces.disabled')}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-medium',
         sizeClasses[size],
         isRunning
-          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+          ? 'bg-success/10 text-success'
           : 'bg-muted text-muted-foreground',
         className
       )}
@@ -52,19 +55,19 @@ export const StatusBadge = memo(function StatusBadge({
           className={cn(
             'rounded-full',
             dotSizeClasses[size],
-            isRunning ? 'bg-emerald-500' : 'bg-muted-foreground'
+            isRunning ? 'bg-success' : 'bg-muted-foreground'
           )}
         />
         {isRunning && (
           <span
             className={cn(
-              'absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75',
+              'absolute inset-0 rounded-full bg-success animate-ping opacity-75',
               dotSizeClasses[size]
             )}
           />
         )}
       </span>
-      {showLabel && (isRunning ? 'Running' : 'Disabled')}
+      {showLabel && (isRunning ? t('interfaces.running') : t('interfaces.disabled'))}
     </span>
   );
 });

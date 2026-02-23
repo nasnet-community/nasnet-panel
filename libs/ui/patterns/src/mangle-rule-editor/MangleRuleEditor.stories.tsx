@@ -7,11 +7,10 @@
  * @module @nasnet/ui/patterns/mangle-rule-editor
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { MangleRuleEditor } from './MangleRuleEditor';
 
-import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -98,7 +97,7 @@ const meta = {
       description: 'Is editor dialog open',
     },
     mode: {
-      control: 'radio',
+      control: 'select',
       options: ['create', 'edit'],
       description: 'Editor mode (create new rule or edit existing)',
     },
@@ -152,7 +151,7 @@ export const CreateMarkConnection: Story = {
       connectionState: ['new'],
       passthrough: true,
       comment: 'Mark HTTP/HTTPS traffic',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -181,7 +180,7 @@ export const CreateMarkPacket: Story = {
       connectionMark: 'voip_traffic',
       passthrough: false,
       comment: 'Mark VoIP RTP packets',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -208,7 +207,7 @@ export const CreateMarkRouting: Story = {
       srcAddress: '192.168.1.0/24',
       passthrough: true,
       comment: 'Route specific subnet through WAN2',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -235,7 +234,7 @@ export const CreateChangeDscp: Story = {
       protocol: 'udp',
       dstPort: '5060-5061',
       comment: 'Set EF class for VoIP signaling',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -270,7 +269,7 @@ export const EditExisting: Story = {
       comment: 'Mark Steam gaming traffic',
       packets: 15420,
       bytes: 8234567,
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -295,7 +294,7 @@ export const WithErrors: Story = {
       action: 'mark-connection',
       newConnectionMark: 'invalid mark!', // Contains space and special char
       protocol: 'tcp',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -321,7 +320,7 @@ export const MobileVariant: Story = {
       newConnectionMark: 'mobile_test',
       protocol: 'tcp',
       dstPort: '80,443',
-    },
+    } as any,
   },
   parameters: {
     viewport: {
@@ -341,7 +340,10 @@ export const MobileVariant: Story = {
         ...originalModule,
         usePlatform: () => 'mobile',
       };
-      require.cache[require.resolve('@nasnet/ui/layouts')].exports = mockedModule;
+      const cacheEntry = require.cache[require.resolve('@nasnet/ui/layouts')];
+      if (cacheEntry) {
+        cacheEntry.exports = mockedModule;
+      }
 
       return <Story />;
     },
@@ -365,7 +367,7 @@ export const DesktopVariant: Story = {
       srcAddress: '192.168.1.0/24',
       dstPort: '5060',
       comment: 'VoIP QoS prioritization',
-    },
+    } as any,
   },
   parameters: {
     viewport: {
@@ -393,7 +395,7 @@ export const SavingState: Story = {
       chain: 'prerouting',
       action: 'mark-connection',
       newConnectionMark: 'test_mark',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -421,7 +423,7 @@ export const DeletingState: Story = {
       action: 'drop',
       protocol: 'tcp',
       comment: 'Block unwanted traffic',
-    },
+    } as any,
   },
   parameters: {
     docs: {
@@ -458,7 +460,7 @@ export const ComplexRule: Story = {
       log: true,
       logPrefix: 'COMPLEX: ',
       comment: 'Complex rule with multiple matchers for demonstration',
-    },
+    } as any,
   },
   parameters: {
     docs: {

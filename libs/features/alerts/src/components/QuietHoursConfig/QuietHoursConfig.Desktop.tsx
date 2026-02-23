@@ -1,8 +1,7 @@
 /**
  * QuietHoursConfig Desktop Presenter
  *
- * Desktop-optimized layout for quiet hours configuration.
- * Features: 2-column grid, hover states, dense layout.
+ * @description Desktop-optimized layout for quiet hours configuration with 2-column grid, hover states, and dense layout.
  */
 
 import { memo } from 'react';

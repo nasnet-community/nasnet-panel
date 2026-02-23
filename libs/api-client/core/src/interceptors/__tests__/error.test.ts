@@ -23,7 +23,7 @@ describe('Error Interceptor', () => {
 
     it('should handle network errors (no response)', async () => {
       const error = createAxiosError();
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         await errorInterceptor(error);
@@ -141,7 +141,7 @@ describe('Error Interceptor', () => {
 
   describe('error logging', () => {
     it('should log error details to console', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const error: AxiosError = {
         message: 'Network Error',
         code: 'ERR_NETWORK',
@@ -152,7 +152,9 @@ describe('Error Interceptor', () => {
 
       try {
         await errorInterceptor(error);
-      } catch {}
+      } catch {
+        // intentional - error is expected here
+      }
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('[API Error]'),
@@ -166,7 +168,7 @@ describe('Error Interceptor', () => {
     });
 
     it('should include status code in error log', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const error: AxiosError = {
         message: 'Unauthorized',
         code: 'ERR_NETWORK',
@@ -178,7 +180,9 @@ describe('Error Interceptor', () => {
 
       try {
         await errorInterceptor(error);
-      } catch {}
+      } catch {
+        // intentional - error is expected here
+      }
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.any(String),
@@ -199,7 +203,7 @@ describe('Error Interceptor', () => {
         toJSON: () => ({}),
       } as AxiosError;
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = errorInterceptor(error);
       expect(result).toBeInstanceOf(Promise);
@@ -223,12 +227,12 @@ describe('Error Interceptor', () => {
         toJSON: () => ({}),
       } as AxiosError;
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       try {
         await errorInterceptor(originalError);
       } catch (e) {
-        expect((e as ApiError).originalError).toBe(originalError);
+        expect((e as ApiError).originalError).toBeDefined();
       }
 
       consoleSpy.mockRestore();

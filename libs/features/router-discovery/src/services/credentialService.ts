@@ -33,14 +33,20 @@ export interface CredentialValidationResult {
 /**
  * Configuration
  */
-const STORAGE_KEY = 'nasnet.router.credentials';
+const CREDENTIAL_STORAGE_KEY = 'nasnet.router.credentials';
 
 /**
  * Validates credentials by attempting connection to router through proxy
  *
+ * @description Attempts to validate provided credentials by connecting to the router via HTTP
+ * proxy endpoint. Fetches router system identity to confirm successful authentication.
+ * Returns structured result with validation status and optional router information.
+ *
  * @param ipAddress - Router IP address
  * @param credentials - Username and password to test
- * @returns Promise with validation result
+ * @returns Promise with validation result containing isValid flag and optional error/routerInfo
+ *
+ * @throws No direct throw - all errors converted to CredentialValidationResult with error message
  *
  * @example
  * ```typescript
@@ -84,13 +90,13 @@ export async function validateCredentials(
       if (proxyResponse.status === 401 || proxyResponse.status === 403) {
         return {
           isValid: false,
-          error: 'Invalid username or password',
+          error: 'Authentication failed. Check that username and password are correct.',
         };
       }
 
       return {
         isValid: false,
-        error: proxyResponse.status_text || 'Connection failed',
+        error: `Router returned error: ${proxyResponse.status_text || 'HTTP ' + proxyResponse.status}`,
       };
     }
 
@@ -111,14 +117,21 @@ export async function validateCredentials(
       if (error.response?.status === 401 || error.response?.status === 403) {
         return {
           isValid: false,
-          error: 'Invalid username or password',
+          error: 'Authentication failed. Check that username and password are correct.',
         };
       }
 
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      if (error.code === 'ECONNREFUSED') {
         return {
           isValid: false,
-          error: 'Cannot connect to router proxy. Check network connection.',
+          error: 'Cannot reach router proxy. Verify the proxy service is running and the IP address is correct.',
+        };
+      }
+
+      if (error.code === 'ETIMEDOUT') {
+        return {
+          isValid: false,
+          error: 'Connection timed out. Check network connectivity to the router.',
         };
       }
 
@@ -128,20 +141,20 @@ export async function validateCredentials(
         if (proxyResponse.status === 401 || proxyResponse.status === 403) {
           return {
             isValid: false,
-            error: 'Invalid username or password',
+            error: 'Authentication failed. Check that username and password are correct.',
           };
         }
       }
 
       return {
         isValid: false,
-        error: error.message || 'Unknown connection error',
+        error: error.message || 'Connection error. Unable to validate credentials.',
       };
     }
 
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : 'Unexpected error during credential validation.',
     };
   }
 }
@@ -149,8 +162,13 @@ export async function validateCredentials(
 /**
  * Saves credentials to localStorage
  *
+ * @description Persists router credentials to browser localStorage with timestamp.
+ * Updates existing credentials for the same router ID. Credentials stored in plain text
+ * (encryption planned for Phase 1.4).
+ *
  * @param routerId - Router ID
- * @param credentials - Credentials to save
+ * @param credentials - Credentials to save (username and password)
+ * @throws {CredentialError} If localStorage write fails
  *
  * @example
  * ```typescript
@@ -173,11 +191,11 @@ export function saveCredentials(
       savedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    localStorage.setItem(CREDENTIAL_STORAGE_KEY, JSON.stringify(stored));
   } catch (error) {
     console.error('[credentialService] Failed to save credentials:', error);
     throw new CredentialError(
-      'Failed to save credentials to storage',
+      'Failed to save credentials to browser storage. Check that storage is available and not full.',
       'SAVE_FAILED'
     );
   }
@@ -185,6 +203,9 @@ export function saveCredentials(
 
 /**
  * Loads credentials for a specific router
+ *
+ * @description Retrieves saved credentials from localStorage for the given router ID.
+ * Returns null if credentials not found or on storage access error.
  *
  * @param routerId - Router ID
  * @returns Credentials if found, null otherwise
@@ -219,7 +240,11 @@ export function loadCredentials(routerId: string): RouterCredentials | null {
 /**
  * Removes credentials for a specific router
  *
+ * @description Deletes saved credentials for a specific router ID from localStorage.
+ * Does not throw if router ID does not exist.
+ *
  * @param routerId - Router ID
+ * @throws {CredentialError} If localStorage write fails
  *
  * @example
  * ```typescript
@@ -230,11 +255,11 @@ export function removeCredentials(routerId: string): void {
   try {
     const stored = loadAllCredentials();
     delete stored[routerId];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    localStorage.setItem(CREDENTIAL_STORAGE_KEY, JSON.stringify(stored));
   } catch (error) {
     console.error('[credentialService] Failed to remove credentials:', error);
     throw new CredentialError(
-      'Failed to remove credentials from storage',
+      'Failed to remove credentials from storage. Check that browser storage is accessible.',
       'REMOVE_FAILED'
     );
   }
@@ -243,6 +268,11 @@ export function removeCredentials(routerId: string): void {
 /**
  * Clears all saved credentials
  *
+ * @description Removes all saved router credentials from localStorage. Useful for
+ * logout or account reset scenarios.
+ *
+ * @throws {CredentialError} If localStorage write fails
+ *
  * @example
  * ```typescript
  * clearAllCredentials();
@@ -250,11 +280,11 @@ export function removeCredentials(routerId: string): void {
  */
 export function clearAllCredentials(): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(CREDENTIAL_STORAGE_KEY);
   } catch (error) {
     console.error('[credentialService] Failed to clear credentials:', error);
     throw new CredentialError(
-      'Failed to clear all credentials',
+      'Failed to clear credentials from storage. Check that browser storage is accessible.',
       'CLEAR_FAILED'
     );
   }
@@ -263,8 +293,11 @@ export function clearAllCredentials(): void {
 /**
  * Checks if credentials are saved for a router
  *
+ * @description Quickly checks whether credentials exist for a specific router ID
+ * without loading the full credentials object.
+ *
  * @param routerId - Router ID
- * @returns True if credentials exist
+ * @returns True if credentials exist, false otherwise
  */
 export function hasCredentials(routerId: string): boolean {
   const stored = loadAllCredentials();
@@ -273,6 +306,9 @@ export function hasCredentials(routerId: string): boolean {
 
 /**
  * Gets all router IDs that have saved credentials
+ *
+ * @description Returns a list of all router IDs for which credentials have been saved.
+ * Useful for populating auto-connect lists or credential management UI.
  *
  * @returns Array of router IDs
  */
@@ -283,11 +319,16 @@ export function getRoutersWithCredentials(): string[] {
 
 /**
  * Loads all credentials from localStorage
- * Internal helper function
+ *
+ * @description Internal helper function. Safely retrieves and parses all stored credentials.
+ * Returns empty object if storage is empty, inaccessible, or corrupted.
+ * Does not throw on errors - logs and returns graceful empty state.
+ *
+ * @returns StoredCredentials object (may be empty if none saved)
  */
 function loadAllCredentials(): StoredCredentials {
   try {
-    const json = localStorage.getItem(STORAGE_KEY);
+    const json = localStorage.getItem(CREDENTIAL_STORAGE_KEY);
 
     if (!json) {
       return {};
@@ -297,19 +338,25 @@ function loadAllCredentials(): StoredCredentials {
 
     // Validate structure
     if (typeof parsed !== 'object' || parsed === null) {
-      console.warn('[credentialService] Invalid credentials format, resetting');
+      console.warn('[credentialService] Invalid credentials format in storage, resetting');
       return {};
     }
 
     return parsed;
   } catch (error) {
-    console.error('[credentialService] Failed to parse credentials:', error);
+    console.error('[credentialService] Failed to parse credentials from storage:', error);
     return {};
   }
 }
 
 /**
  * Type guard for Axios errors
+ *
+ * @description Checks if an error is an Axios error with response/code/message properties.
+ * Internal helper function for error handling.
+ *
+ * @param error - Error object to check
+ * @returns True if error matches Axios error shape
  */
 function isAxiosError(error: unknown): error is {
   response?: { status?: number; data?: unknown };
@@ -325,6 +372,9 @@ function isAxiosError(error: unknown): error is {
 
 /**
  * Custom error class for credential operations
+ *
+ * @description Error class for credential management failures. Includes structured error codes
+ * for handling storage and persistence issues.
  */
 export class CredentialError extends Error {
   constructor(
@@ -338,6 +388,9 @@ export class CredentialError extends Error {
 
 /**
  * Default credentials (common MikroTik defaults)
+ *
+ * @description MikroTik routers ship with 'admin' user and no password by default.
+ * These defaults are offered as a quick-start option in the credential form.
  */
 export const DEFAULT_CREDENTIALS: RouterCredentials = {
   username: 'admin',

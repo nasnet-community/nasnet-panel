@@ -7,10 +7,10 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { SaveTemplateDialog } from './SaveTemplateDialog';
-import { SAVE_CUSTOM_ALERT_RULE_TEMPLATE } from '../../hooks/useAlertRuleTemplates';
+import { SAVE_CUSTOM_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -184,7 +184,7 @@ const successMocks = [
   },
 ];
 
-const errorMocks = [
+const _errorMocks = [
   {
     request: {
       query: SAVE_CUSTOM_ALERT_RULE_TEMPLATE,

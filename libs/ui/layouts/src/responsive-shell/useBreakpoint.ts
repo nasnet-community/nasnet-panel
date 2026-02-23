@@ -34,7 +34,18 @@ export const BREAKPOINTS = {
 export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
- * Detect breakpoint from width
+ * Detect breakpoint from viewport width
+ *
+ * Maps pixel widths to breakpoint identifiers:
+ * - xs: <640px
+ * - sm: 640-767px
+ * - md: 768-1023px
+ * - lg: 1024-1279px
+ * - xl: 1280px+
+ *
+ * @param width - Viewport width in pixels
+ * @returns Breakpoint identifier
+ * @internal
  */
 function detectBreakpoint(width: number): Breakpoint {
   if (width < BREAKPOINTS.SM) return 'xs';
@@ -46,6 +57,14 @@ function detectBreakpoint(width: number): Breakpoint {
 
 /**
  * Debounce function for performance optimization
+ *
+ * Delays function execution until specified delay has passed without new calls.
+ * Prevents excessive re-renders during resize events.
+ *
+ * @param fn - Function to debounce
+ * @param delay - Delay in milliseconds before executing function
+ * @returns Debounced function
+ * @internal
  */
 function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
@@ -60,6 +79,12 @@ function debounce<T extends (...args: unknown[]) => void>(
 
 /**
  * Get current viewport width safely (SSR-compatible)
+ *
+ * On server-side rendering, defaults to 1024px (desktop breakpoint).
+ * In browser, returns window.innerWidth.
+ *
+ * @returns Current viewport width in pixels, or 1024 if SSR
+ * @internal
  */
 function getViewportWidth(): number {
   if (typeof window === 'undefined') return 1024; // Default to desktop for SSR
@@ -164,12 +189,22 @@ export function useViewportWidth(debounceMs = 100): number {
 }
 
 /**
- * Check if viewport is at least the given breakpoint
+ * Check if current breakpoint is at least as large as target breakpoint
+ *
+ * Useful for responsive logic that depends on meeting a minimum breakpoint.
+ *
+ * @param current - Current breakpoint
+ * @param target - Target breakpoint to compare against
+ * @returns true if current >= target (in size), false otherwise
  *
  * @example
  * ```tsx
  * const breakpoint = useBreakpoint();
  * const isAtLeastTablet = isBreakpointAtLeast(breakpoint, 'sm');
+ *
+ * if (isAtLeastTablet) {
+ *   // Show desktop-optimized layout
+ * }
  * ```
  */
 export function isBreakpointAtLeast(
@@ -181,7 +216,23 @@ export function isBreakpointAtLeast(
 }
 
 /**
- * Check if viewport is at most the given breakpoint
+ * Check if current breakpoint is at most as large as target breakpoint
+ *
+ * Useful for responsive logic that depends on not exceeding a breakpoint.
+ *
+ * @param current - Current breakpoint
+ * @param target - Target breakpoint to compare against
+ * @returns true if current <= target (in size), false otherwise
+ *
+ * @example
+ * ```tsx
+ * const breakpoint = useBreakpoint();
+ * const isSmallScreen = isBreakpointAtMost(breakpoint, 'sm');
+ *
+ * if (isSmallScreen) {
+ *   // Show mobile-optimized layout
+ * }
+ * ```
  */
 export function isBreakpointAtMost(
   current: Breakpoint,

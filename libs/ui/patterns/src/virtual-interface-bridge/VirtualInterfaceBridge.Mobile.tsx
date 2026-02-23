@@ -7,7 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-
+import { memo } from 'react';
 import { RefreshCw, Network, AlertCircle } from 'lucide-react';
 
 import {
@@ -34,7 +34,7 @@ import type { VirtualInterfaceBridgeProps } from './types';
  * - Full-width badges
  * - Touch-friendly spacing
  */
-export function VirtualInterfaceBridgeMobile(
+const VirtualInterfaceBridgeMobileComponent = memo(function VirtualInterfaceBridgeMobile(
   props: VirtualInterfaceBridgeProps
 ) {
   const { serviceName, className, children } = props;
@@ -207,6 +207,8 @@ export function VirtualInterfaceBridgeMobile(
       </CardContent>
     </Card>
   );
-}
+});
 
-VirtualInterfaceBridgeMobile.displayName = 'VirtualInterfaceBridgeMobile';
+VirtualInterfaceBridgeMobileComponent.displayName = 'VirtualInterfaceBridgeMobile';
+
+export { VirtualInterfaceBridgeMobileComponent as VirtualInterfaceBridgeMobile };

@@ -22,7 +22,6 @@ import {
   ChevronDown,
   ChevronUp,
   Bug,
-  ExternalLink,
 } from 'lucide-react';
 
 import { cn, Button, Card, CardContent } from '@nasnet/ui/primitives';
@@ -152,7 +151,7 @@ function getErrorColors(type: ErrorType) {
  * />
  * ```
  */
-export function ErrorCard({
+function ErrorCardComponent({
   type = 'error',
   title,
   description,
@@ -170,8 +169,23 @@ export function ErrorCard({
   const [showDetails, setShowDetails] = React.useState(false);
   const retryButtonRef = React.useRef<HTMLButtonElement>(null);
 
-  const Icon = getErrorIcon(type);
-  const colors = getErrorColors(type);
+  const Icon = React.useMemo(() => getErrorIcon(type), [type]);
+  const colors = React.useMemo(() => getErrorColors(type), [type]);
+
+  // Memoized retry handler
+  const handleRetry = React.useCallback(() => {
+    onRetry?.();
+  }, [onRetry]);
+
+  // Memoized secondary action handler
+  const handleSecondaryAction = React.useCallback(() => {
+    onSecondaryAction?.();
+  }, [onSecondaryAction]);
+
+  // Memoized report handler
+  const handleReport = React.useCallback(() => {
+    onReport?.();
+  }, [onReport]);
 
   // Auto-focus retry button for accessibility
   React.useEffect(() => {
@@ -199,7 +213,7 @@ export function ErrorCard({
         {onRetry && (
           <button
             ref={retryButtonRef}
-            onClick={onRetry}
+            onClick={handleRetry}
             className={cn('p-1 rounded hover:bg-background/50', colors.textColor)}
             aria-label="Retry"
           >
@@ -233,7 +247,7 @@ export function ErrorCard({
           )}
         </div>
         {onRetry && (
-          <Button ref={retryButtonRef} size="sm" variant="outline" onClick={onRetry}>
+          <Button ref={retryButtonRef} size="sm" variant="outline" onClick={handleRetry}>
             <RefreshCw className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
             Retry
           </Button>
@@ -281,14 +295,14 @@ export function ErrorCard({
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-2 mt-3">
               {onRetry && (
-                <Button ref={retryButtonRef} size="sm" variant="default" onClick={onRetry}>
+                <Button ref={retryButtonRef} size="sm" variant="default" onClick={handleRetry}>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
                   Retry
                 </Button>
               )}
 
               {onSecondaryAction && secondaryActionLabel && (
-                <Button size="sm" variant="outline" onClick={onSecondaryAction}>
+                <Button size="sm" variant="outline" onClick={handleSecondaryAction}>
                   {secondaryActionLabel}
                 </Button>
               )}
@@ -315,7 +329,7 @@ export function ErrorCard({
 
               {onReport && (
                 <button
-                  onClick={onReport}
+                  onClick={handleReport}
                   className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto"
                 >
                   <Bug className="w-3.5 h-3.5" aria-hidden="true" />
@@ -345,3 +359,10 @@ export function ErrorCard({
     </Card>
   );
 }
+
+ErrorCardComponent.displayName = 'ErrorCard';
+
+/**
+ * Memoized ErrorCard component
+ */
+export const ErrorCard = React.memo(ErrorCardComponent);

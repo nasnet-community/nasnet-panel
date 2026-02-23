@@ -7,7 +7,6 @@
  *   - useConnectionStore   → @nasnet/state/stores
  */
 
-import { fn } from '@storybook/test';
 
 import { type NetworkInterface, type TrafficStatistics } from '@nasnet/core/types';
 
@@ -60,7 +59,7 @@ const makeInterface = (overrides: Partial<NetworkInterface> = {}): NetworkInterf
   ...overrides,
 });
 
-const mockTrafficClean: TrafficStatistics = {
+const _mockTrafficClean: TrafficStatistics = {
   interfaceId: 'ether1',
   rxBytes: 1_572_864_000,
   txBytes: 314_572_800,
@@ -72,7 +71,7 @@ const mockTrafficClean: TrafficStatistics = {
   txDrops: 0,
 };
 
-const mockTrafficWithErrors: TrafficStatistics = {
+const _mockTrafficWithErrors: TrafficStatistics = {
   interfaceId: 'ether1',
   rxBytes: 524_288_000,
   txBytes: 104_857_600,
@@ -234,5 +233,19 @@ export const WithComment: Story = {
           'When a comment is set it appears in the expanded section below the traffic stats.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  ...RunningLinkUp,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...RunningLinkUp,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

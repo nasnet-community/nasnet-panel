@@ -6,9 +6,11 @@
  * priority presets, and platform-specific layouts for the ntfy.sh channel form.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { NtfyChannelForm } from './NtfyChannelForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

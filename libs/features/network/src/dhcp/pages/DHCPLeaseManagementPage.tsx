@@ -5,17 +5,20 @@
  *
  * This orchestrator component uses the usePlatform() hook to automatically
  * render the appropriate platform-specific presenter (Desktop or Mobile)
- * based on screen size.
+ * based on screen size. Follows the Headless + Platform Presenters pattern.
+ *
+ * @module @nasnet/features/network/dhcp/pages
  */
 
 import * as React from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useLeasePage } from '../hooks/useLeasePage';
+import type { DHCPLeaseManagementDesktopProps as DHCPLeaseManagementPresenterProps } from './DHCPLeaseManagementDesktop';
 import { DHCPLeaseManagementDesktop } from './DHCPLeaseManagementDesktop';
 import { DHCPLeaseManagementMobile } from './DHCPLeaseManagementMobile';
 
 export interface DHCPLeaseManagementPageProps {
-  /** Router IP address to fetch leases from */
+  /** Router ID to fetch DHCP leases from */
   routerId: string;
 }
 
@@ -34,8 +37,15 @@ export interface DHCPLeaseManagementPageProps {
  * - Export leases to CSV with ISO date filename
  * - Real-time updates via 30-second polling
  * - "New" badge for recently appeared leases (5s auto-fade)
+ *
+ * @example
+ * ```tsx
+ * <DHCPLeaseManagementPage routerId="router-123" />
+ * ```
  */
-export const DHCPLeaseManagementPage = React.memo(function DHCPLeaseManagementPage({ routerId }: DHCPLeaseManagementPageProps) {
+export const DHCPLeaseManagementPage = React.memo(function DHCPLeaseManagementPage({
+  routerId,
+}: DHCPLeaseManagementPageProps) {
   const platform = usePlatform();
 
   // Main orchestration hook - handles all data fetching, filtering, and operations
@@ -43,23 +53,26 @@ export const DHCPLeaseManagementPage = React.memo(function DHCPLeaseManagementPa
 
   // Derived properties for presenters
   const isLoading = pageData.isLoadingLeases || pageData.isLoadingServers;
-  const isError = !!(pageData.leasesError || pageData.serversError);
-  const error = pageData.leasesError || pageData.serversError || undefined;
+  const hasError = !!(pageData.leasesError || pageData.serversError);
+  const error = (pageData.leasesError || pageData.serversError) ?? undefined;
 
-  const presenterProps = {
+  const presenterProps: DHCPLeaseManagementPresenterProps = {
     ...pageData,
     isLoading,
-    isError,
+    isError: hasError,
     error,
     clearSelection: pageData.clearLeaseSelection,
     exportToCSV: () => { /* TODO: implement CSV export */ },
   };
 
+  // Transform servers for mobile presenter (expects string[] of names)
+  const serverNames = pageData.servers.map(s => s.name);
+
   // Render platform-specific presenter
   return platform === 'mobile' ? (
-    <DHCPLeaseManagementMobile {...presenterProps as any} />
+    <DHCPLeaseManagementMobile {...presenterProps} servers={serverNames} />
   ) : (
-    <DHCPLeaseManagementDesktop {...presenterProps as any} />
+    <DHCPLeaseManagementDesktop {...presenterProps} />
   );
 });
 

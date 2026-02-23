@@ -3,7 +3,7 @@
  * Quick-action toolbar for common network operations.
  */
 
-import { Download, RefreshCw, Settings, Stethoscope, Trash2 } from 'lucide-react';
+import { Download, RefreshCw, Stethoscope, Trash2 } from 'lucide-react';
 
 import {
   NetworkActionButtons,
@@ -224,5 +224,17 @@ export const CustomActions: Story = {
           'Shows the flexibility of the `actions` prop.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

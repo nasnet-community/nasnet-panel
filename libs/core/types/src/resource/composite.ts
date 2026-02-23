@@ -9,6 +9,7 @@
  * - Feature + Sub-resources
  *
  * @see ADR-012: Universal State v2
+ * @module @nasnet/core/types/resource
  */
 
 import type {
@@ -27,61 +28,84 @@ import type { RuntimeState } from './layers';
 // ============================================================================
 
 /**
- * Status aggregation for composite resources
+ * Status aggregation for composite resources.
+ *
+ * Provides aggregated health and state metrics for a composite resource
+ * and its sub-resources.
+ *
+ * @example
+ * const status = aggregateCompositeStatus(subResources);
+ * if (status.overallHealth === 'CRITICAL') {
+ *   // Handle critical health state
+ * }
  */
 export interface CompositeResourceStatus {
   /** Total number of sub-resources */
-  totalCount: number;
+  readonly totalCount: number;
   /** Number of active sub-resources */
-  activeCount: number;
+  readonly activeCount: number;
   /** Number of sub-resources with errors */
-  errorCount: number;
+  readonly errorCount: number;
   /** Number of degraded sub-resources */
-  degradedCount: number;
+  readonly degradedCount: number;
   /** Number of pending sub-resources */
-  pendingCount: number;
+  readonly pendingCount: number;
   /** Overall health based on sub-resources */
-  overallHealth: 'HEALTHY' | 'DEGRADED' | 'CRITICAL' | 'UNKNOWN';
+  readonly overallHealth: 'HEALTHY' | 'DEGRADED' | 'CRITICAL' | 'UNKNOWN';
   /** Whether all sub-resources are running */
-  allRunning: boolean;
+  readonly allRunning: boolean;
   /** Whether any sub-resource has drift */
-  hasDrift: boolean;
+  readonly hasDrift: boolean;
   /** Whether the composite is fully synced */
-  isFullySynced: boolean;
+  readonly isFullySynced: boolean;
 }
 
 /**
- * Composite resource tree node for visualization
+ * Composite resource tree node for visualization.
+ *
+ * Represents a node in a hierarchical resource tree, used for
+ * displaying composite resources in a tree structure.
+ *
+ * @example
+ * const tree = buildResourceTree(composite);
+ * const flattened = flattenResourceTree(tree);
  */
 export interface CompositeResourceNode {
   /** Resource UUID */
-  uuid: string;
+  readonly uuid: string;
   /** Resource ID */
-  id: string;
+  readonly id: string;
   /** Resource type */
-  type: string;
+  readonly type: string;
   /** Lifecycle state */
-  state: ResourceLifecycleState;
+  readonly state: ResourceLifecycleState;
   /** Runtime status */
-  isRunning: boolean;
+  readonly isRunning: boolean;
   /** Health status */
-  health: RuntimeState['health'];
+  readonly health: RuntimeState['health'];
   /** Child nodes */
-  children: CompositeResourceNode[];
+  readonly children: readonly CompositeResourceNode[];
   /** Depth in tree */
-  depth: number;
+  readonly depth: number;
 }
 
 /**
- * Dependency resolution order for applying resources
+ * Dependency resolution order for applying resources.
+ *
+ * Provides topologically sorted resource UUIDs in correct application order,
+ * with identified root resources and circular dependencies.
+ *
+ * @example
+ * const order = resolveDependencyOrder(resources);
+ * // Apply in order: roots -> ordered (skip circular)
  */
 export interface DependencyOrder {
   /** Resources that should be applied first (no dependencies) */
-  roots: string[];
+  readonly roots: readonly string[];
   /** Resources in dependency order (parents before children) */
-  ordered: string[];
+  readonly ordered: readonly string[];
   /** Resources with circular dependencies (cannot be ordered) */
-  circular: string[];
+  readonly circular: readonly string[];
 }
 
 // ============================================================================
@@ -89,7 +113,19 @@ export interface DependencyOrder {
 // ============================================================================
 
 /**
- * Build a composite resource from a root and sub-resources
+ * Build a composite resource from a root and sub-resources.
+ *
+ * Constructs a composite resource by aggregating a root resource with
+ * its sub-resources and establishing relationships between them.
+ *
+ * @param root - The root resource
+ * @param subResources - Array of child resources
+ * @returns Composite resource with established relationships
+ *
+ * @example
+ * const server = await getWireGuardServer();
+ * const clients = await getWireGuardClients(server.uuid);
+ * const composite = buildCompositeResource(server, clients);
  */
 export function buildCompositeResource<TRoot extends Resource>(
   root: TRoot,
@@ -135,7 +171,17 @@ export function buildCompositeResource<TRoot extends Resource>(
 }
 
 /**
- * Extract reference from a resource
+ * Extract reference from a resource.
+ *
+ * Creates a lightweight reference object from a resource, useful for
+ * storing relationships or creating dependency graphs.
+ *
+ * @param resource - The resource to extract from
+ * @returns Reference with UUID, ID, type, category, and state
+ *
+ * @example
+ * const ref = resourceToReference(resource);
+ * dependencies.push(ref);
  */
 export function resourceToReference(resource: Resource): ResourceReference {
   return {
@@ -152,7 +198,17 @@ export function resourceToReference(resource: Resource): ResourceReference {
 // ============================================================================
 
 /**
- * Calculate aggregated status from sub-resources
+ * Calculate aggregated status from sub-resources.
+ *
+ * Computes aggregate health, state counts, and sync status
+ * for a collection of sub-resources.
+ *
+ * @param subResources - Array of resources to aggregate
+ * @returns Aggregated status with health, counts, and sync information
+ *
+ * @example
+ * const status = aggregateCompositeStatus(children);
+ * console.log(`Health: ${status.overallHealth}, Active: ${status.activeCount}`);
  */
 export function aggregateCompositeStatus(
   subResources: Resource[]
@@ -250,7 +306,17 @@ export function aggregateCompositeStatus(
 }
 
 /**
- * Calculate health percentage (0-100)
+ * Calculate health percentage (0-100).
+ *
+ * Converts aggregated status into a percentage based on
+ * active resources vs total resources.
+ *
+ * @param status - Aggregated composite resource status
+ * @returns Health percentage (0-100)
+ *
+ * @example
+ * const percentage = calculateHealthPercentage(status);
+ * console.log(`Health: ${percentage}%`);
  */
 export function calculateHealthPercentage(status: CompositeResourceStatus): number {
   if (status.totalCount === 0) return 100;
@@ -262,7 +328,18 @@ export function calculateHealthPercentage(status: CompositeResourceStatus): numb
 // ============================================================================
 
 /**
- * Build a tree structure from composite resource
+ * Build a tree structure from composite resource.
+ *
+ * Constructs a hierarchical tree representation from a composite resource,
+ * with configurable maximum depth for large hierarchies.
+ *
+ * @param composite - Composite resource to convert to tree
+ * @param maxDepth - Maximum tree depth (default: 10)
+ * @returns Root node of the tree structure
+ *
+ * @example
+ * const tree = buildResourceTree(composite);
+ * renderTree(tree);
  */
 export function buildResourceTree(
   composite: CompositeResource,
@@ -304,7 +381,18 @@ export function buildResourceTree(
 }
 
 /**
- * Flatten a resource tree to an array
+ * Flatten a resource tree to an array.
+ *
+ * Converts a hierarchical tree structure into a flat array
+ * with depth-first ordering.
+ *
+ * @param tree - Tree node to flatten
+ * @returns Flat array of all nodes in the tree
+ *
+ * @example
+ * const tree = buildResourceTree(composite);
+ * const flat = flattenResourceTree(tree);
+ * flat.forEach(node => console.log(node.id));
  */
 export function flattenResourceTree(
   tree: CompositeResourceNode
@@ -319,7 +407,17 @@ export function flattenResourceTree(
 }
 
 /**
- * Find a node in the tree by UUID
+ * Find a node in the tree by UUID.
+ *
+ * Recursively searches a tree for a node matching the given UUID.
+ *
+ * @param tree - Tree node to search from
+ * @param uuid - UUID to search for
+ * @returns Matching node or undefined if not found
+ *
+ * @example
+ * const node = findNodeInTree(tree, targetUuid);
+ * if (node) renderDetails(node);
  */
 export function findNodeInTree(
   tree: CompositeResourceNode,
@@ -340,8 +438,19 @@ export function findNodeInTree(
 // ============================================================================
 
 /**
- * Resolve dependency order for applying resources
- * Uses topological sort with cycle detection
+ * Resolve dependency order for applying resources.
+ *
+ * Uses topological sort with cycle detection to determine
+ * the correct order for applying resources. Identifies root resources
+ * (no dependencies) and circular dependencies.
+ *
+ * @param resources - Resources to sort
+ * @returns Dependency order with roots, sorted resources, and cycles
+ *
+ * @example
+ * const order = resolveDependencyOrder(resources);
+ * // Apply in order: order.roots first, then order.ordered
+ * // Skip or handle order.circular separately
  */
 export function resolveDependencyOrder(
   resources: Resource[]
@@ -406,13 +515,25 @@ export function resolveDependencyOrder(
 }
 
 /**
- * Check if a resource can be safely deleted
- * (no other resources depend on it)
+ * Check if a resource can be safely deleted.
+ *
+ * Determines whether a resource can be deleted without breaking
+ * dependencies. Returns blocking resources if deletion is unsafe.
+ *
+ * @param resource - Resource to check for deletion safety
+ * @param allResources - All resources to check dependencies against
+ * @returns Object with canDelete flag and blocking resources
+ *
+ * @example
+ * const safety = canSafelyDelete(resource, allResources);
+ * if (!safety.canDelete) {
+ *   console.log('Blocked by:', safety.blockedBy);
+ * }
  */
 export function canSafelyDelete(
   resource: Resource,
   allResources: Resource[]
-): { canDelete: boolean; blockedBy: ResourceReference[] } {
+): { readonly canDelete: boolean; readonly blockedBy: readonly ResourceReference[] } {
   const blockedBy: ResourceReference[] = [];
 
   for (const other of allResources) {
@@ -432,7 +553,7 @@ export function canSafelyDelete(
 
   return {
     canDelete: blockedBy.length === 0,
-    blockedBy,
+    blockedBy: Object.freeze(blockedBy) as readonly ResourceReference[],
   };
 }
 
@@ -441,7 +562,18 @@ export function canSafelyDelete(
 // ============================================================================
 
 /**
- * Group resources by type
+ * Group resources by type.
+ *
+ * Partitions resources into groups by their type field.
+ *
+ * @param resources - Resources to group
+ * @returns Map from resource type to array of resources
+ *
+ * @example
+ * const groups = groupResourcesByType(resources);
+ * groups.forEach((resourceGroup, type) => {
+ *   console.log(`Type: ${type}, Count: ${resourceGroup.length}`);
+ * });
  */
 export function groupResourcesByType(
   resources: Resource[]
@@ -459,7 +591,16 @@ export function groupResourcesByType(
 }
 
 /**
- * Group resources by category
+ * Group resources by category.
+ *
+ * Partitions resources into groups by their category field.
+ *
+ * @param resources - Resources to group
+ * @returns Map from resource category to array of resources
+ *
+ * @example
+ * const groups = groupResourcesByCategory(resources);
+ * const vpnResources = groups.get('VPN') || [];
  */
 export function groupResourcesByCategory(
   resources: Resource[]
@@ -477,7 +618,16 @@ export function groupResourcesByCategory(
 }
 
 /**
- * Filter resources by lifecycle state
+ * Filter resources by lifecycle state.
+ *
+ * Returns only resources matching one of the specified lifecycle states.
+ *
+ * @param resources - Resources to filter
+ * @param states - States to include in results
+ * @returns Filtered array of resources
+ *
+ * @example
+ * const active = filterResourcesByState(resources, ['ACTIVE', 'DEGRADED']);
  */
 export function filterResourcesByState(
   resources: Resource[],
@@ -490,7 +640,16 @@ export function filterResourcesByState(
 }
 
 /**
- * Filter resources by health status
+ * Filter resources by health status.
+ *
+ * Returns only resources with runtime health matching specified values.
+ *
+ * @param resources - Resources to filter
+ * @param health - Health statuses to include
+ * @returns Filtered array of resources with matching health
+ *
+ * @example
+ * const unhealthy = filterResourcesByHealth(resources, ['DEGRADED', 'CRITICAL']);
  */
 export function filterResourcesByHealth(
   resources: Resource[],
@@ -503,7 +662,17 @@ export function filterResourcesByHealth(
 }
 
 /**
- * Find all resources that depend on a given resource
+ * Find all resources that depend on a given resource.
+ *
+ * Returns all resources that list the given resource as a dependency.
+ *
+ * @param resource - Resource to find dependents for
+ * @param allResources - All resources to search
+ * @returns Array of resources that depend on the given resource
+ *
+ * @example
+ * const dependents = findDependents(dhcpServer, allResources);
+ * console.log(`${dependents.length} resources depend on this server`);
  */
 export function findDependents(
   resource: Resource,
@@ -516,7 +685,17 @@ export function findDependents(
 }
 
 /**
- * Find all resources that a given resource depends on
+ * Find all resources that a given resource depends on.
+ *
+ * Returns all resources listed as dependencies of the given resource.
+ *
+ * @param resource - Resource to find dependencies for
+ * @param allResources - All resources to search
+ * @returns Array of resources that the given resource depends on
+ *
+ * @example
+ * const dependencies = findDependencies(service, allResources);
+ * console.log(`This service depends on ${dependencies.length} resources`);
  */
 export function findDependencies(
   resource: Resource,
@@ -531,7 +710,17 @@ export function findDependencies(
 // ============================================================================
 
 /**
- * Check if a resource has sub-resources
+ * Check if a resource has sub-resources.
+ *
+ * Type guard that verifies a resource has child resources.
+ *
+ * @param resource - Resource to check
+ * @returns True if resource has children
+ *
+ * @example
+ * if (hasSubResources(resource)) {
+ *   renderChildrenUI(resource.relationships.children);
+ * }
  */
 export function hasSubResources(resource: Resource): boolean {
   const children = resource.relationships?.children ?? [];
@@ -539,7 +728,15 @@ export function hasSubResources(resource: Resource): boolean {
 }
 
 /**
- * Check if a resource is a root (no parent)
+ * Check if a resource is a root (no parent).
+ *
+ * Type guard that verifies a resource is a root in the hierarchy.
+ *
+ * @param resource - Resource to check
+ * @returns True if resource has no parent
+ *
+ * @example
+ * const roots = resources.filter(isRootResource);
  */
 export function isRootResource(resource: Resource): boolean {
   return resource.relationships?.parent === undefined ||
@@ -547,30 +744,18 @@ export function isRootResource(resource: Resource): boolean {
 }
 
 /**
- * Check if a resource is a leaf (no children)
+ * Check if a resource is a leaf (no children).
+ *
+ * Type guard that verifies a resource is a leaf with no sub-resources.
+ *
+ * @param resource - Resource to check
+ * @returns True if resource has no children
+ *
+ * @example
+ * const leaves = resources.filter(isLeafResource);
  */
 export function isLeafResource(resource: Resource): boolean {
   const children = resource.relationships?.children ?? [];
   return children.length === 0;
 }
 
-export default {
-  buildCompositeResource,
-  resourceToReference,
-  aggregateCompositeStatus,
-  calculateHealthPercentage,
-  buildResourceTree,
-  flattenResourceTree,
-  findNodeInTree,
-  resolveDependencyOrder,
-  canSafelyDelete,
-  groupResourcesByType,
-  groupResourcesByCategory,
-  filterResourcesByState,
-  filterResourcesByHealth,
-  findDependents,
-  findDependencies,
-  hasSubResources,
-  isRootResource,
-  isLeafResource,
-};

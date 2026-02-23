@@ -49,7 +49,7 @@ export const mockInterfaceVariable: TemplateVariable = {
   label: 'LAN Interface',
   type: 'INTERFACE' as VariableType,
   defaultValue: 'bridge1',
-  required: true,
+  isRequired: true,
   description: 'The interface connected to your local network',
   options: ['bridge1', 'ether2', 'ether3', 'ether4', 'wlan1'],
 };
@@ -59,7 +59,7 @@ export const mockWanInterfaceVariable: TemplateVariable = {
   label: 'WAN Interface',
   type: 'INTERFACE' as VariableType,
   defaultValue: 'ether1',
-  required: true,
+  isRequired: true,
   description: 'The interface connected to the internet',
   options: ['ether1', 'pppoe-out1', 'lte1'],
 };
@@ -69,7 +69,7 @@ export const mockSubnetVariable: TemplateVariable = {
   label: 'LAN Subnet',
   type: 'SUBNET' as VariableType,
   defaultValue: '192.168.88.0/24',
-  required: true,
+  isRequired: true,
   description: 'Your local network subnet in CIDR notation',
   options: undefined,
 };
@@ -79,7 +79,7 @@ export const mockVlanIdVariable: TemplateVariable = {
   label: 'VLAN ID',
   type: 'VLAN_ID' as VariableType,
   defaultValue: '10',
-  required: true,
+  isRequired: true,
   description: 'VLAN ID for isolated network',
   options: undefined,
 };
@@ -510,14 +510,14 @@ export const mockPreviewResultWithConflicts: TemplatePreviewResult = {
 // ============================================
 
 export const mockSuccessfulApplyResult: FirewallTemplateResult = {
-  success: true,
+  isSuccessful: true,
   appliedRulesCount: 5,
   rollbackId: 'rollback-123456',
   errors: [],
 };
 
 export const mockPartialFailureResult: FirewallTemplateResult = {
-  success: false,
+  isSuccessful: false,
   appliedRulesCount: 3,
   rollbackId: 'rollback-123457',
   errors: [
@@ -527,7 +527,7 @@ export const mockPartialFailureResult: FirewallTemplateResult = {
 };
 
 export const mockCompleteFailureResult: FirewallTemplateResult = {
-  success: false,
+  isSuccessful: false,
   appliedRulesCount: 0,
   rollbackId: '',
   errors: ['Connection to router lost during application'],
@@ -645,7 +645,7 @@ export function validateTemplateVariables(
   const errors: string[] = [];
 
   template.variables.forEach((variable) => {
-    if (variable.required && !providedVariables[variable.name]) {
+    if (variable.isRequired && !providedVariables[variable.name]) {
       errors.push(`Required variable "${variable.name}" is missing`);
     }
 

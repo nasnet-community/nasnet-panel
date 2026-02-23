@@ -7,9 +7,11 @@
  * @module @nasnet/features/firewall
  */
 
-import { fn } from '@storybook/test';
-import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from 'storybook/test';
+
 import { UndoFloatingButton } from './UndoFloatingButton';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * UndoFloatingButton - Floating countdown button for template rollback

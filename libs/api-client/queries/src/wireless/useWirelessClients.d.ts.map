@@ -1,0 +1,1 @@
+{"version":3,"file":"useWirelessClients.d.ts","sourceRoot":"","sources":["useWirelessClients.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,OAAO,EAAY,cAAc,EAAE,MAAM,uBAAuB,CAAC;AAEjE,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,oBAAoB,CAAC;AAGzD;;GAEG;AACH,eAAO,MAAM,kBAAkB;iCAET,MAAM;;;;CAClB,CAAC;AAsEX,wBAAgB,kBAAkB,CAChC,QAAQ,EAAE,MAAM,GACf,cAAc,CAAC,cAAc,EAAE,EAAE,KAAK,CAAC,CAUzC"}

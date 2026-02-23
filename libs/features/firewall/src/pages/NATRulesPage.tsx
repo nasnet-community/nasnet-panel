@@ -19,8 +19,7 @@
 
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNATUIStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { useNATUIStore, useConnectionStore } from '@nasnet/state/stores';
 import { useNATRules } from '@nasnet/api-client/queries';
 import { NATRulesTable } from '../components/NATRulesTable';
 import { NATRulesTableMobile } from '../components/NATRulesTableMobile';
@@ -41,25 +40,8 @@ import {
   CardTitle,
 } from '@nasnet/ui/primitives';
 import { Plus, Zap, Globe } from 'lucide-react';
-
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-function usePlatform() {
-  const [platform, setPlatform] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-
-  // Simple platform detection based on window width
-  // In production, this would use a more robust hook
-  if (typeof window !== 'undefined') {
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  }
-
-  return platform;
-}
+import { cn } from '@nasnet/ui/utils';
+import { usePlatform } from '@nasnet/ui/patterns';
 
 // ============================================================================
 // Empty State Component
@@ -72,6 +54,9 @@ interface EmptyStateProps {
   onPortForward: () => void;
 }
 
+/**
+ * @description Empty state shown when no NAT rules exist
+ */
 const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
@@ -87,11 +72,11 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
           <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
-            <Zap className="h-4 w-4 mr-2" />
+            <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
             Quick Masquerade
           </Button>
           <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             Add Custom Rule
           </Button>
         </CardContent>
@@ -110,11 +95,11 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
           <Button onClick={onPortForward} aria-label="Port Forward Wizard">
-            <Globe className="h-4 w-4 mr-2" />
+            <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
             Port Forward Wizard
           </Button>
           <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             Add Custom Rule
           </Button>
         </CardContent>
@@ -133,15 +118,15 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
         <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
-          <Zap className="h-4 w-4 mr-2" />
+          <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
           Quick Masquerade
         </Button>
         <Button onClick={onPortForward} aria-label="Port Forward Wizard">
-          <Globe className="h-4 w-4 mr-2" />
+          <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
           Port Forward Wizard
         </Button>
         <Button variant="outline" onClick={onAddRule} aria-label="Add NAT Rule">
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           Add NAT Rule
         </Button>
       </CardContent>
@@ -157,10 +142,12 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
  * NATRulesPage Component
  *
  * Main page for NAT rules management with chain-based tabs.
+ * Supports source NAT (masquerade), destination NAT (port forwarding), and custom rules.
  *
+ * @description NAT rule configuration and management
  * @returns NAT rules page component
  */
-export function NATRulesPage() {
+export const NATRulesPage = memo(function NATRulesPage() {
   const { t } = useTranslation('firewall');
   const platform = usePlatform();
   const isMobile = platform === 'mobile';
@@ -235,17 +222,17 @@ export function NATRulesPage() {
             {!isMobile && (
               <>
                 <Button variant="outline" onClick={handleQuickMasquerade} aria-label="Quick Masquerade">
-                  <Zap className="h-4 w-4 mr-2" />
+                  <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
                   Quick Masquerade
                 </Button>
                 <Button variant="outline" onClick={handlePortForward} aria-label="Port Forward Wizard">
-                  <Globe className="h-4 w-4 mr-2" />
+                  <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
                   Port Forward Wizard
                 </Button>
               </>
             )}
             <Button onClick={handleAddRule} aria-label="Add NAT Rule">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               Add NAT Rule
             </Button>
           </div>
@@ -255,11 +242,11 @@ export function NATRulesPage() {
         {isMobile && (
           <div className="flex gap-2 px-4 pb-4">
             <Button variant="outline" size="sm" onClick={handleQuickMasquerade} className="flex-1" aria-label="Masquerade">
-              <Zap className="h-4 w-4 mr-2" />
+              <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
               Masquerade
             </Button>
             <Button variant="outline" size="sm" onClick={handlePortForward} className="flex-1" aria-label="Port Forward">
-              <Globe className="h-4 w-4 mr-2" />
+              <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
               Port Forward
             </Button>
           </div>
@@ -384,9 +371,8 @@ export function NATRulesPage() {
       />
     </div>
   );
-}
+});
 
-/**
- * Export for route configuration
- */
+NATRulesPage.displayName = 'NATRulesPage';
+
 export default NATRulesPage;

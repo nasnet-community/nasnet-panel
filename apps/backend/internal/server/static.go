@@ -18,6 +18,7 @@ const (
 
 // NewFrontendHandler returns an Echo handler that serves embedded frontend files.
 // It supports SPA routing by falling back to index.html for unknown paths.
+// Pre-compressed .gz variants are served transparently for JS/CSS assets.
 func NewFrontendHandler(fsys fs.FS) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		path := strings.TrimPrefix(c.Request().URL.Path, "/")
@@ -30,55 +31,99 @@ func NewFrontendHandler(fsys fs.FS) echo.HandlerFunc {
 			return echo.ErrNotFound
 		}
 
-		file, err := fsys.Open(path)
-		//nolint:nestif // static file serving logic
-		if err == nil {
-			defer file.Close()
-			contentType := resolveContentType(path)
-			c.Response().Header().Set("Content-Type", contentType)
-			setCacheHeaders(c.Response(), path)
-
-			if seeker, ok := file.(io.ReadSeeker); ok {
-				http.ServeContent(c.Response(), c.Request(), path, time.Time{}, seeker)
-			} else {
-				data, readErr := io.ReadAll(file)
-				if readErr != nil {
-					log.Printf("Error reading embedded file %s: %v", path, readErr)
-					return c.String(http.StatusInternalServerError, "Error reading file")
-				}
-				return c.Blob(http.StatusOK, contentType, data)
+		// Try serving pre-compressed .gz variant for JS/CSS files
+		if acceptsGzip(c, path) {
+			if err := serveGzipped(c, fsys, path); err == nil {
+				return nil
 			}
+		}
+
+		// Try serving the file directly
+		if err := serveFile(c, fsys, path); err == nil {
 			return nil
 		}
 
 		// Fallback to index.html for SPA routing
-		if path == "index.html" {
+		if path == indexHTML {
 			return c.String(http.StatusNotFound, fileNotFoundMsg)
 		}
 
-		file, err = fsys.Open("index.html")
-		if err != nil {
-			return c.String(http.StatusNotFound, fileNotFoundMsg)
-		}
-		defer file.Close()
+		return serveIndexFallback(c, fsys)
+	}
+}
 
-		contentType := resolveContentType("index.html")
-		c.Response().Header().Set("Content-Type", contentType)
-		setCacheHeaders(c.Response(), "index.html")
+// acceptsGzip checks if the request accepts gzip and the path is a compressible asset.
+func acceptsGzip(c echo.Context, path string) bool {
+	isCompressible := strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".css")
+	return isCompressible && strings.Contains(c.Request().Header.Get("Accept-Encoding"), "gzip")
+}
 
-		if seeker, ok := file.(io.ReadSeeker); ok {
-			http.ServeContent(c.Response(), c.Request(), "index.html", time.Time{}, seeker)
-		} else {
-			data, err := io.ReadAll(file)
-			if err != nil {
-				log.Printf("Error reading embedded file index.html: %v", err)
-				return c.String(http.StatusInternalServerError, "Error reading file")
-			}
-			return c.Blob(http.StatusOK, contentType, data)
-		}
+// serveFile serves a file from the embedded filesystem.
+func serveFile(c echo.Context, fsys fs.FS, path string) error {
+	file, err := fsys.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
+	contentType := resolveContentType(path)
+	c.Response().Header().Set("Content-Type", contentType)
+	setCacheHeaders(c.Response(), path)
+
+	return sendFileContent(c, file, path, contentType)
+}
+
+// serveGzipped serves a pre-compressed .gz variant of the requested file.
+func serveGzipped(c echo.Context, fsys fs.FS, path string) error {
+	file, err := fsys.Open(path + ".gz")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	contentType := resolveContentType(path)
+	c.Response().Header().Set("Content-Type", contentType)
+	c.Response().Header().Set("Content-Encoding", "gzip")
+	c.Response().Header().Set("Vary", "Accept-Encoding")
+	setCacheHeaders(c.Response(), path)
+
+	return c.Blob(http.StatusOK, contentType, data)
+}
+
+// serveIndexFallback serves index.html as a fallback for SPA routing.
+func serveIndexFallback(c echo.Context, fsys fs.FS) error {
+	file, err := fsys.Open(indexHTML)
+	if err != nil {
+		return c.String(http.StatusNotFound, fileNotFoundMsg)
+	}
+	defer file.Close()
+
+	contentType := resolveContentType(indexHTML)
+	c.Response().Header().Set("Content-Type", contentType)
+	setCacheHeaders(c.Response(), indexHTML)
+
+	return sendFileContent(c, file, indexHTML, contentType)
+}
+
+// sendFileContent writes file content to the response, using ServeContent for seekable files.
+func sendFileContent(c echo.Context, file fs.File, path, contentType string) error {
+	if seeker, ok := file.(io.ReadSeeker); ok {
+		http.ServeContent(c.Response(), c.Request(), path, time.Time{}, seeker)
 		return nil
 	}
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		log.Printf("Error reading embedded file %s: %v", path, err)
+		return c.String(http.StatusInternalServerError, "Error reading file")
+	}
+
+	return c.Blob(http.StatusOK, contentType, data)
 }
 
 // resolveContentType returns the MIME type for a file path based on extension.
@@ -110,7 +155,7 @@ func setCacheHeaders(w http.ResponseWriter, path string) {
 	switch {
 	case strings.Contains(path, "assets/"):
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-	case path == "index.html":
+	case path == indexHTML:
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	default:
 		w.Header().Set("Cache-Control", "public, max-age=3600")

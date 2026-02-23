@@ -7,8 +7,9 @@
  * Click the trigger element (the styled IP span) to open the dropdown.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { AddToAddressListContextMenu } from './AddToAddressListContextMenu';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Mock Callbacks

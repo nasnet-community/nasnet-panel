@@ -4,13 +4,18 @@
  * Per AC4: User can configure notification channels with test button
  * Per Task #7: Integrated QuietHoursConfig component for global quiet hours
  * Per NAS-18.3: Email form refactored to Platform Presenter pattern
+ *
+ * @description Page for managing notification channel configurations (Email, Telegram, Pushover, Webhook)
+ * and global quiet hours settings. Provides test functionality for each channel.
+ * Supports platform-aware rendering via presenter pattern.
  */
-import { useState, memo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNotificationChannels, type ChannelConfig } from '../hooks/useNotificationChannels';
 import { usePushoverUsage } from '../hooks/usePushoverUsage';
-import { notificationChannels } from '../schemas/alert-rule.schema';
+import { NOTIFICATION_CHANNELS } from '../schemas/alert-rule.schema';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
+import { cn } from '@nasnet/ui/utils';
 import { QuietHoursConfig } from '../components/QuietHoursConfig';
 import type { QuietHoursConfigData } from '../components/QuietHoursConfig';
 import { EmailChannelForm } from '../components/EmailChannelForm';
@@ -370,8 +375,11 @@ function WebhookChannelCard() {
 /**
  * Test Button Component
  * Per Task 6.7: Add "Test Notification" button with loading/success/error states
+ *
+ * @description Renders a test button with loading state and result feedback.
+ * Shows success/error alert after test completes.
  */
-const TestButton = memo(function TestButton({
+const TestButton = React.memo(function TestButton({
   testing,
   testResult,
 }: {
@@ -385,6 +393,7 @@ const TestButton = memo(function TestButton({
         disabled={testing}
         aria-label={testing ? 'Testing notification' : 'Test notification'}
         className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+        aria-busy={testing}
       >
         {testing ? 'Testing...' : 'Test Notification'}
       </button>
@@ -392,6 +401,7 @@ const TestButton = memo(function TestButton({
       {testResult && (
         <div
           role="alert"
+          aria-live="polite"
           className={`p-3 rounded-md text-sm ${
             testResult.success
               ? 'bg-success/10 text-success-foreground border border-success/20'
@@ -406,37 +416,52 @@ const TestButton = memo(function TestButton({
   );
 });
 
+TestButton.displayName = 'TestButton';
+
 /**
  * Main Notification Settings Page
  * Per Task 6.2: Create channel configuration cards
+ *
+ * @description Main page component for notification channel and quiet hours configuration.
+ * Implements tab-based UI for channel selection with test functionality.
+ * Supports multiple notification backends: Email, Telegram, Pushover, Webhooks.
  */
-export function NotificationSettingsPage() {
+function NotificationSettingsPageComponent() {
   const { testChannel, testResults } = useNotificationChannels();
   const [activeChannel, setActiveChannel] = useState<ChannelType>('email');
   const [testing, setTesting] = useState(false);
   const [quietHours, setQuietHours] = useState<Partial<QuietHoursConfigData>>();
 
-  const handleTest = async (channel: ChannelType, config: ChannelConfig) => {
-    setTesting(true);
-    try {
-      await testChannel(channel, config);
-    } finally {
-      setTesting(false);
-    }
-  };
+  // Memoized test handler with cleanup
+  const handleTest = useCallback(
+    async (channel: ChannelType, config: ChannelConfig) => {
+      setTesting(true);
+      try {
+        await testChannel(channel, config);
+      } finally {
+        setTesting(false);
+      }
+    },
+    [testChannel]
+  );
 
-  const handleQuietHoursChange = (config: QuietHoursConfigData) => {
+  // Memoized quiet hours handler
+  const handleQuietHoursChange = useCallback((config: QuietHoursConfigData) => {
     setQuietHours(config);
     // TODO: Persist to backend via GraphQL mutation
     console.log('Quiet hours updated:', config);
-  };
+  }, []);
 
-  const channels = [
-    { type: 'email' as const, label: 'Email (SMTP)', icon: '📧' },
-    { type: 'telegram' as const, label: 'Telegram Bot', icon: '💬' },
-    { type: 'pushover' as const, label: 'Pushover', icon: '📱' },
-    { type: 'webhook' as const, label: 'Webhook', icon: '🔗' },
-  ];
+  // Memoized channels list
+  const channels = useMemo(
+    () => [
+      { type: 'email' as const, label: 'Email (SMTP)', icon: '📧' },
+      { type: 'telegram' as const, label: 'Telegram Bot', icon: '💬' },
+      { type: 'pushover' as const, label: 'Pushover', icon: '📱' },
+      { type: 'webhook' as const, label: 'Webhook', icon: '🔗' },
+    ],
+    []
+  );
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -530,3 +555,12 @@ export function NotificationSettingsPage() {
     </div>
   );
 }
+
+NotificationSettingsPageComponent.displayName = 'NotificationSettingsPage';
+
+/**
+ * Memoized notification settings page for preventing unnecessary re-renders.
+ * @description Full page component managing notification channel configuration
+ * and global quiet hours. Should be lazy-loaded as route and wrapped in Suspense.
+ */
+export const NotificationSettingsPage = React.memo(NotificationSettingsPageComponent);

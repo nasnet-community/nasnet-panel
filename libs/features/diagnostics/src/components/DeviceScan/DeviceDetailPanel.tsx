@@ -4,6 +4,7 @@
 // Display detailed information for a selected device with option to add to
 // known devices list
 
+import React, { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { Button, Card, Badge } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
@@ -28,6 +29,9 @@ import type { DiscoveredDevice } from './types';
 // Props Interface
 // -----------------------------------------------------------------------------
 
+/**
+ * Props for DeviceDetailPanel component
+ */
 export interface DeviceDetailPanelProps {
   /** Device to display details for */
   device: DiscoveredDevice;
@@ -48,6 +52,8 @@ export interface DeviceDetailPanelProps {
 
 /**
  * Format ISO date string to readable format
+ * @param isoString - ISO 8601 date string
+ * @returns Localized date/time string
  */
 function formatDate(isoString: string): string {
   const date = new Date(isoString);
@@ -55,7 +61,9 @@ function formatDate(isoString: string): string {
 }
 
 /**
- * Format lease expiration time
+ * Format lease expiration time as human-readable countdown
+ * @param expiresString - ISO 8601 expiration date string
+ * @returns Human-readable time remaining (e.g., "2d 5h", "30m")
  */
 function formatLeaseExpires(expiresString: string): string {
   const expires = new Date(expiresString);
@@ -80,7 +88,25 @@ function formatLeaseExpires(expiresString: string): string {
 // Component
 // -----------------------------------------------------------------------------
 
-export function DeviceDetailPanel({
+/**
+ * DeviceDetailPanel
+ * Displays detailed information for a discovered device including IP, MAC,
+ * vendor, interface, response time, and DHCP lease details. Provides option
+ * to add device to known devices list.
+ *
+ * @example
+ * ```tsx
+ * <DeviceDetailPanel
+ *   device={selectedDevice}
+ *   onClose={() => setSelected(null)}
+ *   routerId={routerId}
+ * />
+ * ```
+ *
+ * @see {@link DiscoveredDevice} for device structure
+ * @see {@link DeviceDiscoveryTable} for table of devices
+ */
+export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
   device,
   onClose,
   routerId,
@@ -90,7 +116,11 @@ export function DeviceDetailPanel({
   // const [addKnownDevice, { loading: isAdding }] = useMutation(ADD_KNOWN_DEVICE);
   const isAdding = false; // Temporary placeholder
 
-  const handleAddToKnownDevices = async () => {
+  /**
+   * Handle adding device to known devices list
+   * Currently disabled pending schema updates
+   */
+  const handleAddToKnownDevices = useCallback(async () => {
     if (!routerId) return;
 
     try {
@@ -113,7 +143,7 @@ export function DeviceDetailPanel({
       console.error('Failed to add device:', error);
       // TODO: Show error toast
     }
-  };
+  }, [routerId, device.mac, device.firstSeen, device.hostname, device.ip]);
 
   return (
     <Card className={cn('p-4 space-y-4', className)}>
@@ -129,7 +159,7 @@ export function DeviceDetailPanel({
           variant="ghost"
           size="sm"
           onClick={onClose}
-          aria-label="Close device details"
+          aria-label="Close device details panel"
         >
           ×
         </Button>
@@ -139,12 +169,12 @@ export function DeviceDetailPanel({
       <div className="space-y-3">
         <div>
           <p className="text-xs font-medium text-muted-foreground">MAC Address</p>
-          <p className="text-sm font-mono">{device.mac}</p>
+          <p className="text-sm font-mono text-foreground">{device.mac}</p>
         </div>
 
         <div>
           <p className="text-xs font-medium text-muted-foreground">Vendor</p>
-          <p className="text-sm">
+          <p className="text-sm text-foreground">
             {device.vendor || (
               <span className="text-muted-foreground">Unknown vendor</span>
             )}
@@ -153,17 +183,17 @@ export function DeviceDetailPanel({
 
         <div>
           <p className="text-xs font-medium text-muted-foreground">Interface</p>
-          <p className="text-sm font-mono">{device.interface}</p>
+          <p className="text-sm font-mono text-foreground">{device.interface}</p>
         </div>
 
         <div>
           <p className="text-xs font-medium text-muted-foreground">Response Time</p>
-          <p className="text-sm">{device.responseTime}ms</p>
+          <p className="text-sm text-foreground">{device.responseTime}ms</p>
         </div>
 
         <div>
           <p className="text-xs font-medium text-muted-foreground">First Seen</p>
-          <p className="text-sm">{formatDate(device.firstSeen)}</p>
+          <p className="text-sm text-foreground">{formatDate(device.firstSeen)}</p>
         </div>
       </div>
 
@@ -179,12 +209,12 @@ export function DeviceDetailPanel({
 
           <div>
             <p className="text-xs font-medium text-muted-foreground">Expires In</p>
-            <p className="text-sm">{formatLeaseExpires(device.dhcpLease.expires)}</p>
+            <p className="text-sm text-foreground">{formatLeaseExpires(device.dhcpLease.expires)}</p>
           </div>
 
           <div>
             <p className="text-xs font-medium text-muted-foreground">DHCP Server</p>
-            <p className="text-sm font-mono">{device.dhcpLease.server}</p>
+            <p className="text-sm font-mono text-foreground">{device.dhcpLease.server}</p>
           </div>
         </div>
       )}
@@ -202,4 +232,6 @@ export function DeviceDetailPanel({
       </div>
     </Card>
   );
-}
+});
+
+DeviceDetailPanel.displayName = 'DeviceDetailPanel';

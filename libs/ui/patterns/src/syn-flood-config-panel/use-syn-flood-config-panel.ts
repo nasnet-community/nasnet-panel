@@ -18,6 +18,9 @@ import { DEFAULT_SYN_FLOOD_CONFIG } from '@nasnet/core/types';
 
 import type { SynFloodConfig, SynFloodFormValues } from './types';
 
+// Re-export for consumers
+export type { SynFloodFormValues };
+
 /**
  * Zod schema for SYN flood config form
  */
@@ -102,7 +105,7 @@ export interface UseSynFloodConfigPanelReturn {
  */
 function configToForm(config: SynFloodConfig): SynFloodFormValues {
   return {
-    enabled: config.enabled,
+    enabled: config.isEnabled,
     synLimit: String(config.synLimit),
     burst: String(config.burst),
     action: config.action,
@@ -114,7 +117,7 @@ function configToForm(config: SynFloodConfig): SynFloodFormValues {
  */
 function formToConfig(values: SynFloodFormValues): SynFloodConfig {
   return {
-    enabled: values.enabled,
+    isEnabled: values.enabled,
     synLimit: parseInt(values.synLimit, 10),
     burst: parseInt(values.burst, 10),
     action: values.action,

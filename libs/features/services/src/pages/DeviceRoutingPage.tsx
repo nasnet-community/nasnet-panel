@@ -10,10 +10,25 @@
  * - Bulk device assignment
  * - Real-time routing updates
  * - Toast notifications for user feedback
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <DeviceRoutingPage routerId="router-001" />
+ * ```
+ *
+ * @see {@link DeviceRoutingMatrix} for the pattern component
+ * @see {@link KillSwitchToggle} for global kill switch control
+ * @see {@link RoutingChainViz} for visualizing routing chains
  */
 
-import { useCallback, useEffect } from 'react';
-import { useToast } from '@nasnet/ui/primitives';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import type {
+  DeviceRoutingActions,
+  RoutingChainData,
+} from '@nasnet/ui/patterns';
+
 import {
   useDeviceRoutingMatrix,
   useAssignDeviceRouting,
@@ -21,25 +36,52 @@ import {
   useBulkAssignRouting,
   useDeviceRoutingSubscription,
 } from '@nasnet/api-client/queries';
-import { DeviceRoutingMatrix } from '@nasnet/ui/patterns';
-import type { DeviceRoutingActions } from '@nasnet/ui/patterns';
+import { useToast } from '@nasnet/ui/primitives';
+import {
+  DeviceRoutingMatrix,
+  RoutingChainViz,
+  KillSwitchToggle,
+  ScheduleEditor,
+} from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
 
 /**
  * DeviceRoutingPage props
+ *
+ * @interface DeviceRoutingPageProps
+ * @property {string} routerId - Router ID for scoping device discovery and routing queries
+ * @property {string} [className] - Optional CSS classes to apply to the container
  */
 export interface DeviceRoutingPageProps {
-  /** Router ID */
+  /** Router ID for scoping all queries and mutations */
   routerId: string;
+
+  /** Optional CSS classes for the container */
+  className?: string;
 }
 
 /**
  * DeviceRoutingPage component
  *
  * Main page for device-to-service routing management.
- * Uses the DeviceRoutingMatrix pattern component with API hooks.
+ * Displays the DeviceRoutingMatrix pattern component populated from DHCP leases and ARP table.
+ * Supports single and bulk device assignment to service virtual interfaces.
+ * Real-time toast notifications are emitted via GraphQL subscription on routing changes.
+ *
+ * @param {DeviceRoutingPageProps} props - Component props
+ * @returns {React.ReactElement} The rendered device routing page
  */
-export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
+function DeviceRoutingPageComponent({
+  routerId,
+  className,
+}: DeviceRoutingPageProps) {
   const { toast } = useToast();
+
+  // State for schedule editor
+  const [shouldShowScheduleEditor, setShouldShowScheduleEditor] = useState(false);
+  const [selectedScheduleRoutingId, setSelectedScheduleRoutingId] = useState<
+    string | null
+  >(null);
 
   // Fetch device routing matrix (devices, interfaces, routings)
   const {
@@ -66,40 +108,54 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
   // Subscribe to real-time routing changes
   const { event: routingEvent } = useDeviceRoutingSubscription(routerId);
 
-  // Handle real-time routing events
+  // Handle real-time routing events (aria-live region updated via toast)
   useEffect(() => {
     if (!routingEvent) return;
 
     switch (routingEvent.eventType) {
-      case 'assigned':
+      case 'assigned': {
+        const deviceIdentifier =
+          routingEvent.routing?.deviceName ??
+          routingEvent.routing?.deviceIP ??
+          routingEvent.routing?.macAddress ??
+          'Unknown device';
         toast({
           title: 'Device Assigned',
-          description: `Device ${
-            routingEvent.routing?.deviceName ??
-            routingEvent.routing?.deviceIP ??
-            routingEvent.routing?.macAddress
-          } has been assigned to a service.`,
+          description: `${deviceIdentifier} has been assigned to a service.`,
           variant: 'default',
         });
         break;
-      case 'removed':
+      }
+      case 'removed': {
+        const deviceIdentifier =
+          routingEvent.routing?.deviceName ??
+          routingEvent.routing?.deviceIP ??
+          routingEvent.routing?.macAddress ??
+          'Unknown device';
         toast({
           title: 'Device Routing Removed',
-          description: 'Device routing has been removed.',
+          description: `${deviceIdentifier} routing has been removed.`,
           variant: 'default',
         });
         break;
-      case 'updated':
+      }
+      case 'updated': {
+        const deviceIdentifier =
+          routingEvent.routing?.deviceName ??
+          routingEvent.routing?.deviceIP ??
+          routingEvent.routing?.macAddress ??
+          'Unknown device';
         toast({
           title: 'Device Routing Updated',
-          description: 'Device routing has been updated.',
+          description: `${deviceIdentifier} routing has been updated.`,
           variant: 'default',
         });
         break;
+      }
     }
   }, [routingEvent, toast]);
 
-  // Action handlers with toast notifications
+  // Action handler: assign device to service interface
   const handleAssign = useCallback(
     async (deviceID: string, interfaceID: string) => {
       if (!matrix) return;
@@ -130,9 +186,10 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
           routingMode: 'MAC', // Default to MAC-based routing
         });
 
+        const deviceLabel = device.hostname ?? device.ipAddress ?? device.macAddress;
         toast({
           title: 'Device Assigned',
-          description: `${device.hostname ?? device.ipAddress ?? device.macAddress} assigned to ${iface.instanceName}`,
+          description: `${deviceLabel} assigned to ${iface.instanceName}`,
           variant: 'default',
         });
       } catch (error) {
@@ -148,6 +205,7 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
     [matrix, routerId, assignDevice, toast]
   );
 
+  // Action handler: remove device routing
   const handleRemove = useCallback(
     async (routingID: string) => {
       if (!matrix) return;
@@ -158,11 +216,12 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
       try {
         await removeDevice(routingID);
 
+        const deviceLabel = routing
+          ? routing.deviceName ?? routing.deviceIP ?? routing.macAddress
+          : 'Device';
         toast({
           title: 'Routing Removed',
-          description: routing
-            ? `${routing.deviceName ?? routing.deviceIP ?? routing.macAddress} unrouted`
-            : 'Device routing removed',
+          description: `${deviceLabel} routing has been removed`,
           variant: 'default',
         });
       } catch (error) {
@@ -178,6 +237,7 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
     [matrix, removeDevice, toast]
   );
 
+  // Action handler: bulk assign multiple devices to a service interface
   const handleBulkAssign = useCallback(
     async (deviceIDs: string[], interfaceID: string) => {
       if (!matrix) return;
@@ -192,7 +252,7 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
         return;
       }
 
-      // Build assignments array
+      // Build assignments array, filtering out missing devices
       const assignments = deviceIDs
         .map((deviceID) => {
           const device = matrix.devices.find((d) => d.deviceID === deviceID);
@@ -209,7 +269,10 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
             routingMode: 'MAC' as const,
           };
         })
-        .filter((assignment) => assignment !== null);
+        .filter(
+          (assignment): assignment is NonNullable<typeof assignment> =>
+            assignment !== null
+        );
 
       if (assignments.length === 0) {
         toast({
@@ -254,14 +317,65 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
     [matrix, routerId, bulkAssign, toast]
   );
 
-  // Build action handlers object
-  const actions: DeviceRoutingActions = {
-    onAssign: handleAssign,
-    onRemove: handleRemove,
-    onBulkAssign: handleBulkAssign,
-  };
+  // Derive routing chain visualizations from matrix data (NAS-8.10)
+  // Memoized to prevent unnecessary re-renders of RoutingChainViz components
+  const routingChains: RoutingChainData[] = useMemo(() => {
+    if (!matrix || !matrix.routings || matrix.routings.length === 0) return [];
 
-  // Show error toast if matrix fetch fails
+    // Group routings by device for chain visualization
+    const deviceRoutings = new Map<string, (typeof matrix.routings)[number][]>();
+    for (const routing of matrix.routings) {
+      const existing = deviceRoutings.get(routing.deviceID) || [];
+      deviceRoutings.set(routing.deviceID, [...existing, routing]);
+    }
+
+    // Create chain data for devices with active routings
+    return Array.from(deviceRoutings.entries()).map(([deviceID, routings]) => {
+      const firstRouting = routings[0];
+      const device = matrix.devices.find((d) => d.deviceID === deviceID);
+
+      return {
+        id: `chain-${deviceID}`,
+        deviceId: deviceID,
+        deviceName: device?.hostname || firstRouting.deviceName || null,
+        deviceMac: device?.macAddress || firstRouting.macAddress || null,
+        deviceIp: device?.ipAddress || firstRouting.deviceIP || null,
+        hops: routings.map((r, hopIndex) => {
+          const hopIface = matrix.interfaces.find(
+            (inf) => inf.id === r.interfaceID
+          );
+          return {
+            id: r.id,
+            order: hopIndex + 1,
+            serviceName: hopIface?.instanceName || 'Unknown',
+            serviceType: hopIface?.gatewayType,
+            routingMark: r.routingMark,
+            latencyMs: null,
+            healthy: r.active,
+            killSwitchActive: false,
+          };
+        }),
+        active: firstRouting.active,
+        routingMode: (firstRouting.routingMode || 'MAC') as 'MAC' | 'IP',
+        killSwitchEnabled: false,
+        killSwitchMode: 'BLOCK_ALL' as const,
+        killSwitchActive: false,
+        totalLatencyMs: null,
+      };
+    });
+  }, [matrix]);
+
+  // Build stable action handlers object (memoized for pattern component)
+  const actions: DeviceRoutingActions = useMemo(
+    () => ({
+      onAssign: handleAssign,
+      onRemove: handleRemove,
+      onBulkAssign: handleBulkAssign,
+    }),
+    [handleAssign, handleRemove, handleBulkAssign]
+  );
+
+  // Show error toast if matrix fetch fails (no re-toast if error unchanged)
   useEffect(() => {
     if (matrixError) {
       toast({
@@ -272,32 +386,115 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
     }
   }, [matrixError, toast]);
 
-  // Loading state
+  // Compute loading state
   const isLoading =
     matrixLoading || assignLoading || removeLoading || bulkLoading;
 
+  // Handler: schedule editor close
+  const handleCloseScheduleEditor = useCallback(() => {
+    setShouldShowScheduleEditor(false);
+    setSelectedScheduleRoutingId(null);
+  }, []);
+
+  // Handler: schedule editor open (when user clicks on a routing hop)
+  const handleOpenScheduleEditor = useCallback((routingId: string) => {
+    setSelectedScheduleRoutingId(routingId);
+    setShouldShowScheduleEditor(true);
+  }, []);
+
+  // Handler: schedule editor save
+  const handleSaveSchedule = useCallback(
+    async (_schedule: unknown) => {
+      toast({
+        title: 'Schedule Created',
+        description: 'Routing schedule has been saved.',
+        variant: 'default',
+      });
+      handleCloseScheduleEditor();
+    },
+    [toast, handleCloseScheduleEditor]
+  );
+
+  // Handler: hop click on routing chain visualization
+  const handleRoutingChainHopClick = useCallback(
+    (hop: RoutingChainData['hops'][number]) => {
+      handleOpenScheduleEditor(hop.id);
+      toast({
+        title: `Service: ${hop.serviceName}`,
+        description: `Routing mark: ${hop.routingMark}`,
+        variant: 'default',
+      });
+    },
+    [toast, handleOpenScheduleEditor]
+  );
+
   return (
-    <div className="container mx-auto py-6">
+    <div className={cn('container mx-auto py-6', className)}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Device Routing</h1>
         <p className="text-muted-foreground">
           Route network devices through service instances (Tor, Xray, etc.)
         </p>
+
+        {/* Global Kill Switch (NAS-8.13) */}
+        <div className="mt-4 flex items-center gap-4">
+          <KillSwitchToggle
+            routerId={routerId}
+            deviceId=""
+            deviceName="Global"
+            aria-label="Global kill switch toggle"
+            className="ml-auto"
+          />
+        </div>
       </div>
 
+      {/* Bulk Assignment Progress Bar */}
       {bulkProgress && (
-        <div className="mb-4 rounded-md border border-primary bg-primary/10 p-3">
+        <div
+          className={cn(
+            'mb-4 rounded-md border p-3',
+            'border-primary bg-semantic-info-bg'
+          )}
+          role="status"
+          aria-live="polite"
+          aria-label={`Bulk assignment progress: ${bulkProgress.percentage}% complete`}
+        >
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">
               Bulk Assignment Progress: {bulkProgress.percentage}%
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm font-mono text-muted-foreground">
               {bulkProgress.successful}/{bulkProgress.total} completed
             </span>
           </div>
         </div>
       )}
 
+      {/* Routing Chain Visualizations (NAS-8.10) */}
+      {routingChains.length > 0 && (
+        <section className="mb-6 space-y-3">
+          <h2 className="text-lg font-semibold">Active Routing Chains</h2>
+          <div className="space-y-3">
+            {routingChains.slice(0, 5).map((chain) => (
+              <RoutingChainViz
+                key={chain.id}
+                chain={chain}
+                showLatency
+                showKillSwitch
+                compact
+                onHopClick={handleRoutingChainHopClick}
+              />
+            ))}
+            {routingChains.length > 5 && (
+              <p className="text-center text-sm text-muted-foreground">
+                and {routingChains.length - 5} more chains...
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Main Device Routing Matrix */}
       {matrix ? (
         <DeviceRoutingMatrix
           routerId={routerId}
@@ -308,10 +505,28 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
           showSummary
         />
       ) : (
-        <div className="flex items-center justify-center py-12">
+        <div
+          className="flex items-center justify-center py-12"
+          role="status"
+          aria-live="polite"
+          aria-label="Loading device list"
+        >
           <p className="text-muted-foreground">Loading devices...</p>
         </div>
       )}
+
+      {/* Schedule Editor Modal (NAS-8.21) */}
+      <ScheduleEditor
+        routingID={selectedScheduleRoutingId || ''}
+        open={shouldShowScheduleEditor}
+        onClose={handleCloseScheduleEditor}
+        onSave={handleSaveSchedule}
+        mode="create"
+      />
     </div>
   );
 }
+
+// Export wrapped component with React.memo for performance optimization
+export const DeviceRoutingPage = React.memo(DeviceRoutingPageComponent);
+DeviceRoutingPage.displayName = 'DeviceRoutingPage';

@@ -5,10 +5,24 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:core"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/core/constants/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/core/constants/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/core/constants/tsconfig.lib.json",
+          "tsc --noEmit --project libs/core/constants/tsconfig.spec.json",
+          "tsc --noEmit --project libs/core/constants/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     },
     "build": {

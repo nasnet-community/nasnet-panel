@@ -11,10 +11,13 @@
  */
 
 import React from 'react';
+
 import { useForm, FormProvider } from 'react-hook-form';
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { DynamicField } from './DynamicField';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 // ---------------------------------------------------------------------------
 // FormProvider decorator
@@ -24,6 +27,7 @@ import { DynamicField } from './DynamicField';
  * Wraps each story in a FormProvider so DynamicField can call useFormContext.
  * Default values are keyed by field name so every variant pre-populates nicely.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FormDecorator({ children, defaultValues = {} }: { children: React.ReactNode; defaultValues?: Record<string, any> }) {
   const methods = useForm({ defaultValues, mode: 'onBlur' });
   return (
@@ -59,7 +63,9 @@ function makeField(overrides: Partial<{
   min: number;
   max: number;
   options: Array<{ label: string; value: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }>): any {
   return {
     name: 'fieldName',
@@ -141,6 +147,7 @@ export const TextInput: Story = {
       placeholder: '0.0.0.0',
       description: 'IP address the daemon will listen on.',
     }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     form: undefined as any, // provided by FormProvider inside the component
   },
 };

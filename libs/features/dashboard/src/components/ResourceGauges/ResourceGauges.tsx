@@ -1,6 +1,7 @@
 /**
  * ResourceGauges Component
- * Displays real-time resource utilization (CPU, Memory, Storage, Temperature)
+ * @description Real-time resource utilization gauges with threshold-based coloring
+ * Displays CPU, Memory, Storage, and Temperature with responsive layout
  *
  * AC 5.2.1: Real-time resource gauges for CPU, Memory, Storage, Temperature
  * AC 5.2.3: Colors change based on configurable thresholds
@@ -13,7 +14,7 @@
  * - ResourceGaugesMobile: Mobile presenter (2x2 grid)
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { Skeleton } from '@nasnet/ui/primitives';
 import { CircularGauge } from './CircularGauge';
@@ -51,6 +52,8 @@ function ResourceGaugesDesktop({
 }: ResourceGaugesProps) {
   const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
+  const handleShowCPUModal = useCallback(() => setShowCPUModal(true), []);
+  const handleCPUModalChange = useCallback((open: boolean) => setShowCPUModal(open), []);
 
   if (loading || !metrics) {
     return (
@@ -73,7 +76,7 @@ function ResourceGaugesDesktop({
           sublabel={metrics.cpu.formatted}
           thresholds={THRESHOLDS.cpu}
           size="md"
-          onClick={() => setShowCPUModal(true)}
+          onClick={handleShowCPUModal}
         />
 
         {/* Memory Gauge */}
@@ -110,7 +113,7 @@ function ResourceGaugesDesktop({
       {raw?.cpu.perCore && (
         <CPUBreakdownModal
           open={showCPUModal}
-          onOpenChange={setShowCPUModal}
+          onOpenChange={handleCPUModalChange}
           perCoreUsage={raw.cpu.perCore}
           overallUsage={metrics.cpu.usage}
           frequency={raw.cpu.frequency}
@@ -130,6 +133,8 @@ function ResourceGaugesMobile({
 }: ResourceGaugesProps) {
   const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
+  const handleShowCPUModal = useCallback(() => setShowCPUModal(true), []);
+  const handleCPUModalChange = useCallback((open: boolean) => setShowCPUModal(open), []);
 
   if (loading || !metrics) {
     return (
@@ -152,7 +157,7 @@ function ResourceGaugesMobile({
           sublabel={`${metrics.cpu.cores} core${metrics.cpu.cores > 1 ? 's' : ''}`}
           thresholds={THRESHOLDS.cpu}
           size="sm"
-          onClick={() => setShowCPUModal(true)}
+          onClick={handleShowCPUModal}
         />
 
         {/* Memory Gauge */}
@@ -189,7 +194,7 @@ function ResourceGaugesMobile({
       {raw?.cpu.perCore && (
         <CPUBreakdownModal
           open={showCPUModal}
-          onOpenChange={setShowCPUModal}
+          onOpenChange={handleCPUModalChange}
           perCoreUsage={raw.cpu.perCore}
           overallUsage={metrics.cpu.usage}
           frequency={raw.cpu.frequency}
@@ -205,7 +210,7 @@ function ResourceGaugesMobile({
  *
  * Pattern: Headless + Platform Presenters (ADR-018)
  */
-export function ResourceGauges(props: ResourceGaugesProps) {
+export const ResourceGauges = function ResourceGauges(props: ResourceGaugesProps) {
   const platform = usePlatform();
 
   // Mobile and tablet use mobile presenter (touch-optimized)
@@ -215,4 +220,6 @@ export function ResourceGauges(props: ResourceGaugesProps) {
 
   // Desktop uses desktop presenter (pro-grade density)
   return <ResourceGaugesDesktop {...props} />;
-}
+};
+
+ResourceGauges.displayName = 'ResourceGauges';

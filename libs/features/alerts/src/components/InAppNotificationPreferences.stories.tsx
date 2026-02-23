@@ -10,12 +10,16 @@
  * - Minimal / silent profile
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect } from 'react';
-import { fn } from '@storybook/test';
-import { InAppNotificationPreferences } from './InAppNotificationPreferences';
+
+import { fn } from 'storybook/test';
+
 import { useAlertNotificationStore } from '@nasnet/state/stores';
 import type { NotificationSettings } from '@nasnet/state/stores';
+
+import { InAppNotificationPreferences } from './InAppNotificationPreferences';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Store initializer decorator

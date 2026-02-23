@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 
 const meta: Meta<typeof StatusBadge> = {
-  title: 'Patterns/StatusBadge',
+  title: 'Patterns/Common/StatusBadge',
   component: StatusBadge,
   tags: ['autodocs'],
   parameters: {
@@ -16,6 +16,9 @@ const meta: Meta<typeof StatusBadge> = {
         component:
           'A color-coded status badge component for displaying DHCP lease statuses, client statuses, and other status indicators. Uses semantic colors from the design system.',
       },
+    },
+    viewport: {
+      defaultViewport: 'mobile1',
     },
   },
   argTypes: {
@@ -170,4 +173,52 @@ export const AllVariants: Story = {
       </div>
     </div>
   ),
+};
+
+export const Mobile: Story = {
+  args: {
+    status: 'bound',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Mobile viewport showing compact badge layout.',
+      },
+    },
+  },
+};
+
+export const Tablet: Story = {
+  args: {
+    status: 'waiting',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+    docs: {
+      description: {
+        story: 'Tablet viewport.',
+      },
+    },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    status: 'offered',
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+    docs: {
+      description: {
+        story: 'Desktop viewport with full layout.',
+      },
+    },
+  },
 };

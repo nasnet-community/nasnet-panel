@@ -10,7 +10,6 @@ import (
 	"backend/internal/features/sharing"
 )
 
-//nolint:unused // may be used in service_sharing.resolvers.go
 func convertConflictResolution(resolution *model.ConflictResolution) sharing.ConflictResolutionStrategy {
 	if resolution == nil {
 		return ""
@@ -27,7 +26,6 @@ func convertConflictResolution(resolution *model.ConflictResolution) sharing.Con
 	}
 }
 
-//nolint:unused // may be used in service_sharing.resolvers.go
 func convertConflictResolutionRequired(resolution model.ConflictResolution) sharing.ConflictResolutionStrategy {
 	switch resolution {
 	case model.ConflictResolutionSkip:
@@ -41,7 +39,6 @@ func convertConflictResolutionRequired(resolution model.ConflictResolution) shar
 	}
 }
 
-//nolint:unused // may be used in service_sharing.resolvers.go
 func convertRedactedFieldValues(values map[string]interface{}) map[string]interface{} {
 	if values == nil {
 		return make(map[string]interface{})
@@ -49,7 +46,6 @@ func convertRedactedFieldValues(values map[string]interface{}) map[string]interf
 	return values
 }
 
-//nolint:unused // may be used in service_sharing.resolvers.go
 func convertRedactedFieldValuesRequired(values map[string]interface{}) map[string]interface{} {
 	if values == nil {
 		return make(map[string]interface{})
@@ -57,7 +53,6 @@ func convertRedactedFieldValuesRequired(values map[string]interface{}) map[strin
 	return values
 }
 
-//nolint:unused // may be used in service_sharing.resolvers.go
 func convertEntInstanceToModel(instance *ent.ServiceInstance) *model.ServiceInstance {
 	if instance == nil {
 		return nil

@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * History State Store
  * Manages undo/redo history with command pattern
@@ -335,7 +337,7 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()(
     ),
     {
       name: 'history-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

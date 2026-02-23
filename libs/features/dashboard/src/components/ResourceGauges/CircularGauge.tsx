@@ -1,5 +1,6 @@
 /**
  * CircularGauge Component
+ * @description SVG-based circular progress indicator with threshold-based semantic coloring
  * SVG-based circular progress indicator with threshold-based coloring
  *
  * AC 5.2.3: Colors change based on configurable thresholds
@@ -8,7 +9,7 @@
  * - WCAG AAA accessible with proper ARIA attributes
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { cn } from '@nasnet/ui/utils';
 
 /**
@@ -85,6 +86,11 @@ export const CircularGauge = memo(function CircularGauge({
   // Determine if clickable
   const isClickable = !!onClick;
 
+  // Memoize onClick handler
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
   // Base element props
   const elementProps = {
     role: 'meter' as const,
@@ -130,7 +136,7 @@ export const CircularGauge = memo(function CircularGauge({
 
         {/* Center text overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={cn('font-bold', fontSize)}>
+          <span className={cn('font-bold font-mono', fontSize)}>
             {clampedValue}%
           </span>
         </div>
@@ -140,7 +146,7 @@ export const CircularGauge = memo(function CircularGauge({
       <div className="text-center">
         <p className="font-medium">{label}</p>
         {sublabel && (
-          <p className="text-sm text-muted-foreground">{sublabel}</p>
+          <p className="text-sm text-muted-foreground font-mono">{sublabel}</p>
         )}
       </div>
     </>
@@ -151,7 +157,7 @@ export const CircularGauge = memo(function CircularGauge({
     return (
       <button
         type="button"
-        onClick={onClick}
+        onClick={handleClick}
         className={cn(
           'flex flex-col items-center gap-2',
           'cursor-pointer hover:opacity-80',

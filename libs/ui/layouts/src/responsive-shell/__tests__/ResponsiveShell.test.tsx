@@ -1,10 +1,20 @@
 /**
  * Tests for ResponsiveShell Component
+ *
+ * Comprehensive tests for the ResponsiveShell component covering:
+ * - Layout switching between mobile, tablet, and desktop breakpoints
+ * - Platform-specific rendering (MobileAppShell vs AppShell)
+ * - Sidebar collapse behavior and keyboard shortcuts (Ctrl+B / Cmd+B)
+ * - Accessibility structure and focus management
+ * - Reduced motion support (WCAG AAA compliance)
+ * - Platform provider initialization and overrides
+ *
  * @see NAS-4.3: Build Responsive Layout System
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 
 // Mock the shell components to avoid deep dependency chains
 vi.mock('../../app-shell', () => ({

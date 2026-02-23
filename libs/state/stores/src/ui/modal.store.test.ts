@@ -12,6 +12,7 @@ import {
   selectModalData,
   createSelectIsModalOpen,
   getModalState,
+  type KnownModalId,
 } from './modal.store';
 
 describe('useModalStore', () => {
@@ -63,34 +64,34 @@ describe('useModalStore', () => {
       const { openModal } = useModalStore.getState();
 
       act(() => {
-        openModal('modal-1', { data: 'first' });
+        openModal('confirm-delete', { data: 'first' });
       });
 
-      expect(useModalStore.getState().activeModal).toBe('modal-1');
+      expect(useModalStore.getState().activeModal).toBe('confirm-delete');
 
       act(() => {
-        useModalStore.getState().openModal('modal-2', { data: 'second' });
+        useModalStore.getState().openModal('confirm-action', { data: 'second' });
       });
 
-      expect(useModalStore.getState().activeModal).toBe('modal-2');
+      expect(useModalStore.getState().activeModal).toBe('confirm-action');
       expect(useModalStore.getState().modalData).toEqual({ data: 'second' });
     });
 
-    it('should accept custom string modal IDs', () => {
+    it('should accept known modal IDs', () => {
       const { openModal } = useModalStore.getState();
 
       act(() => {
-        openModal('custom-modal-id');
+        openModal('add-router');
       });
 
-      expect(useModalStore.getState().activeModal).toBe('custom-modal-id');
+      expect(useModalStore.getState().activeModal).toBe('add-router');
     });
   });
 
   describe('closeModal Action', () => {
     it('should close the modal and clear data', () => {
       useModalStore.setState({
-        activeModal: 'test-modal',
+        activeModal: 'confirm-delete',
         modalData: { test: 'data' },
       });
 
@@ -120,7 +121,7 @@ describe('useModalStore', () => {
   describe('updateModalData Action', () => {
     it('should merge data with existing modal data', () => {
       useModalStore.setState({
-        activeModal: 'test-modal',
+        activeModal: 'confirm-delete',
         modalData: { name: 'John', age: 30 },
       });
 
@@ -139,7 +140,7 @@ describe('useModalStore', () => {
 
     it('should set data when modalData is null', () => {
       useModalStore.setState({
-        activeModal: 'test-modal',
+        activeModal: 'confirm-delete',
         modalData: null,
       });
 
@@ -155,19 +156,19 @@ describe('useModalStore', () => {
 
   describe('isModalOpen Method', () => {
     it('should return true when the specified modal is open', () => {
-      useModalStore.setState({ activeModal: 'test-modal' });
+      useModalStore.setState({ activeModal: 'confirm-delete' });
 
       const { isModalOpen } = useModalStore.getState();
 
-      expect(isModalOpen('test-modal')).toBe(true);
+      expect(isModalOpen('confirm-delete')).toBe(true);
     });
 
     it('should return false when a different modal is open', () => {
-      useModalStore.setState({ activeModal: 'other-modal' });
+      useModalStore.setState({ activeModal: 'add-router' });
 
       const { isModalOpen } = useModalStore.getState();
 
-      expect(isModalOpen('test-modal')).toBe(false);
+      expect(isModalOpen('confirm-delete')).toBe(false);
     });
 
     it('should return false when no modal is open', () => {
@@ -175,20 +176,20 @@ describe('useModalStore', () => {
 
       const { isModalOpen } = useModalStore.getState();
 
-      expect(isModalOpen('test-modal')).toBe(false);
+      expect(isModalOpen('confirm-delete')).toBe(false);
     });
   });
 
   describe('getModalData Method', () => {
     it('should return typed modal data', () => {
       useModalStore.setState({
-        activeModal: 'test-modal',
+        activeModal: 'confirm-delete',
         modalData: { id: 123, name: 'Test' },
       });
 
       const { getModalData } = useModalStore.getState();
 
-      interface TestData {
+      interface TestData extends Record<string, unknown> {
         id: number;
         name: string;
       }
@@ -244,17 +245,17 @@ describe('useModalStore', () => {
       const { openModal } = useModalStore.getState();
 
       act(() => {
-        openModal('modal-1');
+        openModal('confirm-delete');
       });
 
-      expect(useModalStore.getState().activeModal).toBe('modal-1');
+      expect(useModalStore.getState().activeModal).toBe('confirm-delete');
 
       act(() => {
-        useModalStore.getState().openModal('modal-2');
+        useModalStore.getState().openModal('confirm-action');
       });
 
-      expect(useModalStore.getState().activeModal).toBe('modal-2');
-      // Only modal-2 should be active, modal-1 is gone
+      expect(useModalStore.getState().activeModal).toBe('confirm-action');
+      // Only confirm-action should be active, confirm-delete is gone
     });
 
     it('should not persist modal state (session-only)', () => {
@@ -263,10 +264,10 @@ describe('useModalStore', () => {
       const { openModal, closeModal } = useModalStore.getState();
 
       act(() => {
-        openModal('test-modal', { data: 'test' });
+        openModal('confirm-delete', { data: 'test' });
       });
 
-      expect(useModalStore.getState().activeModal).toBe('test-modal');
+      expect(useModalStore.getState().activeModal).toBe('confirm-delete');
 
       act(() => {
         closeModal();
@@ -279,7 +280,7 @@ describe('useModalStore', () => {
 
   describe('Known Modal IDs', () => {
     it('should work with all known modal IDs', () => {
-      const knownModals = [
+      const knownModals: Array<KnownModalId> = [
         'confirm-delete',
         'confirm-action',
         'router-credentials',

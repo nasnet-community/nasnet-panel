@@ -8,7 +8,7 @@
  * - WCAG AAA accessible
  */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 
 import {
   Checkbox,
@@ -20,7 +20,8 @@ import {
   SelectValue,
   Card,
   CardContent,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 export type SortOption = 'default' | 'packets-asc' | 'packets-desc';
 
@@ -42,24 +43,34 @@ export interface UnusedRulesFilterProps {
  *
  * Provides filtering and sorting controls for firewall rule optimization.
  * Helps users identify unused rules (with 0 packet count) and sort by efficiency.
+ *
+ * @example
+ * ```tsx
+ * <UnusedRulesFilter
+ *   showUnusedOnly={showUnused}
+ *   onFilterChange={(show) => setShowUnused(show)}
+ *   currentSort="packets-desc"
+ *   onSortChange={(sort) => setSort(sort)}
+ * />
+ * ```
  */
-export function UnusedRulesFilter({
+export const UnusedRulesFilter = memo(function UnusedRulesFilter({
   onFilterChange,
   onSortChange,
   showUnusedOnly,
   currentSort,
   className,
 }: UnusedRulesFilterProps) {
-  const handleFilterChange = (checked: boolean) => {
+  const handleFilterChange = useCallback((checked: boolean) => {
     onFilterChange(checked);
-  };
+  }, [onFilterChange]);
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = useCallback((value: string) => {
     onSortChange(value as SortOption);
-  };
+  }, [onSortChange]);
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('border border-border', className)}>
       <CardContent className="pt-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Unused Rules Filter */}
@@ -106,6 +117,6 @@ export function UnusedRulesFilter({
       </CardContent>
     </Card>
   );
-}
+});
 
 UnusedRulesFilter.displayName = 'UnusedRulesFilter';

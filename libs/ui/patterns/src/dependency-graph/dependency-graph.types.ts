@@ -7,17 +7,36 @@
  * @module @nasnet/ui/patterns/dependency-graph
  */
 
-import type {
-  DependencyGraph as GraphQLDependencyGraph,
-  DependencyGraphNode as GraphQLNode,
-  DependencyGraphEdge as GraphQLEdge,
-  DependencyType,
-} from '@nasnet/api-client/queries';
+// Type definitions for Dependency Graph
+// In production, these would come from @nasnet/api-client/queries GraphQL generated types
 
-/**
- * Re-export GraphQL types for convenience
- */
-export type { DependencyType };
+export type DependencyType = 'REQUIRES' | 'OPTIONAL';
+
+export interface DependencyGraphNode {
+  readonly featureId: string;
+  readonly instanceId: string;
+  readonly instanceName: string;
+  readonly status: string;
+}
+
+export interface DependencyGraphEdge {
+  readonly autoStart: boolean;
+  readonly dependencyType: DependencyType;
+  readonly fromInstanceId: string;
+  readonly healthTimeoutSeconds: number;
+  readonly toInstanceId: string;
+}
+
+export interface DependencyGraph {
+  readonly nodes: DependencyGraphNode[];
+  readonly edges: DependencyGraphEdge[];
+}
+
+// Type aliases for backwards compatibility
+type GraphQLDependencyGraph = DependencyGraph;
+type GraphQLNode = DependencyGraphNode;
+type GraphQLEdge = DependencyGraphEdge;
+
 
 /**
  * Enhanced node with computed layout properties

@@ -265,6 +265,8 @@ describe('useDiagnosticsPanel', () => {
           totalTests: 4,
           timestamp: '2024-01-01T00:00:00Z',
         },
+        loading: false,
+        error: undefined,
       });
 
       const { result } = renderHook(() => useDiagnosticsPanel(mockProps));

@@ -56,7 +56,9 @@ function VirtualInterfaceBridgeComponent(props: VirtualInterfaceBridgeProps) {
 }
 
 // Wrap with memo for performance optimization
-export const VirtualInterfaceBridge = memo(VirtualInterfaceBridgeComponent);
+const VirtualInterfaceBridge = memo(VirtualInterfaceBridgeComponent);
 
 // Set display name for React DevTools
-(VirtualInterfaceBridge as unknown as { displayName: string }).displayName = 'VirtualInterfaceBridge';
+VirtualInterfaceBridge.displayName = 'VirtualInterfaceBridge';
+
+export { VirtualInterfaceBridge };

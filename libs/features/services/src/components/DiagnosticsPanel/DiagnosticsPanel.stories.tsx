@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * DiagnosticsPanel is a platform-adaptive component backed by several Apollo

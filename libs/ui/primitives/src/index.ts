@@ -1,5 +1,31 @@
-// UI Primitives Library - shadcn/ui components
-// Exports all primitive UI components for the NasNetConnect application
+/**
+ * UI Primitives Library - shadcn/ui components
+ * Exports all primitive UI components for the NasNetConnect application.
+ *
+ * This module provides foundational Layer 1 components following the three-layer
+ * component architecture (Primitives → Patterns → Domain). All components are:
+ * - WCAG AAA accessible (7:1 contrast, 44px touch targets on mobile)
+ * - Dark mode compatible using CSS variables
+ * - Using semantic design tokens (Tier 2/3), not primitive colors
+ * - Platform-responsive where applicable
+ *
+ * @example
+ * ```tsx
+ * import { Button, Input, Card, Badge, Icon } from '@nasnet/ui/primitives';
+ *
+ * export function MyComponent() {
+ *   return (
+ *     <Card>
+ *       <Input type="email" placeholder="Email" />
+ *       <Button>Submit</Button>
+ *     </Card>
+ *   );
+ * }
+ * ```
+ *
+ * @see {@link https://nasnet.internal/design-tokens} for available design tokens
+ * @see {@link https://nasnet.internal/component-library} for pattern components (Layer 2)
+ */
 
 // Utilities
 export { cn } from './lib/utils';
@@ -38,6 +64,7 @@ export {
 
 // Switch
 export { Switch } from './switch';
+export type { SwitchProps } from './switch';
 
 // Dialog
 export {
@@ -79,6 +106,14 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+} from './table';
+export type {
+  TableProps,
+  TableSectionProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+  TableCaptionProps,
 } from './table';
 
 // Skeleton
@@ -147,6 +182,7 @@ export type { TextareaProps } from './textarea';
 
 // Separator
 export { Separator } from './separator';
+export type { SeparatorProps } from './separator';
 
 // Tooltip
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip';
@@ -216,4 +252,5 @@ export { Icon } from './icon';
 export type { IconProps } from './icon';
 
 // Hooks
-export { useReducedMotion, useMediaQuery } from './hooks';
+export { useReducedMotion } from './hooks/useReducedMotion';
+export { useMediaQuery } from './hooks/useMediaQuery';

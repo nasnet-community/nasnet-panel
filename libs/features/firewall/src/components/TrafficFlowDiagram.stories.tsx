@@ -7,10 +7,13 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { TrafficFlowDiagram } from './TrafficFlowDiagram';
+import { fn } from 'storybook/test';
+
 import type { FirewallChain } from '@nasnet/core/types';
+
+import { TrafficFlowDiagram } from './TrafficFlowDiagram';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * TrafficFlowDiagram - SVG visualization of packet flow through firewall chains

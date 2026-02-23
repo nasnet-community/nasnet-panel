@@ -348,7 +348,7 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      const noIspInfo: ISPInfo = { detected: false };
+      const noIspInfo: ISPInfo = { detected: false, name: null, supportPhone: null, supportUrl: null };
 
       render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={noIspInfo} />);
 
@@ -364,6 +364,8 @@ describe('FixSuggestion', () => {
       const partialIspInfo: ISPInfo = {
         detected: true,
         name: 'Local ISP',
+        supportPhone: null,
+        supportUrl: null,
       };
 
       render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={partialIspInfo} />);
@@ -473,6 +475,8 @@ describe('FixSuggestion', () => {
 
       const ispInfo: ISPInfo = {
         detected: true,
+        name: null,
+        supportPhone: null,
         supportUrl: 'https://example.com',
       };
 

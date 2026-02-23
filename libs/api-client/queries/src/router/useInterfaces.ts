@@ -214,7 +214,7 @@ async function fetchARPTable(routerIp: string): Promise<ARPEntry[]> {
     macAddress: entry['mac-address'],
     interface: entry.interface,
     status: entry.invalid ? 'failed' : entry.complete ? 'complete' : 'incomplete',
-    dynamic: entry.dynamic ?? true,
+    isDynamic: entry.dynamic ?? true,
   }));
 }
 
@@ -270,8 +270,8 @@ async function fetchIPAddresses(routerIp: string): Promise<IPAddress[]> {
     address: addr.address,
     network: addr.network,
     interface: addr.interface,
-    dynamic: addr.dynamic ?? false,
-    disabled: addr.disabled ?? false,
+    isDynamic: addr.dynamic ?? false,
+    isDisabled: addr.disabled ?? false,
   }));
 }
 

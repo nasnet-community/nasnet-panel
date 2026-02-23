@@ -3,6 +3,7 @@
  * Routes to appropriate presenter based on platform detection
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { ServiceExportDialogDesktop } from './ServiceExportDialogDesktop';
@@ -30,7 +31,7 @@ import type { ServiceExportDialogProps } from './types';
  * />
  * ```
  */
-export function ServiceExportDialog(props: ServiceExportDialogProps) {
+function ServiceExportDialogComponent(props: ServiceExportDialogProps) {
   const platform = usePlatform();
 
   if (platform === 'mobile') {
@@ -43,3 +44,9 @@ export function ServiceExportDialog(props: ServiceExportDialogProps) {
 
   return <ServiceExportDialogDesktop {...props} />;
 }
+
+/**
+ * ServiceExportDialog - Memoized component for performance
+ */
+export const ServiceExportDialog = memo(ServiceExportDialogComponent);
+ServiceExportDialog.displayName = 'ServiceExportDialog';

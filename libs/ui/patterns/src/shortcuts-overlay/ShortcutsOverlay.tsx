@@ -12,6 +12,7 @@
  * @see NAS-4.10: Implement Navigation & Command Palette
  */
 
+import * as React from 'react';
 import { useMemo } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,7 +33,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 /**
  * Group labels for display
@@ -63,7 +65,9 @@ function useIsMac(): boolean {
   const [isMac, setIsMac] = React.useState(false);
 
   React.useEffect(() => {
-    setIsMac(/Mac|iPod|iPhone|iPad/.test(navigator.platform));
+    if (typeof navigator !== 'undefined') {
+      setIsMac(/Mac|iPod|iPhone|iPad/.test(navigator.platform));
+    }
   }, []);
 
   return isMac;
@@ -185,7 +189,9 @@ export interface ShortcutsOverlayProps {
  * }
  * ```
  */
-export function ShortcutsOverlay({ className }: ShortcutsOverlayProps) {
+const ShortcutsOverlay = React.memo(function ShortcutsOverlay({
+  className,
+}: ShortcutsOverlayProps) {
   const platform = usePlatform();
   const { overlayOpen, closeOverlay } = useShortcutRegistry();
   const isMac = useIsMac();
@@ -263,4 +269,8 @@ export function ShortcutsOverlay({ className }: ShortcutsOverlayProps) {
       </AnimatePresence>
     </Dialog>
   );
-}
+});
+
+ShortcutsOverlay.displayName = 'ShortcutsOverlay';
+
+export { ShortcutsOverlay };

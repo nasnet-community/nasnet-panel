@@ -121,7 +121,7 @@ describe('BridgeForm', () => {
           expect.objectContaining({
             name: 'bridge1',
             comment: 'Test bridge',
-            protocol: 'rstp',
+            protocol: 'RSTP' as const,
             priority: 32768,
             vlanFiltering: false,
             pvid: 1,
@@ -180,18 +180,22 @@ describe('BridgeForm', () => {
 
   describe('Edit Mode', () => {
     const mockBridge = {
-      uuid: 'bridge-1',
+      id: 'bridge-1',
       name: 'bridge1',
       comment: 'Existing bridge',
       disabled: false,
       running: true,
       macAddress: '00:11:22:33:44:55',
       mtu: 1500,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     };
 
     it('populates form with bridge data', () => {

@@ -108,7 +108,14 @@ describe('LogFilters', () => {
 
     it('should display selected topics as badges', () => {
       const selectedTopics: LogTopic[] = ['firewall', 'wireless', 'dhcp'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       expect(screen.getByText('Firewall')).toBeInTheDocument();
       expect(screen.getByText('Wireless')).toBeInTheDocument();
@@ -116,7 +123,14 @@ describe('LogFilters', () => {
     });
 
     it('should not display badges when no topics selected', () => {
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       expect(screen.queryByText('Firewall')).not.toBeInTheDocument();
       expect(screen.queryByText('Wireless')).not.toBeInTheDocument();
@@ -126,7 +140,14 @@ describe('LogFilters', () => {
   describe('Dropdown Behavior', () => {
     it('should show dropdown when filter button is clicked', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -139,7 +160,14 @@ describe('LogFilters', () => {
 
     it('should display all 14 topic options in dropdown', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -171,7 +199,14 @@ describe('LogFilters', () => {
     it('should check selected topics in dropdown', async () => {
       const user = userEvent.setup();
       const selectedTopics: LogTopic[] = ['firewall', 'wireless'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -191,7 +226,7 @@ describe('LogFilters', () => {
       const user = userEvent.setup();
       render(
         <div>
-          <LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />
+          <LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} severities={[]} onSeveritiesChange={mockOnSeveritiesChange} />
           <button>Outside Button</button>
         </div>
       );
@@ -215,7 +250,14 @@ describe('LogFilters', () => {
   describe('Topic Selection', () => {
     it('should call onTopicsChange when checking a topic', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -229,7 +271,14 @@ describe('LogFilters', () => {
     it('should call onTopicsChange when unchecking a topic', async () => {
       const user = userEvent.setup();
       const selectedTopics: LogTopic[] = ['firewall', 'wireless'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -242,7 +291,14 @@ describe('LogFilters', () => {
 
     it('should add multiple topics when checking multiple checkboxes', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -254,7 +310,12 @@ describe('LogFilters', () => {
 
       // Simulate selecting wireless (LogFilters would be re-rendered with updated topics)
       const { rerender } = render(
-        <LogFilters topics={['firewall']} onTopicsChange={mockOnTopicsChange} />
+        <LogFilters
+          topics={['firewall']}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
       );
 
       await user.click(filterButton);
@@ -268,13 +329,27 @@ describe('LogFilters', () => {
   describe('Topic Badge Removal', () => {
     it('should show clear filters button when topics are selected', () => {
       const selectedTopics: LogTopic[] = ['firewall'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
     });
 
     it('should not show clear filters button when no topics selected', () => {
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       expect(screen.queryByRole('button', { name: /clear filters/i })).not.toBeInTheDocument();
     });
@@ -282,7 +357,14 @@ describe('LogFilters', () => {
     it('should call onTopicsChange with empty array when clear filters clicked', async () => {
       const user = userEvent.setup();
       const selectedTopics: LogTopic[] = ['firewall', 'wireless'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const clearButton = screen.getByRole('button', { name: /clear filters/i });
       await user.click(clearButton);
@@ -293,7 +375,14 @@ describe('LogFilters', () => {
     it('should remove topic when badge X button is clicked', async () => {
       const user = userEvent.setup();
       const selectedTopics: LogTopic[] = ['firewall', 'wireless', 'dhcp'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const removeFirewallButton = screen.getByRole('button', {
         name: /remove firewall filter/i,
@@ -306,7 +395,12 @@ describe('LogFilters', () => {
     it('should have remove icon on each topic badge', () => {
       const selectedTopics: LogTopic[] = ['firewall', 'wireless'];
       const { container } = render(
-        <LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
       );
 
       // Each badge should have an X icon
@@ -321,6 +415,8 @@ describe('LogFilters', () => {
         <LogFilters
           topics={[]}
           onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
           className="custom-filter-class"
         />
       );
@@ -334,6 +430,8 @@ describe('LogFilters', () => {
         <LogFilters
           topics={[]}
           onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
           className="custom-class"
         />
       );
@@ -347,7 +445,14 @@ describe('LogFilters', () => {
 
   describe('Accessibility', () => {
     it('should have accessible filter button', () => {
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       expect(filterButton).toHaveAccessibleName();
@@ -355,7 +460,14 @@ describe('LogFilters', () => {
 
     it('should have accessible remove buttons for topic badges', () => {
       const selectedTopics: LogTopic[] = ['firewall', 'wireless'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       const removeFirewallButton = screen.getByRole('button', {
         name: /remove firewall filter/i,
@@ -370,7 +482,14 @@ describe('LogFilters', () => {
 
     it('should use checkboxes for topic selection', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -382,7 +501,14 @@ describe('LogFilters', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty topics array', () => {
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       expect(screen.getByRole('button', { name: /filter by topic/i })).toBeInTheDocument();
       expect(screen.queryByText('Clear filters')).not.toBeInTheDocument();
@@ -406,7 +532,14 @@ describe('LogFilters', () => {
         'warning',
         'error',
       ];
-      render(<LogFilters topics={allTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={allTopics}
+          onTopicsChange={mockOnTopicsChange}
+          severities={[]}
+          onSeveritiesChange={mockOnSeveritiesChange}
+        />
+      );
 
       // Should show count of 14
       expect(screen.getByText('14')).toBeInTheDocument();
@@ -423,7 +556,14 @@ describe('LogFilters', () => {
 
     it('should handle rapid topic selection/deselection', async () => {
       const user = userEvent.setup();
-      render(<LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={[]}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
+      );
 
       const filterButton = screen.getByRole('button', { name: /filter by topic/i });
       await user.click(filterButton);
@@ -441,7 +581,14 @@ describe('LogFilters', () => {
 
     it('should handle single topic selection', () => {
       const selectedTopics: LogTopic[] = ['firewall'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
+      );
 
       expect(screen.getByText('1')).toBeInTheDocument();
       expect(screen.getByText('Firewall')).toBeInTheDocument();
@@ -452,7 +599,12 @@ describe('LogFilters', () => {
     it('should apply color-coded badges for different topics', () => {
       const selectedTopics: LogTopic[] = ['firewall', 'system', 'wireless'];
       const { container } = render(
-        <LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} />
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
       );
 
       // Each topic should have its own color styling
@@ -468,7 +620,14 @@ describe('LogFilters', () => {
 
     it('should show hover effect on topic badges', () => {
       const selectedTopics: LogTopic[] = ['firewall'];
-      render(<LogFilters topics={selectedTopics} onTopicsChange={mockOnTopicsChange} severities={[]} onSeveritiesChange={mockOnSeveritiesChange} />);
+      render(
+        <LogFilters
+          topics={selectedTopics}
+          onTopicsChange={vi.fn()}
+          severities={[]}
+          onSeveritiesChange={vi.fn()}
+        />
+      );
 
       const badge = screen.getByRole('button', { name: /remove firewall filter/i });
       expect(badge.className).toContain('hover:opacity-80');
@@ -569,7 +728,9 @@ describe('LogFilters', () => {
     });
 
     it('should show clear filters button when either topics or severities are selected', () => {
-      const { rerender } = renderLogFilters(['firewall'], []);
+      const selectedTopics: LogTopic[] = ['firewall'];
+      const selectedSeverities: LogSeverity[] = [];
+      const { rerender } = renderLogFilters(selectedTopics, selectedSeverities);
       expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
 
       rerender(

@@ -73,12 +73,16 @@
     "ago": "{{time}} پیش",
     "in": "در {{time}}",
     "seconds": "{{count}} ثانیه",
+    "seconds_one": "{{count}} ثانیه",
     "seconds_other": "{{count}} ثانیه",
     "minutes": "{{count}} دقیقه",
+    "minutes_one": "{{count}} دقیقه",
     "minutes_other": "{{count}} دقیقه",
     "hours": "{{count}} ساعت",
+    "hours_one": "{{count}} ساعت",
     "hours_other": "{{count}} ساعت",
     "days": "{{count}} روز",
+    "days_one": "{{count}} روز",
     "days_other": "{{count}} روز"
   },
   "table": {

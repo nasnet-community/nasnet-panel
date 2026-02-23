@@ -55,7 +55,7 @@ const preview: Preview = {
       const platform = context.parameters?.platform;
 
       return (
-        <PlatformProvider override={platform}>
+        <PlatformProvider initialPlatform={platform}>
           <Story />
         </PlatformProvider>
       );
@@ -85,7 +85,6 @@ const preview: Preview = {
           { value: 'light', icon: 'sun', title: 'Light' },
           { value: 'dark', icon: 'moon', title: 'Dark' },
         ],
-        showName: true,
       },
     },
     platform: {
@@ -100,7 +99,6 @@ const preview: Preview = {
           { value: 'tablet', title: 'Tablet' },
           { value: 'desktop', title: 'Desktop' },
         ],
-        showName: true,
       },
     },
   },

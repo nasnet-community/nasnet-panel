@@ -3,13 +3,14 @@
  * Shows pool utilization, active leases, and available IPs
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Server, Users, PieChart, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { DHCPServer, DHCPLease, DHCPPool } from '@nasnet/core/types';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface DHCPPoolSummaryProps {
   servers: DHCPServer[];
@@ -33,7 +34,8 @@ function calculatePoolSize(ranges: string[]): number {
   return total;
 }
 
-export function DHCPPoolSummary({ servers, leases, pools, isLoading, error }: DHCPPoolSummaryProps) {
+export const DHCPPoolSummary = React.memo(function DHCPPoolSummary({ servers, leases, pools, isLoading, error }: DHCPPoolSummaryProps) {
+  const { t } = useTranslation('network');
   const stats = useMemo(() => {
     const activeLeases = leases.filter(lease => lease.status === 'bound').length;
     const totalPoolSize = pools.reduce((acc, pool) => acc + calculatePoolSize(pool.ranges), 0);
@@ -44,30 +46,30 @@ export function DHCPPoolSummary({ servers, leases, pools, isLoading, error }: DH
   }, [servers, leases, pools]);
 
   const getUtilizationColor = (percent: number) => {
-    if (percent >= 90) return 'text-red-500';
-    if (percent >= 70) return 'text-amber-500';
-    return 'text-emerald-500';
+    if (percent >= 90) return 'text-destructive';
+    if (percent >= 70) return 'text-warning';
+    return 'text-success';
   };
 
   const getUtilizationBarColor = (percent: number) => {
-    if (percent >= 90) return 'bg-red-500';
-    if (percent >= 70) return 'bg-amber-500';
-    return 'bg-emerald-500';
+    if (percent >= 90) return 'bg-destructive';
+    if (percent >= 70) return 'bg-warning';
+    return 'bg-success';
   };
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 animate-pulse">
+      <div className="bg-card rounded-2xl border border-border p-4 animate-pulse">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-          <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-32" />
+          <div className="w-8 h-8 bg-muted rounded-lg" />
+          <div className="h-5 bg-muted rounded w-32" />
         </div>
-        <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full mb-4" />
+        <div className="h-2 bg-muted rounded-full mb-4" />
         <div className="grid grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="text-center">
-              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-12 mx-auto mb-1" />
-              <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-16 mx-auto" />
+              <div className="h-6 bg-muted rounded w-12 mx-auto mb-1" />
+              <div className="h-3 bg-muted rounded w-16 mx-auto" />
             </div>
           ))}
         </div>
@@ -77,56 +79,58 @@ export function DHCPPoolSummary({ servers, leases, pools, isLoading, error }: DH
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-red-200 dark:border-red-800/50 p-4">
-        <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+      <div className="bg-card rounded-2xl border border-destructive/30 p-4">
+        <div className="flex items-center gap-2 text-destructive">
           <XCircle className="w-5 h-5" />
-          <span className="text-sm font-medium">Failed to load DHCP data</span>
+          <span className="text-sm font-medium">{t('dhcp.loadError')}</span>
         </div>
-        <p className="text-xs text-red-500/70 mt-1">{error.message}</p>
+        <p className="text-xs text-destructive/70 mt-1">{error.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+    <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-            <Server className="w-4 h-4 text-blue-500" />
+          <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
+            <Server className="w-4 h-4 text-info" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">DHCP Pool Status</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{stats.activeServers}/{stats.totalServers} servers active</p>
+            <h3 className="text-sm font-semibold text-foreground">{t('dhcp.poolStatus')}</h3>
+            <p className="text-xs text-muted-foreground">{stats.activeServers}/{stats.totalServers} {t('dhcp.serversActive')}</p>
           </div>
         </div>
         <span className={cn('text-lg font-bold', getUtilizationColor(stats.utilizationPercent))}>{stats.utilizationPercent}%</span>
       </div>
-      <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-4">
+      <div className="w-full bg-muted rounded-full h-2 mb-4">
         <div className={cn('h-2 rounded-full transition-all duration-300', getUtilizationBarColor(stats.utilizationPercent))} style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` }} />
       </div>
       <div className="grid grid-cols-4 gap-2">
-        <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <Users className="w-3 h-3 text-cyan-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{stats.activeLeases}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Active</p>
+        <div className="text-center p-2 bg-muted rounded-lg">
+          <Users className="w-3 h-3 text-info mx-auto mb-1" />
+          <p className="text-lg font-bold text-foreground">{stats.activeLeases}</p>
+          <p className="text-xs text-muted-foreground">{t('dhcp.active')}</p>
         </div>
-        <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <PieChart className="w-3 h-3 text-emerald-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{stats.availableIPs}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Available</p>
+        <div className="text-center p-2 bg-muted rounded-lg">
+          <PieChart className="w-3 h-3 text-success mx-auto mb-1" />
+          <p className="text-lg font-bold text-foreground">{stats.availableIPs}</p>
+          <p className="text-xs text-muted-foreground">{t('dhcp.available')}</p>
         </div>
-        <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{stats.totalPoolSize}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
+        <div className="text-center p-2 bg-muted rounded-lg">
+          <p className="text-lg font-bold text-foreground">{stats.totalPoolSize}</p>
+          <p className="text-xs text-muted-foreground">{t('dhcp.total')}</p>
         </div>
-        <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{pools.length}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Pools</p>
+        <div className="text-center p-2 bg-muted rounded-lg">
+          <p className="text-lg font-bold text-foreground">{pools.length}</p>
+          <p className="text-xs text-muted-foreground">{t('dhcp.pools')}</p>
         </div>
       </div>
     </div>
   );
-}
+});
+
+DHCPPoolSummary.displayName = 'DHCPPoolSummary';
 
 
 

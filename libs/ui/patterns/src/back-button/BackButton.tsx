@@ -1,7 +1,8 @@
+import * as React from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
-import { Button } from '@nasnet/ui/primitives';
+import { Button, cn, Icon } from '@nasnet/ui/primitives';
 
 export interface BackButtonProps {
   /**
@@ -41,27 +42,42 @@ export interface BackButtonProps {
  * Related:
  * - Story 0.9.6: Return to Router List
  */
-export function BackButton({
-  to,
-  ariaLabel = 'Go back',
-  className = '',
-}: BackButtonProps) {
-  const navigate = useNavigate();
+const BackButtonComponent = React.forwardRef<HTMLButtonElement, BackButtonProps>(
+  (
+    {
+      to,
+      ariaLabel = 'Go back',
+      className,
+    },
+    ref
+  ) => {
+    const navigate = useNavigate();
 
-  const handleClick = () => {
-    // Use type assertion to allow dynamic paths from props
-    navigate({ to: to as '/' });
-  };
+    const handleClick = React.useCallback(() => {
+      // Use type assertion to allow dynamic paths from props
+      navigate({ to: to as '/' });
+    }, [to, navigate]);
 
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleClick}
-      className={`rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${className}`}
-      aria-label={ariaLabel}
-    >
-      <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
-    </Button>
-  );
-}
+    return (
+      <Button
+        ref={ref}
+        variant="ghost"
+        size="icon"
+        onClick={handleClick}
+        className={cn(
+          'rounded-full transition-colors hover:bg-muted',
+          className
+        )}
+        aria-label={ariaLabel}
+      >
+        <Icon icon={ArrowLeft} size="md" className="text-muted-foreground" />
+      </Button>
+    );
+  }
+);
+
+BackButtonComponent.displayName = 'BackButton';
+
+const BackButton = React.memo(BackButtonComponent);
+
+export { BackButton };

@@ -30,6 +30,16 @@ const meta: Meta<typeof Sheet> = {
       },
     },
   },
+  argTypes: {
+    open: {
+      control: 'boolean',
+      description: 'Whether the sheet is open (controlled)',
+    },
+    children: {
+      control: false,
+      description: 'Sheet content',
+    },
+  },
 };
 
 export default meta;
@@ -216,5 +226,102 @@ export const AllSides: Story = {
         </Sheet>
       ))}
     </div>
+  ),
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  render: () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button>Open Mobile Sheet</Button>
+      </SheetTrigger>
+      <SheetContent side="bottom">
+        <SheetHeader>
+          <SheetTitle>Mobile Actions</SheetTitle>
+          <SheetDescription>Touch-optimized sheet for mobile devices.</SheetDescription>
+        </SheetHeader>
+        <div className="grid gap-2 py-4">
+          <Button className="w-full">Action 1</Button>
+          <Button className="w-full">Action 2</Button>
+          <Button className="w-full">Action 3</Button>
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button className="w-full" variant="ghost">Cancel</Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  ),
+};
+
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+  render: () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button>Open Tablet Sheet</Button>
+      </SheetTrigger>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>Tablet Configuration</SheetTitle>
+          <SheetDescription>Balanced layout for tablet devices.</SheetDescription>
+        </SheetHeader>
+        <div className="py-4">
+          <p className="text-sm text-muted-foreground">Content optimized for tablet viewport.</p>
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button variant="outline">Close</Button>
+          </SheetClose>
+          <Button>Save</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  ),
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+  render: () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button>Open Desktop Sheet</Button>
+      </SheetTrigger>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>Desktop Settings Panel</SheetTitle>
+          <SheetDescription>Detailed configuration for desktop users.</SheetDescription>
+        </SheetHeader>
+        <div className="py-4 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            This sheet optimizes the desktop experience with all details visible.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="setting">Configuration Option</Label>
+            <Input id="setting" placeholder="Enter value" />
+          </div>
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button variant="outline">Discard</Button>
+          </SheetClose>
+          <Button>Apply</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   ),
 };

@@ -133,3 +133,27 @@ export const DefaultProps: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    isConnected: true,
+    connectionName: 'WireGuard-Home',
+    serverLocation: 'Amsterdam, NL',
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    isConnected: true,
+    connectionName: 'WireGuard-Home',
+    serverLocation: 'Amsterdam, NL',
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

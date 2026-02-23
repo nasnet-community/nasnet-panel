@@ -6,9 +6,31 @@
  * Story: NAS-6.7 - Implement VLAN Management
  * AC4: Configure trunk port (multiple tagged VLANs)
  * AC5: Configure access port (single untagged VLAN)
+ *
+ * @description
+ * This component allows administrators to configure bridge port VLAN modes:
+ * - **Access Mode:** Port carries single untagged VLAN (PVID). Typical for end devices (PCs, phones).
+ * - **Trunk Mode:** Port carries multiple tagged VLANs + optional native VLAN. Typical for inter-switch links.
+ *
+ * Features:
+ * - Mode selection via radio buttons
+ * - VLAN ID input with validation (1-4094 per IEEE 802.1Q)
+ * - Tagged VLAN list management (add/remove with visual badges)
+ * - RouterOS command preview before applying
+ * - Safe confirmation with preview
+ *
+ * @example
+ * ```tsx
+ * <VlanPortConfig
+ *   routerId={routerId}
+ *   portId="ether1"
+ *   portName="ether1"
+ *   onSuccess={handleSuccess}
+ * />
+ * ```
  */
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -26,9 +48,11 @@ import {
   Alert,
   AlertDescription,
   Badge,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { X, Info, Loader2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import { ConfigPreview } from '@nasnet/ui/patterns';
-import { Info, Loader2, X } from 'lucide-react';
 import {
   vlanPortConfigSchema,
   type VlanPortConfigFormValues,
@@ -52,34 +76,21 @@ export interface VlanPortConfigProps {
   onSuccess?: () => void;
   /** Callback to cancel */
   onCancel?: () => void;
+  /** Optional CSS classes */
+  className?: string;
 }
 
 /**
- * VLAN Port Configuration Component
- *
- * Allows configuring a bridge port for VLAN operation:
- * - Access Mode: Single untagged VLAN (PVID)
- * - Trunk Mode: Multiple tagged VLANs + optional native VLAN
- *
- * Shows RouterOS command preview before applying.
- *
- * @example
- * ```tsx
- * <VlanPortConfig
- *   routerId={routerId}
- *   portId="ether1"
- *   portName="ether1"
- *   onSuccess={handleSuccess}
- * />
- * ```
+ * VlanPortConfig component - Render function
  */
-export function VlanPortConfig({
+function VlanPortConfigComponent({
   routerId,
   portId,
   portName,
   initialValues = {},
   onSuccess,
   onCancel,
+  className,
 }: VlanPortConfigProps) {
   const [showPreview, setShowPreview] = useState(false);
   const { configureVlanPort, loading } = useConfigureVlanPort(routerId);
@@ -106,83 +117,100 @@ export function VlanPortConfig({
   const [newVlanId, setNewVlanId] = useState('');
 
   // Add VLAN ID to tagged list
-  const handleAddVlan = () => {
+  const handleAddVlan = useCallback(() => {
     const vlanId = parseInt(newVlanId, 10);
     if (!isNaN(vlanId) && vlanId >= 1 && vlanId <= 4094) {
       if (!taggedVlanIds.includes(vlanId)) {
         setValue('taggedVlanIds', [...taggedVlanIds, vlanId]);
         setNewVlanId('');
       } else {
-        toast.error('VLAN ID already added');
+        toast.error('VLAN ID already added to list');
       }
     } else {
       toast.error('Invalid VLAN ID (must be 1-4094)');
     }
-  };
+  }, [newVlanId, taggedVlanIds, setValue]);
 
   // Remove VLAN ID from tagged list
-  const handleRemoveVlan = (vlanId: number) => {
-    setValue(
-      'taggedVlanIds',
-      taggedVlanIds.filter((id) => id !== vlanId)
-    );
-  };
+  const handleRemoveVlan = useCallback(
+    (vlanId: number) => {
+      setValue(
+        'taggedVlanIds',
+        taggedVlanIds.filter((id) => id !== vlanId)
+      );
+    },
+    [taggedVlanIds, setValue]
+  );
 
   // Generate RouterOS commands for preview
-  const generateCommands = (values: VlanPortConfigFormValues): string[] => {
-    const commands: string[] = [];
+  const generateCommands = useCallback(
+    (values: VlanPortConfigFormValues): string[] => {
+      const commands: string[] = [];
 
-    if (values.mode === 'access') {
-      // Access mode: Set PVID, admit only untagged
-      commands.push(
-        `/interface bridge port set [find interface=${portName}] pvid=${values.pvid}`
-      );
-      commands.push(
-        `/interface bridge vlan set [find vlan-ids=${values.pvid}] tagged="" untagged=${portName}`
-      );
-    } else {
-      // Trunk mode: Set PVID (if provided), admit tagged VLANs
-      if (values.pvid) {
+      if (values.mode === 'access') {
+        // Access mode: Set PVID, admit only untagged
         commands.push(
           `/interface bridge port set [find interface=${portName}] pvid=${values.pvid}`
         );
-      }
-
-      if (values.taggedVlanIds && values.taggedVlanIds.length > 0) {
-        values.taggedVlanIds.forEach((vlanId) => {
+        commands.push(
+          `/interface bridge vlan set [find vlan-ids=${values.pvid}] tagged="" untagged=${portName}`
+        );
+      } else {
+        // Trunk mode: Set PVID (if provided), admit tagged VLANs
+        if (values.pvid) {
           commands.push(
-            `/interface bridge vlan set [find vlan-ids=${vlanId}] tagged=${portName}`
+            `/interface bridge port set [find interface=${portName}] pvid=${values.pvid}`
           );
-        });
-      }
-    }
+        }
 
-    return commands;
-  };
+        if (values.taggedVlanIds && values.taggedVlanIds.length > 0) {
+          values.taggedVlanIds.forEach((vlanId) => {
+            commands.push(
+              `/interface bridge vlan set [find vlan-ids=${vlanId}] tagged=${portName}`
+            );
+          });
+        }
+      }
+
+      return commands;
+    },
+    [portName]
+  );
 
   // Handle form submission
-  const onSubmit = async (values: VlanPortConfigFormValues) => {
-    try {
-      const result = await configureVlanPort(portId, {
-        mode: values.mode,
-        pvid: values.pvid,
-        taggedVlanIds: values.taggedVlanIds,
-      });
+  const onSubmit = useCallback(
+    async (values: VlanPortConfigFormValues) => {
+      try {
+        const result = await configureVlanPort(portId, {
+          mode: values.mode,
+          pvid: values.pvid,
+          taggedVlanIds: values.taggedVlanIds,
+        });
 
-      if (result.data?.success) {
-        toast.success('Port configured successfully');
-        onSuccess?.();
-      } else {
-        const errors = result.data?.errors || [];
-        errors.forEach((err: any) => toast.error(err.message));
+        if (result.data?.success) {
+          toast.success('Port configured successfully');
+          onSuccess?.();
+        } else {
+          const errors = result.data?.errors || [];
+          errors.forEach((err: any) => toast.error(err.message));
+        }
+      } catch (err: unknown) {
+        toast.error('Failed to configure port');
       }
-    } catch (err: unknown) {
-      toast.error('Failed to configure port');
-    }
-  };
+    },
+    [configureVlanPort, portId, onSuccess]
+  );
+
+  // Handle mode change
+  const handleModeChange = useCallback(
+    (value: string) => {
+      setValue('mode', value as 'access' | 'trunk');
+    },
+    [setValue]
+  );
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className={cn('w-full max-w-2xl', className)}>
       <CardHeader>
         <CardTitle>Configure VLAN Port: {portName}</CardTitle>
         <CardDescription>
@@ -197,7 +225,7 @@ export function VlanPortConfig({
             <Label>Port Mode</Label>
             <RadioGroup
               value={mode}
-              onValueChange={(value) => setValue('mode', value as 'access' | 'trunk')}
+              onValueChange={handleModeChange}
             >
               <div className="flex items-start space-x-3 rounded-lg border p-4">
                 <RadioGroupItem value="access" id="access-mode" />
@@ -272,7 +300,11 @@ export function VlanPortConfig({
                         className="ml-2 hover:text-destructive"
                         aria-label={`Remove VLAN ${vlanId}`}
                       >
-                        <X className="h-3 w-3" />
+                        <Icon
+                          icon={X}
+                          className="h-3 w-3"
+                          aria-hidden="true"
+                        />
                       </button>
                     </Badge>
                   ))}
@@ -314,7 +346,11 @@ export function VlanPortConfig({
 
           {/* Info Alert */}
           <Alert>
-            <Info className="h-4 w-4" />
+            <Icon
+              icon={Info}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               {mode === 'access'
                 ? 'Access mode admits only untagged traffic and assigns it to the specified VLAN.'
@@ -352,7 +388,13 @@ export function VlanPortConfig({
           </div>
 
           <Button type="submit" disabled={loading}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading && (
+              <Icon
+                icon={Loader2}
+                className="mr-2 h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             Apply Configuration
           </Button>
         </CardFooter>
@@ -360,3 +402,8 @@ export function VlanPortConfig({
     </Card>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export const VlanPortConfig = memo(VlanPortConfigComponent);
+
+VlanPortConfig.displayName = 'VlanPortConfig';

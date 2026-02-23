@@ -98,7 +98,7 @@ function defaultIsEmpty<T>(data: T): boolean {
  * </QueryLoadingState>
  * ```
  */
-export function QueryLoadingState<T>({
+function QueryLoadingStateComponent<T>({
   data,
   isLoading,
   isRevalidating = false,
@@ -111,71 +111,79 @@ export function QueryLoadingState<T>({
   showRefreshIndicator = true,
   className,
 }: QueryLoadingStateProps<T>) {
-  // Error state
-  if (error) {
-    if (errorComponent) {
+    // Error state
+    if (error) {
+      if (errorComponent) {
+        return (
+          <div className={className}>
+            {typeof errorComponent === 'function'
+              ? errorComponent(error)
+              : errorComponent}
+          </div>
+        );
+      }
+
       return (
-        <div className={className}>
-          {typeof errorComponent === 'function'
-            ? errorComponent(error)
-            : errorComponent}
+        <div
+          role="alert"
+          className={cn(
+            'flex flex-col items-center justify-center p-8 text-center',
+            className
+          )}
+        >
+          <p className="text-destructive font-medium">Something went wrong</p>
+          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
         </div>
       );
     }
 
+    // Initial loading state
+    if (isLoading && !data) {
+      if (skeleton) {
+        return (
+          <div aria-busy="true" aria-live="polite" className={className}>
+            {skeleton}
+          </div>
+        );
+      }
+
+      return (
+        <div aria-busy="true" aria-live="polite" className={cn('flex items-center justify-center p-8', className)}>
+          <LoadingSpinner size="lg" showLabel label="Loading..." />
+        </div>
+      );
+    }
+
+    // No data after loading
+    if (!data) {
+      return null;
+    }
+
+    // Empty state
+    if (emptyComponent && isEmpty(data)) {
+      return <div className={className}>{emptyComponent}</div>;
+    }
+
+    // Success state with data
     return (
-      <div
-        role="alert"
-        className={cn(
-          'flex flex-col items-center justify-center p-8 text-center',
-          className
+      <div className={cn('relative', className)}>
+        {/* Revalidation indicator */}
+        {showRefreshIndicator && isRevalidating && (
+          <RefreshIndicator isRefreshing={isRevalidating} />
         )}
-      >
-        <p className="text-destructive font-medium">Something went wrong</p>
-        <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+
+        {/* Content with data */}
+        {children(data)}
       </div>
     );
-  }
-
-  // Initial loading state
-  if (isLoading && !data) {
-    if (skeleton) {
-      return (
-        <div aria-busy="true" aria-live="polite" className={className}>
-          {skeleton}
-        </div>
-      );
-    }
-
-    return (
-      <div aria-busy="true" aria-live="polite" className={cn('flex items-center justify-center p-8', className)}>
-        <LoadingSpinner size="lg" showLabel label="Loading..." />
-      </div>
-    );
-  }
-
-  // No data after loading
-  if (!data) {
-    return null;
-  }
-
-  // Empty state
-  if (emptyComponent && isEmpty(data)) {
-    return <div className={className}>{emptyComponent}</div>;
-  }
-
-  // Success state with data
-  return (
-    <div className={cn('relative', className)}>
-      {/* Revalidation indicator */}
-      {showRefreshIndicator && isRevalidating && (
-        <RefreshIndicator isRefreshing={isRevalidating} />
-      )}
-
-      {/* Content with data */}
-      {children(data)}
-    </div>
-  );
 }
 
-QueryLoadingState.displayName = 'QueryLoadingState';
+// Wrap with memo - TypeScript workaround for generic components
+const QueryLoadingState = React.memo(
+  QueryLoadingStateComponent
+) as typeof QueryLoadingStateComponent;
+
+// Set display name for React DevTools
+(QueryLoadingState as React.FC<any>).displayName = 'QueryLoadingState';
+
+export { QueryLoadingState };

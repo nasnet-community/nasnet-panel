@@ -3,14 +3,10 @@
  * Multi-select filters for log topics and severities
  */
 
-import * as React from 'react';
-
-
-import type { LogSeverity, LogTopic } from '@nasnet/core/types';
-
-import { LogFilters } from './LogFilters';
-
 import type { Meta, StoryObj } from '@storybook/react';
+import * as React from 'react';
+import type { LogSeverity, LogTopic } from '@nasnet/core/types';
+import { LogFilters } from './LogFilters';
 
 // ---------------------------------------------------------------------------
 // Stateful wrapper so filter interactions are visible in Storybook
@@ -44,8 +40,8 @@ function StatefulLogFilters({
   );
 }
 
-const meta: Meta<typeof LogFilters> = {
-  title: 'Patterns/LogFilters',
+const meta = {
+  title: 'Patterns/Common/LogFilters',
   component: LogFilters,
   tags: ['autodocs'],
   parameters: {
@@ -57,10 +53,30 @@ const meta: Meta<typeof LogFilters> = {
       },
     },
   },
-};
+  argTypes: {
+    topics: {
+      description: 'Currently selected log topics',
+      control: { type: 'object' },
+    },
+    onTopicsChange: {
+      action: 'topics changed',
+    },
+    severities: {
+      description: 'Currently selected log severity levels',
+      control: { type: 'object' },
+    },
+    onSeveritiesChange: {
+      action: 'severities changed',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class names',
+    },
+  },
+} satisfies Meta<typeof LogFilters>;
 
 export default meta;
-type Story = StoryObj<typeof LogFilters>;
+type Story = StoryObj<typeof meta>;
 
 // ---------------------------------------------------------------------------
 // Stories
@@ -69,6 +85,12 @@ type Story = StoryObj<typeof LogFilters>;
 export const Default: Story = {
   name: 'Default – No Filters Active',
   render: () => <StatefulLogFilters />,
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
   parameters: {
     docs: {
       description: {
@@ -78,11 +100,65 @@ export const Default: Story = {
   },
 };
 
+export const Mobile: Story = {
+  name: 'Mobile (<640px)',
+  render: () => <StatefulLogFilters />,
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+};
+
+export const Tablet: Story = {
+  name: 'Tablet (640-1024px)',
+  render: () => <StatefulLogFilters />,
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+};
+
+export const Desktop: Story = {
+  name: 'Desktop (>1024px)',
+  render: () => <StatefulLogFilters />,
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+};
+
 export const WithTopicsSelected: Story = {
   name: 'With Topics Pre-selected',
   render: () => (
     <StatefulLogFilters initialTopics={['firewall', 'vpn', 'dhcp']} />
   ),
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
   parameters: {
     docs: {
       description: {
@@ -98,6 +174,12 @@ export const WithSeveritiesSelected: Story = {
   render: () => (
     <StatefulLogFilters initialSeverities={['error', 'critical']} />
   ),
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
   parameters: {
     docs: {
       description: {
@@ -115,6 +197,12 @@ export const BothFiltersActive: Story = {
       initialSeverities={['warning', 'error']}
     />
   ),
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
   parameters: {
     docs: {
       description: {
@@ -147,6 +235,12 @@ export const AllTopicsSelected: Story = {
       ]}
     />
   ),
+  args: {
+    topics: [],
+    onTopicsChange: () => {},
+    severities: [],
+    onSeveritiesChange: () => {},
+  },
   parameters: {
     docs: {
       description: {

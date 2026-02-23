@@ -4,7 +4,20 @@
  * Optional grip icon for dragging items.
  * Can be used as an explicit drag trigger point.
  *
+ * Features:
+ * - 44x44px minimum touch target (WCAG AAA)
+ * - Proper focus indicators
+ * - Icon-only button with accessible label
+ *
  * @see NAS-4.21: Implement Drag & Drop System
+ *
+ * @example
+ * ```tsx
+ * <DragHandle
+ *   aria-label="Drag to reorder"
+ *   {...dragHandleListeners}
+ * />
+ * ```
  */
 
 import * as React from 'react';
@@ -21,7 +34,10 @@ import type { DragHandleProps } from '../types';
 // Component
 // ============================================================================
 
-export const DragHandle = React.forwardRef<HTMLButtonElement, DragHandleProps>(
+/**
+ * Drag handle trigger button with accessible grip icon
+ */
+const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
   (
     {
       className,
@@ -74,6 +90,13 @@ export const DragHandle = React.forwardRef<HTMLButtonElement, DragHandleProps>(
     );
   }
 );
+
+DragHandleInner.displayName = 'DragHandle';
+
+/**
+ * Memoized DragHandle to prevent unnecessary re-renders
+ */
+export const DragHandle = React.memo(DragHandleInner);
 
 DragHandle.displayName = 'DragHandle';
 

@@ -140,7 +140,7 @@ function transformRateLimitRule(raw: RawFilterRule): RateLimitRule | null {
     addressList: raw['address-list'],
     addressListTimeout: raw['address-list-timeout'],
     comment: raw.comment,
-    disabled: raw.disabled === 'true',
+    isDisabled: raw.disabled === 'true',
     packets: raw.packets ? parseInt(raw.packets, 10) : undefined,
     bytes: raw.bytes ? parseInt(raw.bytes, 10) : undefined,
   };
@@ -153,7 +153,7 @@ function transformRateLimitRule(raw: RawFilterRule): RateLimitRule | null {
 function transformSynFloodConfig(raw: RawRAWRule | null): SynFloodConfig {
   if (!raw || raw.disabled === 'true') {
     return {
-      enabled: false,
+      isEnabled: false,
       synLimit: 100,
       burst: 5,
       action: 'drop',
@@ -166,7 +166,7 @@ function transformSynFloodConfig(raw: RawRAWRule | null): SynFloodConfig {
   const burst = limitMatch ? parseInt(limitMatch[2], 10) : 5;
 
   return {
-    enabled: true,
+    isEnabled: true,
     synLimit,
     burst,
     action: (raw.action as 'drop' | 'tarpit') || 'drop',
@@ -184,7 +184,7 @@ function transformBlockedIP(raw: RawAddressListEntry): BlockedIP {
     firstBlocked: raw['creation-time'] ? new Date(raw['creation-time']) : undefined,
     lastBlocked: raw['creation-time'] ? new Date(raw['creation-time']) : undefined,
     timeout: raw.timeout || 'permanent',
-    dynamic: raw.dynamic === 'true',
+    isDynamic: raw.dynamic === 'true',
   };
 }
 
@@ -331,7 +331,7 @@ async function createRateLimitRule(
     chain: 'input',
     action: input.action === 'add-to-list' ? 'add-src-to-address-list' : input.action,
     'connection-rate': connectionRate,
-    disabled: input.disabled || false,
+    disabled: input.isDisabled || false,
   };
 
   if (input.srcAddress) {
@@ -419,8 +419,8 @@ async function updateRateLimitRule(
     body.comment = input.comment;
   }
 
-  if (input.disabled !== undefined) {
-    body.disabled = input.disabled;
+  if (input.isDisabled !== undefined) {
+    body.disabled = input.isDisabled;
   }
 
   await makeRouterOSRequest(
@@ -481,7 +481,7 @@ async function updateSynFloodConfig(routerId: string, config: SynFloodConfig): P
     rule.comment?.includes('SYN flood protection')
   );
 
-  if (!config.enabled) {
+  if (!config.isEnabled) {
     // Remove existing rule if disabling
     if (existingRule) {
       await makeRouterOSRequest(
@@ -831,7 +831,7 @@ export function useToggleRateLimitRule(routerId: string) {
         queryClient.setQueryData<RateLimitRule[]>(
           rateLimitingKeys.rules(routerId),
           previousRules.map((rule) =>
-            rule.id === ruleId ? { ...rule, disabled } : rule
+            rule.id === ruleId ? { ...rule, isDisabled: disabled } : rule
           )
         );
       }

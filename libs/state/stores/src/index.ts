@@ -34,6 +34,9 @@ export * from './ui/notification.store';
 // @see NAS-4A.12: Build Help System Components
 export * from './ui/help-mode.store';
 
+// Consolidated selectors for optimized re-renders
+export * from './ui/selectors';
+
 // DHCP UI state (filters, search, selection, wizard draft)
 // @see NAS-6.3: Implement DHCP Server Management
 export * from './dhcp-ui.store';
@@ -73,9 +76,6 @@ export * from './alert-notification.store';
 // @see NAS-18.12: Alert Rule Templates
 export * from './alert-rule-template-ui.store';
 
-// Consolidated selectors for optimized re-renders
-export * from './ui/selectors';
-
 // ===== Connection Stores =====
 
 // Router connection state with WebSocket tracking
@@ -113,31 +113,97 @@ export * from './utils/recovery';
 // ===== Command & Shortcut Stores =====
 
 // Command palette registry and keyboard shortcuts
-export * from './command';
+export * from './command/command-registry.store';
+export * from './command/shortcut-registry.store';
 
 // ===== Drift Detection =====
 
 // Drift detection between configuration and deployment layers
 // @see NAS-4.13: Implement Drift Detection Foundation
-export * from './drift-detection';
+export {
+  DriftStatus,
+  ResourcePriority,
+  RUNTIME_ONLY_FIELDS,
+  RESOURCE_PRIORITY_MAP,
+  DEFAULT_DRIFT_OPTIONS,
+  DriftResolutionAction,
+  getResourcePriority,
+  type DriftResult,
+  type DriftedField,
+  type DriftDetectionOptions,
+  type DriftResolutionRequest,
+  type RuntimeOnlyField,
+} from './drift-detection/types';
+export {
+  computeConfigHash,
+  normalizeForComparison,
+  omitExcludedFields,
+  findDriftedFields,
+  hasQuickDrift,
+  isDeploymentStale,
+  formatDriftValue,
+  shouldExcludeField,
+} from './drift-detection/driftUtils';
+export {
+  useDriftDetection,
+  useQuickDriftCheck,
+  useBatchDriftStatus,
+  detectDrift,
+  detectResourceDrift,
+  type DriftDetectionInput,
+  type UseDriftDetectionResult,
+} from './drift-detection/useDriftDetection';
+export {
+  ReconciliationScheduler,
+  getDefaultScheduler,
+  initializeScheduler,
+  destroyScheduler,
+  type ReconciliationSchedulerOptions,
+  type DriftCallback,
+  type ResourceFetcher,
+  type ConnectionStatusProvider,
+} from './drift-detection/reconciliationScheduler';
+export {
+  useApplyConfirmDrift,
+  useDriftResolution,
+  type ApplyResult,
+  type ApplyFunction,
+  type ConfirmFunction,
+  type UseApplyConfirmDriftOptions,
+  type UseApplyConfirmDriftReturn,
+  type UseDriftResolutionOptions,
+  type UseDriftResolutionReturn,
+} from './drift-detection/useApplyConfirmDrift';
 
 // ===== Change Set =====
 
 // Atomic multi-resource operations management
 // @see NAS-4.14: Implement Change Sets (Atomic Multi-Resource Operations)
-export * from './change-set';
+export * from './change-set/change-set.store';
 
 // ===== Accessibility (a11y) =====
 
 // Accessibility context and hooks for detecting user preferences
 // @see NAS-4.17: Implement Accessibility (a11y) Foundation
-export * from './a11y';
+export {
+  A11yProvider,
+  useA11y,
+  useA11yOptional,
+  useReducedMotion,
+  useKeyboardUser,
+  useHighContrast,
+  useAnnounce,
+} from './a11y/a11y-provider';
+export type { A11yContextValue, A11yProviderProps } from './a11y/a11y-provider';
 
 // ===== History (Undo/Redo) =====
 
 // Undo/redo history management with command pattern
 // @see NAS-4.24: Implement Undo/Redo History
-export * from './history';
+export * from './history/types';
+export * from './history/history.store';
+export * from './history/command-utils';
+export * from './history/useHistoryShortcuts';
 
 // ===== Interface Statistics =====
 

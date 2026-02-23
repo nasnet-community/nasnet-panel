@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { StpPortTable } from './StpPortTable';
 import type { BridgePort } from '@nasnet/api-client/generated';
+
+import { StpPortTable } from './StpPortTable';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Minimal mock helpers - only the fields StpPortTable actually reads

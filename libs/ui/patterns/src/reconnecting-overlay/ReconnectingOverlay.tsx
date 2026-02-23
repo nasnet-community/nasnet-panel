@@ -7,6 +7,8 @@
  * @see NAS-4.9: Implement Connection & Auth Stores
  */
 
+import { memo } from 'react';
+
 import { Loader2, RefreshCw, WifiOff, AlertTriangle } from 'lucide-react';
 
 import { Button, Card, Progress , cn } from '@nasnet/ui/primitives';
@@ -66,7 +68,7 @@ export interface ReconnectingOverlayProps {
  * <ReconnectingOverlay message="Lost connection to router" />
  * ```
  */
-export function ReconnectingOverlay({
+export const ReconnectingOverlay = memo(function ReconnectingOverlay({
   fullScreen = true,
   message,
   alwaysShowRetry = false,
@@ -223,7 +225,9 @@ export function ReconnectingOverlay({
       {content}
     </div>
   );
-}
+});
+
+ReconnectingOverlay.displayName = 'ReconnectingOverlay';
 
 // ===== Hook =====
 

@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ServiceConfigForm } from './ServiceConfigForm';
 import { ServiceConfigFormMobile } from './ServiceConfigFormMobile';
 import { ServiceConfigFormDesktop } from './ServiceConfigFormDesktop';
 import type { UseServiceConfigFormReturn } from '../../hooks/useServiceConfigForm';
-import type { ConfigSchema } from '@nasnet/api-client/queries';
+import type { ConfigSchema } from '@nasnet/api-client/generated';
 import { FormProvider, useForm } from 'react-hook-form';
 
 // Mock the usePlatform hook
@@ -35,8 +36,8 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
         sensitive: false,
         group: 'General',
       },
@@ -46,12 +47,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
         label: 'OR Port',
         required: true,
         description: 'Onion Router port',
-        defaultValue: 9001,
+        defaultValue: 9001 as any,
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
         sensitive: false,
         group: 'Network',
       },
@@ -61,12 +62,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
         label: 'Bridge Mode',
         required: false,
         description: 'Enable bridge mode',
-        defaultValue: false,
+        defaultValue: false as any,
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
         sensitive: false,
         group: 'General',
       },
@@ -82,7 +83,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     );
   }
 
-  const createMockFormState = (
+  const useCreateMockFormState = (
     overrides?: Partial<UseServiceConfigFormReturn>
   ): UseServiceConfigFormReturn => {
     // Create a real useForm instance to avoid mocking issues
@@ -97,7 +98,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     return {
       schema: mockSchema,
       form,
-      visibleFields: mockSchema.fields,
+      visibleFields: [...mockSchema.fields],
       handleSubmit: vi.fn(),
       isValidating: false,
       isSubmitting: false,
@@ -124,7 +125,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
       const handleSubmit = vi.fn().mockResolvedValue(undefined);
-      const formState = createMockFormState({ handleSubmit });
+      const formState = useCreateMockFormState({ handleSubmit });
 
       render(
         <ServiceConfigForm
@@ -158,7 +159,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should show loading state while schema is loading', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState({
+      const formState = useCreateMockFormState({
         loading: { schema: true, config: false },
         schema: undefined,
       });
@@ -176,7 +177,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should show error message when schema fails to load', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState({
+      const formState = useCreateMockFormState({
         schema: undefined,
         loading: { schema: false, config: false },
       });
@@ -193,7 +194,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should disable submit button while submitting', async () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState({
+      const formState = useCreateMockFormState({
         isSubmitting: true,
       });
 
@@ -206,7 +207,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should show validation state indicator', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState({
+      const formState = useCreateMockFormState({
         isValidating: true,
       });
 
@@ -222,7 +223,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render mobile presenter when platform is mobile', () => {
       mockUsePlatform.mockReturnValue('mobile');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} title="Tor Config" />);
 
@@ -241,7 +242,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render desktop presenter when platform is desktop', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(
         <ServiceConfigForm
@@ -266,7 +267,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render desktop presenter when platform is tablet', () => {
       mockUsePlatform.mockReturnValue('tablet');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} title="Tor Config" />);
 
@@ -277,7 +278,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should switch presenter when platform changes', () => {
       mockUsePlatform.mockReturnValue('mobile');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       const { rerender } = render(<ServiceConfigForm formState={formState} title="Config" />);
 
@@ -295,7 +296,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     });
 
     it('should handle read-only mode on both mobile and desktop', () => {
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       // Test mobile
       mockUsePlatform.mockReturnValue('mobile');
@@ -320,7 +321,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should have proper form structure with accessible submit button', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -332,7 +333,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should support keyboard navigation (tab order)', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -344,7 +345,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render groups in logical order for screen readers', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -364,7 +365,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render accordion-style cards on mobile', () => {
       mockUsePlatform.mockReturnValue('mobile');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -380,7 +381,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should have 44px minimum touch targets on mobile', () => {
       mockUsePlatform.mockReturnValue('mobile');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -397,7 +398,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should render tabbed layout on desktop', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 
@@ -414,7 +415,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
       mockUsePlatform.mockReturnValue('desktop');
 
       const onCancel = vi.fn();
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} onCancel={onCancel} />);
 
@@ -426,7 +427,7 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
     it('should switch between tabs on desktop', async () => {
       mockUsePlatform.mockReturnValue('desktop');
 
-      const formState = createMockFormState();
+      const formState = useCreateMockFormState();
 
       render(<ServiceConfigForm formState={formState} />);
 

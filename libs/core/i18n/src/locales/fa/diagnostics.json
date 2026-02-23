@@ -1,0 +1,78 @@
+{
+  "title": "تشخیص",
+  "ping": {
+    "title": "پینگ",
+    "target": "میزبان مقصد",
+    "count": "تعداد",
+    "size": "اندازه بسته",
+    "interval": "فاصله زمانی",
+    "ttl": "TTL",
+    "start": "شروع پینگ",
+    "stop": "توقف",
+    "results": "نتایج پینگ",
+    "sent": "ارسال شده",
+    "received": "دریافت شده",
+    "lost": "از دست رفته",
+    "min": "حداقل",
+    "avg": "میانگین",
+    "max": "حداکثر",
+    "jitter": "جیتر",
+    "noResults": "نتایج پینگ وجود ندارد"
+  },
+  "traceroute": {
+    "title": "مسیریابی",
+    "target": "میزبان مقصد",
+    "maxHops": "حداکثر گام",
+    "timeout": "مهلت",
+    "start": "شروع مسیریابی",
+    "stop": "توقف",
+    "hop": "گام",
+    "address": "آدرس",
+    "rtt": "RTT",
+    "status": "وضعیت",
+    "noResults": "نتایج مسیریابی وجود ندارد"
+  },
+  "dnsLookup": {
+    "title": "جستجوی DNS",
+    "domain": "نام دامنه",
+    "recordType": "نوع رکورد",
+    "server": "سرور DNS",
+    "lookup": "جستجو",
+    "results": "نتایج",
+    "queryTime": "زمان پرس‌وجو",
+    "noResults": "نتایج DNS وجود ندارد",
+    "serverComparison": "مقایسه سرورها"
+  },
+  "deviceScan": {
+    "title": "اسکن دستگاه",
+    "scanNetwork": "اسکن شبکه",
+    "scanning": "در حال اسکن...",
+    "devicesFound": "{{count}} دستگاه یافت شد",
+    "devicesFound_other": "{{count}} دستگاه یافت شد",
+    "noDevices": "دستگاهی یافت نشد",
+    "details": "جزئیات دستگاه"
+  },
+  "troubleshoot": {
+    "title": "عیب‌یابی",
+    "wizard": "ویزارد عیب‌یابی",
+    "step": "مرحله {{current}} از {{total}}",
+    "running": "در حال اجرای تشخیص...",
+    "passed": "موفق",
+    "failed": "ناموفق",
+    "skipped": "رد شده",
+    "fix": "اعمال رفع",
+    "fixApplied": "رفع اعمال شد",
+    "fixFailed": "رفع ناموفق",
+    "summary": "خلاصه",
+    "retry": "تلاش مجدد",
+    "noIssues": "مشکلی یافت نشد",
+    "issuesFound": "{{count}} مشکل یافت شد",
+    "issuesFound_other": "{{count}} مشکل یافت شد"
+  },
+  "routeLookup": {
+    "title": "جستجوی مسیر",
+    "destination": "مقصد",
+    "lookup": "جستجوی مسیر",
+    "noResults": "مسیر مطابقی یافت نشد"
+  }
+}

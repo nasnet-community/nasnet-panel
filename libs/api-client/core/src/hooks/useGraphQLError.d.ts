@@ -1,0 +1,136 @@
+/**
+ * useGraphQLError Hook
+ *
+ * Component-level error handling hook for GraphQL operations.
+ * Provides user-friendly error messages and recovery actions.
+ *
+ * Features:
+ * - Error code to user message mapping
+ * - Automatic severity detection
+ * - Retry handler creation
+ * - Integration with notification store
+ *
+ * @see NAS-4.15: Implement Error Boundaries & Global Error Handling
+ */
+import { ApolloError } from '@apollo/client';
+import { type ErrorSeverity } from '../utils/error-messages';
+/**
+ * Processed error information for UI display
+ */
+export interface ProcessedError {
+    /** User-friendly error message */
+    message: string;
+    /** Error severity level */
+    severity: ErrorSeverity;
+    /** Error code if available */
+    code?: string;
+    /** Technical error message (for details view) */
+    technicalMessage?: string;
+    /** Whether the error is recoverable */
+    recoverable: boolean;
+    /** Suggested action for user */
+    action?: string;
+    /** Whether this is an auth error (session expired) */
+    isAuthError: boolean;
+    /** Whether this is a network error */
+    isNetworkError: boolean;
+    /** Whether this is a validation error */
+    isValidationError: boolean;
+    /** Original error object */
+    originalError?: ApolloError | Error;
+}
+/**
+ * Return type for useGraphQLError hook
+ */
+export interface UseGraphQLErrorReturn {
+    /** Processed error for UI display (null if no error) */
+    error: ProcessedError | null;
+    /** Whether there is an error */
+    hasError: boolean;
+    /** Clear the error state */
+    clearError: () => void;
+    /** Show error as toast notification */
+    showErrorToast: () => void;
+    /** Create a retry handler that clears error on success */
+    createRetryHandler: <T>(fn: () => Promise<T>) => () => Promise<T | undefined>;
+}
+/**
+ * Options for useGraphQLError hook
+ */
+export interface UseGraphQLErrorOptions {
+    /** Auto-show toast on error */
+    showToast?: boolean;
+    /** Log errors to console/observability */
+    logErrors?: boolean;
+    /** Operation name for logging */
+    operationName?: string;
+    /** Skip validation errors (handled by forms) */
+    skipValidationErrors?: boolean;
+}
+/**
+ * Hook for component-level GraphQL error handling
+ *
+ * @param apolloError - Error from Apollo query/mutation
+ * @param options - Configuration options
+ * @returns Processed error info and utilities
+ *
+ * @example Basic usage with Apollo query
+ * ```tsx
+ * function RouterCard({ routerId }) {
+ *   const { data, error: apolloError, refetch } = useQuery(GET_ROUTER);
+ *   const { error, hasError, showErrorToast } = useGraphQLError(apolloError);
+ *
+ *   if (hasError) {
+ *     return (
+ *       <ErrorCard
+ *         title={error.message}
+ *         type={error.isNetworkError ? 'network' : 'error'}
+ *         onRetry={refetch}
+ *       />
+ *     );
+ *   }
+ *
+ *   return <RouterDetails data={data} />;
+ * }
+ * ```
+ *
+ * @example With mutation error handling
+ * ```tsx
+ * function UpdateForm() {
+ *   const [updateRouter, { error: apolloError }] = useMutation(UPDATE_ROUTER);
+ *   const { error, createRetryHandler, showErrorToast } = useGraphQLError(apolloError, {
+ *     showToast: true,
+ *     operationName: 'UpdateRouter',
+ *   });
+ *
+ *   const handleSubmit = createRetryHandler(async () => {
+ *     await updateRouter({ variables: { id, data } });
+ *   });
+ *
+ *   return (
+ *     <form onSubmit={handleSubmit}>
+ *       {error && <ErrorCard title={error.message} />}
+ *       ...
+ *     </form>
+ *   );
+ * }
+ * ```
+ *
+ * @example Skip validation errors (handled by form)
+ * ```tsx
+ * const { error } = useGraphQLError(apolloError, {
+ *   skipValidationErrors: true,
+ * });
+ * // Validation errors will be handled by React Hook Form
+ * ```
+ */
+export declare function useGraphQLError(apolloError: ApolloError | Error | undefined, options?: UseGraphQLErrorOptions): UseGraphQLErrorReturn;
+/**
+ * Type guard to check if error is an ApolloError
+ */
+export declare function isApolloError(error: unknown): error is ApolloError;
+/**
+ * Extract error code from Apollo error
+ */
+export declare function getApolloErrorCode(error: ApolloError): string | undefined;
+//# sourceMappingURL=useGraphQLError.d.ts.map

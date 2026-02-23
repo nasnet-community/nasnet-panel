@@ -3,12 +3,23 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/api-client/core/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:api-client"],
+  "tags": ["type:lib", "scope:api-client-core"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/api-client/core/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/api-client/core/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/api-client/core/tsconfig.lib.json",
+          "tsc --noEmit --project libs/api-client/core/tsconfig.spec.json",
+          "tsc --noEmit --project libs/api-client/core/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     }
   }

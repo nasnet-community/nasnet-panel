@@ -1,10 +1,8 @@
 /**
- * Filter Rules Table Component (Mobile)
+ * FilterRulesTableMobile Component
+ * @description Mobile-optimized card-based layout for filter rules
  *
- * Domain component for displaying filter rules on mobile devices.
- * Mobile presenter with card layout and touch-friendly interactions.
- *
- * Features:
+ * Domain component for displaying filter rules on mobile devices with:
  * - Card-based layout optimized for touch
  * - Inline actions (Edit, Duplicate, Delete)
  * - Inline enable/disable toggle
@@ -15,7 +13,7 @@
  * @see NAS-7.1: Implement Filter Rules - Task 4
  */
 
-import { useState, useMemo, useEffect, useRef, memo } from 'react';
+import { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -27,8 +25,7 @@ import {
   useUpdateFilterRule,
 } from '@nasnet/api-client/queries/firewall';
 import type { FilterRule, FilterRuleInput, FilterChain } from '@nasnet/core/types';
-import { CounterCell, FilterRuleEditor } from '@nasnet/ui/patterns';
-import { RuleStatisticsPanel } from '@nasnet/ui/patterns';
+import { CounterCell, FilterRuleEditor, RuleStatisticsPanel } from '@nasnet/ui/patterns';
 import { useCounterSettingsStore } from '@nasnet/features/firewall';
 import {
   Card,
@@ -47,25 +44,32 @@ import {
 import { Pencil, Copy, Trash2 } from 'lucide-react';
 
 // ============================================================================
-// Action Badge Component (Refactored to use Badge with semantic variants)
+// CONSTANTS
 // ============================================================================
 
-const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
-  // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
-    accept: 'success',
-    drop: 'error',
-    reject: 'error',
-    log: 'info',
-    jump: 'warning',
-    tarpit: 'error',
-    passthrough: 'default',
-  };
+const ACTION_BADGE_VARIANTS: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+  accept: 'success',
+  drop: 'error',
+  reject: 'error',
+  log: 'info',
+  jump: 'warning',
+  tarpit: 'error',
+  passthrough: 'default',
+};
 
-  const variant = variantMap[action] || 'default';
+// ============================================================================
+// Action Badge Component
+// ============================================================================
+
+/**
+ * ActionBadge Component
+ * @description Badge displaying filter rule action with semantic color
+ */
+const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
+  const variant = ACTION_BADGE_VARIANTS[action] || 'default';
 
   return (
-    <Badge variant={variant} className="text-xs">
+    <Badge variant={variant} className="text-xs" role="img" aria-label={`Action: ${action}`}>
       {action}
     </Badge>
   );
@@ -75,6 +79,10 @@ const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
 // Rule Card Component
 // ============================================================================
 
+/**
+ * RuleCardProps
+ * @description Props for single filter rule card
+ */
 interface RuleCardProps {
   rule: FilterRule;
   maxBytes: number;
@@ -87,20 +95,27 @@ interface RuleCardProps {
   highlightRef?: React.RefObject<HTMLDivElement>;
 }
 
+/**
+ * RuleCard Component
+ * @description Card displaying single filter rule with inline actions
+ */
 const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: RuleCardProps) {
   const { t } = useTranslation('firewall');
   const isUnused = (rule.packets ?? 0) === 0;
   const showRelativeBar = useCounterSettingsStore((state) => state.showRelativeBar);
 
-  const matchers: string[] = [];
-  if (rule.protocol && rule.protocol !== 'all') matchers.push(`${rule.protocol}`);
-  if (rule.srcAddress) matchers.push(`${rule.srcAddress}`);
-  if (rule.dstAddress) matchers.push(`→ ${rule.dstAddress}`);
-  if (rule.srcPort) matchers.push(`:${rule.srcPort}`);
-  if (rule.dstPort) matchers.push(`:${rule.dstPort}`);
-  if (rule.connectionState && rule.connectionState.length > 0) {
-    matchers.push(`[${rule.connectionState.join(',')}]`);
-  }
+  const matchers: string[] = useMemo(() => {
+    const result: string[] = [];
+    if (rule.protocol && rule.protocol !== 'all') result.push(`${rule.protocol}`);
+    if (rule.srcAddress) result.push(`${rule.srcAddress}`);
+    if (rule.dstAddress) result.push(`→ ${rule.dstAddress}`);
+    if (rule.srcPort) result.push(`:${rule.srcPort}`);
+    if (rule.dstPort) result.push(`:${rule.dstPort}`);
+    if (rule.connectionState && rule.connectionState.length > 0) {
+      result.push(`[${rule.connectionState.join(',')}]`);
+    }
+    return result;
+  }, [rule.protocol, rule.srcAddress, rule.dstAddress, rule.srcPort, rule.dstPort, rule.connectionState]);
 
   // Calculate percentage of max for progress bar
   const percentOfMax = maxBytes > 0 ? ((rule.bytes ?? 0) / maxBytes) * 100 : 0;
@@ -132,7 +147,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-muted-foreground mb-3">
+          <div className="font-mono text-xs text-muted-foreground mb-3">
             {matchers.join(' ')}
           </div>
         )}
@@ -164,15 +179,15 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
         )}
 
         {/* Actions */}
-        <div className="flex gap-2" role="group" aria-label="Rule actions">
+        <div className="flex gap-2" role="group" aria-label="Filter rule actions">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
             className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Edit rule"
+            aria-label={`Edit filter rule ${rule.order}`}
           >
-            <Pencil className="h-4 w-4 mr-1" />
+            <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
             Edit
           </Button>
           <Button
@@ -180,18 +195,18 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
             size="sm"
             onClick={() => onDuplicate(rule)}
             className="min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Duplicate rule"
+            aria-label={`Duplicate filter rule ${rule.order}`}
           >
-            <Copy className="h-4 w-4" />
+            <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
             className="text-destructive hover:text-destructive/80 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Delete rule"
+            aria-label={`Delete filter rule ${rule.order}`}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </CardContent>
@@ -256,18 +271,18 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   }, [sortedRules]);
 
   // Handlers
-  const handleEdit = (rule: FilterRule) => {
+  const handleEdit = useCallback((rule: FilterRule) => {
     setEditingRule(rule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleDuplicate = (rule: FilterRule) => {
+  const handleDuplicate = useCallback((rule: FilterRule) => {
     const duplicatedRule = { ...rule, id: undefined, order: undefined };
     setEditingRule(duplicatedRule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleSaveRule = async (ruleInput: FilterRuleInput) => {
+  const handleSaveRule = useCallback(async (ruleInput: FilterRuleInput) => {
     if (editingRule?.id) {
       // Update existing rule
       await updateFilterRule.mutateAsync({
@@ -280,34 +295,34 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
     }
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, [editingRule?.id, updateFilterRule, createFilterRule]);
 
-  const handleCloseEditor = () => {
+  const handleCloseEditor = useCallback(() => {
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, []);
 
-  const handleDelete = (rule: FilterRule) => {
+  const handleDelete = useCallback((rule: FilterRule) => {
     setDeleteConfirmRule(rule);
-  };
+  }, []);
 
-  const handleToggle = (rule: FilterRule) => {
+  const handleToggle = useCallback((rule: FilterRule) => {
     toggleFilterRule.mutate({
       ruleId: rule.id!,
       disabled: !rule.disabled,
     });
-  };
+  }, [toggleFilterRule]);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     if (deleteConfirmRule) {
       deleteFilterRule.mutate(deleteConfirmRule.id!);
       setDeleteConfirmRule(null);
     }
-  };
+  }, [deleteConfirmRule, deleteFilterRule]);
 
-  const handleShowStats = (rule: FilterRule) => {
+  const handleShowStats = useCallback((rule: FilterRule) => {
     setStatsRule(rule);
-  };
+  }, []);
 
   // Scroll to highlighted rule when highlight changes
   useEffect(() => {
@@ -328,7 +343,7 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 space-y-4 ${className || ''}`}>
+      <div className={`p-4 space-y-4 ${className || ''}`} role="status" aria-label="Loading filter rules">
         <div className="animate-pulse space-y-4">
           <div className="h-32 bg-muted rounded" />
           <div className="h-32 bg-muted rounded" />
@@ -341,7 +356,7 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
+      <div className={`p-4 text-destructive ${className || ''}`} role="alert" aria-live="assertive">
         Error loading filter rules: {error.message}
       </div>
     );
@@ -350,7 +365,7 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
+      <div className={`p-8 text-center text-muted-foreground ${className || ''}`} role="status">
         {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
       </div>
     );

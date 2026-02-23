@@ -4,6 +4,7 @@
  * Auto-detecting wrapper that selects the appropriate platform presenter.
  * Implements the Headless + Platform Presenters pattern from ADR-018.
  *
+ * @description Displays diagnostic test results with pass/fail indicators and manual test controls
  * @see NAS-8.12: Service Logs & Diagnostics
  *
  * @example

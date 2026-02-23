@@ -7,7 +7,7 @@
  * @module @nasnet/core/forms/useValidationPipeline
  */
 
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 
 import { getValidationConfig, getOrderedStages } from './validation-strategy';
 
@@ -38,8 +38,12 @@ function initializeStages(
 /**
  * Custom hook for managing the validation pipeline.
  *
- * Handles the flow from client-side Zod validation through
- * backend 7-stage validation pipeline.
+ * Orchestrates the 7-stage validation pipeline, handling:
+ * - Stage 1-2: Client-side Zod validation (schema + syntax)
+ * - Stage 3+: Backend validation (cross-resource, dependencies, network, platform, dry-run)
+ * - Error collection and conflict detection
+ * - Abort controller for cancelling in-flight validations
+ * - Progress tracking through each stage
  *
  * @template T - Zod schema type
  * @param options - Pipeline configuration options
@@ -234,7 +238,8 @@ export function useValidationPipeline<T extends ZodSchema>({
   );
 
   /**
-   * Reset the validation pipeline state.
+   * Reset the validation pipeline state and cleanup resources.
+   * Aborts any in-flight validations and resets all stages to pending.
    */
   const reset = useCallback(() => {
     if (abortControllerRef.current) {
@@ -248,6 +253,20 @@ export function useValidationPipeline<T extends ZodSchema>({
     setIsValidating(false);
   }, [strategy]);
 
+  /**
+   * Cleanup abort controller on unmount.
+   */
+  const cleanup = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  }, []);
+
+  // Cleanup on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => cleanup, []);
+
   return {
     currentStage,
     stages,
@@ -259,5 +278,3 @@ export function useValidationPipeline<T extends ZodSchema>({
     reset,
   };
 }
-
-export default useValidationPipeline;

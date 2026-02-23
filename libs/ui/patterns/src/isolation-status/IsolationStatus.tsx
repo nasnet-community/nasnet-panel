@@ -9,6 +9,7 @@
  * @module @nasnet/ui/patterns/isolation-status
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { IsolationStatusDesktop } from './IsolationStatus.Desktop';
@@ -82,7 +83,7 @@ import type { IsolationStatusProps } from './types';
  * }
  * ```
  */
-export function IsolationStatus(props: IsolationStatusProps) {
+const IsolationStatus = memo(function IsolationStatusComponent(props: IsolationStatusProps) {
   const {
     variant = 'auto',
     size = 'md',
@@ -112,9 +113,12 @@ export function IsolationStatus(props: IsolationStatusProps) {
       // Fallback to mobile for safety
       return <IsolationStatusMobile {...presenterProps} />;
   }
-}
+});
+
+IsolationStatus.displayName = 'IsolationStatus';
 
 // Named exports for direct access to presenters (testing, Storybook)
+export { IsolationStatus };
 export { IsolationStatusMobile } from './IsolationStatus.Mobile';
 export { IsolationStatusDesktop } from './IsolationStatus.Desktop';
 export { useIsolationStatus } from './useIsolationStatus';

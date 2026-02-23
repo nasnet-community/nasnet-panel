@@ -57,7 +57,7 @@ function MockThemeToggle({ initialTheme = 'light', className }: MockThemeToggleP
 }
 
 const meta: Meta<typeof MockThemeToggle> = {
-  title: 'Patterns/ThemeToggle',
+  title: 'Patterns/Common/ThemeToggle',
   component: MockThemeToggle,
   tags: ['autodocs'],
   parameters: {
@@ -65,7 +65,7 @@ const meta: Meta<typeof MockThemeToggle> = {
     docs: {
       description: {
         component:
-          'A theme toggle button that cycles through three modes: Light (Sun icon), Dark (Moon icon), and System (Monitor icon). Follows OS preference in system mode. Keyboard accessible with proper ARIA labels.',
+          'A theme toggle button that cycles through three modes: Light (Sun icon), Dark (Moon icon), and System (Monitor icon). Follows OS preference in system mode. Keyboard accessible with proper ARIA labels and smooth animations.',
       },
     },
   },

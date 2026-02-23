@@ -10,10 +10,12 @@ import (
 	"backend/generated/ent"
 
 	"backend/internal/alerts"
+	"backend/internal/alerts/digest"
 	"backend/internal/notifications"
 	channelshttp "backend/internal/notifications/channels/http"
 	"backend/internal/notifications/channels/push"
 	"backend/internal/services"
+	"backend/internal/services/svcalert"
 
 	"backend/internal/events"
 )
@@ -119,7 +121,7 @@ func InitializeAlertSystem(
 		DB:                  systemDB,
 		EventBus:            eventBus,
 		EscalationCanceller: escalationEngine,
-		DigestService:       nil, // TODO: Create adapter
+		DigestService:       &digestServiceAdapter{svc: digestService},
 		Logger:              sugar,
 	})
 	log.Printf("Alert service initialized")
@@ -186,4 +188,28 @@ func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error 
 
 func (a *eventBusAdapter) Close() error {
 	return a.bus.Close()
+}
+
+// digestServiceAdapter adapts alerts.DigestService (digest.Service) to the svcalert.DigestService interface.
+type digestServiceAdapter struct {
+	svc *digest.Service
+}
+
+func (a *digestServiceAdapter) CompileDigest(ctx context.Context, channelID string, since time.Time) (*svcalert.DigestPayload, error) {
+	payload, err := a.svc.CompileDigest(ctx, channelID, since)
+	if err != nil {
+		return nil, err
+	}
+	return &svcalert.DigestPayload{
+		DigestID:       payload.DigestID,
+		ChannelID:      payload.ChannelID,
+		TotalCount:     payload.TotalCount,
+		SeverityCounts: payload.SeverityCounts,
+		OldestAlert:    payload.OldestAlert,
+		NewestAlert:    payload.NewestAlert,
+	}, nil
+}
+
+func (a *digestServiceAdapter) DeliverDigest(ctx context.Context, channelID string) error {
+	return a.svc.DeliverDigest(ctx, channelID)
 }

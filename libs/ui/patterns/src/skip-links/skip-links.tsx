@@ -96,7 +96,7 @@ const defaultLinks: SkipLinkTarget[] = [
  * - High contrast visible state
  * - Proper focus management
  */
-export function SkipLinks({ links = defaultLinks, className }: SkipLinksProps) {
+function SkipLinks({ links = defaultLinks, className }: SkipLinksProps) {
   return (
     <div
       className={cn(
@@ -169,7 +169,7 @@ export interface SkipLinkProps {
  * <SkipLink href="#main">Skip to main</SkipLink>
  * ```
  */
-export function SkipLink({ href, children, className }: SkipLinkProps) {
+function SkipLink({ href, children, className }: SkipLinkProps) {
   return (
     <a
       href={href}
@@ -196,3 +196,8 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
     </a>
   );
 }
+
+SkipLinks.displayName = 'SkipLinks';
+SkipLink.displayName = 'SkipLink';
+
+export { SkipLinks, SkipLink };

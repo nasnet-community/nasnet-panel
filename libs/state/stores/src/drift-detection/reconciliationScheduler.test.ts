@@ -15,6 +15,9 @@ import {
   initializeScheduler,
   destroyScheduler,
   getDefaultScheduler,
+  type ResourceFetcher,
+  type ConnectionStatusProvider,
+  type DriftCallback,
 } from './reconciliationScheduler';
 import { DriftStatus, ResourcePriority, getResourcePriority } from './types';
 
@@ -42,12 +45,12 @@ function createMockResource(
       createdAt: '2026-01-01T00:00:00Z',
       createdBy: 'admin',
       updatedAt: '2026-01-01T00:00:00Z',
-      state: 'active',
+      state: 'ACTIVE',
       version: 1,
       tags: [],
       isFavorite: false,
       isPinned: false,
-    } as ResourceMetadata,
+    } as unknown as ResourceMetadata,
   };
 }
 
@@ -119,11 +122,11 @@ describe('ReconciliationScheduler', () => {
     mockIsOnline = vi.fn().mockReturnValue(true);
 
     scheduler = new ReconciliationScheduler({
-      resourceFetcher: mockFetcher,
-      onDriftDetected: mockOnDriftDetected,
-      onDriftResolved: mockOnDriftResolved,
-      onError: mockOnError,
-      isOnline: mockIsOnline,
+      resourceFetcher: mockFetcher as unknown as ResourceFetcher,
+      onDriftDetected: mockOnDriftDetected as unknown as DriftCallback,
+      onDriftResolved: mockOnDriftResolved as unknown as DriftCallback,
+      onError: mockOnError as unknown as (resourceUuid: string, error: Error) => void,
+      isOnline: mockIsOnline as unknown as ConnectionStatusProvider,
       batchSize: 5,
       minBatchInterval: 100,
     });

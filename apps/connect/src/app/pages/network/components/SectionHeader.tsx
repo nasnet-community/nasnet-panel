@@ -3,11 +3,12 @@
  * Reusable collapsible section header with badges and actions
  */
 
-import { type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface SectionHeaderProps {
   title: string;
@@ -23,7 +24,7 @@ interface SectionHeaderProps {
   className?: string;
 }
 
-export function SectionHeader({
+export const SectionHeader = React.memo(function SectionHeader({
   title,
   subtitle,
   count,
@@ -46,33 +47,33 @@ export function SectionHeader({
         {isCollapsible && (
           <button
             onClick={onToggle}
-            className="p-1 -ml-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1 -ml-1 rounded-lg hover:bg-muted transition-colors"
           >
             {isCollapsed ? (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             )}
           </button>
         )}
-        
+
         {icon && (
-          <span className="text-slate-400 dark:text-slate-500">{icon}</span>
+          <span className="text-muted-foreground">{icon}</span>
         )}
-        
+
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
               {title}
             </h3>
             {count !== undefined && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+              <span className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full">
                 {count}
               </span>
             )}
           </div>
           {subtitle && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {subtitle}
             </p>
           )}
@@ -89,10 +90,9 @@ export function SectionHeader({
       )}
     </div>
   );
-}
+});
 
-
-
+SectionHeader.displayName = 'SectionHeader';
 
 
 

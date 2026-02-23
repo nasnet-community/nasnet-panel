@@ -9,6 +9,29 @@ const meta: Meta<typeof VLANAllocationTable> = {
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Displays VLAN allocations with platform-responsive rendering. Mobile shows card-based list with expandable details; Desktop shows dense data table. Supports filtering by service type and status, sorting by VLAN ID/date/service, and searching by instance name.',
+      },
+    },
+  },
+  argTypes: {
+    allocations: {
+      description: 'List of VLAN allocations to display',
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Whether data is loading',
+    },
+    onRefresh: {
+      action: 'refresh',
+      description: 'Callback to refresh data',
+    },
+    className: {
+      control: 'text',
+      description: 'Optional additional CSS classes',
+    },
   },
 };
 
@@ -105,6 +128,13 @@ export const Default: Story = {
     allocations: mockAllocations,
     loading: false,
   },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Mixed allocation states showing active services, pending releases, and released VLANs.',
+      },
+    },
+  },
 };
 
 /**
@@ -114,6 +144,13 @@ export const Loading: Story = {
   args: {
     allocations: [],
     loading: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Loading state with spinner indicator while data fetches.',
+      },
+    },
   },
 };
 
@@ -125,6 +162,13 @@ export const Empty: Story = {
     allocations: [],
     loading: false,
   },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Empty allocation list with helpful message and call-to-action.',
+      },
+    },
+  },
 };
 
 /**
@@ -135,6 +179,13 @@ export const AllAllocated: Story = {
     allocations: mockAllocations.filter((a) => a.status === 'ALLOCATED'),
     loading: false,
   },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Filtered view showing only active allocated VLANs.',
+      },
+    },
+  },
 };
 
 /**
@@ -144,6 +195,13 @@ export const SingleServiceType: Story = {
   args: {
     allocations: mockAllocations.filter((a) => a.serviceType === 'tor'),
     loading: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Filtered view showing only Tor service allocations.',
+      },
+    },
   },
 };
 
@@ -167,5 +225,12 @@ export const LargeDataset: Story = {
       allocatedAt: new Date(2026, 0, 1 + i, 10, 0, 0).toISOString(),
     })),
     loading: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Large dataset test with 100 allocations to verify virtualization and performance.',
+      },
+    },
   },
 };

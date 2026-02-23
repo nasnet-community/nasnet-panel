@@ -1,10 +1,18 @@
 /**
- * BandwidthChartSkeleton - Loading skeleton for bandwidth chart
- * Respects prefers-reduced-motion for accessibility (WCAG AAA)
+ * Bandwidth chart skeleton, error, and empty state components
+ *
+ * @description
+ * Set of memoized components for loading, error, and empty states:
+ * - BandwidthChartSkeleton: pulse animation matching final layout
+ * - BandwidthChartError: professional error message with retry button
+ * - BandwidthChartEmpty: empty state guidance
+ *
+ * All components respect `prefers-reduced-motion` for WCAG AAA compliance.
+ * Buttons meet 44px touch target minimum for mobile accessibility.
  */
 
-import { memo } from 'react';
-import { Card, CardHeader, CardContent, Skeleton } from '@nasnet/ui/primitives';
+import { memo, useCallback } from 'react';
+import { Card, CardHeader, CardContent, Skeleton, Button } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import { useReducedMotion } from '@nasnet/ui/layouts';
 
@@ -19,14 +27,18 @@ interface BandwidthChartSkeletonProps {
 }
 
 /**
- * BandwidthChartSkeleton component
+ * BandwidthChartSkeleton - Loading skeleton for bandwidth chart
  *
- * Displays loading skeleton matching chart dimensions
- * - Respects prefers-reduced-motion (disables shimmer animation)
- * - Matches desktop (300px) or mobile (200px) height
- * - Shows skeleton for controls and chart area
+ * @description
+ * Displays placeholder skeleton matching final chart layout (card + header + controls).
+ * Pulse animation respects `prefers-reduced-motion` setting (disabled → instant/no animation).
+ * Height configurable (300px desktop, 200px mobile).
  *
- * @param props - Component props
+ * @param props - { height?, className? }
+ * @param props.height - Chart height in pixels (default 300)
+ * @param props.className - Optional CSS classes
+ *
+ * @returns Memoized skeleton component
  */
 export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
   ({ height = 300, className }) => {
@@ -110,14 +122,27 @@ interface BandwidthChartErrorProps {
 }
 
 /**
- * BandwidthChartError component
+ * BandwidthChartError - Error state with retry action
  *
- * Displays error state with retry button
+ * @description
+ * Professional error display with icon, message, and memoized retry button.
+ * Button uses `Button` primitive for consistent styling and meets 44px
+ * touch target requirement (WCAG AAA).
  *
- * @param props - Component props
+ * @param props - { message?, onRetry?, className? }
+ * @param props.message - Error message text (default: generic message)
+ * @param props.onRetry - Memoized callback when retry clicked
+ * @param props.className - Optional CSS classes
+ *
+ * @returns Memoized error component
  */
 export const BandwidthChartError = memo<BandwidthChartErrorProps>(
   ({ message = 'Failed to load bandwidth data', onRetry, className }) => {
+    // Memoize retry handler to prevent unnecessary re-renders
+    const handleRetry = useCallback(() => {
+      onRetry?.();
+    }, [onRetry]);
+
     return (
       <Card className={cn('w-full', className)}>
         <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-8 text-center">
@@ -144,19 +169,15 @@ export const BandwidthChartError = memo<BandwidthChartErrorProps>(
           <h3 className="mb-2 text-lg font-semibold">Error Loading Chart</h3>
           <p className="mb-4 text-sm text-muted-foreground">{message}</p>
 
-          {/* Retry button */}
+          {/* Retry button using Button primitive (44px min height) */}
           {onRetry && (
-            <button
-              onClick={onRetry}
-              className={cn(
-                'rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground',
-                'hover:bg-primary/90 transition-colors',
-                'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-                'min-h-[44px]' // WCAG AAA touch target
-              )}
+            <Button
+              onClick={handleRetry}
+              variant="default"
+              className="min-h-[44px]"
             >
               Retry
-            </button>
+            </Button>
           )}
         </CardContent>
       </Card>
@@ -175,11 +196,17 @@ interface BandwidthChartEmptyProps {
 }
 
 /**
- * BandwidthChartEmpty component
+ * BandwidthChartEmpty - Empty state when no data available
  *
- * Displays empty state when no data available
+ * @description
+ * Displays centered empty state with icon, title, and helpful message.
+ * Used when data fetch succeeds but no data points returned for selected
+ * time range and interface filter.
  *
- * @param props - Component props
+ * @param props - { className? }
+ * @param props.className - Optional CSS classes
+ *
+ * @returns Memoized empty state component
  */
 export const BandwidthChartEmpty = memo<BandwidthChartEmptyProps>(
   ({ className }) => {

@@ -8,9 +8,9 @@
  */
 
 import { useMakeLeaseStatic, useDeleteLease } from '@nasnet/api-client/queries';
+import type { DHCPLease } from '@nasnet/core/types';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { toast } from '@nasnet/ui/primitives';
-import type { DHCPLease } from '@nasnet/core/types';
 
 /**
  * Result of bulk operation execution
@@ -46,6 +46,7 @@ export interface UseBulkOperationsReturn {
 
 /**
  * Hook for bulk DHCP lease operations
+ * @description Executes parallel mutations with partial failure handling, showing detailed toast feedback
  *
  * Features:
  * - Uses Promise.allSettled() for parallel execution with partial failure handling
@@ -120,26 +121,26 @@ export function useBulkOperations(routerIp: string): UseBulkOperationsReturn {
     const failed = results.filter((r) => r.status === 'rejected').length;
     const total = leaseIds.length;
 
-    // Display appropriate toast notification
+    // Display appropriate toast notification with actionable messages
     if (failed === 0) {
       // All succeeded
       toast({
         title: 'Leases converted to static',
-        description: `Successfully converted ${succeeded} lease${succeeded !== 1 ? 's' : ''} to static bindings`,
+        description: `Successfully converted ${succeeded} lease${succeeded !== 1 ? 's' : ''} to static bindings. They will persist across DHCP server restarts.`,
       });
     } else if (succeeded === 0) {
       // All failed
       toast({
         variant: 'destructive',
-        title: 'Failed to convert leases',
-        description: `All ${failed} operation${failed !== 1 ? 's' : ''} failed. Please try again.`,
+        title: 'Failed to convert leases to static',
+        description: `All ${failed} operation${failed !== 1 ? 's' : ''} failed. Verify leases exist and router is accessible, then retry.`,
       });
     } else {
       // Partial failure
       toast({
         variant: 'warning',
         title: 'Partial failure',
-        description: `${succeeded} succeeded, ${failed} failed. Check logs for details.`,
+        description: `${succeeded} succeeded, ${failed} failed. Retry failed leases or check router connectivity.`,
       });
     }
 
@@ -168,26 +169,26 @@ export function useBulkOperations(routerIp: string): UseBulkOperationsReturn {
     const failed = results.filter((r) => r.status === 'rejected').length;
     const total = leaseIds.length;
 
-    // Display appropriate toast notification
+    // Display appropriate toast notification with actionable messages
     if (failed === 0) {
       // All succeeded
       toast({
         title: 'Leases deleted',
-        description: `Successfully deleted ${succeeded} lease${succeeded !== 1 ? 's' : ''}`,
+        description: `Successfully deleted ${succeeded} lease${succeeded !== 1 ? 's' : ''}. Use Undo if deleted by mistake (10s window).`,
       });
     } else if (succeeded === 0) {
       // All failed
       toast({
         variant: 'destructive',
         title: 'Failed to delete leases',
-        description: `All ${failed} operation${failed !== 1 ? 's' : ''} failed. Please try again.`,
+        description: `All ${failed} operation${failed !== 1 ? 's' : ''} failed. Verify leases are not in use and retry.`,
       });
     } else {
       // Partial failure
       toast({
         variant: 'warning',
         title: 'Partial failure',
-        description: `${succeeded} deleted, ${failed} failed. Check logs for details.`,
+        description: `${succeeded} deleted, ${failed} failed. Retry remaining leases or verify router connectivity.`,
       });
     }
 

@@ -65,22 +65,23 @@ export interface UseServiceTemplateCardReturn {
 
 /**
  * Get color class for template category
+ * Uses semantic color tokens from design system
  */
 function getCategoryColor(category: TemplateCategory): string {
   switch (category) {
     case 'privacy':
-      return 'text-purple-600 dark:text-purple-400';
+      return 'text-category-vpn';
     case 'proxy':
-      return 'text-blue-600 dark:text-blue-400';
+      return 'text-category-networking';
     case 'dns':
-      return 'text-green-600 dark:text-green-400';
+      return 'text-category-monitoring';
     case 'security':
-      return 'text-red-600 dark:text-red-400';
+      return 'text-category-security';
     case 'monitoring':
-      return 'text-orange-600 dark:text-orange-400';
+      return 'text-category-firewall';
     case 'general':
     default:
-      return 'text-gray-600 dark:text-gray-400';
+      return 'text-muted-foreground';
   }
 }
 

@@ -6,7 +6,10 @@
  * Implements FR0-21: Real-time connection status with auto-refresh
  */
 
+import React from 'react';
+
 import { RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useWireGuardInterfaces,
@@ -19,7 +22,8 @@ import { useConnectionStore } from '@nasnet/state/stores';
 import { WireGuardCard, VPNTypeSection, GenericVPNCard } from '@nasnet/ui/patterns';
 import { Skeleton, Button } from '@nasnet/ui/primitives';
 
-export function VPNTab() {
+export const VPNTab = React.memo(function VPNTab() {
+  const { t } = useTranslation('vpn');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Parallel queries for all VPN types
@@ -41,11 +45,11 @@ export function VPNTab() {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              VPN Configuration
+              {t('title')}
             </h1>
             <p className="text-muted-foreground">
-              View your VPN setup and monitor interface status{' '}
-              <span className="text-xs">(Auto-refreshes every 5s)</span>
+              {t('description')}{' '}
+              <span className="text-xs">({t('autoRefresh')})</span>
             </p>
           </div>
           {/* Manual Refresh Button */}
@@ -57,7 +61,7 @@ export function VPNTab() {
             className="flex items-center gap-2"
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('buttons.refresh')}
           </Button>
         </div>
 
@@ -72,10 +76,10 @@ export function VPNTab() {
 
         {/* Error state */}
         {isError && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6">
             <div className="flex items-center gap-3">
               <svg
-                className="w-6 h-6 text-red-600 dark:text-red-400"
+                className="w-6 h-6 text-destructive"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -88,11 +92,11 @@ export function VPNTab() {
                 />
               </svg>
               <div>
-                <h3 className="text-lg font-semibold text-red-900 dark:text-red-100">
-                  Failed to load VPN interfaces
+                <h3 className="text-lg font-semibold text-destructive">
+                  {t('errors.loadFailed')}
                 </h3>
-                <p className="text-red-700 dark:text-red-300 mt-1">
-                  Unable to retrieve VPN configuration from the router. Please check your connection.
+                <p className="text-destructive/80 mt-1">
+                  {t('errors.loadFailedDescription')}
                 </p>
               </div>
             </div>
@@ -101,9 +105,9 @@ export function VPNTab() {
 
         {/* Empty state */}
         {!isLoading && !isError && Array.isArray(wireguardInterfaces) && wireguardInterfaces.length === 0 && (
-          <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center">
+          <div className="bg-muted border border-border rounded-lg p-8 text-center">
             <svg
-              className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-600 mb-4"
+              className="w-16 h-16 mx-auto text-muted-foreground mb-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -115,11 +119,11 @@ export function VPNTab() {
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-              No WireGuard interfaces configured
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              {t('states.noInterfaces')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400">
-              Your router doesn't have any WireGuard VPN interfaces set up yet.
+            <p className="text-muted-foreground">
+              {t('states.noInterfacesDescription')}
             </p>
           </div>
         )}
@@ -140,10 +144,10 @@ export function VPNTab() {
         {!isLoading && !isError && (
           <div className="mt-8 space-y-4">
             <h2 className="text-2xl font-bold">
-              Other VPN Types
+              {t('otherVpnTypes.title')}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Additional VPN protocols configured on your router
+              {t('otherVpnTypes.description')}
             </p>
 
             {/* L2TP Section */}
@@ -160,7 +164,7 @@ export function VPNTab() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No L2TP interfaces configured
+                  {t('otherVpnTypes.noL2TP')}
                 </p>
               )}
             </VPNTypeSection>
@@ -179,7 +183,7 @@ export function VPNTab() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No PPTP interfaces configured
+                  {t('otherVpnTypes.noPPTP')}
                 </p>
               )}
             </VPNTypeSection>
@@ -198,7 +202,7 @@ export function VPNTab() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No SSTP interfaces configured
+                  {t('otherVpnTypes.noSSTP')}
                 </p>
               )}
             </VPNTypeSection>
@@ -207,4 +211,6 @@ export function VPNTab() {
       </div>
     </div>
   );
-}
+});
+
+VPNTab.displayName = 'VPNTab';

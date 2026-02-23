@@ -5,10 +5,11 @@
  * expansions (desktop) or bottom sheets (mobile).
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { LeaseDetailPanel } from './LeaseDetailPanel';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof LeaseDetailPanel> = {
   title: 'Features/Network/DHCP/LeaseDetailPanel',

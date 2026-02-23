@@ -359,7 +359,7 @@ describe('useConnectionList', () => {
 
       act(() => {
         result.current.setFilter({
-          ip: '192.168.1.*',
+          ipAddress: '192.168.1.*',
           protocol: 'tcp',
           state: 'established',
         });

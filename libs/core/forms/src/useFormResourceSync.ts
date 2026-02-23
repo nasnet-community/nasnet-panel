@@ -21,9 +21,9 @@ import type {
 
 
 /**
- * Options for useFormResourceSync hook
+ * Options for useFormResourceSync hook.
  */
-interface UseFormResourceSyncOptions<T extends FieldValues = FieldValues> {
+export interface UseFormResourceSyncOptions<T extends FieldValues = FieldValues> {
   /** Source data from backend to sync with */
   sourceData: T | null;
   /** Unique resource identifier */
@@ -126,6 +126,17 @@ export interface UseFormResourceSyncReturn<T extends FieldValues = FieldValues> 
  * - Validation state (validation layer) - pipeline results
  * - Error handling (error layer) - mutation errors
  *
+ * Handles:
+ * - Automatic form reset when source data changes
+ * - Tracking of changed fields and dirty state
+ * - Conflict detection when source changes during edit
+ * - Optimistic updates with rollback on error
+ * - Form error mapping from validation pipeline
+ *
+ * @template T - Form field values type
+ * @param options - Configuration options including React Hook Form instance
+ * @returns State and action methods for form resource synchronization
+ *
  * @example
  * ```tsx
  * const form = useForm<WireGuardPeerFormData>();
@@ -141,7 +152,9 @@ export interface UseFormResourceSyncReturn<T extends FieldValues = FieldValues> 
  * });
  *
  * return (
- *   <form onSubmit={form.handleSubmit(actions.startSave)}>
+ *   <form onSubmit={form.handleSubmit(async () => {
+ *     await actions.startSave();
+ *   })}>
  *     {changedFields.length > 0 && <Badge>{changedFields.length} changes</Badge>}
  *     {state.hasSourceChanged && <Alert>Source data changed</Alert>}
  *     <Button disabled={!canSave}>Save</Button>
@@ -282,7 +295,10 @@ export function useFormResourceSync<T extends FieldValues = FieldValues>(
       },
 
       startSave: async () => {
-        if (!onSave) return;
+        if (!onSave) {
+          console.warn('useFormResourceSync: onSave callback not provided');
+          return;
+        }
 
         setIsSaving(true);
         setError(null);
@@ -377,5 +393,3 @@ export function useFormResourceSync<T extends FieldValues = FieldValues>(
     conflict,
   };
 }
-
-export default useFormResourceSync;

@@ -4,7 +4,7 @@
  * Follows ADR-018 (Headless + Platform Presenters pattern)
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -29,34 +29,44 @@ import {
   BandwidthChartEmpty,
 } from './BandwidthChartSkeleton';
 import { formatBitrate, formatXAxis, formatYAxis } from './utils';
-import type { BandwidthChartPresenterProps } from './types';
+import type { BandwidthChartPresenterProps, TimeRange } from './types';
 
 /**
- * Chart configuration constants for mobile
+ * Chart configuration constants for mobile using semantic design tokens
  */
 const CHART_HEIGHT = 200;
-const TX_COLOR = '#3B82F6'; // Blue for upload
-const RX_COLOR = '#22C55E'; // Green for download
+// Using semantic tokens: primary for TX (upload), success for RX (download)
+const TX_COLOR = 'hsl(var(--primary))'; // Golden Amber for upload emphasis
+const RX_COLOR = 'hsl(var(--success))'; // Green for download/received data
 
 /**
  * BandwidthChartMobile component
  *
- * Mobile presenter with:
- * - 200px chart height (compact)
- * - Simplified axis labels (fewer ticks)
- * - Tap-optimized tooltips
- * - Reduced-motion support
- * - Collapsible controls for space efficiency
+ * @description
+ * Mobile presenter with 200px chart height (compact), simplified axis labels,
+ * touch-optimized tooltips, and stacked controls for efficient use of space.
+ * Memoized to prevent unnecessary re-renders.
  *
- * @param props - Component props
+ * @param props - Component props with optional hook override for testing
  */
 export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
   ({ deviceId, className, hookOverride }) => {
     const prefersReducedMotion = useReducedMotion();
 
-    // Get chart preferences from Zustand store
+    // Get chart preferences from Zustand store with memoized callbacks
     const { timeRange, interfaceId, setTimeRange, setInterfaceId } =
       useChartPreferencesStore();
+
+    // Memoize callback handlers to maintain referential equality
+    const handleTimeRangeChange = useCallback(
+      (range: TimeRange) => setTimeRange(range),
+      [setTimeRange]
+    );
+
+    const handleInterfaceChange = useCallback(
+      (id: string) => setInterfaceId(id),
+      [setInterfaceId]
+    );
 
     // Fetch bandwidth data (or use hook override for testing)
     const hookData = useBandwidthHistory({
@@ -95,27 +105,30 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
           {/* Title */}
           <CardTitle className="text-base">Bandwidth Usage</CardTitle>
 
-          {/* Current rates display */}
-          <div className="mt-2 flex items-center gap-3 text-xs">
+          {/* Current rates display with live region for announcements */}
+          <div
+            className="mt-2 flex items-center gap-3 text-xs"
+            role="region"
+            aria-live="polite"
+            aria-label="Current bandwidth rates"
+          >
             <div className="flex items-center gap-1.5">
               <div
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: TX_COLOR }}
+                className="h-2.5 w-2.5 rounded-full bg-primary"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">TX:</span>
-              <span className="font-medium tabular-nums">
+              <span className="font-medium font-mono">
                 {formatBitrate(currentRates.tx)}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <div
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: RX_COLOR }}
+                className="h-2.5 w-2.5 rounded-full bg-success"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">RX:</span>
-              <span className="font-medium tabular-nums">
+              <span className="font-medium font-mono">
                 {formatBitrate(currentRates.rx)}
               </span>
             </div>
@@ -125,13 +138,13 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
           <div className="mt-3 flex flex-col gap-2">
             <TimeRangeSelector
               value={timeRange}
-              onChange={setTimeRange}
+              onChange={handleTimeRangeChange}
               className="w-full"
             />
             <InterfaceFilter
               routerId={deviceId}
               value={interfaceId}
-              onChange={setInterfaceId}
+              onChange={(id: string | null) => setInterfaceId(id)}
               className="w-full"
             />
           </div>
@@ -212,6 +225,7 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
           <BandwidthDataTable
             dataPoints={dataPoints}
             timeRange={timeRange}
+            className="mt-4"
           />
         </CardContent>
       </Card>

@@ -277,7 +277,11 @@ describe('DashboardLayout', () => {
 
   describe('Edge Cases', () => {
     it('should handle no children', () => {
-      render(<DashboardLayout />);
+      render(
+        <DashboardLayout>
+          <div />
+        </DashboardLayout>
+      );
 
       const mainGrid = screen.getByRole('main');
       expect(mainGrid).toBeEmptyDOMElement();

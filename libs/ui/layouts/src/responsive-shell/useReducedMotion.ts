@@ -12,12 +12,20 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Media query for prefers-reduced-motion
+ * Media query for prefers-reduced-motion CSS preference
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+ * @internal
  */
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 /**
  * Check if reduced motion is preferred (SSR-safe)
+ *
+ * Checks the user's system-level motion preference via matchMedia API.
+ * Returns false on server-side rendering or if API is unavailable.
+ *
+ * @returns true if user has enabled reduced motion preference
+ * @internal
  */
 function getReducedMotionPreference(): boolean {
   // SSR safety: default to false if window is not available
@@ -143,21 +151,28 @@ export function useAnimationDuration(
 }
 
 /**
- * Animation specs from design system
- * Use these consistent durations across the application
+ * Animation duration specifications from design system
+ *
+ * All values in milliseconds. Use these consistent durations across the application
+ * for predictable, accessible animations. Always respect `prefers-reduced-motion` setting.
+ *
+ * Reference: Docs/design/DESIGN_TOKENS.md - Transition Tokens
+ *
+ * @see useReducedMotion for checking motion preference
+ * @see useMotionConfig for motion-aware animation setup
  */
 export const ANIMATION_DURATIONS = {
-  /** Sidebar collapse/expand */
+  /** Sidebar collapse/expand animation */
   SIDEBAR: 200,
-  /** Layout switches (platform transitions) */
+  /** Layout switches and platform transitions */
   LAYOUT: 150,
-  /** Mobile drawer open/close */
+  /** Mobile drawer, modal, sheet open/close */
   DRAWER: 200,
-  /** Quick micro-interactions */
+  /** Quick micro-interactions, hover states */
   QUICK: 100,
-  /** Standard transitions */
+  /** Standard transitions and fades */
   DEFAULT: 200,
-  /** Slow, deliberate transitions */
+  /** Slow, deliberate transitions with visual emphasis */
   SLOW: 300,
 } as const;
 

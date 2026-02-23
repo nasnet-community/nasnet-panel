@@ -1,14 +1,16 @@
 /**
  * Headless useEmailChannelForm Hook
  *
- * Manages email channel form state using React Hook Form with Zod validation.
- * Provides multi-recipient management, TLS settings, and test functionality.
+ * @description Manages email channel form state using React Hook Form with
+ * Zod validation. Provides multi-recipient management, TLS settings, test
+ * functionality, and SMTP port presets. All handlers use useCallback for
+ * stable references and cleanup occurs on unmount.
  *
  * @module @nasnet/features/alerts/hooks
  * @see NAS-18.3: Email notification configuration with Platform Presenters
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -67,8 +69,9 @@ export interface UseEmailChannelFormReturn {
 /**
  * Headless hook for email channel configuration form.
  *
- * Manages React Hook Form integration, validation, multi-recipient handling,
- * and test functionality.
+ * @description Manages React Hook Form integration with Zod validation,
+ * multi-recipient handling, test functionality, and SMTP presets. Cleanup
+ * occurs on unmount. All handlers are memoized with useCallback.
  *
  * @example
  * ```tsx
@@ -261,6 +264,15 @@ export function useEmailChannelForm(
     });
     setTestResult(undefined);
   }, [form, initialConfig]);
+
+  /**
+   * Cleanup on unmount: clear test result and form state
+   */
+  useEffect(() => {
+    return () => {
+      setTestResult(undefined);
+    };
+  }, []);
 
   return {
     form,

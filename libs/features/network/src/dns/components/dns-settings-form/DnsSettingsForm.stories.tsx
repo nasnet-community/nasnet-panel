@@ -4,7 +4,7 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { DnsSettingsForm } from './DnsSettingsForm';
 

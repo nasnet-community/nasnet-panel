@@ -1,13 +1,14 @@
 /**
  * Port Knocking Page
  *
- * Main page composing PortKnockSequenceManager and PortKnockLogViewer.
- * Features tabbed interface with create/edit dialogs.
+ * @description Main page composing PortKnockSequenceManager and PortKnockLogViewer with tabbed interface
+ * for managing port knock sequences and viewing knock logs. Provides create/edit dialogs with full
+ * CRUD operations and real-time sequence management.
  *
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState, useEffect, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore, usePortKnockStore } from '@nasnet/state/stores';
@@ -32,6 +33,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { Plus, Shield, ScrollText } from 'lucide-react';
 import { PortKnockSequenceManager } from './PortKnockSequenceManager';
@@ -43,6 +45,7 @@ import { PortKnockSequenceForm, usePortKnockSequenceForm } from '@nasnet/ui/patt
 // ============================================================================
 
 export interface PortKnockingPageProps {
+  /** Optional CSS class name for custom styling */
   className?: string;
 }
 
@@ -74,6 +77,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
   const editSequence = editData?.portKnockSequence;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatedRuleIds, setGeneratedRuleIds] = useState<string[]>([]);
 
   // Determine if we're in edit mode
   const isEditMode = !!editingSequenceId && !!editSequence;
@@ -87,51 +91,55 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       protectedProtocol: editSequence.protectedProtocol,
       accessTimeout: editSequence.accessTimeout,
       knockTimeout: editSequence.knockTimeout,
-      enabled: editSequence.enabled,
+      isEnabled: editSequence.isEnabled,
+      id: editSequence.id,
     } : undefined,
-    onSubmit: async (data: PortKnockSequenceInput) => {
-      setIsSubmitting(true);
-      try {
-        if (isEditMode) {
-          await updateSequence({
-            variables: {
-              routerId: activeRouterId!,
-              id: editingSequenceId!,
-              input: data,
-            },
-          });
-        } else {
-          await createSequence({
-            variables: {
-              routerId: activeRouterId!,
-              input: data,
-            },
-          });
+    onSubmit: useCallback(
+      async (data: PortKnockSequenceInput) => {
+        setIsSubmitting(true);
+        try {
+          if (isEditMode) {
+            await updateSequence({
+              variables: {
+                routerId: activeRouterId!,
+                id: editingSequenceId!,
+                input: data,
+              },
+            });
+          } else {
+            await createSequence({
+              variables: {
+                routerId: activeRouterId!,
+                input: data,
+              },
+            });
+          }
+          handleCloseDialog();
+        } catch (err) {
+          console.error('Failed to save port knock sequence:', err);
+        } finally {
+          setIsSubmitting(false);
         }
-        handleCloseDialog();
-      } catch (err) {
-        console.error('Failed to save port knock sequence:', err);
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
+      },
+      [isEditMode, editingSequenceId, activeRouterId, updateSequence, createSequence]
+    ),
     isEditMode,
   });
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     setEditingSequenceId(null);
     setCreateDialogOpen(true);
-  };
+  }, [setEditingSequenceId, setCreateDialogOpen]);
 
-  const handleEdit = (sequenceId: string) => {
+  const handleEdit = useCallback((sequenceId: string) => {
     setEditingSequenceId(sequenceId);
     setCreateDialogOpen(true);
-  };
+  }, [setEditingSequenceId, setCreateDialogOpen]);
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setCreateDialogOpen(false);
     setEditingSequenceId(null);
-  };
+  }, [setCreateDialogOpen, setEditingSequenceId]);
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -144,7 +152,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
           </p>
         </div>
         <Button onClick={handleCreate} aria-label="Create new port knock sequence" className="min-h-[44px]">
-          <Plus className="h-4 w-4 mr-2" />
+          <Icon icon={Plus} className="h-4 w-4 mr-2" aria-hidden="true" />
           Create Sequence
         </Button>
       </div>
@@ -153,7 +161,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+            <Icon icon={Shield} className="h-5 w-5 text-destructive" aria-hidden="true" />
             What is Port Knocking?
           </CardTitle>
           <CardDescription>
@@ -168,11 +176,11 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'sequences' | 'log')}>
         <TabsList>
           <TabsTrigger value="sequences">
-            <Shield className="h-4 w-4 mr-2" />
+            <Icon icon={Shield} className="h-4 w-4 mr-2" aria-hidden="true" />
             Sequences
           </TabsTrigger>
           <TabsTrigger value="log">
-            <ScrollText className="h-4 w-4 mr-2" />
+            <Icon icon={ScrollText} className="h-4 w-4 mr-2" aria-hidden="true" />
             Knock Log
           </TabsTrigger>
         </TabsList>

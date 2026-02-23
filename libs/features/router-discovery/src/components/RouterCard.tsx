@@ -3,7 +3,9 @@
  * Displays individual router information in a card format
  */
 
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import type { Router } from '@nasnet/core/types';
 
 export interface RouterCardProps {
@@ -36,12 +38,17 @@ export interface RouterCardProps {
    * Callback when remove button is clicked
    */
   onRemove?: (router: Router) => void;
+
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 
 /**
  * RouterCard Component
  *
- * Displays router information in a card with actions.
+ * @description Displays router information in a card with actions.
  *
  * @example
  * ```tsx
@@ -54,33 +61,36 @@ export interface RouterCardProps {
  * />
  * ```
  */
-export function RouterCard({
+export const RouterCard = memo(function RouterCard({
   router,
   isSelected = false,
   onClick,
   onDoubleClick,
   onConnect,
   onRemove,
+  className,
 }: RouterCardProps) {
-  const handleConnect = (e: React.MouseEvent) => {
+  const handleConnect = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onConnect?.(router);
-  };
+  }, [router, onConnect]);
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemove = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onRemove?.(router);
-  };
+  }, [router, onRemove]);
 
   return (
     <motion.div
       onClick={() => onClick?.(router)}
       onDoubleClick={() => onDoubleClick?.(router)}
-      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+      className={cn(
+        'p-4 rounded-lg border-2 transition-all cursor-pointer',
         isSelected
-          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
-      }`}
+          ? 'border-primary bg-primary/5'
+          : 'border-border bg-card hover:border-primary/50',
+        className
+      )}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
     >
@@ -88,39 +98,39 @@ export function RouterCard({
         {/* Router Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+            <h3 className="text-lg font-semibold text-foreground truncate">
               {router.name || router.ipAddress}
             </h3>
             <ConnectionStatusBadge status={router.connectionStatus} />
           </div>
 
           <div className="space-y-1 text-sm">
-            <p className="font-mono text-gray-700 dark:text-gray-300">
+            <p className="font-mono text-foreground">
               {router.ipAddress}
             </p>
 
             {router.model && (
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 <span className="font-medium">Model:</span> {router.model}
               </p>
             )}
 
             {router.routerOsVersion && (
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 <span className="font-medium">RouterOS:</span>{' '}
                 {router.routerOsVersion}
               </p>
             )}
 
             {router.macAddress && (
-              <p className="font-mono text-xs text-gray-500 dark:text-gray-500">
+              <p className="font-mono text-xs text-muted-foreground">
                 MAC: {router.macAddress}
               </p>
             )}
           </div>
 
           {/* Metadata */}
-          <div className="mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               {router.discoveryMethod === 'scan' ? (
                 <>
@@ -172,7 +182,7 @@ export function RouterCard({
           {onConnect && router.connectionStatus !== 'online' && (
             <button
               onClick={handleConnect}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className={cn('px-3 py-1.5 text-sm rounded-md transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               Connect
             </button>
@@ -181,7 +191,7 @@ export function RouterCard({
           {onRemove && (
             <button
               onClick={handleRemove}
-              className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className={cn('px-3 py-1.5 text-sm rounded-md transition-colors', 'bg-muted text-foreground hover:bg-muted/80')}
             >
               Remove
             </button>
@@ -190,12 +200,14 @@ export function RouterCard({
       </div>
     </motion.div>
   );
-}
+});
+
+RouterCard.displayName = 'RouterCard';
 
 /**
  * Connection Status Badge Component
  */
-function ConnectionStatusBadge({
+const ConnectionStatusBadge = memo(function ConnectionStatusBadge({
   status,
 }: {
   status: Router['connectionStatus'];
@@ -203,29 +215,27 @@ function ConnectionStatusBadge({
   const config = {
     online: {
       label: 'Connected',
-      className:
-        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-success/20 text-success'),
     },
     offline: {
       label: 'Offline',
-      className: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-muted text-muted-foreground'),
     },
     unknown: {
       label: 'Not tested',
-      className:
-        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-warning/20 text-warning'),
     },
     connecting: {
       label: 'Connecting...',
-      className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-info/20 text-info'),
     },
   }[status];
 
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}
-    >
+    <span className={config.className}>
       {config.label}
     </span>
   );
-}
+});
+
+ConnectionStatusBadge.displayName = 'ConnectionStatusBadge';

@@ -1,0 +1,1 @@
+{"version":3,"file":"fragment-matcher.d.ts","sourceRoot":"","sources":["fragment-matcher.ts"],"names":[],"mappings":"AACM,MAAM,WAAW,uBAAuB;IACtC,aAAa,EAAE;QACb,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,EAAE,CAAA;KACxB,CAAA;CACF;AACD,QAAA,MAAM,MAAM,EAAE,uBAiFnB,CAAC;AACI,eAAe,MAAM,CAAC"}

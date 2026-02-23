@@ -7,20 +7,12 @@
  * @module @nasnet/features/network/dhcp/components/fingerprint-detail-panel
  */
 
-import * as React from 'react';
-import { Copy, Edit } from 'lucide-react';
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Button,
-  Badge,
-} from '@nasnet/ui/primitives';
-import { useToast } from '@nasnet/ui/patterns';
+import { memo, useCallback, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Badge } from '@nasnet/ui/primitives';
+import { useToast, Icon } from '@nasnet/ui/patterns';
 import { lookupVendor } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/utils';
+import { Pencil, Copy } from 'lucide-react';
 
 import type {
   DHCPLeaseWithOptions,
@@ -44,6 +36,9 @@ export interface FingerprintDetailPanelProps {
 
   /** Callback when Copy button is clicked */
   onCopy?: () => void;
+
+  /** Additional CSS classes */
+  className?: string;
 }
 
 /**
@@ -69,15 +64,16 @@ export interface FingerprintDetailPanelProps {
  * />
  * ```
  */
-export function FingerprintDetailPanel({
+function FingerprintDetailPanelComponent({
   lease,
   identification,
   onEdit,
   onCopy,
+  className,
 }: FingerprintDetailPanelProps) {
   const { toast } = useToast();
 
-  const handleCopy = React.useCallback(() => {
+  const handleCopy = useCallback(() => {
     const fingerprintData = {
       macAddress: identification.macAddress,
       deviceType: identification.deviceType,
@@ -102,13 +98,13 @@ export function FingerprintDetailPanel({
   }, [identification, lease, toast, onCopy]);
 
   // Lookup MAC vendor
-  const vendor = React.useMemo(
+  const vendor = useMemo(
     () => lookupVendor(lease.macAddress),
     [lease.macAddress]
   );
 
   // Format Option 55 for display
-  const option55Display = React.useMemo(() => {
+  const option55Display = useMemo(() => {
     const option55 = lease.options?.['55'];
     if (!option55) return 'Not available';
 
@@ -124,7 +120,7 @@ export function FingerprintDetailPanel({
   }, [lease.options]);
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className={cn('w-full max-w-md', className)}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -138,7 +134,7 @@ export function FingerprintDetailPanel({
               <CardTitle className="text-base">
                 {formatDeviceType(identification.deviceType)}
               </CardTitle>
-              <CardDescription className="text-sm">
+              <CardDescription className="text-sm font-mono">
                 {lease.hostname || lease.macAddress}
               </CardDescription>
             </div>
@@ -210,9 +206,10 @@ export function FingerprintDetailPanel({
               variant="outline"
               size="sm"
               onClick={onEdit}
-              className="flex-1"
+              className="flex-1 gap-2"
+              aria-label="Edit device fingerprint"
             >
-              <Edit className="h-4 w-4 mr-2" />
+              <Icon icon={Pencil} size="sm" />
               Edit
             </Button>
           )}
@@ -220,9 +217,10 @@ export function FingerprintDetailPanel({
             variant="outline"
             size="sm"
             onClick={handleCopy}
-            className="flex-1"
+            className="flex-1 gap-2"
+            aria-label="Copy fingerprint data to clipboard"
           >
-            <Copy className="h-4 w-4 mr-2" />
+            <Icon icon={Copy} size="sm" />
             Copy JSON
           </Button>
         </div>
@@ -231,22 +229,31 @@ export function FingerprintDetailPanel({
   );
 }
 
+// Export with memo wrapper and displayName
+export const FingerprintDetailPanel = memo(FingerprintDetailPanelComponent);
+FingerprintDetailPanel.displayName = 'FingerprintDetailPanel';
+
 /**
  * DetailField - Internal component for consistent field display
  */
 interface DetailFieldProps {
+  /** Field label */
   label: string;
+  /** Field value to display */
   value: string;
+  /** Use monospace font for technical data */
   mono?: boolean;
 }
 
-function DetailField({ label, value, mono = false }: DetailFieldProps) {
+const DetailField = memo(function DetailField({ label, value, mono = false }: DetailFieldProps) {
   return (
     <div className="flex flex-col gap-1">
       <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className={mono ? 'text-sm font-mono' : 'text-sm'}>
+      <dd className={cn('text-sm', mono && 'font-mono')}>
         {value}
       </dd>
     </div>
   );
-}
+});
+
+DetailField.displayName = 'DetailField';

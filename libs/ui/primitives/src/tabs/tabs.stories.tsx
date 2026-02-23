@@ -19,8 +19,11 @@ const meta: Meta<typeof Tabs> = {
     docs: {
       description: {
         component:
-          'A tabs component built on Radix UI Tabs primitive for organizing content into switchable panels.',
+          'A tabs component built on Radix UI Tabs primitive for organizing content into switchable panels. Fully keyboard accessible: Tab focuses first trigger, Arrow Left/Right navigate between triggers, Enter/Space activates tabs. Includes semantic ARIA attributes (role="tablist", role="tab", aria-selected, aria-controls) for screen reader support. Touch targets are 44px minimum on mobile. Visual focus indicators (2px ring) visible for keyboard navigation.',
       },
+    },
+    viewport: {
+      defaultViewport: 'desktop',
     },
   },
 };
@@ -28,6 +31,11 @@ const meta: Meta<typeof Tabs> = {
 export default meta;
 type Story = StoryObj<typeof Tabs>;
 
+/**
+ * Default tabs showing account and password settings.
+ * Happy path demonstrating basic two-tab layout with card content.
+ * Keyboard: Tab to focus, Arrow Left/Right to navigate, Enter/Space to select.
+ */
 export const Default: Story = {
   render: () => (
     <Tabs defaultValue="account" className="w-[400px]">
@@ -85,6 +93,11 @@ export const Default: Story = {
   ),
 };
 
+/**
+ * Tabs with icons and four columns showing icon+label pattern.
+ * Demonstrates icon usage with text labels (never icon-only without tooltip).
+ * Grid layout stretches tabs evenly across available width.
+ */
 export const WithIcons: Story = {
   render: () => (
     <Tabs defaultValue="profile" className="w-[500px]">
@@ -134,6 +147,11 @@ export const WithIcons: Story = {
   ),
 };
 
+/**
+ * Controlled component showing programmatic tab selection.
+ * Demonstrates external state management with onValueChange callback.
+ * Buttons show external control of active tab state.
+ */
 export const Controlled: Story = {
   render: function ControlledTabs() {
     const [value, setValue] = React.useState('tab1');
@@ -173,6 +191,11 @@ export const Controlled: Story = {
   },
 };
 
+/**
+ * Disabled tab state showing visual and behavioral disabled styling.
+ * Disabled tab is skipped by keyboard navigation (Tab key).
+ * Demonstrates proper disabled attribute usage and CSS applied state.
+ */
 export const Disabled: Story = {
   render: () => (
     <Tabs defaultValue="active" className="w-[400px]">
@@ -196,6 +219,11 @@ export const Disabled: Story = {
   ),
 };
 
+/**
+ * Full-width tabs using flex-1 for equal width distribution.
+ * Shows four tabs stretching across available container width.
+ * Demonstrates desktop-style four-column navigation layout.
+ */
 export const FullWidth: Story = {
   render: () => (
     <Tabs defaultValue="overview" className="w-full max-w-2xl">
@@ -235,6 +263,100 @@ export const FullWidth: Story = {
         <h3 className="font-medium mb-2">Export Data</h3>
         <p className="text-sm text-muted-foreground">
           Export your data in various formats for external analysis.
+        </p>
+      </TabsContent>
+    </Tabs>
+  ),
+};
+
+/**
+ * Mobile viewport (375px) showing two-column tab grid.
+ * Tabs are full-width with 44px+ touch target height.
+ * Content uses reduced padding (p-3) to maximize viewport usage.
+ * Reduced form fields shown per progressive disclosure pattern.
+ */
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  render: () => (
+    <Tabs defaultValue="account" className="w-full">
+      <TabsList className="w-full grid grid-cols-2">
+        <TabsTrigger value="account">Account</TabsTrigger>
+        <TabsTrigger value="password">Password</TabsTrigger>
+      </TabsList>
+      <TabsContent value="account" className="p-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>
+              Make changes to your account here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="name-mobile">Name</Label>
+              <Input id="name-mobile" defaultValue="Pedro Duarte" />
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="password" className="p-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Password</CardTitle>
+            <CardDescription>
+              Change your password here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="current-mobile">Current password</Label>
+              <Input id="current-mobile" type="password" />
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  ),
+};
+
+/**
+ * Tablet viewport (768px) showing three-column tab grid.
+ * Balanced information density with medium padding.
+ * Demonstrates hybrid approach between mobile simplicity and desktop density.
+ */
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+  render: () => (
+    <Tabs defaultValue="profile" className="w-full max-w-2xl">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="profile">Profile</TabsTrigger>
+        <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsTrigger value="security">Security</TabsTrigger>
+      </TabsList>
+      <TabsContent value="profile" className="p-4">
+        <h3 className="font-medium mb-2">Profile Settings</h3>
+        <p className="text-sm text-muted-foreground">
+          Manage your profile information and preferences.
+        </p>
+      </TabsContent>
+      <TabsContent value="settings" className="p-4">
+        <h3 className="font-medium mb-2">Application Settings</h3>
+        <p className="text-sm text-muted-foreground">
+          Configure your application settings and preferences.
+        </p>
+      </TabsContent>
+      <TabsContent value="security" className="p-4">
+        <h3 className="font-medium mb-2">Security Settings</h3>
+        <p className="text-sm text-muted-foreground">
+          Manage your security settings and two-factor authentication.
         </p>
       </TabsContent>
     </Tabs>

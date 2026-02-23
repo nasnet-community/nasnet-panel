@@ -6,7 +6,7 @@
  * Story NAS-5.6: Recent Logs with Filtering.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import type { LogTopic } from '@nasnet/core/types';
 

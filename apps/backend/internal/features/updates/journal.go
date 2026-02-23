@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3" // SQLite driver for database/sql
+	_ "modernc.org/sqlite" // Pure Go SQLite driver (no CGO)
 )
 
 // UpdatePhase represents a phase in the atomic update process
@@ -46,10 +46,22 @@ type UpdateJournal struct {
 
 // NewUpdateJournal creates a new update journal with SQLite backend
 func NewUpdateJournal(dbPath string) (*UpdateJournal, error) {
-	// Open database with WAL mode for power-safe writes
-	db, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_synchronous=FULL")
+	// Open database with modernc.org/sqlite driver (pure Go, no CGO)
+	db, err := sql.Open("sqlite", "file:"+dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	// Apply PRAGMAs for power-safe writes
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL",
+		"PRAGMA synchronous=FULL",
+	}
+	for _, pragma := range pragmas {
+		if _, err := db.Exec(pragma); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("failed to execute %s: %w", pragma, err)
+		}
 	}
 
 	journal := &UpdateJournal{db: db}

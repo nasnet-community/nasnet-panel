@@ -23,8 +23,3 @@ export type { StatusPillsProps, StatusPill, StatusPillVariant } from './StatusPi
 
 
 
-
-
-
-
-

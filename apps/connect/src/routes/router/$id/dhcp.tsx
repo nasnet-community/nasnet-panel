@@ -16,7 +16,7 @@ import { LazyDHCPTab } from '@/app/routes/router-panel/tabs/lazy';
  */
 function DHCPTabSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading DHCP configuration">
       <Skeleton className="h-8 w-48" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Skeleton className="h-40 w-full" />

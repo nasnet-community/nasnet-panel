@@ -1,3 +1,7 @@
+import React from 'react';
+
+import { useTranslation } from 'react-i18next';
+
 import { ROUTES } from '@nasnet/core/constants';
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 import { BackButton, StatusIndicator } from '@nasnet/ui/patterns';
@@ -31,7 +35,8 @@ export interface RouterHeaderProps {
  * <RouterHeader routerId={id} />
  * ```
  */
-export function RouterHeader({ routerId }: RouterHeaderProps) {
+export const RouterHeader = React.memo(function RouterHeader({ routerId }: RouterHeaderProps) {
+  const { t } = useTranslation('router');
   const getRouter = useRouterStore((state) => state.getRouter);
   const currentRouterIp = useConnectionStore((state) => state.currentRouterIp);
 
@@ -40,13 +45,13 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
   // Determine connection status
   const isConnected = !!currentRouterIp;
   const status = isConnected ? 'online' : 'offline';
-  const statusLabel = isConnected ? 'Connected' : 'Disconnected';
+  const statusLabel = isConnected ? t('panel.connected') : t('panel.disconnected');
 
   return (
     <div className="surface card-elevated p-4 md:p-6 mb-4 md:mb-6">
       <div className="flex items-start gap-3 md:gap-4">
         {/* Back Button */}
-        <BackButton to={ROUTES.ROUTER_LIST} ariaLabel="Back to router list" />
+        <BackButton to={ROUTES.ROUTER_LIST} ariaLabel={t('panel.backButton')} />
 
         {/* Router Information */}
         <div className="flex-1 min-w-0">
@@ -67,7 +72,7 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-muted">
             {/* Router ID */}
-            <span className="font-mono">ID: {routerId}</span>
+            <span className="font-mono">{t('panel.idLabel')}: {routerId}</span>
 
             {/* IP Address */}
             {router?.ipAddress && (
@@ -89,4 +94,5 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
       </div>
     </div>
   );
-}
+});
+RouterHeader.displayName = 'RouterHeader';

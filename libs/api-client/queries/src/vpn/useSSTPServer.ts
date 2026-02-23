@@ -36,9 +36,9 @@ function transformSSTPServer(raw: SSTPServerRaw): SSTPServer {
     id: 'sstp-server',
     name: 'SSTP Server',
     type: 'sstp-server',
-    disabled: raw.enabled !== 'true',
-    running: raw.enabled === 'true',
-    enabled: raw.enabled === 'true',
+    isDisabled: raw.enabled !== 'true',
+    isRunning: raw.enabled === 'true',
+    isEnabled: raw.enabled === 'true',
     port: parseInt(raw.port || '443', 10),
     maxMtu: parseInt(raw['max-mtu'] || '1500', 10),
     maxMru: parseInt(raw['max-mru'] || '1500', 10),
@@ -46,10 +46,10 @@ function transformSSTPServer(raw: SSTPServerRaw): SSTPServer {
     authentication: authMethods as SSTPServer['authentication'],
     defaultProfile: raw['default-profile'],
     certificate: raw.certificate,
-    pemEncoding: raw['pem-encoding'] === 'yes',
-    verifyClientCertificate: raw['verify-client-certificate'] === 'yes',
+    hasPemEncoding: raw['pem-encoding'] === 'yes',
+    shouldVerifyClientCertificate: raw['verify-client-certificate'] === 'yes',
     tlsVersion: (raw['tls-version'] as 'any' | 'only-1.2') || 'any',
-    forceAes: raw['force-aes'] === 'yes',
+    shouldForceAes: raw['force-aes'] === 'yes',
   };
 }
 

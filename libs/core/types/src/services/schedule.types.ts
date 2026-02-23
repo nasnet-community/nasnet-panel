@@ -13,7 +13,13 @@ import { z } from 'zod';
 // Constants
 // ============================================================================
 
-/** Days of week (0=Sunday, 6=Saturday) */
+/**
+ * Days of week array with value, label, and short representations.
+ * Index: 0=Sunday, 6=Saturday
+ *
+ * @example
+ * const monday = DAYS_OF_WEEK[1]; // { value: 1, label: 'Monday', short: 'Mon' }
+ */
 export const DAYS_OF_WEEK = [
   { value: 0, label: 'Sunday', short: 'Sun' },
   { value: 1, label: 'Monday', short: 'Mon' },
@@ -24,7 +30,12 @@ export const DAYS_OF_WEEK = [
   { value: 6, label: 'Saturday', short: 'Sat' },
 ] as const;
 
-/** Day presets for quick selection */
+/**
+ * Preset day selections for common scheduling patterns.
+ *
+ * @example
+ * const weekdaySchedule = DAY_PRESETS.WEEKDAYS; // [1, 2, 3, 4, 5]
+ */
 export const DAY_PRESETS = {
   WEEKDAYS: {
     label: 'Weekdays',
@@ -45,8 +56,15 @@ export const DAY_PRESETS = {
 // ============================================================================
 
 /**
- * Validate HH:MM time format (24-hour)
- * @example "09:00", "14:30", "23:59"
+ * Validate HH:MM time format (24-hour).
+ *
+ * @param time - Time string to validate
+ * @returns True if time matches HH:MM format with valid hours/minutes
+ *
+ * @example
+ * isValidTimeFormat("09:00"); // true
+ * isValidTimeFormat("14:30"); // true
+ * isValidTimeFormat("25:00"); // false
  */
 export function isValidTimeFormat(time: string): boolean {
   const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
@@ -54,8 +72,15 @@ export function isValidTimeFormat(time: string): boolean {
 }
 
 /**
- * Parse time string to minutes since midnight
- * @example "09:00" -> 540, "14:30" -> 870
+ * Parse time string to minutes since midnight.
+ *
+ * @param time - Time string in HH:MM format
+ * @returns Minutes since midnight
+ *
+ * @example
+ * timeToMinutes("09:00"); // 540
+ * timeToMinutes("14:30"); // 870
+ * timeToMinutes("23:59"); // 1439
  */
 export function timeToMinutes(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
@@ -63,8 +88,15 @@ export function timeToMinutes(time: string): number {
 }
 
 /**
- * Format minutes to HH:MM
- * @example 540 -> "09:00", 870 -> "14:30"
+ * Format minutes since midnight to HH:MM time string.
+ *
+ * @param minutes - Minutes since midnight (0-1439)
+ * @returns Time string in HH:MM format
+ *
+ * @example
+ * minutesToTime(540); // "09:00"
+ * minutesToTime(870); // "14:30"
+ * minutesToTime(1439); // "23:59"
  */
 export function minutesToTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -73,7 +105,15 @@ export function minutesToTime(minutes: number): string {
 }
 
 /**
- * Validate time range (start must be before end)
+ * Validate time range (start must be before end).
+ *
+ * @param startTime - Start time in HH:MM format
+ * @param endTime - End time in HH:MM format
+ * @returns True if both times are valid and start < end
+ *
+ * @example
+ * isValidTimeRange("09:00", "17:00"); // true
+ * isValidTimeRange("17:00", "09:00"); // false
  */
 export function isValidTimeRange(startTime: string, endTime: string): boolean {
   if (!isValidTimeFormat(startTime) || !isValidTimeFormat(endTime)) {
@@ -87,7 +127,8 @@ export function isValidTimeRange(startTime: string, endTime: string): boolean {
 // ============================================================================
 
 /**
- * Time string schema (HH:MM format, 24-hour)
+ * Time string Zod schema (HH:MM format, 24-hour).
+ * Validates time strings in 24-hour format.
  */
 export const TimeSchema = z
   .string()
@@ -97,7 +138,8 @@ export const TimeSchema = z
   .describe('Time in HH:MM format (24-hour)');
 
 /**
- * Day of week schema (0=Sunday, 6=Saturday)
+ * Day of week Zod schema (0=Sunday, 6=Saturday).
+ * Validates integer days 0-6.
  */
 export const DayOfWeekSchema = z
   .number()
@@ -107,7 +149,8 @@ export const DayOfWeekSchema = z
   .describe('Day of week (0=Sunday, 6=Saturday)');
 
 /**
- * Days array schema (must have at least one day)
+ * Days array Zod schema (must have at least one day).
+ * Validates arrays of day-of-week values.
  */
 export const DaysArraySchema = z
   .array(DayOfWeekSchema)
@@ -115,7 +158,8 @@ export const DaysArraySchema = z
   .describe('Array of days when schedule is active');
 
 /**
- * Timezone schema (IANA timezone identifier)
+ * Timezone Zod schema (IANA timezone identifier).
+ * Validates IANA timezone identifiers like "America/New_York" or "UTC".
  */
 export const TimezoneSchema = z
   .string()
@@ -123,7 +167,8 @@ export const TimezoneSchema = z
   .describe('IANA timezone identifier (e.g., "America/New_York", "UTC")');
 
 /**
- * Schedule input schema with cross-field validation
+ * Schedule input Zod schema with cross-field validation.
+ * Validates complete schedule configuration including time range validation.
  */
 export const ScheduleInputSchema = z
   .object({
@@ -145,7 +190,8 @@ export const ScheduleInputSchema = z
   );
 
 /**
- * Schedule update input schema (all fields optional except validation)
+ * Schedule update input Zod schema (all fields optional).
+ * Allows partial updates with conditional time range validation.
  */
 export const ScheduleUpdateInputSchema = z
   .object({
@@ -173,16 +219,36 @@ export const ScheduleUpdateInputSchema = z
 // TypeScript Types
 // ============================================================================
 
-/** Schedule input type (inferred from schema) */
+/**
+ * Schedule input type.
+ * Inferred from ScheduleInputSchema.
+ *
+ * @example
+ * const schedule: ScheduleInput = {
+ *   routingID: "route-1",
+ *   days: [1, 2, 3],
+ *   startTime: "09:00",
+ *   endTime: "17:00",
+ *   timezone: "America/New_York",
+ *   enabled: true
+ * };
+ */
 export type ScheduleInput = z.infer<typeof ScheduleInputSchema>;
 
-/** Schedule update input type (inferred from schema) */
+/**
+ * Schedule update input type.
+ * Inferred from ScheduleUpdateInputSchema - all fields optional.
+ */
 export type ScheduleUpdateInput = z.infer<typeof ScheduleUpdateInputSchema>;
 
-/** Day of week type */
+/**
+ * Day of week type (0=Sunday, 6=Saturday).
+ */
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-/** Day preset keys */
+/**
+ * Day preset keys for predefined day selections.
+ */
 export type DayPresetKey = keyof typeof DAY_PRESETS;
 
 // ============================================================================
@@ -190,10 +256,19 @@ export type DayPresetKey = keyof typeof DAY_PRESETS;
 // ============================================================================
 
 /**
- * Get next activation time for a schedule
- * @param schedule Schedule configuration
- * @param now Current time (defaults to now)
+ * Get next activation time for a schedule.
+ *
+ * Computes when a schedule will next activate, considering current time
+ * and selected days/times.
+ *
+ * @param schedule - Schedule configuration with days, startTime, enabled
+ * @param now - Current time (defaults to now)
  * @returns Next activation timestamp or null if schedule is disabled
+ *
+ * @example
+ * const schedule = { days: [1, 2, 3], startTime: "09:00", enabled: true };
+ * const next = getNextActivation(schedule);
+ * if (next) console.log(`Activates at: ${next}`);
  */
 export function getNextActivation(
   schedule: Pick<ScheduleInput, 'days' | 'startTime' | 'enabled'>,
@@ -229,16 +304,28 @@ export function getNextActivation(
 }
 
 /**
- * Format time range for display
- * @example "09:00 - 17:00"
+ * Format time range for display.
+ *
+ * @param startTime - Start time in HH:MM format
+ * @param endTime - End time in HH:MM format
+ * @returns Formatted string "HH:MM - HH:MM"
+ *
+ * @example
+ * formatTimeRange("09:00", "17:00"); // "09:00 - 17:00"
  */
 export function formatTimeRange(startTime: string, endTime: string): string {
   return `${startTime} - ${endTime}`;
 }
 
 /**
- * Format days for display
- * @example "Mon, Tue, Wed, Thu, Fri"
+ * Format days for display.
+ *
+ * @param days - Array of day-of-week numbers
+ * @returns Formatted string "Day, Day, Day..."
+ *
+ * @example
+ * formatDays([1, 2, 3, 4, 5]); // "Mon, Tue, Wed, Thu, Fri"
+ * formatDays([0, 6]); // "Sun, Sat"
  */
 export function formatDays(days: number[]): string {
   const sorted = [...days].sort((a, b) => a - b);
@@ -248,7 +335,17 @@ export function formatDays(days: number[]): string {
 }
 
 /**
- * Check if days match a preset
+ * Check if days match a preset.
+ *
+ * Determines if a day array matches one of the predefined presets.
+ *
+ * @param days - Array of day-of-week numbers to check
+ * @returns Matching preset key or null if no match
+ *
+ * @example
+ * matchesPreset([1, 2, 3, 4, 5]); // "WEEKDAYS"
+ * matchesPreset([0, 6]); // "WEEKENDS"
+ * matchesPreset([1, 3, 5]); // null
  */
 export function matchesPreset(days: number[]): DayPresetKey | null {
   const sorted = [...days].sort((a, b) => a - b);

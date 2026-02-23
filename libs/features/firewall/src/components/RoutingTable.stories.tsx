@@ -16,7 +16,7 @@
  * the real component structure.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { RouteEntry } from '@nasnet/core/types';
 import {
   Table,
   TableBody,
@@ -25,7 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from '@nasnet/ui/primitives';
-import type { RouteEntry } from '@nasnet/core/types';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Inline mock data

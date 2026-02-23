@@ -1,14 +1,15 @@
 /**
  * Headless useWebhookConfigForm Hook
  *
- * Manages webhook configuration form state using React Hook Form with Zod validation.
- * Provides webhook creation, testing, and signing secret display.
+ * @description Manages webhook configuration form state using React Hook Form with Zod validation.
+ * Provides webhook creation, testing, and signing secret display (one-time only). All callbacks
+ * are memoized for stable references. Test state is cleaned up on unmount.
  *
  * @module @nasnet/features/alerts/hooks
  * @see NAS-18.4: Webhook notification configuration with Platform Presenters
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -20,7 +21,7 @@ import {
 } from '@nasnet/api-client/queries/notifications';
 import {
   webhookConfigSchema,
-  defaultWebhookConfig,
+  DEFAULT_WEBHOOK_CONFIG,
   toWebhookInput,
   type WebhookConfig,
 } from '../schemas/webhook.schema';
@@ -145,7 +146,7 @@ export function useWebhookConfigForm(
           maxRetries: webhook.maxRetries,
           enabled: webhook.enabled,
         }
-      : defaultWebhookConfig,
+      : DEFAULT_WEBHOOK_CONFIG,
     mode: 'onChange',
   });
 
@@ -377,11 +378,21 @@ export function useWebhookConfigForm(
             maxRetries: webhook.maxRetries,
             enabled: webhook.enabled,
           }
-        : defaultWebhookConfig
+        : DEFAULT_WEBHOOK_CONFIG
     );
     setTestResult(undefined);
     setSigningSecret(undefined);
   }, [form, webhook]);
+
+  /**
+   * Cleanup on unmount: clear test results and signing secret
+   */
+  useEffect(() => {
+    return () => {
+      setTestResult(undefined);
+      setSigningSecret(undefined);
+    };
+  }, []);
 
   return {
     form,

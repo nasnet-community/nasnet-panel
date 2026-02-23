@@ -52,7 +52,7 @@ export interface HelpModeToggleProps {
  * />
  * ```
  */
-export function HelpModeToggle({
+export const HelpModeToggle = React.memo(function HelpModeToggle({
   className,
   compact = false,
   simpleLabel = 'Simple',
@@ -108,4 +108,6 @@ export function HelpModeToggle({
       </Label>
     </div>
   );
-}
+});
+
+HelpModeToggle.displayName = 'HelpModeToggle';

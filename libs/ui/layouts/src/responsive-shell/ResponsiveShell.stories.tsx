@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-import { Home, Shield, Activity, Settings } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 import { ResponsiveShell } from './ResponsiveShell';
 
@@ -79,10 +79,10 @@ const MockPageContent = (
 const mobileNavigation = {
   activeId: 'home',
   items: [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'vpn', label: 'VPN', icon: Shield },
-    { id: 'monitor', label: 'Monitor', icon: Activity },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'home', label: 'Home', icon: 'lucide:home' },
+    { id: 'vpn', label: 'VPN', icon: 'lucide:shield' },
+    { id: 'monitor', label: 'Monitor', icon: 'lucide:activity' },
+    { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
   ],
 };
 
@@ -229,5 +229,82 @@ export const WithBanner: Story = {
       </div>
     ),
     children: MockPageContent,
+  },
+};
+
+/**
+ * Error state: demonstrate layout when in error/degraded state
+ * Shows disconnection banner and disabled controls
+ */
+export const ErrorState: Story = {
+  name: 'Desktop Layout — Error State',
+  args: {
+    forcePlatform: 'desktop',
+    header: MockDesktopHeader,
+    sidebar: MockSidebar,
+    banner: (
+      <div className="bg-error text-white px-6 py-2 text-sm text-center font-medium">
+        Connection failed &mdash; unable to reach router
+      </div>
+    ),
+    children: (
+      <div className="p-6">
+        <div className="rounded-lg border-2 border-error bg-error/10 p-6 text-center">
+          <p className="text-sm text-error font-medium mb-2">Unable to Connect</p>
+          <p className="text-sm text-muted-foreground">Check your network connection and try again.</p>
+        </div>
+      </div>
+    ),
+  },
+};
+
+/**
+ * Loading state: demonstrate skeleton/loading layout
+ * Shows placeholder content while data is loading
+ */
+export const LoadingState: Story = {
+  name: 'Desktop Layout — Loading State',
+  args: {
+    forcePlatform: 'desktop',
+    header: MockDesktopHeader,
+    sidebar: MockSidebar,
+    children: (
+      <div className="p-6 flex flex-col gap-4">
+        <h2 className="text-xl font-semibold">Dashboard</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-lg border border-border bg-muted p-4 h-16 animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="h-40 rounded-lg bg-muted animate-pulse" />
+      </div>
+    ),
+  },
+};
+
+/**
+ * Empty state: demonstrate layout with no content
+ * Shows helpful message when there's nothing to display
+ */
+export const EmptyState: Story = {
+  name: 'Desktop Layout — Empty State',
+  args: {
+    forcePlatform: 'desktop',
+    header: MockDesktopHeader,
+    sidebar: MockSidebar,
+    children: (
+      <div className="p-6">
+        <div className="rounded-lg border border-border p-12 text-center">
+          <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No Data Available</h3>
+          <p className="text-sm text-muted-foreground">
+            There are no active connections or services to display.
+          </p>
+        </div>
+      </div>
+    ),
   },
 };

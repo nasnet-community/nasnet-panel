@@ -158,7 +158,7 @@ export const FailedWithFix: Story = {
       fix: {
         issueCode: 'WAN_DISABLED',
         title: 'Enable WAN Interface',
-        explanation:
+        description:
           'Your WAN interface is currently disabled. We can enable it for you with a single click.',
         confidence: 'high',
         requiresConfirmation: true,
@@ -206,7 +206,7 @@ export const InternetCheckPassed: Story = {
       result: {
         success: true,
         message: 'Internet is reachable',
-        details: 'Successfully pinged 8.8.8.8 (Google DNS)',
+        details: { target: '8.8.8.8', provider: 'Google DNS' },
         executionTimeMs: 850,
       },
     },
@@ -228,13 +228,13 @@ export const DNSCheckFailed: Story = {
         success: false,
         message: 'DNS resolution failed',
         issueCode: 'DNS_FAILED',
-        details: 'Unable to resolve google.com',
+        details: { target: 'google.com', error: 'resolution timeout' },
         executionTimeMs: 5020,
       },
       fix: {
         issueCode: 'DNS_FAILED',
         title: 'Configure DNS Servers',
-        explanation:
+        description:
           'Your router is not configured with working DNS servers. We can set up Google DNS (8.8.8.8) for you.',
         confidence: 'high',
         requiresConfirmation: true,
@@ -259,7 +259,7 @@ export const NATCheckPassed: Story = {
       result: {
         success: true,
         message: 'NAT is configured correctly',
-        details: 'Masquerade rule found for WAN interface',
+        details: { ruleFound: true, interface: 'WAN' },
         executionTimeMs: 380,
       },
     },
@@ -298,7 +298,7 @@ export const AllStates: Story = {
       <DiagnosticStep
         step={{
           ...baseStep,
-          status: 'skipped',
+          status: 'pending',
         }}
         isActive={false}
         stepNumber={5}

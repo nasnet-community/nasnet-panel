@@ -2,6 +2,9 @@
  * Network interface types for MikroTik RouterOS
  */
 
+/**
+ * MikroTik supported network interface types
+ */
 export type InterfaceType =
   | 'ether'
   | 'bridge'
@@ -18,8 +21,14 @@ export type InterfaceType =
   | 'lte'
   | 'other';
 
+/**
+ * Interface administrative status
+ */
 export type InterfaceStatus = 'running' | 'disabled';
 
+/**
+ * Interface physical link status
+ */
 export type LinkStatus = 'up' | 'down' | 'unknown';
 
 /**
@@ -28,18 +37,25 @@ export type LinkStatus = 'up' | 'down' | 'unknown';
 export interface NetworkInterface {
   /** RouterOS internal ID */
   id: string;
+
   /** Interface name (e.g., "ether1", "bridge1") */
   name: string;
+
   /** Interface type */
   type: InterfaceType;
+
   /** Admin status (running/disabled) */
   status: InterfaceStatus;
+
   /** MAC address */
   macAddress: string;
+
   /** Link status (connected/disconnected) */
   linkStatus: LinkStatus;
+
   /** Maximum Transmission Unit */
   mtu?: number;
+
   /** User comment */
   comment?: string;
 }
@@ -50,56 +66,74 @@ export interface NetworkInterface {
 export interface TrafficStatistics {
   /** Interface ID */
   interfaceId: string;
+
   /** Bytes transmitted */
   txBytes: number;
+
   /** Bytes received */
   rxBytes: number;
+
   /** Packets transmitted */
   txPackets: number;
+
   /** Packets received */
   rxPackets: number;
+
   /** Transmit errors */
   txErrors: number;
+
   /** Receive errors */
   rxErrors: number;
+
   /** Transmit drops */
   txDrops: number;
+
   /** Receive drops */
   rxDrops: number;
 }
 
 /**
- * ARP table entry
+ * ARP (Address Resolution Protocol) table entry
  */
 export interface ARPEntry {
   /** RouterOS internal ID */
   id: string;
+
   /** IP address */
   ipAddress: string;
+
   /** MAC address */
   macAddress: string;
+
   /** Interface name */
   interface: string;
+
   /** ARP entry status */
   status: 'complete' | 'incomplete' | 'failed';
-  /** Whether entry is dynamic (vs static) */
-  dynamic: boolean;
+
+  /** Whether entry is dynamically learned (vs statically configured) */
+  isDynamic: boolean;
 }
 
 /**
- * IP address assignment
+ * IP address assignment on an interface
  */
 export interface IPAddress {
   /** RouterOS internal ID */
   id: string;
+
   /** IP address in CIDR notation (e.g., "192.168.1.1/24") */
   address: string;
+
   /** Network address */
   network: string;
+
   /** Interface name */
   interface: string;
+
   /** Whether assigned via DHCP */
-  dynamic: boolean;
+  isDynamic: boolean;
+
   /** Whether address is disabled */
-  disabled: boolean;
+  isDisabled: boolean;
 }

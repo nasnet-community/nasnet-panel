@@ -4,15 +4,15 @@
  * Visual testing for all platform presenters and states.
  */
 
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react';
+
+import { fn } from 'storybook/test';
 
 import type { InAppNotification } from '@nasnet/state/stores';
 
 import { NotificationBell } from './NotificationBell';
 import { NotificationBellDesktop } from './NotificationBell.Desktop';
 import { NotificationBellMobile } from './NotificationBell.Mobile';
-
-import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock notifications
 const mockNotifications: InAppNotification[] = [

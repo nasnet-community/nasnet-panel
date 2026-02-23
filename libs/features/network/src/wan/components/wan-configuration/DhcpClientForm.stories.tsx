@@ -74,9 +74,9 @@ export const WithInitialValues: Story = {
     routerId: 'router-demo-123',
     initialValues: {
       interface: 'ether1',
-      addDefaultRoute: true,
-      usePeerDNS: true,
-      usePeerNTP: false,
+      shouldAddDefaultRoute: true,
+      shouldUsePeerDNS: true,
+      shouldUsePeerNTP: false,
       comment: 'Primary ISP - DHCP',
     },
     onSubmit: async (values) => {
@@ -102,9 +102,9 @@ export const Loading: Story = {
     routerId: 'router-demo-123',
     initialValues: {
       interface: 'ether1',
-      addDefaultRoute: false,
-      usePeerDNS: true,
-      usePeerNTP: true,
+      shouldAddDefaultRoute: false,
+      shouldUsePeerDNS: true,
+      shouldUsePeerNTP: true,
       comment: 'Applying…',
     },
     loading: true,
@@ -129,9 +129,9 @@ export const PeerDNSAndNTPDisabled: Story = {
     routerId: 'router-demo-123',
     initialValues: {
       interface: 'ether2',
-      addDefaultRoute: true,
-      usePeerDNS: false,
-      usePeerNTP: false,
+      shouldAddDefaultRoute: true,
+      shouldUsePeerDNS: false,
+      shouldUsePeerNTP: false,
       comment: 'Custom DNS configuration',
     },
     onSubmit: async (values) => {
@@ -178,9 +178,9 @@ export const BackupWAN: Story = {
     routerId: 'router-demo-123',
     initialValues: {
       interface: 'ether3',
-      addDefaultRoute: false,
-      usePeerDNS: false,
-      usePeerNTP: false,
+      shouldAddDefaultRoute: false,
+      shouldUsePeerDNS: false,
+      shouldUsePeerNTP: false,
       comment: 'Backup WAN - no default route',
     },
     onSubmit: async (values) => {

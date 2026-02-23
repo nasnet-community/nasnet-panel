@@ -11,10 +11,11 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useState, memo } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 import { useStepper, VStepper } from '@nasnet/ui/patterns';
 import type { StepConfig } from '@nasnet/ui/patterns';
 import { Button } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { useConfigurePppoeWAN } from '@nasnet/api-client/queries';
 import { PppoeInterfaceStep } from './wizard-steps/PppoeInterfaceStep';
 import { PppoeCredentialsStep } from './wizard-steps/PppoeCredentialsStep';
@@ -25,6 +26,7 @@ import type { PppoeClientFormValues } from '../../schemas/pppoe-client.schema';
 
 /**
  * PPPoE Wizard Props
+ * @description Configuration options for the PPPoE wizard component
  */
 export interface PppoeWizardProps {
   /** Router ID for configuration */
@@ -33,6 +35,8 @@ export interface PppoeWizardProps {
   onComplete?: (result: any) => void;
   /** Callback when wizard is cancelled */
   onCancel?: () => void;
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
@@ -62,12 +66,13 @@ export const PppoeWizard = memo(function PppoeWizard({
   routerId,
   onComplete,
   onCancel,
+  className,
 }: PppoeWizardProps) {
   const [configurePppoeWAN, { loading, error }] = useConfigurePppoeWAN();
   const [configurationResult, setConfigurationResult] = useState<any>(null);
 
-  // Define wizard steps
-  const steps: StepConfig[] = [
+  // Define wizard steps with memoization
+  const steps: StepConfig[] = useMemo(() => [
     {
       id: 'interface',
       title: 'Interface',
@@ -93,7 +98,7 @@ export const PppoeWizard = memo(function PppoeWizard({
       title: 'Apply',
       description: 'Confirm and apply',
     },
-  ];
+  ], []);
 
   // Initialize stepper
   const stepper = useStepper({
@@ -105,7 +110,7 @@ export const PppoeWizard = memo(function PppoeWizard({
    * Handle final configuration submission
    * Called from the confirm step
    */
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       // Collect all data from stepper
       const interfaceData = stepper.getStepData('interface') as Record<string, any> || {};
@@ -120,8 +125,8 @@ export const PppoeWizard = memo(function PppoeWizard({
         serviceName: credentialsData.serviceName,
         mtu: optionsData.mtu,
         mru: optionsData.mru,
-        addDefaultRoute: optionsData.addDefaultRoute ?? true,
-        usePeerDNS: optionsData.usePeerDNS ?? true,
+        shouldAddDefaultRoute: optionsData.shouldAddDefaultRoute ?? true,
+        shouldUsePeerDNS: optionsData.shouldUsePeerDNS ?? true,
         comment: optionsData.comment,
       };
 
@@ -146,26 +151,26 @@ export const PppoeWizard = memo(function PppoeWizard({
     } catch (err) {
       console.error('Failed to configure PPPoE:', err);
     }
-  };
+  }, [configurePppoeWAN, routerId, onComplete]);
 
   /**
    * Handle wizard cancellation
    */
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (onCancel) {
       onCancel();
     }
-  };
+  }, [onCancel]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       {/* Wizard Progress Indicator */}
       <VStepper
         stepper={stepper}
       />
 
       {/* Step Content */}
-      <div className="min-h-[400px]">
+      <div className="min-h-[400px]" role="region" aria-live="polite" aria-label="Wizard step content">
         {stepper.currentStep?.id === 'interface' && (
           <PppoeInterfaceStep
             routerId={routerId}
@@ -191,7 +196,7 @@ export const PppoeWizard = memo(function PppoeWizard({
         {stepper.currentStep?.id === 'confirm' && (
           <PppoeConfirmStep
             stepper={stepper}
-            loading={loading}
+            isLoading={loading}
             error={error}
             result={configurationResult}
             onSubmit={handleSubmit}
@@ -241,11 +246,11 @@ export const PppoeWizard = memo(function PppoeWizard({
 
       {/* Error Display */}
       {error && (
-        <div className="rounded-lg bg-error/10 border border-error p-4" role="alert">
-          <p className="text-sm text-error font-medium">
+        <div className="rounded-lg bg-destructive/10 border border-destructive p-4" role="alert" aria-live="assertive">
+          <p className="text-sm text-destructive font-medium">
             Configuration Error
           </p>
-          <p className="text-sm text-error/80 mt-1">
+          <p className="text-sm text-destructive/80 mt-1">
             {error.message}
           </p>
         </div>
@@ -253,3 +258,5 @@ export const PppoeWizard = memo(function PppoeWizard({
     </div>
   );
 });
+
+PppoeWizard.displayName = 'PppoeWizard';

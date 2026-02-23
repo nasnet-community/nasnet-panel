@@ -1,13 +1,20 @@
 /**
  * Rule Filters Hook
- * Manages filter state for firewall rule search and filtering
+ * @description Manages filter state for firewall rule search and filtering with
+ * memoized computation and useCallback optimization for stable event handlers.
+ *
+ * @example
+ * const filters = useRuleFilters();
+ * const filtered = filters.filterRules(allRules);
+ * filters.setSearch('port 80');
  */
 
 import { useReducer, useCallback, useMemo } from 'react';
 import type { FirewallFilters, FirewallRule, FirewallChain, FirewallAction, FirewallProtocol } from '@nasnet/core/types';
 
 /**
- * Filter action types
+ * Filter action types for reducer dispatch
+ * @internal
  */
 type FilterAction =
   | { type: 'SET_SEARCH'; payload: string }
@@ -20,8 +27,9 @@ type FilterAction =
 
 /**
  * Default filter state
+ * @internal
  */
-const defaultFilters: FirewallFilters = {
+const DEFAULT_FILTERS: FirewallFilters = {
   search: '',
   chain: 'all',
   action: 'all',
@@ -30,7 +38,8 @@ const defaultFilters: FirewallFilters = {
 };
 
 /**
- * Filter reducer
+ * Filter reducer for managing filter state transitions
+ * @internal
  */
 function filterReducer(state: FirewallFilters, action: FilterAction): FirewallFilters {
   switch (action.type) {
@@ -45,7 +54,7 @@ function filterReducer(state: FirewallFilters, action: FilterAction): FirewallFi
     case 'SET_STATUS':
       return { ...state, status: action.payload };
     case 'CLEAR_ALL':
-      return defaultFilters;
+      return DEFAULT_FILTERS;
     case 'SET_FILTERS':
       return { ...state, ...action.payload };
     default:
@@ -55,6 +64,8 @@ function filterReducer(state: FirewallFilters, action: FilterAction): FirewallFi
 
 /**
  * Check if any filters are active
+ * @param filters - The filter state to check
+ * @returns True if any filter is set to a non-default value
  */
 export function hasActiveFilters(filters: FirewallFilters): boolean {
   return (
@@ -67,7 +78,10 @@ export function hasActiveFilters(filters: FirewallFilters): boolean {
 }
 
 /**
- * Count active filters
+ * Count the number of active filters
+ * @description Useful for displaying badge counts in the UI.
+ * @param filters - The filter state to count
+ * @returns Number of active filters (0-5)
  */
 export function countActiveFilters(filters: FirewallFilters): number {
   let count = 0;
@@ -81,6 +95,11 @@ export function countActiveFilters(filters: FirewallFilters): number {
 
 /**
  * Apply filters to a list of firewall rules
+ * @description Pure function that filters rules by search, chain, action, protocol, and status.
+ * Search matches: comment, srcAddress, dstAddress, srcPort, dstPort (case-insensitive).
+ * @param rules - Rules to filter
+ * @param filters - Filter state
+ * @returns Filtered subset of rules
  */
 export function applyFilters(rules: FirewallRule[], filters: FirewallFilters): FirewallRule[] {
   return rules.filter((rule) => {
@@ -93,7 +112,7 @@ export function applyFilters(rules: FirewallRule[], filters: FirewallFilters): F
         (rule.dstAddress && rule.dstAddress.toLowerCase().includes(searchLower)) ||
         (rule.srcPort && rule.srcPort.includes(searchLower)) ||
         (rule.dstPort && rule.dstPort.includes(searchLower));
-      
+
       if (!matchesSearch) return false;
     }
 
@@ -127,37 +146,56 @@ export function applyFilters(rules: FirewallRule[], filters: FirewallFilters): F
  * Hook return type
  */
 export interface UseRuleFiltersReturn {
+  /** Current filter state */
   filters: FirewallFilters;
+  /** Set search text (matches comment, IPs, ports) */
   setSearch: (search: string) => void;
+  /** Set chain filter */
   setChain: (chain: FirewallChain | 'all') => void;
+  /** Set action filter (accept, drop, reject, log) */
   setAction: (action: FirewallAction | 'all') => void;
+  /** Set protocol filter (tcp, udp, icmp) */
   setProtocol: (protocol: FirewallProtocol | 'all') => void;
+  /** Set status filter (enabled, disabled) */
   setStatus: (status: 'enabled' | 'disabled' | 'all') => void;
+  /** Clear all filters to default state */
   clearAll: () => void;
+  /** Set multiple filters at once */
   setFilters: (filters: Partial<FirewallFilters>) => void;
+  /** Whether any filters are currently active */
   hasActiveFilters: boolean;
+  /** Count of active filters (0-5) */
   activeFilterCount: number;
+  /** Memoized function to apply filters to a rule list */
   filterRules: (rules: FirewallRule[]) => FirewallRule[];
 }
 
 /**
  * Hook to manage firewall rule filters
+ * @description Manages filter state with useReducer for complex filter interactions.
+ * Provides memoized setters and computed properties (activeFilterCount, hasActiveFilters).
  *
  * Features:
- * - Manages filter state with useReducer
- * - Provides individual setters for each filter
- * - Provides clear all functionality
- * - Memoized filter application function
+ * - Manages filter state with useReducer for multi-filter coordination
+ * - useCallback on all setters for stable event handler references
+ * - useMemo on computed properties (activeCount, hasActiveFilters)
+ * - useMemo on filterRules function to prevent unnecessary re-computations
+ * - Supports partial initial filters with defaults fallback
  *
- * @param initialFilters - Optional initial filter state
- * @returns Filter state and handlers
+ * @param initialFilters - Optional initial filter state (merged with defaults)
+ * @returns Filter state and memoized handlers
+ *
+ * @example
+ * const filters = useRuleFilters({ chain: 'input' });
+ * filters.setSearch('port 443');
+ * const filtered = filters.filterRules(allRules);
  */
 export function useRuleFilters(
   initialFilters?: Partial<FirewallFilters>
 ): UseRuleFiltersReturn {
   const [filters, dispatch] = useReducer(
     filterReducer,
-    initialFilters ? { ...defaultFilters, ...initialFilters } : defaultFilters
+    initialFilters ? { ...DEFAULT_FILTERS, ...initialFilters } : DEFAULT_FILTERS
   );
 
   const setSearch = useCallback((search: string) => {

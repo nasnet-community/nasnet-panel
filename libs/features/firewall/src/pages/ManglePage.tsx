@@ -14,63 +14,26 @@
  * @see NAS-7.5: Implement Mangle Rules - Task 8
  */
 
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMangleUIStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { usePlatform } from '@nasnet/ui/patterns';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import { useMangleUIStore, useConnectionStore } from '@nasnet/state/stores';
 import { useMangleRules } from '@nasnet/api-client/queries/firewall';
 import { MangleRulesTable } from '../components/MangleRulesTable';
 import { MangleRulesTableMobile } from '../components/MangleRulesTableMobile';
 import { MangleRuleEditor } from '@nasnet/ui/patterns/mangle-rule-editor';
 import { MangleFlowDiagram } from '@nasnet/ui/patterns/mangle-flow-diagram';
 import type { MangleChain } from '@nasnet/core/types';
-import {
-  Button,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@nasnet/ui/primitives';
 import { Plus, Workflow } from 'lucide-react';
-
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-function usePlatform() {
-  const [platform, setPlatform] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-
-  // Simple platform detection based on window width
-  // In production, this would use a more robust hook
-  if (typeof window !== 'undefined') {
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  }
-
-  return platform;
-}
 
 // ============================================================================
 // Empty State Component
 // ============================================================================
 
+/**
+ * @description Empty state displayed when no mangle rules exist in the current chain
+ */
 interface EmptyStateProps {
   chain?: MangleChain;
   onAddRule: () => void;
@@ -95,7 +58,7 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProp
       </CardHeader>
       <CardContent className="flex justify-center">
         <Button onClick={onAddRule} aria-label={chain ? t('mangle.emptyStates.noRulesInChain.action', { chain }) : t('mangle.emptyStates.noRules.actions.create')}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {chain
             ? t('mangle.emptyStates.noRulesInChain.action', { chain })
             : t('mangle.emptyStates.noRules.actions.create')}
@@ -105,6 +68,8 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProp
   );
 });
 
+EmptyState.displayName = 'EmptyState';
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -112,11 +77,12 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProp
 /**
  * ManglePage Component
  *
- * Main page for mangle rules management with chain-based tabs.
+ * @description Main page for mangle rules management with chain-based tabs, add rule button, and flow diagram view.
+ * Provides tab-based navigation across firewall packet modification chains (prerouting, input, forward, output, postrouting).
  *
  * @returns Mangle page component
  */
-export function ManglePage() {
+export const ManglePage = memo(function ManglePage() {
   const { t } = useTranslation('firewall');
   const platform = usePlatform();
   const isMobile = platform === 'mobile';
@@ -135,17 +101,17 @@ export function ManglePage() {
     selectedChain === 'all' ? undefined : { chain: selectedChain }
   );
 
-  const handleAddRule = () => {
+  const handleAddRule = useCallback(() => {
     setShowAddRule(true);
-  };
+  }, []);
 
-  const handleViewFlow = () => {
+  const handleViewFlow = useCallback(() => {
     setShowFlowDiagram(true);
-  };
+  }, []);
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = useCallback((value: string) => {
     setSelectedChain(value as MangleChain | 'all');
-  };
+  }, [setSelectedChain]);
 
   return (
     <div className="h-full flex flex-col">
@@ -158,11 +124,11 @@ export function ManglePage() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleViewFlow} aria-label={t('mangle.buttons.viewFlow')}>
-              <Workflow className="h-4 w-4 mr-2" />
+              <Workflow className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('mangle.buttons.viewFlow')}
             </Button>
             <Button onClick={handleAddRule} aria-label={t('mangle.buttons.addRule')}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('mangle.buttons.addRule')}
             </Button>
           </div>
@@ -272,9 +238,6 @@ export function ManglePage() {
       </Dialog>
     </div>
   );
-}
+});
 
-/**
- * Export for route configuration
- */
-export default ManglePage;
+ManglePage.displayName = 'ManglePage';

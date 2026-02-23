@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { LeaseTableWithSelection } from './LeaseTableWithSelection';
 

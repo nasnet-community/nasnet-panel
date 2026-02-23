@@ -3,9 +3,11 @@
  * Dashboard Pro style stats grid showing DHCP overview metrics
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Users, PieChart, Server, Network, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 import type { DHCPServer, DHCPLease, DHCPPool, DHCPClient } from '@nasnet/core/types';
 
@@ -19,13 +21,14 @@ interface DHCPStatusHeroProps {
   isLoading?: boolean;
 }
 
-export function DHCPStatusHero({
+export const DHCPStatusHero = React.memo(function DHCPStatusHero({
   servers,
   leases,
   pools,
   clients,
   isLoading,
 }: DHCPStatusHeroProps) {
+  const { t } = useTranslation('network');
   // Calculate metrics
   const activeLeases = useMemo(() => {
     return leases.filter(lease => lease.status === 'bound').length;
@@ -55,11 +58,11 @@ export function DHCPStatusHero({
         {[1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
-            className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 md:p-4 hidden md:block first:block [&:nth-child(2)]:block [&:nth-child(3)]:block"
+            className="bg-muted rounded-xl p-3 md:p-4 hidden md:block first:block [&:nth-child(2)]:block [&:nth-child(3)]:block"
           >
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-12 mb-2" />
-            <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-8 mb-1" />
-            <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2" />
+            <div className="h-4 bg-muted/50 rounded w-12 mb-2" />
+            <div className="h-6 bg-muted/50 rounded w-8 mb-1" />
+            <div className="h-1.5 bg-muted/50 rounded-full mt-2" />
           </div>
         ))}
       </div>
@@ -69,36 +72,36 @@ export function DHCPStatusHero({
   return (
     <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
       {/* Active Leases */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Users className="w-3.5 h-3.5 text-cyan-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-            Active
+          <Users className="w-3.5 h-3.5 text-category-network" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('dhcp.hero.active')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+        <p className="text-xl md:text-2xl font-bold text-foreground">
           {activeLeases}
-          <span className="text-slate-400 dark:text-slate-500 text-sm font-normal ml-1">
+          <span className="text-muted-foreground text-sm font-normal ml-1">
             /{totalPoolSize}
           </span>
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Leases
+        <p className="text-xs text-muted-foreground mt-1">
+          {t('dhcp.hero.leases')}
         </p>
       </div>
 
       {/* Pool Utilization */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <PieChart className="w-3.5 h-3.5 text-emerald-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-            Used
+          <PieChart className="w-3.5 h-3.5 text-success" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('dhcp.hero.used')}
           </p>
         </div>
         <p className={`text-xl md:text-2xl font-bold ${utilizationColor}`}>
           {utilizationPercent}%
         </p>
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+        <div className="w-full bg-muted rounded-full h-1.5 mt-2">
           <div
             className={`${utilizationBarColor} h-1.5 rounded-full transition-all duration-300`}
             style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
@@ -107,70 +110,63 @@ export function DHCPStatusHero({
       </div>
 
       {/* Available IPs */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Server className="w-3.5 h-3.5 text-purple-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-            Available
+          <Server className="w-3.5 h-3.5 text-category-system" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('dhcp.hero.available')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white font-mono">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {availableIPs}
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          IP Addresses
+        <p className="text-xs text-muted-foreground mt-1">
+          {t('dhcp.hero.ipAddresses')}
         </p>
       </div>
 
       {/* DHCP Servers */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800 hidden md:block">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border hidden md:block">
         <div className="flex items-center gap-1.5 mb-1">
-          <Network className="w-3.5 h-3.5 text-blue-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-            Servers
+          <Network className="w-3.5 h-3.5 text-category-dhcp" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('dhcp.hero.servers')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+        <p className="text-xl md:text-2xl font-bold text-foreground">
           {activeServers}
-          <span className="text-slate-400 dark:text-slate-500 text-sm font-normal ml-1">
+          <span className="text-muted-foreground text-sm font-normal ml-1">
             /{servers.length}
           </span>
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Active
+        <p className="text-xs text-muted-foreground mt-1">
+          {t('dhcp.hero.active')}
         </p>
       </div>
 
       {/* WAN Clients Status */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800 hidden md:block">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border hidden md:block">
         <div className="flex items-center gap-1.5 mb-1">
-          <Globe className="w-3.5 h-3.5 text-green-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-            WAN
+          <Globe className="w-3.5 h-3.5 text-success" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('dhcp.hero.wan')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+        <p className="text-xl md:text-2xl font-bold text-foreground">
           {boundClients}
-          <span className="text-slate-400 dark:text-slate-500 text-sm font-normal ml-1">
+          <span className="text-muted-foreground text-sm font-normal ml-1">
             /{totalClients}
           </span>
         </p>
-        <p className={`text-xs mt-1 ${boundClients === totalClients ? 'text-green-500' : 'text-amber-500'}`}>
-          {boundClients === totalClients ? 'All Connected' : 'Partial'}
+        <p className={`text-xs mt-1 ${boundClients === totalClients ? 'text-success' : 'text-warning'}`}>
+          {boundClients === totalClients ? t('dhcp.hero.allConnected') : t('dhcp.hero.partial')}
         </p>
       </div>
     </div>
   );
-}
+});
 
-
-
-
-
-
-
-
-
+DHCPStatusHero.displayName = 'DHCPStatusHero';
 
 
 

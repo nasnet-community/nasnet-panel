@@ -13,6 +13,11 @@
 
 import type { Transition } from 'framer-motion';
 
+/**
+ * Framer Motion transition type for animating React components
+ * @see https://www.framer.com/motion/
+ */
+
 // ============================================================================
 // Tier 1: Primitive Animation Values
 // ============================================================================
@@ -80,16 +85,33 @@ export const animationPrimitives = {
 export type Platform = 'mobile' | 'tablet' | 'desktop';
 
 /**
- * Platform-specific animation tokens
- * Mobile animations are 25% faster for snappier feel
+ * Platform-specific animation tokens for consistent timing across the application.
+ * Provides platform-aware animation durations (mobile animations 25% faster for snappier feel).
+ *
+ * Used by Framer Motion components and CSS transitions to ensure consistent,
+ * accessible, and performant animations across all device types.
+ *
+ * @see Docs/design/ux-design/2-core-user-experience.md
+ * @example
+ * ```tsx
+ * const tokens = getAnimationTokens('mobile');
+ * // tokens.pageTransition.enter = 225 (300ms * 0.75)
+ * ```
  */
 export interface AnimationTokens {
+  /** Page transition timings: entering and exiting full pages */
   pageTransition: { enter: number; exit: number };
+  /** Modal dialog animation timings */
   modal: { enter: number; exit: number };
+  /** Drawer/sidebar animation timings */
   drawer: { enter: number; exit: number };
+  /** List item reordering animation duration */
   listReorder: number;
+  /** Quick micro-interactions (button hover, toggle) duration */
   microInteraction: number;
+  /** Skeleton loader pulse animation (duration in seconds, infinite repeat) */
   skeleton: { duration: number; repeat: number };
+  /** Connection status pulse animation (duration in seconds, infinite repeat) */
   connectionPulse: { duration: number; repeat: number };
 }
 
@@ -226,9 +248,20 @@ export function msToSeconds(ms: number): number {
 /**
  * Get duration based on reduced motion preference
  *
+ * Respects user's `prefers-reduced-motion` CSS media query for accessibility.
+ * Decorative animations are completely disabled; functional transitions use minimal timing.
+ *
  * @param ms - Duration in milliseconds
- * @param reducedMotion - Whether reduced motion is enabled
- * @returns 0 if reduced motion, otherwise the duration
+ * @param reducedMotion - Whether reduced motion is enabled (from `usePrefersReducedMotion`)
+ * @returns 0 (instant) if reduced motion enabled, otherwise the original duration in milliseconds
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+ * @example
+ * ```tsx
+ * const prefersReducedMotion = usePrefersReducedMotion();
+ * const duration = getReducedMotionDuration(300, prefersReducedMotion);
+ * // If reduced motion: duration = 0 (instant)
+ * // Otherwise: duration = 300
+ * ```
  */
 export function getReducedMotionDuration(
   ms: number,

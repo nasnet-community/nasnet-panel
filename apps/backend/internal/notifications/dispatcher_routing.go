@@ -13,10 +13,11 @@ import (
 
 // getDigestConfig retrieves digest configuration for a channel.
 // Returns nil if digest is not configured for the channel.
+// Digest configuration is supplied at construction time via DispatcherConfig.DigestConfigs.
 func (d *Dispatcher) getDigestConfig(channelName string) *DigestConfig {
-	// TODO: In production, fetch from database or configuration
-	// For now, return nil (digest disabled by default)
-	// This will be populated when channel configuration is implemented
+	if cfg, ok := d.digestConfigs[channelName]; ok {
+		return cfg
+	}
 	return nil
 }
 

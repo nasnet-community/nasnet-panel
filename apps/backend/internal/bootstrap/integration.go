@@ -59,10 +59,10 @@ func InitializeIntegrationServices(
 
 	// 2. Sharing Service - service configuration export/import
 	// Note: AuditService is optional (nil for now)
-	// Note: SharingService expects its own FeatureRegistry type, not features.FeatureRegistry
-	// For now, skip this service until we create the proper adapter
-	var sharingService *sharing.Service
-	log.Printf("Sharing service: deferred (requires FeatureRegistry adapter)")
+	// Adapt features.FeatureRegistry to sharing.FeatureRegistry using the adapter function
+	sharingRegistry := sharing.NewFeatureRegistryFromFunc(featureRegistry.GetManifest)
+	sharingService := sharing.NewService(systemDB, routerPort, eventBus, sharingRegistry, nil)
+	log.Printf("Sharing service initialized (export/import with FeatureRegistry adapter)")
 
 	// 3. Config Service - configuration generation and management
 	configService, err := config.NewService(config.Config{

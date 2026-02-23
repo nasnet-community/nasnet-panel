@@ -36,7 +36,7 @@ export type BogonCategory = keyof BogonRanges;
 /**
  * Comprehensive list of Bogon (non-routable) IP ranges
  */
-export const BOGON_RANGES: BogonRanges = {
+export const BOGON_RANGES = {
   /**
    * RFC 1918 - Private Address Space
    * Should never appear as source on public internet
@@ -45,7 +45,7 @@ export const BOGON_RANGES: BogonRanges = {
     '10.0.0.0/8',       // Class A private
     '172.16.0.0/12',    // Class B private
     '192.168.0.0/16',   // Class C private
-  ],
+  ] as const,
 
   /**
    * RFC 5735 - Loopback
@@ -53,7 +53,7 @@ export const BOGON_RANGES: BogonRanges = {
    */
   loopback: [
     '127.0.0.0/8',      // Loopback
-  ],
+  ] as const,
 
   /**
    * RFC 5735 - Reserved/Special-Use
@@ -67,7 +67,7 @@ export const BOGON_RANGES: BogonRanges = {
     '198.51.100.0/24',  // TEST-NET-2 (documentation)
     '203.0.113.0/24',   // TEST-NET-3 (documentation)
     '100.64.0.0/10',    // Carrier-grade NAT (RFC 6598)
-  ],
+  ] as const,
 
   /**
    * RFC 3927 - Link-Local Addresses
@@ -75,7 +75,7 @@ export const BOGON_RANGES: BogonRanges = {
    */
   linkLocal: [
     '169.254.0.0/16',   // Link-local (APIPA)
-  ],
+  ] as const,
 
   /**
    * RFC 1112 - Multicast
@@ -83,7 +83,7 @@ export const BOGON_RANGES: BogonRanges = {
    */
   multicast: [
     '224.0.0.0/4',      // Multicast (Class D)
-  ],
+  ] as const,
 
   /**
    * Reserved for Future Use
@@ -91,8 +91,8 @@ export const BOGON_RANGES: BogonRanges = {
    */
   futureUse: [
     '240.0.0.0/4',      // Reserved (Class E)
-  ],
-};
+  ] as const,
+} as const;
 
 // ============================================================================
 // Helper Functions
@@ -100,9 +100,18 @@ export const BOGON_RANGES: BogonRanges = {
 
 /**
  * Get all bogon ranges as a flat array
- * Useful for generating firewall rules
+ *
+ * Flattens the nested BOGON_RANGES object into a single array of all
+ * CIDR ranges. Useful for generating comprehensive firewall rules.
+ *
+ * @returns Array of all bogon IP CIDR ranges
+ * @example
+ * ```typescript
+ * const ranges = getAllBogonRanges();
+ * // Returns ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', ...]
+ * ```
  */
-export function getAllBogonRanges(): string[] {
+export function getAllBogonRanges(): readonly string[] {
   return [
     ...BOGON_RANGES.private,
     ...BOGON_RANGES.loopback,
@@ -115,8 +124,19 @@ export function getAllBogonRanges(): string[] {
 
 /**
  * Check if an IP address falls within any bogon range
+ *
+ * Determines whether a given IP address is non-routable (bogon) by
+ * testing it against all known bogon ranges. Supports both single IPs
+ * and CIDR notation.
+ *
  * @param address - IP address with optional CIDR (e.g., "10.0.0.1" or "10.0.0.0/8")
- * @returns true if address is a bogon
+ * @returns true if address is within any bogon range, false otherwise
+ * @example
+ * ```typescript
+ * isBogonAddress('192.168.1.1');    // true (private)
+ * isBogonAddress('8.8.8.8');        // false (public)
+ * isBogonAddress('10.0.0.0/8');     // true (private CIDR)
+ * ```
  */
 export function isBogonAddress(address: string): boolean {
   // Extract IP without CIDR for simple matching
@@ -135,8 +155,18 @@ export function isBogonAddress(address: string): boolean {
 
 /**
  * Get the bogon category for an IP address
- * @param address - IP address with optional CIDR
- * @returns Category name or null if not a bogon
+ *
+ * Identifies which bogon category an IP address falls into, useful for
+ * displaying category-specific security recommendations or filter rules.
+ *
+ * @param address - IP address with optional CIDR notation
+ * @returns Category name if address is a bogon, null otherwise
+ * @example
+ * ```typescript
+ * getBogonCategory('192.168.1.1');   // 'private'
+ * getBogonCategory('127.0.0.1');     // 'loopback'
+ * getBogonCategory('8.8.8.8');       // null (not a bogon)
+ * ```
  */
 export function getBogonCategory(address: string): BogonCategory | null {
   const ip = address.split('/')[0];
@@ -152,9 +182,14 @@ export function getBogonCategory(address: string): BogonCategory | null {
 
 /**
  * Check if an IP address falls within a CIDR range
+ *
+ * Internal helper function for comparing IP addresses against CIDR ranges
+ * using bitwise operations for efficient checking.
+ *
  * @param ip - IP address (e.g., "192.168.1.5")
  * @param cidr - CIDR range (e.g., "192.168.0.0/16")
- * @returns true if IP is within range
+ * @returns true if IP is within the specified range
+ * @internal
  */
 function isIPInRange(ip: string, cidr: string): boolean {
   const [rangeIP, prefixStr] = cidr.split('/');
@@ -169,8 +204,17 @@ function isIPInRange(ip: string, cidr: string): boolean {
 
 /**
  * Convert IP address string to 32-bit number
+ *
+ * Internal helper that converts dotted decimal IP notation to a 32-bit
+ * unsigned integer for efficient bitwise range comparisons.
+ *
  * @param ip - IP address (e.g., "192.168.1.1")
- * @returns 32-bit number representation
+ * @returns 32-bit number representation (0-4294967295)
+ * @internal
+ * @example
+ * ```typescript
+ * ipToNumber('192.168.1.1');  // 3232235777
+ * ```
  */
 function ipToNumber(ip: string): number {
   const octets = ip.split('.').map(Number);
@@ -182,7 +226,18 @@ function ipToNumber(ip: string): number {
 // ============================================================================
 
 /**
- * Get human-readable description for bogon category
+ * Get human-readable description for a bogon category
+ *
+ * Returns a user-friendly explanation of what a bogon category represents.
+ * Useful for UI tooltips and documentation.
+ *
+ * @param category - Bogon category name
+ * @returns Human-readable description of the category
+ * @example
+ * ```typescript
+ * getBogonCategoryDescription('private');    // 'RFC 1918 Private Address Space'
+ * getBogonCategoryDescription('multicast');  // 'Multicast (one-to-many communication)'
+ * ```
  */
 export function getBogonCategoryDescription(category: BogonCategory): string {
   switch (category) {
@@ -204,7 +259,18 @@ export function getBogonCategoryDescription(category: BogonCategory): string {
 }
 
 /**
- * Get security recommendation for bogon category
+ * Get security recommendation for a bogon category
+ *
+ * Returns a specific security recommendation for blocking or handling
+ * a particular bogon category in firewall rules.
+ *
+ * @param category - Bogon category name
+ * @returns Security recommendation for the category
+ * @example
+ * ```typescript
+ * getBogonSecurityRec('private');
+ * // 'Block at WAN interface to prevent IP spoofing'
+ * ```
  */
 export function getBogonSecurityRec(category: BogonCategory): string {
   switch (category) {

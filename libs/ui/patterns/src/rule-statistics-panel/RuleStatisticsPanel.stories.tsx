@@ -25,6 +25,7 @@ const mockRule: FilterRule = {
   dstPort: '443',
   comment: 'Allow HTTPS traffic to internal network',
   disabled: false,
+  log: false,
   bytes: 15234567,
   packets: 12345,
 };

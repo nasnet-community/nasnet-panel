@@ -4,8 +4,10 @@
  */
 
 import * as React from 'react';
-import { ShieldAlert, AlertCircle, ArrowUp, CheckCircle, RefreshCw } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
+import { ShieldAlert, AlertCircle, ArrowUp, CheckCircle, RefreshCw, Shield } from 'lucide-react';
 import {
+  Icon,
   Card,
   CardHeader,
   CardTitle,
@@ -115,7 +117,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
 
   // Count updates by severity
-  const updateCounts = React.useMemo(() => {
+  const updateCounts = useMemo(() => {
     const counts = {
       SECURITY: 0,
       MAJOR: 0,
@@ -133,13 +135,13 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
   }, [updates]);
 
   // Total updates available
-  const totalUpdates = React.useMemo(
+  const totalUpdates = useMemo(
     () => updates.filter((u) => u.updateAvailable).length,
     [updates]
   );
 
   // Sort updates by severity (highest first)
-  const sortedUpdates = React.useMemo(() => {
+  const sortedUpdates = useMemo(() => {
     return [...updates]
       .filter((u) => u.updateAvailable)
       .sort((a, b) => {
@@ -150,21 +152,31 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
   }, [updates]);
 
   // Count currently updating instances
-  const updatingCount = React.useMemo(
+  const updatingCount = useMemo(
     () => Object.values(updatingInstances).filter(Boolean).length,
     [updatingInstances]
   );
 
   // Handle "Update All" click
-  const handleUpdateAllClick = React.useCallback(() => {
+  const handleUpdateAllClick = useCallback(() => {
     setConfirmDialogOpen(true);
   }, []);
 
   // Handle confirmation
-  const handleConfirm = React.useCallback(() => {
+  const handleConfirm = useCallback(() => {
     setConfirmDialogOpen(false);
     onUpdateAll?.();
   }, [onUpdateAll]);
+
+  // Handle individual update
+  const handleUpdate = useCallback((instanceId: string) => {
+    onUpdate?.(instanceId);
+  }, [onUpdate]);
+
+  // Handle dialog close
+  const handleDialogClose = useCallback(() => {
+    setConfirmDialogOpen(false);
+  }, []);
 
   // Don't render if no updates available
   if (totalUpdates === 0) {
@@ -178,7 +190,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <RefreshCw className="h-5 w-5" aria-hidden="true" />
+                <Icon icon={RefreshCw} className="h-5 w-5" aria-hidden="true" />
                 Updates Available
               </CardTitle>
               <CardDescription>
@@ -207,25 +219,25 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
             <div className="flex flex-wrap gap-2">
               {updateCounts.SECURITY > 0 && (
                 <Badge className={SEVERITY_COLORS.SECURITY}>
-                  <ShieldAlert className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon icon={ShieldAlert} className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.SECURITY} Security
                 </Badge>
               )}
               {updateCounts.MAJOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MAJOR}>
-                  <AlertCircle className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon icon={AlertCircle} className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.MAJOR} Major
                 </Badge>
               )}
               {updateCounts.MINOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MINOR}>
-                  <ArrowUp className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon icon={ArrowUp} className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.MINOR} Minor
                 </Badge>
               )}
               {updateCounts.PATCH > 0 && (
                 <Badge className={SEVERITY_COLORS.PATCH}>
-                  <CheckCircle className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon icon={CheckCircle} className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.PATCH} Patch
                 </Badge>
               )}
@@ -235,7 +247,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           {/* Security warning if security updates present */}
           {updateCounts.SECURITY > 0 && (
             <Alert variant="destructive">
-              <ShieldAlert className="h-4 w-4" />
+              <Icon icon={ShieldAlert} className="h-4 w-4" />
               <AlertTitle>Security Updates Available</AlertTitle>
               <AlertDescription>
                 {updateCounts.SECURITY}{' '}
@@ -265,21 +277,29 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
                       <span className="font-medium text-sm truncate">
                         {update.instanceName}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      {/* Version numbers - technical data with monospace */}
+                      <code className="text-xs text-muted-foreground font-mono">
                         v{update.currentVersion} → v{update.latestVersion}
-                      </span>
+                      </code>
                     </div>
                     {isUpdating && (
-                      <Progress value={progress} className="h-1.5 mt-2" aria-label={`Update progress for ${update.instanceName}`} />
+                      <Progress
+                        value={progress}
+                        className="h-1.5 mt-2"
+                        aria-label={`Update progress for ${update.instanceName}: ${progress}%`}
+                        aria-valuenow={progress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      />
                     )}
                   </div>
                   {!isUpdating && onUpdate && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onUpdate(update.instanceId)}
+                      onClick={() => handleUpdate(update.instanceId)}
                       className="ml-2 min-h-[44px] min-w-[44px]"
-                      aria-label={`Update ${update.instanceName}`}
+                      aria-label={`Update ${update.instanceName} to version ${update.latestVersion}`}
                     >
                       Update
                     </Button>
@@ -299,7 +319,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
       </Card>
 
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+      <Dialog open={confirmDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Update All Services?</DialogTitle>
@@ -312,7 +332,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
 
           {updateCounts.SECURITY > 0 && (
             <Alert>
-              <ShieldAlert className="h-4 w-4" />
+              <Icon icon={ShieldAlert} className="h-4 w-4" />
               <AlertTitle>Security Updates Included</AlertTitle>
               <AlertDescription>
                 {updateCounts.SECURITY}{' '}
@@ -325,11 +345,16 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setConfirmDialogOpen(false)}
+              onClick={handleDialogClose}
+              className="min-h-[44px] min-w-[100px]"
             >
               Cancel
             </Button>
-            <Button onClick={handleConfirm}>
+            <Button
+              onClick={handleConfirm}
+              className="min-h-[44px] min-w-[100px]"
+              aria-label={`Confirm update for ${totalUpdates} ${totalUpdates === 1 ? 'service' : 'services'}`}
+            >
               Update All ({totalUpdates})
             </Button>
           </DialogFooter>

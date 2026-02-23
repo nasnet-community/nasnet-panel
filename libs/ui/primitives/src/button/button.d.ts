@@ -1,0 +1,95 @@
+/**
+ * Button Component
+ *
+ * Primary interactive element for triggering actions across the application.
+ * Supports 7 variants (default, action, secondary, destructive, outline, ghost, link),
+ * 4 sizes (default, sm, lg, icon), and built-in loading state management.
+ *
+ * Features:
+ * - Multiple semantic variants for different interaction contexts
+ * - Built-in loading spinner with customizable text
+ * - Automatic width management to prevent layout shift
+ * - Can render as any element via asChild + Radix Slot
+ * - Responsive spacing based on platform (mobile/tablet/desktop)
+ *
+ * Accessibility:
+ * - aria-busy set during loading to indicate processing state
+ * - aria-disabled managed for semantic HTML
+ * - Automatic focus indicators with ring styling
+ * - Keyboard accessible (Enter/Space to activate)
+ * - Icon buttons should include aria-label when icon-only
+ * - 44px minimum touch target on mobile devices
+ *
+ * @module @nasnet/ui/primitives/button
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Button>Click me</Button>
+ *
+ * // With variants for different contexts
+ * <Button variant="default">Save Changes</Button>
+ * <Button variant="destructive">Delete</Button>
+ * <Button variant="outline" size="sm">Cancel</Button>
+ * <Button variant="ghost">Dismiss</Button>
+ * <Button variant="link">Learn more</Button>
+ *
+ * // Loading state (spinner shows, button disables)
+ * <Button isLoading>Saving...</Button>
+ * <Button isLoading loadingText="Applying config...">
+ *   Apply Configuration
+ * </Button>
+ *
+ * // Icon button
+ * <Button variant="ghost" size="icon" aria-label="Close dialog">
+ *   <X className="h-4 w-4" />
+ * </Button>
+ *
+ * // Render as link
+ * <Button asChild variant="outline">
+ *   <a href="/dashboard">Go to Dashboard</a>
+ * </Button>
+ * ```
+ */
+import * as React from 'react';
+import { type VariantProps } from 'class-variance-authority';
+declare const buttonVariants: (props?: ({
+    variant?: "link" | "default" | "action" | "secondary" | "destructive" | "outline" | "ghost" | null | undefined;
+    size?: "sm" | "lg" | "default" | "icon" | null | undefined;
+} & import("class-variance-authority/types").ClassProp) | undefined) => string;
+/**
+ * Props for the Button component
+ * @template T - HTML button element or other element via asChild
+ */
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+    /**
+     * Render as a different element using Radix Slot.
+     * Useful for rendering as links or custom components.
+     * @default false
+     */
+    asChild?: boolean;
+    /**
+     * Show loading spinner and disable the button.
+     * Prevents user interaction while operation is in progress.
+     * Sets aria-busy="true" for accessibility.
+     * @default false
+     */
+    isLoading?: boolean;
+    /**
+     * Text to show during loading state.
+     * If not provided, uses children content.
+     * Useful for showing different text like "Saving..." or "Applying...".
+     * Recommended for accessibility to indicate action in progress.
+     */
+    loadingText?: string;
+    /**
+     * Additional CSS classes to apply to the button.
+     * Merged with computed variant and size classes using cn() utility.
+     */
+    className?: string;
+}
+/**
+ * Button component - Primary interactive element for user actions
+ */
+declare const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>>;
+export { Button, buttonVariants };
+//# sourceMappingURL=button.d.ts.map

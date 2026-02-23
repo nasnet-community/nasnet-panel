@@ -84,10 +84,17 @@ function StepAnnouncer({
 /**
  * Vertical Stepper component for desktop sidebar navigation
  *
+ * Features:
+ * - Full keyboard navigation
+ * - Step completion and error tracking
+ * - Animated transitions
+ * - Accessibility live region
+ * - Step descriptions and error counts
+ *
  * @param props - VStepper props
  * @returns VStepper element
  */
-export function VStepper({
+function VStepperComponent({
   stepper,
   className,
   width = '256px',
@@ -213,5 +220,12 @@ export function VStepper({
     </>
   );
 }
+
+VStepperComponent.displayName = 'VStepper';
+
+/**
+ * Memoized VStepper to prevent unnecessary re-renders
+ */
+export const VStepper = React.memo(VStepperComponent);
 
 VStepper.displayName = 'VStepper';

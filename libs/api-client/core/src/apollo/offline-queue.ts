@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Offline Mutation Queue
  *

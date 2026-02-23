@@ -1,7 +1,7 @@
 /**
  * Connections Page Component
- * NAS-7.4: Connection Tracking - Integration Layer
  *
+ * @description NAS-7.4: Connection Tracking - Integration Layer
  * Displays active firewall connections and connection tracking settings.
  * Integrates ConnectionList and ConnectionTrackingSettings pattern components.
  *
@@ -14,7 +14,7 @@
  * - WCAG AAA accessibility (AC6)
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { Activity, Settings } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent, useToast } from '@nasnet/ui/primitives';
@@ -32,7 +32,7 @@ import {
   useUpdateConnectionTracking,
 } from '@nasnet/api-client/queries';
 
-export function ConnectionsPage() {
+export const ConnectionsPage = memo(function ConnectionsPage() {
   const { id: routerId } = useParams({ strict: false });
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'list' | 'settings'>('list');
@@ -79,10 +79,9 @@ export function ConnectionsPage() {
     },
   });
 
-  // Kill connection handler
+  // Kill connection handler (Standard confirmation handled by ConnectionList component)
   const handleKillConnection = useCallback(
     (connection: ConnectionEntry) => {
-      // Standard confirmation is handled by the KillConnectionButton component
       killConnection({ connectionId: connection.id });
     },
     [killConnection]
@@ -120,13 +119,12 @@ export function ConnectionsPage() {
     },
   });
 
-  // Settings form hook
+  // Settings form hook (Dangerous confirmation handled by ConnectionTrackingSettings component)
   const settingsHook = useConnectionTrackingSettings({
     initialSettings: currentSettings,
-    onSubmit: async (settings) => {
-      // Dangerous confirmation is handled by the ConnectionTrackingSettings component
+    onSubmit: useCallback(async (settings) => {
       updateSettings({ settings });
-    },
+    }, [updateSettings]),
   });
 
   // ============================================================================
@@ -151,16 +149,16 @@ export function ConnectionsPage() {
   return (
     <div className="space-y-6 p-6">
       {/* Page Header */}
-      <div>
+      <header>
         <h1 className="text-3xl font-bold tracking-tight">Connection Tracking</h1>
         <p className="text-muted-foreground mt-2">
           Monitor active connections and configure connection tracking settings.
         </p>
-      </div>
+      </header>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-        <TabsList className="bg-muted" aria-label="Connection tracking tabs">
+        <TabsList className="bg-muted">
           <TabsTrigger
             value="list"
             className="flex items-center gap-2"
@@ -197,4 +195,6 @@ export function ConnectionsPage() {
       </Tabs>
     </div>
   );
-}
+});
+
+ConnectionsPage.displayName = 'ConnectionsPage';

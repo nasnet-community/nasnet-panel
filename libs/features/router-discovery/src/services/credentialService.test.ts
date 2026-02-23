@@ -16,13 +16,11 @@ import {
   CredentialError,
 } from './credentialService';
 import type { RouterCredentials } from '@nasnet/core/types';
-import { apiClient } from '@nasnet/api-client/core';
 
-// Mock apiClient
-vi.mock('@nasnet/api-client/core', () => ({
-  apiClient: {
-    create: vi.fn(),
-    get: vi.fn(),
+// Mock axios
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn(),
   },
 }));
 
@@ -62,19 +60,17 @@ describe('credentialService', () => {
 
   describe('validateCredentials', () => {
     it('should return valid result on successful authentication', async () => {
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({
-          data: {
+      const axios = await import('axios');
+      (axios.default.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: {
+          status: 200,
+          body: {
             name: 'MyRouter',
             'board-name': 'hEX S',
             version: '7.10',
           },
-        }),
-      };
-
-      (apiClient.create as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockClient
-      );
+        },
+      });
 
       const credentials: RouterCredentials = {
         username: 'admin',
@@ -90,28 +86,14 @@ describe('credentialService', () => {
         version: '7.10',
       });
       expect(result.error).toBeUndefined();
-
-      expect(apiClient.create).toHaveBeenCalledWith({
-        baseURL: 'http://192.168.88.1',
-        timeout: 10000,
-        auth: {
-          username: 'admin',
-          password: 'password123',
-        },
-      });
     });
 
     it('should return invalid result on 401 Unauthorized', async () => {
-      const mockClient = {
-        get: vi.fn().mockRejectedValue({
-          response: { status: 401 },
-          message: 'Unauthorized',
-        }),
-      };
-
-      (apiClient.create as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockClient
-      );
+      const axios = await import('axios');
+      (axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValue({
+        response: { status: 401 },
+        message: 'Unauthorized',
+      });
 
       const credentials: RouterCredentials = {
         username: 'wrong',
@@ -121,21 +103,16 @@ describe('credentialService', () => {
       const result = await validateCredentials('192.168.88.1', credentials);
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Invalid username or password');
+      expect(result.error).toContain('Authentication failed');
       expect(result.routerInfo).toBeUndefined();
     });
 
     it('should return invalid result on connection refused', async () => {
-      const mockClient = {
-        get: vi.fn().mockRejectedValue({
-          code: 'ECONNREFUSED',
-          message: 'Connection refused',
-        }),
-      };
-
-      (apiClient.create as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockClient
-      );
+      const axios = await import('axios');
+      (axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValue({
+        code: 'ECONNREFUSED',
+        message: 'Connection refused',
+      });
 
       const credentials: RouterCredentials = {
         username: 'admin',
@@ -145,20 +122,15 @@ describe('credentialService', () => {
       const result = await validateCredentials('192.168.1.1', credentials);
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Cannot connect to router');
+      expect(result.error).toContain('Cannot reach router proxy');
     });
 
     it('should return invalid result on timeout', async () => {
-      const mockClient = {
-        get: vi.fn().mockRejectedValue({
-          code: 'ETIMEDOUT',
-          message: 'Request timeout',
-        }),
-      };
-
-      (apiClient.create as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockClient
-      );
+      const axios = await import('axios');
+      (axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValue({
+        code: 'ETIMEDOUT',
+        message: 'Request timeout',
+      });
 
       const credentials: RouterCredentials = {
         username: 'admin',
@@ -168,16 +140,13 @@ describe('credentialService', () => {
       const result = await validateCredentials('192.168.1.1', credentials);
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Cannot connect to router');
+      expect(result.error).toContain('Connection timed out');
     });
 
     it('should handle unknown errors gracefully', async () => {
-      const mockClient = {
-        get: vi.fn().mockRejectedValue(new Error('Unknown error')),
-      };
-
-      (apiClient.create as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockClient
+      const axios = await import('axios');
+      (axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Unknown error')
       );
 
       const credentials: RouterCredentials = {

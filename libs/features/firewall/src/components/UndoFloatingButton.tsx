@@ -1,5 +1,6 @@
 /**
- * UndoFloatingButton - Floating button with countdown for template rollback
+ * UndoFloatingButton Component
+ * @description Floating button with countdown for template rollback
  *
  * Features:
  * - 5-minute countdown (300 seconds)
@@ -35,6 +36,9 @@ const TOTAL_SECONDS = 300;
 /** Update interval in milliseconds */
 const UPDATE_INTERVAL = 1000;
 
+/** Minimum touch target size in pixels */
+const MIN_TOUCH_TARGET = 44;
+
 // ============================================
 // COMPONENT PROPS
 // ============================================
@@ -61,7 +65,9 @@ export interface UndoFloatingButtonProps {
 // ============================================
 
 /**
- * Format seconds as MM:SS
+ * Format seconds as MM:SS display
+ * @param seconds - Remaining seconds
+ * @returns Formatted time string (e.g., "5:00")
  */
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -71,6 +77,8 @@ function formatTime(seconds: number): string {
 
 /**
  * Get urgency level based on remaining time
+ * @param seconds - Remaining seconds
+ * @returns Urgency level for styling
  */
 function getUrgencyLevel(seconds: number): 'normal' | 'warning' | 'critical' {
   if (seconds <= 30) return 'critical';
@@ -179,12 +187,12 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
           <Button
             size="lg"
             variant={urgencyLevel === 'critical' ? 'destructive' : 'default'}
-            className="min-h-[44px] h-14 shadow-lg"
+            className={`min-h-[${MIN_TOUCH_TARGET}px] h-14 shadow-lg`}
             onClick={handleOpenConfirmDialog}
             disabled={isRollingBack}
-            aria-label={isRollingBack ? 'Rolling back changes' : 'Undo recent template changes'}
+            aria-label={isRollingBack ? 'Rolling back changes in progress' : 'Undo recent template changes'}
           >
-            <Undo2 className="mr-2 h-5 w-5" />
+            <Undo2 className="mr-2 h-5 w-5" aria-hidden="true" />
             {isRollingBack ? 'Rolling back...' : 'Undo Changes'}
           </Button>
         </div>
@@ -195,7 +203,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-warning" />
+              <AlertCircle className="h-5 w-5 text-warning" aria-hidden="true" />
               Confirm Rollback
             </DialogTitle>
             <DialogDescription>
@@ -215,7 +223,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
 
             {/* Warning Alert */}
             <Alert variant="default">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
               <AlertDescription>
                 <p className="font-medium">What will happen:</p>
                 <ul className="mt-2 list-inside list-disc space-y-1 text-sm">
@@ -240,8 +248,8 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               variant="outline"
               onClick={handleCloseConfirmDialog}
               disabled={isRollingBack}
-              aria-label="Keep changes and dismiss rollback"
-              className="min-h-[44px]"
+              aria-label="Keep changes and dismiss rollback confirmation"
+              className={`min-h-[${MIN_TOUCH_TARGET}px]`}
             >
               Keep Changes
             </Button>
@@ -250,7 +258,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               onClick={handleRollback}
               disabled={isRollingBack}
               aria-label="Confirm rollback of all template changes"
-              className="min-h-[44px]"
+              className={`min-h-[${MIN_TOUCH_TARGET}px]`}
             >
               {isRollingBack ? (
                 <>

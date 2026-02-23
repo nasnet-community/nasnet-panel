@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 
 import { toast } from 'sonner';
 
+import type { Meta, StoryObj } from '@storybook/react';
+
 import {
   useNotificationStore,
   showSuccess,
@@ -23,14 +25,12 @@ import { Button } from '@nasnet/ui/primitives';
 import { ToastProvider } from './ToastProvider';
 import { useToast } from '../hooks/useToast';
 
-import type { Meta, StoryObj } from '@storybook/react';
-
 // Wrapper component that provides toast context
 function ToastDemoWrapper({ children }: { children: React.ReactNode }) {
   // Reset notification store between stories
   useEffect(() => {
     return () => {
-      useNotificationStore.getState().clearAll();
+      useNotificationStore.getState().clearAllNotifications();
       toast.dismiss();
     };
   }, []);

@@ -3,8 +3,9 @@
  * Visual documentation for the root wizard component (NAS-5.11)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { TroubleshootWizard } from './TroubleshootWizard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof TroubleshootWizard> = {
   title: 'Features/Diagnostics/TroubleshootWizard',

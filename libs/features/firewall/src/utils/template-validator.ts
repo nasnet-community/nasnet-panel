@@ -1,6 +1,7 @@
 /**
  * Template Validator Utility
  *
+ * @description
  * Zod validation wrapper for firewall templates.
  * Provides detailed validation results with error reporting.
  *
@@ -15,6 +16,21 @@ import {
   validateTemplateVariables,
   createTemplateVariablesSchema,
 } from '../schemas/templateSchemas';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+/**
+ * Regex pattern for template variable references
+ * Matches {{VARIABLE_NAME}} format with uppercase variable names
+ */
+const VARIABLE_REFERENCE_PATTERN = /\{\{([A-Z_][A-Z0-9_]*)\}\}/g;
+
+/**
+ * YAML-like content indicators for import format detection
+ */
+const YAML_FORMAT_INDICATORS = ['---', /^[a-zA-Z_]+:\s/];
 
 // ============================================
 // VALIDATION RESULT TYPES
@@ -100,7 +116,7 @@ export function validateTemplate(template: unknown): TemplateValidationResult {
     const referencedVariables = new Set<string>();
     for (const rule of parsed.rules) {
       const propsJson = JSON.stringify(rule.properties);
-      const matches = propsJson.match(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g);
+      const matches = propsJson.match(VARIABLE_REFERENCE_PATTERN);
       if (matches) {
         for (const match of matches) {
           const varName = match.replace(/\{\{|\}\}/g, '');
@@ -243,7 +259,7 @@ export function isValidTemplate(template: unknown): template is FirewallTemplate
  */
 export function getRequiredVariables(template: FirewallTemplate): string[] {
   return template.variables
-    .filter((v) => v.required)
+    .filter((v) => v.isRequired)
     .map((v) => v.name);
 }
 
@@ -338,7 +354,10 @@ export function validateImportFormat(content: string): {
   }
 
   // Check if it looks like YAML (basic heuristic)
-  if (content.includes('---') || /^[a-zA-Z_]+:\s/.test(content)) {
+  if (
+    content.includes('---') ||
+    (YAML_FORMAT_INDICATORS[1] as RegExp).test(content)
+  ) {
     return { valid: true, format: 'yaml' };
   }
 

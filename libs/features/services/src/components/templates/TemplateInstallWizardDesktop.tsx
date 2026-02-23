@@ -1,12 +1,19 @@
 /**
  * TemplateInstallWizardDesktop Component
  *
- * Desktop presenter for template installation wizard.
+ * @description Desktop presenter for template installation wizard.
  * Centered modal with horizontal stepper and side navigation.
+ *
+ * Features:
+ * - Centered modal (max-w-3xl)
+ * - Horizontal stepper at top
+ * - Scrollable content area
+ * - Footer with navigation buttons
+ * - Keyboard shortcuts (Esc to cancel, Enter for next)
  */
 
 import * as React from 'react';
-import { useEffect } from 'react';
+import { memo, useEffect, useCallback } from 'react';
 import { Check } from 'lucide-react';
 
 import {
@@ -36,15 +43,8 @@ const STEPS = [
 
 /**
  * Desktop presenter for TemplateInstallWizard
- *
- * Features:
- * - Centered modal (max-w-3xl)
- * - Horizontal stepper at top
- * - Scrollable content area
- * - Footer with navigation buttons
- * - Keyboard shortcuts (Esc to cancel, Enter for next)
  */
-export function TemplateInstallWizardDesktop({
+function TemplateInstallWizardDesktopComponent({
   routerId,
   template,
   open,
@@ -66,7 +66,7 @@ export function TemplateInstallWizardDesktop({
     onCancel: onClose,
   });
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentStep === 2) {
       send({ type: 'START_INSTALL' });
     } else if (currentStep === 4) {
@@ -80,14 +80,14 @@ export function TemplateInstallWizardDesktop({
     } else {
       send({ type: 'NEXT' });
     }
-  };
+  }, [currentStep, context.selectedRoutingRules.length, context.installResult?.instanceIDs, send, onComplete, onClose]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (!isInstalling) {
       send({ type: 'CANCEL' });
       onClose();
     }
-  };
+  }, [isInstalling, send, onClose]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -104,7 +104,7 @@ export function TemplateInstallWizardDesktop({
       return () => { window.removeEventListener('keydown', handleKeyDown); };
     }
     return undefined;
-  }, [open, isInstalling, canGoNext, currentStep]);
+  }, [open, isInstalling, canGoNext, currentStep, handleCancel, handleNext]);
 
   return (
     <Dialog open={open} onOpenChange={isInstalling ? undefined : onClose}>
@@ -238,3 +238,9 @@ export function TemplateInstallWizardDesktop({
     </Dialog>
   );
 }
+
+// Wrap with memo for performance
+export const TemplateInstallWizardDesktop = memo(TemplateInstallWizardDesktopComponent);
+
+// Set display name for React DevTools
+TemplateInstallWizardDesktop.displayName = 'TemplateInstallWizardDesktop';

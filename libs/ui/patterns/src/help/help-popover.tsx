@@ -64,7 +64,7 @@ function getPopoverPosition(placement: HelpPopoverProps['placement'] = 'right') 
  * </HelpPopover>
  * ```
  */
-export function HelpPopover({
+export const HelpPopover = React.memo(function HelpPopover({
   content,
   placement = 'right',
   children,
@@ -149,4 +149,6 @@ export function HelpPopover({
       </PopoverContent>
     </Popover>
   );
-}
+});
+
+HelpPopover.displayName = 'HelpPopover';

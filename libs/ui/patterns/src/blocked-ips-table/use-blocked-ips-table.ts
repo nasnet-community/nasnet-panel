@@ -5,6 +5,7 @@
  * Provides filtering, sorting, and selection logic for blocked IPs data.
  *
  * @see ADR-018: Headless Platform Presenters
+ * @see [Headless + Platform Presenters Pattern](../PLATFORM_PRESENTER_GUIDE.md)
  */
 
 import { useMemo, useCallback, useState } from 'react';
@@ -161,7 +162,50 @@ function sortBlockedIPs(
 }
 
 /**
- * Headless hook for blocked IPs table logic
+ * Headless hook for blocked IPs table logic.
+ *
+ * Manages filtering by IP address (wildcard support) and list,
+ * sorting by any field with direction toggle, and multi-select functionality.
+ *
+ * @param options - Configuration options for the table hook
+ * @returns Object containing filtered data, filter controls, sort controls, selection controls, and refresh function
+ *
+ * @example
+ * ```tsx
+ * const table = useBlockedIPsTable({
+ *   blockedIPs: dhcpLeases,
+ *   initialFilter: { list: 'blacklist' },
+ *   initialSort: { field: 'lastBlocked', direction: 'desc' },
+ *   onRefresh: () => refetchBlockedIPs(),
+ * });
+ *
+ * return (
+ *   <div>
+ *     <input
+ *       value={table.filter.ipAddress}
+ *       onChange={(e) => table.setFilter({ ipAddress: e.target.value })}
+ *       placeholder="Filter by IP (supports 192.168.1.*)"
+ *     />
+ *     <table>
+ *       <tbody>
+ *         {table.filteredBlockedIPs.map((ip) => (
+ *           <tr
+ *             key={ip.address}
+ *             onClick={() => table.toggleSelection(ip.address)}
+ *           >
+ *             <td>
+ *               <Checkbox checked={table.isSelected(ip.address)} />
+ *             </td>
+ *             <td>{ip.address}</td>
+ *             <td>{ip.list}</td>
+ *           </tr>
+ *         ))}
+ *       </tbody>
+ *     </table>
+ *     <p>Showing {table.filteredCount} of {table.totalCount} IPs</p>
+ *   </div>
+ * );
+ * ```
  */
 export function useBlockedIPsTable(
   options: UseBlockedIPsTableOptions

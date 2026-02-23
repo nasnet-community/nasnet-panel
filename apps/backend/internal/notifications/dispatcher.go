@@ -16,13 +16,12 @@ import (
 type Dispatcher struct {
 	channels        map[string]Channel
 	log             *zap.SugaredLogger
-	digestService   DigestService    // Interface for digest operations
-	templateService TemplateRenderer // Optional template renderer for alert content
-	db              *ent.Client      // Database client for querying alerts (needed for template rendering)
-
-	// Retry configuration
-	maxRetries     int
-	initialBackoff time.Duration
+	digestService   DigestService            // Interface for digest operations
+	templateService TemplateRenderer         // Optional template renderer for alert content
+	db              *ent.Client              // Database client for querying alerts (needed for template rendering)
+	digestConfigs   map[string]*DigestConfig // Per-channel digest configuration (NAS-18.11 Task 7)
+	maxRetries      int                      // Retry configuration
+	initialBackoff  time.Duration            // Retry configuration
 }
 
 // DigestService defines methods for digest queuing (NAS-18.11 Task 7).
@@ -51,11 +50,12 @@ type DigestConfig struct {
 type DispatcherConfig struct {
 	Channels        map[string]Channel
 	Logger          *zap.SugaredLogger
-	DigestService   DigestService    // Optional digest service for NAS-18.11
-	TemplateService TemplateRenderer // Optional template renderer for alert content (NAS-18.11 Task 5)
-	DB              *ent.Client      // Database client (required if TemplateService is provided)
-	MaxRetries      int              // Default: 3
-	InitialBackoff  time.Duration    // Default: 1 second
+	DigestService   DigestService            // Optional digest service for NAS-18.11
+	TemplateService TemplateRenderer         // Optional template renderer for alert content (NAS-18.11 Task 5)
+	DB              *ent.Client              // Database client (required if TemplateService is provided)
+	DigestConfigs   map[string]*DigestConfig // Per-channel digest configuration (NAS-18.11 Task 7)
+	MaxRetries      int                      // Default: 3
+	InitialBackoff  time.Duration            // Default: 1 second
 }
 
 // NewDispatcher creates a new notification dispatcher.
@@ -70,12 +70,18 @@ func NewDispatcher(cfg DispatcherConfig) *Dispatcher {
 		initialBackoff = 1 * time.Second
 	}
 
+	digestConfigs := cfg.DigestConfigs
+	if digestConfigs == nil {
+		digestConfigs = make(map[string]*DigestConfig)
+	}
+
 	return &Dispatcher{
 		channels:        cfg.Channels,
 		log:             cfg.Logger,
 		digestService:   cfg.DigestService,
 		templateService: cfg.TemplateService,
 		db:              cfg.DB,
+		digestConfigs:   digestConfigs,
 		maxRetries:      maxRetries,
 		initialBackoff:  initialBackoff,
 	}

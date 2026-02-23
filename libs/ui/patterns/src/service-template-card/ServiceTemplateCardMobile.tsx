@@ -7,6 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import {
@@ -31,7 +32,7 @@ import type { ServiceTemplateCardProps } from './types';
  * - Truncated descriptions with ellipsis
  * - Prominent scope badge
  */
-export function ServiceTemplateCardMobile(props: ServiceTemplateCardProps) {
+function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
   const { className, children } = props;
   const {
     name,
@@ -263,3 +264,9 @@ export function ServiceTemplateCardMobile(props: ServiceTemplateCardProps) {
     </Card>
   );
 }
+
+// Wrap with memo for performance optimization
+export const ServiceTemplateCardMobile = memo(ServiceTemplateCardMobileComponent);
+
+// Set display name for React DevTools
+ServiceTemplateCardMobile.displayName = 'ServiceTemplateCardMobile';

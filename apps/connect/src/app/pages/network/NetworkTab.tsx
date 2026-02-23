@@ -4,12 +4,16 @@
  * Uses NetworkDashboard for the new dashboard layout
  */
 
+import * as React from 'react';
+
 import { NetworkDashboard } from './NetworkDashboard';
 
 /**
  * NetworkTab Component
  * Renders the Card-Heavy Network Dashboard
  */
-export function NetworkTab() {
+export const NetworkTab = React.memo(function NetworkTab() {
   return <NetworkDashboard />;
-}
+});
+
+NetworkTab.displayName = 'NetworkTab';

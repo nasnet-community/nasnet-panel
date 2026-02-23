@@ -16,7 +16,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
-import * as React from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Network, RefreshCw } from 'lucide-react';
 import * as Collapsible from '@radix-ui/react-collapsible';
 
@@ -67,13 +67,13 @@ function formatRelativeTime(timestamp: string): string {
 
 /**
  * PortCard component
- * Individual port allocation card optimized for mobile
+ * Individual port allocation card optimized for mobile with 44px touch targets
  */
 interface PortCardProps {
   allocation: PortAllocation;
 }
 
-function PortCard({ allocation }: PortCardProps) {
+const PortCard = memo(function PortCard({ allocation }: PortCardProps) {
   return (
     <Card className="p-4 touch-manipulation">
       <div className="flex items-center justify-between min-h-[44px]">
@@ -116,11 +116,13 @@ function PortCard({ allocation }: PortCardProps) {
       )}
     </Card>
   );
-}
+});
+
+PortCard.displayName = 'PortCard';
 
 /**
  * ServiceGroup component
- * Collapsible group of port allocations for a service type
+ * Collapsible group of port allocations for a service type with 44px touch targets
  */
 interface ServiceGroupProps {
   serviceType: string;
@@ -128,12 +130,12 @@ interface ServiceGroupProps {
   defaultOpen?: boolean;
 }
 
-function ServiceGroup({
+const ServiceGroup = memo(function ServiceGroup({
   serviceType,
   allocations,
   defaultOpen = true,
 }: ServiceGroupProps) {
-  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -171,22 +173,28 @@ function ServiceGroup({
       </Card>
     </Collapsible.Root>
   );
-}
+});
+
+ServiceGroup.displayName = 'ServiceGroup';
 
 /**
  * PortRegistryViewMobile component
  *
  * Mobile-optimized presenter with touch-friendly cards and collapsible groups.
+ * Implements 44px minimum touch targets and progressive disclosure via collapsibles.
  */
-export const PortRegistryViewMobile = React.memo(function PortRegistryViewMobile({
+export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
   routerId,
   className,
 }: PortRegistryViewMobileProps) {
   const { groupedByService, sortedAllocations, loading, error, refetch } =
     usePortAllocations(routerId);
 
-  // Get service types sorted alphabetically
-  const serviceTypes = React.useMemo(
+  /**
+   * Get service types sorted alphabetically for consistent display
+   * Memoized to prevent unnecessary re-renders of ServiceGroup components
+   */
+  const serviceTypes = useMemo(
     () => Object.keys(groupedByService).sort(),
     [groupedByService]
   );
@@ -262,7 +270,21 @@ export const PortRegistryViewMobile = React.memo(function PortRegistryViewMobile
       {!loading && sortedAllocations.length === 0 && !error && (
         <Card>
           <CardContent className="p-8 text-center">
-            <Network className="h-12 w-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
+            <div className="text-muted-foreground mx-auto mb-3 flex justify-center">
+              <svg
+                className="h-12 w-12 stroke-1"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.007H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.007H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.007H3.75v-.007zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                />
+              </svg>
+            </div>
             <h3 className="font-semibold mb-1">No Port Allocations</h3>
             <p className="text-sm text-muted-foreground">
               Ports will appear here when service instances are created.

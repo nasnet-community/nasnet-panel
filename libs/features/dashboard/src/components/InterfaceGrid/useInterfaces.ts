@@ -6,7 +6,7 @@
  */
 
 import { useQuery, useSubscription } from '@apollo/client';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { GET_INTERFACES, INTERFACE_STATUS_SUBSCRIPTION } from './queries';
 import { sortInterfacesByPriority } from './utils';
 import type { InterfaceGridData } from './types';
@@ -30,6 +30,13 @@ interface UseInterfacesReturn {
 /**
  * Hook to fetch and subscribe to interface data.
  * Uses GraphQL subscription as primary, polling as fallback.
+ *
+ * @description
+ * Provides hybrid real-time strategy:
+ * - Primary: WebSocket subscription for instant updates
+ * - Fallback: 2s polling if subscription unavailable
+ * - Automatically switches between sources
+ * - Cleans up subscriptions on unmount
  *
  * @example
  * function InterfaceList({ deviceId }: { deviceId: string }) {
@@ -84,13 +91,16 @@ export function useInterfaces({
   // Combine errors (subscription error takes precedence)
   const error = subError || queryError || null;
 
+  // Memoize refetch callback for stable reference
+  const memoizedRefetch = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
   return {
     interfaces,
     // Only show loading state on initial load (not while polling/subscribed)
     isLoading: loading && !hasSubscriptionData && interfaces.length === 0,
     error,
-    refetch: async () => {
-      await refetch();
-    },
+    refetch: memoizedRefetch,
   };
 }

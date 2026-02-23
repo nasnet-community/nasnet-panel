@@ -64,7 +64,7 @@ function ActionIcon({ type, className }: { type: string; className?: string }) {
 /**
  * Single history item row
  */
-const HistoryItem = forwardRef<
+const HistoryItem = React.memo(forwardRef<
   HTMLLIElement,
   {
     item: HistoryPanelItem;
@@ -135,7 +135,9 @@ const HistoryItem = forwardRef<
       )}
     </li>
   );
-});
+}));
+
+HistoryItem.displayName = 'HistoryItem';
 
 /**
  * Desktop History Panel Component
@@ -146,7 +148,7 @@ const HistoryItem = forwardRef<
  * - Jump to any point
  * - Scope indicators
  */
-export function HistoryPanelDesktop({
+export const HistoryPanelDesktop = React.memo(function HistoryPanelDesktop({
   className,
   onClose,
   maxHeight = 400,
@@ -270,4 +272,6 @@ export function HistoryPanelDesktop({
       />
     </div>
   );
-}
+});
+
+HistoryPanelDesktop.displayName = 'HistoryPanelDesktop';

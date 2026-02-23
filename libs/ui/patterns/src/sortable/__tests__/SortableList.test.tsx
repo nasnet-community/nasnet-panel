@@ -25,6 +25,8 @@ interface TestItem extends SortableItemData {
   label: string;
 }
 
+type TestItemArray = TestItem[];
+
 const createTestItems = (count = 5): TestItem[] =>
   Array.from({ length: count }, (_, i) => ({
     id: `item-${i + 1}`,
@@ -331,9 +333,10 @@ describe('SortableList', () => {
   });
 
   it('renders empty state when no items', () => {
+    const emptyItems: TestItem[] = [];
     render(
-      <SortableList
-        items={[]}
+      <SortableList<TestItem>
+        items={emptyItems}
         renderItem={(item) => <div>{item.label}</div>}
         emptyState={<div data-testid="empty">No items</div>}
       />

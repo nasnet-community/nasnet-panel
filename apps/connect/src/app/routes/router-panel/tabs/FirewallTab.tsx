@@ -9,6 +9,8 @@
 import { useState, useCallback } from 'react';
 
 import { Settings2, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 import {
   useFilterRules,
@@ -51,6 +53,7 @@ import {
 
 
 export function FirewallTab() {
+  const { t } = useTranslation('firewall');
   const [selectedChain, setSelectedChain] = useState<FirewallChain | null>(null);
   const [showEfficiencyReport, setShowEfficiencyReport] = useState(false);
   const [showUnusedOnly, setShowUnusedOnly] = useState(false);
@@ -101,7 +104,7 @@ export function FirewallTab() {
               destination: suggestion.targetPosition,
             });
             toast({
-              title: 'Rule reordered successfully',
+              title: t('actions.ruleReorderedSuccess'),
               description: suggestion.title,
             });
             break;
@@ -112,7 +115,7 @@ export function FirewallTab() {
             }
             await deleteFilterRule.mutateAsync(suggestion.affectedRules[0]);
             toast({
-              title: 'Rule deleted successfully',
+              title: t('actions.ruleDeletedSuccess'),
               description: suggestion.title,
             });
             break;
@@ -126,7 +129,7 @@ export function FirewallTab() {
               disabled: true,
             });
             toast({
-              title: 'Rule disabled successfully',
+              title: t('actions.ruleDisabledSuccess'),
               description: suggestion.title,
             });
             break;
@@ -136,13 +139,13 @@ export function FirewallTab() {
         }
       } catch (error) {
         toast({
-          title: 'Failed to apply suggestion',
-          description: error instanceof Error ? error.message : 'An unknown error occurred',
+          title: t('actions.applySuggestionFailed'),
+          description: error instanceof Error ? error.message : t('actions.unknownError'),
           variant: 'destructive',
         });
       }
     },
-    [moveFilterRule, deleteFilterRule, toggleFilterRule, toast]
+    [moveFilterRule, deleteFilterRule, toggleFilterRule, toast, t]
   );
 
   const handlePreviewSuggestion = useCallback((suggestion: Suggestion) => {
@@ -158,10 +161,10 @@ export function FirewallTab() {
         {/* Page Header */}
         <div className="px-2">
           <h1 className="text-2xl md:text-3xl font-semibold mb-1">
-            Firewall & Routing
+            {t('title')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Monitor firewall rules, NAT configuration, and routing tables
+            {t('description')}
           </p>
         </div>
 
@@ -222,7 +225,7 @@ export function FirewallTab() {
                   className="gap-2"
                 >
                   <BarChart3 className="h-4 w-4" />
-                  Efficiency Report
+                  {t('buttons.efficiencyReport')}
                 </Button>
 
                 {/* Counter Settings Dropdown */}
@@ -230,40 +233,40 @@ export function FirewallTab() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <Settings2 className="h-4 w-4" />
-                      Counter Settings
+                      {t('buttons.counterSettings')}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>Polling Interval</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t('settings.pollingInterval')}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setPollingInterval(null)}>
-                      {pollingInterval === null && '✓ '}Manual (No polling)
+                      {pollingInterval === null && '✓ '}{t('settings.manual')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setPollingInterval(5000)}>
-                      {pollingInterval === 5000 && '✓ '}5 seconds
+                      {pollingInterval === 5000 && '✓ '}5 {t('settings.seconds')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setPollingInterval(10000)}>
-                      {pollingInterval === 10000 && '✓ '}10 seconds
+                      {pollingInterval === 10000 && '✓ '}10 {t('settings.seconds')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setPollingInterval(30000)}>
-                      {pollingInterval === 30000 && '✓ '}30 seconds
+                      {pollingInterval === 30000 && '✓ '}30 {t('settings.seconds')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setPollingInterval(60000)}>
-                      {pollingInterval === 60000 && '✓ '}60 seconds
+                      {pollingInterval === 60000 && '✓ '}60 {t('settings.seconds')}
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Display Options</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t('settings.displayOptions')}</DropdownMenuLabel>
                     <DropdownMenuCheckboxItem
                       checked={showRelativeBar}
                       onCheckedChange={setShowRelativeBar}
                     >
-                      Show Traffic Bars
+                      {t('settings.showTrafficBars')}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={showRate}
                       onCheckedChange={setShowRate}
                     >
-                      Show Rate (Desktop)
+                      {t('settings.showRate')}
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -280,9 +283,9 @@ export function FirewallTab() {
       <Dialog open={showEfficiencyReport} onOpenChange={setShowEfficiencyReport}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Rule Efficiency Report</DialogTitle>
+            <DialogTitle>{t('dialogs.efficiencyReportTitle')}</DialogTitle>
             <DialogDescription>
-              Analyze firewall rules for redundancies and optimization opportunities
+              {t('dialogs.efficiencyReportDescription')}
             </DialogDescription>
           </DialogHeader>
           <RuleEfficiencyReport
@@ -295,3 +298,5 @@ export function FirewallTab() {
     </div>
   );
 }
+
+FirewallTab.displayName = 'FirewallTab';

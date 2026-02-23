@@ -1,9 +1,11 @@
 /**
  * SecurityProfileSection Component
- * Displays security profile information for a wireless interface
+ * @description Displays comprehensive security profile information including authentication
+ * type, encryption method, and password field with visual indicators.
  * Implements FR0-16: View security profile settings
  */
 
+import * as React from 'react';
 import { Lock } from 'lucide-react';
 import { Card } from '@nasnet/ui/primitives';
 import {
@@ -27,14 +29,14 @@ export interface SecurityProfileSectionProps {
  * - Shows authentication type and encryption method
  * - Provides password field with masking and copy functionality
  */
-export function SecurityProfileSection({
+export const SecurityProfileSection = React.memo(function SecurityProfileSection({
   profile,
   className,
 }: SecurityProfileSectionProps) {
   const securityLevel = getSecurityLevel(profile);
 
   // Get user-friendly authentication type label
-  const authLabel = getAuthenticationLabel(profile.authenticationTypes);
+  const authLabel = getAuthenticationLabel([...profile.authenticationTypes]);
 
   // Get encryption method label
   const encryptionLabel = profile.unicastCiphers
@@ -76,30 +78,35 @@ export function SecurityProfileSection({
       </div>
     </Card>
   );
-}
+});
+
+SecurityProfileSection.displayName = 'SecurityProfileSection';
 
 /**
  * Detail row component for consistent key-value display
  */
-function DetailRow({ label, value }: { label: string; value: string }) {
+const DetailRow = React.memo(function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-slate-600 dark:text-slate-400">
-        {label}
-      </span>
-      <span className="text-sm font-medium text-slate-900 dark:text-slate-50">
-        {value}
-      </span>
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium text-foreground font-mono">{value}</span>
     </div>
   );
-}
+});
+
+DetailRow.displayName = 'DetailRow';
 
 /**
  * Get user-friendly label for authentication types
+ * Memoized to prevent unnecessary re-computation
  */
-function getAuthenticationLabel(
-  authTypes: AuthenticationType[]
-): string {
+const getAuthenticationLabel = (authTypes: AuthenticationType[]): string => {
   if (authTypes.length === 0) {
     return 'Open';
   }
@@ -128,4 +135,4 @@ function getAuthenticationLabel(
   });
 
   return labels.join(', ');
-}
+};

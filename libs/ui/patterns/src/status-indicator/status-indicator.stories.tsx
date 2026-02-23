@@ -4,15 +4,18 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 
 const meta: Meta<typeof StatusIndicator> = {
-  title: 'Patterns/StatusIndicator',
+  title: 'Patterns/Common/StatusIndicator',
   component: StatusIndicator,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
+    viewport: {
+      defaultViewport: 'desktop',
+    },
     docs: {
       description: {
         component:
-          'A compact inline status indicator with a coloured dot and optional label. Supports five semantic statuses (online, offline, warning, info, pending), three sizes, and an optional pulse animation for live states.',
+          'A compact inline status indicator with a colored dot and optional label. Supports five semantic statuses (online, offline, warning, info, pending), three sizes, and an optional pulse animation for live states.',
       },
     },
   },

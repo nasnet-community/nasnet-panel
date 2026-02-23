@@ -1,0 +1,81 @@
+{
+  "title": "Diagnostics",
+  "ping": {
+    "title": "Ping",
+    "target": "Target Host",
+    "count": "Count",
+    "size": "Packet Size",
+    "interval": "Interval",
+    "ttl": "TTL",
+    "start": "Start Ping",
+    "stop": "Stop",
+    "results": "Ping Results",
+    "sent": "Sent",
+    "received": "Received",
+    "lost": "Lost",
+    "min": "Min",
+    "avg": "Average",
+    "max": "Max",
+    "jitter": "Jitter",
+    "noResults": "No ping results"
+  },
+  "traceroute": {
+    "title": "Traceroute",
+    "target": "Target Host",
+    "maxHops": "Max Hops",
+    "timeout": "Timeout",
+    "start": "Start Traceroute",
+    "stop": "Stop",
+    "hop": "Hop",
+    "address": "Address",
+    "rtt": "RTT",
+    "status": "Status",
+    "noResults": "No traceroute results"
+  },
+  "dnsLookup": {
+    "title": "DNS Lookup",
+    "domain": "Domain Name",
+    "recordType": "Record Type",
+    "server": "DNS Server",
+    "lookup": "Lookup",
+    "results": "Results",
+    "queryTime": "Query Time",
+    "noResults": "No DNS results",
+    "serverComparison": "Server Comparison"
+  },
+  "deviceScan": {
+    "title": "Device Scan",
+    "scanNetwork": "Scan Network",
+    "scanning": "Scanning...",
+    "devicesFound": "{{count}} device found",
+    "devicesFound_other": "{{count}} devices found",
+    "noDevices": "No devices found",
+    "details": "Device Details"
+  },
+  "troubleshoot": {
+    "title": "Troubleshoot",
+    "wizard": "Troubleshooting Wizard",
+    "step": "Step {{current}} of {{total}}",
+    "running": "Running diagnostics...",
+    "passed": "Passed",
+    "failed": "Failed",
+    "skipped": "Skipped",
+    "fix": "Apply Fix",
+    "fixApplied": "Fix Applied",
+    "fixFailed": "Fix Failed",
+    "summary": "Summary",
+    "retry": "Retry",
+    "noIssues": "No issues found",
+    "issuesFound": "{{count}} issue found",
+    "issuesFound_other": "{{count}} issues found",
+    "noRouterSelected": "No Router Selected",
+    "selectRouterMessage": "Please select a router before running diagnostics.",
+    "returnToDashboard": "Return to Dashboard"
+  },
+  "routeLookup": {
+    "title": "Route Lookup",
+    "destination": "Destination",
+    "lookup": "Lookup Route",
+    "noResults": "No matching route found"
+  }
+}

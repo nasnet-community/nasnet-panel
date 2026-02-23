@@ -1,11 +1,10 @@
 /**
  * TimezoneSelector Component
  *
- * Searchable timezone picker with common timezones and full IANA list.
- * Groups timezones by region for better UX.
+ * @description Searchable timezone picker with common timezones and full IANA list, grouped by region for better UX.
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Select,
@@ -81,7 +80,7 @@ function getAllTimezones(): string[] {
  * />
  * ```
  */
-export function TimezoneSelector({
+function TimezoneSelectorComponent({
   value,
   onChange,
   disabled = false,
@@ -113,7 +112,7 @@ export function TimezoneSelector({
   return (
     <div className={cn('space-y-2', className)}>
       <Label htmlFor="timezone" className="flex items-center gap-2">
-        <Globe className="h-4 w-4" />
+        <Globe className="h-4 w-4" aria-hidden="true" />
         {t('quietHours.timezone')}
       </Label>
 
@@ -130,7 +129,7 @@ export function TimezoneSelector({
           {/* Search input */}
           <div className="px-2 py-2 border-b">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder={t('quietHours.searchTimezone')}
                 value={searchQuery}
@@ -179,3 +178,6 @@ export function TimezoneSelector({
     </div>
   );
 }
+
+export const TimezoneSelector = memo(TimezoneSelectorComponent);
+TimezoneSelector.displayName = 'TimezoneSelector';

@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { SecurityProfileSection } from './SecurityProfileSection';
 import type { SecurityProfile } from '@nasnet/core/types';
+
+import { SecurityProfileSection } from './SecurityProfileSection';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof SecurityProfileSection> = {
   title: 'Features/Wireless/SecurityProfileSection',

@@ -1,108 +1,174 @@
 /**
  * AlertRuleForm component
- * Per Task 4.1: Create AlertRuleForm component for creating/editing alert rules
- * Per AC1: User can create alert rules with name, trigger condition, severity,
- * notification channels, and optional quiet hours
+ *
+ * Form for creating and editing alert rules. Supports configuration of trigger
+ * conditions, severity levels, notification channels, and enable/disable toggling.
+ * Handles both creation and update workflows. Form validation via Zod schema.
+ *
+ * @description Per Task 4.1: Create AlertRuleForm component for creating/editing alert rules
+ * @example
+ * // Create new rule
+ * <AlertRuleForm onSuccess={handleSuccess} />
+ *
+ * // Edit existing rule
+ * <AlertRuleForm ruleId="rule-123" initialData={ruleData} onSuccess={handleSuccess} />
+ *
+ * @see useCreateAlertRule
+ * @see useUpdateAlertRule
  */
+import { AlertCircle, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useMemo, useState, memo } from 'react';
 import {
   type AlertRuleFormData,
   alertRuleFormSchema,
   defaultAlertRule,
-  severityConfig,
-  notificationChannels,
-  operatorConfig,
+  SEVERITY_CONFIG,
+  NOTIFICATION_CHANNELS,
+  OPERATOR_CONFIG,
 } from '../schemas/alert-rule.schema';
 import { useCreateAlertRule, useUpdateAlertRule } from '../hooks/useAlertRules';
-import { useState, memo } from 'react';
+import { cn } from '@nasnet/ui/utils';
+import { Icon } from '@nasnet/ui/primitives';
 
+/**
+ * @interface AlertRuleFormProps
+ * @description Props for AlertRuleForm component
+ */
 interface AlertRuleFormProps {
+  /** Initial form data (for editing existing rules) */
   initialData?: Partial<AlertRuleFormData>;
+  /** Rule ID (if editing existing rule) */
   ruleId?: string;
+  /** Callback on successful save */
   onSuccess?: () => void;
+  /** Callback on cancel */
   onCancel?: () => void;
+  /** Optional CSS className for custom styling */
+  className?: string;
 }
 
 /**
- * Desktop/Mobile agnostic AlertRuleForm
- * Per Task 4.10: Mobile presenter would wrap this with full-screen modal pattern
+ * Form for creating and editing alert rules with conditions, severity, and channels.
+ * Supports both new rule creation and editing existing rules. Auto-disables submit
+ * when no changes detected. Shows loading state during save operations.
+ *
+ * @component
+ * @example
+ * return <AlertRuleForm ruleId="rule-1" onSuccess={handleSuccess} />;
  */
-export const AlertRuleForm = memo(function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: AlertRuleFormProps) {
-  const isEditing = Boolean(ruleId);
-  const { createRule, loading: creating } = useCreateAlertRule();
-  const { updateRule, loading: updating } = useUpdateAlertRule();
-  const [error, setError] = useState<string | null>(null);
+const AlertRuleForm = memo(
+  function AlertRuleForm({
+    initialData,
+    ruleId,
+    onSuccess,
+    onCancel,
+    className,
+  }: AlertRuleFormProps) {
+    const isEditing = useMemo(() => Boolean(ruleId), [ruleId]);
+    const { createRule, loading: isCreating } = useCreateAlertRule();
+    const { updateRule, loading: isUpdating } = useUpdateAlertRule();
+    const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isDirty },
-  } = useForm<AlertRuleFormData>({
-    resolver: zodResolver(alertRuleFormSchema) as any,
-    defaultValues: initialData || defaultAlertRule,
-  });
+    const {
+      register,
+      handleSubmit,
+      watch,
+      setValue,
+      formState: { errors, isDirty },
+    } = useForm<AlertRuleFormData>({
+      resolver: zodResolver(alertRuleFormSchema) as any,
+      defaultValues: initialData || defaultAlertRule,
+    });
 
-  const conditions = watch('conditions') || [];
-  const selectedChannels = watch('channels') || [];
-  const severity = watch('severity');
+    const conditions = watch('conditions') || [];
+    const selectedChannels = watch('channels') || [];
+    const severity = watch('severity');
 
-  const onSubmit = async (data: AlertRuleFormData) => {
-    try {
-      setError(null);
-      if (isEditing && ruleId) {
-        await updateRule(ruleId, data);
-      } else {
-        await createRule(data);
-      }
-      onSuccess?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save alert rule');
-    }
-  };
-
-  const addCondition = () => {
-    setValue('conditions', [
-      ...conditions,
-      { field: '', operator: 'EQUALS', value: '' },
-    ]);
-  };
-
-  const removeCondition = (index: number) => {
-    setValue(
-      'conditions',
-      conditions.filter((_, i) => i !== index)
+    // Stable callback for form submission
+    const handleFormSubmit = useCallback(
+      async (data: AlertRuleFormData) => {
+        try {
+          setError(null);
+          if (isEditing && ruleId) {
+            await updateRule(ruleId, data);
+          } else {
+            await createRule(data);
+          }
+          onSuccess?.();
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : 'Failed to save alert rule'
+          );
+        }
+      },
+      [isEditing, ruleId, updateRule, createRule, onSuccess]
     );
-  };
 
-  const toggleChannel = (channel: string) => {
-    const updated = selectedChannels.includes(channel)
-      ? selectedChannels.filter((c) => c !== channel)
-      : [...selectedChannels, channel];
-    setValue('channels', updated);
-  };
+    // Stable callback for adding conditions
+    const handleAddCondition = useCallback(() => {
+      setValue('conditions', [
+        ...conditions,
+        { field: '', operator: 'EQUALS', value: '' },
+      ]);
+    }, [conditions, setValue]);
 
-  const loading = creating || updating;
+    // Stable callback for removing conditions
+    const handleRemoveCondition = useCallback(
+      (index: number) => {
+        setValue(
+          'conditions',
+          conditions.filter((_, i) => i !== index)
+        );
+      },
+      [conditions, setValue]
+    );
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-semibold">
-          {isEditing ? 'Edit Alert Rule' : 'Create Alert Rule'}
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Configure alerts for router events and system conditions
-        </p>
-      </div>
+    // Stable callback for toggling channels
+    const handleToggleChannel = useCallback(
+      (channel: string) => {
+        const updated = selectedChannels.includes(channel)
+          ? selectedChannels.filter((c) => c !== channel)
+          : [...selectedChannels, channel];
+        setValue('channels', updated);
+      },
+      [selectedChannels, setValue]
+    );
 
-      {error && (
-        <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm" role="alert">
-          {error}
+    const isLoading = isCreating || isUpdating;
+
+    return (
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className={cn('space-y-6', className)}
+      >
+        {/* Header */}
+        <div>
+          <h2 className="text-2xl font-display font-semibold">
+            {isEditing ? 'Edit Alert Rule' : 'Create Alert Rule'}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Configure alerts for router events and system conditions
+          </p>
         </div>
-      )}
+
+        {error && (
+          <div
+            className="p-4 bg-destructive/10 text-destructive rounded-md text-sm"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div className="flex gap-2">
+              <Icon
+                icon={AlertCircle}
+                className="h-4 w-4 flex-shrink-0 mt-0.5"
+                aria-hidden="true"
+              />
+              <div>{error}</div>
+            </div>
+          </div>
+        )}
 
       {/* Basic Info */}
       <div className="space-y-4">
@@ -158,9 +224,9 @@ export const AlertRuleForm = memo(function AlertRuleForm({ initialData, ruleId, 
 
       {/* Severity */}
       <div>
-        <label className="block text-sm font-medium mb-2" id="severity-group-label">Severity *</label>
-        <div className="flex gap-3" role="radiogroup" aria-labelledby="severity-group-label">
-          {Object.entries(severityConfig).map(([key, config]) => (
+        <label htmlFor="severity-group" className="block text-sm font-medium mb-2" id="severity-group-label">Severity *</label>
+        <div id="severity-group" className="flex gap-3" role="radiogroup" aria-labelledby="severity-group-label">
+          {Object.entries(SEVERITY_CONFIG).map(([key, config]) => (
             <label
               key={key}
               className={`flex-1 p-3 border-2 rounded-md cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
@@ -187,122 +253,176 @@ export const AlertRuleForm = memo(function AlertRuleForm({ initialData, ruleId, 
         )}
       </div>
 
-      {/* Conditions */}
-      <div>
-        <label className="block text-sm font-medium mb-2">Conditions *</label>
-        <div className="space-y-2">
-          {conditions.map((condition, index) => (
-            <div key={index} className="flex gap-2 items-start">
-              <input
-                {...register(`conditions.${index}.field`)}
-                placeholder="Field"
-                aria-label={`Condition ${index + 1} field`}
-                className="flex-1 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-              />
-              <select
-                {...register(`conditions.${index}.operator`)}
-                aria-label={`Condition ${index + 1} operator`}
-                className="w-32 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-              >
-                {Object.entries(operatorConfig).map(([key, config]) => (
-                  <option key={key} value={key}>
-                    {config.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                {...register(`conditions.${index}.value`)}
-                placeholder="Value"
-                aria-label={`Condition ${index + 1} value`}
-                className="flex-1 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-              />
-              {conditions.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeCondition(index)}
-                  aria-label={`Remove condition ${index + 1}`}
-                  className="px-3 py-2 text-destructive hover:bg-destructive/10 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+        {/* Conditions */}
+        <div>
+          <label htmlFor="conditions-section" className="block text-sm font-medium mb-2">Conditions *</label>
+          <div id="conditions-section" className="space-y-2">
+            {conditions.map((condition, index) => (
+              <div key={index} className="flex gap-2 items-start">
+                <input
+                  {...register(`conditions.${index}.field`)}
+                  placeholder="Field"
+                  aria-label={`Condition ${index + 1} field`}
+                  className={cn(
+                    'flex-1 px-3 py-2 border rounded-md',
+                    'focus-visible:ring-2 focus-visible:ring-ring',
+                    'focus-visible:ring-offset-2 focus-visible:outline-none'
+                  )}
+                />
+                <select
+                  {...register(`conditions.${index}.operator`)}
+                  aria-label={`Condition ${index + 1} operator`}
+                  className={cn(
+                    'w-32 px-3 py-2 border border-border rounded-md',
+                    'focus-visible:ring-2 focus-visible:ring-ring',
+                    'focus-visible:ring-offset-2 focus-visible:outline-none'
+                  )}
                 >
-                  Remove
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={addCondition}
-          aria-label="Add new condition"
-          className="mt-2 text-sm text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none rounded"
-        >
-          + Add Condition
-        </button>
-        {errors.conditions && (
-          <p className="text-sm text-destructive mt-1" role="alert">{errors.conditions.message}</p>
-        )}
-      </div>
-
-      {/* Channels */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Notification Channels *
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {notificationChannels.map((channel) => (
-            <label
-              key={channel.value}
-              className={`flex items-center gap-2 p-3 border-2 rounded-md cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
-                selectedChannels.includes(channel.value)
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={selectedChannels.includes(channel.value)}
-                onChange={() => toggleChannel(channel.value)}
-                aria-label={`Enable ${channel.label} notifications`}
-                className="rounded"
-              />
-              <span className="text-sm font-medium">{channel.label}</span>
-            </label>
-          ))}
-        </div>
-        {errors.channels && (
-          <p className="text-sm text-destructive mt-1" role="alert">{errors.channels.message}</p>
-        )}
-      </div>
-
-      {/* Enabled Toggle */}
-      <div>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input {...register('enabled')} type="checkbox" className="rounded" />
-          <span className="text-sm font-medium">Enable this rule immediately</span>
-        </label>
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-3 justify-end pt-4 border-t">
-        {onCancel && (
+                  {Object.entries(OPERATOR_CONFIG).map(([key, config]) => (
+                    <option key={key} value={key}>
+                      {config.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  {...register(`conditions.${index}.value`)}
+                  placeholder="Value"
+                  aria-label={`Condition ${index + 1} value`}
+                  className={cn(
+                    'flex-1 px-3 py-2 border border-border rounded-md',
+                    'focus-visible:ring-2 focus-visible:ring-ring',
+                    'focus-visible:ring-offset-2 focus-visible:outline-none'
+                  )}
+                />
+                {conditions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCondition(index)}
+                    aria-label={`Remove condition ${index + 1}`}
+                    className={cn(
+                      'px-3 py-2 text-destructive hover:bg-destructive/10 rounded-md',
+                      'focus-visible:ring-2 focus-visible:ring-ring',
+                      'focus-visible:ring-offset-2 focus-visible:outline-none'
+                    )}
+                  >
+                    <Icon
+                      icon={X}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
           <button
             type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-border rounded-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-            disabled={loading}
-            aria-label="Cancel alert rule editing"
+            onClick={handleAddCondition}
+            aria-label="Add new condition"
+            className={cn(
+              'mt-2 text-sm text-primary hover:underline',
+              'focus-visible:ring-2 focus-visible:ring-ring',
+              'focus-visible:ring-offset-2 focus-visible:outline-none rounded'
+            )}
           >
-            Cancel
+            + Add Condition
           </button>
-        )}
-        <button
-          type="submit"
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-          disabled={loading || !isDirty}
-          aria-label={loading ? 'Saving alert rule' : isEditing ? 'Update alert rule' : 'Create alert rule'}
-        >
-          {loading ? 'Saving...' : isEditing ? 'Update Rule' : 'Create Rule'}
-        </button>
-      </div>
-    </form>
-  );
-});
+          {errors.conditions && (
+            <p className="text-sm text-destructive mt-1" role="alert">
+              {errors.conditions.message}
+            </p>
+          )}
+        </div>
+
+        {/* Channels */}
+        <div>
+          <label htmlFor="channels-section" className="block text-sm font-medium mb-2">
+            Notification Channels *
+          </label>
+          <div id="channels-section" className="grid grid-cols-2 gap-2">
+            {NOTIFICATION_CHANNELS.map((channel) => (
+              <label
+                key={channel.value}
+                className={cn(
+                  'flex items-center gap-2 p-3 border-2 rounded-md cursor-pointer',
+                  'transition-colors has-[:focus-visible]:ring-2',
+                  'has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2',
+                  selectedChannels.includes(channel.value)
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedChannels.includes(channel.value)}
+                  onChange={() => handleToggleChannel(channel.value)}
+                  aria-label={`Enable ${channel.label} notifications`}
+                  className="rounded"
+                />
+                <span className="text-sm font-medium">{channel.label}</span>
+              </label>
+            ))}
+          </div>
+          {errors.channels && (
+            <p className="text-sm text-destructive mt-1" role="alert">
+              {errors.channels.message}
+            </p>
+          )}
+        </div>
+
+        {/* Enabled Toggle */}
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input {...register('enabled')} type="checkbox" className="rounded" />
+            <span className="text-sm font-medium">
+              Enable this rule immediately
+            </span>
+          </label>
+        </div>
+
+        {/* Actions */}
+        <div className={cn('flex gap-3 justify-end pt-4 border-t')}>
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className={cn(
+                'px-4 py-2 border border-border rounded-md hover:bg-muted',
+                'focus-visible:ring-2 focus-visible:ring-ring',
+                'focus-visible:ring-offset-2 focus-visible:outline-none'
+              )}
+              disabled={isLoading}
+              aria-label="Cancel alert rule editing"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            className={cn(
+              'px-4 py-2 bg-primary text-primary-foreground rounded-md',
+              'hover:bg-primary/90 disabled:opacity-50',
+              'focus-visible:ring-2 focus-visible:ring-ring',
+              'focus-visible:ring-offset-2 focus-visible:outline-none'
+            )}
+            disabled={isLoading || !isDirty}
+            aria-label={
+              isLoading
+                ? 'Saving alert rule'
+                : isEditing
+                  ? 'Update alert rule'
+                  : 'Create alert rule'
+            }
+          >
+            {isLoading ? 'Saving...' : isEditing ? 'Update Rule' : 'Create Rule'}
+          </button>
+        </div>
+      </form>
+    );
+  }
+);
+
+AlertRuleForm.displayName = 'AlertRuleForm';
+
+export { AlertRuleForm };
+export type { AlertRuleFormProps };

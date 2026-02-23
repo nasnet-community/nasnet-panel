@@ -6,14 +6,18 @@
 
 import * as React from 'react';
 
-import { 
-  Shield, 
-  Lock, 
-  Network, 
-  KeyRound, 
-  Globe, 
-  ShieldCheck 
+import { memo } from 'react';
+
+import {
+  Shield,
+  Lock,
+  Network,
+  KeyRound,
+  Globe,
+  ShieldCheck
 } from 'lucide-react';
+
+import { cn } from '@nasnet/ui/primitives';
 
 import type { VPNProtocol } from '@nasnet/core/types';
 
@@ -34,50 +38,50 @@ function getProtocolConfig(protocol: VPNProtocol) {
     case 'wireguard':
       return {
         Icon: Shield,
-        colorClass: 'text-emerald-500',
-        bgClass: 'bg-emerald-500/10 dark:bg-emerald-500/20',
+        colorClass: 'text-success',
+        bgClass: 'bg-success/10',
         label: 'WireGuard',
       };
     case 'openvpn':
       return {
         Icon: Globe,
-        colorClass: 'text-orange-500',
-        bgClass: 'bg-orange-500/10 dark:bg-orange-500/20',
+        colorClass: 'text-warning',
+        bgClass: 'bg-warning/10',
         label: 'OpenVPN',
       };
     case 'l2tp':
       return {
         Icon: Network,
-        colorClass: 'text-blue-500',
-        bgClass: 'bg-blue-500/10 dark:bg-blue-500/20',
+        colorClass: 'text-info',
+        bgClass: 'bg-info/10',
         label: 'L2TP',
       };
     case 'pptp':
       return {
         Icon: Lock,
-        colorClass: 'text-purple-500',
-        bgClass: 'bg-purple-500/10 dark:bg-purple-500/20',
+        colorClass: 'text-error',
+        bgClass: 'bg-error/10',
         label: 'PPTP',
       };
     case 'sstp':
       return {
         Icon: ShieldCheck,
-        colorClass: 'text-cyan-500',
-        bgClass: 'bg-cyan-500/10 dark:bg-cyan-500/20',
+        colorClass: 'text-primary',
+        bgClass: 'bg-primary/10',
         label: 'SSTP',
       };
     case 'ikev2':
       return {
         Icon: KeyRound,
-        colorClass: 'text-amber-500',
-        bgClass: 'bg-amber-500/10 dark:bg-amber-500/20',
+        colorClass: 'text-secondary',
+        bgClass: 'bg-secondary/10',
         label: 'IKEv2',
       };
     default:
       return {
         Icon: Shield,
-        colorClass: 'text-slate-500',
-        bgClass: 'bg-slate-500/10 dark:bg-slate-500/20',
+        colorClass: 'text-muted-foreground',
+        bgClass: 'bg-muted',
         label: 'VPN',
       };
   }
@@ -87,22 +91,26 @@ function getProtocolConfig(protocol: VPNProtocol) {
  * ProtocolIcon Component
  * Renders the appropriate icon for a VPN protocol
  */
-export function ProtocolIcon({ 
-  protocol, 
-  size = 20, 
-  className = '' 
+function ProtocolIconComponent({
+  protocol,
+  size = 20,
+  className
 }: ProtocolIconProps) {
   const config = getProtocolConfig(protocol);
   const Icon = config.Icon;
 
   return (
-    <Icon 
-      className={`${config.colorClass} ${className}`} 
+    <Icon
+      className={cn(config.colorClass, className)}
       size={size}
       aria-label={config.label}
     />
   );
 }
+
+ProtocolIconComponent.displayName = 'ProtocolIcon';
+
+export const ProtocolIcon = memo(ProtocolIconComponent);
 
 /**
  * ProtocolIconBadge Component
@@ -113,10 +121,10 @@ export interface ProtocolIconBadgeProps extends ProtocolIconProps {
   variant?: 'sm' | 'md' | 'lg';
 }
 
-export function ProtocolIconBadge({ 
-  protocol, 
+function ProtocolIconBadgeComponent({
+  protocol,
   variant = 'md',
-  className = '' 
+  className
 }: ProtocolIconBadgeProps) {
   const config = getProtocolConfig(protocol);
   const Icon = config.Icon;
@@ -130,22 +138,26 @@ export function ProtocolIconBadge({
   const sizes = sizeMap[variant];
 
   return (
-    <div 
-      className={`
-        ${sizes.container} 
-        ${config.bgClass} 
-        rounded-xl flex items-center justify-center
-        ${className}
-      `}
+    <div
+      className={cn(
+        sizes.container,
+        config.bgClass,
+        'rounded-xl flex items-center justify-center',
+        className
+      )}
     >
-      <Icon 
-        className={config.colorClass} 
+      <Icon
+        className={config.colorClass}
         size={sizes.icon}
         aria-label={config.label}
       />
     </div>
   );
 }
+
+ProtocolIconBadgeComponent.displayName = 'ProtocolIconBadge';
+
+export const ProtocolIconBadge = memo(ProtocolIconBadgeComponent);
 
 /**
  * Get protocol label
@@ -167,4 +179,3 @@ export function getProtocolColorClass(protocol: VPNProtocol): string {
 export function getProtocolBgClass(protocol: VPNProtocol): string {
   return getProtocolConfig(protocol).bgClass;
 }
-

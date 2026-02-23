@@ -166,10 +166,10 @@ function formatBytes(bytes: number) {
 }
 
 function getSignalLabel(dbm: number) {
-  if (dbm >= -50) return { label: 'Excellent', color: 'text-emerald-500' };
-  if (dbm >= -60) return { label: 'Good', color: 'text-green-500' };
-  if (dbm >= -70) return { label: 'Fair', color: 'text-amber-500' };
-  return { label: 'Weak', color: 'text-red-500' };
+  if (dbm >= -50) return { label: 'Excellent', color: 'text-success' };
+  if (dbm >= -60) return { label: 'Good', color: 'text-success' };
+  if (dbm >= -70) return { label: 'Fair', color: 'text-warning' };
+  return { label: 'Weak', color: 'text-error' };
 }
 
 interface StatusHeroProps {
@@ -242,17 +242,17 @@ function StatusHero({ interfaces, clients }: StatusHeroProps) {
         <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Bands</p>
         <div className="flex flex-wrap gap-1 mt-1">
           {bands['2.4GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-info/10 text-info">
               2.4G
             </span>
           )}
           {bands['5GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
               5G
             </span>
           )}
           {bands['6GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200">
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-error/10 text-error">
               6G
             </span>
           )}
@@ -571,5 +571,17 @@ export const ErrorState: Story = {
           'message and a "Try Again" button that re-invalidates the wireless query cache.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

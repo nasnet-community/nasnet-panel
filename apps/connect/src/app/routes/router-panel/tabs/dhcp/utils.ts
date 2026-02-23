@@ -44,9 +44,9 @@ export function calculatePoolSize(ranges: string[]): number {
  * @returns Tailwind text color class
  */
 export function getUtilizationTextColor(percent: number): string {
-  if (percent >= 90) return 'text-red-500';
-  if (percent >= 70) return 'text-amber-500';
-  return 'text-emerald-500';
+  if (percent >= 90) return 'text-destructive';
+  if (percent >= 70) return 'text-warning';
+  return 'text-success';
 }
 
 /**
@@ -55,9 +55,9 @@ export function getUtilizationTextColor(percent: number): string {
  * @returns Tailwind background color class
  */
 export function getUtilizationBgColor(percent: number): string {
-  if (percent >= 90) return 'bg-red-500';
-  if (percent >= 70) return 'bg-amber-500';
-  return 'bg-emerald-500';
+  if (percent >= 90) return 'bg-destructive';
+  if (percent >= 70) return 'bg-warning';
+  return 'bg-success';
 }
 
 

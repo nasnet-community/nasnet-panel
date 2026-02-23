@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FilterRulesTable } from './FilterRulesTable';
 import * as queries from '@nasnet/api-client/queries';
 import * as routerModule from '@tanstack/react-router';
-import type { FirewallRule } from '@nasnet/core/types/router/firewall';
+import type { FirewallRule } from '@nasnet/core/types';
 
 // Mock the API query hook
 vi.mock('@nasnet/api-client/queries', () => ({

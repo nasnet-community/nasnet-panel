@@ -178,8 +178,8 @@ export function useAutoScroll({
       if (isAtBottom) {
         // Auto-scroll to bottom if user is already at bottom
         // Use instant scroll for initial load, smooth for updates
-        const behavior = previousDataLength === 0 ? 'instant' : 'smooth';
-        scrollToBottom(behavior as ScrollBehavior);
+        const behavior: ScrollBehavior = previousDataLength === 0 ? 'instant' : 'smooth';
+        scrollToBottom(behavior);
       } else {
         // Increment new entries count if user is scrolled up
         setNewEntriesCount((prev) => prev + newCount);
@@ -195,7 +195,7 @@ export function useAutoScroll({
   useEffect(() => {
     if (enabled && data.length > 0) {
       // Instant scroll on initial load
-      scrollToBottom('instant' as ScrollBehavior);
+      scrollToBottom('instant');
     }
   }, []); // Only run once on mount
 

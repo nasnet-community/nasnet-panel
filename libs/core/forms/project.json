@@ -22,7 +22,12 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/core/forms/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/core/forms/tsconfig.lib.json",
+          "tsc --noEmit --project libs/core/forms/tsconfig.spec.json",
+          "tsc --noEmit --project libs/core/forms/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     },
     "check": {
@@ -32,7 +37,7 @@
           "nx run @nasnet/core-forms:typecheck",
           "nx run @nasnet/core-forms:lint"
         ],
-        "parallel": false
+        "parallel": true
       }
     }
   }

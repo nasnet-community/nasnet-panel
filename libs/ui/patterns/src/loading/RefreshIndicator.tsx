@@ -66,7 +66,7 @@ const colorConfig = {
  * />
  * ```
  */
-export function RefreshIndicator({
+export const RefreshIndicator = React.memo(function RefreshIndicator({
   isRefreshing,
   position = 'top',
   variant = 'bar',
@@ -143,6 +143,6 @@ export function RefreshIndicator({
       <span className="sr-only">Refreshing data</span>
     </div>
   );
-}
+});
 
 RefreshIndicator.displayName = 'RefreshIndicator';

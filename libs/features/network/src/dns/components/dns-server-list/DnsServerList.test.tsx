@@ -9,11 +9,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DnsServerList, type DnsServer } from './DnsServerList';
-import * as platformUtils from '@nasnet/core/utils';
+import * as platformUtils from '@nasnet/ui/layouts';
 
 // Mock usePlatform hook
-vi.mock('@nasnet/core/utils', async () => {
-  const actual = await vi.importActual('@nasnet/core/utils');
+vi.mock('@nasnet/ui/layouts', async () => {
+  const actual = await vi.importActual('@nasnet/ui/layouts');
   return {
     ...actual,
     usePlatform: vi.fn(() => 'desktop'),

@@ -1,11 +1,10 @@
 /**
  * TimeRangeInput Component
  *
- * Time picker for start and end times with validation.
- * Displays warning when time range crosses midnight.
+ * @description Time picker for start and end times with validation, displaying warning when time range crosses midnight.
  */
 
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input, Label, Alert, AlertDescription } from '@nasnet/ui/primitives';
 import { Clock, AlertCircle } from 'lucide-react';
@@ -35,7 +34,7 @@ function crossesMidnight(start: string, end: string): boolean {
  * />
  * ```
  */
-export function TimeRangeInput({
+function TimeRangeInputComponent({
   startTime,
   endTime,
   onChange,
@@ -66,7 +65,7 @@ export function TimeRangeInput({
         {/* Start Time */}
         <div className="space-y-2">
           <Label htmlFor="start-time" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
+            <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.startTime')}
           </Label>
           <Input
@@ -83,7 +82,7 @@ export function TimeRangeInput({
         {/* End Time */}
         <div className="space-y-2">
           <Label htmlFor="end-time" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
+            <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.endTime')}
           </Label>
           <Input
@@ -101,7 +100,7 @@ export function TimeRangeInput({
       {/* Midnight crossing warning */}
       {crossingMidnight && (
         <Alert variant="default" className="border-info bg-info/10">
-          <AlertCircle className="h-4 w-4 text-info" />
+          <AlertCircle className="h-4 w-4 text-info" aria-hidden="true" />
           <AlertDescription className="text-info">
             {t('quietHours.midnightWarning')}
           </AlertDescription>
@@ -110,3 +109,6 @@ export function TimeRangeInput({
     </div>
   );
 }
+
+export const TimeRangeInput = memo(TimeRangeInputComponent);
+TimeRangeInput.displayName = 'TimeRangeInput';

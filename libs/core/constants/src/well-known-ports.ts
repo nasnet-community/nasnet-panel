@@ -361,7 +361,13 @@ export function getSuggestionsByCategory(
 }
 
 /**
- * Category display names for UI.
+ * Category display names for UI rendering.
+ *
+ * Maps each port category to its human-readable label used in dropdowns
+ * and filter options.
+ *
+ * @example
+ * const label = PORT_CATEGORY_LABELS['web']; // 'Web Services'
  */
 export const PORT_CATEGORY_LABELS: Record<PortCategory, string> = {
   web: 'Web Services',
@@ -373,18 +379,23 @@ export const PORT_CATEGORY_LABELS: Record<PortCategory, string> = {
   system: 'System',
   containers: 'Containers',
   mikrotik: 'MikroTik',
-};
-
-/**
- * Common port presets for quick selection.
- */
-export const PORT_PRESETS = {
-  webServer: [80, 443],
-  mailServer: [25, 465, 587, 993, 995],
-  sshAccess: [22],
-  mikrotikManagement: [8291, 8728, 8729],
-  databaseCommon: [3306, 5432, 27017, 6379],
-  vpnPorts: [1194, 51820, 500, 4500, 1701, 1723],
 } as const;
 
-export default WELL_KNOWN_PORTS;
+/**
+ * Pre-configured port presets for common use cases.
+ *
+ * Provides grouped ports for typical server configurations,
+ * enabling quick selection in forms without manual input.
+ *
+ * @example
+ * const ports = PORT_PRESETS.webServer; // [80, 443]
+ * const allPorts = PORT_PRESETS.vpnPorts; // [1194, 51820, 500, 4500, 1701, 1723]
+ */
+export const PORT_PRESETS = {
+  webServer: [80, 443] as const,
+  mailServer: [25, 465, 587, 993, 995] as const,
+  sshAccess: [22] as const,
+  mikrotikManagement: [8291, 8728, 8729] as const,
+  databaseCommon: [3306, 5432, 27017, 6379] as const,
+  vpnPorts: [1194, 51820, 500, 4500, 1701, 1723] as const,
+} as const;

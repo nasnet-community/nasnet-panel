@@ -7,8 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-import * as React from 'react';
-
+import { memo } from 'react';
 import { RefreshCw, Network, AlertCircle, Info } from 'lucide-react';
 
 import {
@@ -39,7 +38,7 @@ import type { VirtualInterfaceBridgeProps } from './types';
  * - Hover tooltips for additional context
  * - Inline status indicators
  */
-export function VirtualInterfaceBridgeDesktop(
+const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBridgeDesktop(
   props: VirtualInterfaceBridgeProps
 ) {
   const { serviceName, className, children } = props;
@@ -248,6 +247,8 @@ export function VirtualInterfaceBridgeDesktop(
       </CardContent>
     </Card>
   );
-}
+});
 
-VirtualInterfaceBridgeDesktop.displayName = 'VirtualInterfaceBridgeDesktop';
+VirtualInterfaceBridgeDesktopComponent.displayName = 'VirtualInterfaceBridgeDesktop';
+
+export { VirtualInterfaceBridgeDesktopComponent as VirtualInterfaceBridgeDesktop };

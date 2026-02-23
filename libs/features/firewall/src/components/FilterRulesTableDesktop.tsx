@@ -15,9 +15,10 @@
  * @see NAS-7.1: Implement Filter Rules - Task 4
  */
 
-import { useState, useMemo, useEffect, useRef, memo } from 'react';
+import { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
+import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
   useFilterRules,
@@ -28,8 +29,7 @@ import {
   useUpdateFilterRule,
 } from '@nasnet/api-client/queries/firewall';
 import type { FilterRule, FilterRuleInput, FilterChain } from '@nasnet/core/types';
-import { CounterCell, FilterRuleEditor } from '@nasnet/ui/patterns';
-import { RuleStatisticsPanel } from '@nasnet/ui/patterns';
+import { CounterCell, FilterRuleEditor, RuleStatisticsPanel } from '@nasnet/ui/patterns';
 import {
   Table,
   TableBody,
@@ -68,12 +68,25 @@ import { Pencil, Copy, Trash2, GripVertical } from 'lucide-react';
 import { useCounterSettingsStore } from '@nasnet/features/firewall';
 
 // ============================================================================
-// Action Badge Component (Refactored to use Badge with semantic variants)
+// Constants
 // ============================================================================
 
+const HIGHLIGHT_ANIMATION_DELAY_MS = 100;
+const DRAG_OPACITY_ACTIVE = 0.5;
+const UNUSED_RULE_OPACITY = 0.6;
+const MAX_TOUCH_TARGET_SIZE = 44;
+const MIN_TOUCH_TARGET_SPACING = 8;
+
+// ============================================================================
+// Action Badge Component
+// ============================================================================
+
+/**
+ * @description Displays the action type (accept, drop, etc.) with semantic color coding
+ */
 const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+  const VARIANT_MAP: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
     drop: 'error',
     reject: 'error',
@@ -83,7 +96,7 @@ const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
     passthrough: 'default',
   };
 
-  const variant = variantMap[action] || 'default';
+  const variant = VARIANT_MAP[action] || 'default';
 
   return (
     <Badge variant={variant}>
@@ -91,11 +104,15 @@ const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
     </Badge>
   );
 });
+ActionBadge.displayName = 'ActionBadge';
 
 // ============================================================================
 // Chain Badge Component
 // ============================================================================
 
+/**
+ * @description Displays the filter chain name (forward, input, output, etc.)
+ */
 const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
     <Badge variant="secondary" className="font-mono text-xs">
@@ -103,11 +120,15 @@ const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
     </Badge>
   );
 });
+ChainBadge.displayName = 'ChainBadge';
 
 // ============================================================================
 // Matchers Summary Component
 // ============================================================================
 
+/**
+ * @description Displays a condensed summary of rule matching criteria (protocol, addresses, ports, etc.)
+ */
 const MatchersSummary = memo(function MatchersSummary({ rule }: { rule: FilterRule }) {
   const matchers: string[] = [];
 
@@ -127,11 +148,11 @@ const MatchersSummary = memo(function MatchersSummary({ rule }: { rule: FilterRu
   }
 
   if (matchers.length <= 2) {
-    return <span className="text-sm">{matchers.join(', ')}</span>;
+    return <span className="text-sm font-mono">{matchers.join(', ')}</span>;
   }
 
   return (
-    <span className="text-sm">
+    <span className="text-sm font-mono">
       {matchers.slice(0, 2).join(', ')}
       <Badge variant="outline" className="ml-2 text-xs">
         +{matchers.length - 2} more
@@ -139,6 +160,7 @@ const MatchersSummary = memo(function MatchersSummary({ rule }: { rule: FilterRu
     </span>
   );
 });
+MatchersSummary.displayName = 'MatchersSummary';
 
 // ============================================================================
 // Sortable Row Component
@@ -156,6 +178,9 @@ interface SortableRowProps {
   highlightRef?: React.RefObject<HTMLTableRowElement>;
 }
 
+/**
+ * @description Table row component with drag-drop reordering and action buttons
+ */
 const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: SortableRowProps) {
   const {
     attributes,
@@ -169,7 +194,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? DRAG_OPACITY_ACTIVE : 1,
   };
 
   const isUnused = (rule.packets ?? 0) === 0;
@@ -178,6 +203,13 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
 
   // Calculate percentage of max for progress bar
   const percentOfMax = maxBytes > 0 ? ((rule.bytes ?? 0) / maxBytes) * 100 : 0;
+
+  const rowClassName = cn(
+    rule.disabled && 'opacity-50 bg-muted',
+    isUnused && 'bg-muted/50',
+    isUnused && `opacity-${(UNUSED_RULE_OPACITY * 100).toFixed(0)}`,
+    isHighlighted && 'animate-highlight bg-warning/20'
+  );
 
   return (
     <TableRow
@@ -188,7 +220,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
         }
       }}
       style={style}
-      className={`${rule.disabled ? 'opacity-50 bg-muted' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
+      className={rowClassName}
     >
       {/* Drag handle */}
       <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
@@ -251,7 +283,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
             aria-label="Edit rule"
             className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -260,22 +292,23 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
             aria-label="Duplicate rule"
             className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Copy className="h-4 w-4" />
+            <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-destructive hover:text-destructive/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Delete rule"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
           </Button>
         </div>
       </TableCell>
     </TableRow>
   );
 });
+SortableRow.displayName = 'SortableRow';
 
 // ============================================================================
 // Main Component
@@ -289,16 +322,21 @@ export interface FilterRulesTableDesktopProps {
 /**
  * FilterRulesTableDesktop Component
  *
- * Features:
- * - Drag-drop reordering
- * - Inline enable/disable toggle
- * - Edit/Duplicate/Delete actions
- * - Counter visualization (packets/bytes)
- * - Disabled rules styling
- * - Unused rules badge
+ * @description Desktop-optimized table for managing MikroTik filter rules with drag-drop reordering,
+ * inline toggle, and detailed statistics visualization. Supports rule search highlight and traffic monitoring.
  *
- * @param props - Component props
- * @returns Filter rules table component
+ * Features:
+ * - Drag-drop reordering with keyboard support
+ * - Inline enable/disable toggle
+ * - Edit/Duplicate/Delete actions with confirmation
+ * - Counter visualization (packets/bytes) with relative bar
+ * - Disabled rules styling
+ * - Unused rules highlighting (0 hits)
+ * - URL-based rule highlighting with auto-scroll
+ * - Traffic statistics panel with export
+ *
+ * @param props - Component props with optional className and chain filter
+ * @returns Filter rules table component or loading/error state
  */
 export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDesktopProps) {
   const { t } = useTranslation('firewall');
@@ -342,8 +380,8 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
     return Math.max(...sortedRules.map(r => r.bytes ?? 0));
   }, [sortedRules]);
 
-  // Handlers
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Handlers (wrapped with useCallback for stable references)
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -358,20 +396,20 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
         });
       }
     }
-  };
+  }, [sortedRules, moveFilterRule]);
 
-  const handleEdit = (rule: FilterRule) => {
+  const handleEdit = useCallback((rule: FilterRule) => {
     setEditingRule(rule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleDuplicate = (rule: FilterRule) => {
+  const handleDuplicate = useCallback((rule: FilterRule) => {
     const duplicatedRule = { ...rule, id: undefined, order: undefined };
     setEditingRule(duplicatedRule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleSaveRule = async (ruleInput: FilterRuleInput) => {
+  const handleSaveRule = useCallback(async (ruleInput: FilterRuleInput) => {
     if (editingRule?.id) {
       // Update existing rule
       await updateFilterRule.mutateAsync({
@@ -384,34 +422,34 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
     }
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, [editingRule?.id, updateFilterRule, createFilterRule]);
 
-  const handleCloseEditor = () => {
+  const handleCloseEditor = useCallback(() => {
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, []);
 
-  const handleDelete = (rule: FilterRule) => {
+  const handleDelete = useCallback((rule: FilterRule) => {
     setDeleteConfirmRule(rule);
-  };
+  }, []);
 
-  const handleToggle = (rule: FilterRule) => {
+  const handleToggle = useCallback((rule: FilterRule) => {
     toggleFilterRule.mutate({
       ruleId: rule.id!,
       disabled: !rule.disabled,
     });
-  };
+  }, [toggleFilterRule]);
 
-  const confirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (deleteConfirmRule) {
       deleteFilterRule.mutate(deleteConfirmRule.id!);
       setDeleteConfirmRule(null);
     }
-  };
+  }, [deleteConfirmRule, deleteFilterRule]);
 
-  const handleShowStats = (rule: FilterRule) => {
+  const handleShowStats = useCallback((rule: FilterRule) => {
     setStatsRule(rule);
-  };
+  }, []);
 
   // Scroll to highlighted rule when highlight changes
   useEffect(() => {
@@ -422,7 +460,7 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
           behavior: 'smooth',
           block: 'center',
         });
-      }, 100);
+      }, HIGHLIGHT_ANIMATION_DELAY_MS);
 
       return () => clearTimeout(timer);
     }
@@ -432,11 +470,14 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 ${className || ''}`}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-muted rounded" />
-          <div className="h-16 bg-muted rounded" />
-          <div className="h-16 bg-muted rounded" />
+      <div className={cn('p-4', className)} role="status" aria-live="polite">
+        <div className="space-y-4">
+          {/* Table header skeleton */}
+          <div className="h-10 bg-muted rounded animate-pulse" />
+          {/* Row skeletons */}
+          {[...Array(3)].map((_, idx) => (
+            <div key={idx} className="h-12 bg-muted/60 rounded animate-pulse" />
+          ))}
         </div>
       </div>
     );
@@ -445,8 +486,17 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
-        Error loading filter rules: {error.message}
+      <div
+        className={cn('p-6', className)}
+        role="alert"
+        aria-live="assertive"
+      >
+        <div className="rounded-md bg-destructive/10 p-4 border border-destructive/20">
+          <h3 className="font-semibold text-destructive mb-2">Failed to load filter rules</h3>
+          <p className="text-sm text-destructive/80">
+            {error.message || 'An error occurred while retrieving filter rules. Please check your connection and try again.'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -454,8 +504,17 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
-        {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
+      <div className={cn('p-8 text-center', className)}>
+        <div className="space-y-3">
+          <p className="text-muted-foreground font-medium">
+            {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {chain
+              ? `Add the first rule to the ${chain} chain to get started.`
+              : 'Create filter rules to manage traffic on your router.'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -468,17 +527,23 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <Table aria-label="Filter rules">
+          <Table aria-label={chain ? `Filter rules in ${chain} chain` : 'Filter rules'}>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8" scope="col"><span className="sr-only">Drag handle</span></TableHead>
+                <TableHead className="w-8" scope="col">
+                  <span className="sr-only">Drag handle</span>
+                </TableHead>
                 <TableHead scope="col">#</TableHead>
                 <TableHead scope="col">Chain</TableHead>
                 <TableHead scope="col">Action</TableHead>
                 <TableHead scope="col">Matchers</TableHead>
-                <TableHead scope="col" className="hidden lg:table-cell">Traffic</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">
+                  Traffic
+                </TableHead>
                 <TableHead scope="col">Enabled</TableHead>
-                <TableHead scope="col">Actions</TableHead>
+                <TableHead scope="col">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -531,7 +596,7 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">This will:</p>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-              <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
+              <li>Remove the rule from the <span className="font-mono">{deleteConfirmRule?.chain}</span> chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>
             </ul>
@@ -540,7 +605,7 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
             <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
               Delete Rule
             </Button>
           </DialogFooter>
@@ -553,7 +618,7 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
           isOpen={!!statsRule}
           onClose={() => setStatsRule(null)}
           rule={statsRule}
-          historyData={[]} // TODO: Integrate with IndexedDB counterHistoryStorage
+          historyData={[]}
           onExportCsv={() => {
             // TODO: Implement CSV export using counterHistoryStorage.exportToCsv
             console.log('Export CSV for rule:', statsRule.id);

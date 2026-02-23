@@ -80,20 +80,45 @@ export interface UsePingReturn {
  * Manages ping test lifecycle using XState machine and Apollo Client.
  * Handles GraphQL mutations and subscriptions for real-time results.
  *
+ * **State Management:**
+ * - Uses XState machine for coordinated state transitions (idle → running → complete/error)
+ * - Apollo Client mutations for starting/stopping ping operations
+ * - GraphQL subscriptions for streaming real-time ping results
+ * - Auto-calculates statistics from results array
+ *
+ * **Lifecycle:**
+ * 1. User calls `startPing(values)` with target host, ping count, etc.
+ * 2. Machine transitions to 'running' and sends RUN_PING mutation
+ * 3. Subscription activates and receives PING_RESULTS in real-time
+ * 4. Each result triggers machine update via RESULT_RECEIVED event
+ * 5. User calls `stop()` or subscription completes → transition to 'complete'
+ * 6. onComplete callback fires (if provided)
+ *
+ * **Errors:**
+ * - Mutation/subscription errors fire onError callback (if provided)
+ * - Error state persists in `error` field until next startPing
+ *
+ * @param options - Configuration options (deviceId, callbacks)
+ * @returns Hook return object with state, data, and action functions
+ *
  * @example
  * ```tsx
  * function PingTool({ deviceId }: { deviceId: string }) {
  *   const ping = usePing({
  *     deviceId,
  *     onComplete: () => console.log('Ping complete!'),
+ *     onError: (error) => console.error('Ping failed:', error),
  *   });
  *
  *   return (
  *     <div>
- *       <input {...} />
+ *       <input {...formBind} />
  *       <button onClick={() => ping.startPing(values)}>Start</button>
  *       {ping.isRunning && <button onClick={ping.stop}>Stop</button>}
- *       <div>{ping.results.length} results</div>
+ *       <div>{ping.results.length} results received</div>
+ *       {ping.statistics.sent > 0 && (
+ *         <p>Loss: {ping.statistics.lossPercent}%</p>
+ *       )}
  *     </div>
  *   );
  * }
@@ -166,7 +191,10 @@ export function usePing({
     }
   }, [snapshot.value, onComplete]);
 
-  // Start ping function
+  /**
+   * Start a new ping test
+   * Resets state and sends mutation to backend
+   */
   const startPing = useMemo(
     () => (values: PingFormValues) => {
       // Send START event to machine first (resets context)
@@ -189,7 +217,10 @@ export function usePing({
     [deviceId, send, runPingMutation]
   );
 
-  // Stop ping function
+  /**
+   * Stop the current ping test
+   * Sends STOP mutation and transitions state to stopped/complete
+   */
   const stop = useMemo(
     () => () => {
       if (snapshot.context.jobId) {

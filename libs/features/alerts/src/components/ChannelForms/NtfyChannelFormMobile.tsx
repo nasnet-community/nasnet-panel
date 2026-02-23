@@ -1,6 +1,7 @@
 /**
  * NtfyChannelFormMobile - Mobile Presenter
  *
+ * @description
  * Touch-optimized ntfy.sh configuration form for mobile (<640px).
  * Features single-column layout, 44px touch targets, accordion sections, and simplified UI.
  *
@@ -8,11 +9,17 @@
  * @see NAS-18.X: Ntfy.sh notification configuration
  */
 
+import { Bell, Server, Shield, Tag, Eye, EyeOff, X, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import { Controller } from 'react-hook-form';
-import { X, AlertCircle, CheckCircle2, Bell, Server, Shield, Eye, EyeOff, ChevronDown, Tag as TagIcon } from 'lucide-react';
-import { memo, useState } from 'react';
-import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
+import { memo, useState, useCallback } from 'react';
 import {
+  Button,
+  Input,
+  Label,
+  Badge,
+  Alert,
+  AlertDescription,
+  Icon,
   Select,
   SelectContent,
   SelectItem,
@@ -26,8 +33,13 @@ import type { UseNtfyChannelFormReturn } from '../../hooks/useNtfyChannelForm';
 // Types
 // ============================================================================
 
+/**
+ * Props for NtfyChannelFormMobile presenter
+ */
 export interface NtfyChannelFormMobileProps {
-  /** Headless hook instance */
+  /**
+   * Headless hook instance containing form state, handlers, and validation logic
+   */
   ntfyForm: UseNtfyChannelFormReturn;
 }
 
@@ -62,7 +74,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
   const [showTags, setShowTags] = useState(false);
 
   // Handle tag input (Enter or comma)
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleTagKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       if (tagInput.trim()) {
@@ -72,23 +84,23 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         }
       }
     }
-  };
+  }, [tagInput, addTag]);
 
-  const handleAddTag = () => {
+  const handleAddTag = useCallback(() => {
     if (tagInput.trim()) {
       const added = addTag(tagInput);
       if (added) {
         setTagInput('');
       }
     }
-  };
+  }, [tagInput, addTag]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pb-24">
       {/* Enable Toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]">
         <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <Icon icon={Bell} size="lg" className="text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">Send push notifications</p>
@@ -102,7 +114,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-6 w-6 rounded border-border"
+              className="h-6 w-6 rounded border-border cursor-pointer"
               aria-label="Enable ntfy.sh notifications"
             />
           )}
@@ -114,16 +126,18 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowServer(!showServer)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
           aria-expanded={showServer}
           aria-label="Server Configuration"
         >
           <div className="flex items-center gap-2">
-            <Server className="h-5 w-5" aria-hidden="true" />
+            <Icon icon={Server} size="lg" aria-hidden="true" />
             <span className="font-semibold">Server Configuration</span>
           </div>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${showServer ? 'rotate-180' : ''}`}
+          <Icon
+            icon={ChevronDown}
+            size="lg"
+            className={`transition-transform ${showServer ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </button>
@@ -221,17 +235,19 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowAuth(!showAuth)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
           aria-expanded={showAuth}
           aria-label="Authentication"
         >
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5" aria-hidden="true" />
+            <Icon icon={Shield} size="lg" aria-hidden="true" />
             <span className="font-semibold">Authentication</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
           </div>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${showAuth ? 'rotate-180' : ''}`}
+          <Icon
+            icon={ChevronDown}
+            size="lg"
+            className={`transition-transform ${showAuth ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </button>
@@ -273,7 +289,11 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                   className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+                  <Icon
+                    icon={showPassword ? EyeOff : Eye}
+                    size="lg"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
               {errors.password && (
@@ -289,20 +309,22 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowTags(!showTags)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
           aria-expanded={showTags}
           aria-label="Tags"
         >
           <div className="flex items-center gap-2">
-            <TagIcon className="h-5 w-5" aria-hidden="true" />
+            <Icon icon={Tag} size="lg" aria-hidden="true" />
             <span className="font-semibold">Tags</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
             {tags.length > 0 && (
               <Badge variant="default" className="text-xs">{tags.length}</Badge>
             )}
           </div>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${showTags ? 'rotate-180' : ''}`}
+          <Icon
+            icon={ChevronDown}
+            size="lg"
+            className={`transition-transform ${showTags ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </button>
@@ -344,10 +366,10 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                     <button
                       type="button"
                       onClick={() => removeTag(index)}
-                      className="ml-1 min-h-[24px] min-w-[24px] flex items-center justify-center hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                      className="ml-1 p-0.5 min-h-[32px] min-w-[32px] flex items-center justify-center hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                       aria-label={`Remove ${tag}`}
                     >
-                      <X className="h-4 w-4" aria-hidden="true" />
+                      <Icon icon={X} size="md" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -364,11 +386,11 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
       {/* Test Result */}
       {testResult && (
         <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
-          {testResult.success ? (
-            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          )}
+          <Icon
+            icon={testResult.success ? CheckCircle2 : AlertCircle}
+            size="md"
+            aria-hidden="true"
+          />
           <AlertDescription>{testResult.message}</AlertDescription>
         </Alert>
       )}
@@ -381,10 +403,11 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
           onClick={handleTest}
           disabled={!isValid || isTesting}
           className="w-full min-h-[44px]"
+          aria-label={isTesting ? 'Testing notification' : 'Test notification'}
         >
           {isTesting ? 'Testing...' : 'Test Notification'}
         </Button>
-        <Button type="submit" disabled={!isValid} className="w-full min-h-[44px]">
+        <Button type="submit" disabled={!isValid} className="w-full min-h-[44px]" aria-label="Save configuration">
           Save Configuration
         </Button>
       </div>

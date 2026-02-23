@@ -13,36 +13,17 @@ import { NewEntriesIndicator } from './NewEntriesIndicator';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof NewEntriesIndicator> = {
-  title: 'Patterns/DataDisplay/NewEntriesIndicator',
+  title: 'Patterns/Common/NewEntriesIndicator',
   component: NewEntriesIndicator,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
     docs: {
       description: {
-        component: `
-Floating indicator button that appears when new log entries have arrived
-while the user is scrolled up reading older content.
-
-- Renders \`null\` when \`count\` is 0 or negative
-- Uses \`fixed\` positioning at \`bottom-20 left-1/2\` — positioned relative to the viewport
-- Animated entrance via Tailwind's \`animate-in slide-in-from-bottom-2\`
-- Singular/plural-aware label: "1 new entry" vs "5 new entries"
-
-## Usage
-
-\`\`\`tsx
-import { NewEntriesIndicator } from '@nasnet/ui/patterns';
-
-<NewEntriesIndicator
-  count={newCount}
-  onClick={() => scrollContainerRef.current?.scrollToEnd()}
-/>
-\`\`\`
-
-> **Note:** Because this component uses \`fixed\` positioning it will appear
-> at the bottom-centre of the Storybook canvas rather than within the story frame.
-        `,
+        component:
+          'Floating indicator button that appears when new log entries have arrived while the user is scrolled up reading older content. ' +
+          'Renders `null` when `count` is 0 or negative. Uses `fixed` positioning at `bottom-20 left-1/2`. ' +
+          'Singular/plural-aware label: "1 new entry" vs "5 new entries".',
       },
     },
   },

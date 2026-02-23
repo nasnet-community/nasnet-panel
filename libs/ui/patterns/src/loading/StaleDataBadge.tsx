@@ -71,7 +71,7 @@ function formatRelativeTime(date: Date): string {
  * />
  * ```
  */
-export function StaleDataBadge({
+export const StaleDataBadge = React.memo(function StaleDataBadge({
   lastUpdated,
   isRefreshing = false,
   onRefresh,
@@ -106,11 +106,11 @@ export function StaleDataBadge({
         disabled={isRefreshing}
         className={cn(
           'inline-flex items-center gap-1 rounded-full',
-          'bg-amber-50 dark:bg-amber-950/30',
-          'text-amber-700 dark:text-amber-400',
-          'border border-amber-200 dark:border-amber-800',
-          'hover:bg-amber-100 dark:hover:bg-amber-900/50',
-          'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1',
+          'bg-warning/10',
+          'text-warning',
+          'border border-warning/30',
+          'hover:bg-warning/20',
+          'focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-1',
           'transition-colors',
           size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
           className
@@ -126,9 +126,9 @@ export function StaleDataBadge({
     <Badge
       variant="outline"
       className={cn(
-        'bg-amber-50 dark:bg-amber-950/30',
-        'text-amber-700 dark:text-amber-400',
-        'border-amber-200 dark:border-amber-800',
+        'bg-warning/10',
+        'text-warning',
+        'border-warning/30',
         size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-2.5 py-1',
         className
       )}
@@ -136,6 +136,6 @@ export function StaleDataBadge({
       {content}
     </Badge>
   );
-}
+});
 
 StaleDataBadge.displayName = 'StaleDataBadge';

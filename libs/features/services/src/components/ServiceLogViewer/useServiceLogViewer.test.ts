@@ -11,8 +11,8 @@ import type { LogEntry } from '@nasnet/api-client/queries';
 // Mock the API hooks
 vi.mock('@nasnet/api-client/queries', () => ({
   useServiceLogs: vi.fn(() => ({
-    logFile: null,
-    newLogEntry: null,
+    logFile: undefined,
+    newLogEntry: undefined,
     loading: false,
     error: undefined,
     refetch: vi.fn(),
@@ -47,7 +47,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries: entries.slice(0, 1000) } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: mockRefetch,
@@ -99,7 +99,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries: [oldEntry] } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: mockRefetch,
@@ -142,7 +142,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -187,7 +187,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -216,7 +216,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -260,7 +260,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -293,7 +293,7 @@ describe('useServiceLogViewer', () => {
 
       vi.mocked(useServiceLogs).mockReturnValue({
         logFile: { entries } as any,
-        newLogEntry: null,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -319,8 +319,8 @@ describe('useServiceLogViewer', () => {
       const mockRefetch = vi.fn();
 
       vi.mocked(useServiceLogs).mockReturnValue({
-        logFile: null,
-        newLogEntry: null,
+        logFile: undefined,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: mockRefetch,
@@ -341,8 +341,8 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       vi.mocked(useServiceLogs).mockReturnValue({
-        logFile: null,
-        newLogEntry: null,
+        logFile: undefined,
+        newLogEntry: undefined,
         loading: false,
         error: undefined,
         refetch: vi.fn(),

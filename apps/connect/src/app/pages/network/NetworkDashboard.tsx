@@ -7,7 +7,10 @@
  * 4. DHCP Pool Status
  */
 
+import * as React from 'react';
+
 import { Network, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useInterfaces, useARPTable, useIPAddresses , useDHCPServers, useDHCPLeases, useDHCPPools } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -19,7 +22,8 @@ import { InterfaceGridCard } from './components/InterfaceGridCard';
 import { LoadingSkeleton } from './components/LoadingSkeleton';
 import { QuickIPOverview } from './components/QuickIPOverview';
 
-export function NetworkDashboard() {
+export const NetworkDashboard = React.memo(function NetworkDashboard() {
+  const { t } = useTranslation('common');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Fetch network data
@@ -50,7 +54,7 @@ export function NetworkDashboard() {
 
   // Calculate interface stats - count running interfaces with any link
   const activeInterfaces = interfaces?.filter((i) => i.status === 'running') || [];
-  const linkUpInterfaces = activeInterfaces.filter((i) => 
+  const linkUpInterfaces = activeInterfaces.filter((i) =>
     i.linkStatus === 'up' || !i.linkStatus
   );
 
@@ -75,7 +79,7 @@ export function NetworkDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <div className="px-4 py-4 md:px-6 md:py-6 space-y-4 max-w-7xl mx-auto">
-        
+
         {/* Section 1: DHCP Pool Status */}
         <DHCPPoolSummary
           servers={dhcpServers || []}
@@ -90,29 +94,29 @@ export function NetworkDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Network className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              <h2 className="text-sm font-semibold text-foreground">Interfaces</h2>
+              <h2 className="text-sm font-semibold text-foreground">{t('network.interfaces')}</h2>
               <span className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full">
                 {linkUpInterfaces.length}/{interfaces?.length || 0}
               </span>
             </div>
             <button
               className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-              aria-label="View all interfaces"
+              aria-label={t('button.viewAll')}
             >
-              View All
+              {t('button.viewAll')}
               <ChevronRight className="w-3 h-3" aria-hidden="true" />
             </button>
           </div>
-          
+
           <div className="grid gap-2 md:gap-3 md:grid-cols-2 lg:grid-cols-3">
             {(interfaces || []).slice(0, 6).map((iface) => (
               <InterfaceGridCard key={iface.id} interface={iface} />
             ))}
           </div>
-          
+
           {(!interfaces || interfaces.length === 0) && (
             <div className="bg-card rounded-xl p-8 text-center border border-border">
-              <p className="text-muted-foreground">No interfaces found</p>
+              <p className="text-muted-foreground">{t('network.noInterfacesFound')}</p>
             </div>
           )}
         </div>
@@ -134,4 +138,5 @@ export function NetworkDashboard() {
       </div>
     </div>
   );
-}
+});
+NetworkDashboard.displayName = 'NetworkDashboard';

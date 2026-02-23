@@ -70,7 +70,7 @@ function useDebounce<T>(value: T, delay: number): T {
  * - Shows match count when searching
  * - Keyboard shortcut support (/ to focus)
  */
-export function LogSearch({
+function LogSearchComponent({
   value,
   onChange,
   placeholder = 'Search logs...',
@@ -165,6 +165,9 @@ export function LogSearch({
   );
 }
 
+export const LogSearch = React.memo(LogSearchComponent);
+LogSearch.displayName = 'LogSearch';
+
 /**
  * Highlight matching text in a string
  */
@@ -190,7 +193,7 @@ export interface HighlightedTextProps {
 /**
  * Component to highlight matching text
  */
-export function HighlightedText({
+function HighlightedTextComponent({
   text,
   highlight,
   className,
@@ -219,6 +222,9 @@ export function HighlightedText({
     </span>
   );
 }
+
+export const HighlightedText = React.memo(HighlightedTextComponent);
+HighlightedText.displayName = 'HighlightedText';
 
 
 

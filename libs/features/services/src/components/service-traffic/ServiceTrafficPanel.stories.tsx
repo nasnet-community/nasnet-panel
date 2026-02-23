@@ -9,11 +9,11 @@
  * visual shape with static props.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { ServiceTrafficPanel } from './ServiceTrafficPanel';
-import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Meta

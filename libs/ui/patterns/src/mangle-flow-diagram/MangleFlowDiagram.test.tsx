@@ -20,6 +20,8 @@ import { MangleFlowDiagram } from './MangleFlowDiagram';
 
 import type { MangleFlowDiagramProps } from './MangleFlowDiagram';
 
+// Note: vitest-axe matchers are extended globally in src/test/setup.ts
+
 // Mock the platform hook
 vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(() => 'desktop'),
@@ -41,7 +43,6 @@ describe('MangleFlowDiagram', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     // Reset platform mock to desktop for most tests
-    // @ts-expect-error - dynamically import for mocking
     const layoutModule = await import('@nasnet/ui/layouts');
     vi.mocked(layoutModule.usePlatform).mockReturnValue('desktop');
   });
@@ -212,7 +213,6 @@ describe('MangleFlowDiagram', () => {
 
   describe('Responsive Layout', () => {
     it('renders horizontal layout on desktop', async () => {
-      // @ts-expect-error - dynamically import for mocking
       const layoutModule = await import('@nasnet/ui/layouts');
       vi.mocked(layoutModule.usePlatform).mockReturnValue('desktop');
 
@@ -224,7 +224,6 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('renders vertical layout on mobile', async () => {
-      // @ts-expect-error - dynamically import for mocking
       const layoutModule = await import('@nasnet/ui/layouts');
       vi.mocked(layoutModule.usePlatform).mockReturnValue('mobile');
 
@@ -236,7 +235,6 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('shows legend on desktop', async () => {
-      // @ts-expect-error - dynamically import for mocking
       const layoutModule = await import('@nasnet/ui/layouts');
       vi.mocked(layoutModule.usePlatform).mockReturnValue('desktop');
 
@@ -249,7 +247,6 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('uses shorter button text on mobile', async () => {
-      // @ts-expect-error - dynamically import for mocking
       const layoutModule = await import('@nasnet/ui/layouts');
       vi.mocked(layoutModule.usePlatform).mockReturnValue('mobile');
 
@@ -271,18 +268,15 @@ describe('MangleFlowDiagram', () => {
     it('has no accessibility violations (desktop)', async () => {
       const { container } = render(<MangleFlowDiagram {...defaultProps} />);
 
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(await axe(container)).toHaveNoViolations();
     });
 
     it('has no accessibility violations (mobile)', async () => {
-      // @ts-expect-error - dynamically import for mocking
       const layoutModule = await import('@nasnet/ui/layouts');
       vi.mocked(layoutModule.usePlatform).mockReturnValue('mobile');
 
       const { container } = render(<MangleFlowDiagram {...defaultProps} />);
 
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(await axe(container)).toHaveNoViolations();
     });
 
@@ -291,7 +285,6 @@ describe('MangleFlowDiagram', () => {
         <MangleFlowDiagram {...defaultProps} selectedChain="forward" />
       );
 
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(await axe(container)).toHaveNoViolations();
     });
 
@@ -304,7 +297,6 @@ describe('MangleFlowDiagram', () => {
         />
       );
 
-      // @ts-expect-error - vitest-axe extends expect in setup.ts
       expect(await axe(container)).toHaveNoViolations();
     });
 

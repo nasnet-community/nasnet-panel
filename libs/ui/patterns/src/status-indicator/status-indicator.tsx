@@ -1,4 +1,20 @@
+/**
+ * Status Indicator Component
+ *
+ * Compact inline status indicator with color-coded dot and optional label.
+ * Supports five semantic statuses, three sizes, and optional pulse animation.
+ *
+ * @module @nasnet/ui/patterns/status-indicator
+ * @example
+ * ```tsx
+ * <StatusIndicator status="online" label="Connected" />
+ * <StatusIndicator status="offline" size="lg" showDot />
+ * <StatusIndicator status="warning" pulse />
+ * ```
+ */
+
 import * as React from 'react';
+import { useMemo } from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -54,32 +70,61 @@ const dotVariants = cva('rounded-full transition-all', {
   },
 });
 
+/**
+ * StatusIndicator component props
+ */
 export interface StatusIndicatorProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof statusIndicatorVariants> {
+  /** Optional text label shown next to the dot */
   label?: string;
+  /** Whether to show the colored status dot (default: true) */
   showDot?: boolean;
+  /** Animate the dot with a pulsing glow effect (useful for live/active states) */
   pulse?: boolean;
 }
 
-const StatusIndicator = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
+/**
+ * StatusIndicator Component
+ *
+ * Compact inline status indicator with color-coded dot and optional label.
+ * Perfect for dashboards, tables, and status displays.
+ */
+const StatusIndicatorBase = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
   ({ className, status, size, label, showDot = true, pulse = false, ...props }, ref) => {
+    const containerClassName = useMemo(
+      () => cn(statusIndicatorVariants({ status, size }), className),
+      [status, size, className]
+    );
+
+    const dotClassName = useMemo(
+      () => cn(dotVariants({ status, size, pulse })),
+      [status, size, pulse]
+    );
+
     return (
       <div
         ref={ref}
         role="status"
-        className={cn(statusIndicatorVariants({ status, size }), className)}
+        className={containerClassName}
         {...props}
       >
-        {showDot && (
-          <span className={cn(dotVariants({ status, size, pulse }))} aria-hidden="true" />
-        )}
+        {showDot && <span className={dotClassName} aria-hidden="true" />}
         {label && <span>{label}</span>}
       </div>
     );
   }
 );
 
-StatusIndicator.displayName = 'StatusIndicator';
+StatusIndicatorBase.displayName = 'StatusIndicator';
 
-export { StatusIndicator, statusIndicatorVariants };
+/**
+ * Memoized StatusIndicator component
+ */
+export const StatusIndicator = React.memo(StatusIndicatorBase);
+
+/**
+ * Status indicator variant styles from CVA
+ * Exported for external use in other components
+ */
+export { statusIndicatorVariants };

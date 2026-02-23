@@ -6,14 +6,14 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { within, userEvent, expect } from '@storybook/test';
+import { within, userEvent } from 'storybook/test';
 
 import { GET_ALERT_RULE_TEMPLATES, APPLY_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
 
 import { AlertTemplateBrowser } from './AlertTemplateBrowser';
 import {
   allTemplates,
-  builtInTemplates,
+  builtInTemplates as _builtInTemplates,
   customTemplate,
   templatesByCategory,
 } from '../../__test-utils__/alert-rule-template-fixtures';
@@ -298,7 +298,7 @@ export const Loading: Story = {
 /**
  * Error state
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {},
   decorators: [
     (Story) => (

@@ -4,10 +4,25 @@
  * Individual sortable item wrapper with drag state styling.
  * Uses useSortable hook from dnd-kit.
  *
+ * Features:
+ * - Drag handle support
+ * - Position numbering
+ * - Drop zone indicators
+ * - Selection state
+ * - Disabled state support
+ * - WCAG AAA accessible
+ *
  * @see NAS-4.21: Implement Drag & Drop System
+ *
+ * @example
+ * ```tsx
+ * <SortableItem id="item-1" position={1}>
+ *   <div>Item content here</div>
+ * </SortableItem>
+ * ```
  */
 
-
+import * as React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
@@ -24,7 +39,13 @@ import type { SortableItemProps } from '../types';
 // Component
 // ============================================================================
 
-export const SortableItem: React.FC<SortableItemProps> = ({
+/**
+ * SortableItem - Draggable item within a sortable list
+ *
+ * @param props - Component props
+ * @returns Sortable item element
+ */
+const SortableItemInner: React.FC<SortableItemProps> = ({
   id,
   disabled = false,
   children,
@@ -148,12 +169,20 @@ export const SortableItem: React.FC<SortableItemProps> = ({
   );
 };
 
-SortableItem.displayName = 'SortableItem';
+SortableItemInner.displayName = 'SortableItem';
+
+/**
+ * Memoized SortableItem to prevent unnecessary re-renders
+ */
+export const SortableItem = React.memo(SortableItemInner);
 
 // ============================================================================
 // Sortable Item with Actions
 // ============================================================================
 
+/**
+ * Props for SortableItem with action buttons
+ */
 export interface SortableItemWithActionsProps extends SortableItemProps {
   /** Move up callback */
   onMoveUp?: () => void;
@@ -167,7 +196,13 @@ export interface SortableItemWithActionsProps extends SortableItemProps {
   showMoveButtons?: boolean;
 }
 
-export const SortableItemWithActions: React.FC<SortableItemWithActionsProps> = ({
+/**
+ * SortableItem with built-in move action buttons
+ *
+ * @param props - Component props
+ * @returns Sortable item with action buttons
+ */
+const SortableItemWithActionsInner: React.FC<SortableItemWithActionsProps> = ({
   onMoveUp,
   onMoveDown,
   isFirst = false,
@@ -240,6 +275,13 @@ export const SortableItemWithActions: React.FC<SortableItemWithActionsProps> = (
     </SortableItem>
   );
 };
+
+SortableItemWithActionsInner.displayName = 'SortableItemWithActions';
+
+/**
+ * Memoized SortableItemWithActions to prevent unnecessary re-renders
+ */
+export const SortableItemWithActions = React.memo(SortableItemWithActionsInner);
 
 SortableItemWithActions.displayName = 'SortableItemWithActions';
 

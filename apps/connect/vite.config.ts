@@ -118,7 +118,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     // TanStack Router file-based routing - MUST be before react()
-    TanStackRouterVite(),
+    // routeFileIgnorePattern excludes Storybook story files from the route tree
+    TanStackRouterVite({ routeFileIgnorePattern: '\\.stories\\.' }),
     react(),
     // Design token HMR - watches tokens.json and rebuilds on change
     mode !== 'production' && designTokensHMR(),

@@ -22,7 +22,7 @@ const mockDevices: DiscoveredDevice[] = [
     interface: 'bridge1',
     responseTime: 5,
     firstSeen: '2026-02-05T12:00:00Z',
-    dhcpLease: null,
+    dhcpLease: undefined,
   },
   {
     ip: '192.168.88.100',
@@ -60,7 +60,7 @@ const mockDevices: DiscoveredDevice[] = [
     interface: 'bridge1',
     responseTime: 8,
     firstSeen: '2026-02-05T12:00:15Z',
-    dhcpLease: null,
+    dhcpLease: undefined,
   },
   {
     ip: '192.168.88.103',
@@ -92,7 +92,7 @@ const generateLargeDataset = (count: number): DiscoveredDevice[] => {
       expires: new Date(Date.now() + 86400000).toISOString(),
       server: '192.168.88.1',
       status: 'bound',
-    } : null,
+    } : undefined,
   }));
 };
 

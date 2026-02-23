@@ -24,11 +24,11 @@ func (s *Service) findRedactedFields(config map[string]interface{}) []string {
 }
 
 // createNewInstance creates a new service instance in a transaction.
-func (s *Service) createNewInstance(ctx context.Context, tx *ent.Tx, pkg *ServiceExportPackage, config map[string]interface{}, name string) (*ent.ServiceInstance, error) {
+func (s *Service) createNewInstance(ctx context.Context, tx *ent.Tx, pkg *ServiceExportPackage, config map[string]interface{}, name, routerID string) (*ent.ServiceInstance, error) {
 	instance, err := tx.ServiceInstance.Create().
 		SetFeatureID(pkg.ServiceType).
 		SetInstanceName(name).
-		SetRouterID("default-router"). // TODO: Get from context
+		SetRouterID(routerID).
 		SetConfig(config).
 		SetBinaryVersion(pkg.BinaryVersion).
 		SetStatus(serviceinstance.StatusInstalled).

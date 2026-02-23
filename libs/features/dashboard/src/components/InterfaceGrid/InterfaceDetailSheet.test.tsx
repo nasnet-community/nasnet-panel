@@ -15,6 +15,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
+import 'vitest-axe/extend-expect';
+
+declare module 'vitest' {
+  interface Assertion {
+    toHaveNoViolations(): void;
+  }
+}
 import { InterfaceDetailSheet } from './InterfaceDetailSheet';
 import type { InterfaceGridData } from './types';
 

@@ -7,6 +7,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 3
  */
 
+import React from 'react';
 import { Plus, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -36,7 +37,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { PortKnockVisualizer } from '../port-knock-visualizer';
 
@@ -175,7 +177,7 @@ function KnockPortCard({
 // Main Component
 // ============================================================================
 
-export function PortKnockSequenceFormMobile({
+function PortKnockSequenceFormMobileComponent({
   formState,
   isEditMode = false,
   isSubmitting = false,
@@ -435,4 +437,5 @@ export function PortKnockSequenceFormMobile({
   );
 }
 
+export const PortKnockSequenceFormMobile = React.memo(PortKnockSequenceFormMobileComponent);
 PortKnockSequenceFormMobile.displayName = 'PortKnockSequenceFormMobile';

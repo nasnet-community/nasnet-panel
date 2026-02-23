@@ -70,6 +70,12 @@ interface ValidationResult {
 
 /**
  * Create template installation wizard machine
+ *
+ * @description Creates an XState machine for the template installation wizard flow.
+ * Manages a 4-step process: Variables → Review → Installing → Routing.
+ *
+ * @param initialContext - Initial context values for the machine
+ * @returns XState machine builder for template installation
  */
 export function createTemplateInstallMachine(initialContext: Partial<TemplateInstallContext>) {
   return setup({

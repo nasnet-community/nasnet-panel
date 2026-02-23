@@ -62,7 +62,7 @@ const mockTemplateNoVariables: AlertRuleTemplate = {
   name: 'Simple Alert',
   description: 'Simple alert with no customization',
   variables: [],
-  throttle: null,
+  throttle: undefined,
 };
 
 const mockCustomTemplate: AlertRuleTemplate = {

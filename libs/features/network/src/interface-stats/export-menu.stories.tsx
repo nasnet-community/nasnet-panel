@@ -6,7 +6,7 @@
  * action spies so interaction testing can verify which handler fires.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { ExportMenu } from './export-menu';
 
@@ -37,7 +37,7 @@ while data is loading or when no data is available.
     },
   },
   argTypes: {
-    disabled: {
+    isDisabled: {
       control: 'boolean',
       description: 'Disable the trigger button when no data is available',
     },
@@ -63,7 +63,7 @@ export const Default: Story = {
     onExportCsv: fn(),
     onExportJson: fn(),
     onExportPng: fn(),
-    disabled: false,
+    isDisabled: false,
   },
 };
 
@@ -77,7 +77,7 @@ export const Disabled: Story = {
     onExportCsv: fn(),
     onExportJson: fn(),
     onExportPng: fn(),
-    disabled: true,
+    isDisabled: true,
   },
 };
 
@@ -99,7 +99,7 @@ export const InsideCardHeader: Story = {
     onExportCsv: fn(),
     onExportJson: fn(),
     onExportPng: fn(),
-    disabled: false,
+    isDisabled: false,
   },
 };
 
@@ -112,7 +112,7 @@ export const LoadingData: Story = {
     onExportCsv: fn(),
     onExportJson: fn(),
     onExportPng: fn(),
-    disabled: true,
+    isDisabled: true,
   },
   parameters: {
     docs: {
@@ -153,7 +153,7 @@ export const MultipleMenus: Story = {
           onExportCsv={fn()}
           onExportJson={fn()}
           onExportPng={fn()}
-          disabled
+          isDisabled
         />
       </div>
     </div>

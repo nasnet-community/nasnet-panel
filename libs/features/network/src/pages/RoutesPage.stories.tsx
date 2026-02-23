@@ -5,8 +5,9 @@
  * Covers default state, mobile viewport, and key interaction entry-points.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { RoutesPage } from './RoutesPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof RoutesPage> = {
   title: 'Pages/Network/RoutesPage',

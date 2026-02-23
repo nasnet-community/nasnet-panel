@@ -3,8 +3,12 @@
  * NAS-6.2: IP Address Management
  *
  * Dialog-based form optimized for mouse/keyboard interaction.
+ * Shows all details without progressive disclosure. Supports keyboard navigation
+ * and focus management. 32-38px click targets for desktop users.
  */
 
+import { memo, useMemo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   Alert,
   AlertDescription,
@@ -36,7 +40,11 @@ import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import type { IPAddressFormProps } from './types';
 import { useIPAddressForm } from './useIPAddressForm';
 
-export function IPAddressFormDesktop(props: IPAddressFormProps) {
+/**
+ * Desktop/Tablet presenter for IP address form
+ * @internal Use IPAddressForm auto-detection wrapper instead
+ */
+function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
   const { mode, interfaces } = props;
   const {
     form,
@@ -48,6 +56,18 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
     handleSubmit,
     onCancel,
   } = useIPAddressForm(props);
+
+  // Memoize interface options for performance
+  const interfaceOptions = useMemo(
+    () =>
+      interfaces.map((iface) => ({
+        id: iface.id,
+        name: iface.name,
+        type: iface.type,
+        disabled: iface.disabled,
+      })),
+    [interfaces]
+  );
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -95,14 +115,14 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
 
             {/* Conflict Warning */}
             {hasConflict && conflictInfo && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+              <Alert variant="destructive" role="alert">
+                <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
                   {conflictInfo.message}
                   {conflictInfo.conflictingAddress && (
                     <div className="mt-2 text-sm">
-                      Conflicting IP: <code>{conflictInfo.conflictingAddress.address}</code> on{' '}
-                      <strong>{conflictInfo.conflictingAddress.interfaceName}</strong>
+                      Conflicting IP: <code className="font-mono text-xs">{conflictInfo.conflictingAddress.address}</code> on{' '}
+                      <strong className="font-mono">{conflictInfo.conflictingAddress.interfaceName}</strong>
                     </div>
                   )}
                 </AlertDescription>
@@ -111,33 +131,33 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
 
             {/* Subnet Calculations */}
             {subnetCalculations && !hasConflict && (
-              <Card className="bg-muted/50">
+              <Card className="bg-muted/50" role="complementary" aria-label="Subnet information">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
                     Subnet Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <div className="text-muted-foreground">Network:</div>
-                    <code className="text-sm">{subnetCalculations.networkAddress}</code>
+                    <div className="text-muted-foreground text-xs">Network:</div>
+                    <code className="text-sm font-mono">{subnetCalculations.networkAddress}</code>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Broadcast:</div>
-                    <code className="text-sm">{subnetCalculations.broadcastAddress}</code>
+                    <div className="text-muted-foreground text-xs">Broadcast:</div>
+                    <code className="text-sm font-mono">{subnetCalculations.broadcastAddress}</code>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Subnet Mask:</div>
-                    <code className="text-sm">{subnetCalculations.subnetMask}</code>
+                    <div className="text-muted-foreground text-xs">Subnet Mask:</div>
+                    <code className="text-sm font-mono">{subnetCalculations.subnetMask}</code>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Usable Hosts:</div>
-                    <span>{subnetCalculations.usableHostCount}</span>
+                    <div className="text-muted-foreground text-xs">Usable Hosts:</div>
+                    <span className="font-mono">{subnetCalculations.usableHostCount}</span>
                   </div>
                   <div className="col-span-2">
-                    <div className="text-muted-foreground">Usable Range:</div>
-                    <code className="text-sm">
+                    <div className="text-muted-foreground text-xs">Usable Range:</div>
+                    <code className="text-sm font-mono">
                       {subnetCalculations.firstUsableHost} - {subnetCalculations.lastUsableHost}
                     </code>
                   </div>
@@ -158,18 +178,18 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
                     disabled={loading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger aria-label="Select network interface">
                         <SelectValue placeholder="Select interface" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {interfaces.map((iface) => (
+                      {interfaceOptions.map((iface) => (
                         <SelectItem
                           key={iface.id}
                           value={iface.id}
                           disabled={iface.disabled}
                         >
-                          {iface.name}
+                          <span className="font-mono">{iface.name}</span>
                           {iface.type && (
                             <Badge variant="secondary" className="ml-2 text-xs">
                               {iface.type}
@@ -239,11 +259,22 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
                 variant="outline"
                 onClick={onCancel}
                 disabled={loading}
+                aria-label="Cancel and close form"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || hasConflict}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button
+                type="submit"
+                disabled={loading || hasConflict}
+                aria-label={
+                  hasConflict
+                    ? 'Submit button disabled - IP address conflict detected'
+                    : mode === 'create'
+                    ? 'Add IP address to interface'
+                    : 'Save IP address changes'
+                }
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
                 {mode === 'create' ? 'Add IP Address' : 'Save Changes'}
               </Button>
             </div>
@@ -253,3 +284,9 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
     </Card>
   );
 }
+
+// Wrap with memo for performance optimization
+export const IPAddressFormDesktop = memo(IPAddressFormDesktopComponent);
+
+// Set display name for React DevTools debugging
+IPAddressFormDesktop.displayName = 'IPAddressFormDesktop';

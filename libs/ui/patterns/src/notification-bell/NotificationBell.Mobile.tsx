@@ -5,6 +5,7 @@
  * Touch-friendly with large tap targets and simplified layout.
  */
 
+import { memo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell } from 'lucide-react';
 
@@ -61,7 +62,7 @@ function getSeverityVariant(severity: AlertSeverity): 'error' | 'warning' | 'inf
  * - Unread count badge
  * - Quick actions at bottom
  */
-export function NotificationBellMobile(props: NotificationBellProps) {
+function NotificationBellMobileComponent(props: NotificationBellProps) {
   const {
     isOpen,
     unreadCount,
@@ -226,4 +227,5 @@ export function NotificationBellMobile(props: NotificationBellProps) {
   );
 }
 
-NotificationBellMobile.displayName = 'NotificationBell.Mobile';
+export const NotificationBellMobile = memo(NotificationBellMobileComponent);
+NotificationBellMobile.displayName = 'NotificationBellMobile';

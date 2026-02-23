@@ -1,6 +1,22 @@
 /**
  * Resource Gauge Component
  * Visual gauge for displaying resource usage (CPU, Memory, Disk) with color-coded status
+ *
+ * Features:
+ * - Circular SVG gauge with animated fill
+ * - Color-coded status (healthy, warning, critical)
+ * - Centered percentage label
+ * - Optional subtitle
+ * - Loading skeleton
+ * - WCAG AA accessible
+ * - Semantic color tokens
+ *
+ * @example
+ * ```tsx
+ * <ResourceGauge label="CPU" value={45} status="healthy" />
+ * <ResourceGauge label="Memory" value={78} status="warning" subtitle="39 MB / 50 MB" />
+ * <ResourceGauge label="Disk" value={92} status="critical" isLoading={false} />
+ * ```
  */
 
 import * as React from 'react';
@@ -9,12 +25,12 @@ import { motion } from 'framer-motion';
 
 import type { ResourceStatus } from '@nasnet/core/types';
 import { getStatusColor } from '@nasnet/core/utils';
-import { Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
+import { Card, CardContent, Skeleton, cn } from '@nasnet/ui/primitives';
 
 /**
  * ResourceGauge Props
  */
-export interface ResourceGaugeProps {
+export interface ResourceGaugeProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Resource label (e.g., "CPU", "Memory", "Disk") */
   label: string;
   /** Current usage value (0-100) */
@@ -31,19 +47,35 @@ export interface ResourceGaugeProps {
  * ResourceGauge Component
  * Displays resource usage with color-coded progress bar and percentage
  */
-export function ResourceGauge({
+function ResourceGaugeBase({
   label,
   value = 0,
   status = 'healthy',
   isLoading = false,
   subtitle,
+  className,
+  ...props
 }: ResourceGaugeProps) {
   const colors = getStatusColor(status);
+
+  // Map status to semantic color tokens
+  const statusColorClass = React.useMemo(() => {
+    switch (status) {
+      case 'healthy':
+        return 'text-semantic-success';
+      case 'warning':
+        return 'text-semantic-warning';
+      case 'critical':
+        return 'text-semantic-error';
+      default:
+        return 'text-muted-foreground';
+    }
+  }, [status]);
 
   // Loading state - show skeleton
   if (isLoading) {
     return (
-      <Card className="rounded-card-sm md:rounded-card-lg shadow-sm">
+      <Card className={cn('rounded-lg shadow-sm', className)} {...props}>
         <CardContent className="pt-6">
           <div className="space-y-3">
             <Skeleton className="h-4 w-16 mx-auto" />
@@ -63,11 +95,11 @@ export function ResourceGauge({
   const offset = circumference - (value / 100) * circumference;
 
   return (
-    <Card className="rounded-card-sm md:rounded-card-lg shadow-sm transition-shadow hover:shadow-md">
+    <Card className={cn('rounded-lg shadow-sm transition-shadow hover:shadow-md', className)} {...props}>
       <CardContent className="pt-6 pb-6">
         <div className="flex flex-col items-center space-y-4">
           {/* Label */}
-          <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <div className="text-sm font-semibold text-foreground">
             {label}
           </div>
 
@@ -82,7 +114,7 @@ export function ResourceGauge({
                 stroke="currentColor"
                 strokeWidth={strokeWidth}
                 fill="none"
-                className="text-slate-200 dark:text-slate-700"
+                className="text-border"
               />
               {/* Progress Circle */}
               <motion.circle
@@ -93,7 +125,7 @@ export function ResourceGauge({
                 strokeWidth={strokeWidth}
                 fill="none"
                 strokeLinecap="round"
-                className={colors.text}
+                className={statusColorClass}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -105,7 +137,7 @@ export function ResourceGauge({
 
             {/* Percentage Text */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              <span className="text-2xl font-bold text-foreground">
                 {Math.round(value)}%
               </span>
             </div>
@@ -113,7 +145,7 @@ export function ResourceGauge({
 
           {/* Subtitle */}
           {subtitle && (
-            <div className="text-xs text-slate-500 dark:text-slate-400 text-center font-medium">
+            <div className="text-xs text-muted-foreground text-center font-medium">
               {subtitle}
             </div>
           )}
@@ -122,3 +154,7 @@ export function ResourceGauge({
     </Card>
   );
 }
+
+export const ResourceGauge = React.memo(ResourceGaugeBase);
+
+ResourceGauge.displayName = 'ResourceGauge';

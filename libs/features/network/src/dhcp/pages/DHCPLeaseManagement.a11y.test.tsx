@@ -10,8 +10,8 @@ expect.extend(toHaveNoViolations);
 // Mock dependencies
 vi.mock('@nasnet/api-client/queries', () => ({
   useDHCPLeases: vi.fn(),
-  useMakeStaticMutation: vi.fn(),
-  useDeleteLeaseMutation: vi.fn(),
+  useMakeLeaseStatic: vi.fn(),
+  useDeleteLease: vi.fn(),
 }));
 
 vi.mock('@nasnet/state/stores', () => ({
@@ -26,7 +26,7 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(),
 }));
 
-import { useDHCPLeases, useMakeStaticMutation, useDeleteLeaseMutation } from '@nasnet/api-client/queries';
+import { useDHCPLeases, useMakeLeaseStatic, useDeleteLease } from '@nasnet/api-client/queries';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
@@ -37,8 +37,8 @@ describe('DHCP Lease Management Accessibility', () => {
 
     (useToast as any).mockReturnValue({ toast: vi.fn() });
     (usePlatform as any).mockReturnValue('desktop');
-    (useMakeStaticMutation as any).mockReturnValue([vi.fn(), { loading: false }]);
-    (useDeleteLeaseMutation as any).mockReturnValue([vi.fn(), { loading: false }]);
+    (useMakeLeaseStatic as any).mockReturnValue({ mutate: vi.fn(), isLoading: false });
+    (useDeleteLease as any).mockReturnValue({ mutate: vi.fn(), isLoading: false });
     (useDHCPLeases as any).mockReturnValue({
       data: mockLeases,
       isLoading: false,
@@ -58,7 +58,7 @@ describe('DHCP Lease Management Accessibility', () => {
   describe('axe-core violations', () => {
     it('should have no accessibility violations on Desktop view', async () => {
       (usePlatform as any).mockReturnValue('desktop');
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -66,7 +66,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should have no accessibility violations on Mobile view', async () => {
       (usePlatform as any).mockReturnValue('mobile');
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -82,7 +82,7 @@ describe('DHCP Lease Management Accessibility', () => {
         setLeaseServerFilter: vi.fn(),
       });
 
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -91,7 +91,7 @@ describe('DHCP Lease Management Accessibility', () => {
   describe('Keyboard navigation', () => {
     it('should navigate through table rows with Tab key', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Focus first interactive element
       await user.keyboard('{Tab}');
@@ -103,7 +103,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should navigate to checkboxes with Tab key', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const checkboxes = screen.getAllByRole('checkbox');
       checkboxes[0].focus();
@@ -114,7 +114,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should toggle checkbox with Space key', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const checkbox = screen.getAllByRole('checkbox')[1];
       checkbox.focus();
@@ -126,7 +126,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should navigate through dropdowns with Arrow keys', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const statusButton = screen.getByText('Status').closest('button');
       statusButton!.focus();
@@ -144,7 +144,7 @@ describe('DHCP Lease Management Accessibility', () => {
       const user = userEvent.setup();
       const mockExport = vi.fn();
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const exportButton = screen.getByText(/export/i);
       exportButton.focus();
@@ -158,14 +158,14 @@ describe('DHCP Lease Management Accessibility', () => {
 
   describe('Screen reader announcements', () => {
     it('should have proper ARIA labels for table', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const table = screen.getByRole('table');
       expect(table).toHaveAttribute('aria-label', expect.stringContaining('DHCP leases'));
     });
 
     it('should have proper ARIA labels for checkboxes', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const headerCheckbox = screen.getAllByRole('checkbox')[0];
       expect(headerCheckbox).toHaveAttribute('aria-label', 'Select all leases');
@@ -178,7 +178,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should announce selection count to screen readers', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const checkbox = screen.getAllByRole('checkbox')[1];
       await user.click(checkbox);
@@ -188,7 +188,7 @@ describe('DHCP Lease Management Accessibility', () => {
     });
 
     it('should have semantic heading structure', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const h1 = screen.getByRole('heading', { level: 1 });
       expect(h1).toHaveTextContent(/DHCP Lease Management/i);
@@ -196,7 +196,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should announce filter changes', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const statusButton = screen.getByText('Status').closest('button');
       await user.click(statusButton!);
@@ -209,7 +209,7 @@ describe('DHCP Lease Management Accessibility', () => {
   describe('Focus indicators', () => {
     it('should have visible focus ring on buttons', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const button = screen.getByText('Status').closest('button');
       button!.focus();
@@ -219,7 +219,7 @@ describe('DHCP Lease Management Accessibility', () => {
     });
 
     it('should have visible focus ring on checkboxes', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const checkbox = screen.getAllByRole('checkbox')[0];
       checkbox.focus();
@@ -229,7 +229,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should have visible focus ring on table rows', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const firstRow = screen.getAllByRole('row')[1];
       firstRow.focus();
@@ -239,7 +239,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should maintain focus after interactions', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const checkbox = screen.getAllByRole('checkbox')[1];
       checkbox.focus();
@@ -253,7 +253,7 @@ describe('DHCP Lease Management Accessibility', () => {
   describe('Touch targets (Mobile)', () => {
     it('should have 44px minimum touch targets on mobile', () => {
       (usePlatform as any).mockReturnValue('mobile');
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const buttons = container.querySelectorAll('button');
       buttons.forEach((button) => {
@@ -265,7 +265,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should have 44px minimum touch targets for cards', () => {
       (usePlatform as any).mockReturnValue('mobile');
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const cards = container.querySelectorAll('[data-testid="lease-card"]');
       cards.forEach((card) => {
@@ -277,7 +277,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
     it('should have proper spacing between touch targets', () => {
       (usePlatform as any).mockReturnValue('mobile');
-      const { container } = render(<DHCPLeaseManagementPage />);
+      const { container } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const buttons = Array.from(container.querySelectorAll('button'));
       for (let i = 0; i < buttons.length - 1; i++) {
@@ -295,7 +295,7 @@ describe('DHCP Lease Management Accessibility', () => {
       const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
       Object.defineProperty(mediaQuery, 'matches', { value: true });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const animatedElements = document.querySelectorAll('[class*="animate-"]');
       animatedElements.forEach((element) => {
@@ -307,7 +307,7 @@ describe('DHCP Lease Management Accessibility', () => {
       const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
       Object.defineProperty(mediaQuery, 'matches', { value: true });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const elements = document.querySelectorAll('[class*="transition"]');
       elements.forEach((element) => {
@@ -318,7 +318,7 @@ describe('DHCP Lease Management Accessibility', () => {
 
   describe('Color contrast (WCAG AAA)', () => {
     it('should have 7:1 contrast for normal text', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const textElements = screen.getAllByText(/192\.168\.1/);
       textElements.forEach((element) => {
@@ -334,7 +334,7 @@ describe('DHCP Lease Management Accessibility', () => {
     });
 
     it('should have 4.5:1 contrast for large text', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const heading = screen.getByRole('heading', { level: 1 });
       const styles = window.getComputedStyle(heading);
@@ -353,7 +353,7 @@ describe('DHCP Lease Management Accessibility', () => {
         error: new Error('Network error'),
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const errorMessage = screen.getByRole('alert');
       expect(errorMessage).toBeInTheDocument();
@@ -368,7 +368,7 @@ describe('DHCP Lease Management Accessibility', () => {
         error: new Error('Network error'),
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const retryButton = screen.getByRole('button', { name: /retry/i });
       expect(retryButton).toBeInTheDocument();

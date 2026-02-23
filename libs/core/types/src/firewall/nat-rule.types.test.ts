@@ -51,9 +51,7 @@ describe('NAT Rule Types - Schemas', () => {
 
       const result = NATRuleInputSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('toAddresses');
-      }
+      expect(result.error?.issues[0].path).toContain('toAddresses');
     });
 
     it('should require toAddresses for src-nat action', () => {
@@ -65,9 +63,7 @@ describe('NAT Rule Types - Schemas', () => {
 
       const result = NATRuleInputSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('toAddresses');
-      }
+      expect(result.error?.issues[0].path).toContain('toAddresses');
     });
 
     it('should require outInterface for masquerade action', () => {
@@ -78,9 +74,7 @@ describe('NAT Rule Types - Schemas', () => {
 
       const result = NATRuleInputSchema.safeParse(rule);
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].path).toContain('outInterface');
-      }
+      expect(result.error?.issues[0].path).toContain('outInterface');
     });
 
     it('should validate port ranges', () => {

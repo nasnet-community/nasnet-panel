@@ -5,6 +5,7 @@
  * Uses grid layout with sidebar filters for efficient browsing.
  */
 
+import { memo } from 'react';
 
 import { FileText } from 'lucide-react';
 
@@ -214,7 +215,7 @@ function FilterPanel({ gallery }: FilterPanelProps) {
  * - Apply button on each card
  * - Empty state when no templates match
  */
-export function TemplateGalleryDesktop({
+function TemplateGalleryDesktopComponent({
   gallery,
   onApplyTemplate,
   loading = false,
@@ -296,3 +297,9 @@ export function TemplateGalleryDesktop({
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const TemplateGalleryDesktop = memo(TemplateGalleryDesktopComponent);
+
+// Set display name for React DevTools
+TemplateGalleryDesktop.displayName = 'TemplateGalleryDesktop';

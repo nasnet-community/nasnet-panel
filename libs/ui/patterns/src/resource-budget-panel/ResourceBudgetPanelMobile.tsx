@@ -9,7 +9,7 @@
  * - Vertical layout for readability
  */
 
-import { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { ChevronDown, ChevronUp, Server } from 'lucide-react';
 
@@ -33,7 +33,7 @@ const STATUS_COLORS = {
 /**
  * Instance card component
  */
-function InstanceCard({
+const InstanceCard = React.memo(function InstanceCard({
   instance,
   onClick,
 }: {
@@ -41,6 +41,11 @@ function InstanceCard({
   onClick?: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleToggleExpand = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded((prev) => !prev);
+  }, []);
 
   return (
     <Card
@@ -79,10 +84,7 @@ function InstanceCard({
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsExpanded(!isExpanded);
-          }}
+          onClick={handleToggleExpand}
           className="w-full h-10"
         >
           {isExpanded ? (
@@ -130,7 +132,9 @@ function InstanceCard({
       </CardContent>
     </Card>
   );
-}
+});
+
+InstanceCard.displayName = 'InstanceCard';
 
 /**
  * Mobile presenter for ResourceBudgetPanel
@@ -138,7 +142,9 @@ function InstanceCard({
  * Displays resource budget as a vertical list of cards.
  * Optimized for touch interaction and small screens.
  */
-export function ResourceBudgetPanelMobile(props: ResourceBudgetPanelProps) {
+export const ResourceBudgetPanelMobile = React.memo(function ResourceBudgetPanelMobile(
+  props: ResourceBudgetPanelProps
+) {
   const { showSystemTotals = true, onInstanceClick, className } = props;
   const state = useResourceBudgetPanel(props);
 
@@ -219,4 +225,6 @@ export function ResourceBudgetPanelMobile(props: ResourceBudgetPanelProps) {
       )}
     </div>
   );
-}
+});
+
+ResourceBudgetPanelMobile.displayName = 'ResourceBudgetPanelMobile';

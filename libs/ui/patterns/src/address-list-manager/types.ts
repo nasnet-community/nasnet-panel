@@ -11,121 +11,162 @@ import type { ReactNode } from 'react';
 
 /**
  * Address list entry interface
+ *
+ * Represents a single entry (IP, CIDR, or range) in a MikroTik address list.
+ * Can be either statically configured or dynamically added by firewall rules.
  */
 export interface AddressListEntry {
-  /** MikroTik internal ID */
+  /** Unique MikroTik internal ID for this entry */
   id: string;
   /** Name of the address list this entry belongs to */
   list: string;
-  /** IP address, CIDR subnet, or IP range */
+  /** IP address (e.g., "192.168.1.1"), CIDR subnet (e.g., "10.0.0.0/24"), or IP range (e.g., "192.168.1.1-192.168.1.10") */
   address: string;
-  /** Optional description */
+  /** Optional description or comment for this entry */
   comment?: string;
-  /** Optional timeout after which entry is removed */
+  /** Optional timeout duration (e.g., "1d", "12h"). When set, entry is automatically removed after timeout */
   timeout?: string;
-  /** When this entry was created */
+  /** ISO 8601 timestamp when this entry was created */
   creationTime?: string | Date;
-  /** Whether this entry was added dynamically by a firewall action */
+  /** True if this entry was added dynamically by a firewall action (read-only, auto-managed) */
   dynamic: boolean;
-  /** Whether this entry is disabled */
+  /** True if this entry is disabled (not processed by firewall rules) */
   disabled: boolean;
 }
 
 /**
  * Aggregated address list with entry statistics
+ *
+ * Represents a complete address list with entry counts and statistics.
+ * Entries are only populated when the list is expanded/detailed view.
  */
 export interface AddressList {
-  /** List name (unique identifier) */
+  /** Unique list name (identifier). Technical data, always shown in monospace font */
   name: string;
-  /** Total number of entries in this list */
+  /** Total number of entries in this list (includes both static and dynamic) */
   entryCount: number;
-  /** Number of dynamic entries (added by firewall actions) */
+  /** Number of dynamically added entries (added by firewall actions, not user-created) */
   dynamicCount: number;
-  /** Number of firewall rules referencing this list */
+  /** Number of firewall filter rules that reference this list */
   referencingRulesCount: number;
-  /** Entries in this list (for expanded view) */
+  /** Entries in this list. Only populated when list is expanded or lazy-loaded. */
   entries?: AddressListEntry[];
 }
 
 /**
  * Firewall rule reference (simplified for display)
+ *
+ * Represents a firewall filter rule that references an address list.
+ * Used in the "Show Rules" dialog to display which rules use this list.
  */
 export interface FirewallRule {
-  /** Rule ID */
+  /** Unique rule identifier */
   id: string;
-  /** Rule chain (input, forward, output, prerouting, postrouting) */
+  /** Firewall chain: "input" (incoming), "forward" (routing), "output" (outgoing), "prerouting", or "postrouting" */
   chain: string;
-  /** Rule action (accept, drop, reject, etc.) */
+  /** Rule action: "accept" (allow), "drop" (silently block), "reject" (block with response), etc. */
   action: string;
-  /** Rule comment/description */
+  /** Rule comment/description for reference */
   comment?: string;
-  /** Whether rule is disabled */
+  /** True if rule is disabled (not applied to traffic) */
   disabled: boolean;
 }
 
 /**
  * AddressListManager component props
  *
- * CRITICAL: Data is passed via props - NO data fetching in Layer 2
+ * CRITICAL: Data is passed via props - NO data fetching in Layer 2 pattern.
+ * Parent component (Layer 3) is responsible for GraphQL queries and data management.
+ *
+ * @example
+ * ```tsx
+ * // Layer 3 component (fetches data)
+ * function AddressListPage() {
+ *   const { data: lists, loading } = useQuery(GET_ADDRESS_LISTS, {
+ *     variables: { routerId }
+ *   });
+ *
+ *   return (
+ *     <AddressListManager
+ *       lists={lists ?? []}
+ *       isLoading={loading}
+ *       onDeleteList={handleDelete}
+ *     />
+ *   );
+ * }
+ * ```
  */
 export interface AddressListManagerProps {
-  /** Address lists data - fetched by parent component (Layer 3) */
+  /** Array of address lists to display. Fetched by parent component via GraphQL query. */
   lists: AddressList[];
 
-  /** Loading state */
+  /** Loading state indicator. Shows skeleton while data is being fetched. */
   isLoading?: boolean;
 
-  /** Error state */
+  /** Error state. Shows error message if data fetch fails. */
   error?: Error | null;
 
-  /** Callback when an entry is added to a list */
+  /** Callback when user adds an entry to a list. */
   onAddEntry?: (listName: string, address: string) => void | Promise<void>;
 
-  /** Callback when an entry is deleted */
+  /** Callback when user deletes an entry. */
   onDeleteEntry?: (entryId: string) => void | Promise<void>;
 
-  /** Callback when a list is deleted */
+  /** Callback when user deletes an address list. */
   onDeleteList?: (listName: string) => void | Promise<void>;
 
-  /** Function to fetch entries for a specific list (for lazy loading) */
+  /** Function to fetch entries for a specific list (lazy loading). Called when user expands list. */
   onFetchEntries?: (listName: string) => Promise<AddressListEntry[]>;
 
-  /** Function to fetch rules referencing a list */
+  /** Function to fetch firewall rules that reference a list. Called when user clicks "Show Rules". */
   onFetchReferencingRules?: (listName: string) => Promise<FirewallRule[]>;
 
-  /** Whether to show bulk actions (select multiple lists) */
+  /** Whether to show bulk action controls (select multiple, delete multiple). */
   showBulkActions?: boolean;
 
-  /** Whether to enable virtualization for large lists */
+  /** Whether to use virtualization for rendering large lists (>50 entries). Improves performance. */
   enableVirtualization?: boolean;
 
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 
-  /** Custom empty state message */
+  /** Custom message to show when no lists are found */
   emptyMessage?: string;
 
-  /** Custom empty state action */
+  /** Custom action button/content to show in empty state */
   emptyAction?: ReactNode;
 
-  /** Additional children to render */
+  /** Additional children elements to render (e.g., floating action button) */
   children?: ReactNode;
 }
 
 /**
- * Sort field options
+ * Sort field options for address list table
+ *
+ * @type {'name'} - Sort by list name alphabetically
+ * @type {'entryCount'} - Sort by total number of entries
+ * @type {'dynamicCount'} - Sort by number of dynamic entries
+ * @type {'referencingRulesCount'} - Sort by number of referencing firewall rules
  */
 export type SortField = 'name' | 'entryCount' | 'dynamicCount' | 'referencingRulesCount';
 
 /**
- * Sort direction
+ * Sort direction for address list table
+ *
+ * @type {'asc'} - Ascending order
+ * @type {'desc'} - Descending order
  */
 export type SortDirection = 'asc' | 'desc';
 
 /**
- * Sort configuration
+ * Sort configuration for address list table
+ *
+ * Tracks which column is currently sorted and in which direction.
+ * Used in desktop presenter only; mobile uses default order.
  */
 export interface SortConfig {
+  /** Which field to sort by */
   field: SortField;
+  /** Sort direction (ascending or descending) */
   direction: SortDirection;
 }

@@ -9,8 +9,9 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { FirewallLogsPage } from './FirewallLogsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * FirewallLogsPage — real-time firewall log viewer

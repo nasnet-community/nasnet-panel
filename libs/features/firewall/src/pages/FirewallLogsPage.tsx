@@ -15,7 +15,7 @@
  * @see NAS-5.6: Implement Firewall Logging Viewer
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConnectionStore, useFirewallLogStore } from '@nasnet/state/stores';
 import { useRuleNavigation } from '../hooks';
@@ -26,6 +26,7 @@ import {
   useFirewallLogViewer,
 } from '@nasnet/ui/patterns';
 import type { FirewallLogEntry } from '@nasnet/core/types';
+import { cn } from '@nasnet/ui/utils';
 import {
   Button,
   Card,
@@ -82,35 +83,39 @@ function useMediaQuery(query: string): boolean {
 // ============================================================================
 
 interface AutoRefreshControlsProps {
-  autoRefresh: boolean;
+  isAutoRefreshEnabled: boolean;
   refreshInterval: number | false;
   onToggleRefresh: () => void;
   onIntervalChange: (interval: number | false) => void;
   onExport: () => void;
+  className?: string;
 }
 
-function AutoRefreshControls({
-  autoRefresh,
+const AutoRefreshControls = React.memo(function AutoRefreshControlsComponent({
+  isAutoRefreshEnabled,
   refreshInterval,
   onToggleRefresh,
   onIntervalChange,
   onExport,
+  className,
 }: AutoRefreshControlsProps) {
+  AutoRefreshControls.displayName = 'AutoRefreshControls';
   const { t } = useTranslation('firewall');
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn('flex items-center gap-2', className)}>
       {/* Play/Pause Toggle */}
       <Button
-        variant={autoRefresh ? 'default' : 'outline'}
+        variant={isAutoRefreshEnabled ? 'default' : 'outline'}
         size="sm"
         onClick={onToggleRefresh}
-        aria-label={autoRefresh ? t('logs.controls.pauseRefresh') : t('logs.controls.startRefresh')}
+        aria-label={isAutoRefreshEnabled ? t('logs.controls.pauseRefresh') : t('logs.controls.startRefresh')}
+        title={isAutoRefreshEnabled ? 'Pause auto-refresh' : 'Start auto-refresh'}
       >
-        {autoRefresh ? (
-          <Pause className="h-4 w-4" />
+        {isAutoRefreshEnabled ? (
+          <Pause className="h-4 w-4" aria-hidden="true" />
         ) : (
-          <Play className="h-4 w-4" />
+          <Play className="h-4 w-4" aria-hidden="true" />
         )}
       </Button>
 
@@ -136,12 +141,12 @@ function AutoRefreshControls({
 
       {/* Export Button */}
       <Button variant="outline" size="sm" onClick={onExport}>
-        <Download className="h-4 w-4 mr-2" />
+        <Download className="h-4 w-4 mr-2" aria-hidden="true" />
         {t('logs.controls.export')}
       </Button>
     </div>
   );
-}
+});
 
 // ============================================================================
 // Desktop Layout Component
@@ -158,9 +163,10 @@ interface DesktopLayoutProps {
   expandedStats: boolean;
   onToggleStats: () => void;
   autoRefreshControls: React.ReactNode;
+  className?: string;
 }
 
-function DesktopLayout({
+const DesktopLayout = React.memo(function DesktopLayoutComponent({
   routerId,
   filters,
   onFiltersChange,
@@ -171,7 +177,9 @@ function DesktopLayout({
   expandedStats,
   onToggleStats,
   autoRefreshControls,
+  className,
 }: DesktopLayoutProps) {
+  DesktopLayout.displayName = 'DesktopLayout';
   const { t } = useTranslation('firewall');
 
   return (
@@ -218,8 +226,9 @@ function DesktopLayout({
               size="sm"
               onClick={onToggleStats}
               aria-label={t('logs.stats.collapse')}
+              title="Collapse stats panel"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
           <FirewallLogStats logs={logs} onAddToBlocklist={onAddToBlocklist} />
@@ -235,14 +244,15 @@ function DesktopLayout({
             onClick={onToggleStats}
             className="h-full px-2"
             aria-label={t('logs.stats.expand')}
+            title="Expand stats panel"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       )}
     </div>
   );
-}
+});
 
 // ============================================================================
 // Mobile Layout Component
@@ -260,9 +270,10 @@ interface MobileLayoutProps {
   onFiltersSheetChange: (open: boolean) => void;
   autoRefreshControls: React.ReactNode;
   activeFilterCount: number;
+  className?: string;
 }
 
-function MobileLayout({
+const MobileLayout = React.memo(function MobileLayoutComponent({
   routerId,
   filters,
   onFiltersChange,
@@ -274,7 +285,9 @@ function MobileLayout({
   onFiltersSheetChange,
   autoRefreshControls,
   activeFilterCount,
+  className,
 }: MobileLayoutProps) {
+  MobileLayout.displayName = 'MobileLayout';
   const { t } = useTranslation('firewall');
 
   return (
@@ -289,11 +302,12 @@ function MobileLayout({
             size="sm"
             onClick={() => onFiltersSheetChange(true)}
             className="ml-auto"
+            aria-label={`Open filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
           >
-            <Filter className="h-4 w-4 mr-2" />
+            <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
             {t('logs.filters.title')}
             {activeFilterCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+              <span className="ml-2 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full font-semibold" aria-label={`${activeFilterCount} active filters`}>
                 {activeFilterCount}
               </span>
             )}
@@ -343,7 +357,7 @@ function MobileLayout({
       </Sheet>
     </div>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -474,7 +488,7 @@ export function FirewallLogsPage() {
   // Auto-refresh controls
   const autoRefreshControls = (
     <AutoRefreshControls
-      autoRefresh={autoRefresh}
+      isAutoRefreshEnabled={autoRefresh}
       refreshInterval={refreshInterval}
       onToggleRefresh={toggleAutoRefresh}
       onIntervalChange={setRefreshInterval as any}

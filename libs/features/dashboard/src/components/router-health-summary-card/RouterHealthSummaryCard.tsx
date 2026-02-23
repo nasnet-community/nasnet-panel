@@ -1,25 +1,35 @@
 /**
  * RouterHealthSummaryCard Component
- * Epic 5 - Story 5.1: Dashboard Layout with Router Health Summary
  *
- * Platform-adaptive router health summary card.
- * Auto-detects viewport and renders appropriate presenter (Mobile/Desktop).
+ * @description
+ * Platform-adaptive router health summary card showing operational status,
+ * resource utilization, and system vitals. Auto-detects viewport size
+ * and renders optimized layout for Mobile (<640px) or Desktop (≥640px).
  *
- * Architecture Pattern: Headless + Platform Presenters (ADR-018)
- * - useRouterHealthCard hook: Business logic (headless)
- * - Mobile/Desktop presenters: UI only (no logic)
- * - This component: Platform detection wrapper
+ * Follows Headless + Platform Presenters architecture (ADR-018):
+ * - **useRouterHealthCard hook:** Business logic, state management, data fetching
+ * - **Mobile/Desktop presenters:** UI rendering only (no logic duplicated)
+ * - **This component:** Platform detection wrapper using usePlatform()
  *
- * @see ADR-018: Headless + Platform Presenters
- * @see Story 4.3: Responsive Layout for platform detection
+ * Mobile layout: Compact row with essential metrics
+ * Desktop layout: Full card with all metrics, charts, and actions
+ *
+ * @architecture Headless + Platform Presenters (ADR-018)
+ * @see libs/ui/patterns/common/router-health-summary-card/
+ * @see useRouterHealthCard hook documentation
+ * @see RouterHealthSummaryCard.Mobile
+ * @see RouterHealthSummaryCard.Desktop
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useRouterHealthCard, type UseRouterHealthCardProps } from './useRouterHealthCard';
 import { RouterHealthSummaryCardMobile } from './RouterHealthSummaryCard.Mobile';
 import { RouterHealthSummaryCardDesktop } from './RouterHealthSummaryCard.Desktop';
 
+/**
+ * Props for RouterHealthSummaryCard component.
+ */
 export interface RouterHealthSummaryCardProps extends UseRouterHealthCardProps {
   /** Callback when user requests manual refresh */
   onRefresh?: () => void;
@@ -88,11 +98,11 @@ export const RouterHealthSummaryCard = memo(function RouterHealthSummaryCard({
     enableSubscription,
   });
 
-  // Combine internal refetch with external onRefresh callback
-  const handleRefresh = async () => {
+  // Memoize refresh handler callback for stable reference
+  const handleRefresh = useCallback(async () => {
     await state.refetch();
     onRefresh?.();
-  };
+  }, [state, onRefresh]);
 
   // Select presenter based on platform (or explicit compact prop)
   const isMobile = compact ?? platform === 'mobile';

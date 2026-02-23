@@ -5,7 +5,7 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { CONFIGURE_VLAN_PORT } from '@nasnet/api-client/queries';
 

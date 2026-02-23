@@ -11,13 +11,15 @@
 
 import { useState } from 'react';
 
-import { MockedProvider } from '@apollo/client/testing';
-import type { Meta, StoryObj } from '@storybook/react';
+import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { fn } from 'storybook/test';
 
-import { BATCH_INTERFACE_OPERATION } from '@nasnet/api-client/queries';
 import { BatchInterfaceAction } from '@nasnet/api-client/generated';
+import { BATCH_INTERFACE_OPERATION } from '@nasnet/api-client/queries';
 
 import { BatchActionsToolbar } from './BatchActionsToolbar';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock interfaces
@@ -34,7 +36,7 @@ const mockInterfaces = [
 // Apollo mocks
 // ---------------------------------------------------------------------------
 
-const successMock = {
+const successMock: MockedResponse = {
   request: {
     query: BATCH_INTERFACE_OPERATION,
     variables: {
@@ -56,7 +58,7 @@ const successMock = {
   },
 };
 
-const partialFailMock = {
+const partialFailMock: MockedResponse = {
   request: {
     query: BATCH_INTERFACE_OPERATION,
     variables: {
@@ -87,7 +89,7 @@ function ToolbarWrapper({
   mocks = [successMock],
 }: {
   initialSelected?: string[];
-  mocks?: typeof successMock[];
+  mocks?: MockedResponse[];
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSelected));
   const selectedInterfaces = mockInterfaces.filter((i) => selected.has(i.id));

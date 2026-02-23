@@ -3,9 +3,10 @@
  * Dashboard Pro style stats grid showing WiFi overview metrics
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Wifi, Users, Signal, Radio } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { WirelessInterface, WirelessClient } from '@nasnet/core/types';
 
@@ -17,15 +18,15 @@ interface WifiStatusHeroProps {
 
 function getSignalQuality(signalDbm: number): { label: string; color: string; bgColor: string } {
   if (signalDbm >= -50) {
-    return { label: 'Excellent', color: 'text-emerald-500', bgColor: 'bg-emerald-500' };
+    return { label: 'Excellent', color: 'text-success', bgColor: 'bg-success' };
   }
   if (signalDbm >= -60) {
-    return { label: 'Good', color: 'text-green-500', bgColor: 'bg-green-500' };
+    return { label: 'Good', color: 'text-success', bgColor: 'bg-success' };
   }
   if (signalDbm >= -70) {
-    return { label: 'Fair', color: 'text-amber-500', bgColor: 'bg-amber-500' };
+    return { label: 'Fair', color: 'text-warning', bgColor: 'bg-warning' };
   }
-  return { label: 'Weak', color: 'text-red-500', bgColor: 'bg-red-500' };
+  return { label: 'Weak', color: 'text-error', bgColor: 'bg-error' };
 }
 
 function signalToPercent(signalDbm: number): number {
@@ -35,7 +36,8 @@ function signalToPercent(signalDbm: number): number {
   return Math.round(((clamped - minDbm) / (maxDbm - minDbm)) * 100);
 }
 
-export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHeroProps) {
+export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHeroProps) {
+  const { t } = useTranslation('wifi');
   const totalClients = clients.length;
 
   const activeInterfaces = useMemo(() => {
@@ -86,18 +88,18 @@ export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHer
       {/* Connected Clients */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Users className="w-3.5 h-3.5 text-cyan-500" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Clients</p>
+          <Users className="w-3.5 h-3.5 text-info" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.clients')}</p>
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground">{totalClients}</p>
-        <p className="text-xs text-muted-foreground mt-1">Connected devices</p>
+        <p className="text-xs text-muted-foreground mt-1">{t('status.connectedDevices')}</p>
       </div>
 
       {/* Active Interfaces */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Wifi className="w-3.5 h-3.5 text-emerald-500" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Active</p>
+          <Wifi className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.active')}</p>
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground">
           {activeInterfaces.length}
@@ -105,7 +107,7 @@ export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHer
         </p>
         <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
-            className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
+            className="bg-success h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activePercent}%` }}
           />
         </div>
@@ -114,8 +116,8 @@ export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHer
       {/* Signal Quality */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Signal className="w-3.5 h-3.5 text-purple-500" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Signal</p>
+          <Signal className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.signal')}</p>
         </div>
         <p className={`text-xl md:text-2xl font-bold ${signalQuality.color}`}>
           {clients.length > 0 ? `${avgSignal} dBm` : '—'}
@@ -131,39 +133,37 @@ export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHer
             <p className={`text-xs mt-1 ${signalQuality.color}`}>{signalQuality.label}</p>
           </>
         ) : (
-          <p className="text-xs text-muted-foreground mt-1">No clients</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('status.noClients')}</p>
         )}
       </div>
 
       {/* Frequency Bands */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Radio className="w-3.5 h-3.5 text-blue-500" aria-hidden="true" />
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Bands</p>
+          <Radio className="w-3.5 h-3.5 text-info" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.bands')}</p>
         </div>
         <div className="flex flex-wrap gap-1 mt-1">
           {bandCounts['2.4GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">2.4G</span>
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-info/10 text-info">2.4G</span>
           )}
           {bandCounts['5GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">5G</span>
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-warning/10 text-warning">5G</span>
           )}
           {bandCounts['6GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200">6G</span>
+            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-error/10 text-error">6G</span>
           )}
-          {interfaces.length === 0 && <span className="text-xs text-muted-foreground">No interfaces</span>}
+          {interfaces.length === 0 && <span className="text-xs text-muted-foreground">{t('status.noInterfaces')}</span>}
         </div>
         <p className="text-xs text-muted-foreground mt-1">
-          {interfaces.length} interface{interfaces.length !== 1 ? 's' : ''}
+          {t('status.interfaceCount', { count: interfaces.length, defaultValue: `${interfaces.length} interface${interfaces.length !== 1 ? 's' : ''}` })}
         </p>
       </div>
     </div>
   );
-}
+});
 
-
-
-
+WifiStatusHero.displayName = 'WifiStatusHero';
 
 
 

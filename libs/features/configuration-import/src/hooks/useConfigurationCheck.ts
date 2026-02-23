@@ -1,10 +1,10 @@
 /**
- * useConfigurationCheck Hook
- * Checks if a router needs configuration and manages the wizard state
- * Only triggers on first visit per router (tracked in router store)
+ * @description Hook to check if a router needs configuration and manage wizard state.
+ * Only triggers on first visit per router (tracked in router store).
+ * Useful for onboarding flows where empty system notes indicate unconfigured routers.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSystemNote } from '@nasnet/api-client/queries';
 import { useRouterStore } from '@nasnet/state/stores';
 
@@ -99,8 +99,11 @@ export function useConfigurationCheck(
     error,
   } = useSystemNote(routerIp);
 
-  // Determine if configuration is needed
-  const needsConfiguration = noteData ? !noteData.note.trim() : false;
+  // Determine if configuration is needed (memoized)
+  const needsConfiguration = useMemo(
+    () => (noteData ? !noteData.note.trim() : false),
+    [noteData?.note]
+  );
 
   // Trigger wizard on first load if needed
   useEffect(() => {
@@ -137,6 +140,7 @@ export function useConfigurationCheck(
    */
   const closeWizard = useCallback(() => {
     setShowWizard(false);
+    // Mark as checked via store
     markConfigurationChecked(routerId);
   }, [routerId, markConfigurationChecked]);
 

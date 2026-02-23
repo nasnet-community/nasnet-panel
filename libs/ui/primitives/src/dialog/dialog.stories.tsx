@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-
 import {
   Dialog,
   DialogContent,
@@ -25,7 +24,8 @@ const meta: Meta<typeof Dialog> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A modal dialog component built on Radix UI Dialog primitive.',
+        component:
+          'A modal dialog component built on Radix UI Dialog primitive. Accessible, keyboard-navigable, with focus trap. Supports multiple content layouts: simple confirmation, forms, scrollable content. Keyboard: Escape to close, Tab to navigate, Enter/Space to activate.',
       },
     },
   },
@@ -57,6 +57,11 @@ export const Default: Story = {
       </DialogContent>
     </Dialog>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const button = canvas.querySelector('button') as HTMLButtonElement;
+    button?.click();
+  },
 };
 
 export const WithForm: Story = {
@@ -181,4 +186,97 @@ export const Scrollable: Story = {
       </DialogContent>
     </Dialog>
   ),
+};
+
+/**
+ * Mobile Viewport (375px) - Full-screen modal appropriate for small screens
+ */
+export const Mobile: Story = {
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Open</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Mobile Dialog</DialogTitle>
+          <DialogDescription>Optimized for mobile devices</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Confirm</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const button = canvas.querySelector('button') as HTMLButtonElement;
+    button?.click();
+  },
+};
+
+/**
+ * Tablet Viewport (768px) - Centered modal on medium screen
+ */
+export const Tablet: Story = {
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Open</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tablet Dialog</DialogTitle>
+          <DialogDescription>Optimized for tablet devices</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Confirm</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const button = canvas.querySelector('button') as HTMLButtonElement;
+    button?.click();
+  },
+};
+
+/**
+ * Desktop Viewport (1280px) - Optimal sizing for large screens
+ */
+export const Desktop: Story = {
+  parameters: { viewport: { defaultViewport: 'desktop' } },
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Open</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Desktop Dialog</DialogTitle>
+          <DialogDescription>Optimized for desktop devices</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Confirm</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const button = canvas.querySelector('button') as HTMLButtonElement;
+    button?.click();
+  },
 };

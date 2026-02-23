@@ -120,7 +120,10 @@ interface UsePreviewTemplateOptions {
 // =============================================================================
 
 /**
- * Hook to fetch all alert rule templates with optional category filtering
+ * Hook to fetch all alert rule templates with optional category filtering.
+ *
+ * @description Fetches alert rule templates with optional category filtering,
+ * supports polling and automatic cache-and-network refresh strategy.
  *
  * @param options - Query options and filters
  * @returns Query result with AlertRuleTemplate[] data
@@ -145,7 +148,10 @@ export function useAlertRuleTemplates(options?: UseAlertRuleTemplatesOptions) {
 }
 
 /**
- * Hook to fetch a single alert rule template by ID
+ * Hook to fetch a single alert rule template by ID.
+ *
+ * @description Fetches a specific alert rule template. Query is skipped if ID
+ * is not provided. Uses cache-first strategy for stable templates.
  *
  * @param id - Template ID (null to skip query)
  * @param options - Query options
@@ -165,7 +171,11 @@ export function useAlertRuleTemplate(id: string | null, options?: UseAlertRuleTe
 }
 
 /**
- * Hook to preview a template with variable substitution
+ * Hook to preview a template with variable substitution.
+ *
+ * @description Previews a template with provided variables for substitution.
+ * Uses no-cache strategy to always fetch fresh preview data. Skips query if
+ * templateId is not provided.
  *
  * @param templateId - Template ID to preview (null to skip)
  * @param variables - Variables for template resolution
@@ -200,9 +210,11 @@ export function usePreviewAlertRuleTemplate(
 // =============================================================================
 
 /**
- * Hook to apply a template and create an alert rule
+ * Hook to apply a template and create an alert rule.
  *
- * Automatically refetches alert rules after successful application.
+ * @description Applies a template to create a new alert rule with optional
+ * customizations. Automatically refetches alert rules after successful
+ * application.
  *
  * @returns Mutation function and state
  *
@@ -230,7 +242,7 @@ export function useApplyAlertRuleTemplate() {
       if (data.applyAlertRuleTemplate.alertRule) {
         // Refetch alert rules to show the newly created rule
         client.refetchQueries({
-          include: ['GetAlertRules'],
+          include: ['GetAlertRuleTemplates'],
         });
       }
     },
@@ -241,9 +253,10 @@ export function useApplyAlertRuleTemplate() {
 }
 
 /**
- * Hook to save a custom alert rule template
+ * Hook to save a custom alert rule template.
  *
- * Automatically refetches template list after successful save.
+ * @description Saves a custom alert rule template. Automatically refetches
+ * template list after successful save to reflect new template in UI.
  *
  * @returns Mutation function and state
  *
@@ -290,9 +303,10 @@ export function useSaveCustomAlertRuleTemplate() {
 }
 
 /**
- * Hook to delete a custom alert rule template
+ * Hook to delete a custom alert rule template.
  *
- * Automatically refetches template list after successful deletion.
+ * @description Deletes a custom template. Automatically refetches template
+ * list after successful deletion to remove template from UI.
  *
  * @returns Mutation function and state
  *
@@ -324,8 +338,9 @@ export function useDeleteCustomAlertRuleTemplate() {
 }
 
 /**
- * Hook to import an alert rule template from JSON
+ * Hook to import an alert rule template from JSON.
  *
+ * @description Imports an alert rule template from JSON data.
  * Automatically refetches template list after successful import.
  *
  * @returns Mutation function and state
@@ -364,7 +379,10 @@ export function useImportAlertRuleTemplate() {
 }
 
 /**
- * Hook to export an alert rule template as JSON
+ * Hook to export an alert rule template as JSON.
+ *
+ * @description Exports an alert rule template as JSON string for
+ * download or sharing.
  *
  * @returns Mutation function and state
  *

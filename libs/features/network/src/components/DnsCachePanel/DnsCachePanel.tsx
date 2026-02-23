@@ -2,8 +2,8 @@
  * DNS Cache Panel - Auto-Detecting Wrapper
  * NAS-6.12: DNS Cache & Diagnostics - Task 6
  *
- * Automatically selects Mobile or Desktop presenter based on viewport width.
- * Follows Headless + Platform Presenters pattern (ADR-018).
+ * @description Automatically selects Mobile or Desktop presenter based on viewport width.
+ * Follows Headless + Platform Presenters pattern (ADR-018) with automatic platform detection.
  */
 
 import * as React from 'react';
@@ -11,12 +11,21 @@ import { DnsCachePanelDesktop } from './DnsCachePanel.Desktop';
 import { DnsCachePanelMobile } from './DnsCachePanel.Mobile';
 import type { DnsCachePanelProps } from './types';
 
-// Hook to detect viewport width
+const MOBILE_BREAKPOINT_MAX = 639;
+
+/**
+ * Hook to detect if viewport is mobile (<640px)
+ *
+ * Uses media query listener for reactive viewport detection.
+ * Initializes with current viewport size to avoid hydration mismatch.
+ */
 function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    const mediaQuery = window.matchMedia(
+      `(max-width: ${MOBILE_BREAKPOINT_MAX}px)`
+    );
 
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsMobile(e.matches);
@@ -36,7 +45,7 @@ function useIsMobile() {
 /**
  * DNS Cache Panel Component
  *
- * Displays DNS cache statistics (entries, size, hit rate, top domains) and
+ * @description Displays DNS cache statistics (entries, size, hit rate, top domains) and
  * provides cache flush functionality with before/after preview.
  * Automatically adapts UI for mobile (<640px) and desktop (>=640px) viewports.
  *
@@ -64,6 +73,9 @@ function useIsMobile() {
  *   );
  * }
  * ```
+ *
+ * @see DnsCachePanelDesktop Desktop presenter layout
+ * @see DnsCachePanelMobile Mobile presenter layout
  */
 export function DnsCachePanel(props: DnsCachePanelProps) {
   const isMobile = useIsMobile();
@@ -74,3 +86,5 @@ export function DnsCachePanel(props: DnsCachePanelProps) {
     <DnsCachePanelDesktop {...props} />
   );
 }
+
+DnsCachePanel.displayName = 'DnsCachePanel';

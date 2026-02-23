@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import type { Router } from '@nasnet/core/types';
+
 import { RouterList } from './RouterList';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof RouterList> = {
   title: 'Features/RouterDiscovery/RouterList',

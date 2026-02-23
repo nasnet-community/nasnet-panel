@@ -95,26 +95,26 @@ module.exports = {
           DEFAULT: 'var(--semantic-color-success-DEFAULT)',
           light: 'var(--semantic-color-success-light)',
           dark: 'var(--semantic-color-success-dark)',
-          foreground: '#FFFFFF',
+          foreground: 'hsl(var(--foreground))',
         },
         warning: {
           DEFAULT: 'var(--semantic-color-warning-DEFAULT)',
           light: 'var(--semantic-color-warning-light)',
           dark: 'var(--semantic-color-warning-dark)',
-          foreground: '#0F172A',
+          foreground: 'hsl(var(--foreground))',
         },
         error: {
           DEFAULT: 'var(--semantic-color-error-DEFAULT)',
           light: 'var(--semantic-color-error-light)',
           dark: 'var(--semantic-color-error-dark)',
-          foreground: '#FFFFFF',
+          foreground: 'hsl(var(--foreground))',
           hover: 'var(--semantic-color-error-hover)',
         },
         info: {
           DEFAULT: 'var(--semantic-color-info-DEFAULT)',
           light: 'var(--semantic-color-info-light)',
           dark: 'var(--semantic-color-info-dark)',
-          foreground: '#FFFFFF',
+          foreground: 'hsl(var(--foreground))',
         },
         // Category accent colors (14 feature categories)
         category: {
@@ -175,16 +175,16 @@ module.exports = {
         ...tokenConfig.boxShadow,
         // Semantic shadows (glows for focus states)
         'primary-glow': '0 0 0 4px var(--component-button-primary-focusRing)',
-        'success-glow': '0 0 0 4px rgba(34, 197, 94, 0.2)',
-        'warning-glow': '0 0 0 4px rgba(245, 158, 11, 0.2)',
-        'error-glow': '0 0 0 4px rgba(239, 68, 68, 0.2)',
-        'info-glow': '0 0 0 4px rgba(14, 165, 233, 0.2)',
+        'success-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-success-DEFAULT) 20%, transparent)',
+        'warning-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-warning-DEFAULT) 20%, transparent)',
+        'error-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-error-DEFAULT) 20%, transparent)',
+        'info-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-info-DEFAULT) 20%, transparent)',
       },
       // Custom animations
       keyframes: {
         'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(34, 197, 94, 0.4)' },
-          '50%': { boxShadow: '0 0 0 8px rgba(34, 197, 94, 0)' },
+          '0%, 100%': { boxShadow: '0 0 0 0 color-mix(in srgb, var(--semantic-color-success-DEFAULT) 40%, transparent)' },
+          '50%': { boxShadow: '0 0 0 8px transparent' },
         },
         'fade-in': {
           '0%': { opacity: '0' },

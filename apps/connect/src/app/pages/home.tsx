@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes } from '@nasnet/core/utils';
@@ -11,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives'
  * Displays router system information and status overview
  */
 export function HomePage() {
+  const { t } = useTranslation('common');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Fetch router information (identity, model, version, architecture)
@@ -57,9 +59,9 @@ export function HomePage() {
       >
         <div className="max-w-4xl mx-auto space-y-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground">
-              Monitor your router's status and performance
+              {t('dashboard.subtitle')}
             </p>
           </div>
 
@@ -75,7 +77,7 @@ export function HomePage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>System Resources</CardTitle>
+                <CardTitle>{t('dashboard.systemResources')}</CardTitle>
                 <LastUpdated timestamp={dataUpdatedAt} />
               </div>
             </CardHeader>
@@ -119,7 +121,7 @@ export function HomePage() {
               {/* Error state for resources */}
               {resourceError && (
                 <div className="mt-4 text-sm text-destructive">
-                  Failed to load resource data
+                  {t('dashboard.failedToLoad')}
                 </div>
               )}
             </CardContent>
@@ -136,3 +138,4 @@ export function HomePage() {
     </div>
   );
 }
+HomePage.displayName = 'HomePage';

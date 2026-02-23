@@ -102,7 +102,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 /**
  * LogControls Component
  */
-export function LogControls({
+function LogControlsComponent({
   isPaused,
   onPauseToggle,
   lastUpdated,
@@ -113,15 +113,15 @@ export function LogControls({
   const dateStr = new Date().toISOString().split('T')[0];
   const baseFilename = `logs-${routerIp}-${dateStr}`;
 
-  const handleExportCSV = () => {
+  const handleExportCSV = React.useCallback(() => {
     const csv = logsToCSV(logs);
     downloadFile(csv, `${baseFilename}.csv`, 'text/csv');
-  };
+  }, [logs, baseFilename]);
 
-  const handleExportJSON = () => {
+  const handleExportJSON = React.useCallback(() => {
     const json = logsToJSON(logs);
     downloadFile(json, `${baseFilename}.json`, 'application/json');
-  };
+  }, [logs, baseFilename]);
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -178,6 +178,9 @@ export function LogControls({
     </div>
   );
 }
+
+export const LogControls = React.memo(LogControlsComponent);
+LogControls.displayName = 'LogControls';
 
 export const logExport = {
   toCSV: logsToCSV,

@@ -5,9 +5,11 @@
  * Demonstrates pre-selected timezones, disabled state, and search interaction.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { TimezoneSelector } from './TimezoneSelector';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

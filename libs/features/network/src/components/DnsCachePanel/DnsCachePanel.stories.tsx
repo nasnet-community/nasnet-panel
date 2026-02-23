@@ -5,16 +5,12 @@
  * Task 8.5: Create Storybook stories
  */
 
-import { ApolloProvider } from '@apollo/client';
-
-import { createMockClient } from '@nasnet/api-client/core';
-
 import { DnsCachePanel } from './DnsCachePanel';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock GraphQL responses
-const mockCacheStatsLoading = {
+const _mockCacheStatsLoading = {
   request: {
     query: undefined, // Will be defined in the component
   },
@@ -24,7 +20,7 @@ const mockCacheStatsLoading = {
   },
 };
 
-const mockCacheStatsSuccess = {
+const _mockCacheStatsSuccess = {
   dnsCacheStats: {
     __typename: 'DnsCacheStats',
     totalEntries: 156,
@@ -48,7 +44,7 @@ const mockCacheStatsSuccess = {
   },
 };
 
-const mockCacheStatsEmpty = {
+const _mockCacheStatsEmpty = {
   dnsCacheStats: {
     __typename: 'DnsCacheStats',
     totalEntries: 0,
@@ -61,7 +57,7 @@ const mockCacheStatsEmpty = {
   },
 };
 
-const mockCacheStatsNearFull = {
+const _mockCacheStatsNearFull = {
   dnsCacheStats: {
     __typename: 'DnsCacheStats',
     totalEntries: 2048,
@@ -99,16 +95,11 @@ const meta: Meta<typeof DnsCachePanel> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => {
-      const mockClient = createMockClient([]);
-      return (
-        <ApolloProvider client={mockClient}>
-          <div className="max-w-4xl">
-            <Story />
-          </div>
-        </ApolloProvider>
-      );
-    },
+    (Story) => (
+      <div className="max-w-4xl">
+        <Story />
+      </div>
+    ),
   ],
 };
 
@@ -120,7 +111,7 @@ type Story = StoryObj<typeof DnsCachePanel>;
  */
 export const Default: Story = {
   name: 'Default - With Cache Data',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -136,7 +127,7 @@ export const Default: Story = {
  */
 export const Loading: Story = {
   name: 'Loading State',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -151,7 +142,7 @@ export const Loading: Story = {
  */
 export const EmptyCache: Story = {
   name: 'Empty Cache',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -167,7 +158,7 @@ export const EmptyCache: Story = {
  */
 export const NearFull: Story = {
   name: 'Cache Near Full - 95%',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -183,7 +174,7 @@ export const NearFull: Story = {
  */
 export const HighHitRate: Story = {
   name: 'High Hit Rate - Optimal',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -199,7 +190,7 @@ export const HighHitRate: Story = {
  */
 export const LowHitRate: Story = {
   name: 'Low Hit Rate - Suboptimal',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -215,7 +206,7 @@ export const LowHitRate: Story = {
  */
 export const FlushDialog: Story = {
   name: 'Flush Confirmation Dialog',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -231,7 +222,7 @@ export const FlushDialog: Story = {
  */
 export const AfterFlush: Story = {
   name: 'After Flush - Success Toast',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -247,7 +238,7 @@ export const AfterFlush: Story = {
  */
 export const Error: Story = {
   name: 'Error State',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -262,7 +253,7 @@ export const Error: Story = {
  */
 export const Mobile: Story = {
   name: 'Mobile View',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     viewport: {
       defaultViewport: 'mobile1',
@@ -281,7 +272,7 @@ export const Mobile: Story = {
  */
 export const Desktop: Story = {
   name: 'Desktop View',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     viewport: {
       defaultViewport: 'desktop',
@@ -299,7 +290,7 @@ export const Desktop: Story = {
  */
 export const DarkMode: Story = {
   name: 'Dark Mode',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     backgrounds: { default: 'dark' },
     docs: {
@@ -315,7 +306,7 @@ export const DarkMode: Story = {
  */
 export const Accessibility: Story = {
   name: 'Accessibility Features',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     a11y: {
       config: {
@@ -341,7 +332,7 @@ export const Accessibility: Story = {
  */
 export const Interactive: Story = {
   name: 'Interactive Demo',
-  render: () => <DnsCachePanel />,
+  render: () => <DnsCachePanel deviceId="test-device" />,
   parameters: {
     docs: {
       description: {

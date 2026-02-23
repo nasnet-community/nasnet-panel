@@ -9,7 +9,7 @@
  * - WCAG AAA accessible
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, memo } from 'react';
 
 import {
   Card,
@@ -71,7 +71,7 @@ interface SuggestionCardProps {
   onPreview: (suggestion: Suggestion) => void;
 }
 
-function SuggestionCard({ suggestion, onApply, onPreview }: SuggestionCardProps) {
+const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPreview }: SuggestionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -199,12 +199,12 @@ function SuggestionCard({ suggestion, onApply, onPreview }: SuggestionCardProps)
       </Dialog>
     </>
   );
-}
+});
 
 /**
  * EmptyState component for when no suggestions are found
  */
-function EmptyState({ type }: { type: 'redundancy' | 'reorder' }) {
+const EmptyState = memo(function EmptyState({ type }: { type: 'redundancy' | 'reorder' }) {
   return (
     <Card className="border-dashed">
       <CardContent className="flex flex-col items-center justify-center py-12 text-center">
@@ -235,7 +235,7 @@ function EmptyState({ type }: { type: 'redundancy' | 'reorder' }) {
       </CardContent>
     </Card>
   );
-}
+});
 
 /**
  * RuleEfficiencyReport component
@@ -243,7 +243,7 @@ function EmptyState({ type }: { type: 'redundancy' | 'reorder' }) {
  * Analyzes firewall rules to detect redundancies and suggest performance
  * improvements through reordering.
  */
-export function RuleEfficiencyReport({
+function RuleEfficiencyReportComponent({
   rules,
   onApplySuggestion,
   onPreview,
@@ -323,4 +323,5 @@ export function RuleEfficiencyReport({
   );
 }
 
+export const RuleEfficiencyReport = memo(RuleEfficiencyReportComponent);
 RuleEfficiencyReport.displayName = 'RuleEfficiencyReport';

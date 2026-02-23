@@ -43,7 +43,7 @@ function transformIPsecIdentity(raw: IPsecIdentityRaw): IPsecIdentity {
     matchBy: (raw['match-by'] as IPsecIdentity['matchBy']) || 'remote-id',
     username: raw.username,
     password: raw.password,
-    disabled: raw.disabled === 'true',
+    isDisabled: raw.disabled === 'true',
     comment: raw.comment,
   };
 }

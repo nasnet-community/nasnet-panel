@@ -7,10 +7,10 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { ExportTemplateDialog } from './ExportTemplateDialog';
-import { EXPORT_ALERT_RULE_TEMPLATE } from '../../hooks/useAlertRuleTemplates';
+import { EXPORT_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
 
 import type { Meta, StoryObj } from '@storybook/react';
 

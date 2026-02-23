@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { fn } from 'storybook/test';
 
 import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
 import { Button } from '@nasnet/ui/primitives';
@@ -188,6 +189,10 @@ Use with useDeleteRoute() mutation hook for actual deletion operations.
       description: 'Callback when dialog open state changes',
     },
   },
+  args: {
+    onConfirm: fn(),
+    onOpenChange: fn(),
+  },
 };
 
 export default meta;
@@ -362,7 +367,7 @@ export const Playground: Story = {
   args: {
     route: mockStandardRoute,
   },
-  render: ({ route }) => <RouteDeleteConfirmationWrapper route={route} />,
+  render: ({ route }) => <RouteDeleteConfirmationWrapper route={route as Route} />,
   parameters: {
     docs: {
       description: {

@@ -86,8 +86,19 @@
     }
   ],
   "targetDefaults": {
+    "lint": {
+      "cache": true,
+      "inputs": ["default", "{workspaceRoot}/eslint.config.js"]
+    },
+    "typecheck": {
+      "cache": true,
+      "inputs": ["default", "{projectRoot}/tsconfig.*.json", "{workspaceRoot}/tsconfig.base.json"]
+    },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "build-storybook": {
+      "dependsOn": ["typecheck", "lint", "typecheck:storybook"]
     }
   },
   "generators": {

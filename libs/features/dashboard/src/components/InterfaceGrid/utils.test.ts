@@ -4,12 +4,12 @@
 
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { useReducedMotion } from '@nasnet/core/utils';
 import {
   formatTrafficRate,
   formatLinkSpeed,
   sortInterfacesByPriority,
   INTERFACE_TYPE_PRIORITY,
-  useReducedMotion,
 } from './utils';
 import type { InterfaceType } from './types';
 

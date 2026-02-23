@@ -95,7 +95,7 @@ function formatTopicLabel(topic: LogTopic): string {
  * />
  * ```
  */
-export function LogFilters({
+function LogFiltersComponent({
   topics,
   onTopicsChange,
   severities,
@@ -142,38 +142,38 @@ export function LogFilters({
   }, [isSeverityOpen]);
 
   // Toggle topic selection
-  const toggleTopic = (topic: LogTopic) => {
+  const toggleTopic = React.useCallback((topic: LogTopic) => {
     if (topics.includes(topic)) {
       onTopicsChange(topics.filter((t) => t !== topic));
     } else {
       onTopicsChange([...topics, topic]);
     }
-  };
+  }, [topics, onTopicsChange]);
 
   // Toggle severity selection
-  const toggleSeverity = (severity: LogSeverity) => {
+  const toggleSeverity = React.useCallback((severity: LogSeverity) => {
     if (severities.includes(severity)) {
       onSeveritiesChange(severities.filter((s) => s !== severity));
     } else {
       onSeveritiesChange([...severities, severity]);
     }
-  };
+  }, [severities, onSeveritiesChange]);
 
   // Remove specific topic
-  const removeTopic = (topic: LogTopic) => {
+  const removeTopic = React.useCallback((topic: LogTopic) => {
     onTopicsChange(topics.filter((t) => t !== topic));
-  };
+  }, [topics, onTopicsChange]);
 
   // Remove specific severity
-  const removeSeverity = (severity: LogSeverity) => {
+  const removeSeverity = React.useCallback((severity: LogSeverity) => {
     onSeveritiesChange(severities.filter((s) => s !== severity));
-  };
+  }, [severities, onSeveritiesChange]);
 
   // Clear all filters (both topics and severities)
-  const clearAll = () => {
+  const clearAll = React.useCallback(() => {
     onTopicsChange([]);
     onSeveritiesChange([]);
-  };
+  }, [onTopicsChange, onSeveritiesChange]);
 
   const hasFilters = topics.length > 0 || severities.length > 0;
 
@@ -311,3 +311,6 @@ export function LogFilters({
     </div>
   );
 }
+
+export const LogFilters = React.memo(LogFiltersComponent);
+LogFilters.displayName = 'LogFilters';

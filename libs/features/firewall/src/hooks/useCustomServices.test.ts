@@ -103,7 +103,7 @@ describe('useCustomServices', () => {
           service: 'existing-app',
           protocol: 'tcp',
           category: 'custom',
-          builtIn: false,
+          isBuiltIn: false,
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
@@ -129,7 +129,7 @@ describe('useCustomServices', () => {
       // Built-in services should be marked as such
       const builtInHTTP = result.current.services.find((s) => s.port === 80);
       expect(builtInHTTP).toBeDefined();
-      expect(builtInHTTP?.builtIn).toBe(true);
+      expect(builtInHTTP?.isBuiltIn).toBe(true);
       expect(builtInHTTP?.service).toBe('HTTP');
     });
 
@@ -165,7 +165,7 @@ describe('useCustomServices', () => {
         service: 'my-app',
         protocol: 'tcp',
         category: 'custom',
-        builtIn: false,
+        isBuiltIn: false,
       });
       expect(result.current.customServices[0].createdAt).toBeDefined();
       expect(result.current.customServices[0].updatedAt).toBeDefined();
@@ -504,11 +504,11 @@ describe('useCustomServices', () => {
     it('should mark all built-in services as read-only', () => {
       const { result } = renderHook(() => useCustomServices());
 
-      const builtInServices = result.current.services.filter((s) => s.builtIn);
+      const builtInServices = result.current.services.filter((s) => s.isBuiltIn);
       expect(builtInServices.length).toBeGreaterThan(90); // ~100 built-in services
 
       builtInServices.forEach((service) => {
-        expect(service.builtIn).toBe(true);
+        expect(service.isBuiltIn).toBe(true);
       });
     });
 
@@ -521,15 +521,15 @@ describe('useCustomServices', () => {
 
       expect(winbox).toBeDefined();
       expect(winbox?.service).toBe('Winbox');
-      expect(winbox?.builtIn).toBe(true);
+      expect(winbox?.isBuiltIn).toBe(true);
 
       expect(routerOSAPI).toBeDefined();
       expect(routerOSAPI?.service).toBe('RouterOS-API');
-      expect(routerOSAPI?.builtIn).toBe(true);
+      expect(routerOSAPI?.isBuiltIn).toBe(true);
 
       expect(routerOSAPISSL).toBeDefined();
       expect(routerOSAPISSL?.service).toBe('RouterOS-API-SSL');
-      expect(routerOSAPISSL?.builtIn).toBe(true);
+      expect(routerOSAPISSL?.isBuiltIn).toBe(true);
     });
 
     it('should prevent adding custom service with built-in name (case-insensitive)', () => {
@@ -609,16 +609,16 @@ describe('useCustomServices', () => {
         result.current.addService(validCustomService);
       });
 
-      const builtInCount = result.current.services.filter((s) => s.builtIn).length;
-      const customCount = result.current.services.filter((s) => !s.builtIn).length;
+      const builtInCount = result.current.services.filter((s) => s.isBuiltIn).length;
+      const customCount = result.current.services.filter((s) => !s.isBuiltIn).length;
 
       expect(customCount).toBe(1);
       expect(builtInCount).toBeGreaterThan(90);
 
       // All built-in services should come before custom services
-      const firstCustomIndex = result.current.services.findIndex((s) => !s.builtIn);
+      const firstCustomIndex = result.current.services.findIndex((s) => !s.isBuiltIn);
       const servicesBeforeCustom = result.current.services.slice(0, firstCustomIndex);
-      expect(servicesBeforeCustom.every((s) => s.builtIn)).toBe(true);
+      expect(servicesBeforeCustom.every((s) => s.isBuiltIn)).toBe(true);
     });
   });
 });

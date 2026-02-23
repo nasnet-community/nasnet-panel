@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,11 +19,12 @@ import {
 import { useUpdateInterface } from '@nasnet/api-client/queries';
 
 /**
- * Validation schema for interface settings
+ * Validation schema for interface settings.
+ *
  * MTU: 68-9000 bytes (RouterOS limits)
  * Comment: max 255 characters
  */
-const interfaceSettingsSchema = z.object({
+const INTERFACE_SETTINGS_SCHEMA = z.object({
   enabled: z.boolean(),
   mtu: z
     .number()
@@ -38,18 +39,31 @@ const interfaceSettingsSchema = z.object({
     .optional(),
 });
 
-type InterfaceSettingsFormData = z.infer<typeof interfaceSettingsSchema>;
+const MIN_MTU = 68;
+const MAX_MTU = 9000;
+const DEFAULT_MTU = 1500;
+const MAX_COMMENT_LENGTH = 255;
+
+type InterfaceSettingsFormData = z.infer<typeof INTERFACE_SETTINGS_SCHEMA>;
 
 export interface InterfaceEditFormProps {
+  /** Router ID for API requests */
   routerId: string;
-  interface: any; // Interface data
+  /** Interface data object to edit */
+  interface: any;
+  /** Callback fired on successful save */
   onSuccess?: () => void;
+  /** Callback fired when user cancels editing */
   onCancel?: () => void;
 }
 
 /**
- * Interface Edit Form Component
- * Provides form for editing interface settings with validation
+ * Interface Edit Form Component.
+ *
+ * Form for editing interface settings (enabled, MTU, comment) with client-side and
+ * server-side validation. Supports editing a single interface with toast feedback.
+ *
+ * @description Editable form for interface configuration with validation and error handling
  */
 export const InterfaceEditForm = memo(function InterfaceEditForm({
   routerId,
@@ -62,15 +76,15 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
 
   // Initialize form with current interface values
   const form = useForm<InterfaceSettingsFormData>({
-    resolver: zodResolver(interfaceSettingsSchema),
+    resolver: zodResolver(INTERFACE_SETTINGS_SCHEMA),
     defaultValues: {
       enabled: iface?.enabled ?? true,
-      mtu: iface?.mtu ?? 1500,
+      mtu: iface?.mtu ?? DEFAULT_MTU,
       comment: iface?.comment ?? '',
     },
   });
 
-  const onSubmit = async (values: InterfaceSettingsFormData) => {
+  const handleSubmit = useCallback(async (values: InterfaceSettingsFormData) => {
     try {
       const result = await updateInterface({
         variables: {
@@ -91,7 +105,7 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
           toast({
             title: 'Validation error',
             description: error.message,
-            variant: 'destructive',
+            variant: 'error',
           });
         });
       } else {
@@ -106,14 +120,14 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
       toast({
         title: 'Update failed',
         description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
+        variant: 'error',
       });
     }
-  };
+  }, [updateInterface, routerId, iface.id, iface.name, onSuccess, toast]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Enabled toggle */}
         <FormField
           control={form.control}
@@ -147,9 +161,9 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
               <FormControl>
                 <Input
                   type="number"
-                  min={68}
-                  max={9000}
-                  placeholder="1500"
+                  min={MIN_MTU}
+                  max={MAX_MTU}
+                  placeholder={String(DEFAULT_MTU)}
                   {...field}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -159,7 +173,7 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
                 />
               </FormControl>
               <FormDescription>
-                Maximum transmission unit size in bytes (68-9000). Default is 1500.
+                {`Maximum transmission unit size in bytes (${MIN_MTU}-${MAX_MTU}). Default is ${DEFAULT_MTU}.`}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -178,12 +192,12 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
                   placeholder="Add a description or note about this interface"
                   className="resize-none"
                   rows={3}
-                  maxLength={255}
+                  maxLength={MAX_COMMENT_LENGTH}
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Optional comment or description (max 255 characters)
+                {`Optional comment or description (max ${MAX_COMMENT_LENGTH} characters)`}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -211,3 +225,5 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
     </Form>
   );
 });
+
+InterfaceEditForm.displayName = 'InterfaceEditForm';

@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { Input } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { X, Plus } from 'lucide-react';
+import { memo, useState, useCallback, useMemo } from 'react';
+import { Input, Button, Badge, Icon } from '@nasnet/ui/primitives';
+import { Plus, X } from 'lucide-react';
 
 export interface VlanSelectorProps {
   label: string;
@@ -11,24 +9,29 @@ export interface VlanSelectorProps {
   onChange: (value: number[]) => void;
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 /**
  * VLAN Selector Component - Multi-select for VLAN IDs
  * Allows adding VLAN IDs (1-4094) with visual chips
+ *
+ * @description Multi-select VLAN ID picker with validation and visual feedback
  */
-export function VlanSelector({
+export const VlanSelector = memo(function VlanSelector({
   label,
   description,
   value,
   onChange,
   placeholder = 'Enter VLAN ID (1-4094)',
   disabled = false,
+  className,
 }: VlanSelectorProps) {
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const handleAdd = () => {
+  // Memoized add handler
+  const handleAdd = useCallback(() => {
     const vlanId = parseInt(inputValue);
 
     // Validation
@@ -55,21 +58,26 @@ export function VlanSelector({
     onChange([...value, vlanId].sort((a, b) => a - b));
     setInputValue('');
     setError(null);
-  };
+  }, [inputValue, value, onChange]);
 
-  const handleRemove = (vlanId: number) => {
+  // Memoized remove handler
+  const handleRemove = useCallback((vlanId: number) => {
     onChange(value.filter((id) => id !== vlanId));
-  };
+  }, [value, onChange]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Memoized key down handler
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAdd();
     }
-  };
+  }, [handleAdd]);
+
+  // Memoize sorted VLAN list to prevent unnecessary re-renders
+  const sortedVlans = useMemo(() => [...value].sort((a, b) => a - b), [value]);
 
   return (
-    <div className="space-y-2">
+    <div className={className || 'space-y-2'}>
       {/* Label */}
       <div>
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -104,7 +112,7 @@ export function VlanSelector({
           disabled={disabled || !inputValue}
           aria-label="Add VLAN ID"
         >
-          <Plus className="h-4 w-4" />
+          <Icon icon={Plus} className="h-4 w-4" />
         </Button>
       </div>
 
@@ -116,9 +124,9 @@ export function VlanSelector({
       )}
 
       {/* Selected VLANs (Chips) */}
-      {value.length > 0 && (
+      {sortedVlans.length > 0 && (
         <div className="flex flex-wrap gap-1.5 p-2 rounded-md border bg-muted/50">
-          {value.map((vlanId) => (
+          {sortedVlans.map((vlanId) => (
             <Badge key={vlanId} variant="secondary" className="gap-1 pr-1">
               <span className="font-mono">{vlanId}</span>
               <button
@@ -128,7 +136,7 @@ export function VlanSelector({
                 className="rounded-sm hover:bg-secondary-foreground/20 transition-colors"
                 aria-label={`Remove VLAN ${vlanId}`}
               >
-                <X className="h-3 w-3" />
+                <Icon icon={X} className="h-3 w-3" />
               </button>
             </Badge>
           ))}
@@ -136,9 +144,11 @@ export function VlanSelector({
       )}
 
       {/* Empty State */}
-      {value.length === 0 && (
+      {sortedVlans.length === 0 && (
         <p className="text-xs text-muted-foreground italic">No VLANs selected</p>
       )}
     </div>
   );
-}
+});
+
+VlanSelector.displayName = 'VlanSelector';

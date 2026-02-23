@@ -1,4 +1,4 @@
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { StatusPills } from './StatusPills';
 
@@ -6,15 +6,18 @@ import type { StatusPill } from './StatusPills';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof StatusPills> = {
-  title: 'Patterns/StatusPills',
+  title: 'Patterns/Common/StatusPills',
   component: StatusPills,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
+    viewport: {
+      defaultViewport: 'desktop',
+    },
     docs: {
       description: {
         component:
-          'A horizontally-scrollable row of pill-shaped status badges. Each pill maps to a semantic variant (success, warning, error, info, neutral, loading) with its own icon and colour scheme. Pills are optionally clickable for drill-down navigation.',
+          'A horizontally-scrollable row of pill-shaped status badges. Each pill maps to a semantic variant (success, warning, error, info, neutral, loading) with its own icon and color scheme. Pills are optionally clickable for drill-down navigation.',
       },
     },
   },
@@ -168,6 +171,54 @@ export const EmptyState: Story = {
     docs: {
       description: {
         story: 'When `pills` is empty the component renders nothing (returns null). This story demonstrates that behaviour.',
+      },
+    },
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    pills: [successPill, warningPill, errorPill],
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Mobile viewport with horizontal scrolling for pill overflow.',
+      },
+    },
+  },
+};
+
+export const Tablet: Story = {
+  args: {
+    pills: [successPill, warningPill, errorPill, infoPill],
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+    docs: {
+      description: {
+        story: 'Tablet viewport.',
+      },
+    },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    pills: [successPill, warningPill, errorPill, infoPill, neutralPill, loadingPill],
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+    docs: {
+      description: {
+        story: 'Desktop viewport with all pill variants visible.',
       },
     },
   },

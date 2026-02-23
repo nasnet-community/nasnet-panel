@@ -1,10 +1,21 @@
 /**
  * Rule Search Filters Component
- * Filter panel for searching and filtering firewall rules
+ * @description Filter panel for searching and filtering firewall rules with
+ * debounced search, dropdown filters, active filter badges, and mobile collapse support.
+ *
+ * @example
+ * <RuleSearchFilters
+ *   filters={filters}
+ *   onChange={handleFilterChange}
+ *   onClearAll={handleClearAll}
+ *   activeFilterCount={2}
+ * />
+ *
  * Epic 0.6 Enhancement: Advanced Rule Search
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { memo, useState, useEffect, useCallback } from 'react';
+import { X } from 'lucide-react';
 import {
   Input,
   Button,
@@ -14,13 +25,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { FirewallFilters, FirewallChain, FirewallAction, FirewallProtocol } from '@nasnet/core/types';
 
 /**
- * Filter options
+ * Filter dropdown options
+ * @internal
  */
-const chainOptions: { value: FirewallChain | 'all'; label: string }[] = [
+const CHAIN_OPTIONS: { value: FirewallChain | 'all'; label: string }[] = [
   { value: 'all', label: 'All Chains' },
   { value: 'input', label: 'Input' },
   { value: 'forward', label: 'Forward' },
@@ -29,7 +43,7 @@ const chainOptions: { value: FirewallChain | 'all'; label: string }[] = [
   { value: 'postrouting', label: 'Postrouting' },
 ];
 
-const actionOptions: { value: FirewallAction | 'all'; label: string }[] = [
+const ACTION_OPTIONS: { value: FirewallAction | 'all'; label: string }[] = [
   { value: 'all', label: 'All Actions' },
   { value: 'accept', label: 'Accept' },
   { value: 'drop', label: 'Drop' },
@@ -37,23 +51,24 @@ const actionOptions: { value: FirewallAction | 'all'; label: string }[] = [
   { value: 'log', label: 'Log' },
 ];
 
-const protocolOptions: { value: FirewallProtocol | 'all'; label: string }[] = [
+const PROTOCOL_OPTIONS: { value: FirewallProtocol | 'all'; label: string }[] = [
   { value: 'all', label: 'All Protocols' },
   { value: 'tcp', label: 'TCP' },
   { value: 'udp', label: 'UDP' },
   { value: 'icmp', label: 'ICMP' },
 ];
 
-const statusOptions: { value: 'enabled' | 'disabled' | 'all'; label: string }[] = [
+const STATUS_OPTIONS: { value: 'enabled' | 'disabled' | 'all'; label: string }[] = [
   { value: 'all', label: 'All Status' },
   { value: 'enabled', label: 'Enabled' },
   { value: 'disabled', label: 'Disabled' },
 ];
 
 /**
- * Active filter badge
+ * Active filter badge component
+ * @internal
  */
-function FilterBadge({
+const FilterBadge = memo(function FilterBadge({
   label,
   onRemove,
 }: {
@@ -63,22 +78,44 @@ function FilterBadge({
   return (
     <Badge
       variant="secondary"
-      className="gap-1 pr-1 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700"
+      className={cn(
+        'gap-1 pr-1 cursor-pointer hover:bg-secondary',
+        'transition-colors'
+      )}
       onClick={onRemove}
+      role="button"
+      tabIndex={0}
+      aria-label={`Remove filter: ${label}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onRemove();
+        }
+      }}
     >
       {label}
-      <span className="ml-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
-        ×
-      </span>
+      <Icon
+        icon={X}
+        className={cn(
+          'ml-1 w-3 h-3 text-muted-foreground',
+          'group-hover:text-foreground'
+        )}
+        aria-hidden="true"
+      />
     </Badge>
   );
-}
+});
 
 export interface RuleSearchFiltersProps {
+  /** CSS classes to apply to root element */
   className?: string;
+  /** Current filter state */
   filters: FirewallFilters;
+  /** Callback when any filter changes */
   onChange: (filters: Partial<FirewallFilters>) => void;
+  /** Callback to clear all filters */
   onClearAll: () => void;
+  /** Number of active filters (for badge display) */
   activeFilterCount: number;
 }
 
@@ -86,27 +123,27 @@ export interface RuleSearchFiltersProps {
  * RuleSearchFilters Component
  *
  * Features:
- * - Text search with debouncing
- * - Filter by chain, action, protocol, status
- * - Active filter badges with remove functionality
- * - Clear all button
- * - Collapsible on mobile
+ * - Text search with 300ms debouncing (comment, IPs, ports)
+ * - Dropdown filters: chain, action, protocol, status
+ * - Active filter badges with individual remove + clear all
+ * - Mobile-optimized: collapsible filter panel with toggle button
+ * - Accessibility: aria-labels, keyboard navigation
  *
  * @param props - Component props
- * @returns Rule search filters component
+ * @returns Rule search filters panel
  */
-export function RuleSearchFilters({
+export const RuleSearchFilters = memo(function RuleSearchFilters({
   className,
   filters,
   onChange,
   onClearAll,
   activeFilterCount,
 }: RuleSearchFiltersProps) {
-  // Local state for debounced search
+  // Local state for debounced search input
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Debounce search input
+  // Debounce search input (300ms delay)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== filters.search) {
@@ -117,13 +154,14 @@ export function RuleSearchFilters({
     return () => clearTimeout(timer);
   }, [searchInput, filters.search, onChange]);
 
-  // Sync external changes to local state
+  // Sync external filter changes back to local search input
   useEffect(() => {
     if (filters.search !== searchInput && filters.search !== undefined) {
       setSearchInput(filters.search);
     }
   }, [filters.search]);
 
+  // Handler for chain dropdown change
   const handleChainChange = useCallback(
     (value: string) => {
       onChange({ chain: value as FirewallChain | 'all' });
@@ -131,6 +169,7 @@ export function RuleSearchFilters({
     [onChange]
   );
 
+  // Handler for action dropdown change
   const handleActionChange = useCallback(
     (value: string) => {
       onChange({ action: value as FirewallAction | 'all' });
@@ -138,6 +177,7 @@ export function RuleSearchFilters({
     [onChange]
   );
 
+  // Handler for protocol dropdown change
   const handleProtocolChange = useCallback(
     (value: string) => {
       onChange({ protocol: value as FirewallProtocol | 'all' });
@@ -145,6 +185,7 @@ export function RuleSearchFilters({
     [onChange]
   );
 
+  // Handler for status dropdown change
   const handleStatusChange = useCallback(
     (value: string) => {
       onChange({ status: value as 'enabled' | 'disabled' | 'all' });
@@ -216,7 +257,9 @@ export function RuleSearchFilters({
       </div>
 
       {/* Filter controls */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <div className={cn(
+        'bg-card rounded-xl border border-border p-4'
+      )}>
         {/* Search row */}
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search input */}
@@ -227,6 +270,7 @@ export function RuleSearchFilters({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full"
+              aria-label="Search firewall rules"
             />
           </div>
 
@@ -235,6 +279,8 @@ export function RuleSearchFilters({
             variant="outline"
             className="md:hidden"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-label="Toggle filter options"
           >
             {isExpanded ? 'Hide Filters' : 'Show Filters'}
             {activeFilterCount > 0 && (
@@ -247,18 +293,18 @@ export function RuleSearchFilters({
 
         {/* Filter dropdowns */}
         <div
-          className={`
-            mt-3 grid grid-cols-2 md:grid-cols-4 gap-3
-            ${isExpanded ? 'block' : 'hidden md:grid'}
-          `}
+          className={cn(
+            'mt-3 grid grid-cols-2 md:grid-cols-4 gap-3',
+            isExpanded ? 'block' : 'hidden md:grid'
+          )}
         >
           {/* Chain filter */}
           <Select value={filters.chain || 'all'} onValueChange={handleChainChange}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by chain">
               <SelectValue placeholder="Chain" />
             </SelectTrigger>
             <SelectContent>
-              {chainOptions.map((option) => (
+              {CHAIN_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -268,11 +314,11 @@ export function RuleSearchFilters({
 
           {/* Action filter */}
           <Select value={filters.action || 'all'} onValueChange={handleActionChange}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by action">
               <SelectValue placeholder="Action" />
             </SelectTrigger>
             <SelectContent>
-              {actionOptions.map((option) => (
+              {ACTION_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -285,11 +331,11 @@ export function RuleSearchFilters({
             value={filters.protocol || 'all'}
             onValueChange={handleProtocolChange}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by protocol">
               <SelectValue placeholder="Protocol" />
             </SelectTrigger>
             <SelectContent>
-              {protocolOptions.map((option) => (
+              {PROTOCOL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -299,11 +345,11 @@ export function RuleSearchFilters({
 
           {/* Status filter */}
           <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              {statusOptions.map((option) => (
+              {STATUS_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -314,9 +360,9 @@ export function RuleSearchFilters({
 
         {/* Active filters */}
         {activeFilters.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+          <div className="mt-3 pt-3 border-t border-border">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <span className="text-xs text-muted-foreground">
                 Active:
               </span>
               {activeFilters.map((filter) => (
@@ -329,8 +375,9 @@ export function RuleSearchFilters({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 px-2 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                 onClick={onClearAll}
+                aria-label="Clear all filters"
               >
                 Clear all
               </Button>
@@ -340,7 +387,8 @@ export function RuleSearchFilters({
       </div>
     </div>
   );
-}
+});
+RuleSearchFilters.displayName = 'RuleSearchFilters';
 
 
 

@@ -20,6 +20,7 @@ import (
 	"backend/internal/orchestrator/boot"
 	"backend/internal/orchestrator/dependencies"
 	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/scheduling"
 	"backend/internal/scanner"
 	"backend/internal/services"
@@ -27,6 +28,8 @@ import (
 	"backend/internal/templates"
 	"backend/internal/traceroute"
 	"backend/internal/troubleshoot"
+	"backend/internal/vif/isolation"
+	"backend/internal/vif/routing"
 	"backend/internal/vif/traffic"
 )
 
@@ -184,6 +187,24 @@ type Resolver struct {
 	// Service handles service configuration generation and management (NAS-8.5).
 	Service *config.Service
 
+	// ChainRouter manages multi-hop routing chains for device traffic (NAS-8.22).
+	ChainRouter *routing.ChainRouter
+
+	// PBREngine manages Policy-Based Routing rules for device-to-service routing (NAS-8.22).
+	PBREngine *routing.PBREngine
+
+	// RoutingMatrixSvc provides device discovery and routing matrix queries (NAS-8.22).
+	RoutingMatrixSvc *routing.RoutingMatrixService
+
+	// KillSwitchManager manages Kill Switch firewall rules for device routing protection (NAS-8.22).
+	KillSwitchManager *isolation.KillSwitchManager
+
+	// ResourceLimiter manages cgroups v2 memory limits for service instances (NAS-8.19).
+	ResourceLimiter *resources.ResourceLimiter
+
+	// ChainLatencyMeasurer measures latency for routing chains by probing each hop (NAS-8.22).
+	ChainLatencyMeasurer *routing.ChainLatencyMeasurer
+
 	// log is the logger instance for resolver operations.
 	log interface {
 		Errorw(msg string, keysAndValues ...interface{})
@@ -242,6 +263,12 @@ type Config struct {
 	TemplateExporter         *templates.TemplateExporter
 	TemplateImporter         *templates.TemplateImporter
 	Service                  *config.Service
+	ChainRouter              *routing.ChainRouter
+	PBREngine                *routing.PBREngine
+	RoutingMatrixSvc         *routing.RoutingMatrixService
+	KillSwitchManager        *isolation.KillSwitchManager
+	ResourceLimiter          *resources.ResourceLimiter
+	ChainLatencyMeasurer     *routing.ChainLatencyMeasurer
 	Logger                   interface {
 		Errorw(msg string, keysAndValues ...interface{})
 		Infow(msg string, keysAndValues ...interface{})
@@ -305,6 +332,12 @@ func NewResolverWithConfig(cfg Config) *Resolver {
 		TemplateExporter:         cfg.TemplateExporter,
 		TemplateImporter:         cfg.TemplateImporter,
 		Service:                  cfg.Service,
+		ChainRouter:              cfg.ChainRouter,
+		PBREngine:                cfg.PBREngine,
+		RoutingMatrixSvc:         cfg.RoutingMatrixSvc,
+		KillSwitchManager:        cfg.KillSwitchManager,
+		ResourceLimiter:          cfg.ResourceLimiter,
+		ChainLatencyMeasurer:     cfg.ChainLatencyMeasurer,
 		log:                      cfg.Logger,
 	}
 

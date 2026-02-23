@@ -1,6 +1,4 @@
 export {
-  type ToastProps,
-  type ToastActionElement,
   ToastProvider,
   ToastViewport,
   Toast,
@@ -8,6 +6,15 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+} from './toast';
+export type {
+  ToastProps,
+  ToastViewportProps,
+  ToastActionProps,
+  ToastCloseProps,
+  ToastTitleProps,
+  ToastDescriptionProps,
+  ToastActionElement,
 } from './toast';
 export { Toaster } from './toaster';
 export { useToast, toast } from './use-toast';

@@ -6,6 +6,8 @@
  *
  * @module @nasnet/features/alerts/components
  * @see NAS-18.4: Webhook notification configuration
+ * @description Renders a desktop-optimized webhook configuration form with
+ * dense 2-column layout, advanced header management, template selector, and signing secret dialog.
  */
 
 import { Controller } from 'react-hook-form';
@@ -20,7 +22,8 @@ import {
   Plus,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   Button,
   Input,
@@ -36,8 +39,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -57,6 +58,8 @@ import type { UseWebhookConfigFormReturn } from '../hooks/useWebhookConfigForm';
 export interface WebhookConfigFormDesktopProps {
   /** Headless hook instance */
   webhookForm: UseWebhookConfigFormReturn;
+  /** Optional CSS class name for wrapper */
+  className?: string;
 }
 
 // ============================================================================
@@ -67,7 +70,10 @@ export interface WebhookConfigFormDesktopProps {
  * Desktop presenter for webhook configuration form.
  * Dense 2-column grid layout optimized for pro users with inline test results.
  */
-export function WebhookConfigFormDesktop({ webhookForm }: WebhookConfigFormDesktopProps) {
+const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop({
+  webhookForm,
+  className,
+}: WebhookConfigFormDesktopProps) {
   const {
     form,
     isValid,
@@ -99,30 +105,30 @@ export function WebhookConfigFormDesktop({ webhookForm }: WebhookConfigFormDeskt
   const [showSigningSecretDialog, setShowSigningSecretDialog] = useState(!!signingSecret);
   const [copied, setCopied] = useState(false);
 
-  const handleCopySecret = () => {
+  const handleCopySecret = useCallback(() => {
     if (signingSecret) {
       navigator.clipboard.writeText(signingSecret);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
+  }, [signingSecret]);
 
-  const handleCloseSecretDialog = () => {
+  const handleCloseSecretDialog = useCallback(() => {
     setShowSigningSecretDialog(false);
     clearSigningSecret();
-  };
+  }, [clearSigningSecret]);
 
-  const handleAddHeader = () => {
+  const handleAddHeader = useCallback(() => {
     if (newHeaderKey && newHeaderValue) {
       addHeader(newHeaderKey, newHeaderValue);
       setNewHeaderKey('');
       setNewHeaderValue('');
     }
-  };
+  }, [newHeaderKey, newHeaderValue, addHeader]);
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className={cn('space-y-6', className)}>
         {/* Basic Configuration */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -563,4 +569,8 @@ export function WebhookConfigFormDesktop({ webhookForm }: WebhookConfigFormDeskt
       </Dialog>
     </>
   );
-}
+});
+
+WebhookConfigFormDesktopComponent.displayName = 'WebhookConfigFormDesktop';
+
+export const WebhookConfigFormDesktop = WebhookConfigFormDesktopComponent;

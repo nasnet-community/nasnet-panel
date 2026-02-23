@@ -219,3 +219,97 @@ export const CustomTooltip: Story = {
     tooltipContent: 'Click to review 4 configuration differences and apply changes.',
   },
 };
+
+/**
+ * Mobile Viewport (375px) - Compact display for small screens
+ */
+export const Mobile: Story = {
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+  render: () => (
+    <div className="flex flex-col items-center gap-4 p-4">
+      <DriftBadge status="synced" size="sm" showTooltip={false} />
+      <DriftBadge status="drifted" count={2} size="sm" showTooltip={false} />
+      <DriftBadge status="checking" size="sm" showTooltip={false} />
+    </div>
+  ),
+};
+
+/**
+ * Tablet Viewport (768px) - Medium-sized badge display
+ */
+export const Tablet: Story = {
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+  render: () => (
+    <div className="flex items-center gap-6 p-4">
+      <DriftBadge status="synced" size="md" showTooltip={false} />
+      <DriftBadge status="drifted" count={3} size="md" showTooltip={false} />
+      <DriftBadge status="error" size="md" showTooltip={false} />
+    </div>
+  ),
+};
+
+/**
+ * Desktop Viewport (1280px) - Full-featured badge display
+ */
+export const Desktop: Story = {
+  parameters: { viewport: { defaultViewport: 'desktop' } },
+  render: () => (
+    <div className="flex items-center gap-8 p-4">
+      <DriftBadge status="synced" size="lg" showTooltip={true} lastChecked={new Date()} />
+      <DriftBadge
+        status="drifted"
+        count={5}
+        size="lg"
+        showTooltip={true}
+        lastChecked={new Date(Date.now() - 10 * 60 * 1000)}
+      />
+      <DriftBadge status="checking" size="lg" showTooltip={true} />
+    </div>
+  ),
+};
+
+/**
+ * Interactive with Click Handler
+ */
+export const InteractiveWithPlayFunction: Story = {
+  args: {
+    status: 'drifted',
+    count: 3,
+    interactive: true,
+    showTooltip: true,
+  },
+  play: async ({ canvasElement }) => {
+    // Badge is already interactive, play function demonstrates it's accessible
+    const badge = canvasElement.querySelector('[role="button"]') as HTMLElement;
+    if (badge) {
+      badge.focus();
+    }
+  },
+};
+
+/**
+ * Keyboard Navigation Test - Tab to focus, Enter/Space to activate
+ */
+export const KeyboardNavigable: Story = {
+  render: function KeyboardTest() {
+    const [activated, setActivated] = React.useState(false);
+    return (
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-muted-foreground">
+          Press Tab to focus badge, then Enter or Space to activate (interactive mode)
+        </p>
+        <DriftBadge
+          status="drifted"
+          count={2}
+          interactive
+          showTooltip={true}
+          lastChecked={new Date()}
+          onClick={() => setActivated(!activated)}
+        />
+        {activated && (
+          <p className="text-sm font-medium text-success">Badge activated via keyboard!</p>
+        )}
+      </div>
+    );
+  },
+};

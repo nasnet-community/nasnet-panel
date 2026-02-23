@@ -14,12 +14,14 @@
  * @module libs/features/network/src/dhcp/hooks/useLeasePage
  */
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+
 import { useDHCPLeases, useDHCPServers } from '@nasnet/api-client/queries';
-import { useDHCPUIStore } from '@nasnet/state/stores';
 import type { DHCPLease } from '@nasnet/core/types';
-import { useNewLeaseDetection } from './useNewLeaseDetection';
+import { useDHCPUIStore } from '@nasnet/state/stores';
+
 import { useBulkOperations } from './useBulkOperations';
+import { useNewLeaseDetection } from './useNewLeaseDetection';
 import { exportLeasesToCSV } from '../utils/csv-export';
 
 /**
@@ -117,6 +119,7 @@ function matchesSearch(lease: DHCPLease, search: string): boolean {
 
 /**
  * Main orchestration hook for DHCP Lease Management page
+ * @description Combines data fetching, filtering, new lease detection, bulk operations, and CSV export
  *
  * Features:
  * - Fetches leases with 30s polling (from useDHCPLeases)
@@ -260,39 +263,43 @@ export function useLeasePage(routerIp: string): UseLeasePageReturn {
 
   /**
    * Select all filtered leases
+   * @description Memoized to prevent unnecessary re-renders in child components
    */
-  const selectAllLeases = () => {
+  const selectAllLeases = useCallback(() => {
     const filteredIds = filteredLeases.map((lease) => lease.id);
     selectAllInStore(filteredIds);
-  };
+  }, [filteredLeases, selectAllInStore]);
 
   /**
    * Bulk make static operation
-   * Wraps useBulkOperations.makeAllStatic with current lease data
+   * @description Wraps useBulkOperations.makeAllStatic with current lease data
+   * Memoized callback for stable reference across renders
    */
-  const makeAllStatic = async () => {
+  const makeAllStatic = useCallback(async () => {
     await makeAllStaticBulk(selectedLeases, leasesData);
-  };
+  }, [selectedLeases, leasesData, makeAllStaticBulk]);
 
   /**
    * Bulk delete operation
-   * Wraps useBulkOperations.deleteMultiple
+   * @description Wraps useBulkOperations.deleteMultiple with selection tracking
+   * Memoized callback for stable reference across renders
    */
-  const deleteMultiple = async () => {
+  const deleteMultiple = useCallback(async () => {
     await deleteMultipleBulk(selectedLeases);
-  };
+  }, [selectedLeases, deleteMultipleBulk]);
 
   /**
    * Export filtered leases to CSV
-   * Respects active search, status, and server filters
+   * @description Respects active search, status, and server filters
+   * Memoized callback for stable reference across renders
    */
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     exportLeasesToCSV(leasesData, {
       search: leaseSearch,
       status: leaseStatusFilter,
       server: leaseServerFilter,
     });
-  };
+  }, [leasesData, leaseSearch, leaseStatusFilter, leaseServerFilter]);
 
   return {
     leases: filteredLeases,

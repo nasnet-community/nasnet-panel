@@ -7,36 +7,315 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/generated/ent"
+	"backend/generated/ent/routingchain"
+	"backend/internal/events"
+	"backend/internal/vif/routing"
 	"context"
 	"fmt"
 )
 
 // CreateRoutingChain is the resolver for the createRoutingChain field.
 func (r *mutationResolver) CreateRoutingChain(ctx context.Context, routerID string, input graphql1.CreateRoutingChainInput) (*graphql1.RoutingChainMutationResult, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.ChainRouter == nil {
+		return nil, fmt.Errorf("chain router service not available")
+	}
+
+	chainInput := convertCreateRoutingChainInput(input)
+
+	chain, err := r.ChainRouter.CreateRoutingChain(ctx, routerID, chainInput)
+	if err != nil {
+		msg := err.Error()
+		return &graphql1.RoutingChainMutationResult{
+			Success: false,
+			Message: &msg,
+		}, nil
+	}
+
+	gqlChain := convertEntRoutingChainToGraphQL(chain)
+	msg := "Routing chain created successfully"
+	return &graphql1.RoutingChainMutationResult{
+		Success: true,
+		Message: &msg,
+		Chain:   gqlChain,
+	}, nil
 }
 
 // UpdateRoutingChain is the resolver for the updateRoutingChain field.
 func (r *mutationResolver) UpdateRoutingChain(ctx context.Context, routerID string, chainID string, input graphql1.CreateRoutingChainInput) (*graphql1.RoutingChainMutationResult, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.ChainRouter == nil {
+		return nil, fmt.Errorf("chain router service not available")
+	}
+
+	chainInput := convertCreateRoutingChainInput(input)
+
+	chain, err := r.ChainRouter.UpdateRoutingChain(ctx, chainID, chainInput)
+	if err != nil {
+		msg := err.Error()
+		return &graphql1.RoutingChainMutationResult{
+			Success: false,
+			Message: &msg,
+		}, nil
+	}
+
+	gqlChain := convertEntRoutingChainToGraphQL(chain)
+	msg := "Routing chain updated successfully"
+	return &graphql1.RoutingChainMutationResult{
+		Success: true,
+		Message: &msg,
+		Chain:   gqlChain,
+	}, nil
 }
 
 // RemoveRoutingChain is the resolver for the removeRoutingChain field.
 func (r *mutationResolver) RemoveRoutingChain(ctx context.Context, routerID string, chainID string) (*graphql1.RoutingChainMutationResult, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.ChainRouter == nil {
+		return nil, fmt.Errorf("chain router service not available")
+	}
+
+	if err := r.ChainRouter.RemoveRoutingChain(ctx, chainID); err != nil {
+		msg := err.Error()
+		return &graphql1.RoutingChainMutationResult{
+			Success: false,
+			Message: &msg,
+		}, nil
+	}
+
+	msg := "Routing chain removed successfully"
+	return &graphql1.RoutingChainMutationResult{
+		Success: true,
+		Message: &msg,
+	}, nil
 }
 
 // RoutingChain is the resolver for the routingChain field.
 func (r *queryResolver) RoutingChain(ctx context.Context, routerID string, deviceID string) (*graphql1.RoutingChain, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.ChainRouter == nil {
+		return nil, fmt.Errorf("chain router service not available")
+	}
+
+	chain, err := r.ChainRouter.GetRoutingChain(ctx, routerID, deviceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get routing chain: %w", err)
+	}
+
+	return convertEntRoutingChainToGraphQL(chain), nil
 }
 
 // RoutingChains is the resolver for the routingChains field.
 func (r *queryResolver) RoutingChains(ctx context.Context, routerID string) ([]*graphql1.RoutingChain, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.ChainRouter == nil {
+		return nil, fmt.Errorf("chain router service not available")
+	}
+
+	chains, err := r.ChainRouter.ListRoutingChains(ctx, routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list routing chains: %w", err)
+	}
+
+	result := make([]*graphql1.RoutingChain, len(chains))
+	for i, chain := range chains {
+		result[i] = convertEntRoutingChainToGraphQL(chain)
+	}
+	return result, nil
 }
 
 // RoutingChainChanged is the resolver for the routingChainChanged field.
 func (r *subscriptionResolver) RoutingChainChanged(ctx context.Context, routerID string) (<-chan *graphql1.RoutingChain, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.EventBus == nil {
+		return nil, fmt.Errorf("event bus not available")
+	}
+
+	eventChan := make(chan *graphql1.RoutingChain, 10)
+
+	err := r.EventBus.Subscribe("routing.chain.*", func(ctx context.Context, event events.Event) error {
+		genEvt, ok := event.(*events.GenericEvent)
+		if !ok {
+			return nil
+		}
+
+		chainRouterID, _ := genEvt.Data["router_id"].(string)
+		if chainRouterID != "" && chainRouterID != routerID {
+			return nil
+		}
+
+		chainID, _ := genEvt.Data["chain_id"].(string)
+		if chainID == "" {
+			return nil
+		}
+
+		// For removed chains, emit a minimal placeholder with just the ID
+		if event.GetType() == events.EventTypeRoutingChainRemoved {
+			select {
+			case eventChan <- &graphql1.RoutingChain{ID: chainID}:
+			case <-ctx.Done():
+			}
+			return nil
+		}
+
+		if r.ChainRouter != nil {
+			deviceID, _ := genEvt.Data["device_id"].(string)
+			if deviceID != "" {
+				chain, err := r.ChainRouter.GetRoutingChain(ctx, routerID, deviceID)
+				if err == nil {
+					select {
+					case eventChan <- convertEntRoutingChainToGraphQL(chain):
+					case <-ctx.Done():
+					}
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		close(eventChan)
+		return eventChan, fmt.Errorf("failed to subscribe to routing chain events: %w", err)
+	}
+
+	go func() {
+		<-ctx.Done()
+		close(eventChan)
+	}()
+
+	return eventChan, nil
+}
+
+// convertCreateRoutingChainInput converts a GraphQL CreateRoutingChainInput to the internal routing input.
+func convertCreateRoutingChainInput(input graphql1.CreateRoutingChainInput) routing.CreateRoutingChainInput {
+	var routingMode routingchain.RoutingMode
+	switch input.RoutingMode {
+	case graphql1.RoutingModeIP:
+		routingMode = routingchain.RoutingModeIP
+	default:
+		routingMode = routingchain.RoutingModeMAC
+	}
+
+	var killSwitchEnabled bool
+	if input.KillSwitchEnabled.IsSet() {
+		if v := input.KillSwitchEnabled.Value(); v != nil {
+			killSwitchEnabled = *v
+		}
+	}
+
+	killSwitchMode := routingchain.KillSwitchModeBLOCK_ALL
+	if input.KillSwitchMode.IsSet() {
+		if v := input.KillSwitchMode.Value(); v != nil {
+			switch *v {
+			case graphql1.KillSwitchModeFallbackService:
+				killSwitchMode = routingchain.KillSwitchModeFALLBACK_SERVICE
+			case graphql1.KillSwitchModeAllowDirect:
+				killSwitchMode = routingchain.KillSwitchModeALLOW_DIRECT
+			default:
+				killSwitchMode = routingchain.KillSwitchModeBLOCK_ALL
+			}
+		}
+	}
+
+	var deviceMAC, deviceIP, deviceName string
+	if input.DeviceMac.IsSet() {
+		if v := input.DeviceMac.Value(); v != nil {
+			deviceMAC = *v
+		}
+	}
+	if input.DeviceIP.IsSet() {
+		if v := input.DeviceIP.Value(); v != nil {
+			deviceIP = *v
+		}
+	}
+	if input.DeviceName.IsSet() {
+		if v := input.DeviceName.Value(); v != nil {
+			deviceName = *v
+		}
+	}
+
+	hops := make([]routing.ChainHopInput, len(input.Hops))
+	for i, h := range input.Hops {
+		hops[i] = routing.ChainHopInput{
+			InterfaceID: h.InterfaceID,
+			Order:       h.Order,
+		}
+	}
+
+	return routing.CreateRoutingChainInput{
+		DeviceID:          input.DeviceID,
+		DeviceMAC:         deviceMAC,
+		DeviceIP:          deviceIP,
+		DeviceName:        deviceName,
+		RoutingMode:       routingMode,
+		KillSwitchEnabled: killSwitchEnabled,
+		KillSwitchMode:    killSwitchMode,
+		Hops:              hops,
+	}
+}
+
+// convertEntRoutingChainToGraphQL converts an ent RoutingChain to the GraphQL RoutingChain model.
+func convertEntRoutingChainToGraphQL(chain *ent.RoutingChain) *graphql1.RoutingChain {
+	if chain == nil {
+		return nil
+	}
+
+	var routingMode graphql1.RoutingMode
+	switch chain.RoutingMode {
+	case routingchain.RoutingModeIP:
+		routingMode = graphql1.RoutingModeIP
+	default:
+		routingMode = graphql1.RoutingModeMac
+	}
+
+	var killSwitchMode graphql1.KillSwitchMode
+	switch chain.KillSwitchMode {
+	case routingchain.KillSwitchModeFALLBACK_SERVICE:
+		killSwitchMode = graphql1.KillSwitchModeFallbackService
+	case routingchain.KillSwitchModeALLOW_DIRECT:
+		killSwitchMode = graphql1.KillSwitchModeAllowDirect
+	default:
+		killSwitchMode = graphql1.KillSwitchModeBlockAll
+	}
+
+	gqlChain := &graphql1.RoutingChain{
+		ID:                    chain.ID,
+		DeviceID:              chain.DeviceID,
+		Active:                chain.Active,
+		RoutingMode:           routingMode,
+		KillSwitchEnabled:     chain.KillSwitchEnabled,
+		KillSwitchMode:        killSwitchMode,
+		KillSwitchActive:      chain.KillSwitchActive,
+		KillSwitchActivatedAt: chain.KillSwitchActivatedAt,
+		CreatedAt:             chain.CreatedAt,
+		UpdatedAt:             chain.UpdatedAt,
+	}
+
+	if chain.DeviceMAC != "" {
+		mac := chain.DeviceMAC
+		gqlChain.DeviceMac = &mac
+	}
+	if chain.DeviceIP != "" {
+		ip := chain.DeviceIP
+		gqlChain.DeviceIP = &ip
+	}
+	if chain.DeviceName != "" {
+		name := chain.DeviceName
+		gqlChain.DeviceName = &name
+	}
+
+	hops := chain.Edges.Hops
+	if len(hops) > 0 {
+		gqlHops := make([]*graphql1.ChainHop, 0, len(hops))
+		for _, hop := range hops {
+			gqlHop := &graphql1.ChainHop{
+				ID:               hop.ID,
+				Order:            hop.HopOrder,
+				RoutingMark:      hop.RoutingMark,
+				KillSwitchActive: hop.KillSwitchActive,
+				Healthy:          true, // default; latency checker can update this
+			}
+			if hop.Edges.Interface != nil {
+				gqlHop.Interface = convertEntVIFToGraphQL(hop.Edges.Interface)
+			}
+			gqlHops = append(gqlHops, gqlHop)
+		}
+		gqlChain.Hops = gqlHops
+	}
+
+	return gqlChain
 }

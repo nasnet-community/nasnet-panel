@@ -5,10 +5,10 @@
  * Shows real-time installation progress with subscription updates.
  */
 
-import * as React from 'react';
-import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
-
-import { Progress, Card, CardContent } from '@nasnet/ui/primitives';
+import React, { useMemo } from 'react';
+import { CheckCircle2, XCircle, Loader2, Circle } from 'lucide-react';
+import { Progress, Card, CardContent, Icon } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { TemplateInstallContext } from '../templateInstallMachine';
 
 /**
@@ -19,6 +19,8 @@ export interface InstallingStepProps {
   progress: TemplateInstallContext['progress'];
   /** Installation result (if complete) */
   installResult: TemplateInstallContext['installResult'];
+  /** Optional CSS class name for the container */
+  className?: string;
 }
 
 /**
@@ -27,13 +29,37 @@ export interface InstallingStepProps {
 function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed') {
   switch (status) {
     case 'completed':
-      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      return (
+        <Icon
+          icon={CheckCircle2}
+          className="h-5 w-5 text-success"
+          aria-hidden="true"
+        />
+      );
     case 'failed':
-      return <XCircle className="h-5 w-5 text-destructive" />;
+      return (
+        <Icon
+          icon={XCircle}
+          className="h-5 w-5 text-error"
+          aria-hidden="true"
+        />
+      );
     case 'installing':
-      return <Loader2 className="h-5 w-5 text-primary animate-spin" />;
+      return (
+        <Icon
+          icon={Loader2}
+          className="h-5 w-5 text-primary animate-spin"
+          aria-hidden="true"
+        />
+      );
     default:
-      return <Circle className="h-5 w-5 text-muted-foreground" />;
+      return (
+        <Icon
+          icon={Circle}
+          className="h-5 w-5 text-muted-foreground"
+          aria-hidden="true"
+        />
+      );
   }
 }
 
@@ -45,30 +71,51 @@ function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed'
  * - Phase indicator (VALIDATING → INSTALLING → VERIFYING)
  * - Per-service progress
  * - Real-time updates from subscription
+ *
+ * @example
+ * ```tsx
+ * <InstallingStep
+ *   progress={context.progress}
+ *   installResult={context.installResult}
+ * />
+ * ```
  */
-export function InstallingStep({ progress, installResult }: InstallingStepProps) {
+export const InstallingStep = React.memo(function InstallingStep({
+  progress,
+  installResult,
+  className,
+}: InstallingStepProps) {
   const isComplete = installResult !== null;
   const isSuccess = installResult?.success || false;
-  const progressPercent = progress
-    ? Math.round((progress.current / progress.total) * 100)
-    : 0;
+
+  const progressPercent = useMemo(() => {
+    return progress ? Math.round((progress.current / progress.total) * 100) : 0;
+  }, [progress]);
+
+  const statusMessage = useMemo(() => {
+    if (!isComplete) {
+      return {
+        title: 'Installing Template',
+        description: 'Please wait while we install your services...',
+      };
+    }
+    return isSuccess
+      ? {
+          title: 'Installation Complete',
+          description: 'Your services have been installed successfully',
+        }
+      : {
+          title: 'Installation Failed',
+          description: 'An error occurred during installation',
+        };
+  }, [isComplete, isSuccess]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <div>
-        <h2 className="text-lg font-semibold">
-          {isComplete
-            ? isSuccess
-              ? 'Installation Complete'
-              : 'Installation Failed'
-            : 'Installing Template'}
-        </h2>
+        <h2 className="text-lg font-semibold">{statusMessage.title}</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {isComplete
-            ? isSuccess
-              ? 'Your services have been installed successfully'
-              : 'An error occurred during installation'
-            : 'Please wait while we install your services...'}
+          {statusMessage.description}
         </p>
       </div>
 
@@ -107,18 +154,19 @@ export function InstallingStep({ progress, installResult }: InstallingStepProps)
                   const status = isCurrent
                     ? 'installing'
                     : isPast
-                    ? 'completed'
-                    : 'pending';
+                      ? 'completed'
+                      : 'pending';
 
                   return (
                     <div key={phase} className="flex items-center gap-3">
                       {getStatusIcon(status)}
                       <span
-                        className={`text-sm ${
+                        className={cn(
+                          'text-sm',
                           isCurrent
                             ? 'font-medium text-foreground'
                             : 'text-muted-foreground'
-                        }`}
+                        )}
                       >
                         {phase.replace('_', ' ')}
                       </span>
@@ -133,16 +181,26 @@ export function InstallingStep({ progress, installResult }: InstallingStepProps)
 
       {/* Installation Result */}
       {isComplete && (
-        <Card className={isSuccess ? 'border-green-500' : 'border-destructive'}>
+        <Card
+          className={cn(
+            'border',
+            isSuccess ? 'border-success' : 'border-error'
+          )}
+        >
           <CardContent className="pt-6">
             <div className="space-y-3">
               {isSuccess ? (
                 <>
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle2 className="h-5 w-5" />
+                  <div className="flex items-center gap-2 text-success">
+                    <Icon
+                      icon={CheckCircle2}
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    />
                     <span className="font-medium">
                       Successfully installed {installResult.instanceIDs.length}{' '}
-                      service{installResult.instanceIDs.length !== 1 ? 's' : ''}
+                      service
+                      {installResult.instanceIDs.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -151,8 +209,12 @@ export function InstallingStep({ progress, installResult }: InstallingStepProps)
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 text-destructive">
-                    <XCircle className="h-5 w-5" />
+                  <div className="flex items-center gap-2 text-error">
+                    <Icon
+                      icon={XCircle}
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    />
                     <span className="font-medium">Installation Failed</span>
                   </div>
                   {installResult.errors && installResult.errors.length > 0 && (
@@ -170,4 +232,6 @@ export function InstallingStep({ progress, installResult }: InstallingStepProps)
       )}
     </div>
   );
-}
+});
+
+InstallingStep.displayName = 'InstallingStep';

@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Change Set State Store
  * Manages active change sets for atomic multi-resource operations
@@ -232,7 +234,7 @@ function generateId(): string {
 /**
  * Calculate operation counts for a change set
  */
-function getOperationCounts(items: ChangeSetItem[]): { create: number; update: number; delete: number } {
+function getOperationCounts(items: readonly ChangeSetItem[]): { create: number; update: number; delete: number } {
   return items.reduce(
     (acc, item) => {
       if (item.operation === 'CREATE') acc.create++;
@@ -672,7 +674,10 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
           const cs = get().changeSets[changeSetId];
           if (!cs) return;
 
-          const nodes = buildDependencyGraph(cs.items);
+          const nodes = buildDependencyGraph(cs.items.map(item => ({
+            id: item.id,
+            dependencies: [...item.dependencies],
+          })));
           const orderMap = computeApplyOrder(nodes);
 
           set(
@@ -775,7 +780,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
     ),
     {
       name: 'change-set-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

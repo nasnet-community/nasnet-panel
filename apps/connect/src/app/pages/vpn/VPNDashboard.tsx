@@ -6,21 +6,20 @@
 
 import * as React from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { RefreshCw, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useVPNStats } from '@nasnet/api-client/queries';
 import type { VPNProtocol } from '@nasnet/core/types';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { 
+import {
   VPNStatusHero,
   VPNProtocolStatsCard,
   VPNNavigationCard,
   VPNIssuesList,
 } from '@nasnet/ui/patterns';
 import { Button, Skeleton } from '@nasnet/ui/primitives';
-
-import { Route } from '@/routes/router/$id/vpn/index';
 
 /**
  * Protocol display order
@@ -37,9 +36,10 @@ const PROTOCOL_ORDER: VPNProtocol[] = [
 /**
  * VPN Dashboard Component
  */
-export function VPNDashboard() {
+export const VPNDashboard = React.memo(function VPNDashboard() {
+  const { t } = useTranslation('vpn');
   const navigate = useNavigate();
-  const { id: routerId } = Route.useParams();
+  const { id: routerId } = useParams({ from: '/router/$id/vpn/' });
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   
   const { 
@@ -78,10 +78,10 @@ export function VPNDashboard() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-              VPN Dashboard
+              {t('title')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Monitor and manage your VPN infrastructure
+              {t('overview')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -91,10 +91,10 @@ export function VPNDashboard() {
               onClick={() => refetch()}
               disabled={isLoading || isFetching}
               className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
-              aria-label="Refresh VPN dashboard"
+              aria-label={t('button.refresh', { ns: 'common' })}
             >
               <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
-              <span className="hidden sm:inline">Refresh</span>
+              <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
             </Button>
           </div>
         </div>
@@ -137,13 +137,13 @@ export function VPNDashboard() {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Failed to load VPN statistics
+                  {t('status.failedToLoadStats')}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Unable to retrieve VPN data from the router. Please check your connection.
+                  {t('status.failedMessage')}
                 </p>
                 <Button variant="outline" size="sm" onClick={() => refetch()}>
-                  Try Again
+                  {t('button.tryAgain', { ns: 'common' })}
                 </Button>
               </div>
             </div>
@@ -184,7 +184,7 @@ export function VPNDashboard() {
             {/* Protocol Stats Grid */}
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-4">
-                Protocols
+                {t('servers.protocols')}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {PROTOCOL_ORDER.map((protocol) => {
@@ -208,10 +208,10 @@ export function VPNDashboard() {
             {stats.issues.length > 0 && (
               <div>
                 <h2 className="text-lg font-semibold text-foreground mb-4">
-                  Issues & Alerts
+                  {t('servers.issuesAndAlerts')}
                 </h2>
                 <VPNIssuesList
-                  issues={stats.issues}
+                  issues={[...stats.issues]}
                   maxItems={5}
                   showSeeAll={stats.issues.length > 5}
                 />
@@ -227,7 +227,7 @@ export function VPNDashboard() {
                 className="flex items-center gap-2 min-h-[44px]"
               >
                 <Settings className="h-4 w-4" aria-hidden="true" />
-                Configure Servers
+                {t('servers.configureServers')}
               </Button>
               <Button
                 variant="outline"
@@ -236,7 +236,7 @@ export function VPNDashboard() {
                 className="flex items-center gap-2 min-h-[44px]"
               >
                 <Settings className="h-4 w-4" aria-hidden="true" />
-                Configure Clients
+                {t('servers.configureClients')}
               </Button>
             </div>
           </>
@@ -244,5 +244,7 @@ export function VPNDashboard() {
       </div>
     </div>
   );
-}
+});
+
+VPNDashboard.displayName = 'VPNDashboard';
 

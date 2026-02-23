@@ -8,11 +8,10 @@
  * @module @nasnet/ui/patterns/mangle-rule-editor
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { MangleRuleEditorDesktop } from './MangleRuleEditorDesktop';
 
-import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -59,7 +58,7 @@ const meta: Meta<typeof MangleRuleEditorDesktop> = {
       description: 'Controls dialog visibility',
     },
     mode: {
-      control: 'radio',
+      control: 'select',
       options: ['create', 'edit'],
       description: 'Create a new rule or edit an existing one',
     },

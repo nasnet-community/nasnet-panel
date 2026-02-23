@@ -3,11 +3,14 @@
  * Dashboard Pro style - Compact header with router identity and status
  */
 
+import React from 'react';
+
 import { MoreVertical } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type SystemInfo } from '@nasnet/core/types';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 type NetworkStatus = 'healthy' | 'warning' | 'error' | 'loading';
 
@@ -17,28 +20,29 @@ interface NetworkTopBarProps {
   isLoading?: boolean;
 }
 
-export function NetworkTopBar({
+export const NetworkTopBar = React.memo(function NetworkTopBar({
   routerInfo,
   networkStatus,
   isLoading,
 }: NetworkTopBarProps) {
+  const { t } = useTranslation('network');
   const statusConfig = {
-    healthy: { label: 'Online', dotClass: 'bg-emerald-400', textClass: 'text-emerald-400' },
-    warning: { label: 'Degraded', dotClass: 'bg-amber-400', textClass: 'text-amber-400' },
-    error: { label: 'Offline', dotClass: 'bg-red-400', textClass: 'text-red-400' },
-    loading: { label: 'Connecting', dotClass: 'bg-slate-400', textClass: 'text-slate-400' },
+    healthy: { label: t('status.online'), dotClass: 'bg-success', textClass: 'text-success' },
+    warning: { label: t('status.degraded'), dotClass: 'bg-warning', textClass: 'text-warning' },
+    error: { label: t('status.offline'), dotClass: 'bg-error', textClass: 'text-error' },
+    loading: { label: t('status.connecting'), dotClass: 'bg-muted-foreground', textClass: 'text-muted-foreground' },
   };
 
   const status = statusConfig[networkStatus];
 
   if (isLoading) {
     return (
-      <div className="flex justify-between items-center px-4 py-3 border-b border-slate-800 animate-pulse">
+      <div className="flex justify-between items-center px-4 py-3 border-b border-border animate-pulse">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-slate-700 rounded-lg" />
+          <div className="w-8 h-8 bg-muted rounded-lg" />
           <div className="space-y-1">
-            <div className="h-4 bg-slate-700 rounded w-24" />
-            <div className="h-3 bg-slate-800 rounded w-16" />
+            <div className="h-4 bg-muted rounded w-24" />
+            <div className="h-3 bg-muted rounded w-16" />
           </div>
         </div>
       </div>
@@ -46,16 +50,16 @@ export function NetworkTopBar({
   }
 
   return (
-    <div className="flex justify-between items-center px-4 py-3 border-b border-slate-800">
+    <div className="flex justify-between items-center px-4 py-3 border-b border-border">
       <div className="flex items-center gap-3">
         {/* Router Logo/Icon */}
-        <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-sm font-bold text-slate-900">
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-sm font-bold text-foreground">
           N
         </div>
-        
+
         {/* Router Identity */}
         <div>
-          <p className="text-white text-sm font-medium">
+          <p className="text-foreground text-sm font-medium">
             {routerInfo?.identity || 'Router'}
           </p>
           <div className="flex items-center gap-1.5">
@@ -63,8 +67,8 @@ export function NetworkTopBar({
             <span className={cn('text-xs', status.textClass)}>{status.label}</span>
             {routerInfo?.routerOsVersion && (
               <>
-                <span className="text-slate-600 text-xs">•</span>
-                <span className="text-slate-500 text-xs">v{routerInfo.routerOsVersion}</span>
+                <span className="text-muted-foreground text-xs">•</span>
+                <span className="text-muted-foreground text-xs">v{routerInfo.routerOsVersion}</span>
               </>
             )}
           </div>
@@ -72,12 +76,14 @@ export function NetworkTopBar({
       </div>
 
       {/* Menu Button */}
-      <button className="p-2 text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-lg transition-colors">
+      <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
     </div>
   );
-}
+});
+
+NetworkTopBar.displayName = 'NetworkTopBar';
 
 
 

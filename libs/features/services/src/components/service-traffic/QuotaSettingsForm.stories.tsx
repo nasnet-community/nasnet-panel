@@ -6,11 +6,13 @@
  * Fields: period (daily/weekly/monthly), limit (GB), warning threshold (%), action.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
+import type { TrafficQuota } from '@nasnet/api-client/generated';
 
 import { QuotaSettingsForm } from './QuotaSettingsForm';
-import type { TrafficQuota } from '@nasnet/api-client/generated';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock data

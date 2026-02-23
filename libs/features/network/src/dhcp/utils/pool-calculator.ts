@@ -1,13 +1,19 @@
 /**
  * DHCP Pool Calculator Utilities
- * Auto-suggest address pools based on interface IP and subnet mask
- * Validates pool ranges and detects overlaps
+ * @description Auto-suggest address pools based on interface IP and subnet mask.
+ * Validates pool ranges and detects overlaps with other IP addresses.
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
 /**
  * Pool suggestion result with calculated values
+ * @property start - Pool start IP address
+ * @property end - Pool end IP address
+ * @property size - Number of addresses in pool
+ * @property reserved - Reserved IP range (static addresses)
+ * @property network - Network address
+ * @property broadcast - Broadcast address
  */
 export interface PoolSuggestion {
   start: string;
@@ -18,8 +24,20 @@ export interface PoolSuggestion {
   broadcast: string;
 }
 
+/** Minimum valid IP octet value */
+const MIN_OCTET = 0;
+/** Maximum valid IP octet value */
+const MAX_OCTET = 255;
+/** Number of octets in IPv4 address */
+const IPV4_OCTET_COUNT = 4;
+/** Maximum subnet prefix */
+const MAX_PREFIX = 32;
+/** Minimum prefix for DHCP (larger prefix = smaller subnet) */
+const MIN_DHCP_PREFIX = 29;
+
 /**
  * Convert IP address string to 32-bit unsigned integer
+ * @description Converts IPv4 dotted notation to 32-bit unsigned integer for bitwise operations
  *
  * @param ip - IP address in dotted notation (e.g., "192.168.1.1")
  * @returns 32-bit unsigned integer representation
@@ -37,6 +55,7 @@ export function ipToNumber(ip: string): number {
 
 /**
  * Convert 32-bit unsigned integer to IP address string
+ * @description Converts 32-bit unsigned integer back to IPv4 dotted notation
  *
  * @param num - 32-bit unsigned integer
  * @returns IP address in dotted notation
@@ -55,6 +74,7 @@ export function numberToIP(num: number): string {
 
 /**
  * Calculate suggested DHCP pool based on interface IP and subnet
+ * @description Suggests a DHCP pool range based on subnet size and interface configuration.
  *
  * Strategy by subnet size:
  * - /24 (Class C): Reserve .1-.99 for static, suggest .100-.254 for pool
@@ -64,7 +84,7 @@ export function numberToIP(num: number): string {
  *
  * @param interfaceIP - Interface IP with CIDR notation (e.g., "192.168.1.1/24")
  * @returns Pool suggestion with start, end, size, reserved range, network, and broadcast
- * @throws Error if subnet is too small for DHCP (< /29)
+ * @throws Error if subnet is too small for DHCP (< /29) or format is invalid
  *
  * @example
  * calculateSuggestedPool("192.168.1.1/24")
@@ -81,14 +101,17 @@ export function calculateSuggestedPool(interfaceIP: string): PoolSuggestion {
   const [ip, prefixStr] = interfaceIP.split('/');
   const prefix = parseInt(prefixStr, 10);
 
-  if (isNaN(prefix) || prefix < 0 || prefix > 32) {
+  if (isNaN(prefix) || prefix < 0 || prefix > MAX_PREFIX) {
     throw new Error('Invalid subnet prefix');
   }
 
   const octets = ip.split('.').map(Number);
 
   // Validate IP format
-  if (octets.length !== 4 || octets.some((o) => isNaN(o) || o < 0 || o > 255)) {
+  if (
+    octets.length !== IPV4_OCTET_COUNT ||
+    octets.some((o) => isNaN(o) || o < MIN_OCTET || o > MAX_OCTET)
+  ) {
     throw new Error('Invalid IP address format');
   }
 
@@ -160,6 +183,7 @@ export function calculateSuggestedPool(interfaceIP: string): PoolSuggestion {
 
 /**
  * Check if an IP address is within a subnet
+ * @description Validates that an IP address falls within a given CIDR subnet
  *
  * @param ip - IP address to check
  * @param subnet - Subnet in CIDR notation (e.g., "192.168.1.0/24")
@@ -173,7 +197,7 @@ export function isInSubnet(ip: string, subnet: string): boolean {
   const [subnetIP, prefixStr] = subnet.split('/');
   const prefix = parseInt(prefixStr, 10);
 
-  if (isNaN(prefix) || prefix < 0 || prefix > 32) {
+  if (isNaN(prefix) || prefix < 0 || prefix > MAX_PREFIX) {
     return false;
   }
 
@@ -187,6 +211,7 @@ export function isInSubnet(ip: string, subnet: string): boolean {
 
 /**
  * Check if a DHCP pool overlaps with a specific IP address
+ * @description Checks if a given IP falls within a DHCP pool range
  *
  * @param poolStart - Pool start IP address
  * @param poolEnd - Pool end IP address
@@ -211,6 +236,7 @@ export function poolOverlapsWithIP(
 
 /**
  * Compare two IP addresses
+ * @description Numerically compares two IPv4 addresses for sorting
  *
  * @param ip1 - First IP address
  * @param ip2 - Second IP address
@@ -232,6 +258,7 @@ export function compareIPs(ip1: string, ip2: string): number {
 
 /**
  * Validate that pool end is greater than or equal to pool start
+ * @description Ensures pool range is logically valid
  *
  * @param poolStart - Pool start IP address
  * @param poolEnd - Pool end IP address
@@ -247,6 +274,7 @@ export function isValidPoolRange(poolStart: string, poolEnd: string): boolean {
 
 /**
  * Calculate the size of a pool range
+ * @description Returns the number of usable addresses in a pool
  *
  * @param poolStart - Pool start IP address
  * @param poolEnd - Pool end IP address
@@ -264,6 +292,7 @@ export function calculatePoolSize(poolStart: string, poolEnd: string): number {
 
 /**
  * Validate IP address format
+ * @description Checks if a string is a valid IPv4 address in dotted notation
  *
  * @param ip - IP address string
  * @returns True if valid IPv4 format, false otherwise
@@ -276,18 +305,24 @@ export function calculatePoolSize(poolStart: string, poolEnd: string): number {
 export function isValidIPv4(ip: string): boolean {
   const octets = ip.split('.');
 
-  if (octets.length !== 4) {
+  if (octets.length !== IPV4_OCTET_COUNT) {
     return false;
   }
 
   return octets.every((octet) => {
     const num = parseInt(octet, 10);
-    return !isNaN(num) && num >= 0 && num <= 255 && octet === num.toString();
+    return (
+      !isNaN(num) &&
+      num >= MIN_OCTET &&
+      num <= MAX_OCTET &&
+      octet === num.toString()
+    );
   });
 }
 
 /**
  * Get the network address from an IP and subnet mask
+ * @description Calculates the network address for a given IP and subnet prefix
  *
  * @param ip - IP address
  * @param prefix - Subnet prefix (e.g., 24 for /24)
@@ -306,6 +341,7 @@ export function getNetworkAddress(ip: string, prefix: number): string {
 
 /**
  * Get the broadcast address from an IP and subnet mask
+ * @description Calculates the broadcast address for a given IP and subnet prefix
  *
  * @param ip - IP address
  * @param prefix - Subnet prefix (e.g., 24 for /24)

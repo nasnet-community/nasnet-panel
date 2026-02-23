@@ -3,10 +3,15 @@
  *
  * Form for creating/editing static DNS hostname-to-IP mappings.
  *
+ * @description
+ * React Hook Form + Zod-based form for managing static DNS entries with
+ * RFC 1123 hostname validation, IPv4 address input, TTL configuration, and
+ * duplicate hostname detection.
+ *
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -28,6 +33,9 @@ import {
 import { isDuplicateHostname } from '../../utils';
 import type { DNSStaticEntry } from '@nasnet/core/types';
 
+/** Default TTL in seconds (1 day) */
+const DEFAULT_TTL_SECONDS = 86400;
+
 /**
  * DNS Static Entry Form Props
  */
@@ -40,11 +48,11 @@ export interface DnsStaticEntryFormProps {
   currentEntryId?: string;
   /** Callback when form is submitted */
   onSubmit: (values: DNSStaticEntryFormValues) => void | Promise<void>;
-  /** Callback to cancel */
+  /** Callback to cancel form */
   onCancel: () => void;
   /** Whether submit operation is in progress */
-  loading?: boolean;
-  /** Form mode */
+  isLoading?: boolean;
+  /** Form mode (create or edit) */
   mode?: 'create' | 'edit';
 }
 
@@ -76,7 +84,7 @@ export function DnsStaticEntryForm({
   currentEntryId,
   onSubmit,
   onCancel,
-  loading = false,
+  isLoading = false,
   mode = 'create',
 }: DnsStaticEntryFormProps) {
   const form = useForm({
@@ -84,12 +92,12 @@ export function DnsStaticEntryForm({
     defaultValues: {
       name: initialValues.name || '',
       address: initialValues.address || '',
-      ttl: initialValues.ttl || 86400, // Default: 1 day
+      ttl: initialValues.ttl || DEFAULT_TTL_SECONDS,
       comment: initialValues.comment || '',
     },
   });
 
-  // Custom validation for duplicate hostname
+  // Custom validation for duplicate hostname (memoized)
   useEffect(() => {
     const subscription = form.watch((value, { name: fieldName }) => {
       if (fieldName === 'name' && value.name) {
@@ -113,9 +121,28 @@ export function DnsStaticEntryForm({
     return () => subscription.unsubscribe();
   }, [form, existingEntries, currentEntryId]);
 
+  // Memoized handlers
+  const handleCancel = useCallback(() => {
+    onCancel();
+  }, [onCancel]);
+
+  const handleSubmit = useCallback(
+    (values: DNSStaticEntryFormValues) => {
+      onSubmit(values);
+    },
+    [onSubmit]
+  );
+
+  const handleAddressChange = useCallback(
+    (value: string) => {
+      form.setValue('address', value);
+    },
+    [form]
+  );
+
   return (
     <Card>
-      <form onSubmit={form.handleSubmit(onSubmit as any)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
         <CardHeader>
           <CardTitle>
             {mode === 'create' ? 'Add Static DNS Entry' : 'Edit Static DNS Entry'}
@@ -131,7 +158,7 @@ export function DnsStaticEntryForm({
             <Input
               id="name"
               placeholder="nas.local"
-              disabled={loading}
+              disabled={isLoading}
               {...form.register('name')}
               aria-describedby="name-error name-help"
               aria-invalid={!!form.formState.errors.name}
@@ -154,8 +181,8 @@ export function DnsStaticEntryForm({
             <IPInput
               id="address"
               value={form.watch('address')}
-              onChange={(value) => form.setValue('address', value)}
-              disabled={loading}
+              onChange={handleAddressChange}
+              disabled={isLoading}
               placeholder="192.168.1.50"
               aria-describedby="address-error"
               aria-invalid={!!form.formState.errors.address}
@@ -180,7 +207,7 @@ export function DnsStaticEntryForm({
               min={0}
               max={604800}
               step={60}
-              disabled={loading}
+              disabled={isLoading}
               {...form.register('ttl', { valueAsNumber: true })}
               aria-describedby="ttl-error ttl-help"
               aria-invalid={!!form.formState.errors.ttl}
@@ -191,8 +218,8 @@ export function DnsStaticEntryForm({
               </p>
             )}
             <p id="ttl-help" className="text-xs text-muted-foreground">
-              Seconds (0-604800). Default: 86400 (1 day). Common: 3600 (1
-              hour), 86400 (1 day), 604800 (7 days)
+              Seconds (0–604800). Default: 86400 (1 day). Common: 3600 (1 hour),
+              86400 (1 day), 604800 (7 days)
             </p>
           </div>
 
@@ -204,7 +231,7 @@ export function DnsStaticEntryForm({
               placeholder="Network storage"
               rows={2}
               maxLength={255}
-              disabled={loading}
+              disabled={isLoading}
               {...form.register('comment')}
               aria-describedby="comment-error comment-help"
               aria-invalid={!!form.formState.errors.comment}
@@ -228,20 +255,20 @@ export function DnsStaticEntryForm({
           <Button
             type="button"
             variant="outline"
-            onClick={onCancel}
-            disabled={loading}
+            onClick={handleCancel}
+            disabled={isLoading}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={loading || !form.formState.isValid}
+            disabled={isLoading || !form.formState.isValid}
           >
-            {loading
+            {isLoading
               ? 'Saving...'
               : mode === 'create'
-              ? 'Create Entry'
-              : 'Save Changes'}
+                ? 'Create Entry'
+                : 'Save Changes'}
           </Button>
         </CardFooter>
       </form>

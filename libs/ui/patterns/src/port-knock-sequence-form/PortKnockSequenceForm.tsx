@@ -15,6 +15,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import React from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 
 import { PortKnockSequenceFormDesktop } from './PortKnockSequenceFormDesktop';
@@ -46,7 +47,7 @@ export interface PortKnockSequenceFormProps {
  * @param props - Component props
  * @returns Platform-appropriate port knock sequence form
  */
-export function PortKnockSequenceForm({
+function PortKnockSequenceFormComponent({
   formState,
   isEditMode = false,
   isSubmitting = false,
@@ -72,4 +73,5 @@ export function PortKnockSequenceForm({
   );
 }
 
+export const PortKnockSequenceForm = React.memo(PortKnockSequenceFormComponent);
 PortKnockSequenceForm.displayName = 'PortKnockSequenceForm';

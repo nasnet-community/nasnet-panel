@@ -8,12 +8,13 @@
  * Story: NAS-6.7 - Implement VLAN Management
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { Plus, List, Network } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useCreateVlan } from '@nasnet/api-client/queries';
+import { useTranslation } from '@nasnet/core/i18n';
 import { VlanList, VlanTopology, VlanForm } from '@nasnet/features/network';
 import {
   Tabs,
@@ -32,7 +33,8 @@ export interface VlanManagementPageProps {
   routerId: string;
 }
 
-export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
+export const VlanManagementPage = React.memo(function VlanManagementPage({ routerId }: VlanManagementPageProps) {
+  const { t } = useTranslation('network');
   const [activeTab, setActiveTab] = useState<'list' | 'topology'>('list');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { createVlan, loading } = useCreateVlan(routerId);
@@ -54,7 +56,7 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
       const result = await createVlan(sanitized) as any;
 
       if (result?.vlan) {
-        toast.success('VLAN created successfully', {
+        toast.success(t('vlan.created'), {
           description: `${values.name} (VLAN ID: ${values.vlanId})`,
         });
         setCreateDialogOpen(false);
@@ -63,7 +65,7 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
         errors.forEach((err: { message: string }) => toast.error(err.message));
       }
     } catch (err) {
-      toast.error('Failed to create VLAN');
+      toast.error(t('vlan.createFailed'));
     }
   };
 
@@ -73,16 +75,16 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            VLAN Management
+            {t('vlan.title')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Create and manage VLAN interfaces for network segmentation
+            {t('vlan.description')}
           </p>
         </div>
 
         <Button onClick={() => setCreateDialogOpen(true)} size="lg">
           <Plus className="h-4 w-4 mr-2" />
-          Create VLAN
+          {t('vlan.addVlan')}
         </Button>
       </div>
 
@@ -91,11 +93,11 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
         <TabsList>
           <TabsTrigger value="list">
             <List className="h-4 w-4 mr-2" />
-            List View
+            {t('vlan.listView')}
           </TabsTrigger>
           <TabsTrigger value="topology">
             <Network className="h-4 w-4 mr-2" />
-            Topology View
+            {t('vlan.topologyView')}
           </TabsTrigger>
         </TabsList>
 
@@ -114,17 +116,18 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create VLAN Interface</DialogTitle>
+            <DialogTitle>{t('vlan.createDialog')}</DialogTitle>
           </DialogHeader>
           <VlanForm
             routerId={routerId}
             mode="create"
             onSubmit={handleCreateVlan}
             onCancel={() => setCreateDialogOpen(false)}
-            loading={loading}
+            isLoading={loading}
           />
         </DialogContent>
       </Dialog>
     </div>
   );
-}
+});
+VlanManagementPage.displayName = 'VlanManagementPage';

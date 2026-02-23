@@ -12,6 +12,16 @@ import { z } from 'zod';
 /**
  * IPv4 address validator with proper octet range checking.
  * Validates format and ensures each octet is 0-255.
+ * Rejects leading zeros in octets (e.g., "192.168.001.1" is invalid).
+ *
+ * @example
+ * ```typescript
+ * ipv4.parse('192.168.1.1');   // Valid
+ * ipv4.parse('10.0.0.1');      // Valid
+ * ipv4.parse('192.168.1');     // Invalid - missing octet
+ * ipv4.parse('256.1.1.1');     // Invalid - octet > 255
+ * ipv4.parse('192.168.001.1'); // Invalid - leading zero
+ * ```
  */
 export const ipv4 = z.string().refine(
   (val) => {
@@ -26,11 +36,19 @@ export const ipv4 = z.string().refine(
       );
     });
   },
-  { message: 'Invalid IPv4 address' }
+  { message: 'Invalid IPv4 address (format: 192.168.1.1)' }
 );
 
 /**
  * IPv6 address validator using Zod's built-in IP validation.
+ *
+ * @example
+ * ```typescript
+ * ipv6.parse('2001:db8::1');          // Valid
+ * ipv6.parse('::1');                  // Valid (loopback)
+ * ipv6.parse('2001:0db8:0000:0000:0000:ff00:0042:8329'); // Valid (expanded)
+ * ipv6.parse('192.168.1.1');          // Invalid - IPv4 address
+ * ```
  */
 export const ipv6 = z.string().ip({ version: 'v6' });
 
@@ -43,15 +61,34 @@ export const ipAddress = z.union([ipv4, ipv6]);
  * MAC address validator.
  * Supports both colon (:) and hyphen (-) separators.
  * Format: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX
+ *
+ * @example
+ * ```typescript
+ * mac.parse('00:1A:2B:3C:4D:5E');  // Valid (colon)
+ * mac.parse('00-1A-2B-3C-4D-5E');  // Valid (hyphen)
+ * mac.parse('001A2B3C4D5E');       // Invalid - no separators
+ * mac.parse('00:1A:2B:3C:4D');     // Invalid - only 5 octets
+ * ```
  */
 export const mac = z.string().refine(
   (val) => /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val),
-  { message: 'Invalid MAC address (format: XX:XX:XX:XX:XX:XX)' }
+  { message: 'Invalid MAC address (format: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)' }
 );
 
 /**
  * CIDR notation validator with proper network validation.
  * Format: 192.168.1.0/24
+ * Validates both the IPv4 address and prefix length (0-32).
+ *
+ * @example
+ * ```typescript
+ * cidr.parse('192.168.1.0/24');      // Valid
+ * cidr.parse('10.0.0.0/8');          // Valid
+ * cidr.parse('192.168.1.1/32');      // Valid
+ * cidr.parse('192.168.1.0');         // Invalid - missing prefix
+ * cidr.parse('192.168.1.0/33');      // Invalid - prefix > 32
+ * cidr.parse('256.1.1.1/24');        // Invalid - octet out of range
+ * ```
  */
 export const cidr = z.string().refine(
   (val) => {
@@ -71,11 +108,23 @@ export const cidr = z.string().refine(
     const prefixNum = parseInt(prefix, 10);
     return !isNaN(prefixNum) && prefixNum >= 0 && prefixNum <= 32;
   },
-  { message: 'Invalid CIDR notation (format: 192.168.1.0/24)' }
+  { message: 'Invalid CIDR notation (format: 192.168.1.0/24, prefix: 0-32)' }
 );
 
 /**
  * IPv6 CIDR notation validator.
+ * Format: 2001:db8::/32
+ * Validates both the IPv6 address and prefix length (0-128).
+ *
+ * @example
+ * ```typescript
+ * cidr6.parse('2001:db8::/32');      // Valid
+ * cidr6.parse('::1/128');            // Valid
+ * cidr6.parse('fe80::/10');          // Valid
+ * cidr6.parse('2001:db8::');         // Invalid - missing prefix
+ * cidr6.parse('2001:db8::/129');     // Invalid - prefix > 128
+ * cidr6.parse('192.168.1.0/24');     // Invalid - IPv4, not IPv6
+ * ```
  */
 export const cidr6 = z.string().refine(
   (val) => {
@@ -90,28 +139,57 @@ export const cidr6 = z.string().refine(
     const prefixNum = parseInt(prefix, 10);
     return !isNaN(prefixNum) && prefixNum >= 0 && prefixNum <= 128;
   },
-  { message: 'Invalid IPv6 CIDR notation' }
+  { message: 'Invalid IPv6 CIDR notation (format: 2001:db8::/32, prefix: 0-128)' }
 );
 
 /**
  * Port number validator (1-65535).
+ *
+ * @example
+ * ```typescript
+ * port.parse(8080);      // Valid
+ * port.parse(443);       // Valid
+ * port.parse(0);         // Invalid - port < 1
+ * port.parse(65536);     // Invalid - port > 65535
+ * port.parse(8080.5);    // Invalid - must be integer
+ * ```
  */
-export const port = z.number().int().min(1).max(65535);
+export const port = z.number().int().min(1, 'Port must be between 1 and 65535').max(65535, 'Port must be between 1 and 65535');
 
 /**
  * Port number as string validator.
+ * Accepts string input and validates it as a valid port number.
+ *
+ * @example
+ * ```typescript
+ * portString.parse('8080');    // Valid
+ * portString.parse('443');     // Valid
+ * portString.parse('0');       // Invalid - port < 1
+ * portString.parse('65536');   // Invalid - port > 65535
+ * portString.parse('abc');     // Invalid - not a number
+ * ```
  */
 export const portString = z.string().refine(
   (val) => {
     const num = parseInt(val, 10);
-    return !isNaN(num) && num >= 1 && num <= 65535;
+    return !isNaN(num) && num >= 1 && num <= 65535 && val === String(num);
   },
-  { message: 'Port must be between 1 and 65535' }
+  { message: 'Port must be a valid integer between 1 and 65535' }
 );
 
 /**
  * Port range validator.
  * Accepts single port ("8080") or range ("80-443").
+ * Validates that start port <= end port and both are in valid range (1-65535).
+ *
+ * @example
+ * ```typescript
+ * portRange.parse('8080');     // Valid - single port
+ * portRange.parse('80-443');   // Valid - port range
+ * portRange.parse('443-80');   // Invalid - start > end
+ * portRange.parse('0-100');    // Invalid - port < 1
+ * portRange.parse('65535-65536'); // Invalid - port > 65535
+ * ```
  */
 export const portRange = z.string().refine(
   (val) => {
@@ -128,38 +206,77 @@ export const portRange = z.string().refine(
       );
     }
     const port = parseInt(val, 10);
-    return !isNaN(port) && port >= 1 && port <= 65535;
+    return !isNaN(port) && port >= 1 && port <= 65535 && val === String(port);
   },
-  { message: 'Invalid port range (1-65535)' }
+  { message: 'Invalid port range (format: 8080 or 80-443, range: 1-65535)' }
 );
 
 /**
  * VLAN ID validator (1-4094).
+ * Valid VLAN IDs per IEEE 802.1Q standard (excluding reserved 0 and 4095).
+ *
+ * @example
+ * ```typescript
+ * vlanId.parse(100);     // Valid
+ * vlanId.parse(4094);    // Valid (highest VLAN ID)
+ * vlanId.parse(0);       // Invalid - reserved
+ * vlanId.parse(4095);    // Invalid - reserved
+ * vlanId.parse(4096);    // Invalid - out of range
+ * ```
  */
-export const vlanId = z.number().int().min(1).max(4094);
+export const vlanId = z.number().int().min(1, 'VLAN ID must be between 1 and 4094').max(4094, 'VLAN ID must be between 1 and 4094');
 
 /**
  * VLAN ID as string validator.
+ * Accepts string input and validates it as a valid VLAN ID (1-4094).
+ *
+ * @example
+ * ```typescript
+ * vlanIdString.parse('100');    // Valid
+ * vlanIdString.parse('4094');   // Valid
+ * vlanIdString.parse('0');      // Invalid - reserved
+ * vlanIdString.parse('4095');   // Invalid - reserved
+ * vlanIdString.parse('abc');    // Invalid - not a number
+ * ```
  */
 export const vlanIdString = z.string().refine(
   (val) => {
     const num = parseInt(val, 10);
-    return !isNaN(num) && num >= 1 && num <= 4094;
+    return !isNaN(num) && num >= 1 && num <= 4094 && val === String(num);
   },
-  { message: 'VLAN ID must be between 1 and 4094' }
+  { message: 'VLAN ID must be a valid integer between 1 and 4094' }
 );
 
 /**
  * WireGuard public/private key validator.
- * Base64 encoded, 44 characters ending in =.
+ * Base64 encoded, exactly 44 characters ending in '='.
+ *
+ * @example
+ * ```typescript
+ * wgKey.parse('jI6DYlg34+z6Q+q6d8YB5ibQwQAawamJBcht5xF24mE='); // Valid
+ * wgKey.parse('AAAA');                                         // Invalid - too short
+ * wgKey.parse('jI6DYlg34+z6Q+q6d8YB5ibQwQAawamJBcht5xF24mE');  // Invalid - missing =
+ * ```
  */
 export const wgKey = z.string().refine(
   (val) => /^[A-Za-z0-9+/]{43}=$/.test(val),
-  { message: 'Invalid WireGuard key' }
+  { message: 'Invalid WireGuard key (must be 44 characters ending with =)' }
 );
 
 /**
  * Hostname validator (RFC 1123).
+ * Allows letters, digits, hyphens, and dots. Each label must start and end with alphanumeric.
+ * Max length: 253 characters.
+ *
+ * @example
+ * ```typescript
+ * hostname.parse('router');              // Valid
+ * hostname.parse('my-router.local');     // Valid
+ * hostname.parse('router-01');           // Valid
+ * hostname.parse('-invalid');            // Invalid - starts with hyphen
+ * hostname.parse('invalid-');            // Invalid - ends with hyphen
+ * hostname.parse('a'.repeat(254));       // Invalid - too long (>253)
+ * ```
  */
 export const hostname = z.string().refine(
   (val) => {
@@ -168,32 +285,64 @@ export const hostname = z.string().refine(
       val
     );
   },
-  { message: 'Invalid hostname' }
+  { message: 'Invalid hostname (RFC 1123: must be alphanumeric, hyphens, and dots; max 253 chars)' }
 );
 
 /**
- * Domain name validator (similar to hostname but stricter for domains).
+ * Domain name validator.
+ * Requires at least one dot and a TLD of 2+ alphabetic characters.
+ * Max length: 253 characters.
+ *
+ * @example
+ * ```typescript
+ * domain.parse('example.com');           // Valid
+ * domain.parse('sub.example.co.uk');     // Valid
+ * domain.parse('my-domain.org');         // Valid
+ * domain.parse('localhost');             // Invalid - no TLD
+ * domain.parse('example.c');             // Invalid - TLD too short
+ * domain.parse('192.168.1.1');           // Invalid - numeric TLD
+ * ```
  */
 export const domain = z.string().refine(
   (val) => {
     if (val.length > 253) return false;
     return /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(val);
   },
-  { message: 'Invalid domain name' }
+  { message: 'Invalid domain name (must have at least one dot and TLD of 2+ letters)' }
 );
 
 /**
  * MikroTik interface name validator.
  * Valid characters: a-z, A-Z, 0-9, -, _, .
+ * Must start with alphanumeric. Max length: 64 characters.
+ *
+ * @example
+ * ```typescript
+ * interfaceName.parse('ether1');         // Valid
+ * interfaceName.parse('vlan.100');       // Valid
+ * interfaceName.parse('bridge-1');       // Valid
+ * interfaceName.parse('_invalid');       // Invalid - starts with underscore
+ * interfaceName.parse('-invalid');       // Invalid - starts with hyphen
+ * interfaceName.parse('a'.repeat(65));   // Invalid - too long (>64)
+ * ```
  */
 export const interfaceName = z.string().refine(
   (val) => /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(val) && val.length <= 64,
-  { message: 'Invalid interface name' }
+  { message: 'Invalid interface name (start with alphanumeric, use [a-zA-Z0-9._-], max 64 chars)' }
 );
 
 /**
  * MikroTik comment validator.
- * Max 255 characters, no control characters.
+ * Max 255 characters, no control characters (ASCII 0-31 and 127).
+ *
+ * @example
+ * ```typescript
+ * comment.parse('This is a valid comment');      // Valid
+ * comment.parse('Comment with émoji 🚀');       // Valid (UTF-8)
+ * comment.parse('a'.repeat(255));                // Valid
+ * comment.parse('a'.repeat(256));                // Invalid - too long
+ * comment.parse('Comment\nwith newline');       // Invalid - contains control char
+ * ```
  */
 export const comment = z
   .string()
@@ -203,23 +352,45 @@ export const comment = z
       // eslint-disable-next-line no-control-regex
       return !/[\x00-\x1F\x7F]/.test(val);
     },
-    { message: 'Comment cannot contain control characters' }
+    { message: 'Comment cannot contain control characters (ASCII 0-31 and 127)' }
   );
 
 /**
- * Duration string validator (e.g., "30s", "5m", "1h", "1d").
+ * Duration string validator.
+ * Supports: seconds (s), minutes (m), hours (h), days (d).
+ *
+ * @example
+ * ```typescript
+ * duration.parse('30s');     // Valid - 30 seconds
+ * duration.parse('5m');      // Valid - 5 minutes
+ * duration.parse('2h');      // Valid - 2 hours
+ * duration.parse('7d');      // Valid - 7 days
+ * duration.parse('30');      // Invalid - missing unit
+ * duration.parse('30x');     // Invalid - unknown unit
+ * ```
  */
 export const duration = z.string().refine(
   (val) => /^\d+[smhd]$/.test(val),
-  { message: 'Invalid duration (format: 30s, 5m, 1h, 1d)' }
+  { message: 'Invalid duration (format: 30s|5m|1h|7d, numeric followed by s/m/h/d)' }
 );
 
 /**
- * Bandwidth string validator (e.g., "100M", "1G", "10k").
+ * Bandwidth string validator.
+ * Supports optional unit suffixes: k (kilobits), m (megabits), g (gigabits).
+ *
+ * @example
+ * ```typescript
+ * bandwidth.parse('100');        // Valid - 100 bps
+ * bandwidth.parse('100k');       // Valid - 100 Kbps
+ * bandwidth.parse('1.5m');       // Valid - 1.5 Mbps
+ * bandwidth.parse('1G');         // Valid - 1 Gbps
+ * bandwidth.parse('100x');       // Invalid - unknown unit
+ * bandwidth.parse('k100');       // Invalid - unit after number
+ * ```
  */
 export const bandwidth = z.string().refine(
   (val) => /^\d+(\.\d+)?[kKmMgG]?$/.test(val),
-  { message: 'Invalid bandwidth (format: 100M, 1G, 10k)' }
+  { message: 'Invalid bandwidth (format: 100, 100k, 1.5m, 1g; units: k/m/g optional)' }
 );
 
 // ============================================================================
@@ -478,7 +649,18 @@ export const multiPort = z.string().refine(
 );
 
 /**
- * Network validators collection for easy import.
+ * Collection of all network validators for convenient bulk import.
+ *
+ * @example
+ * ```typescript
+ * import { networkValidators } from '@nasnet/core/forms/network-validators';
+ *
+ * const schema = z.object({
+ *   ipAddress: networkValidators.ipv4,
+ *   port: networkValidators.port,
+ *   vlan: networkValidators.vlanId
+ * });
+ * ```
  */
 export const networkValidators = {
   ipv4,

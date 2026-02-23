@@ -1,10 +1,30 @@
 /**
  * VLAN Topology Mobile Presenter
  *
- * Card-based vertical layout for VLAN topology visualization.
+ * Card-based vertical layout for VLAN topology visualization on mobile devices (<640px).
+ * Displays parent interfaces with expandable VLAN lists, statistics, and per-VLAN status badges.
+ *
+ * @description
+ * This component presents VLAN topology data optimized for mobile viewing:
+ * - Vertical card layout (no horizontal scrolling)
+ * - Tap-to-expand interface hierarchy
+ * - Quick stats overview (total, running, disabled, interfaces)
+ * - Status badges (running/disabled/down) per VLAN
+ * - VLAN ID displayed in monospace font for technical clarity
+ *
+ * @example
+ * ```tsx
+ * <VlanTopologyMobile
+ *   topology={topology}
+ *   stats={stats}
+ *   loading={false}
+ *   error={null}
+ *   onVlanSelect={handleSelect}
+ * />
+ * ```
  */
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import {
   Card,
   CardHeader,
@@ -12,27 +32,37 @@ import {
   CardContent,
   Badge,
   Button,
+  Icon,
 } from '@nasnet/ui/primitives';
-import { Network, ChevronRight, ChevronDown } from 'lucide-react';
+import { Network, ChevronDown, ChevronRight } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import type { UseVlanTopologyReturn } from '../../hooks/use-vlan-topology';
 
 export interface VlanTopologyMobileProps extends UseVlanTopologyReturn {
+  /** Router ID for context */
   routerId: string;
+  /** Callback when a VLAN is selected */
   onVlanSelect?: (vlanId: string) => void;
+  /** Optional CSS classes */
+  className?: string;
 }
 
-export function VlanTopologyMobile({
+/**
+ * VlanTopologyMobile component - Render function
+ */
+function VlanTopologyMobileComponent({
   topology,
   stats,
-  loading,
+  isLoading,
   error,
   onVlanSelect,
+  className,
 }: VlanTopologyMobileProps) {
   const [expandedInterfaces, setExpandedInterfaces] = useState<Set<string>>(
     new Set(topology.map((iface) => iface.id))
   );
 
-  const toggleInterface = (interfaceId: string) => {
+  const handleToggleInterface = useCallback((interfaceId: string) => {
     setExpandedInterfaces((prev) => {
       const next = new Set(prev);
       if (next.has(interfaceId)) {
@@ -42,14 +72,22 @@ export function VlanTopologyMobile({
       }
       return next;
     });
-  };
+  }, []);
 
-  if (loading) {
+  const handleVlanSelect = useCallback(
+    (vlanId: string) => {
+      onVlanSelect?.(vlanId);
+    },
+    [onVlanSelect]
+  );
+
+  // Memoize the empty state
+  if (isLoading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardContent className="py-12 text-center">
           <div className="animate-pulse text-muted-foreground">
-            Loading topology...
+            Loading VLAN topology...
           </div>
         </CardContent>
       </Card>
@@ -58,9 +96,11 @@ export function VlanTopologyMobile({
 
   if (error) {
     return (
-      <Card>
+      <Card className={className}>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">{error.message}</p>
+          <p className="text-center text-destructive">
+            Failed to load VLAN topology: {error.message}
+          </p>
         </CardContent>
       </Card>
     );
@@ -68,9 +108,13 @@ export function VlanTopologyMobile({
 
   if (topology.length === 0) {
     return (
-      <Card>
+      <Card className={className}>
         <CardContent className="py-12 text-center">
-          <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <Icon
+            icon={Network}
+            className="h-12 w-12 mx-auto mb-4 text-muted-foreground"
+            aria-hidden="true"
+          />
           <p className="text-muted-foreground">No VLANs configured</p>
         </CardContent>
       </Card>
@@ -78,12 +122,16 @@ export function VlanTopologyMobile({
   }
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className={cn('space-y-4 pb-20', className)}>
       {/* Statistics Cards */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Network className="h-5 w-5" />
+            <Icon
+              icon={Network}
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
             VLAN Topology
           </CardTitle>
         </CardHeader>
@@ -121,22 +169,38 @@ export function VlanTopologyMobile({
           <Card key={iface.id}>
             {/* Parent Interface Header */}
             <button
-              onClick={() => toggleInterface(iface.id)}
+              onClick={() => handleToggleInterface(iface.id)}
               className="w-full"
+              aria-expanded={isExpanded}
+              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} VLANs on ${iface.name}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
                   {isExpanded ? (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <Icon
+                      icon={ChevronDown}
+                      className="h-5 w-5 text-muted-foreground shrink-0"
+                      aria-hidden="true"
+                    />
                   ) : (
-                    <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <Icon
+                      icon={ChevronRight}
+                      className="h-5 w-5 text-muted-foreground shrink-0"
+                      aria-hidden="true"
+                    />
                   )}
 
                   <div className="flex-1 flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <Network className="h-5 w-5 shrink-0" />
+                      <Icon
+                        icon={Network}
+                        className="h-5 w-5 shrink-0"
+                        aria-hidden="true"
+                      />
                       <div className="text-left">
-                        <CardTitle className="text-base">{iface.name}</CardTitle>
+                        <CardTitle className="text-base font-mono">
+                          {iface.name}
+                        </CardTitle>
                         <p className="text-sm text-muted-foreground capitalize">
                           {iface.type}
                         </p>
@@ -159,9 +223,10 @@ export function VlanTopologyMobile({
                     key={vlan.id}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onVlanSelect?.(vlan.id);
+                      handleVlanSelect(vlan.id);
                     }}
                     className="w-full p-3 rounded-lg border hover:border-primary/50 transition-all text-left"
+                    aria-label={`Select VLAN ${vlan.vlanId}: ${vlan.name}`}
                   >
                     <div className="space-y-2">
                       <div className="flex items-start justify-between gap-2">
@@ -175,11 +240,11 @@ export function VlanTopologyMobile({
                           <p className="font-medium">{vlan.name}</p>
                         </div>
 
-                        {vlan.disabled ? (
+                        {vlan.isDisabled ? (
                           <Badge variant="secondary" className="shrink-0">
                             Disabled
                           </Badge>
-                        ) : vlan.running ? (
+                        ) : vlan.isRunning ? (
                           <Badge variant="success" className="shrink-0">
                             Running
                           </Badge>
@@ -212,3 +277,8 @@ export function VlanTopologyMobile({
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export const VlanTopologyMobile = memo(VlanTopologyMobileComponent);
+
+VlanTopologyMobile.displayName = 'VlanTopologyMobile';

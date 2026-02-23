@@ -4,9 +4,14 @@
  *
  * Dialog for exporting alert rule templates as JSON files.
  * Provides JSON preview and download functionality.
+ *
+ * @description Manages the export workflow: fetch template from server,
+ * display formatted JSON in a textarea, and provide copy/download options.
+ * All actions are reversible (close dialog discards content).
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +42,9 @@ export interface ExportTemplateDialogProps {
 
   /** Template name for filename */
   templateName?: string;
+
+  /** Optional CSS class name */
+  className?: string;
 }
 
 // =============================================================================
@@ -65,9 +73,19 @@ export interface ExportTemplateDialogProps {
  * - Share templates with other users
  * - Version control templates in git
  * - Migrate templates between systems
+ *
+ * @example
+ * ```tsx
+ * <ExportTemplateDialog
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   templateId={selectedTemplate?.id}
+ *   templateName={selectedTemplate?.name}
+ * />
+ * ```
  */
-export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
-  const { open, onOpenChange, templateId, templateName } = props;
+function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
+  const { open, onOpenChange, templateId, templateName, className } = props;
 
   const { toast } = useToast();
   const [jsonContent, setJsonContent] = useState('');
@@ -120,13 +138,15 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
       });
 
       // Reset copied state after 2 seconds
-      setTimeout(() => setCopied(false), 2000);
+      const timeoutId = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timeoutId);
     } catch {
       toast({
         title: 'Copy failed',
         description: 'Failed to copy to clipboard',
         variant: 'destructive',
       });
+      return undefined;
     }
   }, [jsonContent, toast]);
 
@@ -162,9 +182,12 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
     setCopied(false);
   }, [onOpenChange]);
 
+  // Memoized button disabled state
+  const isDisabled = useMemo(() => loading || !jsonContent, [loading, jsonContent]);
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className={cn('sm:max-w-[700px]', className)}>
         <DialogHeader>
           <DialogTitle>Export Template</DialogTitle>
           <DialogDescription>
@@ -184,6 +207,8 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
               readOnly
               rows={16}
               className="font-mono text-sm"
+              aria-label="Template JSON preview"
+              aria-busy={loading}
             />
           </div>
 
@@ -193,8 +218,9 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
               type="button"
               variant="outline"
               onClick={handleCopy}
-              disabled={loading || !jsonContent}
+              disabled={isDisabled}
               className="flex-1"
+              aria-label={copied ? 'Copied to clipboard' : 'Copy JSON to clipboard'}
             >
               {copied ? 'Copied!' : 'Copy to Clipboard'}
             </Button>
@@ -202,8 +228,9 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
               type="button"
               variant="outline"
               onClick={handleDownload}
-              disabled={loading || !jsonContent}
+              disabled={isDisabled}
               className="flex-1"
+              aria-label="Download JSON file"
             >
               Download JSON
             </Button>
@@ -219,3 +246,12 @@ export function ExportTemplateDialog(props: ExportTemplateDialogProps) {
     </Dialog>
   );
 }
+
+ExportTemplateDialogComponent.displayName = 'ExportTemplateDialog';
+
+/**
+ * Memoized export dialog for preventing unnecessary re-renders.
+ * @description Compares props shallowly to determine if re-render is needed.
+ * Beneficial when parent component re-renders frequently.
+ */
+export const ExportTemplateDialog = React.memo(ExportTemplateDialogComponent);

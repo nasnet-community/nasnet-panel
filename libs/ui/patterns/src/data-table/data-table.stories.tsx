@@ -315,9 +315,9 @@ type Story = StoryObj<typeof DataTable>;
  */
 export const NetworkInterfaces: Story = {
   args: {
-    columns: interfaceColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: interfaceColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: networkInterfaces as unknown as Record<string, unknown>[],
-    keyExtractor: (item) => (item as NetworkInterface).id,
+    keyExtractor: (item) => (item as unknown as NetworkInterface).id,
   },
 };
 
@@ -326,9 +326,9 @@ export const NetworkInterfaces: Story = {
  */
 export const DHCPLeases: Story = {
   args: {
-    columns: dhcpColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: dhcpColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: dhcpLeases as unknown as Record<string, unknown>[],
-    keyExtractor: (item) => (item as DHCPLease).id,
+    keyExtractor: (item) => (item as unknown as DHCPLease).id,
   },
 };
 
@@ -337,9 +337,9 @@ export const DHCPLeases: Story = {
  */
 export const FirewallRules: Story = {
   args: {
-    columns: firewallColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: firewallColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: firewallRules as unknown as Record<string, unknown>[],
-    keyExtractor: (item) => (item as FirewallRule).id,
+    keyExtractor: (item) => (item as unknown as FirewallRule).id,
   },
 };
 
@@ -348,7 +348,7 @@ export const FirewallRules: Story = {
  */
 export const Loading: Story = {
   args: {
-    columns: interfaceColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: interfaceColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: [],
     isLoading: true,
   },
@@ -359,7 +359,7 @@ export const Loading: Story = {
  */
 export const Empty: Story = {
   args: {
-    columns: interfaceColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: interfaceColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: [],
     emptyMessage: 'No interfaces found. Add an interface to get started.',
   },
@@ -370,9 +370,9 @@ export const Empty: Story = {
  */
 export const ClickableRows: Story = {
   args: {
-    columns: dhcpColumns as DataTableColumn<Record<string, unknown>>[],
+    columns: dhcpColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: dhcpLeases as unknown as Record<string, unknown>[],
-    keyExtractor: (item) => (item as DHCPLease).id,
+    keyExtractor: (item) => (item as unknown as DHCPLease).id,
     onRowClick: (item) =>
       alert(`Selected: ${(item as unknown as DHCPLease).hostname}`),
   },

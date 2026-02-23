@@ -1,4 +1,20 @@
-import { Home, Shield, Activity, Settings } from 'lucide-react';
+/**
+ * MobileAppShell Storybook Stories
+ *
+ * Responsive app shell layout component stories covering:
+ * - Default responsive layout (mobile frame by default)
+ * - With/without header, navigation, status banner
+ * - Desktop sidebar visibility
+ * - Wizard layout (no navigation)
+ * - Multi-viewport testing (mobile/tablet/desktop)
+ *
+ * **Stories cover:**
+ * - Happy path (default dashboard layout)
+ * - Time-based greeting integration
+ * - Status banner states (warning, error)
+ * - Desktop responsive behavior
+ * - Wizard flows (no navigation)
+ */
 
 import { MobileAppShell } from './mobile-app-shell';
 
@@ -8,7 +24,15 @@ const meta: Meta<typeof MobileAppShell> = {
   title: 'Layouts/MobileAppShell',
   component: MobileAppShell,
   tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Responsive app shell layout for mobile, tablet, and desktop platforms. Combines header, bottom navigation, status banner, and optional sidebar in a responsive container. Provides semantic HTML structure with proper landmark elements for accessibility.',
+      },
+    },
+  },
   decorators: [
     (Story) => (
       // Simulate a mobile viewport frame
@@ -39,10 +63,10 @@ type Story = StoryObj<typeof MobileAppShell>;
 const defaultNavigation = {
   activeId: 'home',
   items: [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'vpn', label: 'VPN', icon: Shield },
-    { id: 'monitor', label: 'Monitor', icon: Activity },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'home', label: 'Home', icon: 'lucide:home' },
+    { id: 'vpn', label: 'VPN', icon: 'lucide:shield' },
+    { id: 'monitor', label: 'Monitor', icon: 'lucide:activity' },
+    { id: 'settings', label: 'Settings', icon: 'lucide:settings' },
   ],
 };
 
@@ -163,12 +187,162 @@ export const WithDesktopSidebar: Story = {
 };
 
 export const NoNavigation: Story = {
+  name: 'No Navigation (Wizard Layout)',
   args: {
     header: { title: 'Setup Wizard', subtitle: 'Step 1 of 4' },
     children: (
       <div className="p-4 flex flex-col gap-4 items-center">
         <div className="h-40 w-full rounded-xl bg-muted flex items-center justify-center text-muted-foreground text-sm">
           Wizard step content
+        </div>
+      </div>
+    ),
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Viewport-based Stories (Section 17 Storybook requirements)
+// ---------------------------------------------------------------------------
+
+export const Mobile375px: Story = {
+  name: 'Viewport: Mobile 375px',
+  parameters: {
+    viewport: {
+      defaultViewport: 'iphone13',
+      viewports: {
+        iphone13: {
+          name: 'iPhone 13',
+          styles: { width: '375px', height: '812px' },
+          type: 'mobile',
+        },
+      },
+    },
+  },
+  args: {
+    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    navigation: defaultNavigation,
+    children: MockContent,
+  },
+};
+
+export const Tablet768px: Story = {
+  name: 'Viewport: Tablet 768px',
+  parameters: {
+    viewport: {
+      defaultViewport: 'ipad',
+      viewports: {
+        ipad: {
+          name: 'iPad',
+          styles: { width: '768px', height: '1024px' },
+          type: 'tablet',
+        },
+      },
+    },
+  },
+  args: {
+    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    navigation: defaultNavigation,
+    sidebar: MockSidebarContent,
+    showSidebarOnDesktop: true,
+    children: MockContent,
+  },
+};
+
+export const Desktop1280px: Story = {
+  name: 'Viewport: Desktop 1280px',
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+      viewports: {
+        desktop: {
+          name: 'Desktop',
+          styles: { width: '1280px', height: '800px' },
+          type: 'desktop',
+        },
+      },
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+        <Story />
+      </div>
+    ),
+  ],
+  args: {
+    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    navigation: defaultNavigation,
+    sidebar: MockSidebarContent,
+    showSidebarOnDesktop: true,
+    children: MockContent,
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Error & Loading States (Section 17 requirements)
+// ---------------------------------------------------------------------------
+
+export const WithLoadingState: Story = {
+  name: 'Loading Content',
+  args: {
+    header: { title: 'Dashboard', greeting: true },
+    navigation: defaultNavigation,
+    children: (
+      <div className="p-4 flex flex-col gap-4">
+        <div className="h-28 rounded-xl bg-muted animate-pulse" />
+        <div className="grid grid-cols-2 gap-3">
+          {['', '', '', ''].map((_, i) => (
+            <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+          ))}
+        </div>
+        <div className="h-36 rounded-xl bg-muted animate-pulse" />
+      </div>
+    ),
+  },
+};
+
+export const WithErrorState: Story = {
+  name: 'Error State (Offline)',
+  args: {
+    header: { title: 'Dashboard' },
+    navigation: defaultNavigation,
+    statusBanner: {
+      status: 'error',
+      visible: true,
+      children: null,
+      content: (
+        <div className="flex items-center justify-between w-full">
+          <span className="text-sm font-medium">Router offline — tap to reconnect</span>
+          <button className="px-3 py-1 text-xs bg-destructive text-destructive-foreground rounded-md">
+            Retry
+          </button>
+        </div>
+      ),
+    },
+    children: (
+      <div className="p-4 flex flex-col gap-4 items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-muted-foreground text-sm">No data available</p>
+          <p className="text-muted-foreground text-xs mt-2">Reconnect to view router status</p>
+        </div>
+      </div>
+    ),
+  },
+};
+
+export const WithEmptyState: Story = {
+  name: 'Empty State (No Services)',
+  args: {
+    header: { title: 'Services' },
+    navigation: { ...defaultNavigation, activeId: 'settings' },
+    children: (
+      <div className="p-4 flex flex-col gap-4 items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-lg font-semibold">No services installed</p>
+          <p className="text-muted-foreground text-sm mt-2">Browse the marketplace to add features</p>
+          <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
+            Explore Services
+          </button>
         </div>
       </div>
     ),

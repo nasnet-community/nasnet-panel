@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Network State Store
  *
@@ -306,7 +308,9 @@ export const useNetworkStore = create<NetworkStore>()(
     }),
     {
       name: 'network-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

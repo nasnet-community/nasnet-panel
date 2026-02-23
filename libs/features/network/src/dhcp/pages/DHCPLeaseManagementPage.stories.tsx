@@ -9,17 +9,19 @@
  * of network dependencies while still covering the real rendering paths.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import type { DHCPLease } from '@nasnet/core/types';
+
 import { DHCPLeaseManagementDesktop } from './DHCPLeaseManagementDesktop';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock lease data
 // ---------------------------------------------------------------------------
 
 const makeLease = (overrides: Partial<DHCPLease> & { id: string }): DHCPLease => ({
-  id: overrides.id,
   address: '192.168.88.100',
   macAddress: 'AA:BB:CC:DD:EE:01',
   hostname: undefined,
@@ -90,7 +92,7 @@ const servers = [
   { name: 'dhcp2', interface: 'bridge-iot' },
 ];
 
-const noopAsync = async () => { /* no-op for mock actions */ };
+const _noopAsync = async () => { /* no-op for mock actions */ };
 
 // ---------------------------------------------------------------------------
 // Meta – stories are written against DHCPLeaseManagementDesktop because the

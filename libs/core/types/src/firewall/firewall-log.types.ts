@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import type { LogEntry } from '../router/logs';
 
 /**
@@ -18,7 +19,14 @@ import type { LogEntry } from '../router/logs';
 // ============================================================================
 
 /**
- * Firewall log chain where the log entry was generated
+ * Zod schema for firewall log chain validation
+ * Validates that chain is one of: input, forward, or output
+ *
+ * @see FirewallLogChain - Type inferred from this schema
+ *
+ * @example
+ * const result = FirewallLogChainSchema.parse('forward');
+ * // result: 'forward'
  */
 export const FirewallLogChainSchema = z.enum([
   'input',   // Packets destined for the router itself
@@ -26,11 +34,22 @@ export const FirewallLogChainSchema = z.enum([
   'output',  // Packets originating from the router
 ]);
 
+/**
+ * Type for firewall log chain
+ * @example
+ * const chain: FirewallLogChain = 'forward';
+ */
 export type FirewallLogChain = z.infer<typeof FirewallLogChainSchema>;
 
 /**
- * Inferred action from firewall rule
- * 'unknown' when action cannot be determined from log prefix
+ * Zod schema for inferred firewall action validation
+ * Validates that action is one of: accept, drop, reject, or unknown
+ *
+ * @see InferredAction - Type inferred from this schema
+ *
+ * @example
+ * const result = InferredActionSchema.parse('drop');
+ * // result: 'drop'
  */
 export const InferredActionSchema = z.enum([
   'accept',
@@ -39,10 +58,22 @@ export const InferredActionSchema = z.enum([
   'unknown',
 ]);
 
+/**
+ * Type for inferred firewall action
+ * @example
+ * const action: InferredAction = 'drop';
+ */
 export type InferredAction = z.infer<typeof InferredActionSchema>;
 
 /**
- * Network protocol for firewall logs
+ * Zod schema for firewall log protocol validation
+ * Validates that protocol is one of: TCP, UDP, ICMP, IPv6-ICMP, GRE, ESP, AH, IGMP, or unknown
+ *
+ * @see FirewallLogProtocol - Type inferred from this schema
+ *
+ * @example
+ * const result = FirewallLogProtocolSchema.parse('TCP');
+ * // result: 'TCP'
  */
 export const FirewallLogProtocolSchema = z.enum([
   'TCP',
@@ -56,6 +87,11 @@ export const FirewallLogProtocolSchema = z.enum([
   'unknown',
 ]);
 
+/**
+ * Type for firewall log protocol
+ * @example
+ * const protocol: FirewallLogProtocol = 'TCP';
+ */
 export type FirewallLogProtocol = z.infer<typeof FirewallLogProtocolSchema>;
 
 // ============================================================================
@@ -64,11 +100,25 @@ export type FirewallLogProtocol = z.infer<typeof FirewallLogProtocolSchema>;
 
 /**
  * IPv4 address validation (supports CIDR notation)
+ * Regex pattern for IPv4 addresses with optional CIDR suffix
  * Examples: 192.168.1.1, 10.0.0.0/8, 172.16.0.0/12
  */
-const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+const IPV4_REGEX = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+
+/**
+ * Validates IPv4 address with optional CIDR notation
+ * Checks both address format and value ranges
+ *
+ * @param value - IPv4 address (with optional CIDR) to validate
+ * @returns True if valid, false otherwise
+ *
+ * @example
+ * isValidIPv4('192.168.1.1') // Returns true
+ * isValidIPv4('10.0.0.0/8') // Returns true
+ * isValidIPv4('999.999.999.999') // Returns false
+ */
 const isValidIPv4 = (value: string): boolean => {
-  if (!ipv4Regex.test(value)) return false;
+  if (!IPV4_REGEX.test(value)) return false;
 
   const [ip, cidr] = value.split('/');
   const octets = ip.split('.');
@@ -90,6 +140,14 @@ const isValidIPv4 = (value: string): boolean => {
 
 /**
  * Port validation (1-65535)
+ * Ensures port is within the valid range
+ *
+ * @param value - Port number to validate
+ * @returns True if valid, false otherwise
+ *
+ * @example
+ * isValidPort(443) // Returns true
+ * isValidPort(65536) // Returns false
  */
 const isValidPort = (value: number): boolean => {
   return value >= 1 && value <= 65535;
@@ -179,7 +237,19 @@ export interface FirewallLogEntry extends LogEntry {
 // ============================================================================
 
 /**
- * Schema for parsed firewall log data
+ * Zod schema for parsed firewall log data validation
+ * Validates all fields with proper IPv4/port formats and ranges
+ *
+ * @see ParsedFirewallLog - Interface for parsed firewall log data
+ *
+ * @example
+ * const parsed = {
+ *   chain: 'forward',
+ *   action: 'drop',
+ *   srcIp: '192.168.1.100',
+ *   srcPort: 54321,
+ * };
+ * const result = ParsedFirewallLogSchema.parse(parsed);
  */
 export const ParsedFirewallLogSchema = z.object({
   chain: FirewallLogChainSchema,
@@ -204,7 +274,21 @@ export const ParsedFirewallLogSchema = z.object({
 });
 
 /**
- * Schema for complete firewall log entry
+ * Zod schema for complete firewall log entry validation
+ * Combines base log entry fields with parsed firewall-specific data
+ *
+ * @see FirewallLogEntry - Interface for complete firewall log entry
+ *
+ * @example
+ * const entry = {
+ *   id: '*0',
+ *   timestamp: new Date(),
+ *   topic: 'firewall',
+ *   severity: 'info',
+ *   message: 'input: in:ether1 out:(unknown 0), proto TCP',
+ *   parsed: { chain: 'input', action: 'drop', protocol: 'TCP' },
+ * };
+ * const result = FirewallLogEntrySchema.parse(entry);
  */
 export const FirewallLogEntrySchema = z.object({
   id: z.string(),
@@ -221,6 +305,13 @@ export const FirewallLogEntrySchema = z.object({
 
 /**
  * Validates an IP address (with optional CIDR) for firewall logs
+ *
+ * @param ip - IP address (with optional CIDR) to validate
+ * @returns True if valid, false otherwise
+ *
+ * @example
+ * isValidFirewallLogIP('192.168.1.1') // Returns true
+ * isValidFirewallLogIP('10.0.0.0/8') // Returns true
  */
 export function isValidFirewallLogIP(ip: string): boolean {
   return isValidIPv4(ip);
@@ -228,6 +319,13 @@ export function isValidFirewallLogIP(ip: string): boolean {
 
 /**
  * Validates a port number for firewall logs
+ *
+ * @param port - Port number to validate
+ * @returns True if valid, false otherwise
+ *
+ * @example
+ * isValidFirewallLogPort(80) // Returns true
+ * isValidFirewallLogPort(65536) // Returns false
  */
 export function isValidFirewallLogPort(port: number): boolean {
   return isValidPort(port);
@@ -235,6 +333,12 @@ export function isValidFirewallLogPort(port: number): boolean {
 
 /**
  * Gets a human-readable description for a firewall log action
+ *
+ * @param action - Inferred action from firewall log
+ * @returns Description of the action
+ *
+ * @example
+ * getFirewallLogActionDescription('drop') // Returns "Packet was silently discarded"
  */
 export function getFirewallLogActionDescription(action: InferredAction): string {
   switch (action) {
@@ -250,7 +354,13 @@ export function getFirewallLogActionDescription(action: InferredAction): string 
 }
 
 /**
- * Gets a color class for a firewall log action (Tailwind)
+ * Gets a Tailwind color class for a firewall log action
+ *
+ * @param action - Inferred action from firewall log
+ * @returns Tailwind CSS color classes
+ *
+ * @example
+ * getFirewallLogActionColor('drop') // Returns "text-red-600 dark:text-red-400"
  */
 export function getFirewallLogActionColor(action: InferredAction): string {
   switch (action) {
@@ -266,6 +376,12 @@ export function getFirewallLogActionColor(action: InferredAction): string {
 
 /**
  * Gets a human-readable description for a firewall log chain
+ *
+ * @param chain - Firewall chain (input/forward/output)
+ * @returns Description of the chain
+ *
+ * @example
+ * getFirewallLogChainDescription('forward') // Returns "Traffic through router"
  */
 export function getFirewallLogChainDescription(chain: FirewallLogChain): string {
   switch (chain) {
@@ -280,6 +396,13 @@ export function getFirewallLogChainDescription(chain: FirewallLogChain): string 
 
 /**
  * Formats a firewall log connection as "srcIp:srcPort → dstIp:dstPort"
+ * Returns 'unknown' for missing addresses
+ *
+ * @param parsed - Parsed firewall log data
+ * @returns Formatted connection string
+ *
+ * @example
+ * formatFirewallLogConnection(parsed) // Returns "192.168.1.100:54321 → 10.0.0.1:443"
  */
 export function formatFirewallLogConnection(parsed: ParsedFirewallLog): string {
   const src = parsed.srcIp
@@ -292,9 +415,16 @@ export function formatFirewallLogConnection(parsed: ParsedFirewallLog): string {
 }
 
 /**
- * Default firewall log entry for testing/mocking
+ * Default firewall log entry for testing and mocking purposes
+ * Represents a typical inbound packet drop on ether1 interface
+ * Immutable constant for use in tests and component previews
+ *
+ * @example
+ * const entry = DEFAULT_FIREWALL_LOG_ENTRY;
+ * console.log(entry.parsed.chain); // 'input'
+ * console.log(entry.parsed.action); // 'drop'
  */
-export const DEFAULT_FIREWALL_LOG_ENTRY: FirewallLogEntry = {
+export const DEFAULT_FIREWALL_LOG_ENTRY: Readonly<FirewallLogEntry> = {
   id: '*0',
   timestamp: new Date(),
   topic: 'firewall',
@@ -318,75 +448,94 @@ export const DEFAULT_FIREWALL_LOG_ENTRY: FirewallLogEntry = {
 
 /**
  * Time range preset options for firewall log filtering
+ * Provides predefined time ranges or custom option for user-specified ranges
+ *
+ * @example
+ * const preset: TimeRangePreset = '1h'; // Last hour
+ * const custom: TimeRangePreset = 'custom'; // User-specified range
  */
 export type TimeRangePreset = '1h' | '6h' | '1d' | '1w' | 'custom';
 
 /**
  * Time range value with start and end timestamps
+ * Used for custom time range selection in firewall log filters
  */
 export interface TimeRange {
-  start: Date;
-  end: Date;
+  /** Start timestamp (inclusive) */
+  readonly start: Date;
+  /** End timestamp (inclusive) */
+  readonly end: Date;
 }
 
 /**
  * Port range value (min-max inclusive)
+ * Used for filtering by port range instead of specific port
  */
 export interface PortRange {
-  min: number;
-  max: number;
+  /** Minimum port number (inclusive) */
+  readonly min: number;
+  /** Maximum port number (inclusive) */
+  readonly max: number;
 }
 
 /**
  * Complete filter state for firewall logs
- * Used by firewall log UI components and stores for filtering log entries
+ * Used by firewall log UI components and stores for filtering and querying log entries
+ * All fields are optional for flexible filtering scenarios
  */
 export interface FirewallLogFilterState {
   /**
-   * Time range preset or custom
+   * Time range preset or custom selection
    */
-  timeRangePreset: TimeRangePreset;
+  readonly timeRangePreset: TimeRangePreset;
 
   /**
-   * Custom time range (only when preset is 'custom')
+   * Custom time range (only used when timeRangePreset is 'custom')
    */
-  timeRange?: TimeRange;
+  readonly timeRange?: TimeRange;
 
   /**
-   * Selected actions to filter by
+   * Selected actions to filter by (empty array means all actions)
    */
-  actions: InferredAction[];
+  readonly actions: readonly InferredAction[];
 
   /**
    * Source IP filter with wildcard support (e.g., 192.168.1.*)
    */
-  srcIp?: string;
+  readonly srcIp?: string;
 
   /**
    * Destination IP filter with wildcard support
    */
-  dstIp?: string;
+  readonly dstIp?: string;
 
   /**
-   * Source port or port range
+   * Source port or port range filter
    */
-  srcPort?: number | PortRange;
+  readonly srcPort?: number | PortRange;
 
   /**
-   * Destination port or port range
+   * Destination port or port range filter
    */
-  dstPort?: number | PortRange;
+  readonly dstPort?: number | PortRange;
 
   /**
-   * Log prefix filter
+   * Log prefix filter (matches against prefix field in log entries)
    */
-  prefix?: string;
+  readonly prefix?: string;
 }
 
 /**
  * Default filter state for firewall logs
+ * Shows all logs from the last hour with no action filtering applied
+ * Immutable constant for use as initial state in components and stores
+ *
+ * @example
+ * const filter = DEFAULT_FIREWALL_LOG_FILTER_STATE;
+ * console.log(filter.timeRangePreset); // '1h'
+ * console.log(filter.actions.length); // 0
  */
-export const DEFAULT_FIREWALL_LOG_FILTER_STATE: FirewallLogFilterState = {
+export const DEFAULT_FIREWALL_LOG_FILTER_STATE: Readonly<FirewallLogFilterState> = {
   timeRangePreset: '1h',
   actions: [],
 };

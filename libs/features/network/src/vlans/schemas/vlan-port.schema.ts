@@ -7,6 +7,15 @@
 
 import { z } from 'zod';
 
+/** VLAN ID minimum (IEEE 802.1Q range) */
+const VLAN_ID_MIN = 1;
+
+/** VLAN ID maximum (IEEE 802.1Q range) */
+const VLAN_ID_MAX = 4094;
+
+/** Maximum recommended VLANs per trunk port (hardware dependent) */
+const MAX_VLANS_PER_PORT = 128;
+
 /**
  * Schema for VLAN port configuration
  *
@@ -39,8 +48,8 @@ export const vlanPortConfigSchema = z
         invalid_type_error: 'PVID must be a number',
       })
       .int('PVID must be an integer')
-      .min(1, 'PVID must be between 1 and 4094')
-      .max(4094, 'PVID must be between 1 and 4094')
+      .min(VLAN_ID_MIN, `PVID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`)
+      .max(VLAN_ID_MAX, `PVID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`)
       .optional(),
 
     /**
@@ -57,8 +66,8 @@ export const vlanPortConfigSchema = z
         z
           .number()
           .int('VLAN ID must be an integer')
-          .min(1, 'VLAN ID must be between 1 and 4094')
-          .max(4094, 'VLAN ID must be between 1 and 4094')
+          .min(VLAN_ID_MIN, `VLAN ID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`)
+          .max(VLAN_ID_MAX, `VLAN ID must be between ${VLAN_ID_MIN} and ${VLAN_ID_MAX}`)
       )
       .optional()
       .default([]),
@@ -98,12 +107,12 @@ export const vlanPortConfigSchema = z
       }
     }
 
-    // Warn if too many VLANs (>128) - most hardware limits
-    if (data.taggedVlanIds && data.taggedVlanIds.length > 128) {
+    // Warn if too many VLANs (>MAX_VLANS_PER_PORT) - most hardware limits
+    if (data.taggedVlanIds && data.taggedVlanIds.length > MAX_VLANS_PER_PORT) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          'More than 128 VLANs may not be supported by all hardware',
+          `More than ${MAX_VLANS_PER_PORT} VLANs may not be supported by all hardware`,
         path: ['taggedVlanIds'],
       });
     }

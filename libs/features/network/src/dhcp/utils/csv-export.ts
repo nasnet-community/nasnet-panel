@@ -5,8 +5,8 @@
  * Exports DHCP lease data to CSV format, respecting active filters
  */
 
-import { formatExpirationTime } from '@nasnet/core/utils';
 import type { DHCPLease } from '@nasnet/core/types';
+import { formatExpirationTime } from '@nasnet/core/utils';
 
 /**
  * Filter criteria for CSV export
@@ -22,6 +22,7 @@ export interface CSVExportFilters {
 
 /**
  * Checks if a lease matches the search term
+ * @description Performs case-insensitive matching against IP, MAC, and hostname fields
  * @param lease - DHCP lease to check
  * @param search - Search term (IP, MAC, or hostname)
  * @returns True if lease matches search
@@ -41,7 +42,7 @@ function matchesSearch(lease: DHCPLease, search: string): boolean {
 
 /**
  * Escapes CSV cell value and wraps in quotes
- * Handles special characters and internal quotes
+ * @description Handles special characters and internal quotes per RFC 4180
  * @param value - Cell value to escape
  * @returns Escaped CSV cell value
  */
@@ -54,7 +55,8 @@ function escapeCsvCell(value: string): string {
 
 /**
  * Exports DHCP leases to CSV file with active filters applied
- * Downloads file with ISO date: dhcp-leases-YYYY-MM-DD.csv
+ * @description Filters leases based on provided criteria and triggers browser download.
+ * Downloads file with ISO date: dhcp-leases-YYYY-MM-DD.csv. Properly cleans up resources.
  *
  * @param leases - Array of DHCP leases to export
  * @param filters - Active filter criteria
@@ -95,7 +97,7 @@ export function exportLeasesToCSV(
   });
 
   // Generate CSV headers
-  const headers = ['IP Address', 'MAC Address', 'Hostname', 'Server', 'Status', 'Expires'];
+  const CSV_HEADERS = ['IP Address', 'MAC Address', 'Hostname', 'Server', 'Status', 'Expires'];
 
   // Generate CSV rows
   const rows = filtered.map((lease) => [
@@ -108,7 +110,7 @@ export function exportLeasesToCSV(
   ]);
 
   // Convert to CSV format (escape special characters)
-  const csvContent = [headers, ...rows]
+  const csvContent = [CSV_HEADERS, ...rows]
     .map((row) => row.map(escapeCsvCell).join(','))
     .join('\n');
 
@@ -117,14 +119,16 @@ export function exportLeasesToCSV(
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
 
-  // Generate filename with ISO date (YYYY-MM-DD)
-  const isoDate = new Date().toISOString().split('T')[0];
-  link.href = url;
-  link.download = `dhcp-leases-${isoDate}.csv`;
+  try {
+    // Generate filename with ISO date (YYYY-MM-DD)
+    const isoDate = new Date().toISOString().split('T')[0];
+    link.href = url;
+    link.download = `dhcp-leases-${isoDate}.csv`;
 
-  // Trigger download
-  link.click();
-
-  // Clean up object URL
-  URL.revokeObjectURL(url);
+    // Trigger download
+    link.click();
+  } finally {
+    // Ensure cleanup happens even if download fails
+    URL.revokeObjectURL(url);
+  }
 }

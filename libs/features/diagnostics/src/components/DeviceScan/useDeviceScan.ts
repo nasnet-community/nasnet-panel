@@ -5,7 +5,7 @@
 // subscriptions. Handles scan lifecycle: start, progress, cancel, complete.
 
 import { useMutation, useSubscription, gql } from '@apollo/client';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { lookupVendor } from '@nasnet/core/utils';
 import type { DiscoveredDevice, ScanStatus, ScanStats } from './types';
 
@@ -61,6 +61,9 @@ export const DEVICE_SCAN_PROGRESS = gql`
 // Hook Options
 // -----------------------------------------------------------------------------
 
+/**
+ * Options for useDeviceScan hook
+ */
 interface UseDeviceScanOptions {
   /** Router ID to scan */
   deviceId: string;
@@ -72,15 +75,77 @@ interface UseDeviceScanOptions {
   onError?: (error: string) => void;
 }
 
+/**
+ * Return value from useDeviceScan hook
+ */
+interface UseDeviceScanReturn {
+  // State
+  status: ScanStatus;
+  progress: number;
+  devices: DiscoveredDevice[];
+  error: string | null;
+  stats: ScanStats;
+
+  // Computed State
+  isScanning: boolean;
+  isComplete: boolean;
+  isCancelled: boolean;
+  isIdle: boolean;
+  hasError: boolean;
+
+  // Actions
+  startScan: (subnet: string, interfaceName?: string) => Promise<void>;
+  stopScan: () => Promise<void>;
+  reset: () => void;
+}
+
 // -----------------------------------------------------------------------------
 // Hook Implementation
 // -----------------------------------------------------------------------------
 
+/**
+ * useDeviceScan Hook
+ *
+ * Headless hook for scanning network devices with real-time progress via
+ * GraphQL subscriptions. Manages complete scan lifecycle from initiation
+ * through completion, cancellation, or error handling.
+ *
+ * Features:
+ * - Real-time subscription to scan progress
+ * - Vendor OUI lookup (frontend-side enrichment)
+ * - Stable callbacks with proper dependencies
+ * - Mounted state tracking to prevent memory leaks
+ * - Computed booleans for convenient state checking
+ *
+ * @example
+ * ```tsx
+ * const { startScan, progress, devices, isScanning } = useDeviceScan({
+ *   deviceId: routerId,
+ *   onComplete: (devices) => console.log('Scan finished:', devices),
+ *   onError: (err) => console.error('Scan error:', err),
+ * });
+ *
+ * return (
+ *   <>
+ *     <button onClick={() => startScan('192.168.1.0/24')}>
+ *       {isScanning ? `${progress}%` : 'Start Scan'}
+ *     </button>
+ *     {devices.length > 0 && <DeviceTable devices={devices} />}
+ *   </>
+ * );
+ * ```
+ *
+ * @param options - Hook configuration
+ * @returns Hook interface with state, computed flags, and actions
+ *
+ * @see {@link DiscoveredDevice} for device structure
+ * @see {@link ScanStatus} for status values
+ */
 export function useDeviceScan({
   deviceId,
   onComplete,
   onError,
-}: UseDeviceScanOptions) {
+}: UseDeviceScanOptions): UseDeviceScanReturn {
   // State
   const [scanId, setScanId] = useState<string | null>(null);
   const [status, setStatus] = useState<ScanStatus>('idle');
@@ -157,10 +222,14 @@ export function useDeviceScan({
   // -----------------------------------------------------------------------------
 
   /**
-   * Start a device scan
+   * Start a device scan on specified subnet
+   *
+   * Initiates a network scan that runs asynchronously on the backend. Returns
+   * immediately after mutation, with progress updates received via subscription.
    *
    * @param subnet - Subnet to scan in CIDR notation (e.g., "192.168.88.0/24")
-   * @param interfaceName - Optional interface to scan on
+   * @param interfaceName - Optional interface to restrict scan to specific network interface
+   * @throws Error from Apollo mutation (network failures, invalid input)
    */
   const startScan = useCallback(
     async (subnet: string, interfaceName?: string) => {
@@ -197,6 +266,11 @@ export function useDeviceScan({
 
   /**
    * Stop a running scan
+   *
+   * Cancels the running scan and sets status to 'cancelled'. Safe to call
+   * even if scan has already completed (no error thrown).
+   *
+   * @throws Error from Apollo mutation (network failures)
    */
   const stopScan = useCallback(async () => {
     if (!scanId) return;
@@ -212,6 +286,9 @@ export function useDeviceScan({
 
   /**
    * Reset scan state to idle
+   *
+   * Clears all scan data and returns hook to initial idle state. Use after
+   * completing a scan to prepare for the next scan.
    */
   const reset = useCallback(() => {
     setScanId(null);
@@ -222,11 +299,17 @@ export function useDeviceScan({
     setStats({ scannedCount: 0, totalCount: 0, elapsedTime: 0 });
   }, []);
 
-  // -----------------------------------------------------------------------------
-  // Return Value
-  // -----------------------------------------------------------------------------
+  // Memoize computed boolean flags
+  const computedFlags = useMemo(() => ({
+    isScanning: status === 'scanning',
+    isComplete: status === 'completed',
+    isCancelled: status === 'cancelled',
+    isIdle: status === 'idle',
+    hasError: status === 'error',
+  }), [status]);
 
-  return {
+  // Memoize return value to prevent unnecessary re-renders in consumers
+  const returnValue = useMemo<UseDeviceScanReturn>(() => ({
     // State
     status,
     progress,
@@ -235,15 +318,13 @@ export function useDeviceScan({
     stats,
 
     // Computed State
-    isScanning: status === 'scanning',
-    isComplete: status === 'completed',
-    isCancelled: status === 'cancelled',
-    isIdle: status === 'idle',
-    hasError: status === 'error',
+    ...computedFlags,
 
     // Actions
     startScan,
     stopScan,
     reset,
-  };
+  }), [status, progress, devices, error, stats, computedFlags, startScan, stopScan, reset]);
+
+  return returnValue;
 }

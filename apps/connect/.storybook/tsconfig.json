@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.app.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client", "@storybook/react"]
+  },
+  "include": [
+    "../src/**/*.stories.ts",
+    "../src/**/*.stories.tsx",
+    "../src/routeTree.gen.ts",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ]
+}

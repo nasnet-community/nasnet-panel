@@ -22,7 +22,18 @@ import type { ResourceLifecycleState } from './lifecycle';
 // =============================================================================
 
 /**
- * Categories of managed resources
+ * Categories of managed resources in the Universal State v2 model.
+ *
+ * Each category represents a different domain of router functionality:
+ * - NETWORK: WAN links, LAN networks, VLANs, bridges, routing
+ * - VPN: Virtual private networks (WireGuard, OpenVPN, IPsec)
+ * - INFRASTRUCTURE: System-level services (certificates, NTP, DDNS)
+ * - APPLICATION: User-facing services (port forwarding, game rules)
+ * - FEATURE: Marketplace features (Tor, AdGuard, sing-box)
+ * - PLUGIN: Community extensions and third-party plugins
+ *
+ * @constant
+ * @see Resource for the main resource interface
  */
 export const ResourceCategory = {
   /** Network topology: WAN Links, LAN Networks, VLANs */
@@ -39,6 +50,7 @@ export const ResourceCategory = {
   PLUGIN: 'PLUGIN',
 } as const;
 
+/** Inferred type for resource categories */
 export type ResourceCategory =
   (typeof ResourceCategory)[keyof typeof ResourceCategory];
 
@@ -47,7 +59,14 @@ export type ResourceCategory =
 // =============================================================================
 
 /**
- * Selectable resource layers for optimized fetching
+ * Selectable resource layers for optimized GraphQL fetching.
+ *
+ * The 8-layer resource model allows clients to fetch only the layers they need,
+ * reducing bandwidth and improving performance. Layers are independent and can
+ * be queried separately or in combination.
+ *
+ * @constant
+ * @see Resource for the main resource interface
  */
 export const ResourceLayer = {
   CONFIGURATION: 'CONFIGURATION',
@@ -60,6 +79,7 @@ export const ResourceLayer = {
   PLATFORM: 'PLATFORM',
 } as const;
 
+/** Inferred type for resource layers */
 export type ResourceLayer = (typeof ResourceLayer)[keyof typeof ResourceLayer];
 
 // =============================================================================
@@ -150,34 +170,59 @@ export interface Resource<TConfig = unknown> {
 // =============================================================================
 
 /**
- * Type for a resource with minimal layers (for list views)
+ * Lightweight resource representation for list views and summary displays.
+ *
+ * Includes only essential metadata for rendering resource lists efficiently.
+ * Omits full configuration and heavy telemetry data.
+ *
+ * @see Resource for the full resource interface
+ * @see ResourceCardData for dashboard card data
  */
 export interface ResourceListItem {
+  /** Globally unique identifier (ULID) */
   uuid: string;
+  /** Scoped identifier for readability */
   id: string;
+  /** Resource type identifier */
   type: string;
+  /** Resource category */
   category: ResourceCategory;
-  metadata: Pick<
+  /** Essential metadata */
+  readonly metadata: Pick<
     ResourceMetadata,
     'state' | 'tags' | 'updatedAt' | 'isFavorite'
   >;
-  runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'lastUpdated'> | null;
+  /** Optional runtime state for status display */
+  readonly runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'lastUpdated'> | null;
 }
 
 /**
- * Type for a resource card in dashboards
+ * Resource data optimized for dashboard card rendering.
+ *
+ * Includes configuration preview, metadata, and runtime state needed for
+ * rich card displays with status indicators, error messages, and connection counts.
+ *
+ * @see Resource for the full resource interface
+ * @see ResourceListItem for lightweight list view data
  */
 export interface ResourceCardData {
+  /** Globally unique identifier (ULID) */
   uuid: string;
+  /** Scoped identifier for readability */
   id: string;
+  /** Resource type identifier */
   type: string;
+  /** Resource category */
   category: ResourceCategory;
+  /** Configuration preview (full or partial) */
   configuration: unknown;
-  metadata: Pick<
+  /** Rich metadata for card display */
+  readonly metadata: Pick<
     ResourceMetadata,
     'state' | 'version' | 'tags' | 'description' | 'isFavorite' | 'isPinned'
   >;
-  runtime?: Pick<
+  /** Runtime state with connection and error details */
+  readonly runtime?: Pick<
     RuntimeState,
     'isRunning' | 'health' | 'errorMessage' | 'activeConnections' | 'uptime'
   > | null;
@@ -188,19 +233,25 @@ export interface ResourceCardData {
 // =============================================================================
 
 /**
- * Reference to another resource
+ * Reference to another resource used in relationships and dependencies.
+ *
+ * Lightweight pointer to a resource that includes enough information to identify it
+ * and determine if it's operational. Used in relationship edges and dependency lists.
+ *
+ * @see Resource for the full resource interface
+ * @see ResourceRelationshipEdge for usage in graphs
  */
 export interface ResourceReference {
   /** Resource UUID */
-  uuid: string;
+  readonly uuid: string;
   /** Resource scoped ID */
-  id: string;
+  readonly id: string;
   /** Resource type */
-  type: string;
+  readonly type: string;
   /** Resource category */
-  category: ResourceCategory;
+  readonly category: ResourceCategory;
   /** Current lifecycle state */
-  state: ResourceLifecycleState;
+  readonly state: ResourceLifecycleState;
 }
 
 // =============================================================================
@@ -208,7 +259,14 @@ export interface ResourceReference {
 // =============================================================================
 
 /**
- * Types of relationships between resources
+ * Types of relationships between resources in the dependency graph.
+ *
+ * Used to classify edges in the resource relationship graph for dependency analysis,
+ * impact calculation, and cascading operations.
+ *
+ * @constant
+ * @see ResourceRelationshipEdge for the edge structure
+ * @see Resource.relationships for relationship storage
  */
 export const ResourceRelationshipType = {
   /** Child depends on parent */
@@ -223,19 +281,26 @@ export const ResourceRelationshipType = {
   CUSTOM: 'CUSTOM',
 } as const;
 
+/** Inferred type for relationship types */
 export type ResourceRelationshipType =
   (typeof ResourceRelationshipType)[keyof typeof ResourceRelationshipType];
 
 /**
- * Edge in the resource relationship graph
+ * Directed edge in the resource relationship graph.
+ *
+ * Represents a single relationship between two resources. Multiple edges
+ * form the complete dependency graph.
+ *
+ * @see ResourceRelationshipType for the edge classification
+ * @see CompositeResource.relationships for full graph
  */
 export interface ResourceRelationshipEdge {
   /** Source resource UUID */
-  from: string;
+  readonly from: string;
   /** Target resource UUID */
-  to: string;
+  readonly to: string;
   /** Relationship type */
-  type: ResourceRelationshipType;
+  readonly type: ResourceRelationshipType;
 }
 
 // =============================================================================
@@ -243,13 +308,20 @@ export interface ResourceRelationshipEdge {
 // =============================================================================
 
 /**
- * A composite resource with all related sub-resources
+ * A complete resource composition with all related sub-resources and relationships.
+ *
+ * Used for detailed views where both the root resource and all dependent/related
+ * resources need to be displayed together with their relationship graph.
+ *
+ * @template TRoot The root resource type (defaults to generic Resource)
+ * @see Resource for individual resources
+ * @see ResourceRelationshipEdge for edge structure
  */
 export interface CompositeResource<TRoot extends Resource = Resource> {
   /** The root resource */
-  root: TRoot;
+  readonly root: TRoot;
   /** All child/related resources */
-  children: Resource[];
+  readonly children: readonly Resource[];
   /** Flattened relationship graph */
-  relationships: ResourceRelationshipEdge[];
+  readonly relationships: readonly ResourceRelationshipEdge[];
 }

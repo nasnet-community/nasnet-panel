@@ -8,7 +8,7 @@
  * a decorator so they work outside the full application router context.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RouterListPage } from './RouterListPage';
 
@@ -115,7 +115,7 @@ export const InsideAppShell: Story = {
     (Story) => (
       <div className="flex h-screen">
         {/* Simulated sidebar */}
-        <aside className="w-64 shrink-0 bg-slate-900" aria-label="Sidebar (simulated)" />
+        <aside className="w-64 shrink-0 bg-background" aria-label="Sidebar (simulated)" />
         <main className="flex-1 overflow-auto">
           <Story />
         </main>
@@ -138,6 +138,15 @@ export const DarkMode: Story = {
       </div>
     ),
   ],
+};
+
+/**
+ * Desktop viewport story – verifies the page layout optimized for larger screens.
+ */
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
 };
 
 // Export mockNavigate so it can be referenced in test files

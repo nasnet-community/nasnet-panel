@@ -2,16 +2,42 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
+/**
+ * FormFieldProps
+ *
+ * Props for the FormField component. Provides label, description, error,
+ * and required state for accessible form fields.
+ */
 export interface FormFieldProps {
+  /** Label text displayed above the field */
   label: string;
+  /** Optional helper text displayed below the label */
   description?: string;
+  /** Error message displayed below the field */
   error?: string;
+  /** Whether the field is required (shows asterisk) */
   required?: boolean;
+  /** Form input element(s) to wrap */
   children: React.ReactNode;
+  /** Additional CSS classes for the wrapper */
   className?: string;
+  /** HTML id for the input element */
   id?: string;
 }
 
+/**
+ * FormField base component with forwardRef for accessibility
+ *
+ * Provides semantic label, description, error message, and required indicator.
+ * Automatically connects label to input via generated IDs and ARIA attributes.
+ *
+ * @example
+ * ```tsx
+ * <FormField label="Email" description="We'll never share this" required>
+ *   <Input type="email" placeholder="you@example.com" />
+ * </FormField>
+ * ```
+ */
 const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
   function FormFieldBaseComponent({ label, description, error, required, children, className, id }, ref) {
     const generatedId = React.useId();
@@ -25,14 +51,14 @@ const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
           htmlFor={fieldId}
           className={cn(
             'text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-            error ? 'text-error' : 'text-slate-700 dark:text-slate-300'
+            error ? 'text-error' : 'text-foreground'
           )}
         >
           {label}
-          {required && <span className="text-error ml-1">*</span>}
+          {required && <span className="text-error ml-1" aria-label="required">*</span>}
         </label>
         {description && (
-          <p id={descriptionId} className="text-sm text-slate-500 dark:text-slate-400">
+          <p id={descriptionId} className="text-sm text-muted-foreground">
             {description}
           </p>
         )}

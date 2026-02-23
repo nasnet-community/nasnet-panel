@@ -83,8 +83,8 @@ vi.mock('../components/ImportTemplateDialog', () => ({
 }));
 
 // Mock API hooks
-vi.mock('@nasnet/api-client/queries', () => ({
-  useTemplates: () => ({
+vi.mock('@nasnet/api-client/queries', () => {
+  const useTemplatesMock = () => ({
     data: [
       {
         id: 'basic-security',
@@ -101,22 +101,26 @@ vi.mock('@nasnet/api-client/queries', () => ({
     ],
     isLoading: false,
     error: null,
-  }),
-  useApplyTemplate: () => ({
-    mutateAsync: vi.fn().mockResolvedValue({
-      success: true,
-      appliedRulesCount: 5,
-      rollbackId: 'rollback-123',
+  });
+
+  return {
+    useTemplates: useTemplatesMock,
+    useApplyTemplate: () => ({
+      mutateAsync: vi.fn().mockResolvedValue({
+        success: true,
+        appliedRulesCount: 5,
+        rollbackId: 'rollback-123',
+      }),
     }),
-  }),
-  useRollbackTemplate: () => ({
-    mutateAsync: vi.fn().mockResolvedValue(undefined),
-  }),
-}));
+    useRollbackTemplate: () => ({
+      mutateAsync: vi.fn().mockResolvedValue(undefined),
+    }),
+  };
+});
 
 // Mock custom templates hook
-vi.mock('../hooks/useCustomTemplates', () => ({
-  useCustomTemplates: () => ({
+vi.mock('../hooks/useCustomTemplates', () => {
+  const useCustomTemplatesMock = () => ({
     templates: [
       {
         id: 'custom-1',
@@ -137,8 +141,12 @@ vi.mock('../hooks/useCustomTemplates', () => ({
     remove: vi.fn().mockResolvedValue(undefined),
     exportTemplates: vi.fn().mockResolvedValue('{}'),
     importTemplates: vi.fn().mockResolvedValue(1),
-  }),
-}));
+  });
+
+  return {
+    useCustomTemplates: useCustomTemplatesMock,
+  };
+});
 
 // Mock sonner
 vi.mock('sonner', () => ({
@@ -253,14 +261,21 @@ describe('TemplatesPage', () => {
   });
 
   it('should show empty state when no templates available', () => {
-    // Mock no templates
-    vi.mocked(vi.importActual('@nasnet/api-client/queries')).useTemplates = () => ({
+    // The mocks are already set up at the module level
+    // Re-configure them to return empty templates
+    vi.mocked(
+      require('@nasnet/api-client/queries') as typeof import('@nasnet/api-client/queries'),
+      { partial: true }
+    ).useTemplates?.mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
-    });
+    } as any);
 
-    vi.mocked(vi.importActual('../hooks/useCustomTemplates')).useCustomTemplates = () => ({
+    vi.mocked(
+      require('../hooks/useCustomTemplates') as typeof import('../hooks/useCustomTemplates'),
+      { partial: true }
+    ).useCustomTemplates?.mockReturnValue({
       templates: [],
       loading: false,
       error: null,
@@ -268,7 +283,7 @@ describe('TemplatesPage', () => {
       remove: vi.fn(),
       exportTemplates: vi.fn(),
       importTemplates: vi.fn(),
-    });
+    } as any);
 
     renderTemplatesPage();
 

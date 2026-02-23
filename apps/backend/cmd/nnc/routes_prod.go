@@ -34,7 +34,10 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/network"
+	"backend/internal/orchestrator/resources"
 	"backend/internal/storage"
+	"backend/internal/vif/isolation"
+	"backend/internal/vif/routing"
 
 	"github.com/labstack/echo/v4"
 )
@@ -92,6 +95,12 @@ type prodRoutesDeps struct {
 	deviceTrafficTracker *traffic.DeviceTrafficTracker
 	quotaEnforcer        *traffic.QuotaEnforcer
 	configSvc            *config.Service
+	chainRouter          *routing.ChainRouter
+	pbrEngine            *routing.PBREngine
+	routingMatrixSvc     *routing.RoutingMatrixService
+	killSwitchManager    *isolation.KillSwitchManager
+	resourceLimiter      *resources.ResourceLimiter
+	chainLatencyMeasurer *routing.ChainLatencyMeasurer
 	logger               interface {
 		Errorw(msg string, keysAndValues ...interface{})
 		Infow(msg string, keysAndValues ...interface{})
@@ -152,6 +161,12 @@ func setupProdRoutes(e *echo.Echo, deps *prodRoutesDeps) {
 		TemplateExporter:         deps.templateExporter,
 		TemplateImporter:         deps.templateImporter,
 		Service:                  deps.configSvc,
+		ChainRouter:              deps.chainRouter,
+		PBREngine:                deps.pbrEngine,
+		RoutingMatrixSvc:         deps.routingMatrixSvc,
+		KillSwitchManager:        deps.killSwitchManager,
+		ResourceLimiter:          deps.resourceLimiter,
+		ChainLatencyMeasurer:     deps.chainLatencyMeasurer,
 		Logger:                   deps.logger,
 	})
 

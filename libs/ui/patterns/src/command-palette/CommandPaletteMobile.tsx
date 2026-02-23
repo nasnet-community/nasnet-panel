@@ -1,13 +1,14 @@
 /**
  * CommandPaletteMobile Component
- * Mobile presenter for the command palette (bottom sheet)
+ * Mobile and Tablet presenter for the command palette (bottom sheet)
  *
  * Features:
- * - Bottom sheet presentation
- * - No keyboard shortcut display (mobile has no keyboard)
- * - 44x44px touch targets
+ * - Bottom sheet presentation (Mobile & Tablet)
+ * - Keyboard navigation support (Tablet with keyboard)
+ * - 44x44px touch targets (WCAG AAA Mobile)
  * - Swipe to dismiss support
  * - Framer Motion animations
+ * - Touch-friendly interface scaling
  *
  * @see NAS-4.10: Implement Navigation & Command Palette
  * @see ADR-018: Headless Platform Presenters
@@ -30,6 +31,11 @@ import { CommandItem } from './CommandItem';
 import { useCommandPalette } from './useCommandPalette';
 
 /**
+ * cmdk Command primitive for consistent behavior with Desktop
+ */
+import { Command as CommandPrimitive } from 'cmdk';
+
+/**
  * Props for CommandPaletteMobile
  */
 export interface CommandPaletteMobileProps {
@@ -38,10 +44,17 @@ export interface CommandPaletteMobileProps {
 }
 
 /**
- * Mobile command palette presenter
- * Renders as a bottom sheet with touch-friendly targets
+ * Mobile and Tablet command palette presenter
+ * Renders as a bottom sheet with touch-friendly targets and keyboard support
+ *
+ * @example
+ * ```tsx
+ * <CommandPaletteMobile />
+ * ```
  */
-export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
+const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
+  className,
+}: CommandPaletteMobileProps) {
   const {
     open,
     setOpen,
@@ -53,6 +66,7 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
     isShowingRecent,
     isOnline,
     execute,
+    handleKeyDown,
     inputRef,
   } = useCommandPalette();
 
@@ -106,8 +120,8 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
                 <h2 className="text-base font-semibold">Search Commands</h2>
                 <SheetClose asChild>
                   <button
-                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent"
-                    aria-label="Close"
+                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
+                    aria-label="Close search"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -120,22 +134,26 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
                   className="mr-3 h-5 w-5 shrink-0 text-muted-foreground"
                   aria-hidden="true"
                 />
-                <input
+                <CommandPrimitive.Input
                   ref={inputRef}
-                  type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onValueChange={setQuery}
                   placeholder="Search..."
-                  className="flex h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
+                  className="flex h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="Search commands"
+                  aria-autocomplete="list"
+                  aria-controls="command-list-mobile"
+                  aria-expanded={hasResults}
+                  role="combobox"
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
+                  onKeyDown={handleKeyDown}
                 />
                 {query && (
                   <button
-                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent"
+                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
                     onClick={() => setQuery('')}
                     aria-label="Clear search"
                   >
@@ -145,17 +163,16 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
               </div>
 
               {/* Results List */}
-              <div
-                className="flex-1 overflow-y-auto overflow-x-hidden p-3"
+              <CommandPrimitive.List
+                id="command-list-mobile"
                 role="listbox"
                 aria-label={isShowingRecent ? 'Recent commands' : 'Search results'}
+                className="flex-1 overflow-y-auto overflow-x-hidden p-3"
               >
                 {/* Empty state */}
-                {!hasResults && query && (
-                  <div className="py-8 text-center text-sm text-muted-foreground">
-                    No commands found for "{query}"
-                  </div>
-                )}
+                <CommandPrimitive.Empty className="py-8 text-center text-sm text-muted-foreground">
+                  No commands found{query && ` for "${query}"`}
+                </CommandPrimitive.Empty>
 
                 {/* Section header */}
                 {hasResults && (
@@ -176,15 +193,21 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
 
                 {/* Command items - no shortcuts on mobile */}
                 {results.map((command, index) => (
-                  <CommandItem
+                  <CommandPrimitive.Item
                     key={command.id}
-                    command={command}
-                    selected={index === selectedIndex}
-                    showShortcut={false} // No shortcuts on mobile
-                    isOnline={isOnline}
+                    value={command.id}
                     onSelect={() => execute(command)}
-                    className="min-h-[44px]" // WCAG AAA touch target
-                  />
+                    className="p-0"
+                  >
+                    <CommandItem
+                      command={command}
+                      selected={index === selectedIndex}
+                      showShortcut={false}
+                      isOnline={isOnline}
+                      onSelect={() => execute(command)}
+                      className="min-h-[44px]"
+                    />
+                  </CommandPrimitive.Item>
                 ))}
 
                 {/* Empty recent state */}
@@ -195,7 +218,7 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
                     <p className="mt-1 text-xs">Your recent commands will appear here</p>
                   </div>
                 )}
-              </div>
+              </CommandPrimitive.List>
 
               {/* Results count */}
               {hasResults && (
@@ -211,4 +234,8 @@ export function CommandPaletteMobile({ className }: CommandPaletteMobileProps) {
       </AnimatePresence>
     </Sheet>
   );
-}
+});
+
+CommandPaletteMobile.displayName = 'CommandPaletteMobile';
+
+export { CommandPaletteMobile };

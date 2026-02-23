@@ -69,7 +69,7 @@ export const InsideCard: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-2xl rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm">
+      <div className="max-w-2xl rounded-xl border border-border bg-card p-6 shadow-sm">
         <Story />
       </div>
     ),
@@ -86,5 +86,23 @@ export const MobileWidth: Story = {
   },
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    routerId: 'router-001',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    routerId: 'router-001',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

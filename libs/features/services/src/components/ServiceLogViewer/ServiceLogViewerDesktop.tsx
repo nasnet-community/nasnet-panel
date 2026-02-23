@@ -9,6 +9,7 @@
  */
 
 import * as React from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Search,
@@ -45,6 +46,7 @@ import {
   type ServiceLogViewerProps,
 } from './useServiceLogViewer';
 import type { LogLevel, LogEntry } from '@nasnet/api-client/queries';
+import { cn } from '@nasnet/ui/utils';
 
 /**
  * Height of each log row in pixels
@@ -61,6 +63,8 @@ const ROW_HEIGHT = 32;
  * - Auto-scroll toggle
  * - Copy to clipboard
  * - JetBrains Mono font for logs
+ *
+ * @description High-performance presenter with virtual scrolling for 1000+ log lines
  */
 function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
   const { className, onEntryClick } = props;
@@ -83,8 +87,8 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
     totalEntries,
   } = useServiceLogViewer(props);
 
-  const [copySuccess, setCopySuccess] = React.useState(false);
-  const parentRef = React.useRef<HTMLDivElement>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   // Setup virtualizer
   const rowVirtualizer = useVirtualizer({
@@ -94,7 +98,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
     overscan: 5,
   });
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await copyToClipboard();
       setCopySuccess(true);
@@ -102,15 +106,22 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
     } catch (err) {
       console.error('Copy failed:', err);
     }
-  };
+  }, [copyToClipboard]);
 
-  const handleClearFilter = () => {
+  const handleClearFilter = useCallback(() => {
     setLevelFilter(null);
-  };
+  }, [setLevelFilter]);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setSearchQuery('');
-  };
+  }, [setSearchQuery]);
+
+  const handleEntryClick = useCallback(
+    (entry: LogEntry) => {
+      onEntryClick?.(entry);
+    },
+    [onEntryClick]
+  );
 
   return (
     <Card className={className}>
@@ -274,13 +285,13 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
-                    className={`
-                      flex items-center px-3 border-b border-border
-                      font-mono text-xs leading-none
-                      cursor-pointer hover:bg-accent/50 transition-colors
-                      ${bgColor}
-                    `}
-                    onClick={() => onEntryClick?.(entry)}
+                    className={cn(
+                      'flex items-center px-3 border-b border-border',
+                      'font-mono text-xs leading-none',
+                      'cursor-pointer hover:bg-accent/50 transition-colors',
+                      bgColor
+                    )}
+                    onClick={() => handleEntryClick(entry)}
                     role="row"
                     tabIndex={0}
                     aria-label={`Log entry: ${entry.level} - ${entry.message}`}

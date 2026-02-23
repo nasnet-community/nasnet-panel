@@ -15,9 +15,10 @@
  * @see NAS-7.X: Implement RAW Firewall Rules - Phase B - Task 10
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
+import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
   useRawRules,
@@ -27,8 +28,10 @@ import {
   useUpdateRawRule,
 } from '@nasnet/api-client/queries/firewall';
 import type { RawRule, RawRuleInput, RawChain } from '@nasnet/core/types';
-import { RawRuleEditor } from '@nasnet/ui/patterns';
-import { CounterCell } from '@nasnet/ui/patterns';
+import {
+  RawRuleEditor,
+  CounterCell,
+} from '@nasnet/ui/patterns';
 import { useCounterSettingsStore } from '@nasnet/features/firewall';
 import {
   Card,
@@ -47,12 +50,17 @@ import {
 import { Pencil, Copy, Trash2 } from 'lucide-react';
 
 // ============================================================================
-// Action Badge Component
+// Constants
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
-  // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+const HIGHLIGHT_SCROLL_DELAY_MS = 100;
+
+/**
+ * Renders a status badge for RAW rule actions
+ * @description Maps action types to semantic color variants
+ */
+const ActionBadge = ({ action }: { action: string }) => {
+  const VARIANT_MAP: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
     drop: 'error',
     notrack: 'warning',
@@ -60,31 +68,45 @@ function ActionBadge({ action }: { action: string }) {
     jump: 'warning',
   };
 
-  const variant = variantMap[action] || 'default';
+  const variant = VARIANT_MAP[action] || 'default';
 
   return (
     <Badge variant={variant} className="text-xs">
       {action}
     </Badge>
   );
-}
+};
+
+ActionBadge.displayName = 'ActionBadge';
 
 // ============================================================================
 // Rule Card Component
 // ============================================================================
 
 interface RuleCardProps {
+  /** Rule data to display */
   rule: RawRule;
+  /** Maximum bytes for relative bar calculation */
   maxBytes: number;
+  /** Callback when edit button clicked */
   onEdit: (rule: RawRule) => void;
+  /** Callback when duplicate button clicked */
   onDuplicate: (rule: RawRule) => void;
+  /** Callback when delete button clicked */
   onDelete: (rule: RawRule) => void;
+  /** Callback when toggle switch changed */
   onToggle: (rule: RawRule) => void;
+  /** Whether this card is highlighted */
   isHighlighted?: boolean;
+  /** Ref to highlight element for scroll-to-view */
   highlightRef?: React.RefObject<HTMLDivElement>;
 }
 
-function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isHighlighted, highlightRef }: RuleCardProps) {
+/**
+ * Renders a card for a single RAW rule on mobile
+ * @description Displays rule details with actions in a touch-friendly layout
+ */
+const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isHighlighted, highlightRef }: RuleCardProps) => {
   const { t } = useTranslation('firewall');
   const isUnused = (rule.packets ?? 0) === 0;
   const showRelativeBar = useCounterSettingsStore((state) => state.showRelativeBar);
@@ -103,7 +125,11 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
   return (
     <Card
       ref={isHighlighted ? highlightRef as React.RefObject<HTMLDivElement> : undefined}
-      className={`${rule.disabled ? 'opacity-50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
+      className={cn(
+        rule.disabled && 'opacity-50',
+        isUnused && 'bg-muted/40 opacity-60',
+        isHighlighted && 'animate-highlight bg-warning/20'
+      )}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -127,7 +153,7 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          <div className="text-sm text-muted-foreground mb-3 font-mono">
             {matchers.join(' ')}
           </div>
         )}
@@ -173,40 +199,47 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
+            className="text-destructive hover:bg-destructive/10"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </CardContent>
     </Card>
   );
-}
+};
+
+RuleCard.displayName = 'RuleCard';
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export interface RawRulesTableMobileProps {
+  /** Optional className for styling */
   className?: string;
+  /** Optional chain filter */
   chain?: string;
 }
 
 /**
  * RawRulesTableMobile Component
- *
- * Mobile-optimized card-based layout for RAW rules.
+ * @description Mobile presenter for RAW firewall rules with card layout
  *
  * Features:
- * - Touch-friendly card layout
+ * - Touch-friendly card-based layout
  * - Inline actions (Edit, Duplicate, Delete)
- * - Enable/disable toggle
+ * - Enable/disable toggle for each rule
  * - Compact counter display
+ * - Disabled rules styling
+ * - Unused rules badge (zero packets)
  *
- * @param props - Component props
- * @returns Mobile RAW rules table component
+ * @example
+ * ```tsx
+ * <RawRulesTableMobile chain="forward" />
+ * ```
  */
-export function RawRulesTableMobile({ className, chain }: RawRulesTableMobileProps) {
+export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobileProps) => {
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const pollingInterval = useCounterSettingsStore((state) => state.pollingInterval);
@@ -238,106 +271,109 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
     return Math.max(...sortedRules.map(r => r.bytes ?? 0));
   }, [sortedRules]);
 
-  // Handlers
-  const handleEdit = (rule: RawRule) => {
+  // ========================================================================
+  // Event Handlers
+  // ========================================================================
+
+  const handleEdit = useCallback((rule: RawRule) => {
     setEditingRule(rule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleDuplicate = (rule: RawRule) => {
+  const handleDuplicate = useCallback((rule: RawRule) => {
     const duplicatedRule = { ...rule, id: undefined, order: undefined };
     setEditingRule(duplicatedRule);
     setIsEditorOpen(true);
-  };
+  }, []);
 
-  const handleSaveRule = async (ruleInput: RawRuleInput) => {
+  const handleSaveRule = useCallback(async (ruleInput: RawRuleInput) => {
     if (editingRule?.id) {
-      // Update existing rule
       await updateRawRule.mutateAsync({
         ruleId: editingRule.id,
         updates: ruleInput,
       });
     } else {
-      // Create new rule
       await createRawRule.mutateAsync(ruleInput);
     }
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, [editingRule, updateRawRule, createRawRule]);
 
-  const handleCloseEditor = () => {
+  const handleCloseEditor = useCallback(() => {
     setIsEditorOpen(false);
     setEditingRule(null);
-  };
+  }, []);
 
-  const handleDelete = (rule: RawRule) => {
+  const handleDelete = useCallback((rule: RawRule) => {
     setDeleteConfirmRule(rule);
-  };
+  }, []);
 
-  const handleToggle = (rule: RawRule) => {
+  const handleToggle = useCallback((rule: RawRule) => {
     toggleRawRule.mutate({
       ruleId: rule.id!,
       disabled: !rule.disabled,
     });
-  };
+  }, [toggleRawRule]);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     if (deleteConfirmRule) {
       deleteRawRule.mutate(deleteConfirmRule.id!);
       setDeleteConfirmRule(null);
     }
-  };
+  }, [deleteConfirmRule, deleteRawRule]);
 
-  // Scroll to highlighted rule when highlight changes
+  // ========================================================================
+  // Effects
+  // ========================================================================
+
   useEffect(() => {
     if (highlightRuleId && highlightRef.current) {
-      // Wait for render to complete
       const timer = setTimeout(() => {
         highlightRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         });
-      }, 100);
+      }, HIGHLIGHT_SCROLL_DELAY_MS);
 
       return () => clearTimeout(timer);
     }
     return undefined;
   }, [highlightRuleId, sortedRules]);
 
-  // Loading state
+  // ========================================================================
+  // Render States
+  // ========================================================================
+
   if (isLoading) {
     return (
-      <div className={`p-4 space-y-4 ${className || ''}`}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-        </div>
+      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+        <div className="h-32 bg-muted rounded-lg" />
+        <div className="h-32 bg-muted rounded-lg" />
+        <div className="h-32 bg-muted rounded-lg" />
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        {t('raw.notifications.error.loadRules', 'Error loading RAW rules')}: {error.message}
+      <div className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}>
+        <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
+        <p className="text-sm mt-1">{error.message}</p>
       </div>
     );
   }
 
-  // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
-        <p className="font-semibold mb-2">
+      <div className={cn('p-8 text-center space-y-2', className)}>
+        <p className="font-semibold text-foreground">
           {chain
             ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
             : t('raw.emptyStates.noRules.title', 'No RAW rules found')}
         </p>
-        <p className="text-sm">
+        <p className="text-sm text-muted-foreground">
           {chain
-            ? t('raw.emptyStates.noRulesInChain.description', 'This chain has no RAW rules configured.')
+            ? t('raw.emptyStates.noRulesInChain.description', 'This chain has no rules configured.')
             : t('raw.emptyStates.noRules.description', 'RAW rules process packets before connection tracking.')}
         </p>
       </div>
@@ -396,7 +432,7 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
             <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
               {t('raw.buttons.cancel', 'Cancel')}
             </Button>
-            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <Button onClick={confirmDelete} variant="destructive">
               {t('raw.buttons.delete', 'Delete Rule')}
             </Button>
           </DialogFooter>
@@ -404,4 +440,6 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
       </Dialog>
     </>
   );
-}
+};
+
+RawRulesTableMobile.displayName = 'RawRulesTableMobile';

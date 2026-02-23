@@ -1,8 +1,11 @@
 /**
  * Service Sharing Validation Schemas
  *
- * Zod schemas for service export/import validation.
- * Validates export parameters, import packages, and user input for redacted fields.
+ * @description
+ * Zod schemas for service export/import validation. Provides client-side
+ * validation for all service sharing operations including export configuration,
+ * import package structure, and redacted field value entry. All schemas follow
+ * WCAG AAA accessibility and professional error messaging standards.
  *
  * @module @nasnet/features/services/schemas
  */

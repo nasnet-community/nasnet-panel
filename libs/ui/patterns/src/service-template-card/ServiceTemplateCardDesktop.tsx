@@ -7,6 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import {
@@ -34,7 +35,7 @@ import type { ServiceTemplateCardProps } from './types';
  * - Tooltip on description truncation
  * - Inline metadata display
  */
-export function ServiceTemplateCardDesktop(props: ServiceTemplateCardProps) {
+function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
   const { className, children } = props;
   const {
     name,
@@ -284,3 +285,9 @@ export function ServiceTemplateCardDesktop(props: ServiceTemplateCardProps) {
     </Card>
   );
 }
+
+// Wrap with memo for performance optimization
+export const ServiceTemplateCardDesktop = memo(ServiceTemplateCardDesktopComponent);
+
+// Set display name for React DevTools
+ServiceTemplateCardDesktop.displayName = 'ServiceTemplateCardDesktop';

@@ -43,7 +43,7 @@ function transformPPPSecret(raw: PPPSecretRaw): PPPSecret {
     routes: raw.routes,
     limitBytesIn: raw['limit-bytes-in'] ? parseInt(raw['limit-bytes-in'], 10) : undefined,
     limitBytesOut: raw['limit-bytes-out'] ? parseInt(raw['limit-bytes-out'], 10) : undefined,
-    disabled: raw.disabled === 'true',
+    isDisabled: raw.disabled === 'true',
     comment: raw.comment,
   };
 }

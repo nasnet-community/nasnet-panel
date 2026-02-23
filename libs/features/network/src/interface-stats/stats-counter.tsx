@@ -2,12 +2,24 @@
  * StatsCounter Component
  * Displays animated counter for interface statistics with BigInt support
  *
+ * @description
+ * Renders a labeled statistic counter with support for BigInt values (TX/RX bytes/packets).
+ * Includes subtle opacity animation when values update. Technical data (bandwidth,
+ * byte counts) displayed in monospace font for clarity.
+ *
  * NAS-6.9: Implement Interface Traffic Statistics
  */
 
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState, useCallback } from 'react';
 import { cn } from '@nasnet/ui/utils';
+
 import type { StatsCounterProps } from './interface-stats-panel.types';
+
+/** Kilobytes constant for binary calculations */
+const K_BYTES_BINARY = 1024n;
+
+/** Size units for binary formatting (B, KB, MB, GB, TB, PB) */
+const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
 
 /**
  * Formats bytes as BigInt to human-readable size string
@@ -20,28 +32,24 @@ import type { StatsCounterProps } from './interface-stats-panel.types';
 function formatBytesBigInt(bytes: bigint, decimals = 2): string {
   if (bytes === 0n) return '0 B';
 
-  const k = 1024n;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-
   // Find appropriate unit
   let value = bytes;
   let unitIndex = 0;
 
-  while (value >= k && unitIndex < sizes.length - 1) {
-    value = value / k;
+  while (value >= K_BYTES_BINARY && unitIndex < BYTE_UNITS.length - 1) {
+    value = value / K_BYTES_BINARY;
     unitIndex++;
   }
 
-  // Convert to number for decimal formatting
-  // Use the remainder for precision
-  const divisor = k ** BigInt(unitIndex);
+  // Convert to number for decimal formatting using remainder for precision
+  const divisor = K_BYTES_BINARY ** BigInt(unitIndex);
   const integerPart = bytes / divisor;
   const remainder = bytes % divisor;
 
   // Calculate decimal value
   const decimalValue = Number(integerPart) + Number(remainder) / Number(divisor);
 
-  return `${decimalValue.toFixed(decimals)} ${sizes[unitIndex]}`;
+  return `${decimalValue.toFixed(decimals)} ${BYTE_UNITS[unitIndex]}`;
 }
 
 /**
@@ -80,7 +88,7 @@ function formatNumberBigInt(value: bigint, locale = 'en-US'): string {
  * // Displays: "42,000" with label "Total Packets"
  * ```
  */
-export function StatsCounter({
+export const StatsCounter = memo(function StatsCounter({
   value,
   label,
   unit = 'bytes',
@@ -104,23 +112,26 @@ export function StatsCounter({
     return () => clearTimeout(timer);
   }, [value, displayValue]);
 
-  // Format the value based on unit type
-  let formattedValue: string;
-  try {
-    const bigIntValue = BigInt(displayValue);
+  // Format the value based on unit type with memoized callback
+  const getFormattedValue = useCallback((): string => {
+    try {
+      const bigIntValue = BigInt(displayValue);
 
-    if (unit === 'bytes') {
-      formattedValue = formatBytesBigInt(bigIntValue);
-    } else if (unit === 'packets' || unit === 'count') {
-      formattedValue = formatNumberBigInt(bigIntValue);
-    } else {
-      formattedValue = String(displayValue);
+      if (unit === 'bytes') {
+        return formatBytesBigInt(bigIntValue);
+      }
+      if (unit === 'packets' || unit === 'count') {
+        return formatNumberBigInt(bigIntValue);
+      }
+      return String(displayValue);
+    } catch (err) {
+      // Fallback if BigInt parsing fails
+      console.error('Error formatting stats counter:', err);
+      return String(displayValue);
     }
-  } catch (err) {
-    // Fallback if BigInt parsing fails
-    console.error('Error formatting stats counter:', err);
-    formattedValue = String(displayValue);
-  }
+  }, [displayValue, unit]);
+
+  const formattedValue = getFormattedValue();
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
@@ -137,4 +148,6 @@ export function StatsCounter({
       </span>
     </div>
   );
-}
+});
+
+StatsCounter.displayName = 'StatsCounter';

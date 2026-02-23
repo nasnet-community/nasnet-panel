@@ -7,10 +7,13 @@
  * @module @nasnet/features/alerts/components
  * @see NAS-18.4: Webhook notification configuration with Platform Presenters
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
+ * @description Renders a webhook configuration form with automatic platform detection
+ * (mobile <640px vs desktop), platform-specific UI optimization, and signing secret management.
  */
 
 import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import {
   useWebhookConfigForm,
   type UseWebhookConfigFormOptions,
@@ -71,7 +74,7 @@ export const WebhookConfigForm = memo(function WebhookConfigForm(props: WebhookC
 
   // Render appropriate presenter
   return (
-    <div className={className}>
+    <div className={cn(className)}>
       {isMobile ? (
         <WebhookConfigFormMobile webhookForm={webhookForm} />
       ) : (
@@ -80,3 +83,5 @@ export const WebhookConfigForm = memo(function WebhookConfigForm(props: WebhookC
     </div>
   );
 });
+
+WebhookConfigForm.displayName = 'WebhookConfigForm';

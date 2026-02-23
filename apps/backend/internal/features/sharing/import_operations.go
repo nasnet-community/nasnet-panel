@@ -70,7 +70,7 @@ func (s *Service) ApplyImport(ctx context.Context, pkg *ServiceExportPackage, op
 		case ConflictRename:
 			// Create new instance with renamed name
 			newName := fmt.Sprintf("%s (imported)", pkg.ServiceName)
-			instance, err = s.createNewInstance(ctx, tx, pkg, config, newName)
+			instance, err = s.createNewInstance(ctx, tx, pkg, config, newName, options.RouterID)
 			if err != nil {
 				_ = tx.Rollback() //nolint:errcheck // best-effort rollback
 				return nil, err
@@ -78,7 +78,7 @@ func (s *Service) ApplyImport(ctx context.Context, pkg *ServiceExportPackage, op
 		}
 	} else {
 		// No conflict, create new instance
-		instance, err = s.createNewInstance(ctx, tx, pkg, config, pkg.ServiceName)
+		instance, err = s.createNewInstance(ctx, tx, pkg, config, pkg.ServiceName, options.RouterID)
 		if err != nil {
 			_ = tx.Rollback() //nolint:errcheck // best-effort rollback
 			return nil, err

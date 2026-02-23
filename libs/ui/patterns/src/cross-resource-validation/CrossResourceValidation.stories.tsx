@@ -152,7 +152,7 @@ export const DuplicateMAC: CardStory = {
 
 // ===== ConflictList Stories =====
 
-const listMeta: Meta<typeof ConflictList> = {
+const _listMeta: Meta<typeof ConflictList> = {
   title: 'Patterns/Forms/ConflictList',
   component: ConflictList,
   tags: ['autodocs'],

@@ -5,6 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createActor, waitFor } from 'xstate';
+import type { ActorLogic } from 'xstate';
 import { createTroubleshootMachine } from './troubleshoot-machine';
 import type { TroubleshootContext } from '../types/troubleshoot.types';
 
@@ -51,13 +52,13 @@ describe('TroubleshootMachine', () => {
       const actor = createActor(
         machine.provide({
           actors: {
-            detectNetworkConfig: vi.fn(async () => mockNetworkConfig),
+            detectNetworkConfig: vi.fn(async () => mockNetworkConfig) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async () => ({
               success: true,
               message: 'Check passed',
               executionTimeMs: 100,
-            })),
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -81,13 +82,13 @@ describe('TroubleshootMachine', () => {
       const actor = createActor(
         machine.provide({
           actors: {
-            detectNetworkConfig: detectSpy,
+            detectNetworkConfig: detectSpy as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async () => ({
               success: true,
               message: 'Check passed',
               executionTimeMs: 100,
-            })),
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -118,9 +119,9 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
-            executeDiagnosticStep: executeSpy,
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            executeDiagnosticStep: executeSpy as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -148,9 +149,9 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
-            executeDiagnosticStep: vi.fn(async () => executionPromise),
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            executeDiagnosticStep: vi.fn(async () => executionPromise) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -177,7 +178,7 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: null,
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async ({ input }) => {
               if (input.step.id === 'wan') {
                 return {
@@ -188,8 +189,8 @@ describe('TroubleshootMachine', () => {
                 };
               }
               return { success: true, message: 'Passed', executionTimeMs: 100 };
-            }),
-            applyFix: vi.fn(async () => ({ success: true })),
+            }) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn(async () => ({ success: true })) as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -215,7 +216,7 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: null,
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async ({ input }) => {
               if (input.step.id === 'wan') {
                 return {
@@ -226,8 +227,8 @@ describe('TroubleshootMachine', () => {
                 };
               }
               return { success: true, message: 'Passed', executionTimeMs: 100 };
-            }),
-            applyFix: applyFixSpy,
+            }) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: applyFixSpy as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -256,7 +257,7 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async ({ input }) => {
               if (input.step.id === 'wan') {
                 return {
@@ -267,8 +268,8 @@ describe('TroubleshootMachine', () => {
                 };
               }
               return { success: true, message: 'Passed', executionTimeMs: 100 };
-            }),
-            applyFix: vi.fn(),
+            }) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -302,12 +303,12 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async () => {
               // Never resolve to keep machine in running state
               return new Promise(() => {});
-            }),
-            applyFix: vi.fn(),
+            }) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -337,13 +338,13 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async () => ({
               success: true,
               message: 'Passed',
               executionTimeMs: 100,
-            })),
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );
@@ -368,13 +369,13 @@ describe('TroubleshootMachine', () => {
             detectNetworkConfig: vi.fn(async () => ({
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
-            })),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
             executeDiagnosticStep: vi.fn(async () => ({
               success: true,
               message: 'Passed',
               executionTimeMs: 100,
-            })),
-            applyFix: vi.fn(),
+            })) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
       );

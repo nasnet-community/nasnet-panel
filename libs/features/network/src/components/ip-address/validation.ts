@@ -2,15 +2,27 @@
  * IP Address Form Validation Schema
  * NAS-6.2: IP Address Management
  *
- * Provides Zod validation schemas for IP address forms with CIDR notation,
+ * @description Provides Zod validation schemas for IP address forms with CIDR notation,
  * interface selection, and comment validation.
  */
 
 import { z } from 'zod';
 import { cidr, comment } from '@nasnet/core/forms';
 
+/** Maximum IP address CIDR prefix length (IPv4: 0-32) */
+const MAX_IPV4_PREFIX_LENGTH = 32;
+
+/** Minimum valid IP prefix length */
+const MIN_IP_PREFIX_LENGTH = 0;
+
+/** IPv4 address octet maximum value */
+const MAX_IP_OCTET = 255;
+
 /**
  * IP Address form input schema with CIDR validation.
+ *
+ * @description Schema for IP address form with CIDR notation validation,
+ * interface selection, optional comments, and disabled state flag.
  *
  * Validates:
  * - address: CIDR notation (e.g., "192.168.1.1/24")
@@ -50,14 +62,18 @@ export const ipAddressFormSchema = z.object({
       // Validate each octet is a number 0-255
       const validOctets = octets.every((octet) => {
         const num = parseInt(octet, 10);
-        return !isNaN(num) && num >= 0 && num <= 255 && octet === String(num);
+        return !isNaN(num) && num >= 0 && num <= MAX_IP_OCTET && octet === String(num);
       });
 
       if (!validOctets) return false;
 
       // Validate prefix length is 0-32
       const prefixNum = parseInt(prefix, 10);
-      return !isNaN(prefixNum) && prefixNum >= 0 && prefixNum <= 32;
+      return (
+        !isNaN(prefixNum) &&
+        prefixNum >= MIN_IP_PREFIX_LENGTH &&
+        prefixNum <= MAX_IPV4_PREFIX_LENGTH
+      );
     },
     { message: 'Invalid CIDR notation. Format: 192.168.1.1/24' }
   ),
@@ -83,8 +99,10 @@ export const ipAddressFormSchema = z.object({
 });
 
 /**
- * Inferred TypeScript type from the schema.
- * Use this type for form state and submission handlers.
+ * Inferred TypeScript type from the IP address form schema.
+ *
+ * @description Type-safe representation of validated IP address form data.
+ * Use this type for form state, submission handlers, and API mutations.
  *
  * @example
  * ```tsx
@@ -101,7 +119,9 @@ export const ipAddressFormSchema = z.object({
 export type IpAddressFormData = z.infer<typeof ipAddressFormSchema>;
 
 /**
- * Default values for IP address form.
+ * Default values for IP address form initialization.
+ *
+ * @description Provides empty, valid default form values for new IP address creation.
  * Use this to initialize the form or reset after submission.
  *
  * @example

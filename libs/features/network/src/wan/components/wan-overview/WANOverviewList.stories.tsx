@@ -5,9 +5,10 @@
  * error state, and error banner with cached data.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { WANOverviewList } from './WANOverviewList';
+
 import type { WANInterfaceData } from '../../types/wan.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data

@@ -5,9 +5,9 @@
  * Tests for Apollo Client hooks that interact with the GraphQL API.
  */
 
+import React, { type ReactNode } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { ReactNode } from 'react';
+import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
 import { describe, it, expect } from 'vitest';
 import {
   GET_ALERT_RULE_TEMPLATES,
@@ -35,12 +35,18 @@ import { deviceOfflineTemplate, highCPUTemplate } from '../__test-utils__/alert-
 // Test Helpers
 // =============================================================================
 
+interface WrapperProps {
+  children: ReactNode;
+}
+
 function createWrapper(mocks: MockedResponse[]) {
-  return ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      {children}
-    </MockedProvider>
-  );
+  return function Wrapper({ children }: WrapperProps): React.ReactElement {
+    return React.createElement(
+      MockedProvider,
+      { mocks, addTypename: false },
+      children
+    );
+  };
 }
 
 // =============================================================================
@@ -158,8 +164,8 @@ describe('useAlertRuleTemplate', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.data?.alertRuleTemplate.id).toBe('device-offline');
-    expect(result.current.data?.alertRuleTemplate.name).toBe('Device Offline Alert');
+    expect(result.current.data?.alertRuleTemplate?.id).toBe('device-offline');
+    expect(result.current.data?.alertRuleTemplate?.name).toBe('Device Offline Alert');
   });
 
   it('should handle not found error', async () => {
@@ -398,7 +404,7 @@ describe('useApplyAlertRuleTemplate', () => {
 
     expect(applyResult.data?.applyAlertRuleTemplate.alertRule).toBeNull();
     expect(applyResult.data?.applyAlertRuleTemplate.errors).toHaveLength(1);
-    expect(applyResult.data?.applyAlertRuleTemplate.errors?.[0].code).toBe('VALIDATION_ERROR');
+    expect(applyResult.data?.applyAlertRuleTemplate.errors?.[0]?.message).toBe('Missing required variables: OFFLINE_DURATION');
   });
 });
 

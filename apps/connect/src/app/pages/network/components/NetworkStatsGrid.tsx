@@ -6,11 +6,12 @@
 import React from 'react';
 
 import { Cpu, HardDrive, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type SystemResource } from '@nasnet/core/types';
 import { parseRouterOSUptime, calculateStatus } from '@nasnet/core/utils';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface NetworkStatsGridProps {
   resourceData?: SystemResource;
@@ -18,6 +19,7 @@ interface NetworkStatsGridProps {
 }
 
 export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceData, isLoading }: NetworkStatsGridProps) {
+  const { t } = useTranslation('network');
   const memoryUsed = resourceData
     ? resourceData.totalMemory - resourceData.freeMemory
     : 0;
@@ -48,44 +50,44 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
       {/* CPU */}
       <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" aria-hidden="true" />
+          <Cpu className="w-3.5 h-3.5 text-info" aria-hidden="true" />
         </div>
         <p className={cn(
           'text-lg font-bold',
           resourceData?.cpuLoad !== undefined
-            ? calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-cyan-400' :
-              calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-amber-400' : 'text-red-400'
+            ? calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-info' :
+              calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-warning' : 'text-destructive'
             : 'text-foreground'
         )}>
           {resourceData?.cpuLoad ?? '--'}%
         </p>
-        <p className="text-muted-foreground text-xs">CPU</p>
+        <p className="text-muted-foreground text-xs">{t('quickStats.cpu')}</p>
       </div>
 
       {/* Memory */}
       <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <HardDrive className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
+          <HardDrive className="w-3.5 h-3.5 text-secondary" aria-hidden="true" />
         </div>
         <p className={cn(
           'text-lg font-bold',
           resourceData
-            ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-purple-400' :
-              calculateStatus(memoryPercentage) === 'warning' ? 'text-amber-400' : 'text-red-400'
+            ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-secondary' :
+              calculateStatus(memoryPercentage) === 'warning' ? 'text-warning' : 'text-destructive'
             : 'text-foreground'
         )}>
           {memoryPercentage}%
         </p>
-        <p className="text-muted-foreground text-xs">RAM</p>
+        <p className="text-muted-foreground text-xs">{t('quickStats.memory')}</p>
       </div>
 
       {/* Uptime */}
       <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Clock className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+          <Clock className="w-3.5 h-3.5 text-success" aria-hidden="true" />
         </div>
-        <p className="text-lg font-bold text-emerald-400">{uptimeFormatted}</p>
-        <p className="text-muted-foreground text-xs">Uptime</p>
+        <p className="text-lg font-bold text-success">{uptimeFormatted}</p>
+        <p className="text-muted-foreground text-xs">{t('quickStats.uptime')}</p>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@
  * @module @nasnet/features/firewall/components/AddServiceDialog
  */
 
-import { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -29,11 +29,17 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  RadioGroup,
+  RadioGroupItem,
+  Alert,
+  AlertDescription,
 } from '@nasnet/ui/primitives';
-import { Button, Input, Label, Textarea, RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives';
-import { useCustomServices } from '../hooks';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
 import { AlertCircle } from 'lucide-react';
+import { useCustomServices } from '../hooks';
 
 // ============================================================================
 // Component Props
@@ -55,6 +61,13 @@ export interface AddServiceDialogProps {
 /**
  * Dialog for adding or editing custom service port definitions
  *
+ * Features:
+ * - Service name with conflict detection
+ * - Protocol selection (TCP/UDP/Both)
+ * - Port number validation (1-65535)
+ * - Optional description
+ * - Full form validation with Zod
+ *
  * @example
  * ```tsx
  * // Add mode
@@ -75,8 +88,15 @@ export interface AddServiceDialogProps {
  *   }}
  * />
  * ```
+ *
+ * @param props - Component props
+ * @returns Dialog component for service management
  */
-export function AddServiceDialog({ open, onOpenChange, editService }: AddServiceDialogProps) {
+export const AddServiceDialog = React.memo(function AddServiceDialog({
+  open,
+  onOpenChange,
+  editService,
+}: AddServiceDialogProps) {
   const { t } = useTranslation('firewall');
   const { addService, updateService } = useCustomServices();
 
@@ -118,33 +138,37 @@ export function AddServiceDialog({ open, onOpenChange, editService }: AddService
   /**
    * Handle form submission (add or update)
    */
-  const onSubmit = async (data: CustomServicePortInput) => {
-    try {
-      if (editService) {
-        // Edit mode: Update existing service
-        await updateService(editService.port, data);
-      } else {
-        // Add mode: Create new service
-        await addService(data);
-      }
+  const onSubmit = useCallback(
+    async (data: CustomServicePortInput) => {
+      try {
+        if (editService) {
+          // Edit mode: Update existing service
+          await updateService(editService.port, data);
+        } else {
+          // Add mode: Create new service
+          await addService(data);
+        }
 
-      // Success: Close dialog and reset form
-      onOpenChange(false);
-      reset(DEFAULT_CUSTOM_SERVICE_INPUT);
-    } catch (error) {
-      // Error: Show error message on service field
-      const errorMessage = error instanceof Error ? error.message : t('servicePorts.validation.nameExists');
-      setError('service', { message: errorMessage });
-    }
-  };
+        // Success: Close dialog and reset form
+        onOpenChange(false);
+        reset(DEFAULT_CUSTOM_SERVICE_INPUT);
+      } catch (error) {
+        // Error: Show error message on service field
+        const errorMessage =
+          error instanceof Error ? error.message : t('servicePorts.validation.nameExists');
+        setError('service', { message: errorMessage });
+      }
+    },
+    [editService, updateService, addService, onOpenChange, reset, setError, t]
+  );
 
   /**
    * Handle dialog close (also resets form)
    */
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     onOpenChange(false);
     reset(DEFAULT_CUSTOM_SERVICE_INPUT);
-  };
+  }, [onOpenChange, reset]);
 
   // ============================================================================
   // Render
@@ -180,17 +204,19 @@ export function AddServiceDialog({ open, onOpenChange, editService }: AddService
               autoComplete="off"
               {...register('service')}
               aria-invalid={!!errors.service}
-              aria-describedby={errors.service ? 'service-error' : undefined}
+              aria-describedby={errors.service ? 'service-error' : 'service-help'}
             />
             {errors.service && (
               <Alert variant="destructive" className="mt-2">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription id="service-error">{errors.service.message}</AlertDescription>
               </Alert>
             )}
-            <p className="text-xs text-muted-foreground">
-              {t('servicePorts.validation.nameInvalid')}
-            </p>
+            {!errors.service && (
+              <p className="text-xs text-muted-foreground" id="service-help">
+                {t('servicePorts.validation.nameInvalid')}
+              </p>
+            )}
           </div>
 
           {/* Protocol Field */}
@@ -240,18 +266,21 @@ export function AddServiceDialog({ open, onOpenChange, editService }: AddService
               min={1}
               max={65535}
               placeholder={t('servicePorts.placeholders.port')}
+              className="font-mono"
               {...register('port', { valueAsNumber: true })}
               aria-invalid={!!errors.port}
-              aria-describedby={errors.port ? 'port-error' : undefined}
+              aria-describedby={errors.port ? 'port-error' : 'port-help'}
             />
             {errors.port && (
-              <p className="text-sm text-destructive" id="port-error">
+              <p className="text-sm text-destructive" id="port-error" role="alert">
                 {errors.port.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              {t('servicePorts.validation.portInvalid')}
-            </p>
+            {!errors.port && (
+              <p className="text-xs text-muted-foreground" id="port-help">
+                {t('servicePorts.validation.portInvalid')}
+              </p>
+            )}
           </div>
 
           {/* Description Field (Optional) */}
@@ -267,35 +296,42 @@ export function AddServiceDialog({ open, onOpenChange, editService }: AddService
               maxLength={500}
               {...register('description')}
               aria-invalid={!!errors.description}
-              aria-describedby={errors.description ? 'description-error' : undefined}
+              aria-describedby={errors.description ? 'description-error' : 'description-help'}
             />
             {errors.description && (
-              <p className="text-sm text-destructive" id="description-error">
+              <p className="text-sm text-destructive" id="description-error" role="alert">
                 {errors.description.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              {t('servicePorts.validation.descriptionTooLong')}
-            </p>
+            {!errors.description && (
+              <p className="text-xs text-muted-foreground" id="description-help">
+                {t('servicePorts.validation.descriptionTooLong')}
+              </p>
+            )}
           </div>
 
           {/* Dialog Footer */}
           <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              Cancel
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              {t('servicePorts.buttons.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEditMode
-                  ? 'Updating...'
-                  : 'Adding...'
+                  ? t('servicePorts.buttons.updating', { defaultValue: 'Updating...' })
+                  : t('servicePorts.buttons.adding', { defaultValue: 'Adding...' })
                 : isEditMode
-                ? 'Update'
-                : 'Save'}
+                  ? t('servicePorts.buttons.update', { defaultValue: 'Update' })
+                  : t('servicePorts.buttons.save', { defaultValue: 'Save' })}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
-}
+});

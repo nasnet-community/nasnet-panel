@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { UpdateAllPanel } from './UpdateAllPanel';
 import type { AvailableUpdate } from '@nasnet/api-client/queries';
+
+import { UpdateAllPanel } from './UpdateAllPanel';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof UpdateAllPanel> = {
   title: 'Features/Services/UpdateAllPanel',

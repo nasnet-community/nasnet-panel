@@ -3,14 +3,15 @@
  * Dashboard Pro style with grouped IP addresses per interface
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { Globe, ChevronRight, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { type IPAddress } from '@nasnet/core/types';
 import { parseCIDR } from '@nasnet/core/utils';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 import { SectionHeader } from './SectionHeader';
 
@@ -20,11 +21,12 @@ interface InterfaceIPConfigProps {
   className?: string;
 }
 
-export function InterfaceIPConfig({
+export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
   ipAddresses,
   defaultCollapsed = false,
   className,
 }: InterfaceIPConfigProps) {
+  const { t } = useTranslation('network');
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [expandedInterfaces, setExpandedInterfaces] = useState<Set<string>>(new Set());
 
@@ -39,25 +41,25 @@ export function InterfaceIPConfig({
   };
 
   const getTypeBadge = (ipAddress: IPAddress) => {
-    if (ipAddress.disabled) {
+    if (ipAddress.isDisabled) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-          Disabled
+        <span className="bg-muted text-muted-foreground inline-flex items-center rounded px-2 py-0.5 text-xs font-medium">
+          {t('status.disabled', { ns: 'common' })}
         </span>
       );
     }
 
-    if (ipAddress.dynamic) {
+    if (ipAddress.isDynamic) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-          Dynamic
+        <span className="bg-success/10 text-success inline-flex items-center rounded px-2 py-0.5 text-xs font-medium">
+          {t('ipConfig.dynamic')}
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary-100 text-secondary-700 dark:bg-secondary-900/30 dark:text-secondary-400">
-        Static
+      <span className="bg-info/10 text-info inline-flex items-center rounded px-2 py-0.5 text-xs font-medium">
+        {t('ipConfig.static')}
       </span>
     );
   };
@@ -75,13 +77,16 @@ export function InterfaceIPConfig({
   };
 
   // Group IP addresses by interface
-  const groupedIPs = ipAddresses.reduce((acc, ip) => {
-    if (!acc[ip.interface]) {
-      acc[ip.interface] = [];
-    }
-    acc[ip.interface].push(ip);
-    return acc;
-  }, {} as Record<string, IPAddress[]>);
+  const groupedIPs = ipAddresses.reduce(
+    (acc, ip) => {
+      if (!acc[ip.interface]) {
+        acc[ip.interface] = [];
+      }
+      acc[ip.interface].push(ip);
+      return acc;
+    },
+    {} as Record<string, IPAddress[]>
+  );
 
   const interfaceNames = Object.keys(groupedIPs);
 
@@ -89,19 +94,17 @@ export function InterfaceIPConfig({
     return (
       <div className="space-y-3">
         <SectionHeader
-          title="IP Addresses"
+          title={t('ipConfig.title')}
           count={0}
           isCollapsed={isCollapsed}
           onToggle={() => setIsCollapsed(!isCollapsed)}
         />
         {!isCollapsed && (
-          <div className="text-center py-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Globe className="w-6 h-6 text-slate-400" />
+          <div className="bg-card border-border rounded-xl border py-8 text-center">
+            <div className="bg-muted mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+              <Globe className="text-muted-foreground h-6 w-6" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              No IP addresses configured
-            </p>
+            <p className="text-muted-foreground text-sm">{t('ipConfig.notConfigured')}</p>
           </div>
         )}
       </div>
@@ -111,9 +114,9 @@ export function InterfaceIPConfig({
   return (
     <div className={cn('space-y-3', className)}>
       <SectionHeader
-        title="IP Addresses"
+        title={t('ipConfig.title')}
         count={ipAddresses.length}
-        subtitle={`${interfaceNames.length} interfaces`}
+        subtitle={t('ipConfig.interfaces', { count: interfaceNames.length })}
         isCollapsed={isCollapsed}
         onToggle={() => setIsCollapsed(!isCollapsed)}
       />
@@ -127,30 +130,26 @@ export function InterfaceIPConfig({
             return (
               <div
                 key={interfaceName}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+                className="bg-card border-border overflow-hidden rounded-xl border"
               >
                 {/* Interface Header */}
                 <button
                   onClick={() => toggleInterface(interfaceName)}
-                  className="w-full flex items-center justify-between p-3 md:p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors md:p-4"
                 >
                   <div className="flex items-center gap-3">
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
-                    )}
-                    <span className="font-medium text-slate-900 dark:text-white text-sm">
-                      {interfaceName}
-                    </span>
-                    <span className="px-2 py-0.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded">
-                      {ips.length} {ips.length === 1 ? 'address' : 'addresses'}
+                    {isExpanded ?
+                      <ChevronDown className="text-muted-foreground h-4 w-4" />
+                    : <ChevronRight className="text-muted-foreground h-4 w-4" />}
+                    <span className="text-foreground text-sm font-medium">{interfaceName}</span>
+                    <span className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-medium">
+                      {t('ipConfig.addressCount', { count: ips.length })}
                     </span>
                   </div>
 
                   {/* Quick preview of first IP */}
                   {!isExpanded && ips.length > 0 && (
-                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 hidden sm:block">
+                    <span className="text-muted-foreground hidden font-mono text-xs sm:block">
                       {ips[0].address}
                     </span>
                   )}
@@ -158,45 +157,45 @@ export function InterfaceIPConfig({
 
                 {/* IP Addresses List */}
                 {isExpanded && (
-                  <div className="border-t border-slate-100 dark:border-slate-800">
+                  <div className="border-border border-t">
                     {ips.map((ip: IPAddress) => {
                       const networkInfo = getNetworkInfo(ip);
 
                       return (
                         <div
                           key={ip.id}
-                          className="p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+                          className="border-border border-b p-3 last:border-b-0 md:p-4"
                         >
-                          <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-                            <span className="font-mono text-sm font-medium text-slate-900 dark:text-white">
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-foreground font-mono text-sm font-medium">
                               {ip.address}
                             </span>
                             {getTypeBadge(ip)}
                           </div>
 
                           {networkInfo && (
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
-                              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">
-                                  Network
+                            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                              <div className="bg-muted rounded-lg p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs">
+                                  {t('ipConfig.network')}
                                 </p>
-                                <p className="text-xs font-mono text-slate-700 dark:text-slate-300">
+                                <p className="text-foreground font-mono text-xs">
                                   {networkInfo.network}
                                 </p>
                               </div>
-                              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">
-                                  Netmask
+                              <div className="bg-muted rounded-lg p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs">
+                                  {t('ipConfig.netmask')}
                                 </p>
-                                <p className="text-xs font-mono text-slate-700 dark:text-slate-300">
+                                <p className="text-foreground font-mono text-xs">
                                   {networkInfo.netmask}
                                 </p>
                               </div>
-                              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">
-                                  Broadcast
+                              <div className="bg-muted rounded-lg p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs">
+                                  {t('ipConfig.broadcast')}
                                 </p>
-                                <p className="text-xs font-mono text-slate-700 dark:text-slate-300">
+                                <p className="text-foreground font-mono text-xs">
                                   {networkInfo.broadcast}
                                 </p>
                               </div>
@@ -214,4 +213,6 @@ export function InterfaceIPConfig({
       )}
     </div>
   );
-}
+});
+
+InterfaceIPConfig.displayName = 'InterfaceIPConfig';

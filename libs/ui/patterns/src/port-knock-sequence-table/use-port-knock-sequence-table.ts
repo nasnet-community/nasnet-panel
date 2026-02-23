@@ -159,7 +159,7 @@ export function usePortKnockSequenceTable(
 
     // Filter by enabled status
     if (filters.enabled !== undefined) {
-      result = result.filter((seq) => seq.enabled === filters.enabled);
+      result = result.filter((seq) => seq.isEnabled === filters.enabled);
     }
 
     // Filter by search term (name)
@@ -197,8 +197,8 @@ export function usePortKnockSequenceTable(
           bValue = b.knockPorts.length;
           break;
         case 'status':
-          aValue = a.enabled ? 1 : 0;
-          bValue = b.enabled ? 1 : 0;
+          aValue = a.isEnabled ? 1 : 0;
+          bValue = b.isEnabled ? 1 : 0;
           break;
         case 'recentAccess':
           aValue = a.recentAccessCount || 0;
@@ -253,7 +253,7 @@ export function usePortKnockSequenceTable(
         id: 'status',
         label: 'Status',
         sortable: true,
-        accessor: (row) => row.enabled,
+        accessor: (row) => row.isEnabled,
       },
       {
         id: 'recentAccess',

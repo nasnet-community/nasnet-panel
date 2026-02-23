@@ -8,12 +8,18 @@ import {
 } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 
+const DEFAULT_PVID = 1;
+const DEFAULT_FRAME_TYPES = 'ADMIT_ALL';
+const UNDO_TOAST_DURATION = 10000; // 10 seconds
+
 /**
- * Headless hook for bridge port diagram drag-and-drop logic
- * Manages port membership and available interfaces
+ * Headless hook for bridge port diagram drag-and-drop logic.
+ * Manages port membership and available interfaces with drag-and-drop support.
+ * Implements stable drag-and-drop handlers with toast feedback and undo actions.
  *
  * @param bridgeId - Bridge UUID
  * @param routerId - Router ID
+ * @returns Bridge port state, interface data, and drag-and-drop handlers
  */
 export function useBridgePortDiagram(bridgeId: string, routerId: string) {
   const { ports, loading: portsLoading, error: portsError, refetch: refetchPorts } = useBridgePorts(bridgeId);
@@ -45,8 +51,8 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
               bridgeId,
               input: {
                 interfaceId,
-                pvid: 1, // Default PVID
-                frameTypes: 'ADMIT_ALL',
+                pvid: DEFAULT_PVID,
+                frameTypes: DEFAULT_FRAME_TYPES,
                 ingressFiltering: false,
               },
             },
@@ -56,7 +62,7 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
             const operationId = result.data.addBridgePort.operationId;
 
             toast.success(`Added ${active.data.current?.name || interfaceId} to bridge`, {
-              duration: 10000,
+              duration: UNDO_TOAST_DURATION,
               action: operationId
                 ? {
                     label: 'Undo',
@@ -95,7 +101,7 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
           const operationId = result.data.removeBridgePort.operationId;
 
           toast.success('Port removed from bridge', {
-            duration: 10000,
+            duration: UNDO_TOAST_DURATION,
             action: operationId
               ? {
                   label: 'Undo',
@@ -125,13 +131,13 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
   return {
     // Port data
     ports,
-    portsLoading,
-    portsError,
+    isLoadingPorts: portsLoading,
+    hasPortsError: portsError,
 
     // Available interfaces
     availableInterfaces,
-    interfacesLoading,
-    interfacesError,
+    isLoadingInterfaces: interfacesLoading,
+    hasInterfacesError: interfacesError,
 
     // Actions
     handleDragEnd,

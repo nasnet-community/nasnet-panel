@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from '@nasnet/ui/primitives';
 
+import { cn } from '@nasnet/ui/utils';
 import { StatusBadge } from '../status-badge';
 
 export interface DHCPClientCardProps {
@@ -39,8 +40,13 @@ export interface DHCPClientCardProps {
  * - Lease expiration display
  * - "Searching..." placeholder state
  * - Dark/light theme support
+ *
+ * @example
+ * ```tsx
+ * <DHCPClientCard client={dhcpClient} />
+ * ```
  */
-export const DHCPClientCard = React.forwardRef<HTMLDivElement, DHCPClientCardProps>(
+const DHCPClientCardComponent = React.forwardRef<HTMLDivElement, DHCPClientCardProps>(
   ({ client, className }, ref) => {
     const formattedExpiration = client.expiresAfter
       ? formatExpirationTime(client.expiresAfter)
@@ -50,23 +56,41 @@ export const DHCPClientCard = React.forwardRef<HTMLDivElement, DHCPClientCardPro
     const isBound = client.status === 'bound';
 
     return (
-      <Card ref={ref} className={`rounded-card-sm md:rounded-card-lg shadow-sm transition-shadow hover:shadow-md ${className || ''}`}>
+      <Card
+        ref={ref}
+        className={cn(
+          'rounded-card-sm md:rounded-card-lg shadow-sm transition-shadow hover:shadow-md',
+          className
+        )}
+        role="article"
+        aria-label={`DHCP Client Status for ${client.interface}`}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-3">
-            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <CardTitle className={cn('text-lg font-semibold', 'text-slate-900 dark:text-slate-50')}>
               {client.interface}
             </CardTitle>
             <StatusBadge status={client.status} />
           </div>
-          <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+          <CardDescription className={cn('text-sm', 'text-slate-500 dark:text-slate-400')}>
             WAN DHCP Client Status
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           {isSearching ? (
-            <div className="flex items-center justify-center py-6 text-sm text-slate-500 dark:text-slate-400">
+            <div
+              className={cn('flex items-center justify-center py-6 text-sm', 'text-slate-500 dark:text-slate-400')}
+              role="status"
+              aria-live="polite"
+            >
               <div className="flex items-center gap-3">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-warning border-t-transparent" />
+                <div
+                  className={cn(
+                    'h-5 w-5 animate-spin rounded-full border-2',
+                    'border-warning border-t-transparent'
+                  )}
+                  aria-hidden="true"
+                />
                 <span>
                   {client.status === 'searching'
                     ? 'Searching for DHCP server...'
@@ -77,39 +101,66 @@ export const DHCPClientCard = React.forwardRef<HTMLDivElement, DHCPClientCardPro
           ) : isBound ? (
             <div className="space-y-0 divide-y divide-slate-200 dark:divide-slate-700">
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">IP Address</span>
-                <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">{client.address || 'N/A'}</span>
+                <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                  IP Address
+                </span>
+                <span className={cn('text-sm font-mono font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                  {client.address || 'N/A'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Gateway</span>
-                <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">{client.gateway || 'N/A'}</span>
+                <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                  Gateway
+                </span>
+                <span className={cn('text-sm font-mono font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                  {client.gateway || 'N/A'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Primary DNS</span>
-                <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">{client.primaryDns || 'N/A'}</span>
+                <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                  Primary DNS
+                </span>
+                <span className={cn('text-sm font-mono font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                  {client.primaryDns || 'N/A'}
+                </span>
               </div>
 
               {client.secondaryDns && (
                 <div className="flex justify-between items-center py-3">
-                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Secondary DNS</span>
-                  <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">{client.secondaryDns}</span>
+                  <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                    Secondary DNS
+                  </span>
+                  <span className={cn('text-sm font-mono font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                    {client.secondaryDns}
+                  </span>
                 </div>
               )}
 
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">DHCP Server</span>
-                <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">{client.dhcpServer || 'N/A'}</span>
+                <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                  DHCP Server
+                </span>
+                <span className={cn('text-sm font-mono font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                  {client.dhcpServer || 'N/A'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center py-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Lease Expires</span>
-                <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{formattedExpiration}</span>
+                <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
+                  Lease Expires
+                </span>
+                <span className={cn('text-sm font-semibold', 'text-slate-900 dark:text-slate-50')}>
+                  {formattedExpiration}
+                </span>
               </div>
             </div>
           ) : (
-            <div className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            <div
+              className={cn('py-6 text-center text-sm', 'text-slate-500 dark:text-slate-400')}
+              role="status"
+            >
               DHCP Client {client.disabled ? 'Disabled' : 'Stopped'}
             </div>
           )}
@@ -119,4 +170,6 @@ export const DHCPClientCard = React.forwardRef<HTMLDivElement, DHCPClientCardPro
   }
 );
 
-DHCPClientCard.displayName = 'DHCPClientCard';
+DHCPClientCardComponent.displayName = 'DHCPClientCard';
+
+export const DHCPClientCard = React.memo(DHCPClientCardComponent);

@@ -1,6 +1,6 @@
 /**
  * Zod validation schema for ntfy.sh notification configuration
- * Per Task 11 (NAS-18.X): Ntfy.sh notification channel
+ * @description Per Task 11 (NAS-18.X): Ntfy.sh notification channel
  *
  * Matches backend NtfyChannelInput type from GraphQL schema.
  */
@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 /**
  * Ntfy configuration schema
+ * @description Validates ntfy notification endpoint configuration with topics, authentication, and priority settings
  *
  * Field names match backend GraphQL NtfyChannelInput:
  * - enabled: Whether ntfy notifications are enabled
@@ -24,53 +25,53 @@ export const ntfyConfigSchema = z.object({
   // Server Settings
   serverUrl: z
     .string()
-    .min(1, 'Server URL is required')
-    .url('Invalid URL format')
+    .min(1, 'Server URL is required (must be provided)')
+    .url('Invalid URL format - must be a valid web address')
     .refine(
       (url) => {
         // Ensure URL uses https:// or http://
         const urlObj = new URL(url);
         return urlObj.protocol === 'https:' || urlObj.protocol === 'http:';
       },
-      { message: 'Server URL must use http:// or https://' }
+      { message: 'Server URL must use http:// or https:// protocol' }
     )
     .default('https://ntfy.sh'),
 
   // Topic (ntfy topic naming rules: alphanumeric, hyphens, underscores)
   topic: z
     .string()
-    .min(1, 'Topic is required')
-    .max(255, 'Topic must be at most 255 characters')
+    .min(1, 'Topic is required (must be provided)')
+    .max(255, 'Topic must not exceed 255 characters')
     .regex(
       /^[a-zA-Z0-9_-]+$/,
-      'Topic can only contain letters, numbers, hyphens, and underscores'
+      'Topic can only contain letters, numbers, hyphens, and underscores (no spaces or special characters)'
     ),
 
   // Authentication (Optional)
   username: z
     .string()
-    .max(255, 'Username must be at most 255 characters')
+    .max(255, 'Username must not exceed 255 characters')
     .optional()
     .or(z.literal('')),
 
   password: z
     .string()
-    .max(255, 'Password must be at most 255 characters')
+    .max(255, 'Password must not exceed 255 characters')
     .optional()
     .or(z.literal('')),
 
   // Priority (1=min, 2=low, 3=default, 4=high, 5=urgent/max)
   priority: z
     .number()
-    .int('Priority must be an integer')
-    .min(1, 'Priority must be between 1 and 5')
-    .max(5, 'Priority must be between 1 and 5')
+    .int('Priority must be a whole number')
+    .min(1, 'Priority must be between 1 (minimum) and 5 (maximum)')
+    .max(5, 'Priority must be between 1 (minimum) and 5 (maximum)')
     .default(3),
 
   // Tags for categorization (comma-separated or array)
   tags: z
     .array(z.string().trim().min(1))
-    .max(10, 'Maximum 10 tags allowed')
+    .max(10, 'Maximum 10 tags allowed per notification')
     .optional()
     .default([]),
 }).refine(
@@ -89,20 +90,22 @@ export const ntfyConfigSchema = z.object({
     return true;
   },
   {
-    message: 'Both username and password must be provided for authentication',
+    message: 'Both username and password must be provided together for authentication',
     path: ['password'],
   }
 );
 
 /**
  * Type inference from schema
+ * @description Exported type representing validated ntfy configuration
  */
 export type NtfyConfig = z.infer<typeof ntfyConfigSchema>;
 
 /**
  * Default values for new ntfy configuration
+ * @description Pre-populated defaults for new ntfy notification forms
  */
-export const defaultNtfyConfig: Partial<NtfyConfig> = {
+export const DEFAULT_NTFY_CONFIG: Partial<NtfyConfig> = {
   enabled: false,
   serverUrl: 'https://ntfy.sh',
   topic: '',
@@ -114,6 +117,7 @@ export const defaultNtfyConfig: Partial<NtfyConfig> = {
 
 /**
  * Ntfy priority presets with descriptions
+ * @description Available notification priority levels for ntfy messages
  */
 export const NTFY_PRIORITY_PRESETS = [
   {
@@ -150,6 +154,7 @@ export const NTFY_PRIORITY_PRESETS = [
 
 /**
  * Common ntfy server presets
+ * @description Pre-configured ntfy server URLs for quick setup
  */
 export const NTFY_SERVER_PRESETS = [
   {
@@ -166,7 +171,9 @@ export const NTFY_SERVER_PRESETS = [
 
 /**
  * Validate ntfy topic name
- * Topics must be alphanumeric with hyphens and underscores
+ * @description Topics must be alphanumeric with hyphens and underscores
+ * @param topic The topic name to validate
+ * @returns True if topic is valid, false otherwise
  */
 export function isValidNtfyTopic(topic: string): boolean {
   if (!topic || topic.length === 0 || topic.length > 255) {
@@ -177,6 +184,9 @@ export function isValidNtfyTopic(topic: string): boolean {
 
 /**
  * Validate ntfy server URL
+ * @description Checks if URL uses http or https protocol
+ * @param url The server URL to validate
+ * @returns True if URL is valid, false otherwise
  */
 export function isValidNtfyServerUrl(url: string): boolean {
   try {
@@ -189,6 +199,9 @@ export function isValidNtfyServerUrl(url: string): boolean {
 
 /**
  * Helper to format tags array for display
+ * @description Joins tags with comma separator for UI display
+ * @param tags Array of tag strings
+ * @returns Comma-separated string of tags
  */
 export function formatNtfyTags(tags: string[]): string {
   return tags.join(', ');
@@ -196,6 +209,9 @@ export function formatNtfyTags(tags: string[]): string {
 
 /**
  * Helper to parse tags string into array
+ * @description Splits comma-separated tag string and trims whitespace
+ * @param tagsString Comma-separated tag string from input
+ * @returns Array of trimmed tag strings
  */
 export function parseNtfyTags(tagsString: string): string[] {
   return tagsString

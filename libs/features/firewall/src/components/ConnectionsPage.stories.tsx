@@ -9,8 +9,9 @@
  * the decorator pattern to intercept those dependencies.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionsPage } from './ConnectionsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Meta

@@ -2,18 +2,19 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node"],
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false
   },
   "include": [
-    "vitest.config.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vitest.config.ts"
   ],
   "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
+    { "path": "../../core/types/tsconfig.lib.json" },
+    { "path": "../../core/utils/tsconfig.lib.json" }
   ]
 }

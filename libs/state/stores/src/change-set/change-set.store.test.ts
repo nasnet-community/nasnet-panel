@@ -36,7 +36,7 @@ describe('useChangeSetStore', () => {
     it('should create a new change set with DRAFT status', () => {
       const { createChangeSet, getChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({
           name: 'Test Change Set',
@@ -56,7 +56,7 @@ describe('useChangeSetStore', () => {
     it('should create change set with description and source', () => {
       const { createChangeSet, getChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({
           name: 'LAN Setup',
@@ -74,7 +74,7 @@ describe('useChangeSetStore', () => {
     it('should set created change set as active', () => {
       const { createChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({
           name: 'Test',
@@ -127,14 +127,14 @@ describe('useChangeSetStore', () => {
     it('should delete a change set', () => {
       const { createChangeSet, deleteChangeSet, getChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
       });
 
       expect(getChangeSet(id!)).not.toBeNull();
 
-      let result: boolean;
+      let result!: boolean;
       act(() => {
         result = deleteChangeSet(id!);
       });
@@ -147,13 +147,13 @@ describe('useChangeSetStore', () => {
       const { createChangeSet, markApplying, deleteChangeSet, getChangeSet } =
         useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
         markApplying(id);
       });
 
-      let result: boolean;
+      let result!: boolean;
       act(() => {
         result = deleteChangeSet(id!);
       });
@@ -168,7 +168,7 @@ describe('useChangeSetStore', () => {
     it('should clear activeChangeSetId when deleting active change set', () => {
       const { createChangeSet, deleteChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
       });
@@ -187,7 +187,7 @@ describe('useChangeSetStore', () => {
     it('should set the active change set', () => {
       const { createChangeSet, setActiveChangeSet } = useChangeSetStore.getState();
 
-      let id1: string, id2: string;
+      let id1!: string, id2!: string;
       act(() => {
         id1 = createChangeSet({ name: 'CS1', routerId: 'router-1' });
         id2 = createChangeSet({ name: 'CS2', routerId: 'router-1' });
@@ -220,7 +220,7 @@ describe('useChangeSetStore', () => {
   });
 
   describe('Item Management', () => {
-    let changeSetId: string;
+    let changeSetId: string = '';
 
     beforeEach(() => {
       const { createChangeSet } = useChangeSetStore.getState();
@@ -233,14 +233,16 @@ describe('useChangeSetStore', () => {
       it('should add an item to a change set', () => {
         const { addItem, getChangeSet } = useChangeSetStore.getState();
 
-        let itemId: string;
+        let itemId!: string;
         act(() => {
           itemId = addItem(changeSetId, {
             name: 'Bridge Interface',
             resourceType: 'network.bridge',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: { name: 'bridge-lan' },
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
         });
@@ -263,9 +265,11 @@ describe('useChangeSetStore', () => {
           addItem(changeSetId, {
             name: 'Test',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: {},
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
         });
@@ -283,9 +287,11 @@ describe('useChangeSetStore', () => {
           addItem(changeSetId, {
             name: 'Test',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: {},
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
         });
@@ -295,7 +301,7 @@ describe('useChangeSetStore', () => {
     });
 
     describe('updateItem Action', () => {
-      let itemId: string;
+      let itemId: string = '';
 
       beforeEach(() => {
         const { addItem } = useChangeSetStore.getState();
@@ -303,9 +309,11 @@ describe('useChangeSetStore', () => {
           itemId = addItem(changeSetId, {
             name: 'Original Name',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: { key: 'value' },
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
         });
@@ -331,14 +339,16 @@ describe('useChangeSetStore', () => {
       it('should remove an item from a change set', () => {
         const { addItem, removeItem, getChangeSet } = useChangeSetStore.getState();
 
-        let itemId: string;
+        let itemId!: string;
         act(() => {
           itemId = addItem(changeSetId, {
             name: 'Test',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: {},
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
         });
@@ -355,22 +365,26 @@ describe('useChangeSetStore', () => {
       it('should remove dependencies referencing the removed item', () => {
         const { addItem, removeItem, getChangeSet } = useChangeSetStore.getState();
 
-        let item1Id: string, item2Id: string;
+        let item1Id = '', item2Id = '';
         act(() => {
           item1Id = addItem(changeSetId, {
             name: 'Item 1',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: {},
+            resourceUuid: null,
+            previousState: null,
             dependencies: [],
           });
           item2Id = addItem(changeSetId, {
             name: 'Item 2',
             resourceType: 'test',
-            resourceCategory: 'NETWORKING',
+            resourceCategory: 'NETWORK',
             operation: 'CREATE',
             configuration: {},
+            resourceUuid: null,
+            previousState: null,
             dependencies: [item1Id],
           });
         });
@@ -394,7 +408,7 @@ describe('useChangeSetStore', () => {
   });
 
   describe('Status Updates', () => {
-    let changeSetId: string;
+    let changeSetId: string = '';
 
     beforeEach(() => {
       const { createChangeSet, addItem } = useChangeSetStore.getState();
@@ -403,9 +417,11 @@ describe('useChangeSetStore', () => {
         addItem(changeSetId, {
           name: 'Item 1',
           resourceType: 'test',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [],
         });
       });
@@ -514,41 +530,47 @@ describe('useChangeSetStore', () => {
     it('should return summary with operation counts', () => {
       const { createChangeSet, addItem, getChangeSetSummary } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
         addItem(id, {
           name: 'Create 1',
           resourceType: 'test',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [],
         });
         addItem(id, {
           name: 'Create 2',
           resourceType: 'test',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [],
         });
         addItem(id, {
           name: 'Update 1',
           resourceType: 'test',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'UPDATE',
           resourceUuid: 'uuid-1',
           configuration: {},
+          previousState: null,
           dependencies: [],
         });
         addItem(id, {
           name: 'Delete 1',
           resourceType: 'test',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'DELETE',
           resourceUuid: 'uuid-2',
           configuration: {},
+          previousState: null,
           dependencies: [],
         });
       });
@@ -614,7 +636,7 @@ describe('useChangeSetStore', () => {
     it('selectActiveChangeSet should return the active change set', () => {
       const { createChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
       });
@@ -640,7 +662,7 @@ describe('useChangeSetStore', () => {
     it('createSelectDraftChangeSets should return only DRAFT change sets', () => {
       const { createChangeSet, updateStatus } = useChangeSetStore.getState();
 
-      let id1: string;
+      let id1!: string;
       act(() => {
         id1 = createChangeSet({ name: 'CS1', routerId: 'router-1' });
         createChangeSet({ name: 'CS2', routerId: 'router-1' });
@@ -656,7 +678,7 @@ describe('useChangeSetStore', () => {
     it('selectApplyingChangeSets should return currently applying change sets', () => {
       const { createChangeSet, markApplying } = useChangeSetStore.getState();
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
         markApplying(id);
@@ -672,7 +694,7 @@ describe('useChangeSetStore', () => {
 
       expect(selectIsAnyApplying(useChangeSetStore.getState())).toBe(false);
 
-      let id: string;
+      let id!: string;
       act(() => {
         id = createChangeSet({ name: 'Test', routerId: 'router-1' });
         markApplying(id);
@@ -694,8 +716,8 @@ describe('useChangeSetStore', () => {
     it('should calculate correct apply order based on dependencies', () => {
       const { createChangeSet, addItem, getChangeSet } = useChangeSetStore.getState();
 
-      let id: string;
-      let bridgeId: string, dhcpId: string, firewallId: string;
+      let id = '';
+      let bridgeId = '', dhcpId = '', firewallId = '';
 
       act(() => {
         id = createChangeSet({ name: 'LAN Setup', routerId: 'router-1' });
@@ -704,27 +726,33 @@ describe('useChangeSetStore', () => {
         firewallId = addItem(id, {
           name: 'Firewall Rule',
           resourceType: 'firewall.rule',
-          resourceCategory: 'FIREWALL',
+          resourceCategory: 'APPLICATION',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [], // Will depend on bridge
         });
 
         dhcpId = addItem(id, {
           name: 'DHCP Server',
           resourceType: 'dhcp.server',
-          resourceCategory: 'DHCP',
+          resourceCategory: 'INFRASTRUCTURE',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [], // Will depend on bridge
         });
 
         bridgeId = addItem(id, {
           name: 'Bridge Interface',
           resourceType: 'network.bridge',
-          resourceCategory: 'NETWORKING',
+          resourceCategory: 'NETWORK',
           operation: 'CREATE',
           configuration: {},
+          resourceUuid: null,
+          previousState: null,
           dependencies: [],
         });
       });

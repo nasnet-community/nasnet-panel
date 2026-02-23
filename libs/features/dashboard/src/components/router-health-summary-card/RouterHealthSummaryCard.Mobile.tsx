@@ -13,11 +13,12 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
+import React, { useCallback } from 'react';
 import { RefreshCw, Activity } from 'lucide-react';
 import { Card, CardHeader, CardContent, Badge, Button } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import type { UseRouterHealthCardReturn } from './useRouterHealthCard';
-import { getHealthBgClass, getHealthTextClass, formatUptime } from './health-utils';
+import { getHealthBgClass, formatUptime } from './health-utils';
 
 export interface RouterHealthSummaryCardMobileProps {
   /** Computed state from headless hook */
@@ -38,12 +39,17 @@ export interface RouterHealthSummaryCardMobileProps {
  * - Tap to expand to bottom sheet with full details
  * - Swipe left to reveal quick actions
  * - Long press to copy router UUID
+ *
+ * @description Renders a compact card with 44px touch targets for mobile devices.
  */
-export function RouterHealthSummaryCardMobile({
+export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSummaryCardMobile({
   state,
   onRefresh,
   className,
 }: RouterHealthSummaryCardMobileProps) {
+  const handleRefresh = useCallback(() => {
+    onRefresh?.();
+  }, [onRefresh]);
   const { router, healthStatus, isOnline, isStale, cacheAgeMinutes } = state;
 
   if (!router) {
@@ -68,9 +74,9 @@ export function RouterHealthSummaryCardMobile({
             <Button
               variant="ghost"
               size="icon"
-              onClick={onRefresh}
+              onClick={handleRefresh}
               aria-label="Refresh router data"
-              className="h-11 w-11 ml-2 flex-shrink-0" // 44px touch target
+              className="h-11 w-11 ml-2 flex-shrink-0"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
             </Button>
@@ -117,21 +123,21 @@ export function RouterHealthSummaryCardMobile({
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <dt className="text-xs text-muted-foreground">Version</dt>
-            <dd className="font-medium text-foreground">{router.version}</dd>
+            <dd className="font-mono text-sm font-medium text-foreground">{router.version}</dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">Uptime</dt>
-            <dd className="font-medium text-foreground">{formatUptime(router.uptime)}</dd>
+            <dd className="font-mono text-sm font-medium text-foreground">{formatUptime(router.uptime)}</dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">CPU</dt>
-            <dd className={cn('font-medium', getCpuColorClass(router.cpuUsage))}>
+            <dd className={cn('font-mono text-sm font-medium', getCpuColorClass(router.cpuUsage))}>
               {router.cpuUsage}%
             </dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">Memory</dt>
-            <dd className={cn('font-medium', getMemoryColorClass(router.memoryUsage))}>
+            <dd className={cn('font-mono text-sm font-medium', getMemoryColorClass(router.memoryUsage))}>
               {router.memoryUsage}%
             </dd>
           </div>
@@ -144,12 +150,16 @@ export function RouterHealthSummaryCardMobile({
       </CardContent>
     </Card>
   );
-}
+});
+
+RouterHealthSummaryCardMobile.displayName = 'RouterHealthSummaryCardMobile';
 
 /**
  * Loading skeleton for mobile presenter
+ *
+ * @description Displays a skeleton placeholder while router health data is loading.
  */
-export function RouterHealthSummaryCardMobileSkeleton({ className }: { className?: string }) {
+export const RouterHealthSummaryCardMobileSkeleton = React.memo(function RouterHealthSummaryCardMobileSkeleton({ className }: { className?: string }) {
   return (
     <Card className={cn('animate-pulse', className)}>
       <CardHeader className="pb-3">
@@ -177,22 +187,36 @@ export function RouterHealthSummaryCardMobileSkeleton({ className }: { className
       </CardContent>
     </Card>
   );
-}
+});
+
+RouterHealthSummaryCardMobileSkeleton.displayName = 'RouterHealthSummaryCardMobileSkeleton';
 
 // Helper functions
 
+/**
+ * Get text color class for CPU usage level
+ * @description Returns semantic color class based on CPU usage threshold
+ */
 function getCpuColorClass(usage: number): string {
   if (usage >= 90) return 'text-semantic-error';
   if (usage >= 70) return 'text-semantic-warning';
   return 'text-foreground';
 }
 
+/**
+ * Get text color class for memory usage level
+ * @description Returns semantic color class based on memory usage threshold
+ */
 function getMemoryColorClass(usage: number): string {
   if (usage >= 95) return 'text-semantic-error';
   if (usage >= 80) return 'text-semantic-warning';
   return 'text-foreground';
 }
 
+/**
+ * Format last update timestamp to human-readable string
+ * @description Converts a date to relative time format (e.g., "5m ago", "2h ago")
+ */
 function formatLastUpdate(date: Date): string {
   const now = Date.now();
   const diff = now - date.getTime();

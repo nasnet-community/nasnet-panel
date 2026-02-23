@@ -7,8 +7,9 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { RecentFirewallActivity } from './RecentFirewallActivity';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * RecentFirewallActivity - Firewall log activity panel

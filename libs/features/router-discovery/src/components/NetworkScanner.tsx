@@ -3,8 +3,9 @@
  * Auto-discovers MikroTik routers on the network (Story 0-1-1)
  */
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import type { ScanResult, ScanProgress } from '@nasnet/core/types';
 import {
   startNetworkScan,
@@ -28,12 +29,17 @@ export interface NetworkScannerProps {
    * Default subnet to scan
    */
   defaultSubnet?: string;
+
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 
 /**
  * NetworkScanner Component
  *
- * Provides interface for discovering MikroTik routers on the network
+ * @description Provides interface for discovering MikroTik routers on the network
  * through automated subnet scanning.
  *
  * Features:
@@ -50,10 +56,11 @@ export interface NetworkScannerProps {
  * />
  * ```
  */
-export function NetworkScanner({
+export const NetworkScanner = memo(function NetworkScanner({
   onScanComplete,
   onRouterSelect,
   defaultSubnet,
+  className,
 }: NetworkScannerProps) {
   const [subnet, setSubnet] = useState(defaultSubnet || getDefaultSubnet());
   const [isScanning, setIsScanning] = useState(false);
@@ -64,7 +71,7 @@ export function NetworkScanner({
   /**
    * Handles scan initiation
    */
-  const handleStartScan = async () => {
+  const handleStartScan = useCallback(async () => {
     // Validate subnet format
     if (!validateSubnet(subnet)) {
       setError('Invalid subnet format. Use CIDR notation (e.g., 192.168.88.0/24)');
@@ -94,17 +101,17 @@ export function NetworkScanner({
         setError(err instanceof Error ? err.message : 'Unknown scan error');
       }
     }
-  };
+  }, [subnet, onScanComplete]);
 
   /**
    * Handles router selection from results
    */
-  const handleSelectRouter = (result: ScanResult) => {
+  const handleSelectRouter = useCallback((result: ScanResult) => {
     onRouterSelect?.(result);
-  };
+  }, [onRouterSelect]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       {/* Scan Input */}
       <div className="space-y-4">
         <div>
@@ -122,14 +129,14 @@ export function NetworkScanner({
               onChange={(e) => setSubnet(e.target.value)}
               disabled={isScanning}
               placeholder="192.168.88.0/24"
-              className="flex-1 px-3 py-2 border border-border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50"
+              className={cn('flex-1 px-3 py-2 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
               aria-describedby="subnet-help"
             />
             <button
               onClick={handleStartScan}
               disabled={isScanning}
               aria-label={isScanning ? 'Scanning network' : 'Scan network'}
-              className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={cn('min-h-[44px] px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               {isScanning ? 'Scanning...' : 'Scan Network'}
             </button>
@@ -325,7 +332,9 @@ export function NetworkScanner({
       )}
     </div>
   );
-}
+});
+
+NetworkScanner.displayName = 'NetworkScanner';
 
 /**
  * Helper to get user-friendly error messages

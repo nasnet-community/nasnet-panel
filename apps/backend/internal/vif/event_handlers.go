@@ -144,42 +144,65 @@ func (h *EventHandler) HandleServiceInstanceDeleted(ctx context.Context, event e
 	return nil
 }
 
-// extractInterfaceID extracts the interface ID from an event.
-// This is a helper method that would need to be adapted based on the actual event structure.
+// extractInterfaceID extracts the interface ID from an event by type-switching
+// on concrete event types that carry an InterfaceID field.
 func (h *EventHandler) extractInterfaceID(event events.Event) string {
-	// TODO: Implement based on actual event structure
-	// This might involve type assertion to a specific event type
-	// or extracting from event metadata
-
-	// Placeholder implementation
+	switch e := event.(type) {
+	case *events.InterfaceStatusChangedEvent:
+		return e.InterfaceID
+	case *events.InterfaceTrafficUpdateEvent:
+		return e.InterfaceID
+	case *events.GenericEvent:
+		if id, ok := e.Data["interfaceId"].(string); ok {
+			return id
+		}
+		if id, ok := e.Data["interface_id"].(string); ok {
+			return id
+		}
+	}
 	return ""
 }
 
-// extractInstanceID extracts the instance ID from an event.
-// This is a helper method that would need to be adapted based on the actual event structure.
+// extractInstanceID extracts the instance ID from an event by type-switching
+// on concrete event types that carry an InstanceID field.
 func (h *EventHandler) extractInstanceID(event events.Event) string {
-	// TODO: Implement based on actual event structure
-
-	// Placeholder implementation
+	switch e := event.(type) {
+	case *events.ServiceRemovedEvent:
+		return e.InstanceID
+	case *events.ServiceStateChangedEvent:
+		return e.InstanceID
+	case *events.ServiceCrashedEvent:
+		return e.InstanceID
+	case *events.ServiceRestartedEvent:
+		return e.InstanceID
+	case *events.ServiceKillSwitchEvent:
+		return e.InstanceID
+	case *events.GenericEvent:
+		if id, ok := e.Data["instanceId"].(string); ok {
+			return id
+		}
+		if id, ok := e.Data["instance_id"].(string); ok {
+			return id
+		}
+	}
 	return ""
 }
 
 // RegisterHandlers registers all device routing event handlers with the event bus.
 // This should be called during application initialization.
 func RegisterHandlers(_ context.Context, eventBus events.EventBus, handler *EventHandler) error {
-	// Register handler for VirtualInterface deletion events
-	// Note: The exact event type constant would need to be defined in the events package
-	virtualInterfaceDeletedEvent := "virtual_interface.deleted"
-	err := eventBus.Subscribe(virtualInterfaceDeletedEvent, handler.HandleVirtualInterfaceDeleted)
+	// Register handler for VirtualInterface status changes (e.g. interface goes down/deleted).
+	// InterfaceStatusChangedEvent carries an InterfaceID which maps to DeviceRouting.InterfaceID.
+	err := eventBus.Subscribe(events.EventTypeInterfaceStatusChanged, handler.HandleVirtualInterfaceDeleted)
 	if err != nil {
-		return fmt.Errorf("failed to subscribe to %s: %w", virtualInterfaceDeletedEvent, err)
+		return fmt.Errorf("failed to subscribe to %s: %w", events.EventTypeInterfaceStatusChanged, err)
 	}
 
-	// Register handler for ServiceInstance deletion events (as backup/alternative)
-	serviceInstanceDeletedEvent := events.EventTypeFeatureStopped // Using existing constant as placeholder
-	err = eventBus.Subscribe(serviceInstanceDeletedEvent, handler.HandleServiceInstanceDeleted)
+	// Register handler for ServiceInstance removal events.
+	// ServiceRemovedEvent carries an InstanceID which maps to DeviceRouting.InstanceID.
+	err = eventBus.Subscribe(events.EventTypeServiceRemoved, handler.HandleServiceInstanceDeleted)
 	if err != nil {
-		return fmt.Errorf("failed to subscribe to %s: %w", serviceInstanceDeletedEvent, err)
+		return fmt.Errorf("failed to subscribe to %s: %w", events.EventTypeServiceRemoved, err)
 	}
 
 	return nil

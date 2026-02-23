@@ -57,7 +57,10 @@ export interface UseLogCorrelationReturn {
 }
 
 /**
- * Get the highest severity in a list of entries
+ * @description Get the highest severity level from a list of log entries.
+ * Severity order: debug < info < warning < error < critical
+ * @param entries - Array of log entries
+ * @returns The highest severity level found
  */
 function getHighestSeverity(
   entries: LogEntry[]
@@ -76,7 +79,10 @@ function getHighestSeverity(
 }
 
 /**
- * Get the most common topic in a list of entries
+ * @description Get the most common (primary) topic from a list of log entries.
+ * Uses frequency counting to determine which topic appears most often.
+ * @param entries - Array of log entries
+ * @returns The most frequent topic, or 'system' if list is empty
  */
 function getPrimaryTopic(entries: LogEntry[]): LogTopic {
   const topicCounts = new Map<LogTopic, number>();
@@ -100,7 +106,13 @@ function getPrimaryTopic(entries: LogEntry[]): LogTopic {
 }
 
 /**
- * Group logs by time window
+ * @description Group logs by time window. Consecutive logs within
+ * windowMs are grouped together. Groups smaller than minGroupSize
+ * are split into individual entry groups.
+ * @param logs - Array of log entries to group
+ * @param windowMs - Time window in milliseconds
+ * @param minGroupSize - Minimum entries required to form a group
+ * @returns Array of LogGroups grouped by time window
  */
 function groupByTimeWindow(
   logs: LogEntry[],
@@ -185,7 +197,12 @@ function groupByTimeWindow(
 }
 
 /**
- * Group logs by topic
+ * @description Group logs by their topic. All logs with the same
+ * topic are grouped together. Groups smaller than minGroupSize
+ * are split into individual entry groups.
+ * @param logs - Array of log entries to group
+ * @param minGroupSize - Minimum entries required to form a group
+ * @returns Array of LogGroups grouped by topic
  */
 function groupByTopicFn(logs: LogEntry[], minGroupSize: number): LogGroup[] {
   const topicMap = new Map<string, LogEntry[]>();
@@ -234,7 +251,18 @@ function groupByTopicFn(logs: LogEntry[], minGroupSize: number): LogGroup[] {
 }
 
 /**
- * Hook for log correlation and grouping
+ * @description Hook for intelligent log correlation and grouping.
+ * Supports grouping by time window or by topic, with configurable
+ * minimum group size. Can be toggled on/off and grouping mode changed
+ * dynamically.
+ * @param logs - Array of log entries to process
+ * @param options - Grouping configuration options
+ * @example
+ * const { groups, toggleGrouping, setGroupByTopic } = useLogCorrelation(logs, {
+ *   windowMs: 1000,
+ *   groupByTopic: false,
+ *   minGroupSize: 2,
+ * });
  */
 export function useLogCorrelation(
   logs: LogEntry[],
@@ -269,13 +297,16 @@ export function useLogCorrelation(
     setIsGrouped((prev) => !prev);
   }, []);
 
-  return {
-    groups,
-    flatLogs: logs,
-    isGrouped,
-    toggleGrouping,
-    setGroupByTopic,
-  };
+  return React.useMemo(
+    () => ({
+      groups,
+      flatLogs: logs,
+      isGrouped,
+      toggleGrouping,
+      setGroupByTopic,
+    }),
+    [groups, logs, isGrouped, toggleGrouping, setGroupByTopic]
+  );
 }
 
 

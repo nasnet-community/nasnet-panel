@@ -13,13 +13,15 @@
  * @see NAS-7.8: Implement Service Ports Management - Task 5
  */
 
-import { fn, within, userEvent } from '@storybook/test';
+import { fn, within, userEvent } from 'storybook/test';
 
 import type { ServicePortDefinition } from '@nasnet/core/types';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import { ServicePortsTable } from './ServicePortsTable';
 import { useCustomServices } from '../hooks/useCustomServices';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock the hook
 const mockUseCustomServices = useCustomServices as ReturnType<typeof fn>;
@@ -32,7 +34,7 @@ const builtInServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'web',
     description: 'HyperText Transfer Protocol',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 443,
@@ -40,7 +42,7 @@ const builtInServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'secure',
     description: 'HTTP over TLS/SSL',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 22,
@@ -48,7 +50,7 @@ const builtInServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'secure',
     description: 'Secure Shell',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 53,
@@ -56,7 +58,7 @@ const builtInServices: ServicePortDefinition[] = [
     protocol: 'both',
     category: 'network',
     description: 'Domain Name System',
-    builtIn: true,
+    isBuiltIn: true,
   },
   {
     port: 3306,
@@ -64,7 +66,7 @@ const builtInServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'database',
     description: 'MySQL Database Server',
-    builtIn: true,
+    isBuiltIn: true,
   },
 ];
 
@@ -75,7 +77,7 @@ const customServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'custom',
     description: 'My custom application',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -85,7 +87,7 @@ const customServices: ServicePortDefinition[] = [
     protocol: 'tcp',
     category: 'custom',
     description: 'Development server',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-02T00:00:00Z',
     updatedAt: '2024-01-02T00:00:00Z',
   },
@@ -95,7 +97,7 @@ const customServices: ServicePortDefinition[] = [
     protocol: 'udp',
     category: 'custom',
     description: 'Gaming server',
-    builtIn: false,
+    isBuiltIn: false,
     createdAt: '2024-01-03T00:00:00Z',
     updatedAt: '2024-01-03T00:00:00Z',
   },

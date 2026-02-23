@@ -16,9 +16,9 @@ import {
   TableHead,
   TableCell,
   Badge,
+  cn,
 } from '@nasnet/ui/primitives';
 import { CopyButton } from '@nasnet/ui/patterns';
-import { cn } from '@nasnet/ui/primitives';
 import type { DnsLookupResult } from './DnsLookupTool.types';
 import { formatRecordValue, formatTTL, sortRecordsByPriority } from './dnsLookup.utils';
 

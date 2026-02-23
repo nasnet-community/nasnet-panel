@@ -1,0 +1,1 @@
+{"version":3,"file":"useAlertTemplates.d.ts","sourceRoot":"","sources":["useAlertTemplates.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,8BAA8B,CAAC;AAExE,MAAM,WAAW,wBAAwB;IACvC,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,OAAO,CAAC,EAAE,mBAAmB,CAAC;CAC/B;AAED,wBAAgB,iBAAiB,CAAC,OAAO,CAAC,EAAE,wBAAwB;;;;;EAcnE"}

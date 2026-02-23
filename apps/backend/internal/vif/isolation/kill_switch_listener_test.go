@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rs/zerolog"
+
 	"backend/generated/ent/enttest"
 
 	"backend/internal/events"
@@ -76,7 +78,7 @@ func TestKillSwitchListener_HealthEventActivation(t *testing.T) {
 	publisher := events.NewPublisher(mockBus, "kill-switch-listener-test")
 
 	killSwitchMgr := NewKillSwitchManager(mockPort, client, mockBus, publisher)
-	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr)
+	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr, zerolog.Nop())
 
 	// Create a test router
 	testRouter := client.Router.Create().
@@ -177,7 +179,7 @@ func TestKillSwitchListener_HealthEventDeactivation(t *testing.T) {
 	publisher := events.NewPublisher(mockBus, "kill-switch-listener-test")
 
 	killSwitchMgr := NewKillSwitchManager(mockPort, client, mockBus, publisher)
-	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr)
+	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr, zerolog.Nop())
 
 	// Create a test router
 	testRouter := client.Router.Create().
@@ -277,7 +279,7 @@ func TestKillSwitchListener_IgnoreNonTransitions(t *testing.T) {
 	publisher := events.NewPublisher(mockBus, "kill-switch-listener-test")
 
 	killSwitchMgr := NewKillSwitchManager(mockPort, client, mockBus, publisher)
-	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr)
+	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr, zerolog.Nop())
 
 	// Create a test router
 	testRouter := client.Router.Create().
@@ -370,7 +372,7 @@ func TestKillSwitchListener_NoKillSwitchEnabled(t *testing.T) {
 	publisher := events.NewPublisher(mockBus, "kill-switch-listener-test")
 
 	killSwitchMgr := NewKillSwitchManager(mockPort, client, mockBus, publisher)
-	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr)
+	listener := NewKillSwitchListener(client, mockBus, publisher, killSwitchMgr, zerolog.Nop())
 
 	// Create a test router
 	testRouter := client.Router.Create().

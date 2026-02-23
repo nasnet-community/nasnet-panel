@@ -1,0 +1,1 @@
+{"version":3,"file":"LatencyGraph.d.ts","sourceRoot":"","sources":["LatencyGraph.tsx"],"names":[],"mappings":"AAAA;;;;;;;;;GASG;AAcH,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,kBAAkB,CAAC;AAEnD;;GAEG;AACH,MAAM,WAAW,iBAAiB;IAChC,yCAAyC;IACzC,OAAO,EAAE,UAAU,EAAE,CAAC;IACtB,sCAAsC;IACtC,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AA0CD;;;;;;;;;;;;;;;;;GAiBG;AACH,eAAO,MAAM,YAAY,yDA6FxB,CAAC"}

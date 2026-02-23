@@ -6,13 +6,14 @@
 import { memo, useState } from 'react';
 
 import { ChevronDown, ChevronUp, RefreshCw, ArrowDown, ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useInterfaceTraffic } from '@nasnet/api-client/queries';
 import { type NetworkInterface } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 import { InterfaceTypeIcon } from './InterfaceTypeIcon';
 import { TrafficIndicator } from './TrafficIndicator';
@@ -23,6 +24,7 @@ interface InterfaceCardProps {
 
 export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: InterfaceCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation('network');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   const { data: trafficStats, isLoading: isLoadingStats } = useInterfaceTraffic(
@@ -56,14 +58,14 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                 className={cn(
                   'block w-2.5 h-2.5 rounded-full',
                   isRunning && isLinkUp
-                    ? 'bg-emerald-500'
+                    ? 'bg-success'
                     : isRunning
-                      ? 'bg-amber-500'
+                      ? 'bg-warning'
                       : 'bg-muted-foreground'
                 )}
               />
               {isRunning && isLinkUp && (
-                <span className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping opacity-75" />
+                <span className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-success animate-ping opacity-75" />
               )}
             </div>
 
@@ -89,11 +91,11 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
             {trafficStats && !isExpanded && (
               <div className="hidden sm:flex items-center gap-3 text-xs font-mono text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <ArrowDown className="w-3 h-3 text-emerald-500" aria-hidden="true" />
+                  <ArrowDown className="w-3 h-3 text-success" aria-hidden="true" />
                   {formatBytes(trafficStats.rxBytes)}
                 </span>
                 <span className="flex items-center gap-1">
-                  <ArrowUp className="w-3 h-3 text-purple-500" aria-hidden="true" />
+                  <ArrowUp className="w-3 h-3 text-category-monitoring" aria-hidden="true" />
                   {formatBytes(trafficStats.txBytes)}
                 </span>
               </div>
@@ -108,8 +110,8 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
 
         {/* MAC Address - always visible */}
         <div className="mt-2 text-xs font-mono text-muted-foreground pl-5">
-          {iface.macAddress || 'No MAC'}
-          {iface.mtu && <span className="ml-3">MTU: {iface.mtu}</span>}
+          {iface.macAddress || t('interfaces.noMac')}
+          {iface.mtu && <span className="ml-3">{t('interfaces.mtu')}: {iface.mtu}</span>}
         </div>
       </button>
 
@@ -119,9 +121,9 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
           <div className="pt-3 space-y-3">
             {/* Traffic Statistics */}
             {isLoadingStats ? (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground py-2" role="status" aria-label="Loading traffic data">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground py-2" role="status" aria-label={t('traffic.loading')}>
                 <RefreshCw className="w-3 h-3 animate-spin" aria-hidden="true" />
-                <span>Loading traffic...</span>
+                <span>{t('traffic.loading')}</span>
               </div>
             ) : trafficStats ? (
               <div className="space-y-3">
@@ -134,13 +136,13 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                 {/* Packet Stats */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-muted rounded-lg p-2">
-                    <p className="text-muted-foreground">RX Packets</p>
+                    <p className="text-muted-foreground">{t('traffic.rxPackets')}</p>
                     <p className="font-mono text-foreground">
                       {trafficStats.rxPackets.toLocaleString()}
                     </p>
                   </div>
                   <div className="bg-muted rounded-lg p-2">
-                    <p className="text-muted-foreground">TX Packets</p>
+                    <p className="text-muted-foreground">{t('traffic.txPackets')}</p>
                     <p className="font-mono text-foreground">
                       {trafficStats.txPackets.toLocaleString()}
                     </p>
@@ -152,20 +154,20 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                   trafficStats.txDrops > 0 || trafficStats.rxDrops > 0) && (
                   <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-2 text-xs" role="alert">
                     <p className="text-destructive font-medium mb-1">
-                      Issues Detected
+                      {t('traffic.issuesDetected')}
                     </p>
                     <div className="grid grid-cols-2 gap-1 text-destructive">
                       {trafficStats.rxErrors > 0 && (
-                        <span>RX Errors: {trafficStats.rxErrors}</span>
+                        <span>{t('traffic.rxErrors')}: {trafficStats.rxErrors}</span>
                       )}
                       {trafficStats.txErrors > 0 && (
-                        <span>TX Errors: {trafficStats.txErrors}</span>
+                        <span>{t('traffic.txErrors')}: {trafficStats.txErrors}</span>
                       )}
                       {trafficStats.rxDrops > 0 && (
-                        <span>RX Drops: {trafficStats.rxDrops}</span>
+                        <span>{t('traffic.rxDrops')}: {trafficStats.rxDrops}</span>
                       )}
                       {trafficStats.txDrops > 0 && (
-                        <span>TX Drops: {trafficStats.txDrops}</span>
+                        <span>{t('traffic.txDrops')}: {trafficStats.txDrops}</span>
                       )}
                     </div>
                   </div>
@@ -173,14 +175,14 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
               </div>
             ) : (
               <p className="text-xs text-muted-foreground py-2">
-                No traffic data available
+                {t('traffic.noData')}
               </p>
             )}
 
             {/* Additional Details */}
             {iface.comment && (
               <div className="text-xs">
-                <span className="text-muted-foreground">Comment: </span>
+                <span className="text-muted-foreground">{t('interfaces.comment')}: </span>
                 <span className="text-foreground">{iface.comment}</span>
               </div>
             )}

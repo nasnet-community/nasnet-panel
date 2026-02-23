@@ -51,10 +51,18 @@ describe('useRelativeTime', () => {
   });
 
   it('should use singular form for 1 second', () => {
-    const oneSecondAgo = new Date(Date.now() - 5000); // 5s to avoid "just now"
-    const { result } = renderHook(() => useRelativeTime(oneSecondAgo));
-    vi.advanceTimersByTime(4000); // Now it's 1 second old
-    expect(result.current).toContain('second'); // Could be "just now" or "1 second"
+    // Start with a timestamp 5 seconds old
+    const fiveSecondsAgo = new Date(Date.now() - 5000);
+    const { result } = renderHook(() => useRelativeTime(fiveSecondsAgo));
+
+    // Verify initial state
+    expect(result.current).toBe('Updated 5 seconds ago');
+
+    // Advance time by 4 seconds (now 9 seconds old)
+    vi.advanceTimersByTime(4000);
+
+    // At 9 seconds, should still show seconds (not transitioned to minutes yet)
+    expect(result.current).toContain('second');
   });
 
   it('should use singular form for 1 minute', () => {

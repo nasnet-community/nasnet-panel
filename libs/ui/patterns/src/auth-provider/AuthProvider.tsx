@@ -5,6 +5,15 @@
  * Provides auth state and methods via React context for convenience.
  *
  * @see NAS-4.9: Implement Connection & Auth Stores
+ * @example
+ * ```tsx
+ * <AuthProvider
+ *   onRefreshToken={async () => ({ accessToken, refreshToken, expiresIn })}
+ *   onSessionExpired={() => navigate('/login')}
+ * >
+ *   <App />
+ * </AuthProvider>
+ * ```
  */
 
 import {
@@ -12,7 +21,9 @@ import {
   useContext,
   useCallback,
   useMemo,
+  forwardRef,
   type ReactNode,
+  type ReactElement,
 } from 'react';
 
 import { useAuthStore, useTokenRefresh } from '@nasnet/state/stores';
@@ -106,6 +117,11 @@ export function useAuth(): AuthContextValue {
 
 /**
  * Hook to access auth context (returns null if outside provider)
+ *
+ * Unlike `useAuth()`, this hook doesn't throw an error if used outside AuthProvider.
+ * Returns `null` instead, making it safe for optional auth contexts.
+ *
+ * @returns Auth context value or null if not provided
  */
 export function useAuthOptional(): AuthContextValue | null {
   return useContext(AuthContext);
@@ -113,6 +129,10 @@ export function useAuthOptional(): AuthContextValue | null {
 
 // ===== Provider Props =====
 
+/**
+ * Props for AuthProvider component
+ * Configures authentication behavior and session management
+ */
 export interface AuthProviderProps {
   /**
    * Child components
@@ -185,14 +205,14 @@ export interface AuthProviderProps {
  * }
  * ```
  */
-export function AuthProvider({
+function AuthProviderComponent({
   children,
   onRefreshToken,
   onSessionExpired,
   showSessionWarning = true,
   sessionWarningThreshold = 300,
   enableAutoRefresh = true,
-}: AuthProviderProps) {
+}: AuthProviderProps): ReactElement {
   // Get auth store state and actions
   const {
     token: accessToken,
@@ -342,8 +362,20 @@ export function AuthProvider({
   );
 }
 
+export const AuthProvider = forwardRef<HTMLDivElement, AuthProviderProps>((props, ref) => (
+  <div ref={ref} style={{ display: 'contents' }}>
+    <AuthProviderComponent {...props} />
+  </div>
+));
+
+AuthProvider.displayName = 'AuthProvider';
+
 // ===== Utility Components =====
 
+/**
+ * Props for RequireAuth component
+ * Controls conditional rendering based on authentication and permissions
+ */
 export interface RequireAuthProps {
   /**
    * Content to show when authenticated
@@ -369,6 +401,9 @@ export interface RequireAuthProps {
 /**
  * Conditional rendering based on auth state
  *
+ * Guards content to only show when user is authenticated and has required permissions.
+ * Handles loading state during auth initialization.
+ *
  * @example
  * ```tsx
  * <RequireAuth fallback={<LoginPage />}>
@@ -388,12 +423,12 @@ export function RequireAuth({
   fallback = null,
   permissions,
   unauthorizedFallback = null,
-}: RequireAuthProps) {
+}: RequireAuthProps): ReactElement {
   const { isAuthenticated, hasAllPermissions, isLoading } = useAuth();
 
   // Still loading
   if (isLoading) {
-    return null;
+    return <></>;
   }
 
   // Not authenticated

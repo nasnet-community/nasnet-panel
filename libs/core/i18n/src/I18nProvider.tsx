@@ -12,6 +12,12 @@ import { I18nextProvider } from 'react-i18next';
 
 import i18n from './i18n';
 
+/**
+ * Props for the I18nProvider component
+ *
+ * @property children - React components to wrap with i18n support
+ * @property loadingFallback - Optional UI to display while loading language packs
+ */
 interface I18nProviderProps {
   children: ReactNode;
   /**
@@ -26,11 +32,18 @@ interface I18nProviderProps {
  *
  * Must be placed near the top of the component tree, typically in main.tsx.
  * Uses Suspense to handle lazy-loaded language packs.
+ * Combines I18nextProvider with a Suspense boundary to manage async language loading.
+ *
+ * @param props - Configuration props
+ * @returns React component that provides i18n context
  *
  * @example
  * ```tsx
+ * // In main.tsx
  * <I18nProvider loadingFallback={<LoadingSpinner />}>
- *   <App />
+ *   <DirectionProvider>
+ *     <App />
+ *   </DirectionProvider>
  * </I18nProvider>
  * ```
  */
@@ -41,5 +54,3 @@ export function I18nProvider({ children, loadingFallback = null }: I18nProviderP
     </I18nextProvider>
   );
 }
-
-export default I18nProvider;

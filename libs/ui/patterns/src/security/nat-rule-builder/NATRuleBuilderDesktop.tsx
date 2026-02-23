@@ -20,7 +20,7 @@ import {
   ArrowRight,
   Globe,
 } from 'lucide-react';
-import { Controller } from 'react-hook-form';
+import { Controller, type Control, type FieldValues } from 'react-hook-form';
 
 import {
   NatChainSchema,
@@ -161,7 +161,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                 <RHFFormField
                   name="chain"
                   label="NAT Chain"
-                  control={control}
+                  control={control as unknown as Control<FieldValues>}
                   error={errors.chain}
                   required
                 >
@@ -196,7 +196,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                 <RHFFormField
                   name="action"
                   label="NAT Action"
-                  control={control}
+                  control={control as unknown as Control<FieldValues>}
                   error={errors.action}
                   required
                 >
@@ -235,7 +235,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="protocol"
                     label="Protocol"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.protocol}
                   >
                     <Controller
@@ -264,7 +264,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="srcAddress"
                     label="Source Address"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.srcAddress}
                     hint="IP address or CIDR (e.g., 192.168.1.0/24)"
                   >
@@ -287,7 +287,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="dstAddress"
                     label="Destination Address"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.dstAddress}
                     hint="IP address or CIDR"
                   >
@@ -310,7 +310,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="srcPort"
                     label="Source Port"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.srcPort}
                     hint="Single port or range (e.g., 8000-9000)"
                   >
@@ -333,7 +333,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="dstPort"
                     label="Destination Port"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.dstPort}
                     hint="Single port or range"
                   >
@@ -370,7 +370,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="inInterface"
                       label="Input Interface"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.inInterface}
                     >
                       <Controller
@@ -400,7 +400,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="outInterface"
                       label="Output Interface"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.outInterface}
                     >
                       <Controller
@@ -430,7 +430,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="inInterfaceList"
                       label="Input Interface List"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.inInterfaceList}
                     >
                       <Controller
@@ -460,7 +460,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="outInterfaceList"
                       label="Output Interface List"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.outInterfaceList}
                     >
                       <Controller
@@ -502,7 +502,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="toAddresses"
                       label="Target Address"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.toAddresses}
                       required={rule.action === 'dst-nat' || rule.action === 'src-nat'}
                       hint="IP address to translate to"
@@ -526,7 +526,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     <RHFFormField
                       name="toPorts"
                       label="Target Port(s)"
-                      control={control}
+                      control={control as unknown as Control<FieldValues>}
                       error={errors.toPorts}
                       hint="Port or comma-separated ports"
                     >
@@ -559,7 +559,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                 <RHFFormField
                   name="comment"
                   label="Comment"
-                  control={control}
+                  control={control as unknown as Control<FieldValues>}
                   error={errors.comment}
                   hint="Optional description (max 255 characters)"
                 >
@@ -625,7 +625,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <RHFFormField
                     name="logPrefix"
                     label="Log Prefix"
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     error={errors.logPrefix}
                     hint="Prefix for log entries (max 50 characters)"
                   >

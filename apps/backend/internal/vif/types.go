@@ -6,17 +6,19 @@ import (
 	"context"
 	"fmt"
 	"sync"
+
+	"backend/internal/network"
 )
 
 // VLANAllocator manages allocation and release of VLAN IDs for virtual interfaces.
+// Allocate now accepts router/instance/service context required by the DB-backed allocator.
 type VLANAllocator interface {
-	Allocate(ctx context.Context) (int, error)
-	Release(ctx context.Context, id int) error
+	Allocate(ctx context.Context, routerID, instanceID, serviceType string) (int, error)
+	Release(ctx context.Context, routerID string, id int) error
 }
 
 // SimpleVLANAllocator is a sequential allocator that maintains VLAN ID availability in memory.
-// Note: This is a simple implementation for MVP. Story 8.18 will replace this with a
-// persistent, database-backed allocator.
+// Kept for unit testing. Production code uses NetworkVLANAllocatorAdapter.
 type SimpleVLANAllocator struct {
 	mu      sync.Mutex
 	used    map[int]bool
@@ -36,7 +38,9 @@ func NewSimpleVLANAllocator(minID, maxID int) *SimpleVLANAllocator {
 }
 
 // Allocate finds and reserves the next available VLAN ID.
-func (a *SimpleVLANAllocator) Allocate(ctx context.Context) (int, error) {
+// routerID, instanceID, and serviceType are accepted to satisfy the VLANAllocator interface
+// but are not used by this in-memory implementation.
+func (a *SimpleVLANAllocator) Allocate(ctx context.Context, _, _, _ string) (int, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -58,10 +62,42 @@ func (a *SimpleVLANAllocator) Allocate(ctx context.Context) (int, error) {
 }
 
 // Release frees a previously allocated VLAN ID.
-func (a *SimpleVLANAllocator) Release(ctx context.Context, id int) error {
+// routerID is accepted to satisfy the VLANAllocator interface but is not used by this
+// in-memory implementation.
+func (a *SimpleVLANAllocator) Release(ctx context.Context, _ string, id int) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
 	delete(a.used, id)
 	return nil
+}
+
+// NetworkVLANAllocatorAdapter wraps network.VLANAllocator to satisfy vif.VLANAllocator.
+// It bridges the DB-backed allocator (which requires router/instance/service context)
+// to the vif package interface.
+type NetworkVLANAllocatorAdapter struct {
+	inner *network.VLANAllocator
+}
+
+// NewNetworkVLANAllocatorAdapter creates an adapter wrapping the DB-backed allocator.
+func NewNetworkVLANAllocatorAdapter(inner *network.VLANAllocator) *NetworkVLANAllocatorAdapter {
+	return &NetworkVLANAllocatorAdapter{inner: inner}
+}
+
+// Allocate delegates to the DB-backed allocator with full context.
+func (a *NetworkVLANAllocatorAdapter) Allocate(ctx context.Context, routerID, instanceID, serviceType string) (int, error) {
+	resp, err := a.inner.AllocateVLAN(ctx, network.AllocateVLANRequest{
+		RouterID:    routerID,
+		InstanceID:  instanceID,
+		ServiceType: serviceType,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return resp.VlanID, nil
+}
+
+// Release delegates to the DB-backed allocator.
+func (a *NetworkVLANAllocatorAdapter) Release(ctx context.Context, routerID string, id int) error {
+	return a.inner.ReleaseVLAN(ctx, routerID, id)
 }

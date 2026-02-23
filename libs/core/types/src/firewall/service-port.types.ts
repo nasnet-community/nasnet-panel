@@ -23,12 +23,19 @@ import { z } from 'zod';
 
 /**
  * Protocol type for service ports
+ * Supports TCP, UDP, or both protocols
  */
 export const ServicePortProtocolSchema = z.enum(['tcp', 'udp', 'both']);
+/**
+ * Type for service port protocol
+ * @example
+ * const protocol: ServicePortProtocol = 'tcp';
+ */
 export type ServicePortProtocol = z.infer<typeof ServicePortProtocolSchema>;
 
 /**
  * Category for grouping services in suggestions
+ * Used to organize and filter service ports by functional category
  */
 export const ServicePortCategorySchema = z.enum([
   'web',
@@ -42,6 +49,11 @@ export const ServicePortCategorySchema = z.enum([
   'mikrotik',
   'custom', // For user-defined services
 ]);
+/**
+ * Type for service port category
+ * @example
+ * const category: ServicePortCategory = 'web';
+ */
 export type ServicePortCategory = z.infer<typeof ServicePortCategorySchema>;
 
 // ============================================================================
@@ -50,18 +62,40 @@ export type ServicePortCategory = z.infer<typeof ServicePortCategorySchema>;
 
 /**
  * Validates port number (1-65535)
+ * Ensures port is an integer within the valid range
+ *
+ * @param port - Port number to validate
+ * @returns True if port is valid, false otherwise
+ *
+ * @example
+ * isValidPortNumber(80)  // Returns true
+ * isValidPortNumber(99999) // Returns false
  */
-const isValidPortNumber = (port: number): boolean => {
+export const isValidPortNumber = (port: number): boolean => {
   return Number.isInteger(port) && port >= 1 && port <= 65535;
 };
 
 /**
- * Validates service name (alphanumeric, hyphens, underscores)
- * Examples: "my-app", "web_server", "api-v2"
+ * Regex pattern for valid service names
+ * Allows alphanumeric characters, hyphens, and underscores
+ * Must start with alphanumeric character
  */
-const serviceNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
-const isValidServiceName = (name: string): boolean => {
-  return serviceNameRegex.test(name) && name.length >= 1 && name.length <= 100;
+export const SERVICE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
+
+/**
+ * Validates service name (alphanumeric, hyphens, underscores)
+ * Names must be 1-100 characters and follow the naming pattern
+ *
+ * @param name - Service name to validate
+ * @returns True if name is valid, false otherwise
+ *
+ * @example
+ * isValidServiceName('my-app') // Returns true
+ * isValidServiceName('web_server') // Returns true
+ * isValidServiceName('-invalid') // Returns false
+ */
+export const isValidServiceName = (name: string): boolean => {
+  return SERVICE_NAME_REGEX.test(name) && name.length >= 1 && name.length <= 100;
 };
 
 // ============================================================================
@@ -97,7 +131,7 @@ export const ServicePortDefinitionSchema = z.object({
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 
   /** Built-in flag (true = read-only, false = user-editable) */
-  builtIn: z.boolean().default(false),
+  isBuiltIn: z.boolean().default(false),
 
   /** Timestamp when service was created (ISO 8601) */
   createdAt: z.string().datetime().optional(),
@@ -167,7 +201,8 @@ export const ServiceGroupSchema = z.object({
     })
     .refine((ports) => new Set(ports).size === ports.length, {
       message: 'Duplicate ports not allowed in group',
-    }),
+    })
+    .readonly(),
 
   /** Protocol constraint for group (tcp, udp, or both) */
   protocol: ServicePortProtocolSchema,
@@ -201,87 +236,143 @@ export type ServiceGroupInput = z.infer<typeof ServiceGroupInputSchema>;
 
 /**
  * Checks if a service name conflicts with built-in services (case-insensitive)
+ *
+ * @param serviceName - Service name to check
+ * @param builtInServices - Array of built-in service definitions
+ * @returns True if a conflict exists, false otherwise
+ *
+ * @example
+ * hasBuiltInConflict('HTTP', builtInServices) // Returns true if HTTP is built-in
  */
 export function hasBuiltInConflict(
   serviceName: string,
-  builtInServices: ServicePortDefinition[]
+  builtInServices: readonly ServicePortDefinition[]
 ): boolean {
   const normalizedName = serviceName.toLowerCase().trim();
   return builtInServices.some(
-    (service) => service.builtIn && service.service.toLowerCase() === normalizedName
+    (service) => service.isBuiltIn && service.service.toLowerCase() === normalizedName
   );
 }
 
 /**
  * Checks if a service name conflicts with custom services (case-insensitive)
+ *
+ * @param serviceName - Service name to check
+ * @param customServices - Array of custom service definitions
+ * @param excludePort - Optional port number to exclude from conflict check (for updates)
+ * @returns True if a conflict exists, false otherwise
+ *
+ * @example
+ * hasCustomConflict('my-app', customServices, 8080) // Excludes port 8080
  */
 export function hasCustomConflict(
   serviceName: string,
-  customServices: ServicePortDefinition[],
+  customServices: readonly ServicePortDefinition[],
   excludePort?: number
 ): boolean {
   const normalizedName = serviceName.toLowerCase().trim();
   return customServices.some(
     (service) =>
-      !service.builtIn &&
+      !service.isBuiltIn &&
       service.service.toLowerCase() === normalizedName &&
       service.port !== excludePort
   );
 }
 
 /**
- * Merges built-in and custom services, prioritizing custom overrides
+ * Merges built-in and custom services into a single array
+ * Built-in services appear first, followed by custom services
+ *
+ * @param builtInServices - Array of built-in service definitions
+ * @param customServices - Array of custom service definitions
+ * @returns Merged array of service definitions
+ *
+ * @example
+ * mergeServices(builtIn, custom) // Returns [builtIn..., custom...]
  */
 export function mergeServices(
-  builtInServices: ServicePortDefinition[],
-  customServices: ServicePortDefinition[]
+  builtInServices: readonly ServicePortDefinition[],
+  customServices: readonly ServicePortDefinition[]
 ): ServicePortDefinition[] {
-  // Built-in services first (read-only)
-  // Custom services second (editable)
   return [...builtInServices, ...customServices];
 }
 
 /**
  * Finds a service by port number
+ *
+ * @param port - Port number to search for
+ * @param services - Array of service definitions
+ * @returns Service definition if found, undefined otherwise
+ *
+ * @example
+ * findServiceByPort(443, services) // Returns HTTPS service
  */
 export function findServiceByPort(
   port: number,
-  services: ServicePortDefinition[]
+  services: readonly ServicePortDefinition[]
 ): ServicePortDefinition | undefined {
   return services.find((service) => service.port === port);
 }
 
 /**
  * Finds a service by name (case-insensitive)
+ *
+ * @param serviceName - Service name to search for
+ * @param services - Array of service definitions
+ * @returns Service definition if found, undefined otherwise
+ *
+ * @example
+ * findServiceByName('HTTP', services) // Returns service named http
  */
 export function findServiceByName(
   serviceName: string,
-  services: ServicePortDefinition[]
+  services: readonly ServicePortDefinition[]
 ): ServicePortDefinition | undefined {
   const normalizedName = serviceName.toLowerCase().trim();
   return services.find((service) => service.service.toLowerCase() === normalizedName);
 }
 
 /**
- * Formats port list for display (e.g., "80, 443, 8080")
+ * Formats port list for display as comma-separated string
+ * Sorts ports in ascending order before formatting
+ *
+ * @param ports - Array of port numbers
+ * @returns Formatted port string
+ *
+ * @example
+ * formatPortList([443, 80, 8080]) // Returns "80, 443, 8080"
  */
-export function formatPortList(ports: number[]): string {
-  return ports.sort((a, b) => a - b).join(', ');
+export function formatPortList(ports: readonly number[]): string {
+  return [...ports].sort((a, b) => a - b).join(', ');
 }
 
 /**
- * Expands service group to comma-separated port string
+ * Expands service group ports to comma-separated port string
+ *
+ * @param group - Service group to expand
+ * @returns Formatted port string
+ *
+ * @example
+ * expandGroupToPorts(webGroup) // Returns "80, 443, 8080"
  */
 export function expandGroupToPorts(group: ServiceGroup): string {
   return formatPortList(group.ports);
 }
 
 /**
- * Validates that a service group name doesn't conflict with existing groups
+ * Validates that a service group name doesn't conflict with existing groups (case-insensitive)
+ *
+ * @param groupName - Group name to check
+ * @param existingGroups - Array of existing service groups
+ * @param excludeId - Optional group ID to exclude from conflict check (for updates)
+ * @returns True if a conflict exists, false otherwise
+ *
+ * @example
+ * hasGroupNameConflict('web', existingGroups) // Returns true if "web" group exists
  */
 export function hasGroupNameConflict(
   groupName: string,
-  existingGroups: ServiceGroup[],
+  existingGroups: readonly ServiceGroup[],
   excludeId?: string
 ): boolean {
   const normalizedName = groupName.toLowerCase().trim();
@@ -295,21 +386,23 @@ export function hasGroupNameConflict(
 // ============================================================================
 
 /**
- * Default custom service input values
+ * Default custom service input values for form initialization
+ * Used when creating a new custom service
  */
-export const DEFAULT_CUSTOM_SERVICE_INPUT: CustomServicePortInput = {
+export const DEFAULT_CUSTOM_SERVICE_INPUT = {
   port: 8080,
   service: '',
   protocol: 'tcp',
   description: '',
-};
+} as const satisfies CustomServicePortInput;
 
 /**
- * Default service group input values
+ * Default service group input values for form initialization
+ * Used when creating a new service group
  */
-export const DEFAULT_SERVICE_GROUP_INPUT: ServiceGroupInput = {
+export const DEFAULT_SERVICE_GROUP_INPUT = {
   name: '',
   description: '',
   ports: [],
   protocol: 'tcp',
-};
+} as const satisfies ServiceGroupInput;

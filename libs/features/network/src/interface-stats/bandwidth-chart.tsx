@@ -5,7 +5,7 @@
  * NAS-6.9: Implement Interface Traffic Statistics (Task 5)
  */
 
-import { useMemo, forwardRef } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import {
   LineChart,
   Line,
@@ -19,8 +19,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { useInterfaceStatsHistoryQuery } from '@nasnet/api-client/queries';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
+import { Skeleton, Alert, AlertDescription } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { AlertCircle } from 'lucide-react';
 import type { StatsTimeRangeInput } from '@nasnet/api-client/generated';
 
@@ -87,11 +87,15 @@ function formatDateTime(timestamp: number): string {
 /**
  * Custom tooltip for bandwidth chart
  */
-function BandwidthTooltip({ active, payload, label }: any) {
+const BandwidthTooltip = React.memo(function BandwidthTooltip({
+  active,
+  payload,
+  label,
+}: any) {
   if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className="rounded-md border bg-popover p-3 shadow-md">
+    <div className={cn('rounded-md border bg-popover p-3 shadow-md')}>
       <p className="mb-2 text-sm font-medium">{formatDateTime(label)}</p>
       <div className="space-y-1">
         {payload.map((entry: any) => (
@@ -109,7 +113,7 @@ function BandwidthTooltip({ active, payload, label }: any) {
       </div>
     </div>
   );
-}
+});
 
 /**
  * BandwidthChart Component
@@ -121,6 +125,8 @@ function BandwidthTooltip({ active, payload, label }: any) {
  * - Interactive tooltip with precise values
  * - Responsive design for mobile/desktop
  * - Accessibility support (ARIA labels)
+ *
+ * @description Visual analysis of historical interface traffic patterns with interactive zoom, pan, and peak detection for bandwidth troubleshooting
  *
  * @example
  * ```tsx
@@ -138,7 +144,7 @@ function BandwidthTooltip({ active, payload, label }: any) {
  * />
  * ```
  */
-export const BandwidthChart = forwardRef<HTMLDivElement, BandwidthChartProps>(
+const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
   function BandwidthChart(
     {
       routerId,
@@ -233,7 +239,7 @@ export const BandwidthChart = forwardRef<HTMLDivElement, BandwidthChartProps>(
     return (
       <div
         ref={ref}
-        className={className}
+        className={cn(className)}
         role="img"
         aria-label={ariaLabel}
       >
@@ -342,3 +348,7 @@ export const BandwidthChart = forwardRef<HTMLDivElement, BandwidthChartProps>(
     );
   }
 );
+
+BandwidthChartComponent.displayName = 'BandwidthChart';
+
+export const BandwidthChart = React.memo(BandwidthChartComponent);

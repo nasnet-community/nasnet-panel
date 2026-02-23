@@ -9,33 +9,12 @@
 
 import React from 'react';
 
+import { usePlatform } from '@nasnet/ui/layouts';
+
 import { HistoryPanelDesktop } from './HistoryPanelDesktop';
 import { HistoryPanelMobile } from './HistoryPanelMobile';
 
 import type { HistoryPanelProps } from './types';
-
-/**
- * Hook to detect if we're on a mobile device
- * Based on viewport width (matches Tailwind sm breakpoint)
- */
-function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    // Initial check
-    checkMobile();
-
-    // Listen for resize
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-}
 
 /**
  * History Panel Component
@@ -65,12 +44,14 @@ function useIsMobile(): boolean {
  * }
  * ```
  */
-export function HistoryPanel(props: HistoryPanelProps) {
-  const isMobile = useIsMobile();
+export const HistoryPanel = React.memo(function HistoryPanel(props: HistoryPanelProps) {
+  const platform = usePlatform();
 
-  if (isMobile) {
+  if (platform === 'mobile') {
     return <HistoryPanelMobile {...props} />;
   }
 
   return <HistoryPanelDesktop {...props} />;
-}
+});
+
+HistoryPanel.displayName = 'HistoryPanel';

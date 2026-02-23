@@ -7,8 +7,9 @@
  * @see NAS-8.20: External Storage Management
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { StorageUsageBar } from './StorageUsageBar';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof StorageUsageBar> = {
   title: 'Features/Services/Storage/StorageUsageBar',

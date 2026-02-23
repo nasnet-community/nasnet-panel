@@ -4,25 +4,37 @@ import type { ConfigSchema, ConfigSchemaField } from '@nasnet/api-client/generat
 /**
  * Builds a Zod schema from a backend ConfigSchema for dynamic form validation
  *
- * This utility converts the backend's ConfigSchema (with ConfigFieldType enum)
- * into a Zod validation schema that can be used with React Hook Form.
+ * Converts backend ConfigSchema (with ConfigFieldType enum) into a Zod validation schema
+ * for use with React Hook Form. Error messages are localized via i18n.
+ *
+ * This utility handles all standard field types: TEXT, PASSWORD, EMAIL, URL, NUMBER,
+ * TOGGLE, SELECT, MULTI_SELECT, TEXT_ARRAY, IP, PORT, and PATH. Each field type
+ * receives appropriate validation rules (length, range, format, options).
  *
  * @param configSchema - The configuration schema from the backend
  * @returns A Zod object schema for validation
  *
  * @example
  * ```tsx
- * const schema = useServiceConfigSchema('tor');
- * const zodSchema = buildZodSchema(schema);
+ * function ConfigureService() {
+ *   const { t } = useTranslation();
+ *   const schema = useServiceConfigSchema('tor');
+ *   const zodSchema = buildZodSchema(schema);
  *
- * const form = useForm({
- *   resolver: zodResolver(zodSchema),
- *   defaultValues: schema.fields.reduce((acc, field) => ({
- *     ...acc,
- *     [field.name]: field.defaultValue
- *   }), {})
- * });
+ *   const form = useForm({
+ *     resolver: zodResolver(zodSchema),
+ *     defaultValues: schema.fields.reduce((acc, field) => ({
+ *       ...acc,
+ *       [field.name]: field.defaultValue
+ *     }), {})
+ *   });
+ *
+ *   return <form><RHFFormField form={form} {...field} /></form>;
+ * }
  * ```
+ *
+ * @see useServiceConfigSchema - Hook to fetch schema from backend
+ * @see evaluateCondition - For field visibility conditions
  */
 export function buildZodSchema(configSchema: ConfigSchema): z.ZodObject<any> {
   const shape: Record<string, z.ZodTypeAny> = {};
@@ -350,6 +362,14 @@ export function evaluateCondition(
 
 /**
  * Parses a value from a condition expression
+ *
+ * Converts string representations (e.g., "true", "42", "'value'") into JavaScript values.
+ * Used by evaluateCondition to parse the right-hand side of showIf conditions.
+ *
+ * @param rawValue - Raw string value from condition (e.g., "true", "42", "'myValue'")
+ * @returns Parsed JavaScript value (boolean, number, or string)
+ *
+ * @internal - Not part of public API
  */
 function parseConditionValue(rawValue: string): any {
   const trimmed = rawValue.trim();

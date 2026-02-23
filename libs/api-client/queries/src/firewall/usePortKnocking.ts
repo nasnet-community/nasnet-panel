@@ -12,8 +12,7 @@
  */
 
 import { useQuery, useMutation, useInfiniteQuery } from '@tanstack/react-query';
-import { gql } from '@apollo/client';
-import { useMutation as useApolloMutation, useQuery as useApolloQuery } from '@apollo/client';
+import { gql, useMutation as useApolloMutation, useQuery as useApolloQuery } from '@apollo/client';
 import type {
   PortKnockSequence,
   PortKnockSequenceInput,

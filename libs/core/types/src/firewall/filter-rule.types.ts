@@ -67,6 +67,13 @@ export type FilterProtocol = z.infer<typeof FilterProtocolSchema>;
  * Examples: 192.168.1.1, 10.0.0.0/8, 172.16.0.0/12
  */
 const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+
+/**
+ * Validate IPv4 address with optional CIDR notation
+ * @param value - IP address string to validate
+ * @returns true if valid, false otherwise
+ * @internal
+ */
 const isValidIPv4 = (value: string): boolean => {
   if (!ipv4Regex.test(value)) return false;
 
@@ -93,6 +100,13 @@ const isValidIPv4 = (value: string): boolean => {
  * Examples: 80, 443, 8000-9000
  */
 const portRegex = /^(\d{1,5})(-\d{1,5})?$/;
+
+/**
+ * Validate port number or port range
+ * @param value - Port string to validate (single port or range)
+ * @returns true if valid, false otherwise
+ * @internal
+ */
 const isValidPort = (value: string): boolean => {
   if (!portRegex.test(value)) return false;
 
@@ -212,6 +226,13 @@ export const FilterRuleSchema = z.object({
     .optional(),
 
   // ========================================
+  // Jump Action
+  // ========================================
+  jumpTarget: z.string()
+    .max(63, 'Jump target (chain name) must be 63 characters or less')
+    .optional(),
+
+  // ========================================
   // Counters (read-only from API)
   // ========================================
   packets: z.number().int().optional(),
@@ -254,6 +275,19 @@ export const FilterRuleSchema = z.object({
   {
     message: 'Log prefix is required when logging is enabled',
     path: ['logPrefix'],
+  }
+)
+.refine(
+  (data) => {
+    // Require jumpTarget if action is jump
+    if (data.action === 'jump' && !data.jumpTarget) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Jump target (destination chain) is required for jump action',
+    path: ['jumpTarget'],
   }
 );
 

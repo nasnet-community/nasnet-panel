@@ -10,10 +10,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { TemplatesPage } from './TemplatesPage';
-import type { TemplatesPageProps } from './TemplatesPage';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { TemplatesPageProps } from './TemplatesPage';
 import type { FirewallTemplate } from '../schemas/templateSchemas';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,10 +31,8 @@ const mockBasicSecurityTemplate: FirewallTemplate = {
   description:
     'Essential firewall rules for home and small office routers. Blocks common attack vectors, allows established connections, and protects the router management interface.',
   category: 'SECURITY',
-  complexity: 'BEGINNER',
+  complexity: 'SIMPLE',
   version: '1.0.0',
-  author: 'NasNet Team',
-  tags: ['security', 'beginner', 'home', 'hardening'],
   ruleCount: 8,
   isBuiltIn: true,
   variables: [
@@ -43,7 +41,7 @@ const mockBasicSecurityTemplate: FirewallTemplate = {
       label: 'LAN Interface',
       type: 'INTERFACE',
       description: 'The bridge or interface connected to your local network',
-      required: true,
+      isRequired: true,
       defaultValue: 'bridge1',
     },
     {
@@ -51,56 +49,74 @@ const mockBasicSecurityTemplate: FirewallTemplate = {
       label: 'LAN Subnet',
       type: 'SUBNET',
       description: 'Your local network in CIDR notation',
-      required: true,
+      isRequired: true,
       defaultValue: '192.168.88.0/24',
     },
   ],
   rules: [
     {
+      table: 'FILTER',
       chain: 'input',
       action: 'accept',
-      connectionState: ['established', 'related'],
+      position: 0,
       comment: 'Accept established/related',
+      properties: { connectionState: ['established', 'related'] },
     },
     {
+      table: 'FILTER',
       chain: 'input',
       action: 'drop',
-      connectionState: ['invalid'],
+      position: 1,
       comment: 'Drop invalid connections',
+      properties: { connectionState: ['invalid'] },
     },
     {
+      table: 'FILTER',
       chain: 'input',
       action: 'accept',
-      protocol: 'icmp',
+      position: 2,
       comment: 'Accept ICMP',
+      properties: { protocol: 'icmp' },
     },
     {
+      table: 'FILTER',
       chain: 'input',
       action: 'accept',
-      inInterface: '{{LAN_INTERFACE}}',
+      position: 3,
       comment: 'Accept from LAN',
+      properties: { inInterface: '{{LAN_INTERFACE}}' },
     },
     {
+      table: 'FILTER',
       chain: 'input',
       action: 'drop',
+      position: 4,
       comment: 'Drop all other input',
+      properties: {},
     },
     {
+      table: 'FILTER',
       chain: 'forward',
       action: 'accept',
-      connectionState: ['established', 'related'],
+      position: 5,
       comment: 'Accept established/related forwarded',
+      properties: { connectionState: ['established', 'related'] },
     },
     {
+      table: 'FILTER',
       chain: 'forward',
       action: 'accept',
-      inInterface: '{{LAN_INTERFACE}}',
+      position: 6,
       comment: 'Accept forwarded from LAN',
+      properties: { inInterface: '{{LAN_INTERFACE}}' },
     },
     {
+      table: 'FILTER',
       chain: 'forward',
       action: 'drop',
+      position: 7,
       comment: 'Drop all other forwarded',
+      properties: {},
     },
   ],
 };
@@ -113,8 +129,6 @@ const mockDDoSProtectionTemplate: FirewallTemplate = {
   category: 'SECURITY',
   complexity: 'ADVANCED',
   version: '2.1.0',
-  author: 'NasNet Team',
-  tags: ['ddos', 'security', 'advanced', 'syn-flood', 'rate-limit'],
   ruleCount: 15,
   isBuiltIn: true,
   variables: [
@@ -123,7 +137,7 @@ const mockDDoSProtectionTemplate: FirewallTemplate = {
       label: 'WAN Interface',
       type: 'INTERFACE',
       description: 'Your internet-facing interface',
-      required: true,
+      isRequired: true,
       defaultValue: 'ether1',
     },
     {
@@ -131,11 +145,20 @@ const mockDDoSProtectionTemplate: FirewallTemplate = {
       label: 'SYN Packet Limit',
       type: 'STRING',
       description: 'Maximum SYN packets per second (e.g., 50/s)',
-      required: true,
+      isRequired: true,
       defaultValue: '50/s',
     },
   ],
-  rules: [],
+  rules: [
+    {
+      table: 'FILTER' as const,
+      chain: 'input',
+      action: 'drop',
+      position: 0,
+      comment: 'Drop SYN floods',
+      properties: { protocol: 'tcp', tcpFlags: 'syn', limit: '{{SYN_LIMIT}}' },
+    },
+  ],
 };
 
 const mockVoIPQoSTemplate: FirewallTemplate = {
@@ -143,11 +166,9 @@ const mockVoIPQoSTemplate: FirewallTemplate = {
   name: 'VoIP QoS Priority',
   description:
     'Mangle rules for prioritizing VoIP traffic (SIP + RTP). Marks connections and packets for queue tree processing. Ensures low latency and jitter for voice calls.',
-  category: 'NETWORKING',
-  complexity: 'INTERMEDIATE',
+  category: 'SECURITY',
+  complexity: 'ADVANCED',
   version: '1.0.0',
-  author: 'NasNet Team',
-  tags: ['voip', 'qos', 'mangle', 'sip', 'rtp'],
   ruleCount: 6,
   isBuiltIn: true,
   variables: [
@@ -156,10 +177,19 @@ const mockVoIPQoSTemplate: FirewallTemplate = {
       label: 'VoIP Provider IP/Subnet',
       type: 'SUBNET',
       description: 'IP range of your VoIP provider (leave blank for all)',
-      required: false,
+      isRequired: false,
     },
   ],
-  rules: [],
+  rules: [
+    {
+      table: 'MANGLE' as const,
+      chain: 'forward',
+      action: 'mark-connection',
+      position: 0,
+      comment: 'Mark VoIP connections',
+      properties: { srcAddress: '{{VOIP_PROVIDER_IP}}', dstPort: '5060' },
+    },
+  ],
 };
 
 const mockCustomTemplate: FirewallTemplate = {
@@ -167,14 +197,21 @@ const mockCustomTemplate: FirewallTemplate = {
   name: 'My Office Rules',
   description: 'Custom template saved from our production firewall configuration.',
   category: 'SECURITY',
-  complexity: 'INTERMEDIATE',
+  complexity: 'ADVANCED',
   version: '1.0.0',
-  author: 'Admin',
-  tags: ['custom', 'office'],
   ruleCount: 12,
   isBuiltIn: false,
   variables: [],
-  rules: [],
+  rules: [
+    {
+      table: 'FILTER' as const,
+      chain: 'input',
+      action: 'accept',
+      position: 0,
+      comment: 'Accept established',
+      properties: { connectionState: ['established', 'related'] },
+    },
+  ],
 };
 
 const mockCurrentRules = [

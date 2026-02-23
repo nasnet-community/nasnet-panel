@@ -5,11 +5,13 @@
  * Supports a multi-step installation flow: Variables → Review → Installing → Routing.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
+import type { ServiceTemplate } from '@nasnet/api-client/generated';
 
 import { TemplateInstallWizard } from './TemplateInstallWizard';
-import type { ServiceTemplate } from '@nasnet/api-client/generated';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock data
@@ -44,9 +46,9 @@ const mockTemplateMinimal: ServiceTemplate = {
       name: 'TOR_NAME',
       label: 'Instance Name',
       description: 'Human-readable name for this Tor instance',
-      type: 'STRING',
+      type: 'STRING' as const,
       required: true,
-      default: 'tor-1',
+      default: 'tor-1' as any,
       enumValues: null,
       minValue: null,
       maxValue: null,
@@ -85,7 +87,7 @@ const mockTemplateMultiService: ServiceTemplate = {
       serviceType: 'xray-core',
       memoryLimitMB: 128,
       dependsOn: null,
-      portMappings: [{ containerPort: 1080, hostPort: 1080, protocol: 'TCP' }],
+      portMappings: [{ internal: 1080, external: 1080, protocol: 'TCP' }],
       requiresBridge: true,
       vlanID: null,
       cpuShares: 512,
@@ -108,7 +110,7 @@ const mockTemplateMultiService: ServiceTemplate = {
       name: 'XRAY_UUID',
       label: 'Xray UUID',
       description: 'UUID for Xray VLESS/VMess configuration',
-      type: 'STRING',
+      type: 'STRING' as const,
       required: true,
       default: null,
       enumValues: null,
@@ -120,9 +122,9 @@ const mockTemplateMultiService: ServiceTemplate = {
       name: 'XRAY_PORT',
       label: 'Xray Listen Port',
       description: 'Port Xray listens on for incoming connections',
-      type: 'NUMBER',
+      type: 'NUMBER' as const,
       required: false,
-      default: 1080,
+      default: 1080 as any,
       enumValues: null,
       minValue: 1024,
       maxValue: 65535,
@@ -132,9 +134,9 @@ const mockTemplateMultiService: ServiceTemplate = {
       name: 'ENABLE_OBFS',
       label: 'Enable Obfuscation',
       description: 'Enable traffic obfuscation to bypass DPI inspection',
-      type: 'BOOLEAN',
+      type: 'BOOLEAN' as const,
       required: false,
-      default: true,
+      default: true as any,
       enumValues: null,
       minValue: null,
       maxValue: null,
@@ -298,7 +300,7 @@ export const LargeTemplate: Story = {
           name: 'SSH_HOST',
           label: 'SSH Relay Host',
           description: 'Hostname of the SSH relay server',
-          type: 'STRING',
+          type: 'STRING' as const,
           required: true,
           default: null,
           enumValues: null,
@@ -310,9 +312,9 @@ export const LargeTemplate: Story = {
           name: 'SSH_PORT',
           label: 'SSH Relay Port',
           description: 'Port of the SSH relay server',
-          type: 'NUMBER',
+          type: 'NUMBER' as const,
           required: false,
-          default: 22,
+          default: 22 as any,
           enumValues: null,
           minValue: 1,
           maxValue: 65535,
@@ -322,10 +324,10 @@ export const LargeTemplate: Story = {
           name: 'TUNNEL_PROTOCOL',
           label: 'Tunnel Protocol',
           description: 'Primary tunneling protocol to use',
-          type: 'ENUM',
+          type: 'ENUM' as const,
           required: true,
-          default: 'MEEK',
-          enumValues: ['MEEK', 'OBFUSCATED_SSH', 'UNFRONTED_MEEK'],
+          default: 'MEEK' as any,
+          enumValues: [{ value: 'MEEK' }, { value: 'OBFUSCATED_SSH' }, { value: 'UNFRONTED_MEEK' }] as any,
           minValue: null,
           maxValue: null,
           validationPattern: null,
@@ -350,6 +352,6 @@ export const NoCompletionCallback: Story = {
   name: 'No Completion Callback',
   args: {
     template: mockTemplateMinimal,
-    onComplete: undefined,
+    onComplete: fn(),
   },
 };

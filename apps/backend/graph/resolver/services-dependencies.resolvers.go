@@ -15,17 +15,55 @@ import (
 
 // AddDependency is the resolver for the addDependency field.
 func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDependencyInput) (*model.ServiceDependency, error) {
-	panic(fmt.Errorf("not implemented: AddDependency - addDependency"))
+	if r.DependencyMgr == nil {
+		return nil, fmt.Errorf("dependency manager is not available")
+	}
+
+	depID, err := r.DependencyMgr.AddDependency(
+		ctx,
+		input.FromInstanceID,
+		input.ToInstanceID,
+		string(input.DependencyType),
+		input.AutoStart,
+		input.HealthTimeoutSeconds,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add dependency: %w", err)
+	}
+
+	// Fetch the created dependency from DB to return full model
+	dep, err := r.db.ServiceDependency.Get(ctx, depID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch created dependency: %w", err)
+	}
+
+	return entDependencyToModel(dep), nil
 }
 
 // RemoveDependency is the resolver for the removeDependency field.
 func (r *mutationResolver) RemoveDependency(ctx context.Context, input model.RemoveDependencyInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: RemoveDependency - removeDependency"))
+	if r.DependencyMgr == nil {
+		return false, fmt.Errorf("dependency manager is not available")
+	}
+
+	if err := r.DependencyMgr.RemoveDependency(ctx, input.DependencyID); err != nil {
+		return false, fmt.Errorf("failed to remove dependency: %w", err)
+	}
+
+	return true, nil
 }
 
 // TriggerBootSequence is the resolver for the triggerBootSequence field.
 func (r *mutationResolver) TriggerBootSequence(ctx context.Context) (bool, error) {
-	panic(fmt.Errorf("not implemented: TriggerBootSequence - triggerBootSequence"))
+	if r.BootSequenceMgr == nil {
+		return false, fmt.Errorf("boot sequence manager is not available")
+	}
+
+	if err := r.BootSequenceMgr.ExecuteBootSequence(ctx); err != nil {
+		return false, fmt.Errorf("boot sequence failed: %w", err)
+	}
+
+	return true, nil
 }
 
 // SetResourceLimits is the resolver for the setResourceLimits mutation field.
@@ -146,22 +184,117 @@ func (r *mutationResolver) SetResourceLimits(ctx context.Context, input model.Se
 
 // ServiceDependencies is the resolver for the serviceDependencies field.
 func (r *queryResolver) ServiceDependencies(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
-	panic(fmt.Errorf("not implemented: ServiceDependencies - serviceDependencies"))
+	if r.DependencyMgr == nil {
+		return nil, fmt.Errorf("dependency manager is not available")
+	}
+
+	deps, err := r.DependencyMgr.GetDependencies(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dependencies: %w", err)
+	}
+
+	result := make([]*model.ServiceDependency, 0, len(deps))
+	for _, dep := range deps {
+		result = append(result, entDependencyToModel(dep))
+	}
+	return result, nil
 }
 
 // ServiceDependents is the resolver for the serviceDependents field.
 func (r *queryResolver) ServiceDependents(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
-	panic(fmt.Errorf("not implemented: ServiceDependents - serviceDependents"))
+	if r.DependencyMgr == nil {
+		return nil, fmt.Errorf("dependency manager is not available")
+	}
+
+	deps, err := r.DependencyMgr.GetDependents(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dependents: %w", err)
+	}
+
+	result := make([]*model.ServiceDependency, 0, len(deps))
+	for _, dep := range deps {
+		result = append(result, entDependencyToModel(dep))
+	}
+	return result, nil
 }
 
 // DependencyGraph is the resolver for the dependencyGraph field.
 func (r *queryResolver) DependencyGraph(ctx context.Context, routerID string) (*model.DependencyGraph, error) {
-	panic(fmt.Errorf("not implemented: DependencyGraph - dependencyGraph"))
+	if r.DependencyMgr == nil {
+		return nil, fmt.Errorf("dependency manager is not available")
+	}
+
+	graph, err := r.DependencyMgr.GetFullGraph(ctx, routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dependency graph: %w", err)
+	}
+
+	nodes := make([]*model.DependencyGraphNode, 0, len(graph.Nodes))
+	for _, n := range graph.Nodes {
+		node := n // capture range variable
+		nodes = append(nodes, &model.DependencyGraphNode{
+			InstanceID:   node.InstanceID,
+			InstanceName: node.InstanceName,
+			FeatureID:    node.FeatureID,
+			Status:       node.Status,
+		})
+	}
+
+	edges := make([]*model.DependencyGraphEdge, 0, len(graph.Edges))
+	for _, e := range graph.Edges {
+		edge := e // capture range variable
+		edges = append(edges, &model.DependencyGraphEdge{
+			FromInstanceID:       edge.FromInstanceID,
+			ToInstanceID:         edge.ToInstanceID,
+			DependencyType:       model.DependencyType(edge.DependencyType),
+			AutoStart:            edge.AutoStart,
+			HealthTimeoutSeconds: edge.HealthTimeoutSeconds,
+		})
+	}
+
+	return &model.DependencyGraph{
+		Nodes: nodes,
+		Edges: edges,
+	}, nil
 }
 
 // BootSequenceProgress is the resolver for the bootSequenceProgress field.
+// Returns a static "not in progress" state since the boot sequence manager
+// does not expose in-flight progress (it is a synchronous operation).
 func (r *queryResolver) BootSequenceProgress(ctx context.Context) (*model.BootSequenceProgress, error) {
-	panic(fmt.Errorf("not implemented: BootSequenceProgress - bootSequenceProgress"))
+	return &model.BootSequenceProgress{
+		InProgress:         false,
+		CurrentLayer:       nil,
+		TotalLayers:        nil,
+		StartedInstances:   []string{},
+		FailedInstances:    []string{},
+		RemainingInstances: []string{},
+	}, nil
+}
+
+// entDependencyToModel converts an ent ServiceDependency to the GraphQL model type.
+func entDependencyToModel(dep *ent.ServiceDependency) *model.ServiceDependency {
+	if dep == nil {
+		return nil
+	}
+	result := &model.ServiceDependency{
+		ID:                   dep.ID,
+		DependencyType:       model.DependencyType(dep.DependencyType),
+		AutoStart:            dep.AutoStart,
+		HealthTimeoutSeconds: dep.HealthTimeoutSeconds,
+		CreatedAt:            dep.CreatedAt,
+		UpdatedAt:            dep.UpdatedAt,
+	}
+
+	// Populate edge instances if they were eager-loaded
+	if dep.Edges.FromInstance != nil {
+		result.FromInstance = convertEntInstanceToModel(dep.Edges.FromInstance)
+	}
+	if dep.Edges.ToInstance != nil {
+		result.ToInstance = convertEntInstanceToModel(dep.Edges.ToInstance)
+	}
+
+	return result
 }
 
 // !!! WARNING !!!

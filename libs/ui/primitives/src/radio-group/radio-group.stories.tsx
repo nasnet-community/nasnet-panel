@@ -10,11 +10,11 @@ const meta: Meta<typeof RadioGroup> = {
   component: RadioGroup,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'A set of checkable buttons — called radio buttons — where no more than one button can be checked at a time. Built on Radix UI RadioGroup with full keyboard navigation, WCAG-compliant focus rings, and a 5x5 touch target. Use `RadioGroupItem` for each option and pair with `Label` for accessibility.',
+          'A set of checkable buttons — called radio buttons — where no more than one button can be checked at a time. Built on Radix UI RadioGroup with full keyboard navigation, WCAG-compliant focus rings, and a 44px minimum touch target. Use `RadioGroupItem` for each option and pair with `Label` for accessibility.',
       },
     },
   },
@@ -31,6 +31,10 @@ const meta: Meta<typeof RadioGroup> = {
       control: 'select',
       options: ['horizontal', 'vertical'],
       description: 'The orientation of the radio group.',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes to merge',
     },
   },
 };
@@ -189,4 +193,155 @@ export const Controlled: Story = {
       </div>
     );
   },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  render: () => (
+    <RadioGroup defaultValue="option1" className="gap-2">
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="option1" id="option1" />
+        <label htmlFor="option1" className="text-sm font-medium text-foreground cursor-pointer">
+          Option 1
+        </label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="option2" id="option2" />
+        <label htmlFor="option2" className="text-sm font-medium text-foreground cursor-pointer">
+          Option 2
+        </label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="option3" id="option3" />
+        <label htmlFor="option3" className="text-sm font-medium text-foreground cursor-pointer">
+          Option 3
+        </label>
+      </div>
+    </RadioGroup>
+  ),
+};
+
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+  render: () => (
+    <RadioGroup defaultValue="static" className="gap-3">
+      <div className="flex items-start gap-3">
+        <RadioGroupItem value="dhcp" id="dhcp-t" className="mt-0.5" />
+        <div>
+          <label htmlFor="dhcp-t" className="text-sm font-medium text-foreground cursor-pointer">
+            DHCP Client
+          </label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Automatically obtain an IP address from your ISP.
+          </p>
+        </div>
+      </div>
+      <div className="flex items-start gap-3">
+        <RadioGroupItem value="static" id="static-t" className="mt-0.5" />
+        <div>
+          <label htmlFor="static-t" className="text-sm font-medium text-foreground cursor-pointer">
+            Static IP
+          </label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Manually configure a fixed IP address, gateway, and DNS.
+          </p>
+        </div>
+      </div>
+      <div className="flex items-start gap-3">
+        <RadioGroupItem value="pppoe" id="pppoe-t" className="mt-0.5" />
+        <div>
+          <label htmlFor="pppoe-t" className="text-sm font-medium text-foreground cursor-pointer">
+            PPPoE
+          </label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Use PPPoE dialing — common with DSL and fibre ISPs.
+          </p>
+        </div>
+      </div>
+    </RadioGroup>
+  ),
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+  render: () => (
+    <RadioGroup defaultValue="mikrotik-api" className="gap-2">
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="mikrotik-api" id="mikrotik-api-d" />
+        <label htmlFor="mikrotik-api-d" className="text-sm font-medium text-foreground cursor-pointer">
+          MikroTik API (port 8728)
+        </label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="ssh" id="ssh-d" />
+        <label htmlFor="ssh-d" className="text-sm font-medium text-foreground cursor-pointer">
+          SSH (port 22)
+        </label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="winbox" id="winbox-d" />
+        <label htmlFor="winbox-d" className="text-sm font-medium text-foreground cursor-pointer">
+          Winbox (port 8291)
+        </label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="rest-api" id="rest-api-d" />
+        <label htmlFor="rest-api-d" className="text-sm font-medium text-foreground cursor-pointer">
+          REST API (port 8080)
+        </label>
+      </div>
+    </RadioGroup>
+  ),
+};
+
+export const Loading: Story = {
+  render: () => (
+    <div className="space-y-3">
+      <div className="h-5 bg-muted rounded animate-pulse w-32" />
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 rounded-full bg-muted animate-pulse" />
+          <div className="h-4 bg-muted rounded animate-pulse flex-1 max-w-48" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 rounded-full bg-muted animate-pulse" />
+          <div className="h-4 bg-muted rounded animate-pulse flex-1 max-w-40" />
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const Error: Story = {
+  render: () => (
+    <div className="space-y-2 p-4 rounded-lg border border-error/20 bg-error/5">
+      <p className="text-sm font-medium text-error">Failed to load options</p>
+      <p className="text-xs text-error/80">Unable to retrieve configuration options. Please try again.</p>
+      <button className="text-xs font-medium text-error hover:underline mt-2">Retry</button>
+    </div>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <div className="p-8 text-center space-y-3">
+      <div className="text-4xl text-muted-foreground">○</div>
+      <p className="text-sm font-medium text-foreground">No options available</p>
+      <p className="text-xs text-muted-foreground max-w-xs">
+        There are no selectable options at this time.
+      </p>
+    </div>
+  ),
 };

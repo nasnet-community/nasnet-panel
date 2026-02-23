@@ -1,14 +1,24 @@
 /**
  * Counter History Storage - IndexedDB storage for firewall rule counter history
  *
- * Story: Counter Visualization Feature
- * Stores historical counter data for trend analysis and visualization
+ * Stores historical counter data for trend analysis and visualization.
+ * Enables historical chart visualization and performance trending for firewall rules.
  *
  * Features:
  * - 7-day retention with automatic cleanup
  * - Composite indexes for efficient querying
  * - CSV export for data analysis
  * - Batch insert for performance
+ *
+ * @example
+ * ```typescript
+ * const storage = counterHistoryStorage;
+ * await storage.init();
+ * await storage.saveCounterSnapshot([...entries]);
+ * const history = await storage.getCounterHistory(routerId, ruleId);
+ * ```
+ *
+ * @see Docs/architecture/frontend-architecture.md (Data persistence layer)
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
@@ -66,24 +76,34 @@ interface CounterHistoryDB extends DBSchema {
  * const history = await counterHistoryStorage.getCounterHistory(routerId, ruleId, startTime);
  * ```
  */
+/**
+ * Counter History Storage Service
+ *
+ * Manages persistent storage of firewall rule counter snapshots using IndexedDB.
+ * Enables trend visualization and historical analysis of rule activity.
+ *
+ * @internal
+ */
 export class CounterHistoryStorage {
   private db: IDBPDatabase<CounterHistoryDB> | null = null;
-  private readonly dbName = 'nasnet-counter-history';
-  private readonly dbVersion = 1;
-  private readonly storeName = 'counterHistory';
-  private readonly retentionDays = 7;
+  private readonly DB_NAME = 'nasnet-counter-history';
+  private readonly DB_VERSION = 1;
+  private readonly STORE_NAME = 'counterHistory';
+  private readonly RETENTION_DAYS = 7;
 
   /**
    * Initialize the IndexedDB database
    * Creates object store and indexes on first run
+   *
+   * @throws Error if initialization fails
    */
   async init(): Promise<void> {
     if (this.db) {
       return; // Already initialized
     }
 
-    this.db = await openDB<CounterHistoryDB>(this.dbName, this.dbVersion, {
-      upgrade(db) {
+    this.db = await openDB<CounterHistoryDB>(this.DB_NAME, this.DB_VERSION, {
+      upgrade: (db) => {
         // Create object store with composite key
         const store = db.createObjectStore('counterHistory', { keyPath: 'id' });
 
@@ -115,8 +135,8 @@ export class CounterHistoryStorage {
     }
 
     // Use a single transaction for all inserts
-    const tx = this.db.transaction(this.storeName, 'readwrite');
-    const store = tx.objectStore(this.storeName);
+    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+    const store = tx.objectStore(this.STORE_NAME);
 
     // Insert all entries
     await Promise.all(entries.map((entry) => store.put(entry)));
@@ -143,10 +163,10 @@ export class CounterHistoryStorage {
     }
 
     // Default to 7 days ago if not specified
-    const start = startTime ?? Date.now() - this.retentionDays * 24 * 60 * 60 * 1000;
+    const start = startTime ?? Date.now() - this.RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
-    const tx = this.db.transaction(this.storeName, 'readonly');
-    const index = tx.objectStore(this.storeName).index('by-router-rule');
+    const tx = this.db.transaction(this.STORE_NAME, 'readonly');
+    const index = tx.objectStore(this.STORE_NAME).index('by-router-rule');
 
     // Query by composite key [routerId, ruleId]
     const allEntries = await index.getAll([routerId, ruleId]);
@@ -169,10 +189,10 @@ export class CounterHistoryStorage {
       throw new Error('Database not initialized. Call init() first.');
     }
 
-    const cutoffTime = Date.now() - this.retentionDays * 24 * 60 * 60 * 1000;
+    const cutoffTime = Date.now() - this.RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
-    const tx = this.db.transaction(this.storeName, 'readwrite');
-    const index = tx.objectStore(this.storeName).index('by-timestamp');
+    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+    const index = tx.objectStore(this.STORE_NAME).index('by-timestamp');
 
     let deletedCount = 0;
 
@@ -231,8 +251,8 @@ export class CounterHistoryStorage {
       throw new Error('Database not initialized. Call init() first.');
     }
 
-    const tx = this.db.transaction(this.storeName, 'readonly');
-    const store = tx.objectStore(this.storeName);
+    const tx = this.db.transaction(this.STORE_NAME, 'readonly');
+    const store = tx.objectStore(this.STORE_NAME);
     const totalEntries = await store.count();
 
     return { totalEntries };
@@ -247,8 +267,8 @@ export class CounterHistoryStorage {
       throw new Error('Database not initialized. Call init() first.');
     }
 
-    const tx = this.db.transaction(this.storeName, 'readwrite');
-    await tx.objectStore(this.storeName).clear();
+    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+    await tx.objectStore(this.STORE_NAME).clear();
     await tx.done;
   }
 
@@ -266,6 +286,12 @@ export class CounterHistoryStorage {
 
 /**
  * Singleton instance for global access
- * Initialize once and reuse throughout the application
+ *
+ * Initialize once on app startup and reuse throughout the application:
+ * ```typescript
+ * await counterHistoryStorage.init();
+ * ```
+ *
+ * @see CounterHistoryStorage for usage examples
  */
 export const counterHistoryStorage = new CounterHistoryStorage();

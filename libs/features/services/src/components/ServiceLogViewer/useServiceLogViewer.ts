@@ -88,6 +88,8 @@ export interface UseServiceLogViewerReturn {
  * - Text search across log messages
  * - Auto-scroll to bottom on new entries
  * - Copy all visible logs to clipboard
+ *
+ * @description Manages log buffer, filtering, search, and level counts with memoized computations
  */
 export function useServiceLogViewer(
   props: ServiceLogViewerProps
@@ -240,6 +242,7 @@ export function useServiceLogViewer(
 
 /**
  * Format timestamp for log display
+ * @description Converts ISO timestamp to HH:MM:SS.fff format
  */
 export function formatLogTimestamp(timestamp: string): string {
   const date = new Date(timestamp);
@@ -253,39 +256,41 @@ export function formatLogTimestamp(timestamp: string): string {
 }
 
 /**
- * Get color class for log level
+ * Get semantic color class for log level text
+ * @description Returns semantic color token for log level display
  */
 export function getLogLevelColor(level: LogLevel): string {
   switch (level) {
     case 'DEBUG':
       return 'text-muted-foreground';
     case 'INFO':
-      return 'text-blue-600 dark:text-blue-400';
+      return 'text-info';
     case 'WARN':
-      return 'text-amber-600 dark:text-amber-400';
+      return 'text-warning';
     case 'ERROR':
-      return 'text-red-600 dark:text-red-400';
+      return 'text-destructive';
     case 'UNKNOWN':
     default:
-      return 'text-gray-600 dark:text-gray-400';
+      return 'text-muted-foreground';
   }
 }
 
 /**
- * Get background color class for log level
+ * Get semantic background color class for log level
+ * @description Returns semantic background token for log level highlight
  */
 export function getLogLevelBgColor(level: LogLevel): string {
   switch (level) {
     case 'DEBUG':
-      return 'bg-gray-50 dark:bg-gray-900';
+      return 'bg-muted/30';
     case 'INFO':
-      return 'bg-blue-50 dark:bg-blue-950';
+      return 'bg-info/10';
     case 'WARN':
-      return 'bg-amber-50 dark:bg-amber-950';
+      return 'bg-warning/10';
     case 'ERROR':
-      return 'bg-red-50 dark:bg-red-950';
+      return 'bg-destructive/10';
     case 'UNKNOWN':
     default:
-      return 'bg-gray-50 dark:bg-gray-900';
+      return 'bg-muted/30';
   }
 }

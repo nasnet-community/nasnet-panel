@@ -17,24 +17,24 @@ describe('InterfaceIPConfig', () => {
       address: '192.168.88.1/24',
       network: '192.168.88.0',
       interface: 'bridge',
-      dynamic: false,
-      disabled: false,
+      isDynamic: false,
+      isDisabled: false,
     },
     {
       id: '*2',
       address: '10.0.0.2/24',
       network: '10.0.0.0',
       interface: 'ether1',
-      dynamic: true,
-      disabled: false,
+      isDynamic: true,
+      isDisabled: false,
     },
     {
       id: '*3',
       address: '192.168.88.10/24',
       network: '192.168.88.0',
       interface: 'bridge',
-      dynamic: false,
-      disabled: false,
+      isDynamic: false,
+      isDisabled: false,
     },
   ];
 
@@ -73,8 +73,8 @@ describe('InterfaceIPConfig', () => {
       address: '172.16.0.1/24',
       network: '172.16.0.0',
       interface: 'ether2',
-      dynamic: false,
-      disabled: true,
+      isDynamic: false,
+      isDisabled: true,
     };
 
     render(<InterfaceIPConfig ipAddresses={[disabledIP]} />);

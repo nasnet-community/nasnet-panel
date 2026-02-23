@@ -7,7 +7,7 @@
  * @module @nasnet/ui/patterns/mangle-rule-editor
  */
 
-import { memo, useMemo } from 'react';
+import { forwardRef, memo, useMemo } from 'react';
 
 import {
   Network,
@@ -19,6 +19,8 @@ import {
   Copy,
 } from 'lucide-react';
 import { Controller, FormProvider } from 'react-hook-form';
+
+import { cn } from '@nasnet/ui/utils';
 
 import {
   MangleChainSchema,

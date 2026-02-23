@@ -207,3 +207,33 @@ export const InterfaceLoadError: Story = {
     },
   },
 };
+
+/**
+ * Mobile viewport story – verifies the dashboard sections adapt to narrow screens.
+ */
+export const Mobile: Story = {
+  name: 'Mobile Viewport',
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story: 'NetworkDashboard rendered on a mobile viewport (375px). Sections stack vertically with mobile-optimized spacing and touch-friendly controls.',
+      },
+    },
+  },
+};
+
+/**
+ * Desktop viewport story – verifies the dashboard layout optimized for larger screens.
+ */
+export const Desktop: Story = {
+  name: 'Desktop Viewport',
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+    docs: {
+      description: {
+        story: 'NetworkDashboard rendered on a desktop viewport (1280px+). Multi-column layout with dense data presentation and full visualizations.',
+      },
+    },
+  },
+};

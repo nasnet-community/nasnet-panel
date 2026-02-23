@@ -5,6 +5,7 @@
  * NAS-6.9: Implement Interface Traffic Statistics (Task 8)
  */
 
+import React, { useCallback } from 'react';
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import {
   useInterfaceStatsStore,
   POLLING_INTERVAL_LABELS,
@@ -40,6 +42,8 @@ export interface PollingIntervalSelectorProps {
  * - 10s: Low bandwidth mode
  * - 30s: Minimal updates
  *
+ * @description Provides a dropdown selector for real-time control of statistics polling frequency with persistent user preference
+ *
  * @example
  * ```tsx
  * <PollingIntervalSelector />
@@ -49,15 +53,15 @@ export interface PollingIntervalSelectorProps {
  * // Compact inline layout
  * ```
  */
-export function PollingIntervalSelector({
+const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
   className,
   inline = false,
 }: PollingIntervalSelectorProps) {
   const { pollingInterval, setPollingInterval } = useInterfaceStatsStore();
 
-  const handleChange = (value: string) => {
+  const handleChange = useCallback((value: string) => {
     setPollingInterval(value as PollingInterval);
-  };
+  }, [setPollingInterval]);
 
   if (inline) {
     return (
@@ -83,7 +87,7 @@ export function PollingIntervalSelector({
   }
 
   return (
-    <div className={className}>
+    <div className={cn(className)}>
       <label htmlFor="polling-interval" className="mb-2 block text-sm font-medium">
         Update Interval
       </label>
@@ -110,4 +114,8 @@ export function PollingIntervalSelector({
       </p>
     </div>
   );
-}
+});
+
+PollingIntervalSelector.displayName = 'PollingIntervalSelector';
+
+export { PollingIntervalSelector };

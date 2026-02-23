@@ -5,16 +5,12 @@
  * Task 8.5: Create Storybook stories
  */
 
-import { ApolloProvider } from '@apollo/client';
-
-import { createMockClient } from '@nasnet/api-client/core';
-
 import { DnsBenchmark } from './DnsBenchmark';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock GraphQL responses
-const mockBenchmarkLoading = {
+const _mockBenchmarkLoading = {
   request: {
     query: undefined, // Will be defined in the component
   },
@@ -24,7 +20,7 @@ const mockBenchmarkLoading = {
   },
 };
 
-const mockBenchmarkSuccess = {
+const _mockBenchmarkSuccess = {
   dnsBenchmark: {
     __typename: 'DnsBenchmarkResult',
     testHostname: 'google.com',
@@ -57,7 +53,7 @@ const mockBenchmarkSuccess = {
   },
 };
 
-const mockBenchmarkError = {
+const _mockBenchmarkError = {
   dnsBenchmark: null,
 };
 
@@ -75,16 +71,11 @@ const meta: Meta<typeof DnsBenchmark> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => {
-      const mockClient = createMockClient([]);
-      return (
-        <ApolloProvider client={mockClient}>
-          <div className="max-w-2xl">
-            <Story />
-          </div>
-        </ApolloProvider>
-      );
-    },
+    (Story) => (
+      <div className="max-w-2xl">
+        <Story />
+      </div>
+    ),
   ],
 };
 
@@ -96,7 +87,7 @@ type Story = StoryObj<typeof DnsBenchmark>;
  */
 export const Default: Story = {
   name: 'Default - Ready to Run',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
 };
 
 /**
@@ -104,7 +95,7 @@ export const Default: Story = {
  */
 export const Loading: Story = {
   name: 'Loading - Running Benchmark',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -119,7 +110,7 @@ export const Loading: Story = {
  */
 export const WithResults: Story = {
   name: 'With Results - All Status Types',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -135,7 +126,7 @@ export const WithResults: Story = {
  */
 export const AllFast: Story = {
   name: 'All Fast - Optimal Configuration',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -150,7 +141,7 @@ export const AllFast: Story = {
  */
 export const MixedPerformance: Story = {
   name: 'Mixed Performance',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -165,7 +156,7 @@ export const MixedPerformance: Story = {
  */
 export const AllUnreachable: Story = {
   name: 'All Unreachable - Network Issue',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -181,7 +172,7 @@ export const AllUnreachable: Story = {
  */
 export const Error: Story = {
   name: 'Error State',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     docs: {
       description: {
@@ -196,7 +187,7 @@ export const Error: Story = {
  */
 export const Mobile: Story = {
   name: 'Mobile View',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     viewport: {
       defaultViewport: 'mobile1',
@@ -214,7 +205,7 @@ export const Mobile: Story = {
  */
 export const Desktop: Story = {
   name: 'Desktop View',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     viewport: {
       defaultViewport: 'desktop',
@@ -232,7 +223,7 @@ export const Desktop: Story = {
  */
 export const DarkMode: Story = {
   name: 'Dark Mode',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     backgrounds: { default: 'dark' },
     docs: {
@@ -248,7 +239,7 @@ export const DarkMode: Story = {
  */
 export const Accessibility: Story = {
   name: 'Accessibility Features',
-  render: () => <DnsBenchmark />,
+  render: () => <DnsBenchmark deviceId="test-device" />,
   parameters: {
     a11y: {
       config: {

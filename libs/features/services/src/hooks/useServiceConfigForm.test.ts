@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useServiceConfigForm } from './useServiceConfigForm';
-import type { ConfigSchema } from '@nasnet/api-client/queries';
+import type { ConfigSchema } from '@nasnet/api-client/generated';
+import { ApolloError } from '@apollo/client';
 
 // Mock the API client queries module
 vi.mock('@nasnet/api-client/queries', () => ({
@@ -27,8 +28,6 @@ describe('useServiceConfigForm', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
         sensitive: false,
       },
       {
@@ -37,12 +36,10 @@ describe('useServiceConfigForm', () => {
         label: 'OR Port',
         required: true,
         description: 'Onion Router port',
-        defaultValue: 9001,
+        defaultValue: null,
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
         sensitive: false,
       },
       {
@@ -51,12 +48,10 @@ describe('useServiceConfigForm', () => {
         label: 'Bridge Mode',
         required: false,
         description: 'Enable bridge mode',
-        defaultValue: false,
+        defaultValue: null,
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
         sensitive: false,
       },
       {
@@ -69,14 +64,12 @@ describe('useServiceConfigForm', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: 'bridge_mode === true',
         sensitive: false,
       },
     ],
   };
 
-  const mockConfig = {
+  const mockConfig: Record<string, unknown> = {
     nickname: 'MyRelay',
     orport: 9001,
     bridge_mode: false,
@@ -141,7 +134,7 @@ describe('useServiceConfigForm', () => {
 
       mockUseServiceConfigOperations.mockReturnValue({
         ...defaultMockReturn,
-        config: partialConfig,
+        config: partialConfig as Record<string, unknown>,
       });
 
       const { result } = renderHook(() =>
@@ -175,8 +168,6 @@ describe('useServiceConfigForm', () => {
             options: null,
             min: null,
             max: null,
-            pattern: null,
-            showIf: null,
             sensitive: false,
           },
           {
@@ -189,8 +180,6 @@ describe('useServiceConfigForm', () => {
             options: null,
             min: null,
             max: null,
-            pattern: null,
-            showIf: null,
             sensitive: false,
           },
           {
@@ -203,8 +192,6 @@ describe('useServiceConfigForm', () => {
             options: null,
             min: null,
             max: null,
-            pattern: null,
-            showIf: null,
             sensitive: false,
           },
         ],
@@ -213,7 +200,7 @@ describe('useServiceConfigForm', () => {
       mockUseServiceConfigOperations.mockReturnValue({
         ...defaultMockReturn,
         schema: schemaWithoutDefaults,
-        config: {},
+        config: {} as Record<string, unknown>,
       });
 
       const { result } = renderHook(() =>
@@ -256,8 +243,8 @@ describe('useServiceConfigForm', () => {
     });
 
     it('should handle error states correctly', () => {
-      const schemaError = new Error('Failed to load schema');
-      const configError = new Error('Failed to load config');
+      const schemaError = new ApolloError({ errorMessage: 'Failed to load schema' });
+      const configError = new ApolloError({ errorMessage: 'Failed to load config' });
 
       mockUseServiceConfigOperations.mockReturnValue({
         ...defaultMockReturn,
@@ -387,8 +374,6 @@ describe('useServiceConfigForm', () => {
             options: null,
             min: 3, // Minimum 3 characters
             max: null,
-            pattern: null,
-            showIf: null,
             sensitive: false,
           },
         ],
@@ -397,7 +382,7 @@ describe('useServiceConfigForm', () => {
       mockUseServiceConfigOperations.mockReturnValue({
         ...defaultMockReturn,
         schema: schemaWithMinLength,
-        config: { nickname: '' },
+        config: { nickname: '' } as Record<string, unknown>,
       });
 
       const { result } = renderHook(() =>

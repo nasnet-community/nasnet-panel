@@ -7,9 +7,12 @@
  */
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+
+import { fn } from 'storybook/test';
+
 import { TimeRangeSelector, timeRangePresetToInput, type TimeRangePreset } from './time-range-selector';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof TimeRangeSelector> = {
   title: 'Features/Network/InterfaceStats/TimeRangeSelector',

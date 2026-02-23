@@ -55,7 +55,7 @@ export interface LogGroupProps {
 /**
  * LogGroup Component
  */
-export function LogGroup({
+function LogGroupComponent({
   group,
   searchTerm,
   onEntryClick,
@@ -65,6 +65,14 @@ export function LogGroup({
 }: LogGroupProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const isSingleEntry = group.entries.length === 1;
+
+  const handleExpand = React.useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
+
+  const handleEntryClick = React.useCallback((entry: LogEntry) => {
+    onEntryClick?.(entry);
+  }, [onEntryClick]);
 
   // Single entry - render directly
   if (isSingleEntry) {
@@ -80,12 +88,13 @@ export function LogGroup({
     <div className={cn('border rounded-card-sm overflow-hidden', className)}>
       {/* Group header */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleExpand}
         className={cn(
           'w-full flex items-center gap-3 p-3 text-left',
           'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800',
           'transition-colors'
         )}
+        aria-expanded={isExpanded}
       >
         {/* Expand icon */}
         {isExpanded ? (
@@ -126,7 +135,7 @@ export function LogGroup({
             <LogEntryComponent
               key={entry.id}
               entry={entry}
-              onClick={() => onEntryClick?.(entry)}
+              onClick={() => handleEntryClick(entry)}
               className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
             />
           ))}
@@ -135,6 +144,9 @@ export function LogGroup({
     </div>
   );
 }
+
+export const LogGroup = React.memo(LogGroupComponent);
+LogGroup.displayName = 'LogGroup';
 
 /**
  * Props for LogGroupList
@@ -170,7 +182,7 @@ export interface LogGroupListProps {
  * LogGroupList Component
  * Renders a list of log groups
  */
-export function LogGroupList({
+function LogGroupListComponent({
   groups,
   searchTerm,
   onEntryClick,
@@ -193,6 +205,9 @@ export function LogGroupList({
     </div>
   );
 }
+
+export const LogGroupList = React.memo(LogGroupListComponent);
+LogGroupList.displayName = 'LogGroupList';
 
 
 

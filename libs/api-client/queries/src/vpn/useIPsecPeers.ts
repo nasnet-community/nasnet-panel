@@ -35,11 +35,11 @@ function transformIPsecPeer(raw: IPsecPeerRaw): IPsecPeer {
     address: raw.address,
     profile: raw.profile,
     exchangeMode: (raw['exchange-mode'] as IPsecPeer['exchangeMode']) || 'ike2',
-    passive: raw.passive === 'yes',
-    sendInitialContact: raw['send-initial-contact'] === 'yes',
+    isPassive: raw.passive === 'yes',
+    shouldSendInitialContact: raw['send-initial-contact'] === 'yes',
     localAddress: raw['local-address'],
     port: parseInt(raw.port || '500', 10),
-    disabled: raw.disabled === 'true',
+    isDisabled: raw.disabled === 'true',
     comment: raw.comment,
   };
 }

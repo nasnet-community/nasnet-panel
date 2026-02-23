@@ -11,10 +11,13 @@
  * be demonstrated without network or store setup.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { Wifi } from 'lucide-react';
-import { WirelessInterfaceCard } from './WirelessInterfaceCard';
+
 import type { WirelessInterface } from '@nasnet/core/types';
+
+import { WirelessInterfaceCard } from './WirelessInterfaceCard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Lightweight skeleton / state helpers (mirrors WirelessInterfaceList internals)

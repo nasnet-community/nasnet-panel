@@ -8,10 +8,13 @@
  * Stories cover the full range of data states and interaction modes.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { DnsStaticEntriesList } from './DnsStaticEntriesList';
+import { fn } from 'storybook/test';
+
 import type { DNSStaticEntry } from '@nasnet/core/types';
+
+import { DnsStaticEntriesList } from './DnsStaticEntriesList';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ─── Shared mock data ─────────────────────────────────────────────────────
 

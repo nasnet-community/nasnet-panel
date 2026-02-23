@@ -47,7 +47,7 @@ const completeEntries: ARPEntry[] = [
     macAddress: 'D4:CA:6D:AA:11:22',
     interface: 'bridge1',
     status: 'complete',
-    dynamic: true,
+    isDynamic: true,
   },
   {
     id: 'arp-2',
@@ -55,7 +55,7 @@ const completeEntries: ARPEntry[] = [
     macAddress: 'B8:27:EB:CC:44:55',
     interface: 'ether1',
     status: 'complete',
-    dynamic: false,
+    isDynamic: false,
   },
   {
     id: 'arp-3',
@@ -63,7 +63,7 @@ const completeEntries: ARPEntry[] = [
     macAddress: '00:1A:2B:3C:4D:5E',
     interface: 'ether2',
     status: 'complete',
-    dynamic: true,
+    isDynamic: true,
   },
 ];
 
@@ -74,7 +74,7 @@ const mixedEntries: ARPEntry[] = [
     macAddress: 'D4:CA:6D:AA:11:22',
     interface: 'bridge1',
     status: 'complete',
-    dynamic: true,
+    isDynamic: true,
   },
   {
     id: 'arp-2',
@@ -82,7 +82,7 @@ const mixedEntries: ARPEntry[] = [
     macAddress: 'FF:FF:FF:00:00:00',
     interface: 'ether1',
     status: 'incomplete',
-    dynamic: true,
+    isDynamic: true,
   },
   {
     id: 'arp-3',
@@ -90,7 +90,7 @@ const mixedEntries: ARPEntry[] = [
     macAddress: '00:00:00:00:00:00',
     interface: 'vlan10',
     status: 'failed',
-    dynamic: false,
+    isDynamic: false,
   },
   {
     id: 'arp-4',
@@ -98,7 +98,7 @@ const mixedEntries: ARPEntry[] = [
     macAddress: 'A0:B1:C2:D3:E4:F5',
     interface: 'ether2',
     status: 'complete',
-    dynamic: true,
+    isDynamic: true,
   },
   {
     id: 'arp-5',
@@ -106,7 +106,7 @@ const mixedEntries: ARPEntry[] = [
     macAddress: '11:22:33:44:55:66',
     interface: 'bridge1',
     status: 'incomplete',
-    dynamic: true,
+    isDynamic: true,
   },
 ];
 
@@ -116,7 +116,7 @@ const largeDataset: ARPEntry[] = Array.from({ length: 12 }, (_, i) => ({
   macAddress: `AA:BB:CC:DD:EE:${String(i).padStart(2, '0')}`,
   interface: ['ether1', 'ether2', 'bridge1', 'vlan10'][i % 4],
   status: (['complete', 'complete', 'complete', 'incomplete', 'failed'] as const)[i % 5],
-  dynamic: i % 3 !== 0,
+  isDynamic: i % 3 !== 0,
 }));
 
 // --- Stories ---
@@ -197,7 +197,7 @@ export const SingleEntry: Story = {
         macAddress: 'FE:DC:BA:98:76:54',
         interface: 'ether1',
         status: 'complete',
-        dynamic: false,
+        isDynamic: false,
       },
     ],
     defaultCollapsed: false,
@@ -208,5 +208,19 @@ export const SingleEntry: Story = {
         story: 'Edge case with a single ARP entry.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

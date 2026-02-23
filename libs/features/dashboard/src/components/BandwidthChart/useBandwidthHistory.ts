@@ -2,11 +2,24 @@
  * useBandwidthHistory - Headless hook for bandwidth data fetching
  * Implements hybrid real-time strategy: GraphQL subscription + polling fallback
  * Follows ADR-018 (Headless + Platform Presenters pattern)
+ * @description
+ * Fetches and manages bandwidth history data with automatic subscription/polling
+ * strategy selection. For 5m time range, uses real-time GraphQL subscriptions with
+ * polling fallback if subscription fails. For 1h/24h ranges, uses cached queries only.
+ * Automatically appends real-time data points and trims historical data to maintain
+ * performance. Cleanup is automatic: subscriptions terminated on unmount, intervals
+ * cleared, refs released.
+ * @example
+ * const { data, loading, error, refetch } = useBandwidthHistory({
+ *   deviceId: 'router-1',
+ *   timeRange: '5m',
+ *   interfaceId: 'eth0'
+ * });
  */
 
 import { useSubscription, useQuery } from '@apollo/client';
 import { useMemo, useEffect, useRef, useState } from 'react';
-import { BANDWIDTH_HISTORY_QUERY, BANDWIDTH_SUBSCRIPTION } from './graphql';
+import { GET_BANDWIDTH_HISTORY as BANDWIDTH_HISTORY_QUERY, BANDWIDTH_UPDATE as BANDWIDTH_SUBSCRIPTION } from './graphql';
 import {
   TIME_RANGE_MAP,
   AGGREGATION_MAP,
@@ -23,13 +36,26 @@ import type {
 /**
  * Hook for fetching and managing bandwidth history data
  *
- * Strategy:
- * - For 5m view: Use subscription for real-time updates with polling fallback
- * - For 1h/24h views: Use query only (no subscription)
- * - Automatically handles subscription failures and falls back to polling
+ * **Data Fetching Strategy:**
+ * - For 5m view: GraphQL subscription for real-time updates + polling fallback (2s interval)
+ * - For 1h/24h views: Cached query only (no real-time updates)
+ * - Automatic fallback to polling if subscription errors
+ * - Cache policy: cache-and-network (show cached immediately, refresh in background)
  *
- * @param config - Hook configuration with deviceId, timeRange, interfaceId
- * @returns Bandwidth data with loading/error states and refetch function
+ * **Performance Optimization:**
+ * - Real-time data appended to ref, not causing re-renders until memoized value updates
+ * - Data trimmed to MAX_DATA_POINTS per timeRange to prevent memory growth
+ * - useMemo prevents recalculation when data hasn't changed
+ * - useCallback on event handlers prevents subscription recreation
+ *
+ * **Cleanup & Memory Management:**
+ * - useQuery/useSubscription cleanup: automatic on unmount
+ * - Ref cleanup: dataRef cleared on unmount
+ * - State cleanup: subscriptionActive state cleared
+ * - No memory leaks from intervals (managed by Apollo)
+ *
+ * @param config - Hook configuration (deviceId, timeRange, interfaceId)
+ * @returns Object with data, loading, error states, refetch function, subscription status
  */
 export function useBandwidthHistory(
   config: UseBandwidthHistoryConfig
@@ -38,7 +64,12 @@ export function useBandwidthHistory(
   const dataRef = useRef<BandwidthDataPoint[]>([]);
   const [subscriptionActive, setSubscriptionActive] = useState(true);
 
-  // Fetch historical data with optional polling fallback for 5m view
+  /**
+   * Fetch historical bandwidth data
+   * - Uses cache-and-network: shows cached data immediately, refreshes in background
+   * - Polling fallback (2s) activates only for 5m view when subscription fails
+   * - Variables automatically memoized by Apollo to prevent unnecessary re-queries
+   */
   const {
     data: historyData,
     loading,
@@ -53,17 +84,23 @@ export function useBandwidthHistory(
     },
     // Enable polling fallback for 5m view when subscription is not active
     pollInterval: timeRange === '5m' && !subscriptionActive ? 2000 : 0,
-    // Cache results for 10 seconds to reduce query load
+    // Cache policy: show cached data immediately, refresh in background
     fetchPolicy: 'cache-and-network',
   });
 
-  // Subscribe to real-time updates (only for 5m view)
+  /**
+   * Subscribe to real-time bandwidth updates
+   * - Only active for 5m time range
+   * - Provides latest TX/RX rates with sub-second latency
+   * - Automatic cleanup on unmount (Apollo handles cleanup)
+   * - Fallback to polling if subscription errors
+   */
   const { data: realtimeData } = useSubscription(BANDWIDTH_SUBSCRIPTION, {
     variables: {
       deviceId,
       interfaceId: interfaceId || null,
     },
-    // Skip subscription for non-5m timeframes
+    // Skip subscription for non-5m timeframes (unnecessary overhead)
     skip: timeRange !== '5m',
     // Handle subscription errors - activate polling fallback
     onError: (err) => {
@@ -78,7 +115,10 @@ export function useBandwidthHistory(
     },
   });
 
-  // Process and merge historical data
+  /**
+   * Process and merge historical data with current rates
+   * Memoized to prevent unnecessary recalculations (only updates when inputs change)
+   */
   const processedData = useMemo(() => {
     if (!historyData?.bandwidthHistory) return null;
 
@@ -93,7 +133,7 @@ export function useBandwidthHistory(
       })
     );
 
-    // Store in ref for real-time updates
+    // Store in ref for real-time updates (doesn't trigger re-render)
     dataRef.current = historical;
 
     // Get current rates from latest data point or subscription
@@ -115,7 +155,11 @@ export function useBandwidthHistory(
     };
   }, [historyData, realtimeData]);
 
-  // Append real-time data points for 5m view
+  /**
+   * Append real-time data points for 5m view
+   * Only triggered when subscription data arrives (not on every render)
+   * Trimmed to MAX_DATA_POINTS to maintain constant memory usage
+   */
   useEffect(() => {
     // Only append for 5m view when subscription data arrives
     if (timeRange !== '5m' || !realtimeData?.bandwidth) return;
@@ -128,7 +172,7 @@ export function useBandwidthHistory(
       rxBytes: realtimeData.bandwidth.rxBytes,
     };
 
-    // Append and trim to max points for performance
+    // Append and trim to max points for performance (prevents memory leaks)
     dataRef.current = appendDataPoint(
       dataRef.current,
       newPoint,

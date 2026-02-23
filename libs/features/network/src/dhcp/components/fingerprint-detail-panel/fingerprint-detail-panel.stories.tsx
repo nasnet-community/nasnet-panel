@@ -9,10 +9,11 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
+import type { DHCPLeaseWithOptions, DeviceIdentification } from '@nasnet/core/types';
+
 import { FingerprintDetailPanel } from './fingerprint-detail-panel';
-import type { DHCPLeaseWithOptions } from '@nasnet/core/types';
-import type { DeviceIdentification } from '@nasnet/core/types';
 
 // ─── Shared mock data ─────────────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ const meta = {
 } satisfies Meta<typeof FingerprintDetailPanel>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof FingerprintDetailPanel>;
 
 // ─── Stories ──────────────────────────────────────────────────────────────
 

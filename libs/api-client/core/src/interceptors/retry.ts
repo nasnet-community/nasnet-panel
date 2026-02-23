@@ -118,17 +118,12 @@ export async function retryInterceptor(
   // Wait before retrying
   await sleep(delay);
 
-  try {
-    // Retry the request - extract AxiosRequestConfig from RetryableConfig
-    const response = await axios.request(config);
+  // Retry the request - extract AxiosRequestConfig from RetryableConfig
+  const response = await axios.request(config);
 
-    // Successful retry - set connection back to connected
-    const { setConnected } = useConnectionStore.getState();
-    setConnected();
+  // Successful retry - set connection back to connected
+  const { setConnected } = useConnectionStore.getState();
+  setConnected();
 
-    return response;
-  } catch (retryError) {
-    // Continue with retry loop (will be caught by outer try-catch)
-    throw retryError;
-  }
+  return response;
 }

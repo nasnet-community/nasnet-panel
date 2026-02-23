@@ -7,8 +7,9 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { FirewallQuickStats } from './FirewallQuickStats';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * FirewallQuickStats - Compact summary of firewall chain and action distribution

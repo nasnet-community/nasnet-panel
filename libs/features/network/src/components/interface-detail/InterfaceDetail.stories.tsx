@@ -10,8 +10,9 @@
  * without network or hook setup.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { InterfaceDetailDesktop } from './InterfaceDetailDesktop';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared mock data

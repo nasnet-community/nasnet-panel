@@ -7,6 +7,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
+	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/virtualinterface"
 
@@ -168,8 +169,60 @@ func (cr *ChainRouter) removeExistingChain(ctx context.Context, routerID, device
 			log.Warn().Err(rmErr).Msg("Failed to remove existing chain, continuing anyway")
 		}
 	}
-	// TODO: Query and remove existing single-hop routing rules (when Story 8.3 is implemented)
-	log.Info().Msg("Single-hop routing removal not yet implemented (Story 8.3)")
+	// Remove existing single-hop DeviceRouting records for this device.
+	existing, err := cr.store.DeviceRouting.
+		Query().
+		Where(
+			devicerouting.RouterID(routerID),
+			devicerouting.DeviceID(deviceID),
+		).
+		All(ctx)
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to query single-hop routing records, continuing anyway")
+		return
+	}
+	for _, dr := range existing {
+		cr.removeSingleHopRules(ctx, dr)
+	}
+}
+
+// removeSingleHopRules removes the router mangle/kill-switch rules and DB record
+// for a single-hop DeviceRouting entry, logging warnings on failure but not blocking.
+func (cr *ChainRouter) removeSingleHopRules(ctx context.Context, dr *ent.DeviceRouting) {
+	log.Info().
+		Str("device_routing_id", dr.ID).
+		Str("device_id", dr.DeviceID).
+		Str("mangle_rule_id", dr.MangleRuleID).
+		Msg("Removing single-hop routing rules")
+
+	// Remove the mangle rule from the router.
+	if dr.MangleRuleID != "" {
+		removeMangleCmd := router.Command{
+			Path:   "/ip/firewall/mangle",
+			Action: "remove",
+			Args:   map[string]string{".id": dr.MangleRuleID},
+		}
+		if _, err := cr.router.ExecuteCommand(ctx, removeMangleCmd); err != nil {
+			log.Warn().Err(err).Str("device_routing_id", dr.ID).Msg("Failed to remove single-hop mangle rule")
+		}
+	}
+
+	// Remove the kill switch filter rule from the router (if one was created).
+	if dr.KillSwitchRuleID != "" {
+		removeKSCmd := router.Command{
+			Path:   "/ip/firewall/filter",
+			Action: "remove",
+			Args:   map[string]string{".id": dr.KillSwitchRuleID},
+		}
+		if _, err := cr.router.ExecuteCommand(ctx, removeKSCmd); err != nil {
+			log.Warn().Err(err).Str("device_routing_id", dr.ID).Msg("Failed to remove single-hop kill switch rule")
+		}
+	}
+
+	// Delete the DeviceRouting DB record.
+	if err := cr.store.DeviceRouting.DeleteOneID(dr.ID).Exec(ctx); err != nil {
+		log.Warn().Err(err).Str("device_routing_id", dr.ID).Msg("Failed to delete single-hop DeviceRouting record")
+	}
 }
 
 // publishChainCreatedEvent emits a routing chain created event.

@@ -1,12 +1,24 @@
-// =============================================================================
-// OUI (Organizationally Unique Identifier) Database
-// =============================================================================
-// Compressed database of ~3000 most common vendor MAC prefixes (~40KB)
-// Source: IEEE OUI Registry (https://standards.ieee.org/develop/regauth/oui/public.html)
-//
-// Format: 'XX:YY:ZZ' (first 3 bytes of MAC address) -> 'Vendor Name'
-
-export const OUI_DATABASE: Record<string, string> = {
+/**
+ * OUI (Organizationally Unique Identifier) Database
+ *
+ * Compressed database of ~3000 most common vendor MAC prefixes (~40KB).
+ * Maps the first 3 bytes (OUI) of a MAC address to the manufacturer name.
+ *
+ * Source: IEEE OUI Registry
+ * (https://standards.ieee.org/develop/regauth/oui/public.html)
+ *
+ * Format: 'XX:YY:ZZ' (first 3 bytes of MAC address) → 'Vendor Name'
+ *
+ * @example
+ * ```ts
+ * import { OUI_DATABASE } from '@nasnet/core/utils/mac-vendor';
+ *
+ * const vendor = OUI_DATABASE['AC:DE:48']; // 'Apple Inc.'
+ * ```
+ *
+ * @readonly
+ */
+export const OUI_DATABASE = {
   // Apple Inc. (most common prefixes)
   'AC:DE:48': 'Apple Inc.',
   'F0:18:98': 'Apple Inc.',

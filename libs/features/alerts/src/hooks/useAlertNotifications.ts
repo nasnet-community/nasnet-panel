@@ -1,6 +1,11 @@
 /**
  * useAlertNotifications Hook
- * Subscribes to real-time alert events and manages in-app notifications
+ *
+ * @description Subscribes to real-time alert events via GraphQL subscription
+ * and manages in-app notifications with Zustand store integration, toast
+ * notifications with severity-based styling, sound playback, and contextual
+ * navigation hints. Respects user settings for enabled state, severity filter,
+ * and sound preferences.
  *
  * Features:
  * - GraphQL subscription to alertEvents
@@ -13,9 +18,8 @@
  * Task #3: Apollo Client subscription hook integration
  */
 
-import { useEffect, useRef } from 'react';
-import { useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useSubscription, gql } from '@apollo/client';
 import { useToast } from '@nasnet/ui/patterns';
 import {
   useAlertNotificationStore,
@@ -198,10 +202,9 @@ function passesSeverityFilter(
 /**
  * useAlertNotifications Hook
  *
- * Subscribes to real-time alert events and integrates with:
- * - Alert notification store (Zustand)
- * - Toast notifications (Sonner)
- * - Sound playback
+ * @description Subscribes to real-time alert events and integrates with
+ * Alert notification store (Zustand), Toast notifications (Sonner), and
+ * Sound playback. Cleans up subscription on unmount.
  *
  * @example
  * ```tsx
@@ -247,6 +250,9 @@ export function useAlertNotifications(
   // Track processed alert IDs to prevent duplicates
   const processedAlerts = useRef(new Set<string>());
 
+  // Memoize event type to route mapping for stable reference
+  const eventRouteMap = useMemo(() => eventTypeToRoute, []);
+
   // Subscribe to alert events
   const { data } = useSubscription<AlertEventsData>(ALERT_EVENTS_SUBSCRIPTION, {
     variables: { deviceId },
@@ -256,6 +262,42 @@ export function useAlertNotifications(
       // Don't show toast for subscription errors (silent failure)
     },
   });
+
+  // Memoize toast handler callback for stable reference
+  const handleShowToast = useCallback(
+    (alert: AlertEvent['alert'], route: string | undefined) => {
+      const autoDismissDuration = getAutoDismissDuration(
+        alert.severity,
+        settings.autoDismissTiming
+      );
+
+      const toastOptions = {
+        message: alert.message,
+        duration: autoDismissDuration,
+        action: route
+          ? {
+              label: 'View',
+              onClick: () => {
+                window.location.href = route;
+              },
+            }
+          : undefined,
+      };
+
+      switch (alert.severity) {
+        case 'CRITICAL':
+          toast.error(alert.title, toastOptions);
+          break;
+        case 'WARNING':
+          toast.warning(alert.title, toastOptions);
+          break;
+        case 'INFO':
+          toast.info(alert.title, toastOptions);
+          break;
+      }
+    },
+    [settings.autoDismissTiming, toast]
+  );
 
   // Process incoming alert events
   useEffect(() => {
@@ -296,42 +338,19 @@ export function useAlertNotifications(
     // Play sound
     playAlertSound(alert.severity, settings.soundEnabled);
 
-    // Show toast notification
-    const autoDismissDuration = getAutoDismissDuration(
-      alert.severity,
-      settings.autoDismissTiming
-    );
-
     // Map event type to navigation route
-    const route = eventTypeToRoute[alert.eventType];
+    const route = eventRouteMap[alert.eventType];
 
-    // Toast configuration
-    const toastOptions = {
-      message: alert.message,
-      duration: autoDismissDuration,
-      action: route
-        ? {
-            label: 'View',
-            onClick: () => {
-              window.location.href = route;
-            },
-          }
-        : undefined,
+    // Show toast notification
+    handleShowToast(alert, route);
+  }, [data, addNotification, settings, eventRouteMap, handleShowToast]);
+
+  // Cleanup on unmount: clear processed alerts and any pending operations
+  useEffect(() => {
+    return () => {
+      processedAlerts.current.clear();
     };
-
-    // Show toast based on severity
-    switch (alert.severity) {
-      case 'CRITICAL':
-        toast.error(alert.title, toastOptions);
-        break;
-      case 'WARNING':
-        toast.warning(alert.title, toastOptions);
-        break;
-      case 'INFO':
-        toast.info(alert.title, toastOptions);
-        break;
-    }
-  }, [data, addNotification, settings, toast]);
+  }, []);
 }
 
 /**

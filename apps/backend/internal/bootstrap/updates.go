@@ -35,8 +35,10 @@ type instanceHealthAdapter struct {
 }
 
 func (a *instanceHealthAdapter) GetStatus(instanceID string) (string, error) {
-	// TODO: Implement proper health status retrieval from InstanceManager
-	return "healthy", nil
+	if a.manager == nil {
+		return "UNKNOWN", nil
+	}
+	return a.manager.GetInstanceHealthStatus(instanceID)
 }
 
 // instanceStopperAdapter adapts InstanceManager to updates.InstanceStopper interface.
@@ -45,8 +47,10 @@ type instanceStopperAdapter struct {
 }
 
 func (a *instanceStopperAdapter) Stop(ctx context.Context, instanceID string) error {
-	// TODO: Implement proper instance stop via InstanceManager
-	return nil
+	if a.manager == nil {
+		return nil
+	}
+	return a.manager.StopInstance(ctx, instanceID)
 }
 
 // instanceStarterAdapter adapts InstanceManager to updates.InstanceStarter interface.
@@ -55,8 +59,10 @@ type instanceStarterAdapter struct {
 }
 
 func (a *instanceStarterAdapter) Start(ctx context.Context, instanceID string) error {
-	// TODO: Implement proper instance start via InstanceManager
-	return nil
+	if a.manager == nil {
+		return nil
+	}
+	return a.manager.StartInstance(ctx, instanceID)
 }
 
 // InitializeUpdateManager creates and initializes the service update manager.

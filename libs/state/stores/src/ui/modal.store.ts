@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Modal State Store
  * Manages modal state with single-modal paradigm (no stacking)
@@ -184,7 +186,7 @@ export const useModalStore = create<ModalState & ModalActions>()(
     }),
     {
       name: 'modal-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

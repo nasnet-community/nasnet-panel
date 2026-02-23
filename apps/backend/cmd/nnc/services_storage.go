@@ -30,7 +30,7 @@ func initStorageAndVIF(
 	}
 
 	// 2. Initialize Virtual Interface Factory (VIF)
-	vif, err := bootstrap.InitializeVIF(systemDB, eventBus, storage.PathResolver, routerPort, logger)
+	vif, err := bootstrap.InitializeVIF(ctx, systemDB, eventBus, storage.PathResolver, routerPort, logger)
 	if err != nil {
 		return nil, nil, err
 	}

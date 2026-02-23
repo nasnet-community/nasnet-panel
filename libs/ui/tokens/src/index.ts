@@ -1,16 +1,69 @@
 /**
- * @nasnet/ui/tokens
+ * @nasnet/ui/tokens - Design Token System
  *
- * Design token exports for the NasNetConnect design system.
- * Provides both JSON-based design tokens and TypeScript animation tokens.
+ * Central export point for NasNetConnect design tokens.
+ * Provides three-tier token architecture:
+ *
+ * **Tier 1: Primitives** (~80 tokens)
+ * - Raw CSS variables, colors, spacing, shadows, borders
+ * - Generated from `tokens.json` via build script
+ * - Output to `dist/variables.css` for CSS custom properties
+ *
+ * **Tier 2: Semantic** (~70 tokens)
+ * - Platform-aware, context-aware tokens
+ * - Animation tokens (mobile/tablet/desktop responsive durations)
+ * - Status colors (success/error/warning/info)
+ * - Category accents (14 feature categories)
+ * - Network interface types (WAN/LAN/VPN/Wireless)
+ *
+ * **Tier 3: Component** (~50 tokens)
+ * - Ready-to-use component-specific tokens
+ * - Pre-configured Framer Motion transitions
+ * - Component shadow and elevation tokens
  *
  * @see Docs/design/DESIGN_TOKENS.md
+ * @see Docs/design/ux-design/2-core-user-experience.md
+ *
+ * @example
+ * ```tsx
+ * // Import CSS variables (Tier 1 + Tier 2 primitives)
+ * import '@nasnet/ui/tokens/variables.css';
+ *
+ * // Import TypeScript animation tokens (Tier 2 + Tier 3)
+ * import {
+ *   transitions,
+ *   getAnimationTokens,
+ *   durations,
+ *   easings,
+ *   springs,
+ * } from '@nasnet/ui/tokens';
+ *
+ * // Use in Framer Motion
+ * <motion.div
+ *   initial={{ opacity: 0 }}
+ *   animate={{ opacity: 1 }}
+ *   transition={transitions.enter}
+ * />
+ * ```
  */
 
-// Animation tokens (TypeScript-based)
+// Animation tokens (TypeScript-based: Tier 1, 2, and 3)
+// Includes: durations, easings, springs, semantic animation tokens, Framer Motion transitions
 // @see NAS-4.18: Implement Animation System (Framer Motion)
 export * from './animation';
 
-// Note: JSON design tokens are processed by the build script
-// and output to libs/ui/tokens/dist/variables.css
-// Import via: import '@nasnet/ui/tokens/variables.css';
+// JSON design tokens (Tier 1: Primitives)
+// Processed by build script and output as CSS custom properties
+// @see Docs/design/DESIGN_TOKENS.md
+//
+// Usage:
+// ```tsx
+// import '@nasnet/ui/tokens/variables.css';
+// // Now CSS variables are available:
+// // var(--color-primary), var(--spacing-4), var(--shadow-card), etc.
+// ```
+//
+// Tailwind integration:
+// - Tailwind config maps CSS variables to utility classes
+// - Use semantic tokens: bg-primary (not bg-amber-500)
+// - Use semantic spacing: p-component-md (not p-4)

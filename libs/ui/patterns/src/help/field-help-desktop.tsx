@@ -26,7 +26,7 @@ import type { FieldHelpDesktopProps } from './help.types';
  *
  * @internal This component is used by the FieldHelp auto-detecting wrapper
  */
-export function FieldHelpDesktop({
+export const FieldHelpDesktop = React.memo(function FieldHelpDesktop({
   field,
   placement = 'right',
   className,
@@ -51,4 +51,6 @@ export function FieldHelpDesktop({
       />
     </HelpPopover>
   );
-}
+});
+
+FieldHelpDesktop.displayName = 'FieldHelpDesktop';

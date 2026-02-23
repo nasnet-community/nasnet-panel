@@ -10,9 +10,9 @@
 
 import * as React from 'react';
 
-import { Pencil, Info } from 'lucide-react';
-
-import { Button, cn } from '@nasnet/ui/primitives';
+import { Info, Pencil } from 'lucide-react';
+import { Button, cn, Icon } from '@nasnet/ui/primitives';
+import { useTranslation } from '@nasnet/core/i18n';
 
 import {
   ConfidenceIndicatorBase,

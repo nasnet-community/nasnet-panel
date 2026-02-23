@@ -3,9 +3,10 @@
  * Displays information about a single WireGuard peer
  */
 
+import { memo } from 'react';
 import type { WireGuardPeer } from '@nasnet/core/types';
 import { formatLastHandshake } from '@nasnet/core/utils';
-import { Badge } from '@nasnet/ui/primitives';
+import { Badge, cn } from '@nasnet/ui/primitives';
 
 export interface PeerListItemProps {
   peer: WireGuardPeer;
@@ -14,7 +15,7 @@ export interface PeerListItemProps {
 /**
  * Displays a single WireGuard peer with endpoint, allowed IPs, and last handshake
  */
-export function PeerListItem({ peer }: PeerListItemProps) {
+function PeerListItemComponent({ peer }: PeerListItemProps) {
   // Format endpoint as IP:port
   const endpoint = peer.endpoint || `${peer.endpointAddress}:${peer.endpointPort}`;
   const displayEndpoint = endpoint || 'No endpoint';
@@ -28,7 +29,7 @@ export function PeerListItem({ peer }: PeerListItemProps) {
   const lastHandshake = formatLastHandshake(peer.lastHandshake);
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-card-sm border border-slate-200 dark:border-slate-700 transition-colors hover:border-slate-300 dark:hover:border-slate-600">
+    <div className={cn('flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-card-sm border border-slate-200 dark:border-slate-700 transition-colors hover:border-slate-300 dark:hover:border-slate-600')}>
       {/* Public Key (truncated) */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -101,3 +102,9 @@ export function PeerListItem({ peer }: PeerListItemProps) {
     </div>
   );
 }
+
+/**
+ * PeerListItem - Memoized component for performance
+ */
+export const PeerListItem = memo(PeerListItemComponent);
+PeerListItem.displayName = 'PeerListItem';

@@ -5,7 +5,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, type FieldValues } from 'react-hook-form';
 import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 
@@ -28,7 +28,7 @@ function FormWrapper({
 }) {
   const methods = useForm({
     defaultValues,
-    resolver: schema ? zodResolver(schema) : undefined,
+    resolver: schema ? zodResolver(schema as any) : undefined,
     mode: 'onBlur',
   });
 

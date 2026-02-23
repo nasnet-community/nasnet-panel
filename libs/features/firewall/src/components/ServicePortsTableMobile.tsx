@@ -1,20 +1,19 @@
 /**
- * Service Ports Table Component (Mobile)
+ * Service Ports Table Component (Mobile Presenter)
  *
- * Mobile presenter for service ports management with card layout.
+ * @description Mobile-optimized service ports management interface with card-based layout,
+ * touch-friendly 44px action buttons, search and filter capabilities. Built-in services
+ * are read-only; custom services support edit and delete operations.
  *
- * Features:
- * - Card-based layout optimized for touch
- * - Search functionality
- * - Protocol and category filters
- * - Touch-friendly action buttons (44px)
- * - Read-only built-in services with disabled actions
- * - Empty and loading states
- *
- * @see NAS-7.8: Implement Service Ports Management - Task 5
+ * @example
+ * ```tsx
+ * <ServicePortsTableMobile
+ *   className="p-4"
+ * />
+ * ```
  */
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCustomServices } from '../hooks/useCustomServices';
 import type { ServicePortDefinition, ServicePortProtocol, ServicePortCategory } from '@nasnet/core/types';
@@ -43,13 +42,18 @@ import {
   DropdownMenuTrigger,
 } from '@nasnet/ui/primitives';
 import { Pencil, Trash2, Search, MoreVertical } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives/icon';
 import { cn } from '@nasnet/ui/utils';
 
 // ============================================================================
 // Protocol Badge Component
 // ============================================================================
 
-function ProtocolBadge({ protocol }: { protocol: ServicePortProtocol }) {
+interface ProtocolBadgeProps {
+  protocol: ServicePortProtocol;
+}
+
+const ProtocolBadge = React.memo(function ProtocolBadge({ protocol }: ProtocolBadgeProps) {
   const variantMap: Record<ServicePortProtocol, 'default' | 'info' | 'success'> = {
     tcp: 'info',
     udp: 'success',
@@ -64,27 +68,33 @@ function ProtocolBadge({ protocol }: { protocol: ServicePortProtocol }) {
       {t(`servicePorts.protocols.${protocol}`)}
     </Badge>
   );
-}
+});
+ProtocolBadge.displayName = 'ProtocolBadge';
 
 // ============================================================================
 // Type Badge Component
 // ============================================================================
 
-function TypeBadge({ builtIn }: { builtIn: boolean }) {
+interface TypeBadgeProps {
+  isBuiltIn: boolean;
+}
+
+const TypeBadge = React.memo(function TypeBadge({ isBuiltIn }: TypeBadgeProps) {
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={builtIn ? 'default' : 'warning'} className="text-xs">
-      {t(`servicePorts.types.${builtIn ? 'builtIn' : 'custom'}`)}
+    <Badge variant={isBuiltIn ? 'default' : 'warning'} className="text-xs">
+      {t(`servicePorts.types.${isBuiltIn ? 'builtIn' : 'custom'}`)}
     </Badge>
   );
-}
+});
+TypeBadge.displayName = 'TypeBadge';
 
 // ============================================================================
 // Loading State Component
 // ============================================================================
 
-function LoadingState() {
+const LoadingState = React.memo(function LoadingState() {
   return (
     <div className="space-y-4">
       {[...Array(5)].map((_, i) => (
@@ -92,7 +102,8 @@ function LoadingState() {
       ))}
     </div>
   );
-}
+});
+LoadingState.displayName = 'LoadingState';
 
 // ============================================================================
 // Empty State Component
@@ -103,14 +114,15 @@ interface EmptyStateProps {
   description?: string;
 }
 
-function EmptyState({ message, description }: EmptyStateProps) {
+const EmptyState = React.memo(function EmptyState({ message, description }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <p className="text-lg font-medium text-muted-foreground">{message}</p>
       {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
     </div>
   );
-}
+});
+EmptyState.displayName = 'EmptyState';
 
 // ============================================================================
 // Service Card Component
@@ -122,8 +134,16 @@ interface ServiceCardProps {
   onDelete: (service: ServicePortDefinition) => void;
 }
 
-function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
+const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
   const { t } = useTranslation('firewall');
+
+  const handleEditClick = useCallback(() => {
+    onEdit(service);
+  }, [onEdit, service]);
+
+  const handleDeleteClick = useCallback(() => {
+    onDelete(service);
+  }, [onDelete, service]);
 
   return (
     <Card>
@@ -144,19 +164,20 @@ function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
                 variant="ghost"
                 size="icon"
                 className="h-11 w-11"
-                disabled={service.builtIn}
+                disabled={service.isBuiltIn}
+                aria-label={t('servicePorts.actions', 'Actions')}
               >
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(service)} disabled={service.builtIn}>
+              <DropdownMenuItem onClick={handleEditClick} disabled={service.isBuiltIn}>
                 <Pencil className="mr-2 h-4 w-4" />
                 {t('servicePorts.editService')}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onDelete(service)}
-                disabled={service.builtIn}
+                onClick={handleDeleteClick}
+                disabled={service.isBuiltIn}
                 className="text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -170,11 +191,11 @@ function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">{t('servicePorts.fields.port')}</p>
-            <p className="font-mono text-lg font-semibold">{service.port}</p>
+            <p className="font-mono text-lg font-semibold tabular-nums">{service.port}</p>
           </div>
-          <TypeBadge builtIn={service.builtIn} />
+          <TypeBadge isBuiltIn={service.isBuiltIn} />
         </div>
-        {service.builtIn && (
+        {service.isBuiltIn && (
           <p className="mt-3 text-xs text-muted-foreground">
             {t('servicePorts.tooltips.builtInReadOnly')}
           </p>
@@ -182,17 +203,21 @@ function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
+ServiceCard.displayName = 'ServiceCard';
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export interface ServicePortsTableMobileProps {
+  /** Optional CSS class name */
   className?: string;
 }
 
-export function ServicePortsTableMobile({ className }: ServicePortsTableMobileProps) {
+export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobile({
+  className,
+}: ServicePortsTableMobileProps) {
   const { t } = useTranslation('firewall');
   const { services, deleteService } = useCustomServices();
 
@@ -233,12 +258,12 @@ export function ServicePortsTableMobile({ className }: ServicePortsTableMobilePr
   }, [services, searchQuery, protocolFilter, categoryFilter]);
 
   // Handlers
-  const handleDeleteClick = (service: ServicePortDefinition) => {
+  const handleDeleteClick = useCallback((service: ServicePortDefinition) => {
     setServiceToDelete(service);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (serviceToDelete) {
       try {
         deleteService(serviceToDelete.port);
@@ -248,26 +273,29 @@ export function ServicePortsTableMobile({ className }: ServicePortsTableMobilePr
         console.error('Failed to delete service:', error);
       }
     }
-  };
+  }, [serviceToDelete, deleteService]);
 
-  const handleEditClick = (service: ServicePortDefinition) => {
+  const handleEditClick = useCallback((service: ServicePortDefinition) => {
     // TODO: Open edit dialog (Task 6)
     console.log('Edit service:', service);
-  };
+  }, []);
 
-  // Categories for filter dropdown
-  const categories: ServicePortCategory[] = [
-    'web',
-    'secure',
-    'database',
-    'messaging',
-    'mail',
-    'network',
-    'system',
-    'containers',
-    'mikrotik',
-    'custom',
-  ];
+  // Categories for filter dropdown (constant)
+  const CATEGORIES: ServicePortCategory[] = useMemo(
+    () => [
+      'web',
+      'secure',
+      'database',
+      'messaging',
+      'mail',
+      'network',
+      'system',
+      'containers',
+      'mikrotik',
+      'custom',
+    ],
+    []
+  );
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -302,7 +330,7 @@ export function ServicePortsTableMobile({ className }: ServicePortsTableMobilePr
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t('servicePorts.categories.all', 'All Categories')}</SelectItem>
-              {categories.map((category) => (
+              {CATEGORIES.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>
@@ -369,4 +397,5 @@ export function ServicePortsTableMobile({ className }: ServicePortsTableMobilePr
       </Dialog>
     </div>
   );
-}
+});
+ServicePortsTableMobile.displayName = 'ServicePortsTableMobile';

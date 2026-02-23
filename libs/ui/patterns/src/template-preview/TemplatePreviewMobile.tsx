@@ -5,6 +5,7 @@
  * Accordion sections for variables, rules, conflicts, and impact.
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import { FileText } from 'lucide-react';
@@ -216,7 +217,7 @@ function ImpactSummary({ impactAnalysis }: ImpactSummaryProps) {
  * - Apply/Cancel actions
  * - Loading and error states
  */
-export function TemplatePreviewMobile({
+function TemplatePreviewMobileComponent({
   preview,
   onApply,
   onCancel,
@@ -308,7 +309,7 @@ export function TemplatePreviewMobile({
               <AccordionContent className="px-4 pt-4">
                 {previewResult.resolvedRules && previewResult.resolvedRules.length > 0 ? (
                   <div className="space-y-2">
-                    {previewResult.resolvedRules.map((rule: TemplateRule, index: number) => (
+                    {(previewResult.resolvedRules as readonly TemplateRule[]).map((rule: TemplateRule, index: number) => (
                       <RuleCard key={index} rule={rule} index={index} />
                     ))}
                   </div>
@@ -422,3 +423,9 @@ export function TemplatePreviewMobile({
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const TemplatePreviewMobile = memo(TemplatePreviewMobileComponent);
+
+// Set display name for React DevTools
+TemplatePreviewMobile.displayName = 'TemplatePreviewMobile';

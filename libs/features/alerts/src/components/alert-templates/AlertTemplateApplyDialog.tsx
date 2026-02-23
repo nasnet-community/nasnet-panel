@@ -53,8 +53,9 @@ import {
   Skeleton,
   Textarea,
   cn,
+  useMediaQuery,
+  Icon,
 } from '@nasnet/ui/primitives';
-import { useMediaQuery } from '@nasnet/ui/primitives';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 import {
@@ -71,20 +72,23 @@ import {
 // Props Interface
 // =============================================================================
 
+/**
+ * Props for AlertTemplateApplyDialog component
+ */
 export interface AlertTemplateApplyDialogProps {
-  /** Template ID to apply */
+  /** @description Template ID to apply */
   templateId: string | null;
 
-  /** Open state */
+  /** @description Open state (controlled) */
   open: boolean;
 
-  /** Callback when dialog is closed */
+  /** @description Callback when dialog is closed */
   onClose: () => void;
 
-  /** Callback when template is successfully applied */
+  /** @description Callback when template is successfully applied */
   onSuccess?: (alertRuleId: string) => void;
 
-  /** Callback when application fails */
+  /** @description Callback when application fails */
   onError?: (error: string) => void;
 }
 
@@ -92,15 +96,30 @@ export interface AlertTemplateApplyDialogProps {
 // Variable Input Component
 // =============================================================================
 
+/**
+ * Props for VariableInput component
+ */
 interface VariableInputProps {
+  /** @description Variable definition */
   variable: AlertRuleTemplateVariable;
+  /** @description Current variable value */
   value: string | number;
+  /** @description Callback when value changes */
   onChange: (value: string | number) => void;
+  /** @description Validation error message */
   error?: string;
 }
 
-function VariableInput({ variable, value, onChange, error }: VariableInputProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+/**
+ * VariableInput - Type-specific input for template variables
+ */
+const VariableInput = React.memo(function VariableInput({
+  variable,
+  value,
+  onChange,
+  error,
+}: VariableInputProps) {
+  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const val = e.target.value;
 
     // Convert to number for INTEGER/DURATION/PERCENTAGE types
@@ -110,19 +129,19 @@ function VariableInput({ variable, value, onChange, error }: VariableInputProps)
     } else {
       onChange(val);
     }
-  };
+  }, [variable.type, onChange]);
 
-  const inputProps = {
+  const inputProps = React.useMemo(() => ({
     id: variable.name,
     value: value?.toString() || '',
     onChange: handleChange,
     className: cn('min-h-[44px]', error && 'border-destructive'),
     'aria-invalid': !!error,
     'aria-describedby': error ? `${variable.name}-error` : undefined,
-  };
+  }), [variable.name, value, error, handleChange]);
 
   // Determine input type based on variable type
-  const getInputType = () => {
+  const getInputType = React.useCallback(() => {
     switch (variable.type) {
       case 'INTEGER':
       case 'DURATION':
@@ -131,13 +150,13 @@ function VariableInput({ variable, value, onChange, error }: VariableInputProps)
       default:
         return 'text';
     }
-  };
+  }, [variable.type]);
 
   return (
     <div className="space-y-2">
       <Label htmlFor={variable.name} className="text-sm font-medium">
         {variable.label}
-        {variable.required && <span className="text-destructive ml-1">*</span>}
+        {variable.required && <span className="text-semantic-error ml-1">*</span>}
       </Label>
 
       {variable.type === 'STRING' && variable.description ? (
@@ -153,9 +172,9 @@ function VariableInput({ variable, value, onChange, error }: VariableInputProps)
       )}
 
       {/* Variable constraints */}
-      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+      <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
         {variable.defaultValue && (
-          <span>Default: <code>{variable.defaultValue}</code></span>
+          <span>Default: <code className="font-mono text-xs">{variable.defaultValue}</code></span>
         )}
         {variable.min !== undefined && <span>Min: {variable.min}</span>}
         {variable.max !== undefined && <span>Max: {variable.max}</span>}
@@ -167,24 +186,37 @@ function VariableInput({ variable, value, onChange, error }: VariableInputProps)
       )}
 
       {error && (
-        <p id={`${variable.name}-error`} className="text-xs text-destructive" role="alert">
+        <p id={`${variable.name}-error`} className="text-xs text-semantic-error" role="alert">
           {error}
         </p>
       )}
     </div>
   );
-}
+});
+
+VariableInput.displayName = 'VariableInput';
 
 // =============================================================================
 // Preview Section Component
 // =============================================================================
 
+/**
+ * Props for PreviewSection component
+ */
 interface PreviewSectionProps {
+  /** @description Template ID to preview */
   templateId: string;
+  /** @description Variable values for preview */
   variables: Record<string, string | number>;
 }
 
-function PreviewSection({ templateId, variables }: PreviewSectionProps) {
+/**
+ * PreviewSection - Real-time preview of resolved conditions
+ */
+const PreviewSection = React.memo(function PreviewSection({
+  templateId,
+  variables,
+}: PreviewSectionProps) {
   const { data, loading, error } = usePreviewAlertRuleTemplate(templateId, variables, {
     enabled: Object.keys(variables).length > 0,
   });
@@ -253,8 +285,8 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
-        <span className="text-sm font-medium text-success">
+        <CheckCircle2 className="h-4 w-4 text-semantic-success" aria-hidden="true" />
+        <span className="text-sm font-medium text-semantic-success">
           Preview Valid - Ready to Apply
         </span>
       </div>
@@ -265,13 +297,13 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
           <Card key={index} className="bg-muted/50">
             <CardContent className="p-3">
               <div className="flex items-center gap-2 text-sm flex-wrap">
-                <code className="font-medium text-xs bg-background px-2 py-1 rounded">
+                <code className="font-mono text-xs bg-background px-2 py-1 rounded">
                   {condition.field}
                 </code>
                 <Badge variant="outline" className="text-xs">
                   {operatorLabels[condition.operator] || condition.operator}
                 </Badge>
-                <code className="text-xs bg-primary/10 px-2 py-1 rounded font-medium">
+                <code className="font-mono text-xs bg-primary/10 px-2 py-1 rounded">
                   {condition.value}
                 </code>
               </div>
@@ -281,20 +313,37 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
       </div>
     </div>
   );
-}
+});
+
+PreviewSection.displayName = 'PreviewSection';
 
 // =============================================================================
 // Form Content Component
 // =============================================================================
 
+/**
+ * Props for FormContent component
+ */
 interface FormContentProps {
+  /** @description Template to display form for */
   template: AlertRuleTemplate;
+  /** @description Form instance from React Hook Form */
   form: any; // UseFormReturn - typed as any to avoid generic variance issues
+  /** @description Callback when form is submitted */
   onSubmit: (data: any) => Promise<void>;
-  loading: boolean;
+  /** @description Whether form is submitting */
+  isLoading?: boolean;
 }
 
-function FormContent({ template, form, onSubmit, loading }: FormContentProps) {
+/**
+ * FormContent - Dynamic form for template variables and customizations
+ */
+const FormContent = React.memo(function FormContent({
+  template,
+  form,
+  onSubmit,
+  isLoading = false,
+}: FormContentProps) {
   const variables = form.watch('variables');
 
   return (
@@ -396,17 +445,19 @@ function FormContent({ template, form, onSubmit, loading }: FormContentProps) {
         <DialogFooter className="gap-2">
           <Button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="w-full sm:w-auto min-h-[44px]"
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-            {loading ? 'Creating Alert Rule...' : 'Apply Template'}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+            {isLoading ? 'Creating Alert Rule...' : 'Apply Template'}
           </Button>
         </DialogFooter>
       </form>
     </Form>
   );
-}
+});
+
+FormContent.displayName = 'FormContent';
 
 // =============================================================================
 // Main Component
@@ -415,17 +466,14 @@ function FormContent({ template, form, onSubmit, loading }: FormContentProps) {
 /**
  * AlertTemplateApplyDialog - Apply template with form and preview
  *
- * Complete workflow for applying an alert rule template:
- * 1. Fetch template data
- * 2. Generate dynamic form from variables
- * 3. Validate inputs with Zod
- * 4. Show real-time preview of resolved conditions
- * 5. Apply template with optimistic update
- * 6. Handle errors gracefully
+ * @description Complete workflow for applying an alert rule template including
+ * dynamic form generation, real-time preview, and optimistic mutations.
  *
  * @param props - Component props
+ * @returns React component
  */
-export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
+export const AlertTemplateApplyDialog = React.memo(
+  function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
   const { templateId, open, onClose, onSuccess, onError } = props;
 
   const isDesktop = useMediaQuery('(min-width: 640px)');
@@ -476,22 +524,25 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
     }
   }, [template, form]);
 
-  const handleSubmit = async (data: ApplyAlertRuleTemplateInput) => {
-    try {
-      const result = await applyTemplate({ variables: data });
-      const alertRule = result.data?.applyAlertRuleTemplate.alertRule;
-      const errors = result.data?.applyAlertRuleTemplate.errors;
+  const handleSubmit = React.useCallback(
+    async (data: ApplyAlertRuleTemplateInput) => {
+      try {
+        const result = await applyTemplate({ variables: data });
+        const alertRule = result.data?.applyAlertRuleTemplate.alertRule;
+        const errors = result.data?.applyAlertRuleTemplate.errors;
 
-      if (alertRule) {
-        onSuccess?.(alertRule.id);
-        onClose();
-      } else if (errors && errors.length > 0) {
-        onError?.(errors.map((e: { message: string }) => e.message).join(', '));
+        if (alertRule) {
+          onSuccess?.(alertRule.id);
+          onClose();
+        } else if (errors && errors.length > 0) {
+          onError?.(errors.map((e: { message: string }) => e.message).join(', '));
+        }
+      } catch (error: any) {
+        onError?.(error?.message || 'Failed to apply template');
       }
-    } catch (error: any) {
-      onError?.(error?.message || 'Failed to apply template');
-    }
-  };
+    },
+    [applyTemplate, onSuccess, onClose, onError]
+  );
 
   // Loading state
   if (templateLoading) {
@@ -568,7 +619,7 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
           template={template}
           form={form as any}
           onSubmit={handleSubmit}
-          loading={applying}
+          isLoading={applying}
         />
       </div>
     </ScrollArea>
@@ -605,4 +656,7 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
       </SheetContent>
     </Sheet>
   );
-}
+  }
+);
+
+AlertTemplateApplyDialog.displayName = 'AlertTemplateApplyDialog';

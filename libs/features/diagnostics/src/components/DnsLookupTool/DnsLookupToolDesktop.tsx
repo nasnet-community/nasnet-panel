@@ -4,12 +4,16 @@
  * Desktop layout with side-by-side form and results panel.
  * Follows Headless + Platform Presenter pattern (ADR-018).
  *
+ * @description Dense, two-column layout optimized for desktop viewing:
+ * left panel contains the form, right panel displays results in real-time.
+ * Supports batch DNS comparisons across multiple servers.
+ *
  * @see Story NAS-5.9 - Implement DNS Lookup Tool - Task 5.9.5
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { memo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import {
   Button,
   Input,

@@ -34,8 +34,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -56,8 +57,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: true,
       };
 
@@ -77,8 +79,9 @@ describe('DynamicField', () => {
         options: null,
         min: 1,
         max: 10,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -98,8 +101,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -119,8 +123,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -142,8 +147,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -152,10 +158,10 @@ describe('DynamicField', () => {
       expect(screen.getByLabelText(/Webhook URL/)).toBeInTheDocument();
     });
 
-    it('should render IP_ADDRESS field type', () => {
+    it('should render IP field type', () => {
       const field: ConfigSchemaField = {
         name: 'bind_ip',
-        type: 'IP_ADDRESS',
+        type: 'IP',
         label: 'Bind IP',
         required: true,
         description: null,
@@ -163,8 +169,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -184,8 +191,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -201,12 +209,13 @@ describe('DynamicField', () => {
         label: 'Enabled',
         required: false,
         description: 'Enable service',
-        defaultValue: false,
+        defaultValue: null,
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -226,8 +235,9 @@ describe('DynamicField', () => {
         options: ['relay', 'bridge', 'exit'],
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -249,8 +259,9 @@ describe('DynamicField', () => {
         options: ['http', 'https', 'socks5'],
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -272,8 +283,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -284,10 +296,10 @@ describe('DynamicField', () => {
       expect(screen.getByPlaceholderText(/Enter value and press Enter or click Add/)).toBeInTheDocument();
     });
 
-    it('should render FILE_PATH field type', () => {
+    it('should render TEXT field type for file paths', () => {
       const field: ConfigSchemaField = {
         name: 'cert_path',
-        type: 'FILE_PATH',
+        type: 'TEXT',
         label: 'Certificate Path',
         required: false,
         description: null,
@@ -295,8 +307,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -318,8 +331,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -340,8 +354,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -364,8 +379,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -385,8 +401,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -409,8 +426,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -432,8 +450,9 @@ describe('DynamicField', () => {
         options: null,
         min: 1,
         max: 10,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -453,8 +472,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 
@@ -479,8 +499,9 @@ describe('DynamicField', () => {
         options: null,
         min: null,
         max: null,
-        pattern: null,
-        showIf: null,
+        placeholder: null,
+        validateFunc: null,
+        group: null,
         sensitive: false,
       };
 

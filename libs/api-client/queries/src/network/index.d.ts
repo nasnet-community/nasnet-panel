@@ -1,0 +1,30 @@
+/**
+ * Network interface management API client hooks
+ * NAS-6.1: Interface List and Configuration
+ * NAS-6.2: IP Address Management
+ * NAS-6.6: Bridge Configuration
+ * NAS-6.7: VLAN Management
+ * NAS-6.9: Interface Traffic Statistics
+ * NAS-6.12: DNS Cache & Diagnostics
+ */
+export * from './queries.graphql';
+export * from './useInterfaceList';
+export * from './useInterfaceMutations';
+export * from './ip-address-queries.graphql';
+export * from './useIPAddresses';
+export * from './useIPAddressMutations';
+export * from './bridge-queries.graphql';
+export * from './useBridgeQueries';
+export * from './useBridgeMutations';
+export * from './useRoutes';
+export * from './useRouteLookup';
+export * from './vlan-queries.graphql';
+export * from './useVlanQueries';
+export * from './useVlanMutations';
+export * from './interface-stats';
+export * from './dns-diagnostics.graphql';
+export * from './useDnsLookup';
+export * from './useDnsBenchmark';
+export * from './useDnsCacheStats';
+export * from './useFlushDnsCache';
+//# sourceMappingURL=index.d.ts.map

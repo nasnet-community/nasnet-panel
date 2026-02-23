@@ -5,7 +5,7 @@
  * Optimized for touch interactions with 44px minimum touch targets.
  */
 
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -82,7 +82,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
 
   const protocol = watch('protocol');
 
-  const onSubmit = async (values: TracerouteFormValues) => {
+  const onSubmit = useCallback(async (values: TracerouteFormValues) => {
     await traceroute.run({
       target: values.target,
       maxHops: values.maxHops || 30,
@@ -90,44 +90,16 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       probeCount: values.probeCount || 3,
       protocol: values.protocol || 'ICMP',
     });
-  };
+  }, [traceroute]);
 
-  const handleStop = async () => {
+  const handleStop = useCallback(async () => {
     await traceroute.cancel();
-  };
-
-  /**
-   * Copy results to clipboard as text
-   */
-  const handleCopyResults = async () => {
-    if (!traceroute.hops.length) return;
-
-    const text = formatResultsAsText();
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  /**
-   * Download results as JSON
-   */
-  const handleDownloadJSON = () => {
-    if (!traceroute.result) return;
-
-    const json = JSON.stringify(traceroute.result, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `traceroute-${traceroute.result.target}-${new Date().toISOString()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  }, [traceroute]);
 
   /**
    * Format results as plain text
    */
-  const formatResultsAsText = (): string => {
+  const formatResultsAsText = useCallback((): string => {
     const lines: string[] = [];
     const target = traceroute.result?.target || watch('target');
 
@@ -154,7 +126,35 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
     }
 
     return lines.join('\n');
-  };
+  }, [traceroute.result, traceroute.hops, watch]);
+
+  /**
+   * Copy results to clipboard as text
+   */
+  const handleCopyResults = useCallback(async () => {
+    if (!traceroute.hops.length) return;
+
+    const text = formatResultsAsText();
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [traceroute.hops, formatResultsAsText]);
+
+  /**
+   * Download results as JSON
+   */
+  const handleDownloadJSON = useCallback(() => {
+    if (!traceroute.result) return;
+
+    const json = JSON.stringify(traceroute.result, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `traceroute-${traceroute.result.target}-${new Date().toISOString()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [traceroute.result]);
 
   /**
    * Status message based on current state
@@ -190,7 +190,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                 placeholder="e.g., 8.8.8.8 or google.com"
                 disabled={traceroute.isRunning}
                 autoComplete="off"
-                className="min-h-[44px]"
+                className="min-h-[44px] font-mono"
                 {...register('target')}
               />
               {errors.target && (

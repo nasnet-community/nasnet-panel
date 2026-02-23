@@ -1,6 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
+import { useTranslation } from '@nasnet/core/i18n';
 import { useAlertNotifications } from '@nasnet/features/alerts';
 import { AppShell } from '@nasnet/ui/layouts';
 import {
@@ -20,6 +21,8 @@ import { Providers } from '../app/providers';
 
 
 function RootInner() {
+  const { t } = useTranslation('common');
+
   // Enable connection toast notifications
   useConnectionToast();
 
@@ -42,7 +45,7 @@ function RootInner() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground"
       >
-        Skip to main content
+        {t('a11y.skipToMainContent')}
       </a>
       <main id="main-content">
         <Outlet />
@@ -70,16 +73,18 @@ function RootComponent() {
 
 // Root-level error boundary
 function RootErrorComponent({ error }: { error: Error }) {
+  const { t } = useTranslation('common');
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background" role="alert" aria-live="assertive">
       <div className="max-w-md p-8 bg-card text-card-foreground rounded-lg shadow-lg border border-border">
-        <h1 className="text-2xl font-bold text-error mb-4">Application Error</h1>
+        <h1 className="text-2xl font-bold text-error mb-4">{t('errors.applicationError')}</h1>
         <p className="text-muted-foreground mb-4">{error.message}</p>
         <button
           onClick={() => window.location.reload()}
           className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          Reload Application
+          {t('actions.reloadApplication')}
         </button>
         {import.meta.env.DEV && (
           <pre className="mt-4 p-4 bg-muted rounded text-xs overflow-auto text-foreground">
@@ -93,16 +98,18 @@ function RootErrorComponent({ error }: { error: Error }) {
 
 // 404 Not Found component
 function NotFoundComponent() {
+  const { t } = useTranslation('common');
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-muted">404</h1>
-        <p className="text-xl text-muted-foreground mt-4">Page not found</p>
+        <h1 className="text-6xl font-bold text-muted">{t('errors.notFound')}</h1>
+        <p className="text-xl text-muted-foreground mt-4">{t('errors.pageNotFound')}</p>
         <a
           href="/"
           className="mt-6 inline-block min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          Go Home
+          {t('actions.goHome')}
         </a>
       </div>
     </div>

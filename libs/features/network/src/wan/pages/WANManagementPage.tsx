@@ -9,8 +9,8 @@ import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 
 import { PageHeader } from '@nasnet/ui/patterns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { Globe, Plus, Activity, History, Settings, Smartphone } from 'lucide-react';
 import { WANOverviewList } from '../components/wan-overview/WANOverviewList';
 import { DhcpClientForm } from '../components/wan-configuration/DhcpClientForm';
@@ -190,15 +190,15 @@ export function WANManagementPage() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">
-            <Globe className="h-4 w-4 mr-2" />
+            <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
             Overview
           </TabsTrigger>
           <TabsTrigger value="health">
-            <Activity className="h-4 w-4 mr-2" />
+            <Activity className="h-4 w-4 mr-2" aria-hidden="true" />
             Health Monitoring
           </TabsTrigger>
           <TabsTrigger value="history">
-            <History className="h-4 w-4 mr-2" />
+            <History className="h-4 w-4 mr-2" aria-hidden="true" />
             Connection History
           </TabsTrigger>
         </TabsList>
@@ -251,9 +251,13 @@ export function WANManagementPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <button
                   onClick={() => setConfigMode('dhcp')}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  className={cn(
+                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'hover:border-primary hover:bg-primary/5 transition-colors'
+                  )}
+                  aria-label="Configure DHCP client connection"
                 >
-                  <Settings className="h-5 w-5 text-primary mt-0.5" />
+                  <Settings className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
                   <div>
                     <h4 className="font-medium">DHCP Client</h4>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -264,9 +268,13 @@ export function WANManagementPage() {
 
                 <button
                   onClick={() => setConfigMode('pppoe')}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  className={cn(
+                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'hover:border-primary hover:bg-primary/5 transition-colors'
+                  )}
+                  aria-label="Configure PPPoE connection"
                 >
-                  <Globe className="h-5 w-5 text-primary mt-0.5" />
+                  <Globe className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
                   <div>
                     <h4 className="font-medium">PPPoE</h4>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -277,9 +285,13 @@ export function WANManagementPage() {
 
                 <button
                   onClick={() => setConfigMode('static')}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  className={cn(
+                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'hover:border-primary hover:bg-primary/5 transition-colors'
+                  )}
+                  aria-label="Configure static IP connection"
                 >
-                  <Settings className="h-5 w-5 text-primary mt-0.5" />
+                  <Settings className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
                   <div>
                     <h4 className="font-medium">Static IP</h4>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -290,9 +302,13 @@ export function WANManagementPage() {
 
                 <button
                   onClick={() => setConfigMode('lte')}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  className={cn(
+                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'hover:border-primary hover:bg-primary/5 transition-colors'
+                  )}
+                  aria-label="Configure LTE/4G modem connection"
                 >
-                  <Smartphone className="h-5 w-5 text-primary mt-0.5" />
+                  <Smartphone className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
                   <div>
                     <h4 className="font-medium">LTE/4G Modem</h4>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -303,9 +319,13 @@ export function WANManagementPage() {
 
                 <button
                   onClick={() => setConfigMode('health')}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  className={cn(
+                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'hover:border-primary hover:bg-primary/5 transition-colors'
+                  )}
+                  aria-label="Configure health check monitoring"
                 >
-                  <Activity className="h-5 w-5 text-primary mt-0.5" />
+                  <Activity className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
                   <div>
                     <h4 className="font-medium">Health Check</h4>
                     <p className="text-xs text-muted-foreground mt-1">

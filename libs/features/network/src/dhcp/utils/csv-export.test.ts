@@ -9,6 +9,8 @@ describe('CSV Export Utility', () => {
   let mockClick: any;
   let mockAnchor: any;
 
+  const defaultFilters = { search: '', status: 'all', server: 'all' };
+
   beforeEach(() => {
     mockClick = vi.fn();
     mockAnchor = {
@@ -29,14 +31,14 @@ describe('CSV Export Utility', () => {
 
   describe('CSV generation with all leases', () => {
     it('should generate CSV with all leases', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockCreateElement).toHaveBeenCalledWith('a');
       expect(mockClick).toHaveBeenCalled();
     });
 
     it('should include CSV header row', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('IP%20Address');
@@ -49,7 +51,7 @@ describe('CSV Export Utility', () => {
     });
 
     it('should include all lease data rows', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('192.168.1.100');
@@ -60,14 +62,14 @@ describe('CSV Export Utility', () => {
 
     it('should handle undefined hostnames', () => {
       const leases = [createMockLease({ hostname: undefined })];
-      exportLeasesToCSV(leases);
+      exportLeasesToCSV(leases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('Unknown%20Device');
     });
 
     it('should include all leases from mock data', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       mockLeases.forEach((lease) => {
@@ -79,7 +81,7 @@ describe('CSV Export Utility', () => {
   describe('CSV with filtered leases', () => {
     it('should export only filtered leases by search', () => {
       const filteredLeases = mockLeases.filter((l) => l.address.includes('192.168.1.100'));
-      exportLeasesToCSV(filteredLeases);
+      exportLeasesToCSV(filteredLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('192.168.1.100');
@@ -88,7 +90,7 @@ describe('CSV Export Utility', () => {
 
     it('should export only filtered leases by status', () => {
       const filteredLeases = mockLeases.filter((l) => l.status === 'bound');
-      exportLeasesToCSV(filteredLeases);
+      exportLeasesToCSV(filteredLeases, defaultFilters);
 
       const href = mockAnchor.href;
       const rows = href.split('%0A');
@@ -97,7 +99,7 @@ describe('CSV Export Utility', () => {
 
     it('should export only filtered leases by server', () => {
       const filteredLeases = mockLeases.filter((l) => l.server === 'LAN DHCP');
-      exportLeasesToCSV(filteredLeases);
+      exportLeasesToCSV(filteredLeases, defaultFilters);
 
       const href = mockAnchor.href;
       filteredLeases.forEach((lease) => {
@@ -109,7 +111,7 @@ describe('CSV Export Utility', () => {
       const filteredLeases = mockLeases.filter(
         (l) => l.address.includes('192.168.1') && l.status === 'bound' && l.server === 'LAN DHCP'
       );
-      exportLeasesToCSV(filteredLeases);
+      exportLeasesToCSV(filteredLeases, defaultFilters);
 
       const href = mockAnchor.href;
       const rows = href.split('%0A');
@@ -119,7 +121,7 @@ describe('CSV Export Utility', () => {
 
   describe('CSV header format', () => {
     it('should have correct column order', () => {
-      exportLeasesToCSV([mockLeases[0]]);
+      exportLeasesToCSV([mockLeases[0]], defaultFilters);
 
       const href = mockAnchor.href;
       const headerRow = href.split('%0A')[0];
@@ -140,7 +142,7 @@ describe('CSV Export Utility', () => {
     });
 
     it('should separate columns with commas', () => {
-      exportLeasesToCSV([mockLeases[0]]);
+      exportLeasesToCSV([mockLeases[0]], defaultFilters);
 
       const href = mockAnchor.href;
       const headerRow = href.split('%0A')[0];
@@ -149,7 +151,7 @@ describe('CSV Export Utility', () => {
     });
 
     it('should not have trailing comma', () => {
-      exportLeasesToCSV([mockLeases[0]]);
+      exportLeasesToCSV([mockLeases[0]], defaultFilters);
 
       const href = mockAnchor.href;
       const headerRow = href.split('%0A')[0];
@@ -161,7 +163,7 @@ describe('CSV Export Utility', () => {
   describe('CSV data escaping', () => {
     it('should escape quotes in data', () => {
       const lease = createMockLease({ hostname: 'Device "Alpha"' });
-      exportLeasesToCSV([lease]);
+      exportLeasesToCSV([lease], defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('""Alpha""'); // Quotes should be doubled
@@ -169,7 +171,7 @@ describe('CSV Export Utility', () => {
 
     it('should quote fields containing commas', () => {
       const lease = createMockLease({ hostname: 'Device, Alpha' });
-      exportLeasesToCSV([lease]);
+      exportLeasesToCSV([lease], defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toMatch(/"[^"]*Device,%20Alpha[^"]*"/);
@@ -177,7 +179,7 @@ describe('CSV Export Utility', () => {
 
     it('should handle newlines in data', () => {
       const lease = createMockLease({ hostname: 'Device\nAlpha' });
-      exportLeasesToCSV([lease]);
+      exportLeasesToCSV([lease], defaultFilters);
 
       const href = mockAnchor.href;
       // Newlines should be preserved within quoted fields
@@ -186,7 +188,7 @@ describe('CSV Export Utility', () => {
 
     it('should handle special characters', () => {
       const lease = createMockLease({ hostname: 'Device & Alpha' });
-      exportLeasesToCSV([lease]);
+      exportLeasesToCSV([lease], defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('Device%20%26%20Alpha');
@@ -195,7 +197,7 @@ describe('CSV Export Utility', () => {
 
   describe('Filename format', () => {
     it('should include ISO date in filename', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const filename = mockAnchor.download;
       expect(filename).toMatch(/dhcp-leases-\d{4}-\d{2}-\d{2}\.csv/);
@@ -203,30 +205,30 @@ describe('CSV Export Utility', () => {
 
     it('should use current date for filename', () => {
       const today = new Date().toISOString().split('T')[0];
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const filename = mockAnchor.download;
       expect(filename).toContain(today);
     });
 
     it('should have .csv extension', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const filename = mockAnchor.download;
-      expect(filename).toEndWith('.csv');
+      expect(filename).toMatch(/\.csv$/);
     });
   });
 
   describe('Empty leases array', () => {
     it('should handle empty array gracefully', () => {
-      exportLeasesToCSV([]);
+      exportLeasesToCSV([], defaultFilters);
 
       expect(mockCreateElement).toHaveBeenCalledWith('a');
       expect(mockClick).toHaveBeenCalled();
     });
 
     it('should include header even with no data', () => {
-      exportLeasesToCSV([]);
+      exportLeasesToCSV([], defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('IP%20Address');
@@ -234,7 +236,7 @@ describe('CSV Export Utility', () => {
     });
 
     it('should create valid CSV with only header', () => {
-      exportLeasesToCSV([]);
+      exportLeasesToCSV([], defaultFilters);
 
       const href = mockAnchor.href;
       const rows = href.split('%0A');
@@ -244,37 +246,37 @@ describe('CSV Export Utility', () => {
 
   describe('DOM manipulation', () => {
     it('should create anchor element', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockCreateElement).toHaveBeenCalledWith('a');
     });
 
     it('should set href with data URI', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockAnchor.href).toMatch(/^data:text\/csv;charset=utf-8,/);
     });
 
     it('should set download attribute', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockAnchor.download).toBeTruthy();
     });
 
     it('should append anchor to body', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockAppendChild).toHaveBeenCalledWith(mockAnchor);
     });
 
     it('should trigger click on anchor', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockClick).toHaveBeenCalled();
     });
 
     it('should remove anchor from body after click', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       expect(mockRemoveChild).toHaveBeenCalledWith(mockAnchor);
     });
@@ -285,7 +287,7 @@ describe('CSV Export Utility', () => {
       });
 
       try {
-        exportLeasesToCSV(mockLeases);
+        exportLeasesToCSV(mockLeases, defaultFilters);
       } catch (e) {
         // Expected to throw
       }
@@ -296,7 +298,7 @@ describe('CSV Export Utility', () => {
 
   describe('Data formatting', () => {
     it('should format IP addresses correctly', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('192.168.1.100');
@@ -304,14 +306,14 @@ describe('CSV Export Utility', () => {
     });
 
     it('should format MAC addresses correctly', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('00:11:22:33:44:55');
     });
 
     it('should format timestamps correctly', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       // Should contain ISO timestamp format
@@ -319,7 +321,7 @@ describe('CSV Export Utility', () => {
     });
 
     it('should format expires after correctly', () => {
-      exportLeasesToCSV(mockLeases);
+      exportLeasesToCSV(mockLeases, defaultFilters);
 
       const href = mockAnchor.href;
       expect(href).toContain('2h30m');

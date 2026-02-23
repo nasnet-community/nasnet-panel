@@ -223,3 +223,14 @@ export const MobileLogs: Story = {
     viewport: { defaultViewport: 'mobile1' },
   },
 };
+
+/**
+ * Desktop top-bar with Firewall selected – additional desktop viewport story.
+ */
+export const Desktop: Story = {
+  args: { activeTab: 'firewall', variant: 'desktop' },
+  parameters: {
+    layout: 'padded',
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

@@ -8,7 +8,7 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RateLimitRuleEditor } from './RateLimitRuleEditor';
 import {
@@ -512,10 +512,6 @@ export const ComplexRule: Story = {
       connectionLimit: 100,
       timeWindow: 'per-minute',
       srcAddress: '0.0.0.0/0',
-      dstAddress: '192.168.1.1',
-      protocol: 'tcp',
-      dstPort: '22,23,3389',
-      connectionState: ['new'],
       comment: 'Block brute force attacks on admin ports',
     },
   },

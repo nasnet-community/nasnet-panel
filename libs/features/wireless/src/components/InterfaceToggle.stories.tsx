@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { InterfaceToggle } from './InterfaceToggle';
+import { fn } from 'storybook/test';
+
 import type { WirelessInterface } from '@nasnet/core/types';
+
+import { InterfaceToggle } from './InterfaceToggle';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * NOTE: InterfaceToggle depends on two hooks at runtime:

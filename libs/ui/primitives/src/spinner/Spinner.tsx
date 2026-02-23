@@ -66,27 +66,29 @@ const sizeClasses = {
  * <Spinner label="Saving configuration..." />
  * ```
  */
-const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(
-  ({ className, size = 'md', label = 'Loading...', ...props }, ref) => {
-    const prefersReducedMotion = useReducedMotion();
+const Spinner = React.memo(
+  React.forwardRef<SVGSVGElement, SpinnerProps>(
+    ({ className, size = 'md', label = 'Loading...', ...props }, ref) => {
+      const prefersReducedMotion = useReducedMotion();
 
-    return (
-      <span role="status" className="inline-flex">
-        <Loader2
-          ref={ref}
-          className={cn(
-            sizeClasses[size],
-            !prefersReducedMotion && 'animate-spin',
-            'text-current',
-            className
-          )}
-          aria-hidden="true"
-          {...props}
-        />
-        <span className="sr-only">{label}</span>
-      </span>
-    );
-  }
+      return (
+        <span role="status" className="inline-flex">
+          <Loader2
+            ref={ref}
+            className={cn(
+              sizeClasses[size],
+              !prefersReducedMotion && 'animate-spin',
+              'text-current',
+              className
+            )}
+            aria-hidden="true"
+            {...props}
+          />
+          <span className="sr-only">{label}</span>
+        </span>
+      );
+    }
+  )
 );
 Spinner.displayName = 'Spinner';
 

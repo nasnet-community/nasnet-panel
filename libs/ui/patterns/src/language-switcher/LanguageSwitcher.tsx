@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,8 @@ import {
 } from '@nasnet/ui/primitives';
 
 /**
- * LanguageSwitcher Props
+ * Props for LanguageSwitcher component
+ * Controls appearance and behavior of language selection
  */
 export interface LanguageSwitcherProps {
   /**
@@ -47,12 +48,13 @@ export interface LanguageSwitcherProps {
  * - Dropdown menu with all supported languages
  * - Shows language names in native script (English, فارسی, etc.)
  * - Warns about unsaved data before language switch
- * - Full keyboard accessibility
- * - Screen reader friendly
+ * - Full keyboard accessibility (arrow keys, enter, escape)
+ * - Screen reader friendly with aria-labels
+ * - Full RTL support
  *
  * Note: Changing language will reload the page (per architectural decision).
  *
- * Usage:
+ * @example
  * ```tsx
  * <LanguageSwitcher />
  * <LanguageSwitcher showLabel />
@@ -95,7 +97,10 @@ export function LanguageSwitcher({
   );
 
   const currentLanguageName = languageNames[currentLanguage] || languageNames.en;
-  const ariaLabel = `${t('settings.language.title')}: ${currentLanguageName}`;
+  const ariaLabel = useMemo(
+    () => `${t('settings.language.title')}: ${currentLanguageName}`,
+    [t, currentLanguageName]
+  );
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -111,7 +116,7 @@ export function LanguageSwitcher({
           aria-label={ariaLabel}
           title={ariaLabel}
         >
-          <Globe className="h-5 w-5 text-muted-foreground" />
+          <Globe className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           {showLabel && (
             <span className="text-sm text-muted-foreground">
               {currentLanguageName}
@@ -128,10 +133,12 @@ export function LanguageSwitcher({
               'cursor-pointer',
               lang === currentLanguage && 'bg-accent font-medium'
             )}
+            role="option"
+            aria-selected={lang === currentLanguage}
           >
             <span className="flex-1">{languageNames[lang]}</span>
             {lang === currentLanguage && (
-              <span className="text-xs text-muted-foreground">✓</span>
+              <span className="text-xs text-muted-foreground" aria-hidden="true">✓</span>
             )}
           </DropdownMenuItem>
         ))}
@@ -140,4 +147,4 @@ export function LanguageSwitcher({
   );
 }
 
-export default LanguageSwitcher;
+LanguageSwitcher.displayName = 'LanguageSwitcher';

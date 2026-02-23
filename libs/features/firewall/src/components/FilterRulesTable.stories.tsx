@@ -11,9 +11,11 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { FilterRulesTable } from './FilterRulesTable';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Shared QueryClient — no retries so stories show loading/empty states predictably
 const queryClient = new QueryClient({

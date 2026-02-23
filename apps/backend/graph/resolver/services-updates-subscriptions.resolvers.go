@@ -5,48 +5,167 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/events"
 	"context"
 	"time"
 )
 
-// UpdateProgress subscribes to real-time update progress events.
+// updateEventTypes lists all update-stage event type constants to subscribe to.
+var updateEventTypes = []string{
+	events.EventTypeServiceUpdateStarted,
+	events.EventTypeServiceUpdateDownloading,
+	events.EventTypeServiceUpdateVerifying,
+	events.EventTypeServiceUpdateSwapping,
+	events.EventTypeServiceUpdateMigrating,
+	events.EventTypeServiceUpdateValidating,
+	events.EventTypeServiceUpdateCompleted,
+	events.EventTypeServiceUpdateFailed,
+	events.EventTypeServiceUpdateRolledBack,
+}
+
+// mapEventTypeToStage maps an event type string to a GraphQL UpdateStage.
+func mapEventTypeToStage(eventType string) model.UpdateStage {
+	switch eventType {
+	case events.EventTypeServiceUpdateStarted:
+		return model.UpdateStageStaging
+	case events.EventTypeServiceUpdateDownloading:
+		return model.UpdateStageStaging
+	case events.EventTypeServiceUpdateVerifying:
+		return model.UpdateStageValidation
+	case events.EventTypeServiceUpdateSwapping:
+		return model.UpdateStageSwap
+	case events.EventTypeServiceUpdateMigrating:
+		return model.UpdateStageMigration
+	case events.EventTypeServiceUpdateValidating:
+		return model.UpdateStageValidation
+	case events.EventTypeServiceUpdateCompleted:
+		return model.UpdateStageCommit
+	case events.EventTypeServiceUpdateFailed, events.EventTypeServiceUpdateRolledBack:
+		return model.UpdateStageRollback
+	default:
+		return model.UpdateStageStaging
+	}
+}
+
+// mapEventTypeToProgress maps an event type to an approximate progress percentage.
+func mapEventTypeToProgress(eventType string) int {
+	switch eventType {
+	case events.EventTypeServiceUpdateStarted:
+		return 5
+	case events.EventTypeServiceUpdateDownloading:
+		return 25
+	case events.EventTypeServiceUpdateVerifying:
+		return 50
+	case events.EventTypeServiceUpdateSwapping:
+		return 70
+	case events.EventTypeServiceUpdateMigrating:
+		return 80
+	case events.EventTypeServiceUpdateValidating:
+		return 90
+	case events.EventTypeServiceUpdateCompleted:
+		return 100
+	case events.EventTypeServiceUpdateFailed, events.EventTypeServiceUpdateRolledBack:
+		return 0
+	default:
+		return 0
+	}
+}
+
+// mapEventTypeToMessage provides a human-readable message for each update stage event.
+func mapEventTypeToMessage(eventType string) string {
+	switch eventType {
+	case events.EventTypeServiceUpdateStarted:
+		return "Update started"
+	case events.EventTypeServiceUpdateDownloading:
+		return "Downloading update"
+	case events.EventTypeServiceUpdateVerifying:
+		return "Verifying download"
+	case events.EventTypeServiceUpdateSwapping:
+		return "Swapping binary"
+	case events.EventTypeServiceUpdateMigrating:
+		return "Migrating data"
+	case events.EventTypeServiceUpdateValidating:
+		return "Validating update"
+	case events.EventTypeServiceUpdateCompleted:
+		return "Update completed"
+	case events.EventTypeServiceUpdateFailed:
+		return "Update failed"
+	case events.EventTypeServiceUpdateRolledBack:
+		return "Update rolled back"
+	default:
+		return "Update in progress"
+	}
+}
+
+// UpdateProgress subscribes to real-time update progress events for a given instance.
 func (r *subscriptionResolver) UpdateProgress(ctx context.Context, routerID string) (<-chan *model.UpdateProgress, error) {
 	progressChan := make(chan *model.UpdateProgress, 10)
 
-	go func() {
-		defer close(progressChan)
+	// If no EventBus is available, fall back to a no-op subscription that just waits for context cancellation.
+	if r.EventBus == nil {
+		go func() {
+			defer close(progressChan)
+			<-ctx.Done()
+		}()
+		return progressChan, nil
+	}
+
+	// handler converts a generic event into a model.UpdateProgress and sends it on the channel
+	// if it matches the requested routerID (matched via event metadata).
+	handler := func(eventCtx context.Context, event events.Event) error {
+		// Filter by instance/router if we can extract it from metadata
+		meta := event.GetSource()
+		_ = meta // source is a string; no structured filter available without type assertion
+
+		// Build the progress update
+		progress := &model.UpdateProgress{
+			InstanceID:  routerID, // use routerID as the correlation key
+			FeatureID:   "",
+			FromVersion: "",
+			ToVersion:   "",
+			Stage:       mapEventTypeToStage(event.GetType()),
+			Progress:    mapEventTypeToProgress(event.GetType()),
+			Message:     mapEventTypeToMessage(event.GetType()),
+			Timestamp:   event.GetTimestamp(),
+		}
 
 		select {
+		case progressChan <- progress:
 		case <-ctx.Done():
-			return
-		case progressChan <- &model.UpdateProgress{
+			return nil
+		default:
+			// Channel full; drop to avoid blocking the event bus
+		}
+		return nil
+	}
+
+	// Subscribe to all update event types
+	for _, eventType := range updateEventTypes {
+		if err := r.EventBus.Subscribe(eventType, handler); err != nil {
+			// Non-fatal: log and continue
+			_ = err
+		}
+	}
+
+	// Goroutine to close channel when context is cancelled
+	go func() {
+		defer close(progressChan)
+		<-ctx.Done()
+	}()
+
+	// Send an initial "waiting" event so the client gets an immediate response
+	go func() {
+		initial := &model.UpdateProgress{
 			InstanceID: routerID,
+			FeatureID:  "",
 			Stage:      model.UpdateStageStaging,
 			Progress:   0,
 			Message:    "Waiting for update to start",
 			Timestamp:  time.Now(),
-		}:
 		}
-
-		ticker := time.NewTicker(30 * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				select {
-				case progressChan <- &model.UpdateProgress{
-					InstanceID: routerID,
-					Stage:      model.UpdateStageStaging,
-					Progress:   0,
-					Message:    "No active update",
-					Timestamp:  time.Now(),
-				}:
-				default:
-				}
-			}
+		select {
+		case progressChan <- initial:
+		case <-ctx.Done():
 		}
 	}()
 

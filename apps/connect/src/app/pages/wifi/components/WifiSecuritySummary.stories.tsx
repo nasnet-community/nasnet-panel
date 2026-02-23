@@ -195,3 +195,23 @@ export const MixedRealWorld: Story = {
     isLoading: false,
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    interfaces: [wpa3Interface, wpa2Interface, wpaInterface, openInterface],
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    interfaces: [wpa3Interface, wpa2Interface, wpaInterface, openInterface],
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

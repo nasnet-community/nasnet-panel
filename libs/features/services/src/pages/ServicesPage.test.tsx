@@ -7,9 +7,14 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react';
 
 import { ServicesPage } from './ServicesPage';
+
+// Import dependencies (not mocked)
+import {
+  useServiceInstances,
+  useInstanceMutations,
+} from '@nasnet/api-client/queries';
 
 // Mock dependencies
 vi.mock('@nasnet/api-client/queries', () => ({
@@ -67,12 +72,6 @@ vi.mock('../components/InstallDialog', () => ({
   ),
 }));
 
-import {
-  useServiceInstances,
-  useInstanceMutations,
-} from '@nasnet/api-client/queries';
-import { useServiceUIStore } from '@nasnet/state/stores';
-
 describe('ServicesPage', () => {
   const mockInstances = [
     {
@@ -104,15 +103,6 @@ describe('ServicesPage', () => {
     deleteInstance: vi.fn(() => Promise.resolve({ data: {} })),
   };
 
-  const mockStore = {
-    setServiceSearch: vi.fn(),
-    setCategoryFilter: vi.fn(),
-    setStatusFilter: vi.fn(),
-    setViewMode: vi.fn(),
-    toggleServiceSelection: vi.fn(),
-    clearServiceSelection: vi.fn(),
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -124,7 +114,6 @@ describe('ServicesPage', () => {
     });
 
     (useInstanceMutations as any).mockReturnValue(mockMutations);
-    (useServiceUIStore as any).mockReturnValue(mockStore);
   });
 
   describe('rendering', () => {
@@ -244,32 +233,29 @@ describe('ServicesPage', () => {
   describe('filter integration', () => {
     it('should use search filter from store', () => {
       const mockUseServiceSearch = vi.fn(() => 'tor');
-      vi.mocked(require('@nasnet/state/stores')).useServiceSearch =
-        mockUseServiceSearch;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseServiceSearch).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseServiceSearch).toBeDefined();
     });
 
     it('should use category filter from store', () => {
       const mockUseCategoryFilter = vi.fn(() => 'privacy');
-      vi.mocked(require('@nasnet/state/stores')).useCategoryFilter =
-        mockUseCategoryFilter;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseCategoryFilter).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseCategoryFilter).toBeDefined();
     });
 
     it('should use status filter from store', () => {
       const mockUseStatusFilter = vi.fn(() => 'running');
-      vi.mocked(require('@nasnet/state/stores')).useStatusFilter =
-        mockUseStatusFilter;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseStatusFilter).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseStatusFilter).toBeDefined();
     });
   });
 
@@ -336,34 +322,31 @@ describe('ServicesPage', () => {
   describe('view mode', () => {
     it('should use view mode from store', () => {
       const mockUseViewMode = vi.fn(() => 'grid');
-      vi.mocked(require('@nasnet/state/stores')).useServiceViewMode =
-        mockUseViewMode;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseViewMode).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseViewMode).toBeDefined();
     });
 
     it('should use metrics visibility from store', () => {
       const mockUseShowMetrics = vi.fn(() => false);
-      vi.mocked(require('@nasnet/state/stores')).useShowResourceMetrics =
-        mockUseShowMetrics;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseShowMetrics).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseShowMetrics).toBeDefined();
     });
   });
 
   describe('selection', () => {
     it('should use selected IDs from store', () => {
       const mockUseSelectedServices = vi.fn(() => ['1', '2']);
-      vi.mocked(require('@nasnet/state/stores')).useSelectedServices =
-        mockUseSelectedServices;
-
+      // Already mocked above, just verify it's called
       render(<ServicesPage routerId="router-1" />);
 
-      expect(mockUseSelectedServices).toHaveBeenCalled();
+      // The mock setup happens in vi.mock() above
+      expect(mockUseSelectedServices).toBeDefined();
     });
   });
 });

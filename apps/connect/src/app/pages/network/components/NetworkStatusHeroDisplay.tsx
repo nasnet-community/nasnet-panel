@@ -4,7 +4,11 @@
  * Shows connection status badge, router identity, and a summary uptime string.
  */
 
-import { cn } from '@/lib/utils';
+import React from 'react';
+
+import { useTranslation } from 'react-i18next';
+
+import { cn } from '@nasnet/ui/utils';
 
 type NetworkDisplayStatus = 'online' | 'degraded' | 'offline' | 'connecting';
 
@@ -23,33 +27,30 @@ interface NetworkStatusHeroDisplayProps {
   totalInterfaces?: number;
 }
 
+// Note: STATUS_CONFIG labels are localized dynamically in the component
 const STATUS_CONFIG: Record<
   NetworkDisplayStatus,
-  { label: string; dotClass: string; badgeClass: string }
+  { dotClass: string; badgeClass: string }
 > = {
   online: {
-    label: 'Online',
-    dotClass: 'bg-emerald-400 animate-pulse',
-    badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    dotClass: 'bg-success animate-pulse',
+    badgeClass: 'bg-success/10 text-success border-success/20',
   },
   degraded: {
-    label: 'Degraded',
-    dotClass: 'bg-amber-400',
-    badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    dotClass: 'bg-warning',
+    badgeClass: 'bg-warning/10 text-warning border-warning/20',
   },
   offline: {
-    label: 'Offline',
-    dotClass: 'bg-red-400',
-    badgeClass: 'bg-red-500/10 text-red-400 border-red-500/20',
+    dotClass: 'bg-error',
+    badgeClass: 'bg-error/10 text-error border-error/20',
   },
   connecting: {
-    label: 'Connecting…',
-    dotClass: 'bg-slate-400 animate-pulse',
-    badgeClass: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+    dotClass: 'bg-muted-foreground animate-pulse',
+    badgeClass: 'bg-muted/50 text-muted-foreground border-border',
   },
 };
 
-export function NetworkStatusHeroDisplay({
+export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDisplay({
   routerName = 'Router',
   status,
   uptime,
@@ -57,20 +58,27 @@ export function NetworkStatusHeroDisplay({
   activeInterfaces,
   totalInterfaces,
 }: NetworkStatusHeroDisplayProps) {
+  const { t } = useTranslation('network');
+  const statusLabelMap: Record<NetworkDisplayStatus, string> = {
+    online: t('status.online'),
+    degraded: t('status.degraded'),
+    offline: t('status.offline'),
+    connecting: t('status.connecting'),
+  };
   const cfg = STATUS_CONFIG[status];
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-slate-900 rounded-2xl border border-slate-800">
+    <div className="flex flex-col gap-3 p-4 bg-card rounded-2xl border border-border">
       {/* Identity row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center text-slate-900 font-bold text-sm select-none">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background font-bold text-sm select-none">
             N
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">{routerName}</p>
+            <p className="text-foreground font-semibold text-sm leading-tight">{routerName}</p>
             {version && (
-              <p className="text-slate-500 text-xs">RouterOS {version}</p>
+              <p className="text-muted-foreground text-xs">{t('status.routerOS')} {version}</p>
             )}
           </div>
         </div>
@@ -83,28 +91,30 @@ export function NetworkStatusHeroDisplay({
           )}
         >
           <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dotClass)} />
-          {cfg.label}
+          {statusLabelMap[status]}
         </span>
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center gap-4 pt-1 border-t border-slate-800">
+      <div className="flex items-center gap-4 pt-1 border-t border-border">
         {uptime && (
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wide">Uptime</p>
-            <p className="text-white text-sm font-mono font-medium">{uptime}</p>
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.uptime')}</p>
+            <p className="text-foreground text-sm font-mono font-medium">{uptime}</p>
           </div>
         )}
         {activeInterfaces !== undefined && totalInterfaces !== undefined && (
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wide">Interfaces</p>
-            <p className="text-white text-sm font-medium">
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.interfaces')}</p>
+            <p className="text-foreground text-sm font-medium">
               {activeInterfaces}
-              <span className="text-slate-500">/{totalInterfaces}</span>
+              <span className="text-muted-foreground">/{totalInterfaces}</span>
             </p>
           </div>
         )}
       </div>
     </div>
   );
-}
+});
+
+NetworkStatusHeroDisplay.displayName = 'NetworkStatusHeroDisplay';

@@ -5,9 +5,8 @@
  * Optional routing rule suggestions that can be applied after installation.
  */
 
-import * as React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Route, CheckCircle2 } from 'lucide-react';
-
 import {
   Card,
   CardContent,
@@ -15,7 +14,9 @@ import {
   CardTitle,
   Checkbox,
   Label,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
 
 /**
@@ -28,6 +29,8 @@ export interface RoutingStepProps {
   selectedRuleIds: string[];
   /** Callback when rule selection changes */
   onToggleRule: (ruleId: string) => void;
+  /** Optional CSS class name for the container */
+  className?: string;
 }
 
 /**
@@ -38,24 +41,45 @@ export interface RoutingStepProps {
  * - Checkbox selection for each rule
  * - Preview of what will be applied
  * - Skip or apply selected rules
+ *
+ * @example
+ * ```tsx
+ * <RoutingStep
+ *   template={template}
+ *   selectedRuleIds={selected}
+ *   onToggleRule={handleToggle}
+ * />
+ * ```
  */
-export function RoutingStep({
+export const RoutingStep = React.memo(function RoutingStep({
   template,
   selectedRuleIds,
   onToggleRule,
+  className,
 }: RoutingStepProps) {
-  const hasSuggestions =
-    template.suggestedRouting && template.suggestedRouting.length > 0;
+  const hasSuggestions = useMemo(
+    () => template.suggestedRouting && template.suggestedRouting.length > 0,
+    [template.suggestedRouting]
+  );
+
+  const description = useMemo(() => {
+    return hasSuggestions
+      ? 'Select routing rules to apply for your newly installed services'
+      : 'This template has no routing suggestions';
+  }, [hasSuggestions]);
+
+  const handleToggle = useCallback(
+    (ruleId: string) => {
+      onToggleRule(ruleId);
+    },
+    [onToggleRule]
+  );
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <div>
         <h2 className="text-lg font-semibold">Configure Routing (Optional)</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          {hasSuggestions
-            ? 'Select routing rules to apply for your newly installed services'
-            : 'This template has no routing suggestions'}
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
 
       {hasSuggestions ? (
@@ -63,12 +87,16 @@ export function RoutingStep({
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Route className="h-4 w-4" />
-                Suggested Routing Rules ({template.suggestedRouting.length})
+                <Icon
+                  icon={Route}
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+                Suggested Routing Rules ({template.suggestedRouting?.length})
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {template.suggestedRouting.map((rule, index) => {
+              {template.suggestedRouting?.map((rule, index) => {
                 const ruleId = `rule-${index}`;
                 const isSelected = selectedRuleIds.includes(ruleId);
 
@@ -80,8 +108,9 @@ export function RoutingStep({
                     <Checkbox
                       id={ruleId}
                       checked={isSelected}
-                      onCheckedChange={() => onToggleRule(ruleId)}
+                      onCheckedChange={() => handleToggle(ruleId)}
                       className="mt-1"
+                      aria-label={`Select routing rule: ${rule.description}`}
                     />
                     <div className="flex-1 space-y-1">
                       <Label
@@ -93,28 +122,34 @@ export function RoutingStep({
                       <div className="text-sm text-muted-foreground space-y-0.5">
                         <p>
                           <span className="font-medium">Devices:</span>{' '}
-                          {rule.devicePattern}
+                          <span className="font-mono">{rule.devicePattern}</span>
                         </p>
                         <p>
                           <span className="font-medium">Target:</span>{' '}
-                          {rule.targetService}
+                          <span className="font-mono">{rule.targetService}</span>
                         </p>
                         {rule.protocol && (
                           <p>
                             <span className="font-medium">Protocol:</span>{' '}
-                            {rule.protocol}
+                            <span className="font-mono">{rule.protocol}</span>
                           </p>
                         )}
                         {rule.destinationPort && (
                           <p>
                             <span className="font-medium">Port:</span>{' '}
-                            {rule.destinationPort}
+                            <span className="font-mono">
+                              {rule.destinationPort}
+                            </span>
                           </p>
                         )}
                       </div>
                     </div>
                     {isSelected && (
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <Icon
+                        icon={CheckCircle2}
+                        className="h-5 w-5 text-primary shrink-0"
+                        aria-hidden="true"
+                      />
                     )}
                   </div>
                 );
@@ -126,7 +161,11 @@ export function RoutingStep({
             <Card className="border-primary">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <Icon
+                    icon={CheckCircle2}
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
                   <span className="font-medium">
                     {selectedRuleIds.length} routing rule
                     {selectedRuleIds.length !== 1 ? 's' : ''} will be applied
@@ -139,7 +178,11 @@ export function RoutingStep({
       ) : (
         <Card>
           <CardContent className="py-12 text-center">
-            <Route className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <Icon
+              icon={Route}
+              className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4"
+              aria-hidden="true"
+            />
             <p className="text-muted-foreground">
               This template doesn't include routing suggestions
             </p>
@@ -151,4 +194,6 @@ export function RoutingStep({
       )}
     </div>
   );
-}
+});
+
+RoutingStep.displayName = 'RoutingStep';

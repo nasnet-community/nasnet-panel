@@ -1,5 +1,11 @@
 // libs/features/diagnostics/src/i18n/troubleshoot-messages.ts
 
+/**
+ * Localization messages for the troubleshooting wizard
+ * @description All user-facing messages for diagnostic steps, fixes, and results. Messages are professional,
+ * actionable, and explain what the user should do or what went wrong. Technical terms are avoided
+ * in favor of plain language explanations.
+ */
 export const TROUBLESHOOT_MESSAGES = {
   steps: {
     wan: {

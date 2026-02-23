@@ -14,8 +14,9 @@
  * Story: NAS-6.3 — DHCP Server Management
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { DHCPServerDetail } from './dhcp-server-detail';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Meta

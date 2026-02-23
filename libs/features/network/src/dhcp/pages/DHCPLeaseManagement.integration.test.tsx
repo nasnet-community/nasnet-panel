@@ -7,8 +7,9 @@ import { mockLeases } from '../__mocks__/lease-data';
 // Mock all dependencies
 vi.mock('@nasnet/api-client/queries', () => ({
   useDHCPLeases: vi.fn(),
-  useMakeStaticMutation: vi.fn(),
-  useDeleteLeaseMutation: vi.fn(),
+  useMakeLeaseStatic: vi.fn(),
+  useDeleteLease: vi.fn(),
+  useDHCPServers: vi.fn(),
 }));
 
 vi.mock('@nasnet/state/stores', () => ({
@@ -23,7 +24,7 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(),
 }));
 
-import { useDHCPLeases, useMakeStaticMutation, useDeleteLeaseMutation } from '@nasnet/api-client/queries';
+import { useDHCPLeases, useMakeLeaseStatic, useDeleteLease, useDHCPServers } from '@nasnet/api-client/queries';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
@@ -41,10 +42,16 @@ describe('DHCP Lease Management Integration', () => {
 
     (useToast as any).mockReturnValue({ toast: mockToast });
     (usePlatform as any).mockReturnValue('desktop');
-    (useMakeStaticMutation as any).mockReturnValue([mockMakeStatic, { loading: false }]);
-    (useDeleteLeaseMutation as any).mockReturnValue([mockDeleteLease, { loading: false }]);
+    (useMakeLeaseStatic as any).mockReturnValue({ mutate: mockMakeStatic, isLoading: false });
+    (useDeleteLease as any).mockReturnValue({ mutate: mockDeleteLease, isLoading: false });
     (useDHCPLeases as any).mockReturnValue({
       data: mockLeases,
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    (useDHCPServers as any).mockReturnValue({
+      data: [],
       isLoading: false,
       isError: false,
       error: null,
@@ -56,6 +63,10 @@ describe('DHCP Lease Management Integration', () => {
       setLeaseStatusFilter: mockSetLeaseStatusFilter,
       leaseServerFilter: 'all',
       setLeaseServerFilter: mockSetLeaseServerFilter,
+      selectedLeases: [],
+      toggleLeaseSelection: vi.fn(),
+      clearLeaseSelection: vi.fn(),
+      selectAllLeases: vi.fn(),
     });
   });
 
@@ -66,7 +77,7 @@ describe('DHCP Lease Management Integration', () => {
   describe('Complete user flow: search → filter → select → bulk action', () => {
     it('should complete full workflow successfully', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Wait for data to load
       await waitFor(() => {
@@ -116,7 +127,7 @@ describe('DHCP Lease Management Integration', () => {
         setLeaseServerFilter: mockSetLeaseServerFilter,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         expect(screen.getByText(/no leases found/i)).toBeInTheDocument();
@@ -134,7 +145,7 @@ describe('DHCP Lease Management Integration', () => {
         setLeaseServerFilter: mockSetLeaseServerFilter,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         const displayedLeases = screen.getAllByRole('row').slice(1); // Exclude header
@@ -171,7 +182,7 @@ describe('DHCP Lease Management Integration', () => {
         setLeaseServerFilter: mockSetLeaseServerFilter,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const exportButton = screen.getByText(/export/i);
       await user.click(exportButton);
@@ -190,7 +201,7 @@ describe('DHCP Lease Management Integration', () => {
         download: '',
       } as any);
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const exportButton = screen.getByText(/export/i);
       await user.click(exportButton);
@@ -208,7 +219,7 @@ describe('DHCP Lease Management Integration', () => {
         error: new Error('Network error'),
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         expect(screen.getByText(/error/i)).toBeInTheDocument();
@@ -227,7 +238,7 @@ describe('DHCP Lease Management Integration', () => {
         refetch: mockRefetch,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       const retryButton = await screen.findByText(/retry/i);
       await user.click(retryButton);
@@ -242,7 +253,7 @@ describe('DHCP Lease Management Integration', () => {
         .mockResolvedValueOnce({ data: { makeStatic: true } })
         .mockRejectedValueOnce(new Error('Failed'));
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Select two leases
       const checkboxes = screen.getAllByRole('checkbox');
@@ -269,7 +280,7 @@ describe('DHCP Lease Management Integration', () => {
 
   describe('Real-time updates (polling simulation)', () => {
     it('should update lease list when new data arrives', async () => {
-      const { rerender } = render(<DHCPLeaseManagementPage />);
+      const { rerender } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         expect(screen.getByText('192.168.1.100')).toBeInTheDocument();
@@ -298,7 +309,7 @@ describe('DHCP Lease Management Integration', () => {
         error: null,
       });
 
-      rerender(<DHCPLeaseManagementPage />);
+      rerender(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         expect(screen.getByText('192.168.1.200')).toBeInTheDocument();
@@ -307,7 +318,7 @@ describe('DHCP Lease Management Integration', () => {
     });
 
     it('should show "New" badge for newly detected leases', async () => {
-      const { rerender } = render(<DHCPLeaseManagementPage />);
+      const { rerender } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Initial render with original leases
       await waitFor(() => {
@@ -337,7 +348,7 @@ describe('DHCP Lease Management Integration', () => {
         error: null,
       });
 
-      rerender(<DHCPLeaseManagementPage />);
+      rerender(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       await waitFor(() => {
         const newBadges = screen.getAllByText('New');
@@ -349,7 +360,7 @@ describe('DHCP Lease Management Integration', () => {
   describe('Selection persistence', () => {
     it('should maintain selection when filters change', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Select a lease
       const checkboxes = screen.getAllByRole('checkbox');
@@ -376,7 +387,7 @@ describe('DHCP Lease Management Integration', () => {
 
     it('should clear selection when Clear button is clicked', async () => {
       const user = userEvent.setup();
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       // Select multiple leases
       const checkboxes = screen.getAllByRole('checkbox');

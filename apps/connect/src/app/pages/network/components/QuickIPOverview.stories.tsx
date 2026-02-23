@@ -23,8 +23,8 @@ const singleInterface: IPAddress[] = [
     address: '192.168.1.1/24',
     network: '192.168.1.0',
     interface: 'ether1',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
 ];
 
@@ -34,40 +34,40 @@ const multipleInterfaces: IPAddress[] = [
     address: '192.168.1.1/24',
     network: '192.168.1.0',
     interface: 'ether1',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
   {
     id: 'ip2',
     address: '10.0.0.1/8',
     network: '10.0.0.0',
     interface: 'ether1',
-    dynamic: true,
-    disabled: false,
+    isDynamic: true,
+    isDisabled: false,
   },
   {
     id: 'ip3',
     address: '172.16.0.1/16',
     network: '172.16.0.0',
     interface: 'bridge1',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
   {
     id: 'ip4',
     address: '10.100.0.1/24',
     network: '10.100.0.0',
     interface: 'wlan1',
-    dynamic: true,
-    disabled: false,
+    isDynamic: true,
+    isDisabled: false,
   },
   {
     id: 'ip5',
     address: '192.168.88.1/24',
     network: '192.168.88.0',
     interface: 'wlan1',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
 ];
 
@@ -77,24 +77,24 @@ const mixedTypes: IPAddress[] = [
     address: '203.0.113.50/30',
     network: '203.0.113.48',
     interface: 'ether1-wan',
-    dynamic: true,
-    disabled: false,
+    isDynamic: true,
+    isDisabled: false,
   },
   {
     id: 'ip2',
     address: '192.168.10.1/24',
     network: '192.168.10.0',
     interface: 'bridge-lan',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
   {
     id: 'ip3',
     address: '10.8.0.1/24',
     network: '10.8.0.0',
     interface: 'wireguard0',
-    dynamic: false,
-    disabled: false,
+    isDynamic: false,
+    isDisabled: false,
   },
 ];
 
@@ -233,5 +233,27 @@ export const ErrorState: Story = {
           'Failed data fetch. Red error card with the exception message displayed beneath the title.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    ipAddresses: multipleInterfaces,
+    isLoading: false,
+    error: null,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    ipAddresses: multipleInterfaces,
+    isLoading: false,
+    error: null,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

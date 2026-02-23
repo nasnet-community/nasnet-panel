@@ -1,6 +1,11 @@
 /**
  * TypeScript type definitions for Service Traffic Statistics Panel
  * NAS-8.8: Implement Traffic Statistics and Quota Management
+ *
+ * @description
+ * Type definitions for traffic statistics panels, quota cards, and related
+ * components. Provides strong typing for traffic state, quota configuration,
+ * and device-level traffic breakdowns.
  */
 
 import type { ServiceTrafficStats, TrafficQuota } from '@nasnet/api-client/generated';

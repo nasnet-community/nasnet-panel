@@ -1,0 +1,137 @@
+{
+  "title": "Firewall",
+  "overview": "Firewall Overview",
+  "filterRules": {
+    "title": "Filter Rules",
+    "chain": "Chain",
+    "action": "Action",
+    "protocol": "Protocol",
+    "srcAddress": "Source Address",
+    "dstAddress": "Destination Address",
+    "srcPort": "Source Port",
+    "dstPort": "Destination Port",
+    "inInterface": "In Interface",
+    "outInterface": "Out Interface",
+    "comment": "Comment",
+    "bytes": "Bytes",
+    "packets": "Packets",
+    "addRule": "Add Rule",
+    "editRule": "Edit Rule",
+    "deleteRule": "Delete Rule",
+    "noRules": "No filter rules configured"
+  },
+  "nat": {
+    "title": "NAT Rules",
+    "chain": "Chain",
+    "action": "Action",
+    "srcAddress": "Source Address",
+    "dstAddress": "Destination Address",
+    "toAddresses": "To Addresses",
+    "toPorts": "To Ports",
+    "protocol": "Protocol",
+    "noRules": "No NAT rules configured"
+  },
+  "mangle": {
+    "title": "Mangle Rules",
+    "chain": "Chain",
+    "action": "Action",
+    "newMss": "New MSS",
+    "passthrough": "Passthrough",
+    "noRules": "No mangle rules configured"
+  },
+  "raw": {
+    "title": "Raw Rules",
+    "chain": "Chain",
+    "action": "Action",
+    "noRules": "No raw rules configured"
+  },
+  "addressLists": {
+    "title": "Address Lists",
+    "name": "List Name",
+    "address": "Address",
+    "creationTime": "Created",
+    "timeout": "Timeout",
+    "dynamic": "Dynamic",
+    "addEntry": "Add Entry",
+    "noEntries": "No address list entries"
+  },
+  "connections": {
+    "title": "Connections",
+    "protocol": "Protocol",
+    "srcAddress": "Source",
+    "dstAddress": "Destination",
+    "state": "State",
+    "timeout": "Timeout",
+    "noConnections": "No active connections"
+  },
+  "servicePorts": {
+    "title": "Service Ports",
+    "name": "Service",
+    "ports": "Ports",
+    "enabled": "Enabled",
+    "noServices": "No service ports configured"
+  },
+  "portKnocking": {
+    "title": "Port Knocking",
+    "sequence": "Knock Sequence",
+    "timeout": "Timeout",
+    "noSequences": "No port knocking sequences configured"
+  },
+  "rateLimiting": {
+    "title": "Rate Limiting",
+    "noRules": "No rate limiting rules configured"
+  },
+  "templates": {
+    "title": "Firewall Templates",
+    "apply": "Apply Template",
+    "save": "Save as Template",
+    "import": "Import Template",
+    "export": "Export Template",
+    "noTemplates": "No templates available"
+  },
+  "logs": {
+    "title": "Firewall Logs",
+    "action": "Action",
+    "chain": "Chain",
+    "srcAddress": "Source",
+    "dstAddress": "Destination",
+    "protocol": "Protocol",
+    "noLogs": "No firewall log entries"
+  },
+  "status": {
+    "rulesActive": "{{count}} rule active",
+    "rulesActive_other": "{{count}} rules active",
+    "noRulesActive": "No active rules",
+    "firewallEnabled": "Firewall Enabled",
+    "firewallDisabled": "Firewall Disabled"
+  },
+  "chains": {
+    "input": "Input",
+    "forward": "Forward",
+    "output": "Output",
+    "srcnat": "Source NAT",
+    "dstnat": "Destination NAT",
+    "prerouting": "Prerouting",
+    "postrouting": "Postrouting"
+  },
+  "actions": {
+    "accept": "Accept",
+    "drop": "Drop",
+    "reject": "Reject",
+    "log": "Log",
+    "tarpit": "Tarpit",
+    "passthrough": "Passthrough",
+    "masquerade": "Masquerade",
+    "srcNat": "Source NAT",
+    "dstNat": "Destination NAT",
+    "redirect": "Redirect",
+    "jump": "Jump",
+    "return": "Return"
+  },
+  "quickStats": {
+    "totalRules": "Total Rules",
+    "activeConnections": "Active Connections",
+    "blockedPackets": "Blocked Packets",
+    "passedPackets": "Passed Packets"
+  }
+}

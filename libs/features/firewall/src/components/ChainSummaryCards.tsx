@@ -4,42 +4,61 @@
  * Epic 0.6 Enhancement: Chain Summary Overview
  */
 
+import React, { useCallback, useMemo } from 'react';
 import { useFilterRules } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import type { FirewallChain, ChainSummary } from '@nasnet/core/types';
 import { useChainSummary, getChainColor, getChainDescription } from '../hooks/useChainSummary';
+import { cn } from '@nasnet/ui/utils';
 
 /**
  * Progress bar for action distribution
  */
-function ActionDistribution({ summary }: { summary: ChainSummary }) {
+const ActionDistribution = React.memo(function ActionDistribution({
+  summary,
+}: {
+  summary: ChainSummary;
+}) {
+  const acceptPercent = useMemo(
+    () => (summary.acceptCount / summary.totalRules) * 100,
+    [summary.acceptCount, summary.totalRules]
+  );
+  const dropPercent = useMemo(
+    () => (summary.dropCount / summary.totalRules) * 100,
+    [summary.dropCount, summary.totalRules]
+  );
+  const rejectPercent = useMemo(
+    () => (summary.rejectCount / summary.totalRules) * 100,
+    [summary.rejectCount, summary.totalRules]
+  );
+
   const activeRules = summary.totalRules - summary.disabledCount;
   if (activeRules === 0) return null;
 
-  const acceptPercent = (summary.acceptCount / summary.totalRules) * 100;
-  const dropPercent = (summary.dropCount / summary.totalRules) * 100;
-  const rejectPercent = (summary.rejectCount / summary.totalRules) * 100;
-
   return (
     <div className="mt-3">
-      <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+      <div
+        className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        role="img"
+        aria-label={`Action distribution: ${summary.acceptCount} accept, ${summary.dropCount} drop, ${summary.rejectCount} reject`}
+      >
         {acceptPercent > 0 && (
           <div
-            className="bg-green-500"
+            className="bg-success"
             style={{ width: `${acceptPercent}%` }}
             title={`${summary.acceptCount} accept`}
           />
         )}
         {dropPercent > 0 && (
           <div
-            className="bg-red-500"
+            className="bg-destructive"
             style={{ width: `${dropPercent}%` }}
             title={`${summary.dropCount} drop`}
           />
         )}
         {rejectPercent > 0 && (
           <div
-            className="bg-orange-500"
+            className="bg-warning"
             style={{ width: `${rejectPercent}%` }}
             title={`${summary.rejectCount} reject`}
           />
@@ -47,12 +66,12 @@ function ActionDistribution({ summary }: { summary: ChainSummary }) {
       </div>
     </div>
   );
-}
+});
 
 /**
  * Individual chain summary card
  */
-function ChainCard({
+const ChainCard = React.memo(function ChainCard({
   summary,
   isSelected,
   onClick,
@@ -81,20 +100,23 @@ function ChainCard({
     rose: 'bg-rose-50 dark:bg-rose-950/30',
   };
 
+  const handleClick = useCallback(() => {
+    onClick();
+  }, [onClick]);
+
   return (
     <button
       type="button"
-      onClick={onClick}
-      className={`
-        w-full text-left rounded-xl border-l-4 p-4 transition-all
-        ${borderColors[colorName] || 'border-l-slate-500'}
-        ${
-          isSelected
-            ? `${selectedBg[colorName] || 'bg-slate-50 dark:bg-slate-800'} ring-2 ring-primary-500/50`
-            : 'bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700/50'
-        }
-        border border-slate-200 dark:border-slate-700
-      `}
+      onClick={handleClick}
+      aria-pressed={isSelected}
+      className={cn(
+        'w-full text-left rounded-xl border-l-4 p-4 transition-all',
+        borderColors[colorName] || 'border-l-slate-500',
+        isSelected
+          ? `${selectedBg[colorName] || 'bg-slate-50 dark:bg-slate-800'} ring-2 ring-primary/50`
+          : 'bg-card hover:bg-muted/50 dark:bg-slate-800 dark:hover:bg-slate-700/50',
+        'border border-border dark:border-slate-700'
+      )}
     >
       {/* Chain name and count */}
       <div className="flex items-start justify-between">
@@ -114,22 +136,22 @@ function ChainCard({
       {/* Stats grid */}
       <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
         <div className="text-center">
-          <span className="block font-semibold text-green-600 dark:text-green-400">
+          <span className="block font-semibold text-success">
             {summary.acceptCount}
           </span>
-          <span className="text-slate-500 dark:text-slate-400">accept</span>
+          <span className="text-muted-foreground">accept</span>
         </div>
         <div className="text-center">
-          <span className="block font-semibold text-red-600 dark:text-red-400">
+          <span className="block font-semibold text-destructive">
             {summary.dropCount}
           </span>
-          <span className="text-slate-500 dark:text-slate-400">drop</span>
+          <span className="text-muted-foreground">drop</span>
         </div>
         <div className="text-center">
-          <span className="block font-semibold text-slate-500 dark:text-slate-400">
+          <span className="block font-semibold text-muted-foreground">
             {summary.disabledCount}
           </span>
-          <span className="text-slate-500 dark:text-slate-400">disabled</span>
+          <span className="text-muted-foreground">disabled</span>
         </div>
       </div>
 
@@ -137,7 +159,7 @@ function ChainCard({
       <ActionDistribution summary={summary} />
     </button>
   );
-}
+});
 
 export interface ChainSummaryCardsProps {
   className?: string;
@@ -148,17 +170,14 @@ export interface ChainSummaryCardsProps {
 /**
  * ChainSummaryCards Component
  *
- * Features:
- * - Displays summary statistics per firewall chain
- * - Color-coded cards (input=blue, forward=purple, output=amber)
- * - Shows accept/drop/disabled counts
- * - Visual action distribution bar
- * - Click to filter table below
+ * Displays summary statistics per firewall chain with visual indicators.
+ * Features color-coded cards (input=blue, forward=purple, output=amber),
+ * accept/drop/disabled counts, and visual action distribution bars.
  *
  * @param props - Component props
  * @returns Chain summary cards component
  */
-export function ChainSummaryCards({
+const ChainSummaryCards = React.memo(function ChainSummaryCards({
   className,
   selectedChain,
   onChainSelect,
@@ -167,6 +186,27 @@ export function ChainSummaryCards({
   const { data: rules, isLoading, error } = useFilterRules(routerIp);
   const summaries = useChainSummary(rules as any);
 
+  const handleChainClick = useCallback(
+    (chain: FirewallChain) => {
+      if (onChainSelect) {
+        // Toggle selection
+        onChainSelect(selectedChain === chain ? null : chain);
+      }
+    },
+    [selectedChain, onChainSelect]
+  );
+
+  const mainChains = useMemo(
+    () =>
+      summaries.filter((s) => ['input', 'forward', 'output'].includes(s.chain)),
+    [summaries]
+  );
+
+  const totalRules = useMemo(
+    () => mainChains.reduce((sum, s) => sum + s.totalRules, 0),
+    [mainChains]
+  );
+
   // Loading state
   if (isLoading) {
     return (
@@ -174,14 +214,14 @@ export function ChainSummaryCards({
         <div className="px-2 mb-4">
           <h2 className="text-lg font-semibold">Chain Summary</h2>
           <p className="text-sm text-muted-foreground">
-            Filter rules by chain
+            Loading firewall chain statistics
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-32 animate-pulse bg-slate-200 dark:bg-slate-700 rounded-xl"
+              className="h-32 animate-pulse bg-muted rounded-xl"
             />
           ))}
         </div>
@@ -192,26 +232,15 @@ export function ChainSummaryCards({
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        Error loading chain summary: {error.message}
+      <div
+        className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}
+        role="alert"
+      >
+        <p className="font-medium">Error Loading Chain Summary</p>
+        <p className="text-sm mt-1">{error instanceof Error ? error.message : 'Failed to load firewall statistics'}</p>
       </div>
     );
   }
-
-  // Filter to only show main chains (input, forward, output)
-  const mainChains = summaries.filter((s) =>
-    ['input', 'forward', 'output'].includes(s.chain)
-  );
-
-  // Calculate totals
-  const totalRules = mainChains.reduce((sum, s) => sum + s.totalRules, 0);
-
-  const handleChainClick = (chain: FirewallChain) => {
-    if (onChainSelect) {
-      // Toggle selection
-      onChainSelect(selectedChain === chain ? null : chain);
-    }
-  };
 
   return (
     <div className={className}>
@@ -246,23 +275,26 @@ export function ChainSummaryCards({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 px-2 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <div className="mt-3 px-2 flex items-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+          <span className="inline-block w-2 h-2 rounded-full bg-success" aria-hidden="true" />
           Accept
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+          <span className="inline-block w-2 h-2 rounded-full bg-destructive" aria-hidden="true" />
           Drop
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-orange-500" />
+          <span className="inline-block w-2 h-2 rounded-full bg-warning" aria-hidden="true" />
           Reject
         </span>
       </div>
     </div>
   );
-}
+});
+
+ChainSummaryCards.displayName = 'ChainSummaryCards';
+export { ChainSummaryCards };
 
 
 

@@ -3,10 +3,11 @@
  * Main page for discovering and connecting to routers (Epic 0.1)
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
 import { storeCredentials as storeApiCredentials } from '@nasnet/api-client/core';
@@ -39,7 +40,8 @@ type ViewMode = 'scan' | 'manual' | 'list';
  * Flow:
  * - Scan/Add → Select Router → Enter Credentials → Test → Connect
  */
-export function RouterDiscoveryPage() {
+export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
+  const { t } = useTranslation('router');
   const navigate = useNavigate();
 
   // Stores
@@ -273,55 +275,55 @@ export function RouterDiscoveryPage() {
   const allRouters = getAllRouters();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <img 
-            src="/favicon.png" 
-            alt="NasNet" 
+          <img
+            src="/favicon.png"
+            alt="NasNet"
             className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-lg"
           />
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Connect to Router
+          <h1 className="text-4xl font-bold text-foreground mb-4">
+            {t('discovery.title')}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Discover or manually add your MikroTik router to get started
+          <p className="text-lg text-muted-foreground">
+            {t('discovery.subtitle')}
           </p>
         </div>
 
         {/* View Mode Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1">
+          <div className="inline-flex rounded-lg border border-border bg-card p-1">
             <button
               onClick={() => setViewMode('scan')}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
                 viewMode === 'scan'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Auto-Scan
+              {t('discovery.autoScan')}
             </button>
             <button
               onClick={() => setViewMode('manual')}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
                 viewMode === 'manual'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Manual Entry
+              {t('discovery.manualEntry')}
             </button>
             <button
               onClick={() => setViewMode('list')}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
                 viewMode === 'list'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              My Routers ({allRouters.length})
+              {t('discovery.myRouters', { count: allRouters.length })}
             </button>
           </div>
         </div>
@@ -335,7 +337,7 @@ export function RouterDiscoveryPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             {viewMode === 'scan' && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="bg-card rounded-lg shadow-sm border border-border p-6">
                 <NetworkScanner
                   onScanComplete={handleScanComplete}
                   onRouterSelect={handleRouterSelectFromScan}
@@ -351,7 +353,7 @@ export function RouterDiscoveryPage() {
             )}
 
             {viewMode === 'list' && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="bg-card rounded-lg shadow-sm border border-border p-6">
                 <RouterList
                   routers={allRouters}
                   selectedRouterId={selectedRouterId}
@@ -361,29 +363,29 @@ export function RouterDiscoveryPage() {
                   onRemove={handleRemove}
                   emptyState={
                     <div className="py-12">
-                      <img 
-                        src="/favicon.png" 
-                        alt="NasNet" 
+                      <img
+                        src="/favicon.png"
+                        alt="NasNet"
                         className="mx-auto h-16 w-16 rounded-xl shadow-md"
                       />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                        No routers yet
+                      <h3 className="mt-2 text-sm font-medium text-foreground">
+                        {t('discovery.noRoutersYet')}
                       </h3>
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Get started by scanning your network or adding a router manually
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {t('discovery.getStarted')}
                       </p>
                       <div className="mt-6 flex gap-3 justify-center">
                         <button
                           onClick={() => setViewMode('scan')}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
                         >
-                          Scan Network
+                          {t('discovery.scanNetwork')}
                         </button>
                         <button
                           onClick={() => setViewMode('manual')}
-                          className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                          className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors"
                         >
-                          Add Manually
+                          {t('discovery.addManually')}
                         </button>
                       </div>
                     </div>
@@ -413,4 +415,5 @@ export function RouterDiscoveryPage() {
       />
     </div>
   );
-}
+});
+RouterDiscoveryPage.displayName = 'RouterDiscoveryPage';

@@ -5,7 +5,7 @@
  * expiring lease, expired lease, and no router context.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { DeviceDetailPanel } from './DeviceDetailPanel';
 

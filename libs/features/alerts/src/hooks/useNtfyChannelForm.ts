@@ -1,19 +1,20 @@
 /**
  * Headless useNtfyChannelForm Hook
  *
- * Manages ntfy.sh channel form state using React Hook Form with Zod validation.
- * Provides tag management, priority presets, and test functionality.
+ * @description Manages ntfy.sh channel form state using React Hook Form with Zod validation.
+ * Provides tag management, priority presets, and test functionality. All callbacks are memoized
+ * for stable references across re-renders.
  *
  * @module @nasnet/features/alerts/hooks
  * @see NAS-18.X: Ntfy.sh notification configuration with Platform Presenters
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ntfyConfigSchema,
-  defaultNtfyConfig,
+  DEFAULT_NTFY_CONFIG,
   isValidNtfyTopic,
   parseNtfyTags,
   type NtfyConfig,
@@ -109,7 +110,7 @@ export function useNtfyChannelForm(
   const form = useForm<NtfyConfig>({
     resolver: zodResolver(ntfyConfigSchema) as any,
     defaultValues: {
-      ...defaultNtfyConfig,
+      ...DEFAULT_NTFY_CONFIG,
       ...initialConfig,
     },
     mode: 'onChange',
@@ -297,11 +298,21 @@ export function useNtfyChannelForm(
    */
   const reset = useCallback(() => {
     rhfReset({
-      ...defaultNtfyConfig,
+      ...DEFAULT_NTFY_CONFIG,
       ...initialConfig,
     });
     setTestResult(undefined);
   }, [rhfReset, initialConfig]);
+
+  /**
+   * Cleanup on unmount: clear test results and state
+   */
+  useEffect(() => {
+    return () => {
+      setTestResult(undefined);
+      setIsTesting(false);
+    };
+  }, []);
 
   return {
     form,

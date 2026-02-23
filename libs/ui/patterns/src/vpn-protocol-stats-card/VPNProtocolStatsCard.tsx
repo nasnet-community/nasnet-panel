@@ -2,12 +2,30 @@
  * VPN Protocol Stats Card Component
  * Displays statistics for a single VPN protocol
  * Based on UX Design - Direction 2: Card-Heavy Dashboard
+ *
+ * @example
+ * ```tsx
+ * <VPNProtocolStatsCard
+ *   stats={{
+ *     protocol: 'wireguard',
+ *     serverCount: 2,
+ *     clientCount: 3,
+ *     activeServerConnections: 8,
+ *     activeClientConnections: 2,
+ *     totalRx: 1024000,
+ *     totalTx: 512000,
+ *   }}
+ *   onClick={() => navigate('/vpn/wireguard')}
+ * />
+ * ```
  */
 
 import * as React from 'react';
+import { forwardRef, useCallback } from 'react';
 
 import type { VPNProtocolStats } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/utils';
 import { Card, CardContent } from '@nasnet/ui/primitives';
 
 import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
@@ -27,7 +45,7 @@ export interface VPNProtocolStatsCardProps {
  * VPNProtocolStatsCard Component
  * Shows server/client counts, active connections, and traffic for a protocol
  */
-export function VPNProtocolStatsCard({
+function VPNProtocolStatsCardComponent({
   stats,
   onClick,
   compact = false,
@@ -37,15 +55,21 @@ export function VPNProtocolStatsCard({
   const hasClients = stats.clientCount > 0;
   const isActive = stats.activeServerConnections > 0 || stats.activeClientConnections > 0;
 
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
   return (
     <Card
-      className={`
-        transition-all duration-200 overflow-hidden
-        ${onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''}
-        ${isActive ? 'border-success/30 dark:border-success/20' : ''}
-        ${className}
-      `}
-      onClick={onClick}
+      className={cn(
+        'transition-all duration-200 overflow-hidden',
+        onClick && 'cursor-pointer hover:shadow-md hover:-translate-y-0.5',
+        isActive && 'border-success/30 dark:border-success/20',
+        className
+      )}
+      onClick={handleClick}
+      role={onClick ? 'button' : undefined}
+      aria-label={`${getProtocolLabel(stats.protocol)} statistics`}
     >
       <CardContent className={compact ? 'p-4' : 'p-5'}>
         {/* Header */}
@@ -128,4 +152,12 @@ export function VPNProtocolStatsCard({
     </Card>
   );
 }
+
+export const VPNProtocolStatsCard = React.memo(
+  forwardRef<HTMLDivElement, VPNProtocolStatsCardProps>(
+    (props, ref) => <VPNProtocolStatsCardComponent {...props} />
+  )
+);
+
+VPNProtocolStatsCard.displayName = 'VPNProtocolStatsCard';
 

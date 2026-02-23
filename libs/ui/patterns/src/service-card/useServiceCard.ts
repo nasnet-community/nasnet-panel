@@ -109,22 +109,22 @@ function getStatusLabel(status: ServiceStatus): string {
 }
 
 /**
- * Get color class for service category
+ * Get color token for service category (using design system semantic tokens)
  */
 function getCategoryColor(category: string): string {
   switch (category) {
     case 'privacy':
-      return 'text-purple-600 dark:text-purple-400';
+      return 'text-category-monitoring'; // Purple for privacy/monitoring
     case 'proxy':
-      return 'text-blue-600 dark:text-blue-400';
+      return 'text-category-networking'; // Blue for networking/proxy
     case 'dns':
-      return 'text-green-600 dark:text-green-400';
+      return 'text-success'; // Green for DNS (healthy/valid)
     case 'security':
-      return 'text-red-600 dark:text-red-400';
+      return 'text-category-security'; // Red for security
     case 'monitoring':
-      return 'text-orange-600 dark:text-orange-400';
+      return 'text-category-monitoring'; // Purple for monitoring
     default:
-      return 'text-gray-600 dark:text-gray-400';
+      return 'text-muted-foreground'; // Neutral gray
   }
 }
 

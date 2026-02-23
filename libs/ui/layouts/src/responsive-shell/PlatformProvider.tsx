@@ -108,9 +108,13 @@ export function PlatformProvider({
 }
 
 /**
- * Hook to access platform context
+ * Hook to access platform context directly
  *
- * @throws Error if used outside PlatformProvider
+ * Requires PlatformProvider wrapping the component tree.
+ * For components that may be used both inside and outside a PlatformProvider,
+ * use `usePlatformFromContext()` instead.
+ *
+ * @throws {Error} If used outside PlatformProvider
  *
  * @example
  * ```tsx
@@ -125,6 +129,8 @@ export function PlatformProvider({
  *   );
  * }
  * ```
+ *
+ * @see usePlatformFromContext for fallback detection
  */
 export function usePlatformContext(): PlatformContextValue {
   const context = React.useContext(PlatformContext);
@@ -205,6 +211,12 @@ export function PlatformSwitch({
  * Debug component to show current platform state
  * Only renders in development mode
  *
+ * Uses semantic tokens for colors:
+ * - Green: Success (mobile)
+ * - Amber: Warning (tablet)
+ * - Blue: Info (desktop)
+ * - Orange: Override indicator
+ *
  * @example
  * ```tsx
  * <PlatformProvider>
@@ -228,10 +240,10 @@ export function PlatformDebugger() {
         <span
           className={`w-2 h-2 rounded-full ${
             platform === 'mobile'
-              ? 'bg-green-400'
+              ? 'bg-success'
               : platform === 'tablet'
-              ? 'bg-yellow-400'
-              : 'bg-blue-400'
+              ? 'bg-warning'
+              : 'bg-info'
           }`}
         />
         <span>{platform}</span>
@@ -241,21 +253,24 @@ export function PlatformDebugger() {
         <button
           type="button"
           onClick={() => setOverride('mobile')}
-          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded"
+          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-white transition-colors duration-150"
+          aria-label="Override platform to mobile"
         >
           M
         </button>
         <button
           type="button"
           onClick={() => setOverride('tablet')}
-          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded"
+          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-white transition-colors duration-150"
+          aria-label="Override platform to tablet"
         >
           T
         </button>
         <button
           type="button"
           onClick={() => setOverride('desktop')}
-          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded"
+          className="px-1 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-white transition-colors duration-150"
+          aria-label="Override platform to desktop"
         >
           D
         </button>
@@ -263,7 +278,8 @@ export function PlatformDebugger() {
           <button
             type="button"
             onClick={clearOverride}
-            className="px-1 py-0.5 bg-red-700 hover:bg-red-600 rounded"
+            className="px-1 py-0.5 bg-error hover:bg-error/80 rounded text-white transition-colors duration-150"
+            aria-label="Clear platform override"
           >
             ×
           </button>
@@ -273,6 +289,9 @@ export function PlatformDebugger() {
   );
 }
 
+/**
+ * Display names for debugging (React DevTools)
+ */
 PlatformProvider.displayName = 'PlatformProvider';
 PlatformSwitch.displayName = 'PlatformSwitch';
 PlatformDebugger.displayName = 'PlatformDebugger';

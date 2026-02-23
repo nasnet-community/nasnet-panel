@@ -5,10 +5,21 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:features"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/features/logs/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/features/logs/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/features/logs/tsconfig.lib.json",
+          "tsc --noEmit --project libs/features/logs/tsconfig.spec.json",
+          "tsc --noEmit --project libs/features/logs/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     }
   }

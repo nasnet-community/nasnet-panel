@@ -36,6 +36,8 @@ import type { RouteListProps } from './types';
  * Automatically selects the appropriate presenter based on platform:
  * - Mobile (<640px): Card-based layout with 44px touch targets
  * - Tablet/Desktop (>=640px): DataTable with filtering and sorting
+ *
+ * @description Headless + Platform Presenters pattern with adaptive layouts for routes
  */
 function RouteListComponent(props: RouteListProps) {
   const platform = usePlatform();
@@ -49,6 +51,8 @@ function RouteListComponent(props: RouteListProps) {
       return <RouteListDesktop {...props} />;
   }
 }
+
+RouteListComponent.displayName = 'RouteListComponent';
 
 // Wrap with memo for performance optimization
 export const RouteList = memo(RouteListComponent);

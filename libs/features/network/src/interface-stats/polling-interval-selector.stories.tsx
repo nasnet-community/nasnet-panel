@@ -6,7 +6,6 @@
  * stories work without a real localStorage environment.
  */
 
-import { fn } from '@storybook/test';
 
 import { PollingIntervalSelector } from './polling-interval-selector';
 

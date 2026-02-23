@@ -13,15 +13,40 @@
  * @module @nasnet/ui/patterns/firewall-log-viewer
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, Suspense, lazy } from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
+import { Card, CardContent } from '@nasnet/ui/primitives';
 
-import { FirewallLogViewerDesktop } from './FirewallLogViewerDesktop';
-import { FirewallLogViewerMobile } from './FirewallLogViewerMobile';
 import { useFirewallLogViewer } from './use-firewall-log-viewer';
 
 import type { FirewallLogViewerProps } from './FirewallLogViewer.types';
+
+// Lazy load platform presenters for better performance
+const FirewallLogViewerDesktop = lazy(() =>
+  import('./FirewallLogViewerDesktop').then((m) => ({
+    default: m.FirewallLogViewerDesktop,
+  }))
+);
+const FirewallLogViewerMobile = lazy(() =>
+  import('./FirewallLogViewerMobile').then((m) => ({
+    default: m.FirewallLogViewerMobile,
+  }))
+);
+
+// Loading skeleton for async presenters
+function LoadingSkeleton() {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          <div className="h-12 bg-muted rounded" />
+          <div className="h-64 bg-muted rounded" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 /**
  * FirewallLogViewer - Main log viewer component

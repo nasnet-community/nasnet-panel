@@ -7,11 +7,16 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { useState } from 'react';
-import { RuleSearchFilters } from './RuleSearchFilters';
+
+import { fn } from 'storybook/test';
+
 import type { FirewallFilters } from '@nasnet/core/types';
+
+import { RuleSearchFilters } from './RuleSearchFilters';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * RuleSearchFilters - Multi-field filter panel for firewall rules
@@ -123,6 +128,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     filters: {},
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 0,
   },
   parameters: {
@@ -151,6 +158,8 @@ export const WithSearchTerm: Story = {
     filters: {
       search: '192.168.1.0',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 1,
   },
   parameters: {
@@ -175,6 +184,8 @@ export const ChainFilterActive: Story = {
     filters: {
       chain: 'forward',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 1,
   },
   parameters: {
@@ -199,6 +210,8 @@ export const ActionFilterActive: Story = {
     filters: {
       action: 'drop',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 1,
   },
   parameters: {
@@ -221,6 +234,8 @@ export const ProtocolFilterActive: Story = {
     filters: {
       protocol: 'tcp',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 1,
   },
   parameters: {
@@ -244,6 +259,8 @@ export const StatusFilterDisabled: Story = {
     filters: {
       status: 'disabled',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 1,
   },
   parameters: {
@@ -274,6 +291,8 @@ export const MultipleFiltersActive: Story = {
       action: 'drop',
       protocol: 'tcp',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 3,
   },
   parameters: {
@@ -303,6 +322,8 @@ export const AllFiltersActive: Story = {
       protocol: 'udp',
       status: 'enabled',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 5,
   },
   parameters: {
@@ -327,6 +348,12 @@ export const AllFiltersActive: Story = {
  * all filter controls and see badge state update in real time.
  */
 export const Interactive: Story = {
+  args: {
+    filters: {},
+    onChange: fn(),
+    onClearAll: fn(),
+    activeFilterCount: 0,
+  },
   render: () => {
     const [filters, setFilters] = useState<FirewallFilters>({});
 
@@ -377,6 +404,8 @@ export const Interactive: Story = {
 export const MobileView: Story = {
   args: {
     filters: {},
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 0,
   },
   parameters: {
@@ -403,6 +432,8 @@ export const MobileWithActiveFilters: Story = {
       chain: 'input',
       action: 'drop',
     },
+    onChange: fn(),
+    onClearAll: fn(),
     activeFilterCount: 2,
   },
   parameters: {

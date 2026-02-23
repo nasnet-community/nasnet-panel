@@ -29,7 +29,12 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit --project libs/state/machines/tsconfig.lib.json"
+        "commands": [
+          "tsc --noEmit --project libs/state/machines/tsconfig.lib.json",
+          "tsc --noEmit --project libs/state/machines/tsconfig.spec.json",
+          "tsc --noEmit --project libs/state/machines/tsconfig.storybook.json"
+        ],
+        "parallel": true
       }
     },
     "check": {
@@ -39,7 +44,7 @@
           "nx run @nasnet/state/machines:typecheck",
           "nx run @nasnet/state/machines:lint"
         ],
-        "parallel": false
+        "parallel": true
       }
     }
   }

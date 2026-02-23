@@ -5,6 +5,10 @@
  * Desktop presenter for alert rule template browser.
  * Uses sidebar with filters and grid layout for optimal desktop viewing.
  *
+ * @description Provides fixed sidebar navigation with category/severity filters,
+ * dense grid layout (1-3 columns), and sort controls in header. Implements full
+ * keyboard navigation and WCAG AAA compliance.
+ *
  * @see ADR-018: Headless Platform Presenters
  */
 
@@ -274,6 +278,13 @@ interface TemplateCardProps {
   onViewDetail?: () => void;
 }
 
+/**
+ * Template card component for grid display
+ *
+ * @description Memoized card showing template metadata, category, severity badges,
+ * and Apply/Details action buttons. Fully keyboard accessible with Enter/Space
+ * support and ARIA labels.
+ */
 const TemplateCardComponent = React.memo(function TemplateCardComponent({
   template,
   isSelected,
@@ -298,8 +309,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`${template.name} - ${template.severity} severity, ${categoryMeta.label} category`}
-      aria-selected={isSelected}
+      aria-label={`${template.name} - ${template.severity} severity, ${categoryMeta.label} category${isSelected ? ' (selected)' : ''}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -380,6 +390,8 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   );
 });
 
+TemplateCardComponent.displayName = 'TemplateCardComponent';
+
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -395,9 +407,14 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
  * - Empty state when no templates match
  * - WCAG AAA compliant (keyboard nav, ARIA labels, 7:1 contrast)
  *
+ * @description Uses fixed sidebar (240px) for filters, main content area with
+ * grid of template cards (1-3 columns depending on viewport). All interactive
+ * elements have 44px minimum touch targets and visible focus indicators.
+ *
  * @param props - Component props
+ * @returns React element displaying template browser UI
  */
-export function AlertTemplateBrowserDesktop({
+export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrowserDesktop({
   browser,
   onPreview,
   onViewDetail,
@@ -502,4 +519,6 @@ export function AlertTemplateBrowserDesktop({
       </div>
     </div>
   );
-}
+});
+
+AlertTemplateBrowserDesktop.displayName = 'AlertTemplateBrowserDesktop';

@@ -4,7 +4,7 @@
  * Desktop presenter for rule statistics (side sheet, 500px width).
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 
 import { Download, X } from 'lucide-react';
 
@@ -50,7 +50,7 @@ function formatBytes(bytes: number): string {
 /**
  * RuleStatisticsPanelDesktop - Desktop layout (side sheet)
  */
-export function RuleStatisticsPanelDesktop({
+export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDesktop({
   isOpen,
   onClose,
   rule,
@@ -155,4 +155,6 @@ export function RuleStatisticsPanelDesktop({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+RuleStatisticsPanelDesktop.displayName = 'RuleStatisticsPanelDesktop';

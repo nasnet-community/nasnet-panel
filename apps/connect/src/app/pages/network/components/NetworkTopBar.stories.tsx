@@ -200,3 +200,25 @@ export const LongIdentity: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    routerInfo: fullRouterInfo,
+    networkStatus: 'healthy',
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    routerInfo: fullRouterInfo,
+    networkStatus: 'healthy',
+    isLoading: false,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

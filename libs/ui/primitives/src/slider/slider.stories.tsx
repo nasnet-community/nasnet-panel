@@ -218,3 +218,41 @@ export const AllScenarios: Story = {
     );
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    defaultValue: [50],
+    min: 0,
+    max: 100,
+    step: 1,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-sm">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const Tablet: Story = {
+  args: {
+    defaultValue: [50],
+    min: 0,
+    max: 100,
+    step: 1,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'tablet' },
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-2xl">
+        <Story />
+      </div>
+    ),
+  ],
+};

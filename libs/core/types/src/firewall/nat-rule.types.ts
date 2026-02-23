@@ -70,15 +70,22 @@ export type Protocol = z.infer<typeof ProtocolSchema>;
 
 /**
  * Port validation - single port or range (e.g., "80" or "8000-9000")
+ * @internal
  */
 const portRegex = /^\d+(-\d+)?$/;
+
+/**
+ * Zod schema for single port or port range validation
+ * @internal
+ */
 const PortSchema = z
   .string()
   .regex(portRegex, 'Port must be a number or range (e.g., "80" or "8000-9000")')
   .optional();
 
 /**
- * Port list validation - comma-separated ports/ranges
+ * Zod schema for comma-separated ports and port ranges
+ * @internal
  */
 const PortListSchema = z
   .string()
@@ -86,7 +93,8 @@ const PortListSchema = z
   .optional();
 
 /**
- * IPv4 address validation
+ * Zod schema for IPv4 address validation
+ * @internal
  */
 const IPv4Schema = z
   .string()
@@ -94,7 +102,8 @@ const IPv4Schema = z
   .optional();
 
 /**
- * CIDR notation validation (IP with optional subnet)
+ * Zod schema for CIDR notation validation (IP with optional subnet mask)
+ * @internal
  */
 const CIDRSchema = z
   .string()
@@ -250,22 +259,48 @@ export const PortForwardSchema = z.object({
 export type PortForward = z.infer<typeof PortForwardSchema>;
 
 /**
- * Port Forward Result (Created Rules)
+ * Port Forward Result - Represents created port forward configuration
  *
- * Represents the result of creating a port forward,
- * including both the NAT rule and filter rule IDs.
+ * Contains the IDs and configuration of both the NAT rule (dst-nat)
+ * and optional filter rule (accept) that were created for a port forward.
+ *
+ * @example
+ * ```ts
+ * const result: PortForwardResult = {
+ *   id: 'pf-1',
+ *   name: 'Web Server',
+ *   protocol: 'tcp',
+ *   externalPort: 80,
+ *   internalIP: '192.168.1.100',
+ *   internalPort: 8080,
+ *   status: 'active',
+ *   natRuleId: 'nat-rule-123',
+ *   filterRuleId: 'filter-rule-456',
+ *   createdAt: new Date(),
+ * };
+ * ```
  */
 export interface PortForwardResult {
-  id: string; // Unique identifier for the port forward
-  name?: string;
-  protocol: Protocol;
-  externalPort: number;
-  internalIP: string;
-  internalPort: number;
-  status: 'active' | 'disabled' | 'error';
-  natRuleId: string; // ID of the dst-nat rule
-  filterRuleId?: string; // ID of the filter accept rule
-  createdAt?: Date;
+  /** Unique identifier for the port forward */
+  readonly id: string;
+  /** Optional friendly name for the port forward */
+  readonly name?: string;
+  /** Protocol type (tcp, udp, etc.) */
+  readonly protocol: Protocol;
+  /** External port number (1-65535) */
+  readonly externalPort: number;
+  /** Internal IP address to forward to */
+  readonly internalIP: string;
+  /** Internal port number (1-65535), defaults to externalPort */
+  readonly internalPort: number;
+  /** Status of the port forward (active, disabled, or error) */
+  readonly status: 'active' | 'disabled' | 'error';
+  /** ID of the dst-nat rule that performs the translation */
+  readonly natRuleId: string;
+  /** ID of the filter accept rule (optional) */
+  readonly filterRuleId?: string;
+  /** Creation timestamp */
+  readonly createdAt?: Date;
 }
 
 // ============================================================================

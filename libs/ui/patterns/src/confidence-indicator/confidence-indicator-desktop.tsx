@@ -45,8 +45,11 @@ import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.t
  *   showLabel
  * />
  * ```
+ *
+ * @see confidence-indicator.tsx
+ * @see ConfidenceIndicatorDesktopExtended for extended variant
  */
-export function ConfidenceIndicatorDesktop({
+const ConfidenceIndicatorDesktop = React.memo(function ConfidenceIndicatorDesktop({
   state,
   size,
   showLabel,
@@ -56,21 +59,21 @@ export function ConfidenceIndicatorDesktop({
   const [isOpen, setIsOpen] = React.useState(false);
 
   // Handle override - close tooltip after action
-  const handleOverride = () => {
+  const handleOverride = React.useCallback(() => {
     state.handleOverride();
     setIsOpen(false);
-  };
+  }, [state]);
 
   // Handle keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = React.useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      setIsOpen(!isOpen);
+      setIsOpen((prev) => !prev);
     }
     if (event.key === 'Escape') {
       setIsOpen(false);
     }
-  };
+  }, []);
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -89,7 +92,7 @@ export function ConfidenceIndicatorDesktop({
               state={state}
               size={size}
               interactive
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen((prev) => !prev)}
             />
             {showLabel && (
               <ConfidenceLevelLabel
@@ -122,7 +125,11 @@ export function ConfidenceIndicatorDesktop({
       </Tooltip>
     </TooltipProvider>
   );
-}
+});
+
+ConfidenceIndicatorDesktop.displayName = 'ConfidenceIndicatorDesktop';
+
+export { ConfidenceIndicatorDesktop };
 
 /**
  * Desktop presenter with extended information display

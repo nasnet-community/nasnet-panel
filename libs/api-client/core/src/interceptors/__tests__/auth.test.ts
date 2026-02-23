@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
 import {
   authInterceptor,
   storeCredentials,
@@ -69,11 +69,11 @@ describe('Auth Interceptor', () => {
     it('should add Authorization header with Basic auth', () => {
       storeCredentials({ username: 'testuser', password: 'testpass' });
 
-      const config: AxiosRequestConfig = {
+      const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',
         method: 'get',
-        headers: {},
-      };
+        headers: new AxiosHeaders(),
+      } as InternalAxiosRequestConfig;
 
       const result = authInterceptor(config);
 
@@ -86,11 +86,11 @@ describe('Auth Interceptor', () => {
     });
 
     it('should not add header if no credentials stored', () => {
-      const config: AxiosRequestConfig = {
+      const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',
         method: 'get',
-        headers: {},
-      };
+        headers: new AxiosHeaders(),
+      } as InternalAxiosRequestConfig;
 
       const result = authInterceptor(config);
 
@@ -100,10 +100,11 @@ describe('Auth Interceptor', () => {
     it('should create headers object if it does not exist', () => {
       storeCredentials({ username: 'user', password: 'pass' });
 
-      const config: AxiosRequestConfig = {
+      const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',
         method: 'get',
-      };
+        headers: new AxiosHeaders(),
+      } as InternalAxiosRequestConfig;
 
       const result = authInterceptor(config);
 
@@ -118,10 +119,10 @@ describe('Auth Interceptor', () => {
         JSON.stringify({ username: 'user' })
       );
 
-      const config: AxiosRequestConfig = {
+      const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',
-        headers: {},
-      };
+        headers: new AxiosHeaders(),
+      } as InternalAxiosRequestConfig;
 
       const result = authInterceptor(config);
       expect(result.headers?.Authorization).toBeUndefined();
@@ -130,10 +131,11 @@ describe('Auth Interceptor', () => {
     it('should return the modified config', () => {
       storeCredentials({ username: 'user', password: 'pass' });
 
-      const config: AxiosRequestConfig = {
+      const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',
         method: 'get',
-      };
+        headers: new AxiosHeaders(),
+      } as InternalAxiosRequestConfig;
 
       const result = authInterceptor(config);
       expect(result).toBe(config);

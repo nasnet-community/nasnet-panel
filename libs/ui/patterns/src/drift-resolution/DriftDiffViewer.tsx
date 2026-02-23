@@ -180,7 +180,7 @@ interface DiffRowProps {
   onSelect?: (field: DriftedField) => void;
 }
 
-function DiffRow({ field, showCategory, isSelected, onSelect }: DiffRowProps) {
+const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, onSelect }: DiffRowProps) {
   const configFormatted = formatValue(field.configValue);
   const deployFormatted = formatValue(field.deployValue);
 
@@ -266,7 +266,9 @@ function DiffRow({ field, showCategory, isSelected, onSelect }: DiffRowProps) {
       </td>
     </tr>
   );
-}
+});
+
+DiffRow.displayName = 'DiffRow';
 
 // =============================================================================
 // Main Component
@@ -301,14 +303,14 @@ function DiffRow({ field, showCategory, isSelected, onSelect }: DiffRowProps) {
  * />
  * ```
  */
-export function DriftDiffViewer({
+const DriftDiffViewerBase = React.forwardRef<HTMLDivElement, DriftDiffViewerProps>(function DriftDiffViewer({
   result,
   className,
   showCategories = true,
   maxHeight = 400,
   onFieldSelect,
   selectedFields = [],
-}: DriftDiffViewerProps) {
+}, ref) {
   const { driftedFields, lastChecked } = result;
 
   // Group fields by category if showing categories
@@ -322,7 +324,7 @@ export function DriftDiffViewer({
   // No drift
   if (driftedFields.length === 0) {
     return (
-      <Card className={cn('border-success/20', className)}>
+      <Card ref={ref} className={cn('border-success/20', className)}>
         <CardContent className="py-8 text-center">
           <svg
             className="h-12 w-12 mx-auto text-success mb-3"
@@ -345,7 +347,7 @@ export function DriftDiffViewer({
   }
 
   return (
-    <Card className={cn('overflow-hidden', className)}>
+    <Card ref={ref} className={cn('overflow-hidden', className)}>
       <CardHeader className="py-3 px-4 border-b border-border bg-muted/30">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -428,7 +430,11 @@ export function DriftDiffViewer({
       </ScrollArea>
     </Card>
   );
-}
+});
+
+DriftDiffViewerBase.displayName = 'DriftDiffViewer';
+
+export const DriftDiffViewer = DriftDiffViewerBase;
 
 /**
  * Format timestamp for display

@@ -3,10 +3,10 @@
  * Tests Apollo subscription integration, toast notifications, and sound playback
  */
 
+import React, { type ReactNode } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
+import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ReactNode } from 'react';
 import { useAlertNotifications, playAlertSound } from './useAlertNotifications';
 import {
   useAlertNotificationStore,
@@ -39,7 +39,7 @@ global.Audio = mockAudioConstructor as unknown as typeof Audio;
 
 // ===== Test Fixtures =====
 
-const ALERT_EVENTS_SUBSCRIPTION = `
+const _ALERT_EVENTS_SUBSCRIPTION = `
   subscription AlertEvents($deviceId: ID) {
     alertEvents(deviceId: $deviceId) {
       alert {
@@ -124,12 +124,11 @@ function createSubscriptionMock(
 
 interface WrapperProps {
   children: ReactNode;
-  mocks?: MockedResponse[];
 }
 
 function createWrapper(mocks: MockedResponse[] = []) {
-  return function Wrapper({ children }: WrapperProps) {
-    return <MockedProvider mocks={mocks}>{children}</MockedProvider>;
+  return function Wrapper({ children }: WrapperProps): React.ReactElement {
+    return React.createElement(MockedProvider, { mocks }, children);
   };
 }
 
@@ -187,7 +186,7 @@ describe('useAlertNotifications', () => {
       });
 
       await waitFor(() => {
-        expect(mocks[0].request.variables.deviceId).toBe('router-2');
+        expect(mocks[0]!.request.variables?.deviceId).toBe('router-2');
       });
     });
 
@@ -280,8 +279,8 @@ describe('useAlertNotifications', () => {
     });
 
     it('should only process CREATED action events', async () => {
-      const updatedEvent = createAlertEvent();
-      updatedEvent.action = 'UPDATED';
+      const alertEvent = createAlertEvent();
+      const updatedEvent = { ...alertEvent, action: 'UPDATED' as const };
 
       const mocks = [createSubscriptionMock('router-1', updatedEvent)];
 

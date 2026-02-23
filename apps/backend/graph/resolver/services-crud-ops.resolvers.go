@@ -7,56 +7,172 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/features"
+	"backend/internal/orchestrator/lifecycle"
 	"context"
 	"fmt"
 )
 
 // InstallService is the resolver for the installService field.
 func (r *mutationResolver) InstallService(ctx context.Context, input graphql1.InstallServiceInput) (*graphql1.ServiceInstancePayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.InstanceManager == nil {
+		return nil, fmt.Errorf("instance manager not initialized")
+	}
+
+	cfg := map[string]interface{}{}
+	if input.Config.IsSet() {
+		if v := input.Config.Value(); v != nil {
+			cfg = v
+		}
+	}
+
+	req := lifecycle.CreateInstanceRequest{
+		FeatureID:         input.FeatureID,
+		InstanceName:      input.InstanceName,
+		RouterID:          input.RouterID,
+		Config:            cfg,
+		RouterOSVersion:   "",
+		Architecture:      "",
+		AvailableMemoryMB: 0,
+		AvailableDiskMB:   0,
+	}
+
+	inst, err := r.InstanceManager.CreateInstance(ctx, req)
+	if err != nil {
+		errMsg := err.Error()
+		return &graphql1.ServiceInstancePayload{
+			Errors: []*graphql1.MutationError{{Message: errMsg}},
+		}, nil
+	}
+
+	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
 }
 
 // StartInstance is the resolver for the startInstance field.
 func (r *mutationResolver) StartInstance(ctx context.Context, input graphql1.StartInstanceInput) (*graphql1.ServiceInstancePayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.InstanceManager == nil {
+		return nil, fmt.Errorf("instance manager not initialized")
+	}
+
+	if err := r.InstanceManager.StartInstance(ctx, input.InstanceID); err != nil {
+		errMsg := err.Error()
+		return &graphql1.ServiceInstancePayload{
+			Errors: []*graphql1.MutationError{{Message: errMsg}},
+		}, nil
+	}
+
+	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch instance after start: %w", err)
+	}
+
+	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
 }
 
 // StopInstance is the resolver for the stopInstance field.
 func (r *mutationResolver) StopInstance(ctx context.Context, input graphql1.StopInstanceInput) (*graphql1.ServiceInstancePayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.InstanceManager == nil {
+		return nil, fmt.Errorf("instance manager not initialized")
+	}
+
+	if err := r.InstanceManager.StopInstance(ctx, input.InstanceID); err != nil {
+		errMsg := err.Error()
+		return &graphql1.ServiceInstancePayload{
+			Errors: []*graphql1.MutationError{{Message: errMsg}},
+		}, nil
+	}
+
+	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch instance after stop: %w", err)
+	}
+
+	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
 }
 
 // RestartInstance is the resolver for the restartInstance field.
 func (r *mutationResolver) RestartInstance(ctx context.Context, input graphql1.RestartInstanceInput) (*graphql1.ServiceInstancePayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.InstanceManager == nil {
+		return nil, fmt.Errorf("instance manager not initialized")
+	}
+
+	if err := r.InstanceManager.RestartInstance(ctx, input.InstanceID); err != nil {
+		errMsg := err.Error()
+		return &graphql1.ServiceInstancePayload{
+			Errors: []*graphql1.MutationError{{Message: errMsg}},
+		}, nil
+	}
+
+	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch instance after restart: %w", err)
+	}
+
+	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
 }
 
 // DeleteInstance is the resolver for the deleteInstance field.
 func (r *mutationResolver) DeleteInstance(ctx context.Context, input graphql1.DeleteInstanceInput) (*graphql1.ServiceInstancePayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.InstanceManager == nil {
+		return nil, fmt.Errorf("instance manager not initialized")
+	}
+
+	// Fetch before deletion so the snapshot can be returned in the payload.
+	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
+	if err != nil {
+		return nil, fmt.Errorf("instance not found: %w", err)
+	}
+	snapshot := convertEntInstanceToGraphQL(inst)
+
+	if err := r.InstanceManager.DeleteInstance(ctx, input.InstanceID); err != nil {
+		errMsg := err.Error()
+		return &graphql1.ServiceInstancePayload{
+			Errors: []*graphql1.MutationError{{Message: errMsg}},
+		}, nil
+	}
+
+	return &graphql1.ServiceInstancePayload{Instance: snapshot}, nil
 }
 
 // ReverifyInstance is the resolver for the reverifyInstance field.
+// Performs an on-demand SHA256 hash check of the instance binary.
 func (r *mutationResolver) ReverifyInstance(ctx context.Context, routerID string, instanceID string) (*graphql1.ReverifyPayload, error) {
-	return nil, fmt.Errorf("not implemented")
-}
+	inst, err := r.db.ServiceInstance.Get(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("instance not found: %w", err)
+	}
 
-// InstallProgress is the resolver for the installProgress field.
-func (r *subscriptionResolver) InstallProgress(ctx context.Context, routerID string) (<-chan *graphql1.InstallProgress, error) {
-	return nil, fmt.Errorf("not implemented")
-}
+	if inst.BinaryPath == "" || inst.BinaryChecksum == "" {
+		errMsg := "binary path or expected checksum not set for this instance"
+		return &graphql1.ReverifyPayload{
+			InstanceID:   instanceID,
+			Success:      false,
+			ErrorMessage: &errMsg,
+		}, nil
+	}
 
-// InstanceStatusChanged is the resolver for the instanceStatusChanged field.
-func (r *subscriptionResolver) InstanceStatusChanged(ctx context.Context, routerID string) (<-chan *graphql1.InstanceStatusChanged, error) {
-	return nil, fmt.Errorf("not implemented")
-}
+	expectedHash := inst.BinaryChecksum
+	currentHash, calcErr := features.CalculateSHA256(inst.BinaryPath)
+	if calcErr != nil {
+		errMsg := fmt.Sprintf("failed to compute binary hash: %s", calcErr.Error())
+		return &graphql1.ReverifyPayload{
+			InstanceID:   instanceID,
+			Success:      false,
+			ErrorMessage: &errMsg,
+		}, nil
+	}
 
-// VerificationEvents is the resolver for the verificationEvents field.
-func (r *subscriptionResolver) VerificationEvents(ctx context.Context, routerID string) (<-chan *graphql1.VerificationEvent, error) {
-	return nil, fmt.Errorf("not implemented")
-}
+	passed := currentHash == expectedHash
+	result := &graphql1.ReverifyPayload{
+		InstanceID:   instanceID,
+		Success:      passed,
+		CurrentHash:  &currentHash,
+		ExpectedHash: &expectedHash,
+	}
+	if !passed {
+		errMsg := "binary hash mismatch: possible tampering detected"
+		result.ErrorMessage = &errMsg
+	}
 
-// BootSequenceEvents is the resolver for the bootSequenceEvents field.
-func (r *subscriptionResolver) BootSequenceEvents(ctx context.Context) (<-chan *graphql1.BootSequenceEvent, error) {
-	return nil, fmt.Errorf("not implemented")
+	return result, nil
 }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useSubscription } from '@apollo/client';
+import type { UpdateStage } from '@nasnet/core/types';
 import {
   GET_AVAILABLE_UPDATES,
   CHECK_FOR_UPDATES,
@@ -8,6 +9,10 @@ import {
   UPDATE_PROGRESS,
 } from './updates.graphql';
 
+// Re-export UpdateStage from core types to avoid circular dependency
+// and maintain backward compatibility for existing consumers
+export type { UpdateStage } from '@nasnet/core/types';
+
 // ============================================================================
 // TypeScript Types - Service Update Management (NAS-8.7)
 // ============================================================================
@@ -16,21 +21,6 @@ import {
  * Update severity levels based on changelog analysis
  */
 export type UpdateSeverity = 'SECURITY' | 'MAJOR' | 'MINOR' | 'PATCH';
-
-/**
- * Update progress stages
- */
-export type UpdateStage =
-  | 'PENDING'
-  | 'DOWNLOADING'
-  | 'VERIFYING'
-  | 'STOPPING'
-  | 'INSTALLING'
-  | 'STARTING'
-  | 'HEALTH_CHECK'
-  | 'COMPLETE'
-  | 'FAILED'
-  | 'ROLLED_BACK';
 
 /**
  * Available update information for a service instance

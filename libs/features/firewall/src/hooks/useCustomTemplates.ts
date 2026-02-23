@@ -2,6 +2,7 @@
  * Custom Templates IndexedDB Hook
  * NAS-7.6: Firewall Templates Feature
  *
+ * @description
  * Provides CRUD operations for custom firewall templates stored in IndexedDB.
  * Uses localforage for IndexedDB abstraction with class-based wrapper pattern.
  */

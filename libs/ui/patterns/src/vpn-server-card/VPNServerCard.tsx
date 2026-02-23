@@ -10,25 +10,26 @@
  *   id="1"
  *   name="WireGuard Server"
  *   protocol="wireguard"
- *   disabled={false}
- *   running={true}
+ *   isDisabled={false}
+ *   isRunning={true}
  * />
  * ```
  */
 
-import { memo } from 'react';
+import { memo, forwardRef, useCallback } from 'react';
 
-import { 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Users, 
+import {
+  MoreVertical,
+  Edit,
+  Trash2,
+  Users,
   Activity,
   Settings,
 } from 'lucide-react';
 
 import type { VPNProtocol } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/utils';
 import { 
   Card, 
   CardContent, 
@@ -56,9 +57,9 @@ export interface VPNServerCardProps {
   /** VPN protocol */
   protocol: VPNProtocol;
   /** Server enabled/disabled */
-  disabled: boolean;
+  isDisabled: boolean;
   /** Server running state */
-  running: boolean;
+  isRunning: boolean;
   /** Listening port */
   port?: number;
   /** Connected clients count */
@@ -90,8 +91,8 @@ function VPNServerCardComponent({
   id,
   name,
   protocol,
-  disabled,
-  running,
+  isDisabled,
+  isRunning,
   port,
   connectedClients = 0,
   rx,
@@ -104,15 +105,30 @@ function VPNServerCardComponent({
   isToggling = false,
   className = '',
 }: VPNServerCardProps) {
-  const status = disabled ? 'offline' : running ? 'online' : 'warning';
-  const statusLabel = disabled ? 'Disabled' : running ? 'Running' : 'Stopped';
+  const status = isDisabled ? 'offline' : isRunning ? 'online' : 'warning';
+  const statusLabel = isDisabled ? 'Disabled' : isRunning ? 'Running' : 'Stopped';
 
-  const handleToggle = (checked: boolean) => {
-    onToggle?.(id, checked);
-  };
+  const handleToggle = useCallback(
+    (checked: boolean) => {
+      onToggle?.(id, checked);
+    },
+    [id, onToggle]
+  );
+
+  const handleEdit = useCallback(() => {
+    onEdit?.(id);
+  }, [id, onEdit]);
+
+  const handleDelete = useCallback(() => {
+    onDelete?.(id);
+  }, [id, onDelete]);
+
+  const handleViewDetails = useCallback(() => {
+    onViewDetails?.(id);
+  }, [id, onViewDetails]);
 
   return (
-    <Card className={`transition-all duration-200 hover:shadow-md ${className}`} aria-label={`${name} VPN server - ${statusLabel}`}>
+    <Card className={cn('transition-all duration-200 hover:shadow-md', className)} aria-label={`${name} VPN server - ${statusLabel}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -134,10 +150,10 @@ function VPNServerCardComponent({
             {/* Toggle Switch */}
             {onToggle && (
               <Switch
-                checked={!disabled}
+                checked={!isDisabled}
                 onCheckedChange={handleToggle}
                 disabled={isToggling}
-                aria-label={disabled ? 'Enable server' : 'Disable server'}
+                aria-label={isDisabled ? 'Enable server' : 'Disable server'}
               />
             )}
             
@@ -151,21 +167,21 @@ function VPNServerCardComponent({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onViewDetails && (
-                  <DropdownMenuItem onClick={() => onViewDetails(id)}>
+                  <DropdownMenuItem onClick={handleViewDetails}>
                     <Settings className="mr-2 h-4 w-4" />
                     View Details
                   </DropdownMenuItem>
                 )}
                 {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(id)}>
+                  <DropdownMenuItem onClick={handleEdit}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                 )}
                 {(onViewDetails || onEdit) && onDelete && <DropdownMenuSeparator />}
                 {onDelete && (
-                  <DropdownMenuItem 
-                    onClick={() => onDelete(id)}
+                  <DropdownMenuItem
+                    onClick={handleDelete}
                     className="text-error focus:text-error"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -233,5 +249,10 @@ function VPNServerCardComponent({
   );
 }
 
-export const VPNServerCard = memo(VPNServerCardComponent);
+export const VPNServerCard = memo(
+  forwardRef<HTMLDivElement, VPNServerCardProps>(
+    (props, ref) => <VPNServerCardComponent {...props} />
+  )
+);
+
 VPNServerCard.displayName = 'VPNServerCard';

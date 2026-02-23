@@ -1,6 +1,7 @@
 /**
  * NtfyChannelFormDesktop - Desktop Presenter
  *
+ * @description
  * Dense, pro-grade ntfy.sh configuration form for desktop (>1024px).
  * Features two-column layout, inline validation, and keyboard shortcuts.
  *
@@ -8,11 +9,17 @@
  * @see NAS-18.X: Ntfy.sh notification configuration
  */
 
+import { Bell, Server, Shield, Tag, Eye, EyeOff, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Controller } from 'react-hook-form';
-import { X, AlertCircle, CheckCircle2, Bell, Server, Shield, Eye, EyeOff, Tag as TagIcon } from 'lucide-react';
-import { memo, useState } from 'react';
-import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
+import { memo, useState, useCallback } from 'react';
 import {
+  Button,
+  Input,
+  Label,
+  Badge,
+  Alert,
+  AlertDescription,
+  Icon,
   Select,
   SelectContent,
   SelectItem,
@@ -26,8 +33,13 @@ import type { UseNtfyChannelFormReturn } from '../../hooks/useNtfyChannelForm';
 // Types
 // ============================================================================
 
+/**
+ * Props for NtfyChannelFormDesktop presenter
+ */
 export interface NtfyChannelFormDesktopProps {
-  /** Headless hook instance */
+  /**
+   * Headless hook instance containing form state, handlers, and validation logic
+   */
   ntfyForm: UseNtfyChannelFormReturn;
 }
 
@@ -62,7 +74,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
   const [showAuthFields, setShowAuthFields] = useState(hasAuthentication);
 
   // Handle tag input (Enter or comma)
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleTagKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       if (tagInput.trim()) {
@@ -72,31 +84,31 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
         }
       }
     }
-  };
+  }, [tagInput, addTag]);
 
-  const handleAddTag = () => {
+  const handleAddTag = useCallback(() => {
     if (tagInput.trim()) {
       const added = addTag(tagInput);
       if (added) {
         setTagInput('');
       }
     }
-  };
+  }, [tagInput, addTag]);
 
-  const handleToggleAuth = () => {
+  const handleToggleAuth = useCallback(() => {
     const newState = !showAuthFields;
     setShowAuthFields(newState);
     if (!newState) {
       toggleAuthentication(false);
     }
-  };
+  }, [showAuthFields, toggleAuthentication]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <Icon icon={Bell} size="md" className="text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">
@@ -112,7 +124,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-5 w-5 rounded border-border"
+              className="h-5 w-5 rounded border-border cursor-pointer"
               aria-label="Enable ntfy.sh notifications"
             />
           )}
@@ -122,7 +134,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       {/* Server Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Server className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Icon icon={Server} size="md" className="text-muted-foreground" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Server Configuration</h3>
         </div>
 
@@ -230,7 +242,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Icon icon={Shield} size="md" className="text-muted-foreground" aria-hidden="true" />
             <h3 className="text-lg font-semibold">Authentication (Optional)</h3>
           </div>
           <Button
@@ -238,13 +250,15 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
             variant="ghost"
             size="sm"
             onClick={handleToggleAuth}
+            aria-expanded={showAuthFields}
+            aria-controls="auth-fields"
           >
             {showAuthFields ? 'Hide' : 'Show'}
           </Button>
         </div>
 
         {showAuthFields && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4" id="auth-fields">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -266,21 +280,21 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className="pr-10"
+                  className="pr-12"
                   {...register('password')}
                   error={!!errors.password}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[36px] min-w-[36px] flex items-center justify-center text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    <Eye className="h-4 w-4" aria-hidden="true" />
-                  )}
+                  <Icon
+                    icon={showPassword ? EyeOff : Eye}
+                    size="sm"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
               {errors.password && (
@@ -294,7 +308,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       {/* Tags (Optional) */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <TagIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Icon icon={Tag} size="md" className="text-muted-foreground" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Tags (Optional)</h3>
         </div>
 
@@ -313,6 +327,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
             variant="outline"
             onClick={handleAddTag}
             disabled={!tagInput.trim() || tags.length >= 10}
+            aria-label="Add tag"
           >
             Add Tag
           </Button>
@@ -327,10 +342,10 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                 <button
                   type="button"
                   onClick={() => removeTag(index)}
-                  className="ml-1 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="ml-1 p-0.5 min-h-[24px] min-w-[24px] flex items-center justify-center hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={`Remove ${tag}`}
                 >
-                  <X className="h-3 w-3" aria-hidden="true" />
+                  <Icon icon={X} size="sm" aria-hidden="true" />
                 </button>
               </Badge>
             ))}
@@ -347,11 +362,11 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       {/* Test Result */}
       {testResult && (
         <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
-          {testResult.success ? (
-            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          )}
+          <Icon
+            icon={testResult.success ? CheckCircle2 : AlertCircle}
+            size="sm"
+            aria-hidden="true"
+          />
           <AlertDescription>{testResult.message}</AlertDescription>
         </Alert>
       )}

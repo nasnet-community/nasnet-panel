@@ -3,6 +3,7 @@
  * Routes to appropriate presenter based on platform detection
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { ServiceImportDialogDesktop } from './ServiceImportDialogDesktop';
@@ -31,7 +32,7 @@ import type { ServiceImportDialogProps } from './types';
  * />
  * ```
  */
-export function ServiceImportDialog(props: ServiceImportDialogProps) {
+function ServiceImportDialogComponent(props: ServiceImportDialogProps) {
   const platform = usePlatform();
 
   if (platform === 'mobile') {
@@ -44,3 +45,9 @@ export function ServiceImportDialog(props: ServiceImportDialogProps) {
 
   return <ServiceImportDialogDesktop {...props} />;
 }
+
+/**
+ * ServiceImportDialog - Memoized component for performance
+ */
+export const ServiceImportDialog = memo(ServiceImportDialogComponent);
+ServiceImportDialog.displayName = 'ServiceImportDialog';

@@ -40,7 +40,7 @@ export interface CommandPaletteDesktopProps {
  * Desktop command palette presenter
  * Renders as a centered modal with full keyboard support
  */
-export function CommandPaletteDesktop({
+const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
   className,
 }: CommandPaletteDesktopProps) {
   const {
@@ -192,4 +192,8 @@ export function CommandPaletteDesktop({
       </AnimatePresence>
     </Dialog>
   );
-}
+});
+
+CommandPaletteDesktop.displayName = 'CommandPaletteDesktop';
+
+export { CommandPaletteDesktop };

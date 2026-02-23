@@ -7,7 +7,7 @@
  * @module @nasnet/ui/patterns/filter-rule-editor
  */
 
-import { memo, useMemo } from 'react';
+import { forwardRef, memo, useMemo } from 'react';
 
 import {
   Network,
@@ -16,6 +16,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Controller, FormProvider } from 'react-hook-form';
+
+import { cn } from '@nasnet/ui/utils';
 
 import {
   FilterChainSchema,

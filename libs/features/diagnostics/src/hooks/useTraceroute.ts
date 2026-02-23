@@ -1,6 +1,29 @@
-// libs/features/diagnostics/src/hooks/useTraceroute.ts
+/**
+ * useTraceroute Hook
+ *
+ * Custom React hook for running traceroute diagnostics with real-time progress.
+ * Manages traceroute execution lifecycle: start → progress events → completion/cancellation
+ * Uses GraphQL mutations to trigger traceroute and subscriptions for streaming hop data.
+ *
+ * Key features:
+ * - Real-time hop discovery via WebSocket subscriptions
+ * - Automatic cleanup on unmount (cancels running jobs)
+ * - Progress tracking and error handling
+ * - Callback hooks for hop discovery, completion, and errors
+ *
+ * @example
+ * ```tsx
+ * const { run, cancel, isRunning, hops, progress } = useTraceroute({
+ *   deviceId: 'router-1',
+ *   onHopDiscovered: (hop) => console.log(`Hop ${hop.hopNumber}:`, hop.address),
+ *   onComplete: (result) => console.log('Done:', result),
+ * });
+ *
+ * await run({ target: '8.8.8.8', maxHops: 30 });
+ * ```
+ */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useMutation, useSubscription } from '@apollo/client';
 import type {
   TracerouteInput,
@@ -114,7 +137,8 @@ export function useTraceroute(options: UseTracerouteOptions): UseTracerouteRetur
   const [cancelTracerouteMutation] = useMutation(CANCEL_TRACEROUTE);
 
   /**
-   * Handle progress events from subscription
+   * Handle progress events from subscription (memoized)
+   * Processes hop discovery, completion, error, and cancellation events
    */
   const handleProgressEvent = useCallback(
     (event: TracerouteProgressEvent) => {
@@ -131,7 +155,7 @@ export function useTraceroute(options: UseTracerouteOptions): UseTracerouteRetur
               }
               const newHops = [...prev, hop].sort((a, b) => a.hopNumber - b.hopNumber);
 
-              // Update progress
+              // Update progress (memoized calculation)
               setProgress((hop.hopNumber / maxHopsRef.current) * 100);
 
               return newHops;
@@ -238,7 +262,7 @@ export function useTraceroute(options: UseTracerouteOptions): UseTracerouteRetur
   }, [jobId, cancelTracerouteMutation]);
 
   /**
-   * Cleanup on unmount
+   * Cleanup on unmount: cancel running job if still in progress
    */
   useEffect(() => {
     return () => {
@@ -250,13 +274,21 @@ export function useTraceroute(options: UseTracerouteOptions): UseTracerouteRetur
     };
   }, [jobId, isRunning, cancelTracerouteMutation]);
 
-  return {
-    run,
-    cancel,
-    isRunning,
-    hops,
-    result,
-    error,
-    progress,
-  };
+  /**
+   * Memoize return value for stable reference (prevents unnecessary re-renders)
+   */
+  const returnValue = useMemo(
+    () => ({
+      run,
+      cancel,
+      isRunning,
+      hops,
+      result,
+      error,
+      progress,
+    }),
+    [run, cancel, isRunning, hops, result, error, progress]
+  );
+
+  return returnValue;
 }

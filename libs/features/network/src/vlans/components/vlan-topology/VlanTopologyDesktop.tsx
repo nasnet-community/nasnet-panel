@@ -2,9 +2,10 @@
  * VLAN Topology Desktop Presenter
  *
  * Hierarchical visualization of VLAN topology with parent interfaces.
+ * Desktop-optimized with dense information layout and tree-like expansion.
  */
 
-import { useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -14,17 +15,22 @@ import {
   Button,
 } from '@nasnet/ui/primitives';
 import { Network, ChevronRight, ChevronDown } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import type { UseVlanTopologyReturn } from '../../hooks/use-vlan-topology';
 
+/**
+ * VlanTopologyDesktop Props
+ * @interface VlanTopologyDesktopProps
+ */
 export interface VlanTopologyDesktopProps extends UseVlanTopologyReturn {
   routerId: string;
   onVlanSelect?: (vlanId: string) => void;
 }
 
-export function VlanTopologyDesktop({
+function VlanTopologyDesktopContent({
   topology,
   stats,
-  loading,
+  isLoading,
   error,
   onVlanSelect,
 }: VlanTopologyDesktopProps) {
@@ -32,7 +38,7 @@ export function VlanTopologyDesktop({
     new Set(topology.map((iface) => iface.id))
   );
 
-  const toggleInterface = (interfaceId: string) => {
+  const handleToggleInterface = useCallback((interfaceId: string) => {
     setExpandedInterfaces((prev) => {
       const next = new Set(prev);
       if (next.has(interfaceId)) {
@@ -42,22 +48,29 @@ export function VlanTopologyDesktop({
       }
       return next;
     });
-  };
+  }, []);
 
-  const expandAll = () => {
+  const handleExpandAll = useCallback(() => {
     setExpandedInterfaces(new Set(topology.map((iface) => iface.id)));
-  };
+  }, [topology]);
 
-  const collapseAll = () => {
+  const handleCollapseAll = useCallback(() => {
     setExpandedInterfaces(new Set());
-  };
+  }, []);
 
-  if (loading) {
+  const handleVlanSelect = useCallback(
+    (vlanId: string) => {
+      onVlanSelect?.(vlanId);
+    },
+    [onVlanSelect]
+  );
+
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
           <div className="animate-pulse text-muted-foreground">
-            Loading topology...
+            Loading VLAN topology...
           </div>
         </CardContent>
       </Card>
@@ -68,7 +81,9 @@ export function VlanTopologyDesktop({
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">{error.message}</p>
+          <p className="text-center text-destructive" role="alert">
+            {error.message}
+          </p>
         </CardContent>
       </Card>
     );
@@ -78,7 +93,7 @@ export function VlanTopologyDesktop({
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
           <p className="text-muted-foreground">No VLANs configured</p>
         </CardContent>
       </Card>
@@ -92,14 +107,14 @@ export function VlanTopologyDesktop({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5" />
+              <Network className="h-5 w-5" aria-hidden="true" />
               VLAN Topology
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={expandAll}>
+              <Button variant="outline" size="sm" onClick={handleExpandAll}>
                 Expand All
               </Button>
-              <Button variant="outline" size="sm" onClick={collapseAll}>
+              <Button variant="outline" size="sm" onClick={handleCollapseAll}>
                 Collapse All
               </Button>
             </div>
@@ -109,23 +124,23 @@ export function VlanTopologyDesktop({
           <div className="grid grid-cols-4 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Total VLANs</p>
-              <p className="text-2xl font-bold">{stats.totalVlans}</p>
+              <p className="text-2xl font-bold font-mono">{stats.totalVlans}</p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Running</p>
-              <p className="text-2xl font-bold text-success">
+              <p className="text-2xl font-bold font-mono text-success">
                 {stats.runningVlans}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Disabled</p>
-              <p className="text-2xl font-bold text-muted-foreground">
+              <p className="text-2xl font-bold font-mono text-muted-foreground">
                 {stats.disabledVlans}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Parent Interfaces</p>
-              <p className="text-2xl font-bold">{stats.parentInterfaces}</p>
+              <p className="text-2xl font-bold font-mono">{stats.parentInterfaces}</p>
             </div>
           </div>
         </CardContent>
@@ -142,18 +157,20 @@ export function VlanTopologyDesktop({
                 <div key={iface.id} className="border rounded-lg">
                   {/* Parent Interface Header */}
                   <button
-                    onClick={() => toggleInterface(iface.id)}
+                    onClick={() => handleToggleInterface(iface.id)}
+                    aria-expanded={isExpanded}
+                    aria-controls={`vlan-list-${iface.id}`}
                     className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     ) : (
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     )}
 
                     <div className="flex-1 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Network className="h-5 w-5" />
+                        <Network className="h-5 w-5" aria-hidden="true" />
                         <div className="text-left">
                           <p className="font-medium">{iface.name}</p>
                           <p className="text-sm text-muted-foreground capitalize">
@@ -170,12 +187,12 @@ export function VlanTopologyDesktop({
 
                   {/* VLANs List */}
                   {isExpanded && iface.vlans.length > 0 && (
-                    <div className="border-t bg-muted/20">
+                    <div id={`vlan-list-${iface.id}`} className="border-t bg-muted/20">
                       <div className="p-4 pl-16 space-y-2">
                         {iface.vlans.map((vlan) => (
                           <button
                             key={vlan.id}
-                            onClick={() => onVlanSelect?.(vlan.id)}
+                            onClick={() => handleVlanSelect(vlan.id)}
                             className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-background border hover:border-primary/50 transition-all text-left"
                           >
                             <div className="flex-1 flex items-center justify-between">
@@ -202,9 +219,9 @@ export function VlanTopologyDesktop({
                                     MTU {vlan.mtu}
                                   </Badge>
                                 )}
-                                {vlan.disabled ? (
+                                {vlan.isDisabled ? (
                                   <Badge variant="secondary">Disabled</Badge>
-                                ) : vlan.running ? (
+                                ) : vlan.isRunning ? (
                                   <Badge variant="success">Running</Badge>
                                 ) : (
                                   <Badge variant="warning">Not Running</Badge>
@@ -225,3 +242,6 @@ export function VlanTopologyDesktop({
     </div>
   );
 }
+
+export const VlanTopologyDesktop = memo(VlanTopologyDesktopContent);
+VlanTopologyDesktop.displayName = 'VlanTopologyDesktop';

@@ -1,13 +1,21 @@
 /**
  * useQuietHoursConfig Hook
  *
- * Headless hook containing all business logic for QuietHoursConfig.
+ * Headless hook containing all business logic for QuietHoursConfig component.
+ * Manages quiet hours configuration state with React Hook Form + Zod validation.
  * Platform presenters consume this hook for shared state and behavior.
+ *
+ * @description Provides form state, validation, derived state (time calculations),
+ * and stable event handlers for quiet hours configuration. Handles:
+ * - Time range validation and midnight-crossing detection
+ * - Duration calculation in human-readable format
+ * - Form submission and reset
+ * - Timezone selection with browser detection as fallback
  *
  * @see ADR-018: Headless Platform Presenters
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { quietHoursConfigSchema, type QuietHoursConfigData } from '../../schemas/alert-rule.schema';
@@ -15,41 +23,73 @@ import type { QuietHoursConfig, DayOfWeek } from './types';
 
 /**
  * Return type for useQuietHoursConfig hook
+ *
+ * @description Combines form state, validation results, derived computations,
+ * and stable event handlers for quiet hours configuration
  */
 export interface UseQuietHoursConfigReturn {
-  // Form state
+  /** React Hook Form instance with Zod validation */
   form: ReturnType<typeof useForm<QuietHoursConfigData>>;
+
+  /** Start time in HH:MM format (currently watched from form) */
   startTime: string;
+
+  /** End time in HH:MM format (currently watched from form) */
   endTime: string;
+
+  /** Selected timezone (IANA identifier, currently watched from form) */
   timezone: string;
+
+  /** Bypass critical alerts flag (currently watched from form) */
   bypassCritical: boolean;
+
+  /** Selected days of week (currently watched from form) */
   daysOfWeek: DayOfWeek[];
 
-  // Validation state
+  /** Whether the form has valid values per Zod schema */
   isValid: boolean;
+
+  /** Validation error messages by field name */
   errors: Record<string, string>;
 
-  // Derived state
-  isTimeSpanCrossing: boolean; // e.g., 22:00 to 06:00 crosses midnight
-  duration: string; // Human-readable duration (e.g., "8 hours")
+  /** True if time range crosses midnight (e.g., 22:00 to 06:00) */
+  isTimeSpanCrossing: boolean;
 
-  // Event handlers (stable references)
+  /** Human-readable duration string (e.g., "8 hours", "8h 30m") */
+  duration: string;
+
+  /** Stable callback to update start and end times together */
   handleTimeChange: (startTime: string, endTime: string) => void;
+
+  /** Stable callback to update timezone selection */
   handleTimezoneChange: (timezone: string) => void;
+
+  /** Stable callback to toggle critical bypass flag */
   handleBypassCriticalChange: (bypass: boolean) => void;
+
+  /** Stable callback to update selected days of week */
   handleDaysChange: (days: DayOfWeek[]) => void;
+
+  /** Stable callback to submit form if valid */
   handleSubmit: () => void;
+
+  /** Stable callback to reset form to initial values */
   handleReset: () => void;
 }
 
 /**
  * Calculate duration between two times in hours
+ *
+ * @description Handles midnight crossing (e.g., 22:00 to 08:00 = 10 hours)
+ * @param start Start time in HH:MM format
+ * @param end End time in HH:MM format
+ * @returns Duration in hours (can be fractional)
  */
 function calculateDuration(start: string, end: string): number {
   const [startHour, startMin] = start.split(':').map(Number);
   const [endHour, endMin] = end.split(':').map(Number);
 
-  let startMinutes = startHour * 60 + startMin;
+  const startMinutes = startHour * 60 + startMin;
   let endMinutes = endHour * 60 + endMin;
 
   // Handle crossing midnight
@@ -62,6 +102,10 @@ function calculateDuration(start: string, end: string): number {
 
 /**
  * Format duration as human-readable string
+ *
+ * @description Converts decimal hours to "Xh Ym" format
+ * @param hours Duration in hours (can be fractional)
+ * @returns Formatted string like "8 hours", "8h 30m"
  */
 function formatDuration(hours: number): string {
   const wholeHours = Math.floor(hours);
@@ -76,6 +120,9 @@ function formatDuration(hours: number): string {
 
 /**
  * Get browser's timezone (IANA format)
+ *
+ * @description Uses Intl API to detect system timezone
+ * @returns IANA timezone identifier (e.g., 'America/New_York')
  */
 function getBrowserTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -84,14 +131,29 @@ function getBrowserTimezone(): string {
 /**
  * useQuietHoursConfig - Manages quiet hours configuration state and validation
  *
- * @param initialValue - Initial configuration
- * @param onChange - Callback when valid configuration changes
+ * @description Headless hook providing all form state, validation, and event handlers
+ * for quiet hours configuration. Uses React Hook Form + Zod for robust validation.
+ * Detects browser timezone as default if none provided.
+ *
+ * @param initialValue Optional initial configuration to pre-fill form
+ * @param onChange Callback invoked when form is submitted with valid config
+ * @returns UseQuietHoursConfigReturn with form state, errors, and handlers
+ *
+ * @example
+ * ```tsx
+ * const hook = useQuietHoursConfig(undefined, (config) => {
+ *   console.log('Config changed:', config);
+ * });
+ *
+ * // Use hook.startTime, hook.errors, hook.handleTimeChange, etc.
+ * ```
  */
 export function useQuietHoursConfig(
   initialValue: Partial<QuietHoursConfig> | undefined,
   onChange: (config: QuietHoursConfig) => void
 ): UseQuietHoursConfigReturn {
   // Initialize form with Zod validation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<QuietHoursConfigData>({
     resolver: zodResolver(quietHoursConfigSchema) as any,
     defaultValues: {

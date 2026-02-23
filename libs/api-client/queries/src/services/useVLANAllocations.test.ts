@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import { MockedProvider } from '@apollo/client/testing';
 import { renderHook, waitFor } from '@testing-library/react';
+import * as React from 'react';
 import { useVLANAllocations } from './useVLANAllocations';
 import { GET_VLAN_ALLOCATIONS } from './vlan.graphql';
 import type { ReactNode } from 'react';
@@ -83,11 +84,8 @@ describe('useVLANAllocations', () => {
     },
   ];
 
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      {children}
-    </MockedProvider>
-  );
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
   it('should fetch all allocations for a router', async () => {
     const { result } = renderHook(
@@ -136,11 +134,8 @@ describe('useVLANAllocations', () => {
       },
     ];
 
-    const emptyWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={emptyMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const emptyWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: emptyMocks, addTypename: false }, children);
 
     const { result } = renderHook(() => useVLANAllocations(), {
       wrapper: emptyWrapper,
@@ -160,11 +155,8 @@ describe('useVLANAllocations', () => {
       },
     ];
 
-    const errorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={errorMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const errorWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: errorMocks, addTypename: false }, children);
 
     const { result } = renderHook(
       () => useVLANAllocations('router-123'),

@@ -15,14 +15,12 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { axe, toHaveNoViolations } from 'vitest-axe';
+import { axe } from 'vitest-axe';
+import 'vitest-axe/extend-expect';
 
 import { FilterRuleEditor } from './FilterRuleEditor';
 
 import type { FilterRuleEditorProps } from './filter-rule-editor.types';
-
-// Extend expect with axe matchers
-expect.extend(toHaveNoViolations);
 
 // Mock the platform hook
 vi.mock('@nasnet/ui/layouts', () => ({

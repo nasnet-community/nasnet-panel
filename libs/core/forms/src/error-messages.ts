@@ -41,7 +41,17 @@ export const DEFAULT_ERROR_MESSAGES: Record<string, string> = {
 };
 
 /**
- * Default translation function using template strings.
+ * Default translation function using template string interpolation.
+ *
+ * @param key - Translation key to look up in DEFAULT_ERROR_MESSAGES
+ * @param params - Optional object with template variables to replace
+ * @returns Translated and formatted message
+ *
+ * @example
+ * ```typescript
+ * defaultTranslate('validation.string.min', { min: 5 });
+ * // "Must be at least 5 characters"
+ * ```
  */
 function defaultTranslate(
   key: string,

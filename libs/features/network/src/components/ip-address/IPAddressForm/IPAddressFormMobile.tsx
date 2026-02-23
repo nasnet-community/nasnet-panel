@@ -3,8 +3,13 @@
  * NAS-6.2: IP Address Management
  *
  * Touch-optimized form with 44px minimum touch targets.
+ *
+ * @description Mobile presenter for IP address form configuration with full-width
+ * inputs, 44px minimum touch targets, and vertical button layout optimized for
+ * single-column touch interaction.
  */
 
+import { memo, useCallback } from 'react';
 import {
   Alert,
   AlertDescription,
@@ -31,11 +36,12 @@ import {
 } from '@nasnet/ui/primitives';
 import { IPInput } from '@nasnet/ui/patterns';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 
 import type { IPAddressFormProps } from './types';
 import { useIPAddressForm } from './useIPAddressForm';
 
-export function IPAddressFormMobile(props: IPAddressFormProps) {
+function IPAddressFormMobileComponent(props: IPAddressFormProps) {
   const { mode, interfaces } = props;
   const {
     form,
@@ -47,6 +53,13 @@ export function IPAddressFormMobile(props: IPAddressFormProps) {
     handleSubmit,
     onCancel,
   } = useIPAddressForm(props);
+
+  const handleInterfaceChange = useCallback(
+    (value: string) => {
+      form.setValue('interfaceId', value);
+    },
+    [form]
+  );
 
   return (
     <div className="space-y-4 pb-4">
@@ -113,7 +126,7 @@ export function IPAddressFormMobile(props: IPAddressFormProps) {
             <Card className="bg-muted/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   Subnet Info
                 </CardTitle>
               </CardHeader>
@@ -153,7 +166,7 @@ export function IPAddressFormMobile(props: IPAddressFormProps) {
               <FormItem>
                 <FormLabel>Interface</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={handleInterfaceChange}
                   defaultValue={field.value}
                   disabled={loading}
                 >
@@ -256,3 +269,6 @@ export function IPAddressFormMobile(props: IPAddressFormProps) {
     </div>
   );
 }
+
+export const IPAddressFormMobile = memo(IPAddressFormMobileComponent);
+IPAddressFormMobile.displayName = 'IPAddressFormMobile';

@@ -9,9 +9,11 @@
  * The toolbar is hidden when selectedCount === 0.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { BulkActionsToolbar } from './BulkActionsToolbar';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
   title: 'Features/Network/DHCP/BulkActionsToolbar',

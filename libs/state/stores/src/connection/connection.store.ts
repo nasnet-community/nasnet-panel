@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Connection State Store
  *
@@ -468,7 +470,9 @@ export const useConnectionStore = create<ConnectionState & ConnectionActions>()(
     ),
     {
       name: 'connection-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

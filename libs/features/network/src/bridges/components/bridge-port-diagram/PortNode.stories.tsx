@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { PortNode } from './PortNode';
+import { fn } from 'storybook/test';
+
 import type { BridgePort } from '@nasnet/api-client/generated';
+
+import { PortNode } from './PortNode';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data helpers

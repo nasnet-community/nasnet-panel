@@ -1,17 +1,21 @@
 /**
  * StorageDisconnectBanner Component
- * Persistent alert when external storage disconnects
+ * @description Persistent alert banner displayed when configured external storage disconnects.
+ * Shows affected services and prompts user to reconnect the device.
  *
- * Features:
- * - Prominent warning styling
- * - Lists affected services
- * - Dismissible (but warning persists until reconnection)
- * - Accessible with ARIA live region
+ * @features
+ * - Prominent destructive styling for critical state
+ * - Lists affected services with truncation at 5 items
+ * - Dismissible with persistent warning until reconnection
+ * - ARIA live region for screen reader announcements
+ * - Auto-resets when storage reconnects
  *
  * @see NAS-8.20: External Storage Management
+ * @see Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md - section 7 (Accessibility)
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
 import {
@@ -25,21 +29,23 @@ import { cn } from '@nasnet/ui/utils';
 import { useStorageSettings } from './useStorageSettings';
 
 /**
- * StorageDisconnectBanner props
+ * StorageDisconnectBanner component props
  */
 export interface StorageDisconnectBannerProps {
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 
-  /** Optional callback when banner is dismissed */
+  /** Optional callback fired when banner is dismissed by user */
   onDismiss?: () => void;
 }
 
 /**
  * StorageDisconnectBanner component
- * Shows warning when configured external storage is disconnected
+ * @description Shows persistent warning when configured external storage becomes unavailable
+ * @param {StorageDisconnectBannerProps} props - Component props
+ * @returns {React.ReactNode | null} Rendered alert or null if dismissed/connected
  */
-export function StorageDisconnectBanner({
+function StorageDisconnectBannerComponent({
   className,
   onDismiss,
 }: StorageDisconnectBannerProps) {
@@ -48,7 +54,7 @@ export function StorageDisconnectBanner({
   const [dismissed, setDismissed] = React.useState(false);
 
   /**
-   * Get list of affected services (services that were using external storage)
+   * Compute list of affected services (services using external storage)
    */
   const affectedServices = React.useMemo(() => {
     if (!usage?.features) return [];
@@ -58,9 +64,9 @@ export function StorageDisconnectBanner({
   }, [usage?.features]);
 
   /**
-   * Handle dismiss
+   * Handle user dismissal of banner (warning persists until reconnection)
    */
-  const handleDismiss = React.useCallback(() => {
+  const handleDismiss = useCallback(() => {
     setDismissed(true);
     onDismiss?.();
   }, [onDismiss]);
@@ -80,13 +86,13 @@ export function StorageDisconnectBanner({
 
   return (
     <Alert
-      variant="warning"
+      variant="destructive"
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
       className={cn('relative', className)}
     >
-      <AlertTriangle className="h-5 w-5" />
+      <AlertTriangle className="h-5 w-5" aria-hidden="true" />
 
       <AlertTitle className="text-lg font-semibold pr-8">
         External Storage Disconnected
@@ -121,21 +127,27 @@ export function StorageDisconnectBanner({
           </div>
         )}
 
-        <p className="text-sm font-medium border-t border-warning/30 pt-3 mt-3">
-          ⚠️ Reconnect the storage device to restore service functionality.
+        <p className="text-sm font-medium border-t border-destructive/30 pt-3 mt-3">
+          Reconnect the storage device to restore service functionality.
         </p>
       </AlertDescription>
 
-      {/* Dismiss Button */}
+      {/* Dismiss Button: Icon-only with aria-label */}
       <Button
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
         className="absolute top-4 right-4 h-6 w-6 p-0"
-        aria-label="Dismiss alert (warning will persist until storage reconnects)"
+        aria-label="Dismiss alert (warning persists until storage reconnects)"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4" aria-hidden="true" />
       </Button>
     </Alert>
   );
 }
+
+/**
+ * Exported StorageDisconnectBanner with React.memo() optimization
+ */
+export const StorageDisconnectBanner = React.memo(StorageDisconnectBannerComponent);
+StorageDisconnectBanner.displayName = 'StorageDisconnectBanner';

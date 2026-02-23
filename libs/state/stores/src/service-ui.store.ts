@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import type { UpdateStage } from '@nasnet/api-client/queries';
+import type { UpdateStage } from '@nasnet/core/types';
 
 /**
  * Type for install wizard draft (partial service instance configuration)

@@ -1,3 +1,4 @@
+/* global console, process */
 /**
  * Design Token Build Script
  * Generates CSS variables, TypeScript constants, and Tailwind config from design tokens

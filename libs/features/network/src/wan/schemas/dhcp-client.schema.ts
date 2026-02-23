@@ -1,5 +1,5 @@
 /**
- * DHCP Client Configuration Validation Schema
+ * @description DHCP Client Configuration Validation Schema
  *
  * Zod schemas for validating DHCP WAN client configuration.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 2: DHCP)
@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 /**
- * Schema for DHCP client configuration form
+ * @description Schema for DHCP client configuration form
  *
  * Validates WAN interface DHCP client settings including:
  * - Interface selection (required)
@@ -23,41 +23,33 @@ import { z } from 'zod';
  */
 export const dhcpClientSchema = z.object({
   /**
-   * Physical interface name for DHCP client
-   * Examples: "ether1", "ether2", "sfp1"
+   * Physical interface name for DHCP client (e.g. ether1, ether2, sfp1)
    */
   interface: z
     .string({
-      required_error: 'Interface is required',
+      required_error: 'Interface is required for DHCP configuration',
       invalid_type_error: 'Interface must be a valid string',
     })
-    .min(1, 'Interface cannot be empty')
-    .max(64, 'Interface name too long'),
+    .min(1, 'Please select a physical interface')
+    .max(64, 'Interface name exceeds maximum length of 64 characters'),
 
   /**
-   * Whether to add default route via DHCP gateway
-   * Default: true
-   * Warning: Disabling may cause connectivity issues
+   * Whether to add default route via DHCP gateway (default: true)
    */
-  addDefaultRoute: z.boolean().default(true),
+  shouldAddDefaultRoute: z.boolean().default(true),
 
   /**
-   * Whether to use DNS servers provided by DHCP
-   * Default: true
-   * If disabled, static DNS configuration will be used
+   * Whether to use DNS servers provided by DHCP (default: true)
    */
-  usePeerDNS: z.boolean().default(true),
+  shouldUsePeerDNS: z.boolean().default(true),
 
   /**
-   * Whether to use NTP servers provided by DHCP
-   * Default: false
-   * If enabled, time sync will use DHCP-provided NTP servers
+   * Whether to use NTP servers provided by DHCP (default: false)
    */
-  usePeerNTP: z.boolean().default(false),
+  shouldUsePeerNTP: z.boolean().default(false),
 
   /**
-   * Optional comment for identification
-   * RouterOS limit: 255 characters
+   * Optional comment for identification (max 255 characters)
    */
   comment: z
     .string()
@@ -66,19 +58,17 @@ export const dhcpClientSchema = z.object({
 });
 
 /**
- * TypeScript type inferred from dhcpClientSchema
- * Use this for form values and component props
+ * @description TypeScript type inferred from dhcpClientSchema
  */
 export type DhcpClientFormValues = z.infer<typeof dhcpClientSchema>;
 
 /**
- * Default values for DHCP client form
- * Used to initialize React Hook Form
+ * @description Default values for DHCP client form
  */
-export const dhcpClientDefaultValues: DhcpClientFormValues = {
+export const DHCP_CLIENT_DEFAULT_VALUES: DhcpClientFormValues = {
   interface: '',
-  addDefaultRoute: true,
-  usePeerDNS: true,
-  usePeerNTP: false,
+  shouldAddDefaultRoute: true,
+  shouldUsePeerDNS: true,
+  shouldUsePeerNTP: false,
   comment: '',
 };

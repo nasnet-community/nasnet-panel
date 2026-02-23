@@ -8,7 +8,7 @@
 
 import { gql } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RouteForm } from './RouteForm';
 

@@ -1,36 +1,55 @@
-import { memo } from 'react';
-import { Badge } from '@nasnet/ui/primitives';
+import { memo, useMemo } from 'react';
+import { useReducedMotion } from '@nasnet/core/utils';
+import { AlertCircle } from 'lucide-react';
+import { Badge, Icon } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { GatewayState, formatUptime, type GatewayInfo } from '@nasnet/api-client/queries';
 import type { GatewayStatusCardProps } from './GatewayStatusCard';
 
 /**
  * Desktop gateway status card with inline dense layout.
  * Optimized for power users with all info visible at once.
+ *
+ * @see docs/design/ux-design/6-component-library.md#status-indicators
  */
 export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
   gateway,
   instanceId,
   serviceName,
+  className,
 }: GatewayStatusCardProps) {
-  const stateColorMap: Record<GatewayState, string> = {
-    [GatewayState.RUNNING]: 'bg-semantic-success text-semantic-success-fg',
-    [GatewayState.STOPPED]: 'bg-semantic-muted text-semantic-muted-fg',
-    [GatewayState.ERROR]: 'bg-semantic-error text-semantic-error-fg',
-    [GatewayState.NOT_NEEDED]: 'bg-semantic-muted text-semantic-muted-fg',
-  };
+  const prefersReducedMotion = useReducedMotion();
 
-  const stateLabel: Record<GatewayState, string> = {
-    [GatewayState.RUNNING]: 'Running',
-    [GatewayState.STOPPED]: 'Stopped',
-    [GatewayState.ERROR]: 'Error',
-    [GatewayState.NOT_NEEDED]: 'Not Needed',
-  };
+  // Memoize state color and label maps
+  const stateColorMap = useMemo(
+    () => ({
+      [GatewayState.RUNNING]: 'bg-success text-success-foreground',
+      [GatewayState.STOPPED]: 'bg-muted text-muted-foreground',
+      [GatewayState.ERROR]: 'bg-error text-error-foreground',
+      [GatewayState.NOT_NEEDED]: 'bg-muted text-muted-foreground',
+    }),
+    []
+  );
+
+  const stateLabel = useMemo(
+    () => ({
+      [GatewayState.RUNNING]: 'Running',
+      [GatewayState.STOPPED]: 'Stopped',
+      [GatewayState.ERROR]: 'Error',
+      [GatewayState.NOT_NEEDED]: 'Not Needed',
+    }),
+    []
+  );
 
   return (
     <div
-      className="flex items-center gap-4 rounded-md border border-border bg-card px-4 py-2"
+      className={cn(
+        'flex items-center gap-4 rounded-md border border-border bg-card px-4 py-2',
+        className
+      )}
       role="status"
       aria-label={`Gateway status for ${serviceName}`}
+      aria-live="polite"
     >
       {/* State badge */}
       <Badge className={stateColorMap[gateway.state]} aria-label="Gateway state">
@@ -51,7 +70,9 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       {gateway.pid != null && gateway.pid > 0 && (
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">PID:</span>
-          <code className="font-mono text-xs text-foreground">{gateway.pid}</code>
+          <code className="font-mono text-xs text-foreground" aria-label={`Process ID ${gateway.pid}`}>
+            {gateway.pid}
+          </code>
         </div>
       )}
 
@@ -67,7 +88,12 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* Error message */}
       {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
-        <div className="ml-auto flex items-center gap-2 text-sm text-semantic-error">
+        <div
+          className="ml-auto flex items-center gap-2 text-sm text-error"
+          role="alert"
+          aria-label={`Error: ${gateway.errorMessage}`}
+        >
+          <Icon icon={AlertCircle} className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="text-xs">{gateway.errorMessage}</span>
         </div>
       )}
@@ -76,9 +102,17 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       {gateway.lastHealthCheck && gateway.state === GatewayState.RUNNING && (
         <div
           className="ml-auto flex items-center gap-1"
+          role="status"
+          aria-label={`Healthy, last checked ${new Date(gateway.lastHealthCheck).toLocaleString()}`}
           title={`Last checked: ${new Date(gateway.lastHealthCheck).toLocaleString()}`}
         >
-          <div className="h-2 w-2 rounded-full bg-semantic-success animate-pulse" aria-hidden="true" />
+          <div
+            className={cn(
+              'h-2 w-2 rounded-full bg-success',
+              !prefersReducedMotion && 'animate-pulse'
+            )}
+            aria-hidden="true"
+          />
           <span className="text-xs text-muted-foreground">Healthy</span>
         </div>
       )}

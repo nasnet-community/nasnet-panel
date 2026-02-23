@@ -7,16 +7,177 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/events"
+	"backend/internal/orchestrator/resources"
 	"context"
 	"fmt"
+
+	"backend/generated/ent/serviceinstance"
+
+	"github.com/rs/zerolog"
 )
 
 // SystemResources is the resolver for the systemResources field.
 func (r *queryResolver) SystemResources(ctx context.Context, routerID string) (*graphql1.SystemResources, error) {
-	panic(fmt.Errorf("not implemented: SystemResources - systemResources"))
+	if r.db == nil {
+		return nil, fmt.Errorf("database not available")
+	}
+
+	// Get running service instances from database
+	instances, err := r.db.ServiceInstance.
+		Query().
+		Where(serviceinstance.StatusEQ(serviceinstance.StatusRunning)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query running instances: %w", err)
+	}
+
+	// Build per-instance resource usage list
+	instanceUsages := make([]*graphql1.InstanceResourceUsage, 0, len(instances))
+	var totalAllocatedRAM int
+
+	limiter := r.ResourceLimiter
+
+	for _, inst := range instances {
+		// Convert memory_limit from bytes to MB
+		limitMB := 0
+		if inst.MemoryLimit != nil {
+			limitMB = int(*inst.MemoryLimit / (1024 * 1024))
+		}
+		totalAllocatedRAM += limitMB
+
+		// Try to read actual usage via ResourceLimiter (Linux only, may be nil)
+		var usage *graphql1.ResourceUsage
+		if limiter != nil {
+			// ResourceLimiter.GetResourceUsage requires a PID which is runtime state.
+			// We attempt to find the process via the supervisor if available.
+			pid := 0
+			if r.InstanceManager != nil {
+				sup := r.InstanceManager.Supervisor()
+				if sup != nil {
+					if proc, ok := sup.Get(inst.ID); ok {
+						pid = proc.GetPID()
+					}
+				}
+			}
+
+			if pid > 0 {
+				if ru, ruErr := limiter.GetResourceUsage(pid); ruErr == nil {
+					currentMB := int(ru.MemoryMB)
+					usagePct := 0.0
+					if limitMB > 0 {
+						usagePct = float64(currentMB) / float64(limitMB) * 100
+					}
+
+					status := graphql1.ResourceStatusOk
+					if usagePct >= 90 {
+						status = graphql1.ResourceStatusCritical
+					} else if usagePct >= 80 {
+						status = graphql1.ResourceStatusWarning
+					}
+
+					usage = &graphql1.ResourceUsage{
+						CurrentMb:    currentMB,
+						LimitMb:      limitMB,
+						UsagePercent: usagePct,
+						Status:       status,
+					}
+				}
+			}
+		}
+
+		// If we couldn't read actual usage, synthesize from limit
+		if usage == nil {
+			usage = &graphql1.ResourceUsage{
+				CurrentMb:    0,
+				LimitMb:      limitMB,
+				UsagePercent: 0,
+				Status:       graphql1.ResourceStatusOk,
+			}
+		}
+
+		instanceUsages = append(instanceUsages, &graphql1.InstanceResourceUsage{
+			InstanceID:   inst.ID,
+			InstanceName: inst.InstanceName,
+			FeatureID:    inst.FeatureID,
+			Usage:        usage,
+		})
+	}
+
+	// Get system-wide memory info via ResourceManager
+	totalRAM := resources.DefaultSystemMemoryMB
+	availableRAM := resources.DefaultAvailableMemoryMB
+
+	rm, rmErr := resources.NewResourceManager(resources.ResourceManagerConfig{
+		Store:  r.db,
+		Logger: zerolog.Nop(),
+	})
+	if rmErr == nil {
+		if sysRes, sysErr := rm.GetSystemResources(ctx); sysErr == nil {
+			totalRAM = sysRes.TotalMemoryMB
+			availableRAM = sysRes.AvailableMemoryMB
+		}
+	}
+
+	return &graphql1.SystemResources{
+		TotalRAM:     totalRAM,
+		AvailableRAM: availableRAM,
+		AllocatedRAM: totalAllocatedRAM,
+		Instances:    instanceUsages,
+	}, nil
 }
 
 // ResourceUsageChanged is the resolver for the resourceUsageChanged field.
 func (r *subscriptionResolver) ResourceUsageChanged(ctx context.Context, routerID string, instanceID string) (<-chan *graphql1.ResourceUsage, error) {
-	panic(fmt.Errorf("not implemented: ResourceUsageChanged - resourceUsageChanged"))
+	if r.EventBus == nil {
+		return nil, fmt.Errorf("event bus not available")
+	}
+
+	eventChan := make(chan *graphql1.ResourceUsage, 10)
+
+	err := r.EventBus.Subscribe(events.EventTypeResourceWarning, func(ctx context.Context, event events.Event) error {
+		warningEvent, ok := event.(*events.ResourceWarningEvent)
+		if !ok {
+			return nil
+		}
+
+		// Filter by instanceID
+		if instanceID != "" && warningEvent.InstanceID != instanceID {
+			return nil
+		}
+
+		// Determine status from usage percent vs threshold
+		status := graphql1.ResourceStatusOk
+		if warningEvent.UsagePercent >= 90 {
+			status = graphql1.ResourceStatusCritical
+		} else if warningEvent.UsagePercent >= float64(warningEvent.ThresholdPercent) {
+			status = graphql1.ResourceStatusWarning
+		}
+
+		usage := &graphql1.ResourceUsage{
+			// CurrentMb and LimitMb are stored as strings in the event;
+			// emit zero values and let clients derive info from UsagePercent.
+			CurrentMb:    0,
+			LimitMb:      0,
+			UsagePercent: warningEvent.UsagePercent,
+			Status:       status,
+		}
+
+		select {
+		case eventChan <- usage:
+		case <-ctx.Done():
+		}
+		return nil
+	})
+	if err != nil {
+		close(eventChan)
+		return nil, fmt.Errorf("failed to subscribe to resource warning events: %w", err)
+	}
+
+	go func() {
+		<-ctx.Done()
+		close(eventChan)
+	}()
+
+	return eventChan, nil
 }

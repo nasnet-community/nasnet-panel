@@ -1,0 +1,87 @@
+{
+  "title": "داشبورد",
+  "welcome": "به NasNetConnect خوش آمدید",
+  "overview": "نمای کلی سیستم",
+  "routerHealth": {
+    "title": "سلامت روتر",
+    "healthy": "تمام سیستم‌ها عملیاتی",
+    "degraded": "مشکلاتی شناسایی شد",
+    "critical": "مشکلات بحرانی",
+    "cpu": "مصرف CPU",
+    "memory": "مصرف حافظه",
+    "disk": "مصرف دیسک",
+    "temperature": "دما",
+    "uptime": "مدت فعالیت",
+    "model": "مدل",
+    "version": "نسخه RouterOS",
+    "firmware": "فریمور"
+  },
+  "bandwidth": {
+    "title": "پهنای باند",
+    "chart": "نمودار پهنای باند",
+    "upload": "آپلود",
+    "download": "دانلود",
+    "peak": "اوج",
+    "average": "میانگین",
+    "total": "مجموع",
+    "timeRange": "بازه زمانی",
+    "last5min": "۵ دقیقه اخیر",
+    "last15min": "۱۵ دقیقه اخیر",
+    "last1hour": "۱ ساعت اخیر",
+    "last24hours": "۲۴ ساعت اخیر",
+    "interfaceFilter": "فیلتر رابط",
+    "allInterfaces": "تمام رابط‌ها",
+    "noData": "داده پهنای باند موجود نیست"
+  },
+  "recentLogs": {
+    "title": "لاگ‌های اخیر",
+    "viewAll": "مشاهده همه",
+    "noLogs": "ورودی لاگ اخیری وجود ندارد",
+    "topic": "موضوع",
+    "message": "پیام",
+    "time": "زمان",
+    "filterByTopic": "فیلتر بر اساس موضوع",
+    "allTopics": "همه موضوعات",
+    "system": "سیستم",
+    "firewall": "دیوار آتش",
+    "dhcp": "DHCP",
+    "wireless": "بی‌سیم",
+    "interface": "رابط",
+    "critical": "بحرانی",
+    "error": "خطا",
+    "warning": "هشدار",
+    "info": "اطلاعات"
+  },
+  "resources": {
+    "title": "منابع سیستم",
+    "cpuLoad": "بار CPU",
+    "memoryUsage": "مصرف حافظه",
+    "diskUsage": "مصرف دیسک",
+    "freeMemory": "حافظه آزاد",
+    "totalMemory": "کل حافظه",
+    "freeDisk": "فضای دیسک آزاد",
+    "totalDisk": "کل فضای دیسک",
+    "processes": "پردازش‌های در حال اجرا"
+  },
+  "interfaceGrid": {
+    "title": "رابط‌ها",
+    "showAll": "نمایش همه",
+    "hideInactive": "مخفی‌سازی غیرفعال‌ها",
+    "gridView": "نمای شبکه‌ای",
+    "listView": "نمای لیستی",
+    "compactView": "نمای فشرده"
+  },
+  "quickActions": {
+    "title": "دسترسی سریع",
+    "reboot": "راه‌اندازی مجدد",
+    "backup": "ایجاد نسخه پشتیبان",
+    "update": "بررسی به‌روزرسانی",
+    "terminal": "ترمینال"
+  },
+  "cachedData": {
+    "label": "داده‌های حافظه پنهان",
+    "lastUpdated": "آخرین به‌روزرسانی {{time}}",
+    "stale": "داده‌ها ممکن است قدیمی باشند",
+    "refreshing": "در حال به‌روزرسانی..."
+  }
+}

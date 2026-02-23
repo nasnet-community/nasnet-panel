@@ -2,24 +2,33 @@
  * VPN Clients Summary Component
  * Summary card showing connected VPN client count with expandable list
  * Based on UX Design Specification - Direction 4: Action-First
+ *
+ * @example
+ * ```tsx
+ * <VPNClientsSummary
+ *   connectedCount={3}
+ *   clients={vpnClients}
+ *   linkTo="/vpn"
+ * />
+ * ```
  */
 
-import * as React from 'react';
-import { useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
+import { Shield, ChevronDown, Loader2, Wifi } from 'lucide-react';
 
 import { Link } from '@tanstack/react-router';
-import { 
-  Shield, 
-  ChevronRight, 
-  ChevronDown, 
-  Loader2,
-  Wifi,
-} from 'lucide-react';
-
-import type { VPNProtocol } from '@nasnet/core/types';
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@nasnet/ui/primitives';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Icon,
+} from '@nasnet/ui/primitives';
 
 import { ProtocolIconBadge } from '../protocol-icon';
+
+import type { VPNProtocol } from '@nasnet/core/types';
 
 /**
  * Connected VPN client info
@@ -61,7 +70,7 @@ export interface VPNClientsSummaryProps {
  * VPNClientsSummary Component
  * Shows VPN client summary with connected count and expandable client list
  */
-export function VPNClientsSummary({
+function VPNClientsSummaryComponent({
   connectedCount,
   clients = [],
   isLoading = false,
@@ -70,16 +79,20 @@ export function VPNClientsSummary({
   className = '',
 }: VPNClientsSummaryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   const hasClients = clients.length > 0;
   const visibleClients = isExpanded ? clients : clients.slice(0, maxVisible);
   const hasMore = clients.length > maxVisible;
-  
+
   const status = connectedCount > 0 ? 'connected' : 'disconnected';
   const statusColor = status === 'connected' ? 'text-success' : 'text-muted-foreground';
-  const bgColor = status === 'connected' 
-    ? 'bg-success/10 dark:bg-success/20' 
+  const bgColor = status === 'connected'
+    ? 'bg-success/10 dark:bg-success/20'
     : 'bg-muted';
+
+  const handleToggleExpanded = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
 
   return (
     <Card className={`${className}`}>
@@ -87,7 +100,7 @@ export function VPNClientsSummary({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}>
-              <Shield className={`w-5 h-5 ${statusColor}`} />
+              <Icon icon={Shield} className={`w-5 h-5 ${statusColor}`} />
             </div>
             <div>
               <CardTitle className="text-base font-semibold">VPN Clients</CardTitle>
@@ -100,17 +113,17 @@ export function VPNClientsSummary({
             <Link to={linkTo as '/'}>
               <Button variant="ghost" size="sm" className="gap-1">
                 See All
-                <ChevronRight className="w-4 h-4" />
+                <Icon icon={ChevronDown} className="w-4 h-4" />
               </Button>
             </Link>
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-6">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Icon icon={Loader2} className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : hasClients ? (
           <div className="space-y-2 mt-3">
@@ -141,21 +154,21 @@ export function VPNClientsSummary({
                 </div>
               </div>
             ))}
-            
+
             {/* Show more/less toggle */}
             {hasMore && (
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={handleToggleExpanded}
                 className="w-full flex items-center justify-center gap-1 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {isExpanded ? (
                   <>
-                    <ChevronDown className="w-4 h-4" />
+                    <Icon icon={ChevronDown} className="w-4 h-4" />
                     Show Less
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="w-4 h-4" />
+                    <Icon icon={ChevronDown} className="w-4 h-4" />
                     Show {clients.length - maxVisible} More
                   </>
                 )}
@@ -164,7 +177,7 @@ export function VPNClientsSummary({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Wifi className="w-8 h-8 text-muted-foreground/50 mb-2" />
+            <Icon icon={Wifi} className="w-8 h-8 text-muted-foreground/50 mb-2" />
             <p className="text-sm text-muted-foreground">No clients connected</p>
           </div>
         )}
@@ -172,4 +185,7 @@ export function VPNClientsSummary({
     </Card>
   );
 }
+
+export const VPNClientsSummary = memo(VPNClientsSummaryComponent);
+VPNClientsSummary.displayName = 'VPNClientsSummary';
 

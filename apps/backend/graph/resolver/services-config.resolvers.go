@@ -13,20 +13,136 @@ import (
 
 // ValidateServiceConfig is the resolver for the validateServiceConfig field.
 func (r *mutationResolver) ValidateServiceConfig(ctx context.Context, input graphql1.ValidateServiceConfigInput) (*graphql1.ConfigValidationResult, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.Service == nil {
+		return nil, fmt.Errorf("config service not available")
+	}
+
+	err := r.Service.ValidateConfig(ctx, input.InstanceID, input.Config)
+	if err != nil {
+		// Return a structured validation failure rather than a resolver error
+		return &graphql1.ConfigValidationResult{
+			Valid: false,
+			Errors: []*graphql1.ConfigValidationError{
+				{
+					Field:   "",
+					Message: err.Error(),
+				},
+			},
+		}, nil
+	}
+
+	return &graphql1.ConfigValidationResult{
+		Valid:   true,
+		Errors:  []*graphql1.ConfigValidationError{},
+	}, nil
 }
 
 // ApplyServiceConfig is the resolver for the applyServiceConfig field.
 func (r *mutationResolver) ApplyServiceConfig(ctx context.Context, input graphql1.ApplyServiceConfigInput) (*graphql1.ApplyConfigPayload, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.Service == nil {
+		return nil, fmt.Errorf("config service not available")
+	}
+
+	err := r.Service.ApplyConfig(ctx, input.InstanceID, input.Config)
+	if err != nil {
+		return &graphql1.ApplyConfigPayload{
+			Success: false,
+			Errors:  []string{err.Error()},
+		}, nil
+	}
+
+	return &graphql1.ApplyConfigPayload{
+		Success: true,
+		Errors:  []string{},
+	}, nil
 }
 
 // ServiceConfigSchema is the resolver for the serviceConfigSchema field.
 func (r *queryResolver) ServiceConfigSchema(ctx context.Context, serviceType string) (*graphql1.ConfigSchema, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.Service == nil {
+		return nil, fmt.Errorf("config service not available")
+	}
+
+	schema, err := r.Service.GetSchema(ctx, serviceType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get config schema: %w", err)
+	}
+
+	fields := make([]*graphql1.ConfigSchemaField, 0, len(schema.Fields))
+	for _, f := range schema.Fields {
+		field := &graphql1.ConfigSchemaField{
+			Name:      f.Name,
+			Label:     f.Description,
+			Type:      mapConfigFieldType(f.Type),
+			Required:  f.Required,
+			Sensitive: f.Sensitive,
+		}
+
+		if f.Description != "" {
+			desc := f.Description
+			field.Description = &desc
+		}
+		if f.Placeholder != "" {
+			ph := f.Placeholder
+			field.Placeholder = &ph
+		}
+		if f.ValidateFunc != "" {
+			vf := f.ValidateFunc
+			field.ValidateFunc = &vf
+		}
+		if f.Min != nil {
+			field.Min = f.Min
+		}
+		if f.Max != nil {
+			field.Max = f.Max
+		}
+		if len(f.EnumValues) > 0 {
+			field.Options = f.EnumValues
+		}
+		if f.Default != nil {
+			field.DefaultValue = map[string]any{"value": f.Default}
+		}
+
+		fields = append(fields, field)
+	}
+
+	return &graphql1.ConfigSchema{
+		ServiceType: schema.ServiceType,
+		Version:     schema.Version,
+		Fields:      fields,
+	}, nil
 }
 
 // InstanceConfig is the resolver for the instanceConfig field.
 func (r *queryResolver) InstanceConfig(ctx context.Context, routerID string, instanceID string) (map[string]any, error) {
-	return nil, fmt.Errorf("not implemented")
+	if r.Service == nil {
+		return nil, fmt.Errorf("config service not available")
+	}
+
+	cfg, err := r.Service.GetConfig(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get instance config: %w", err)
+	}
+
+	return cfg, nil
+}
+
+// mapConfigFieldType maps the domain config field type string to the GraphQL ConfigFieldType enum.
+func mapConfigFieldType(fieldType string) graphql1.ConfigFieldType {
+	switch fieldType {
+	case "string":
+		return graphql1.ConfigFieldTypeText
+	case "int":
+		return graphql1.ConfigFieldTypeNumber
+	case "bool":
+		return graphql1.ConfigFieldTypeToggle
+	case "ip":
+		return graphql1.ConfigFieldTypeIP
+	case "port":
+		return graphql1.ConfigFieldTypePort
+	case "enum":
+		return graphql1.ConfigFieldTypeSelect
+	default:
+		return graphql1.ConfigFieldTypeText
+	}
 }

@@ -9,8 +9,9 @@
  * @module @nasnet/features/services/pages
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ServicesPage } from './ServicesPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * ServicesPage — Feature Marketplace service instance management

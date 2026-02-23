@@ -16,8 +16,9 @@
  *  - Empty state
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import type { RouterService } from '@nasnet/core/types';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data

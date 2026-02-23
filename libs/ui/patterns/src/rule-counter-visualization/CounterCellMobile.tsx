@@ -5,7 +5,7 @@
  * ADR-018: Headless + Platform Presenters
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { Activity } from 'lucide-react';
 
@@ -24,7 +24,7 @@ import type { CounterCellProps } from './CounterCell';
  * - Simpler, cleaner layout (no rate display)
  * - Optional progress bar
  */
-export function CounterCellMobile({
+export const CounterCellMobile = memo(function CounterCellMobile({
   packets,
   bytes,
   percentOfMax,
@@ -105,4 +105,6 @@ export function CounterCellMobile({
       )}
     </div>
   );
-}
+});
+
+CounterCellMobile.displayName = 'CounterCellMobile';

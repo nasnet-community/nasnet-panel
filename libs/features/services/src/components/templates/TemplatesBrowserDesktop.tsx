@@ -1,32 +1,32 @@
 /**
  * TemplatesBrowserDesktop Component
  *
- * Desktop presenter for templates browser.
- * 2-column grid with sidebar filters and hover states.
+ * @description Desktop presenter for the templates browser with 2-column grid layout.
+ *
+ * Features:
+ * - Left sidebar with filter controls
+ * - 2-column grid of service template cards
+ * - Hover states for interactive feedback
+ * - Dense information display for power users
+ * - Loading, error, and empty states with skeleton loaders
+ * - Keyboard navigation and accessibility
+ *
+ * Platform: Desktop (>1024px)
  */
 
-import { memo } from 'react';
+import React, { useCallback } from 'react';
+
 import { Plus } from 'lucide-react';
 
+import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
 import { Button, Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
-import { ServiceTemplateCard } from '@nasnet/ui/patterns';
-import { EmptyState } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 
-import { useTemplatesBrowser } from './useTemplatesBrowser';
 import { TemplateFilters } from './TemplateFilters';
+import { useTemplatesBrowser } from './useTemplatesBrowser';
 
 import type { TemplatesBrowserProps } from './types';
 
-/**
- * Desktop presenter for TemplatesBrowser
- *
- * Features:
- * - 2-column grid layout
- * - Left sidebar with filters
- * - Hover states
- * - Dense information display
- */
 function TemplatesBrowserDesktopComponent({
   routerId,
   onInstall,
@@ -44,10 +44,22 @@ function TemplatesBrowserDesktopComponent({
     refetch,
   } = useTemplatesBrowser(routerId);
 
+  // Memoized callbacks for event handling
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleResetFilters = useCallback(() => {
+    resetFilters();
+  }, [resetFilters]);
+
   return (
     <div className={cn('flex h-full', className)}>
       {/* Left Sidebar - Filters */}
-      <aside className="w-80 border-r border-border bg-muted/10 p-6 overflow-y-auto" aria-label="Template filters">
+      <aside
+        className="w-80 border-r border-border bg-muted/10 p-6 overflow-y-auto"
+        aria-label="Template filter controls"
+      >
         <h2 className="text-lg font-semibold mb-6">Filters</h2>
         <TemplateFilters
           filters={filters}
@@ -58,7 +70,7 @@ function TemplatesBrowserDesktopComponent({
       </aside>
 
       {/* Main Content - Templates Grid */}
-      <main className="flex-1 overflow-y-auto" aria-label="Service templates">
+      <main className="flex-1 overflow-y-auto" aria-label="Service templates list">
         {/* Header */}
         <div className="border-b border-border bg-background p-6 sticky top-0 z-10">
           <div className="flex items-center justify-between">
@@ -87,7 +99,7 @@ function TemplatesBrowserDesktopComponent({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => refetch()}
+                  onClick={handleRetry}
                   className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   Retry
@@ -120,7 +132,7 @@ function TemplatesBrowserDesktopComponent({
               action={
                 hasActiveFilters ? {
                   label: 'Reset Filters',
-                  onClick: resetFilters,
+                  onClick: handleResetFilters,
                   variant: 'outline' as const,
                 } : undefined
               }
@@ -175,5 +187,8 @@ function TemplatesBrowserDesktopComponent({
   );
 }
 
-export const TemplatesBrowserDesktop = memo(TemplatesBrowserDesktopComponent);
+/**
+ * TemplatesBrowserDesktop - Desktop presenter for templates browser
+ */
+export const TemplatesBrowserDesktop = React.memo(TemplatesBrowserDesktopComponent);
 TemplatesBrowserDesktop.displayName = 'TemplatesBrowserDesktop';

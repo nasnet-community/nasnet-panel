@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog"
+
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
 
@@ -28,6 +30,7 @@ type KillSwitchListener struct {
 	eventBus      events.EventBus
 	publisher     *events.Publisher
 	killSwitchMgr *KillSwitchManager
+	logger        zerolog.Logger
 }
 
 // NewKillSwitchListener creates a new kill switch listener instance.
@@ -36,6 +39,7 @@ func NewKillSwitchListener(
 	eventBus events.EventBus,
 	publisher *events.Publisher,
 	killSwitchMgr *KillSwitchManager,
+	logger zerolog.Logger,
 ) *KillSwitchListener {
 
 	return &KillSwitchListener{
@@ -43,6 +47,7 @@ func NewKillSwitchListener(
 		eventBus:      eventBus,
 		publisher:     publisher,
 		killSwitchMgr: killSwitchMgr,
+		logger:        logger,
 	}
 }
 
@@ -104,8 +109,10 @@ func (l *KillSwitchListener) handleUnhealthyTransition(
 	for _, routing := range routings {
 		// Activate kill switch
 		if err := l.killSwitchMgr.Activate(ctx, routing.ID); err != nil {
-			// Log error but continue with other routings
-			// TODO: Add proper logging
+			l.logger.Error().Err(err).
+				Str("routing_id", routing.ID).
+				Str("device_id", routing.DeviceID).
+				Msg("failed to activate kill switch")
 			continue
 		}
 
@@ -148,8 +155,10 @@ func (l *KillSwitchListener) handleHealthyTransition(
 
 		// Deactivate kill switch
 		if err := l.killSwitchMgr.Deactivate(ctx, routing.ID); err != nil {
-			// Log error but continue with other routings
-			// TODO: Add proper logging
+			l.logger.Error().Err(err).
+				Str("routing_id", routing.ID).
+				Str("device_id", routing.DeviceID).
+				Msg("failed to deactivate kill switch")
 			continue
 		}
 

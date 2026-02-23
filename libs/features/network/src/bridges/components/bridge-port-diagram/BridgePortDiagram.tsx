@@ -1,12 +1,14 @@
-import { DndContext, DragOverlay, useDroppable } from '@dnd-kit/core';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { AlertCircle, Network } from 'lucide-react';
+import { memo, useCallback, useMemo } from 'react';
+import { DndContext, DragOverlay, useDroppable, DragEndEvent } from '@dnd-kit/core';
+import { Alert, AlertDescription, Skeleton, Icon } from '@nasnet/ui/primitives';
+import { Network, AlertCircle } from 'lucide-react';
 import { useBridgePortDiagram } from './use-bridge-port-diagram';
 import { PortNode } from './PortNode';
 import { AvailableInterfaces } from './AvailableInterfaces';
 import { SafetyConfirmation } from '@nasnet/ui/patterns';
 import type { BridgePort } from '@nasnet/api-client/generated';
+
+const MIN_SKELETON_COUNT = 3;
 
 /**
  * Bridge Port Diagram Component - Visual port membership management
@@ -16,23 +18,34 @@ import type { BridgePort } from '@nasnet/api-client/generated';
  * - Visual indicators for PVID, VLANs, STP role/state
  * - Port removal with confirmation
  *
+ * @description Interactive drag-and-drop interface for managing bridge port memberships.
+ * Provides visual feedback during drag operations and safety confirmations for removal.
+ *
  * @param bridgeId - Bridge UUID
  * @param routerId - Router ID
+ * @param onEditPort - Callback when user clicks edit on a port
+ * @param className - Optional CSS class for styling
  */
 export interface BridgePortDiagramProps {
   bridgeId: string;
   routerId: string;
   onEditPort?: (portId: string) => void;
+  className?: string;
 }
 
-export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePortDiagramProps) {
+function BridgePortDiagramComponent({
+  bridgeId,
+  routerId,
+  onEditPort,
+  className
+}: BridgePortDiagramProps) {
   const {
     ports,
-    portsLoading,
-    portsError,
+    isLoadingPorts,
+    hasPortsError,
     availableInterfaces,
-    interfacesLoading,
-    interfacesError,
+    isLoadingInterfaces,
+    hasInterfacesError,
     handleDragEnd,
     handleRemovePort,
     portToRemove,
@@ -40,54 +53,82 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
     isLoading,
   } = useBridgePortDiagram(bridgeId, routerId);
 
-  const portToRemoveData = ports?.find((p: BridgePort) => p.id === portToRemove);
+  const portToRemoveData = useMemo(
+    () => ports?.find((p: BridgePort) => p.id === portToRemove),
+    [ports, portToRemove]
+  );
+
+  const handleRemovePortCallback = useCallback(
+    (id: string) => setPortToRemove(id),
+    [setPortToRemove]
+  );
+
+  const handleEditPortCallback = useCallback(
+    (id: string) => onEditPort?.(id),
+    [onEditPort]
+  );
+
+  const handleDragEndCallback = useCallback(
+    (event: DragEndEvent) => handleDragEnd(event),
+    [handleDragEnd]
+  );
+
+  const handleRemoveConfirmCallback = useCallback(
+    () => handleRemovePort(portToRemove!),
+    [handleRemovePort, portToRemove]
+  );
+
+  const handleCancelRemoveCallback = useCallback(
+    () => setPortToRemove(null),
+    [setPortToRemove]
+  );
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className={`grid gap-6 md:grid-cols-2 ${className || ''}`}>
       {/* Bridge Ports Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Network className="h-5 w-5" />
+          <Icon icon={Network} className="h-5 w-5" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Bridge Ports</h3>
         </div>
 
         {/* Loading State */}
-        {portsLoading && (
+        {isLoadingPorts && (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+            {Array.from({ length: MIN_SKELETON_COUNT }).map((_, i) => (
               <Skeleton key={i} className="h-20 w-full" />
             ))}
           </div>
         )}
 
         {/* Error State */}
-        {portsError && (
+        {hasPortsError && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>
-              Failed to load bridge ports: {portsError.message}
+              Failed to load bridge ports: {hasPortsError.message}
             </AlertDescription>
           </Alert>
         )}
 
         {/* Ports List with Drag-and-Drop */}
-        {!portsLoading && !portsError && (
-          <DndContext onDragEnd={handleDragEnd}>
-            <BridgeDropZone bridgeId={bridgeId} portCount={ports?.length || 0}>
+        {!isLoadingPorts && !hasPortsError && (
+          <DndContext onDragEnd={handleDragEndCallback}>
+            <BridgeDropZoneComponent bridgeId={bridgeId} portCount={ports?.length || 0}>
               <div className="space-y-2" role="list" aria-label="Bridge ports">
                 {ports && ports.length > 0 ? (
                   ports.map((port: BridgePort) => (
                     <PortNode
                       key={port.id}
                       port={port}
-                      onRemove={(portId) => setPortToRemove(portId)}
-                      onEdit={onEditPort || (() => {})}
+                      onRemove={handleRemovePortCallback}
+                      onEdit={handleEditPortCallback}
                       isRemoving={isLoading}
                     />
                   ))
                 ) : (
                   <div className="rounded-lg border-2 border-dashed bg-muted/50 p-8 text-center">
-                    <Network className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" aria-hidden="true" />
                     <p className="text-sm font-medium text-muted-foreground mb-1">
                       No ports assigned
                     </p>
@@ -97,7 +138,7 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
                   </div>
                 )}
               </div>
-            </BridgeDropZone>
+            </BridgeDropZoneComponent>
 
             {/* Drag Overlay (shows dragged item) */}
             <DragOverlay>
@@ -114,20 +155,20 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
         <h3 className="text-lg font-semibold">Available Interfaces</h3>
 
         {/* Error State */}
-        {interfacesError && (
+        {hasInterfacesError && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>
-              Failed to load interfaces: {interfacesError.message}
+              Failed to load interfaces: {hasInterfacesError.message}
             </AlertDescription>
           </Alert>
         )}
 
         {/* Available Interfaces */}
-        {!interfacesError && (
+        {!hasInterfacesError && (
           <AvailableInterfaces
             interfaces={availableInterfaces || []}
-            loading={interfacesLoading}
+            loading={isLoadingInterfaces}
           />
         )}
       </div>
@@ -136,7 +177,7 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
       {portToRemoveData && (
         <SafetyConfirmation
           open={!!portToRemove}
-          onOpenChange={(open) => !open && setPortToRemove(null)}
+          onOpenChange={(open) => !open && handleCancelRemoveCallback()}
           title={`Remove port "${portToRemoveData.interface.name}"?`}
           description="This port will be removed from the bridge and become available for other uses."
           consequences={[
@@ -148,13 +189,17 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
               : undefined,
           ].filter(Boolean) as string[]}
           confirmText="REMOVE"
-          onConfirm={() => handleRemovePort(portToRemove!)}
-          onCancel={() => setPortToRemove(null)}
+          onConfirm={handleRemoveConfirmCallback}
+          onCancel={handleCancelRemoveCallback}
         />
       )}
     </div>
   );
 }
+
+BridgePortDiagramComponent.displayName = 'BridgePortDiagram';
+
+export const BridgePortDiagram = memo(BridgePortDiagramComponent);
 
 /**
  * Bridge Drop Zone - Droppable area for adding interfaces
@@ -165,25 +210,32 @@ interface BridgeDropZoneProps {
   children: React.ReactNode;
 }
 
-function BridgeDropZone({ bridgeId, portCount, children }: BridgeDropZoneProps) {
+const BridgeDropZoneComponent = memo(function BridgeDropZone({ bridgeId, portCount, children }: BridgeDropZoneProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `bridge-${bridgeId}`,
   });
 
+  const dropZoneClasses = useMemo(
+    () => `rounded-lg border-2 transition-colors ${
+      isOver
+        ? 'border-primary bg-primary/5'
+        : portCount === 0
+        ? 'border-dashed'
+        : 'border-border'
+    } p-4`,
+    [isOver, portCount]
+  );
+
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-lg border-2 transition-colors ${
-        isOver
-          ? 'border-primary bg-primary/5'
-          : portCount === 0
-          ? 'border-dashed'
-          : 'border-border'
-      } p-4`}
+      className={dropZoneClasses}
       role="region"
       aria-label="Bridge port drop zone"
     >
       {children}
     </div>
   );
-}
+});
+
+BridgeDropZoneComponent.displayName = 'BridgeDropZone';

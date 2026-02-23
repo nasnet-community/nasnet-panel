@@ -6,12 +6,12 @@
  */
 
 import { useMachine } from '@xstate/react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   useInstallTemplate,
   useTemplateInstallProgress,
 } from '@nasnet/api-client/queries';
-import type { ServiceTemplate } from '@nasnet/api-client/generated';
+import type { ServiceTemplate, TemplateInstallResult, TemplateInstallProgress } from '@nasnet/api-client/generated';
 
 import { createTemplateInstallMachine } from './templateInstallMachine';
 import type { TemplateInstallContext } from './templateInstallMachine';
@@ -34,27 +34,29 @@ export interface UseTemplateInstallWizardOptions {
 
 /**
  * Return type for useTemplateInstallWizard
+ *
+ * Provides access to wizard state machine, navigation, and installation progress.
  */
 export interface UseTemplateInstallWizardReturn {
-  /** Current state */
+  /** Current XState machine state */
   state: any;
-  /** Machine context */
+  /** Machine context containing installation data */
   context: TemplateInstallContext;
-  /** Send event to machine */
+  /** Send event to state machine */
   send: (event: any) => void;
   /** Current step number (1-4) */
   currentStep: number;
-  /** Whether can navigate to next step */
+  /** Whether user can navigate to next step */
   canGoNext: boolean;
-  /** Whether can navigate to previous step */
+  /** Whether user can navigate to previous step */
   canGoPrev: boolean;
-  /** Whether installation is in progress */
+  /** Whether installation is currently in progress */
   isInstalling: boolean;
   /** Whether installation completed successfully */
   isCompleted: boolean;
-  /** Whether wizard was cancelled */
+  /** Whether wizard was cancelled by user */
   isCancelled: boolean;
-  /** Whether installation failed */
+  /** Whether installation encountered errors */
   isFailed: boolean;
 }
 
@@ -96,50 +98,59 @@ export function useTemplateInstallWizard(
 
   // Install mutation
   const { installTemplate, loading: installLoading } = useInstallTemplate({
-    onCompleted: (result) => {
-      if (result.success) {
-        send({
-          type: 'INSTALL_COMPLETE',
-          result: {
-            success: true,
-            instanceIDs: [...(result.instanceIDs || [])],
-            errors: [...(result.errors || [])],
-          },
-        });
-        if (onComplete) {
-          onComplete([...(result.instanceIDs || [])]);
+    onCompleted: useCallback(
+      (result: TemplateInstallResult) => {
+        if (result.success) {
+          send({
+            type: 'INSTALL_COMPLETE',
+            result: {
+              success: true,
+              instanceIDs: [...(result.instanceIDs || [])],
+              errors: [...(result.errors || [])],
+            },
+          });
+          if (onComplete) {
+            onComplete([...(result.instanceIDs || [])]);
+          }
+        } else {
+          send({
+            type: 'INSTALL_FAILED',
+            error: result.errors?.[0] || 'Installation failed',
+          });
+          if (onError) {
+            onError(result.errors?.[0] || 'Installation failed');
+          }
         }
-      } else {
-        send({
-          type: 'INSTALL_FAILED',
-          error: result.errors?.[0] || 'Installation failed',
-        });
+      },
+      [send, onComplete, onError]
+    ),
+    onError: useCallback(
+      (error: Error) => {
+        send({ type: 'INSTALL_FAILED', error: error.message });
         if (onError) {
-          onError(result.errors?.[0] || 'Installation failed');
+          onError(error.message);
         }
-      }
-    },
-    onError: (error) => {
-      send({ type: 'INSTALL_FAILED', error: error.message });
-      if (onError) {
-        onError(error.message);
-      }
-    },
+      },
+      [send, onError]
+    ),
   });
 
   // Progress subscription (only when installing)
   const { progress } = useTemplateInstallProgress({
     routerID: routerId,
     enabled: state.matches('installing'),
-    onCompleted: (progressData) => {
-      console.log('Installation completed:', progressData);
-    },
-    onFailed: (progressData) => {
-      send({
-        type: 'INSTALL_FAILED',
-        error: progressData.errorMessage || 'Installation failed',
-      });
-    },
+    onCompleted: useCallback((progressData: TemplateInstallProgress) => {
+      // Installation completed via subscription
+    }, []),
+    onFailed: useCallback(
+      (progressData: TemplateInstallProgress) => {
+        send({
+          type: 'INSTALL_FAILED',
+          error: progressData.errorMessage || 'Installation failed',
+        });
+      },
+      [send]
+    ),
   });
 
   // Update progress in context

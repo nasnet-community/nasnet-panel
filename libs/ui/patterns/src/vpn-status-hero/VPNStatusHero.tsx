@@ -18,20 +18,21 @@
  * ```
  */
 
-import { memo } from 'react';
+import { memo, forwardRef, useMemo } from 'react';
 
-import { 
-  Shield, 
-  ShieldAlert, 
-  ShieldX, 
+import {
+  Shield,
+  ShieldAlert,
+  ShieldX,
   Loader2,
   Server,
   Monitor,
   Activity,
-  ArrowDownUp
+  ArrowDownUp,
 } from 'lucide-react';
 
 import { formatBytes } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/utils';
 import { Card, CardContent } from '@nasnet/ui/primitives';
 
 export type VPNHealthStatus = 'healthy' | 'warning' | 'critical' | 'loading';
@@ -120,37 +121,39 @@ function VPNStatusHeroComponent({
   issueCount = 0,
   className = '',
 }: VPNStatusHeroProps) {
-  const config = getStatusConfig(status);
+  const config = useMemo(() => getStatusConfig(status), [status]);
   const Icon = config.Icon;
+  const isHealthy = status === 'healthy';
+  const isLoading = status === 'loading';
 
   return (
-    <Card className={`overflow-hidden ${className}`} role="status" aria-label={`VPN health: ${config.title}`}>
-      <CardContent
-        className={`
-          p-0 ${config.bgClass}
-        `}
-      >
+    <Card className={cn('overflow-hidden', className)} role="status" aria-label={`VPN health: ${config.title}`}>
+      <CardContent className={cn('p-0', config.bgClass)}>
         {/* Hero Section */}
         <div className="p-6 pb-8 text-center">
-          <div 
-            className={`
-              w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
-              ${config.iconBg}
-              ${status === 'healthy' ? 'animate-pulse' : ''}
-            `}
+          <div
+            className={cn(
+              'w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center',
+              config.iconBg,
+              isHealthy && 'animate-pulse'
+            )}
           >
-            <Icon 
-              className={`w-10 h-10 ${config.textColor} ${status === 'loading' ? 'animate-spin' : ''}`} 
+            <Icon
+              className={cn(
+                'w-10 h-10',
+                config.textColor,
+                isLoading && 'animate-spin'
+              )}
             />
           </div>
-          <h2 className={`text-2xl font-bold ${config.textColor} mb-1`}>
+          <h2 className={cn('text-2xl font-bold mb-1', config.textColor)}>
             {config.title}
           </h2>
           <p className={config.mutedColor}>
             {config.subtitle}
           </p>
           {issueCount > 0 && status !== 'healthy' && (
-            <p className={`mt-2 text-sm ${config.textColor} font-medium`}>
+            <p className={cn('mt-2 text-sm font-medium', config.textColor)}>
               {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
             </p>
           )}
@@ -161,44 +164,44 @@ function VPNStatusHeroComponent({
           <div className="grid grid-cols-4 gap-4 text-center">
             {/* Servers */}
             <div className="flex flex-col items-center">
-              <Server className={`w-5 h-5 ${config.mutedColor} mb-1`} />
-              <p className={`text-xl font-bold ${config.textColor}`}>
+              <Server className={cn('w-5 h-5 mb-1', config.mutedColor)} />
+              <p className={cn('text-xl font-bold', config.textColor)}>
                 {totalServers}
               </p>
-              <p className={`text-xs ${config.mutedColor}`}>
+              <p className={cn('text-xs', config.mutedColor)}>
                 Servers
               </p>
             </div>
 
             {/* Clients */}
             <div className="flex flex-col items-center">
-              <Monitor className={`w-5 h-5 ${config.mutedColor} mb-1`} />
-              <p className={`text-xl font-bold ${config.textColor}`}>
+              <Monitor className={cn('w-5 h-5 mb-1', config.mutedColor)} />
+              <p className={cn('text-xl font-bold', config.textColor)}>
                 {totalClients}
               </p>
-              <p className={`text-xs ${config.mutedColor}`}>
+              <p className={cn('text-xs', config.mutedColor)}>
                 Clients
               </p>
             </div>
 
             {/* Active */}
             <div className="flex flex-col items-center">
-              <Activity className={`w-5 h-5 ${config.mutedColor} mb-1`} />
-              <p className={`text-xl font-bold ${config.textColor}`}>
+              <Activity className={cn('w-5 h-5 mb-1', config.mutedColor)} />
+              <p className={cn('text-xl font-bold', config.textColor)}>
                 {activeServerConnections + activeClientConnections}
               </p>
-              <p className={`text-xs ${config.mutedColor}`}>
+              <p className={cn('text-xs', config.mutedColor)}>
                 Active
               </p>
             </div>
 
             {/* Traffic */}
             <div className="flex flex-col items-center">
-              <ArrowDownUp className={`w-5 h-5 ${config.mutedColor} mb-1`} />
-              <p className={`text-lg font-bold ${config.textColor}`}>
+              <ArrowDownUp className={cn('w-5 h-5 mb-1', config.mutedColor)} />
+              <p className={cn('text-lg font-bold', config.textColor)}>
                 {formatBytes(totalRx + totalTx)}
               </p>
-              <p className={`text-xs ${config.mutedColor}`}>
+              <p className={cn('text-xs', config.mutedColor)}>
                 Traffic
               </p>
             </div>
@@ -209,5 +212,10 @@ function VPNStatusHeroComponent({
   );
 }
 
-export const VPNStatusHero = memo(VPNStatusHeroComponent);
+export const VPNStatusHero = memo(
+  forwardRef<HTMLDivElement, VPNStatusHeroProps>(
+    (props, ref) => <VPNStatusHeroComponent {...props} />
+  )
+);
+
 VPNStatusHero.displayName = 'VPNStatusHero';

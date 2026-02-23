@@ -2,6 +2,27 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
+/**
+ * AppShellProps - Configuration for the AppShell layout component
+ *
+ * @property {React.ReactNode} children - Main content area (fills remaining space)
+ * @property {React.ReactNode} [header] - Header/top navigation bar
+ * @property {React.ReactNode} [footer] - Footer (sticky to bottom)
+ * @property {React.ReactNode} [sidebar] - Sidebar navigation (hidden on mobile, visible md+)
+ * @property {'left' | 'right'} [sidebarPosition='left'] - Sidebar position relative to main content
+ * @property {boolean} [sidebarCollapsed=false] - Sidebar collapse state (w-64 → w-16 transition)
+ * @property {React.ReactNode} [banner] - Optional status banner (rendered between header and content)
+ * @property {string} [className] - Additional CSS classes for root element
+ *
+ * @example
+ * <AppShell
+ *   header={<AppHeader />}
+ *   sidebar={<Navigation />}
+ *   banner={offline && <OfflineBanner />}
+ * >
+ *   <MainContent />
+ * </AppShell>
+ */
 export interface AppShellProps {
   children: React.ReactNode;
   header?: React.ReactNode;
@@ -14,60 +35,110 @@ export interface AppShellProps {
   className?: string;
 }
 
-const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
-  (
-    {
-      children,
-      header,
-      footer,
-      sidebar,
-      sidebarPosition = 'left',
-      sidebarCollapsed = false,
-      banner,
-      className,
-    },
-    ref
-  ) => {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex min-h-screen flex-col bg-background', className)}
-      >
-        {header && (
-          <header className="sticky top-0 z-40 bg-card border-b border-border shadow-sm" style={{ height: 'var(--nav-height, 4rem)' }}>
-            {header}
-          </header>
-        )}
-        {banner}
-        <div className="flex flex-1">
-          {sidebar && sidebarPosition === 'left' && (
-            <aside
-              className={cn(
-                'border-r border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
-                sidebarCollapsed ? 'w-16' : 'w-64'
-              )}
+/**
+ * AppShell - Main application layout wrapper
+ *
+ * Provides a responsive desktop-first layout with:
+ * - Sticky header (top navigation)
+ * - Collapsible sidebar (left or right, hidden on mobile)
+ * - Main content area (flex-1, scrollable)
+ * - Optional status banner (between header and content)
+ * - Optional footer (sticky to bottom)
+ *
+ * Desktop (>1024px):
+ * - Sidebar always visible (w-64 or w-16 when collapsed)
+ * - Fixed layout, no responsive hiding
+ *
+ * Mobile/Tablet (<1024px):
+ * - Sidebar hidden (use BottomNavigation on mobile instead)
+ * - Full-width main content
+ *
+ * @example
+ * // With all slots
+ * <AppShell
+ *   header={<AppHeader user={user} />}
+ *   sidebar={<Navigation />}
+ *   footer={<AppFooter />}
+ *   banner={offline && <OfflineBanner />}
+ * >
+ *   <PageContent />
+ * </AppShell>
+ *
+ * @see https://Docs/design/PLATFORM_PRESENTER_GUIDE.md#desktop-1024px
+ */
+const AppShell = React.memo(
+  React.forwardRef<HTMLDivElement, AppShellProps>(
+    (
+      {
+        children,
+        header,
+        footer,
+        sidebar,
+        sidebarPosition = 'left',
+        sidebarCollapsed = false,
+        banner,
+        className,
+      },
+      ref
+    ) => {
+      return (
+        <div
+          ref={ref}
+          className={cn('flex min-h-screen flex-col bg-background', className)}
+        >
+          {header && (
+            <header
+              className="sticky top-0 z-40 bg-card border-b border-border shadow-sm"
+              style={{ height: 'var(--nav-height, 4rem)' }}
+              aria-label="Application header"
             >
-              {sidebar}
-            </aside>
+              {header}
+            </header>
           )}
-          <main id="main-content" className="flex-1 overflow-auto bg-background">{children}</main>
-          {sidebar && sidebarPosition === 'right' && (
-            <aside
-              className={cn(
-                'border-l border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
-                sidebarCollapsed ? 'w-16' : 'w-64'
-              )}
+          {banner}
+          <div className="flex flex-1">
+            {sidebar && sidebarPosition === 'left' && (
+              <aside
+                className={cn(
+                  'border-r border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
+                  sidebarCollapsed ? 'w-16' : 'w-64'
+                )}
+                aria-label="Navigation sidebar"
+              >
+                {sidebar}
+              </aside>
+            )}
+            <main
+              id="main-content"
+              className="flex-1 overflow-auto bg-background"
+              role="main"
             >
-              {sidebar}
-            </aside>
+              {children}
+            </main>
+            {sidebar && sidebarPosition === 'right' && (
+              <aside
+                className={cn(
+                  'border-l border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
+                  sidebarCollapsed ? 'w-16' : 'w-64'
+                )}
+                aria-label="Navigation sidebar"
+              >
+                {sidebar}
+              </aside>
+            )}
+          </div>
+          {footer && (
+            <footer
+              className="border-t border-border bg-card"
+              aria-label="Application footer"
+            >
+              {footer}
+            </footer>
           )}
         </div>
-        {footer && (
-          <footer className="border-t border-border bg-card">{footer}</footer>
-        )}
-      </div>
-    );
-  }
+      );
+    }
+  )
 );
 
 AppShell.displayName = 'AppShell';

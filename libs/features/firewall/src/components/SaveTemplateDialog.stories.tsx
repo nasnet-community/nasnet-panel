@@ -6,9 +6,10 @@
  * name-conflict validation, saving state, and controlled open/close mode.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import type { TemplateRule } from '../schemas/templateSchemas';
 import { SaveTemplateDialog } from './SaveTemplateDialog';
+
+import type { TemplateRule, FirewallTemplate } from '../schemas/templateSchemas';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Mock Data
@@ -17,18 +18,20 @@ import { SaveTemplateDialog } from './SaveTemplateDialog';
 /** Minimal rule set with no extractable variables */
 const simpleRules: TemplateRule[] = [
   {
-    id: 'rule-1',
+    table: 'FILTER',
     chain: 'forward',
     action: 'drop',
+    position: 0,
     properties: {
       comment: 'Drop invalid traffic',
       connectionState: 'invalid',
     },
   },
   {
-    id: 'rule-2',
+    table: 'FILTER',
     chain: 'input',
     action: 'accept',
+    position: 1,
     properties: {
       comment: 'Accept established connections',
       connectionState: 'established,related',
@@ -39,9 +42,10 @@ const simpleRules: TemplateRule[] = [
 /** Rules that expose IP address, subnet, interface, and port variables */
 const richRules: TemplateRule[] = [
   {
-    id: 'rule-nat-1',
+    table: 'NAT',
     chain: 'srcnat',
     action: 'masquerade',
+    position: 0,
     properties: {
       outInterface: 'ether1',
       srcAddress: '192.168.88.0/24',
@@ -49,9 +53,10 @@ const richRules: TemplateRule[] = [
     },
   },
   {
-    id: 'rule-fwd-1',
+    table: 'FILTER',
     chain: 'forward',
     action: 'accept',
+    position: 1,
     properties: {
       inInterface: 'bridge1',
       srcAddress: '192.168.88.1',
@@ -61,9 +66,10 @@ const richRules: TemplateRule[] = [
     },
   },
   {
-    id: 'rule-fwd-2',
+    table: 'FILTER',
     chain: 'forward',
     action: 'drop',
+    position: 2,
     properties: {
       outInterface: 'ether1',
       comment: 'Block WAN forwarding by default',
@@ -74,9 +80,10 @@ const richRules: TemplateRule[] = [
 /** Single rule — edge-case for singular label */
 const singleRule: TemplateRule[] = [
   {
-    id: 'rule-only',
+    table: 'FILTER',
     chain: 'input',
     action: 'drop',
+    position: 0,
     properties: {
       srcAddress: '10.0.0.50',
       comment: 'Block specific host',
@@ -85,13 +92,13 @@ const singleRule: TemplateRule[] = [
 ];
 
 /** Simulates a successful async save */
-const mockSaveSuccess = async (template: unknown): Promise<void> => {
+const mockSaveSuccess = async (_template: FirewallTemplate): Promise<void> => {
   await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-  console.info('Template saved:', template);
+  console.info('Template saved successfully');
 };
 
 /** Simulates a failed save (e.g., persistence error) */
-const mockSaveFailure = async (_template: unknown): Promise<void> => {
+const mockSaveFailure = async (_template: FirewallTemplate): Promise<void> => {
   await new Promise<void>((_, reject) =>
     setTimeout(() => reject(new Error('Failed to write template to disk')), 800)
   );

@@ -61,19 +61,54 @@ export interface RHFFormFieldProps<TFieldValues extends FieldValues = FieldValue
 
 /**
  * React Hook Form-aware form field component.
+ *
  * Automatically integrates with useFormContext for validation and state.
+ * Supports field modes (editable, readonly, hidden, computed) for flexible
+ * field display logic. Provides full WCAG AAA accessibility with proper
+ * ARIA attributes and semantic HTML.
+ *
+ * Features:
+ * - Automatic error extraction from form state
+ * - Field mode support (editable, readonly, hidden, computed)
+ * - Custom input rendering via renderInput prop or children
+ * - Proper ARIA labels, descriptions, and validation messages
+ * - Dark mode support via CSS tokens
  *
  * @example
  * ```tsx
+ * // Basic usage
  * <RHFFormField
  *   name="email"
  *   label="Email Address"
+ *   type="email"
  *   description="We'll never share your email"
  *   required
  * />
+ *
+ * // With custom rendering
+ * <RHFFormField
+ *   name="country"
+ *   label="Country"
+ *   renderInput={({ field }) => (
+ *     <Select {...field}>
+ *       <option>USA</option>
+ *       <option>Canada</option>
+ *     </Select>
+ *   )}
+ * />
+ *
+ * // Computed field
+ * <RHFFormField
+ *   name="fullName"
+ *   label="Full Name"
+ *   mode="computed"
+ *   computeFn={(values) => `${values.firstName} ${values.lastName}`}
+ * />
  * ```
+ *
+ * @see {@link FieldMode} for field display modes
  */
-export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
+export const RHFFormField = React.memo(function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -91,17 +126,17 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
   hint,
 }: RHFFormFieldProps<TFieldValues>) {
   const formContext = useFormContext<TFieldValues>();
-  const control = controlProp ?? formContext.control;
-  const watch = formContext.watch;
-  const errors = formContext.formState.errors;
+  const control = React.useMemo(() => controlProp ?? formContext.control, [controlProp, formContext.control]);
+  const watch = React.useMemo(() => formContext.watch, [formContext.watch]);
+  const errors = React.useMemo(() => formContext.formState.errors, [formContext.formState.errors]);
 
   // Generate unique IDs for accessibility
   const fieldId = React.useId();
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
 
-  // Get nested error by path
-  const getNestedError = (path: string): string | undefined => {
+  // Get nested error by path (memoized to avoid recreation on each render)
+  const getNestedError = React.useCallback((path: string): string | undefined => {
     const parts = path.split('.');
     let current: unknown = errors;
     for (const part of parts) {
@@ -115,7 +150,7 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
       return (current as { message?: string }).message;
     }
     return undefined;
-  };
+  }, [errors]);
 
   const error = errorProp ?? getNestedError(name);
 
@@ -216,6 +251,6 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
       )}
     </div>
   );
-}
+});
 
 RHFFormField.displayName = 'RHFFormField';

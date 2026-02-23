@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 
 import { Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 import { type NetworkInterface } from '@nasnet/core/types';
 
@@ -18,6 +20,7 @@ interface InterfaceListProps {
 }
 
 export const InterfaceList = React.memo(function InterfaceList({ interfaces, defaultCollapsed = false }: InterfaceListProps) {
+  const { t } = useTranslation('network');
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [showAll, setShowAll] = useState(false);
 
@@ -33,7 +36,7 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
           <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <p className="text-muted-foreground text-sm">
-          No network interfaces found
+          {t('interfaces.notFound')}
         </p>
       </div>
     );
@@ -42,15 +45,15 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
   return (
     <div className="space-y-3">
       <SectionHeader
-        title="Interfaces"
+        title={t('interfaces.title')}
         count={interfaces.length}
-        subtitle={`${activeCount} active`}
+        subtitle={t('interfaces.active', { count: activeCount })}
         isCollapsed={isCollapsed}
         onToggle={() => setIsCollapsed(!isCollapsed)}
         action={
           hasMore && !isCollapsed
             ? {
-                label: showAll ? 'Show Less' : `View All (${interfaces.length})`,
+                label: showAll ? t('button.showLess', { ns: 'common' }) : t('interfaces.viewAll', { count: interfaces.length }),
                 onClick: () => setShowAll(!showAll),
               }
             : undefined

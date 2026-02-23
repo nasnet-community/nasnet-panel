@@ -1,10 +1,10 @@
 /**
- * NAT Rules Table Mobile Component
- * Card-based list view optimized for mobile devices
+ * NATRulesTableMobile Component
+ * @description Card-based list view for NAT rules optimized for mobile devices
  * Epic 0.6, Story 0.6.2
  */
 
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useNATRules, useDeleteNATRule, useToggleNATRule } from '@nasnet/api-client/queries';
 import { useConnectionStore, useNATUIStore } from '@nasnet/state/stores';
 import {
@@ -26,21 +26,29 @@ import { MoreVertical, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
 import type { NATRule } from '@nasnet/core/types';
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const NAT_ACTION_VARIANTS: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
+  masquerade: 'info',
+  'dst-nat': 'secondary',
+  'src-nat': 'default',
+  redirect: 'warning',
+};
+
+// ============================================================================
 // Action Badge Component
 // ============================================================================
 
+/**
+ * NATActionBadge Component
+ * @description Badge displaying NAT action type with semantic color
+ */
 const NATActionBadge = memo(function NATActionBadge({ action }: { action: string }) {
-  const variantMap: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
-    masquerade: 'info',
-    'dst-nat': 'secondary',
-    'src-nat': 'default',
-    redirect: 'warning',
-  };
-
-  const variant = variantMap[action] || 'outline';
+  const variant = NAT_ACTION_VARIANTS[action] || 'outline';
 
   return (
-    <Badge variant={variant} className="text-xs">
+    <Badge variant={variant} className="text-xs" role="img" aria-label={`NAT action: ${action}`}>
       {action}
     </Badge>
   );
@@ -50,9 +58,13 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
 // Chain Badge Component
 // ============================================================================
 
+/**
+ * ChainBadge Component
+ * @description Badge displaying NAT chain name in monospace font
+ */
 const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
-    <Badge variant="secondary" className="font-mono text-xs">
+    <Badge variant="secondary" className="font-mono text-xs" role="img" aria-label={`Chain: ${chain}`}>
       {chain}
     </Badge>
   );
@@ -62,6 +74,10 @@ const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
 // Rule Card Component
 // ============================================================================
 
+/**
+ * RuleCardProps
+ * @description Props for single NAT rule card
+ */
 interface RuleCardProps {
   rule: NATRule;
   onEdit: (rule: NATRule) => void;
@@ -69,6 +85,10 @@ interface RuleCardProps {
   onToggle: (ruleId: string, disabled: boolean) => void;
 }
 
+/**
+ * RuleCard Component
+ * @description Card displaying single NAT rule with inline actions
+ */
 const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
   return (
     <Card className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}>
@@ -92,9 +112,9 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
                 variant="ghost"
                 size="icon"
                 className="min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                aria-label={`Actions for rule ${rule.order}`}
+                aria-label={`Actions for NAT rule ${rule.order}`}
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -130,7 +150,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.protocol && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Protocol:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.protocol.toUpperCase()}
             </span>
           </div>
@@ -140,7 +160,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.srcAddress && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Src Address:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.srcAddress}
             </span>
           </div>
@@ -148,7 +168,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.dstAddress && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Dst Address:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.dstAddress}
             </span>
           </div>
@@ -158,7 +178,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.srcPort && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Src Port:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.srcPort}
             </span>
           </div>
@@ -166,7 +186,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.dstPort && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Dst Port:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.dstPort}
             </span>
           </div>
@@ -176,7 +196,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.toAddresses && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">To Addresses:</span>
-            <span className={`font-mono font-medium ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono font-medium text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.toAddresses}
             </span>
           </div>
@@ -184,7 +204,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.toPorts && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">To Ports:</span>
-            <span className={`font-mono font-medium ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono font-medium text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.toPorts}
             </span>
           </div>
@@ -194,7 +214,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.inInterface && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">In Interface:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.inInterface}
             </span>
           </div>
@@ -202,7 +222,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.outInterface && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Out Interface:</span>
-            <span className={`font-mono ${rule.disabled ? 'line-through' : ''}`}>
+            <span className={`font-mono text-sm ${rule.disabled ? 'line-through' : ''}`}>
               {rule.outInterface}
             </span>
           </div>
@@ -241,15 +261,15 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
   // Handlers
   // ========================================
 
-  const handleEdit = (rule: NATRule) => {
+  const handleEdit = useCallback((rule: NATRule) => {
     onEditRule?.(rule);
-  };
+  }, [onEditRule]);
 
-  const handleDelete = (ruleId: string) => {
+  const handleDelete = useCallback((ruleId: string) => {
     setRuleToDelete(ruleId);
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!ruleToDelete) return;
 
     try {
@@ -267,9 +287,9 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
         variant: 'destructive',
       });
     }
-  };
+  }, [ruleToDelete, deleteRuleMutation]);
 
-  const handleToggle = async (ruleId: string, disabled: boolean) => {
+  const handleToggle = useCallback(async (ruleId: string, disabled: boolean) => {
     try {
       await toggleRuleMutation.mutateAsync({ ruleId, disabled });
       toast({
@@ -284,7 +304,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
         variant: 'destructive',
       });
     }
-  };
+  }, [toggleRuleMutation]);
 
   // ========================================
   // Render States

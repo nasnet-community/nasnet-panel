@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { ResourceHealthDot } from '../resource-health-indicator';
 import { useServiceHealthBadge } from './useServiceHealthBadge';
 
@@ -9,7 +11,7 @@ import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
  * Shows compact dot indicator only - no text or metrics
  * to conserve space on mobile screens.
  */
-export function ServiceHealthBadgeMobile({
+function ServiceHealthBadgeMobileComponent({
   health,
   loading,
   animate,
@@ -29,3 +31,9 @@ export function ServiceHealthBadgeMobile({
     />
   );
 }
+
+// Wrap with memo for performance optimization
+export const ServiceHealthBadgeMobile = memo(ServiceHealthBadgeMobileComponent);
+
+// Set display name for React DevTools
+ServiceHealthBadgeMobile.displayName = 'ServiceHealthBadgeMobile';

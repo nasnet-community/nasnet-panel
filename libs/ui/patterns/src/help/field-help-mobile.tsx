@@ -26,7 +26,7 @@ import type { FieldHelpMobileProps } from './help.types';
  *
  * @internal This component is used by the FieldHelp auto-detecting wrapper
  */
-export function FieldHelpMobile({
+export const FieldHelpMobile = React.memo(function FieldHelpMobile({
   field,
   className,
   helpState,
@@ -46,4 +46,6 @@ export function FieldHelpMobile({
       <HelpSheet content={content} open={isOpen} onOpenChange={setIsOpen} />
     </>
   );
-}
+});
+
+FieldHelpMobile.displayName = 'FieldHelpMobile';

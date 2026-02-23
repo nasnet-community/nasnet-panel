@@ -12,12 +12,17 @@
  */
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { MockedProvider } from '@apollo/client/testing';
-import { Button } from '@nasnet/ui/primitives';
-import { IPAddressDeleteDialog } from './IPAddressDeleteDialog';
+
+import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { fn } from 'storybook/test';
+
 import { GET_IP_ADDRESS_DEPENDENCIES } from '@nasnet/api-client/queries';
+import { Button } from '@nasnet/ui/primitives';
+
+import { IPAddressDeleteDialog } from './IPAddressDeleteDialog';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared IP address fixtures
@@ -33,12 +38,14 @@ const ipv6 = { id: 'ip-004', address: '2001:db8::1/64', interfaceName: 'ether2' 
 // ---------------------------------------------------------------------------
 
 function noDependenciesMock(ipId: string) {
+  const request = {
+    query: GET_IP_ADDRESS_DEPENDENCIES,
+    variables: { routerId: 'router-001', id: ipId },
+  };
   return {
-    request: {
-      query: GET_IP_ADDRESS_DEPENDENCIES,
-      variables: { routerId: 'router-001', id: ipId },
-    },
+    request,
     result: {
+      request,
       data: {
         ipAddressDependencies: {
           canDelete: true,
@@ -55,12 +62,14 @@ function noDependenciesMock(ipId: string) {
 }
 
 function withDependenciesMock(ipId: string) {
+  const request = {
+    query: GET_IP_ADDRESS_DEPENDENCIES,
+    variables: { routerId: 'router-001', id: ipId },
+  };
   return {
-    request: {
-      query: GET_IP_ADDRESS_DEPENDENCIES,
-      variables: { routerId: 'router-001', id: ipId },
-    },
+    request,
     result: {
+      request,
       data: {
         ipAddressDependencies: {
           canDelete: true,
@@ -84,12 +93,14 @@ function withDependenciesMock(ipId: string) {
 }
 
 function cannotDeleteMock(ipId: string) {
+  const request = {
+    query: GET_IP_ADDRESS_DEPENDENCIES,
+    variables: { routerId: 'router-001', id: ipId },
+  };
   return {
-    request: {
-      query: GET_IP_ADDRESS_DEPENDENCIES,
-      variables: { routerId: 'router-001', id: ipId },
-    },
+    request,
     result: {
+      request,
       data: {
         ipAddressDependencies: {
           canDelete: false,
@@ -123,7 +134,7 @@ function cannotDeleteMock(ipId: string) {
 interface WrapperProps {
   ipAddress: typeof ipWan;
   loading?: boolean;
-  mocks: object[];
+  mocks: MockedResponse[];
   autoOpen?: boolean;
 }
 
@@ -156,7 +167,7 @@ function DialogWrapper({ ipAddress, loading: externalLoading, mocks, autoOpen = 
           open={open}
           routerId="router-001"
           ipAddress={ipAddress}
-          loading={externalLoading ?? deleting}
+          isLoading={externalLoading ?? deleting}
           onConfirm={handleConfirm}
           onCancel={() => setOpen(false)}
         />
@@ -200,7 +211,7 @@ allowing deletion.
     open: true,
     routerId: 'router-001',
     ipAddress: ipWan,
-    loading: false,
+    isLoading: false,
     onConfirm: fn(),
     onCancel: fn(),
   },

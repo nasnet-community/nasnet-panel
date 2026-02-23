@@ -16,7 +16,7 @@ import { LazyFirewallTab } from '@/app/routes/router-panel/tabs/lazy';
  */
 function FirewallTabSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading firewall configuration">
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-64 w-full" />
       <Skeleton className="h-64 w-full" />

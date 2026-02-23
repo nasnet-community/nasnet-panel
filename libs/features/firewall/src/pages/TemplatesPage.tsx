@@ -14,12 +14,11 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Upload, Download, Settings } from 'lucide-react';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives/tabs';
-import { TemplateGallery } from '@nasnet/ui/patterns/template-gallery';
-import { useTemplateGallery } from '@nasnet/ui/patterns/template-gallery';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+import { TemplateGallery, useTemplateGallery } from '@nasnet/ui/patterns/template-gallery';
 import { TemplateApplyFlow } from '../components/TemplateApplyFlow';
 import { SaveTemplateDialog } from '../components/SaveTemplateDialog';
 import { ImportTemplateDialog } from '../components/ImportTemplateDialog';
@@ -33,19 +32,31 @@ import { downloadTemplates } from '../utils/template-export';
 // COMPONENT PROPS
 // ============================================
 
+/**
+ * TemplatesPage Component Props
+ * @description Props for firewall templates management page
+ */
 export interface TemplatesPageProps {
   /** Router ID for template operations */
   routerId: string;
 
   /** Current firewall rules (for creating custom templates) */
   currentRules?: any[];
+
+  /** Optional CSS class for styling */
+  className?: string;
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProps) {
+/**
+ * TemplatesPage Component
+ * @description Main page for managing firewall templates with browsing, applying, and custom template creation
+ */
+export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRules = [], className }: TemplatesPageProps) {
+  const { t } = useTranslation('firewall');
   const [selectedTemplate, setSelectedTemplate] = useState<FirewallTemplate | null>(null);
   const [activeTab, setActiveTab] = useState<'browse' | 'apply'>('browse');
 
@@ -83,13 +94,10 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
 
   // Handlers
 
-  const handleApplyTemplate = useCallback(
-    (template: FirewallTemplate) => {
-      setSelectedTemplate(template);
-      setActiveTab('apply');
-    },
-    []
-  );
+  const handleApplyTemplate = useCallback((template: FirewallTemplate) => {
+    setSelectedTemplate(template);
+    setActiveTab('apply');
+  }, []);
 
   const handlePreviewTemplate = useCallback(
     async (params: {
@@ -232,18 +240,18 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Firewall Templates</h1>
+          <h1 className="text-3xl font-bold">{t('templates.title')}</h1>
           <p className="text-muted-foreground">
-            Apply pre-configured firewall rules or create your own templates
+            {t('templates.subtitle')}
           </p>
         </div>
 
         <div className="flex gap-2">
           {/* Export All Custom Templates */}
           {customTemplates.length > 0 && (
-            <Button variant="outline" onClick={handleExportAllCustom} aria-label="Export all custom templates">
+            <Button variant="outline" onClick={handleExportAllCustom} aria-label={t('templates.buttons.exportCustom')}>
               <Download className="mr-2 h-4 w-4" aria-hidden="true" />
-              Export Custom ({customTemplates.length})
+              {t('templates.buttons.exportCustom')} ({customTemplates.length})
             </Button>
           )}
 
@@ -252,9 +260,9 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
             existingNames={existingTemplateNames}
             onImport={handleImportTemplate}
             trigger={
-              <Button variant="outline" aria-label="Import template file">
+              <Button variant="outline" aria-label={t('templates.buttons.import')}>
                 <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
-                Import
+                {t('templates.buttons.import')}
               </Button>
             }
           />
@@ -266,9 +274,9 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
               existingNames={existingTemplateNames}
               onSave={handleSaveCustomTemplate}
               trigger={
-                <Button aria-label="Create template from current rules">
+                <Button aria-label={t('templates.buttons.create')}>
                   <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-                  Create Template
+                  {t('templates.buttons.create')}
                 </Button>
               }
             />
@@ -279,9 +287,9 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'browse' | 'apply')}>
         <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="browse">Browse Templates</TabsTrigger>
+          <TabsTrigger value="browse">{t('templates.tabs.browse')}</TabsTrigger>
           <TabsTrigger value="apply" disabled={!selectedTemplate}>
-            Configure & Apply
+            {t('templates.tabs.apply')}
           </TabsTrigger>
         </TabsList>
 
@@ -297,7 +305,7 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
           {builtInError && (
             <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
               <p className="text-sm text-destructive">
-                Failed to load built-in templates. Please try again.
+                {t('templates.errors.loadFailed')}
               </p>
             </div>
           )}
@@ -307,11 +315,11 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
             <div className="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center">
               <Settings className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
               <div>
-                <h3 className="text-lg font-semibold">No Templates Available</h3>
+                <h3 className="text-lg font-semibold">{t('templates.emptyStates.noTemplates.title')}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {currentRules.length > 0
-                    ? 'Create your first template from your current firewall rules'
-                    : 'Import templates or configure some firewall rules first'}
+                    ? t('templates.emptyStates.noTemplates.descriptionWithRules')
+                    : t('templates.emptyStates.noTemplates.description')}
                 </p>
               </div>
               {currentRules.length > 0 && (
@@ -320,9 +328,9 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
                   existingNames={existingTemplateNames}
                   onSave={handleSaveCustomTemplate}
                   trigger={
-                    <Button aria-label="Create your first firewall template">
+                    <Button aria-label={t('templates.buttons.createFirst')}>
                       <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-                      Create Your First Template
+                      {t('templates.buttons.createFirst')}
                     </Button>
                   }
                 />
@@ -349,4 +357,6 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
       </Tabs>
     </div>
   );
-}
+});
+
+TemplatesPage.displayName = 'TemplatesPage';

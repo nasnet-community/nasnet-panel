@@ -147,6 +147,11 @@ export interface DriftBadgeProps
 // Status Labels and Icons
 // =============================================================================
 
+/**
+ * STATUS_CONFIG maps drift statuses to labels, aria-labels, and icons.
+ * Note: Labels and ariaLabels should be internationalized via i18n provider.
+ * This object uses English defaults; consumers should wrap with i18n context.
+ */
 const STATUS_CONFIG: Record<
   DriftBadgeStatus,
   {
@@ -286,6 +291,7 @@ function formatLastChecked(lastChecked: Date | string | undefined): string {
 /**
  * DriftBadge displays the drift status between configuration and deployment layers.
  *
+ * @component
  * @example
  * ```tsx
  * // Basic usage
@@ -302,87 +308,104 @@ function formatLastChecked(lastChecked: Date | string | undefined): string {
  *   showTooltip
  * />
  *
- * // Interactive badge
+ * // Interactive badge with drift resolution
  * <DriftBadge
  *   status="drifted"
  *   count={3}
  *   interactive
  *   onClick={() => openDriftResolutionModal()}
  * />
+ *
+ * // Custom tooltip content
+ * <DriftBadge
+ *   status="drifted"
+ *   count={2}
+ *   showTooltip
+ *   tooltipContent="Click to review and resolve configuration drift"
+ * />
  * ```
+ *
+ * @accessibility
+ * - WCAG AAA: 7:1 contrast ratio maintained in light and dark themes
+ * - Semantic HTML: Uses role="status" for non-interactive, role="button" for interactive
+ * - Keyboard: Interactive badges support Enter/Space activation and tabIndex
+ * - Screen Reader: Full aria-label support with count and status information
+ * - Motion: Respects prefers-reduced-motion for checking animation
  */
-export const DriftBadge = React.forwardRef<HTMLSpanElement, DriftBadgeProps>(
-  (
-    {
-      status,
-      size,
-      count,
-      lastChecked,
-      showTooltip = true,
-      tooltipContent,
-      interactive = false,
-      onClick,
-      className,
-      ...props
-    },
-    ref
-  ) => {
-    const config = STATUS_CONFIG[status];
-    const displayCount = status === 'drifted' && count !== undefined && count > 0;
+export const DriftBadge = React.memo(
+  React.forwardRef<HTMLSpanElement, DriftBadgeProps>(
+    (
+      {
+        status,
+        size,
+        count,
+        lastChecked,
+        showTooltip = true,
+        tooltipContent,
+        interactive = false,
+        onClick,
+        className,
+        ...props
+      },
+      ref
+    ) => {
+      const config = STATUS_CONFIG[status];
+      const displayCount = status === 'drifted' && count !== undefined && count > 0;
 
-    // Build aria label
-    const ariaLabel = displayCount
-      ? `${config.ariaLabel}: ${count} field${count === 1 ? '' : 's'}`
-      : config.ariaLabel;
+      // Build aria label
+      const ariaLabel = displayCount
+        ? `${config.ariaLabel}: ${count} field${count === 1 ? '' : 's'}`
+        : config.ariaLabel;
 
-    // Build badge content
-    const badgeContent = (
-      <span
-        ref={ref}
-        role={interactive ? 'button' : 'status'}
-        tabIndex={interactive ? 0 : undefined}
-        aria-label={ariaLabel}
-        onClick={interactive ? onClick : undefined}
-        onKeyDown={
-          interactive
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onClick?.(e as unknown as React.MouseEvent<HTMLSpanElement>);
+      // Build badge content
+      const badgeContent = (
+        <span
+          ref={ref}
+          role={interactive ? 'button' : 'status'}
+          tabIndex={interactive ? 0 : undefined}
+          aria-label={ariaLabel}
+          onClick={interactive ? onClick : undefined}
+          onKeyDown={
+            interactive
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick?.(e as unknown as React.MouseEvent<HTMLSpanElement>);
+                  }
                 }
-              }
-            : undefined
-        }
-        className={cn(
-          driftBadgeVariants({ status, size }),
-          interactive && 'cursor-pointer hover:opacity-80',
-          className
-        )}
-        {...props}
-      >
-        {config.icon}
-        {displayCount && <span className="ml-1">{count}</span>}
-      </span>
-    );
-
-    // Wrap with tooltip if enabled
-    if (showTooltip) {
-      const tooltipText =
-        tooltipContent ||
-        `${config.label}${displayCount ? ` (${count} field${count === 1 ? '' : 's'})` : ''}\n${formatLastChecked(lastChecked)}`;
-
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>{badgeContent}</TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs whitespace-pre-line">
-            {tooltipText}
-          </TooltipContent>
-        </Tooltip>
+              : undefined
+          }
+          className={cn(
+            driftBadgeVariants({ status, size }),
+            interactive && 'cursor-pointer hover:opacity-80',
+            className
+          )}
+          {...props}
+        >
+          {config.icon}
+          {displayCount && <span className="ml-1">{count}</span>}
+        </span>
       );
-    }
 
-    return badgeContent;
-  }
+      // Wrap with tooltip if enabled
+      if (showTooltip) {
+        const tooltipText =
+          tooltipContent ||
+          `${config.label}${displayCount ? ` (${count} field${count === 1 ? '' : 's'})` : ''}\n${formatLastChecked(lastChecked)}`;
+
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>{badgeContent}</TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs whitespace-pre-line">
+              {tooltipText}
+            </TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      return badgeContent;
+    }
+  )
 );
 
 DriftBadge.displayName = 'DriftBadge';

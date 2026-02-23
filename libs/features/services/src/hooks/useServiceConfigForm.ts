@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { UseFormReturn } from 'react-hook-form';
@@ -197,7 +197,7 @@ export function useServiceConfigForm({
   /**
    * Manually trigger validation
    */
-  const validate = async (): Promise<boolean> => {
+  const validate = useCallback(async (): Promise<boolean> => {
     setIsValidating(true);
     try {
       const formData = form.getValues();
@@ -235,12 +235,12 @@ export function useServiceConfigForm({
       setIsValidating(false);
       return false;
     }
-  };
+  }, [form, validateConfig, routerID, instanceID]);
 
   /**
    * Submit handler - validates and applies configuration
    */
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
 
     try {
@@ -278,15 +278,15 @@ export function useServiceConfigForm({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [validate, form, applyConfig, routerID, instanceID, onSuccess, onError]);
 
   /**
    * Refetch schema and config
    */
-  const refetch = () => {
+  const refetch = useCallback(() => {
     refetchSchema();
     refetchConfig();
-  };
+  }, [refetchSchema, refetchConfig]);
 
   return {
     schema,

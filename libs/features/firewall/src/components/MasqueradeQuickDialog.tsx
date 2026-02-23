@@ -4,10 +4,14 @@
  * Simple dialog for quickly creating a masquerade rule.
  * Prompts for output interface and optional comment.
  *
+ * @description Dialog-based form for creating NAT masquerade rules. Includes
+ * interface selection and optional comment field. Provides contextual help text
+ * explaining masquerade functionality.
+ *
  * @see NAS-7-2: Implement NAT Configuration - Task 9
  */
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,14 +32,21 @@ import {
   Label,
   toast,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { useCreateMasqueradeRule } from '@nasnet/api-client/queries';
 
 // ============================================================================
-// Types & Schema
+// CONSTANTS
+// ============================================================================
+
+const DEFAULT_WAN_INTERFACES = ['ether1', 'ether2'];
+
+// ============================================================================
+// TYPES & SCHEMA
 // ============================================================================
 
 const MasqueradeFormSchema = z.object({
-  outInterface: z.string().min(1, 'Output interface is required'),
+  outInterface: z.string().min(1, 'WAN interface is required.'),
   comment: z.string().optional(),
 });
 
@@ -45,8 +56,8 @@ interface MasqueradeQuickDialogProps {
   /** Whether the dialog is open */
   open: boolean;
   /** Callback to change the open state */
-  onOpenChange: (open: boolean) => void;
-  /** Router IP address */
+  onOpenChange: (isOpen: boolean) => void;
+  /** Router IP address for GraphQL header */
   routerIp: string;
   /** Available WAN interfaces for selection */
   wanInterfaces?: string[];
@@ -55,14 +66,14 @@ interface MasqueradeQuickDialogProps {
 }
 
 // ============================================================================
-// Component
+// COMPONENT
 // ============================================================================
 
-export function MasqueradeQuickDialog({
+function MasqueradeQuickDialogInner({
   open,
   onOpenChange,
   routerIp,
-  wanInterfaces = ['ether1', 'ether2'],
+  wanInterfaces = DEFAULT_WAN_INTERFACES,
   onSuccess,
 }: MasqueradeQuickDialogProps) {
   const [isCreating, setIsCreating] = useState(false);
@@ -80,15 +91,15 @@ export function MasqueradeQuickDialog({
   const createMasquerade = useCreateMasqueradeRule(routerIp);
 
   // ========================================
-  // Handlers
+  // HANDLERS
   // ========================================
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     form.reset();
     onOpenChange(false);
-  };
+  }, [form, onOpenChange]);
 
-  const handleCreate = async (data: MasqueradeForm) => {
+  const handleCreate = useCallback(async (data: MasqueradeForm) => {
     setIsCreating(true);
     try {
       await createMasquerade.mutateAsync({
@@ -99,7 +110,7 @@ export function MasqueradeQuickDialog({
       // Success toast
       toast({
         title: 'Masquerade Rule Created',
-        description: `Successfully created masquerade rule on ${data.outInterface}`,
+        description: `Successfully created masquerade rule on ${data.outInterface}.`,
         variant: 'default',
       });
 
@@ -110,13 +121,13 @@ export function MasqueradeQuickDialog({
       // Error toast
       toast({
         title: 'Failed to Create Masquerade Rule',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        description: error instanceof Error ? error.message : 'Unable to create masquerade rule. Please try again.',
         variant: 'destructive',
       });
     } finally {
       setIsCreating(false);
     }
-  };
+  }, [createMasquerade, handleClose, onSuccess]);
 
   // ========================================
   // Render
@@ -189,11 +200,15 @@ export function MasqueradeQuickDialog({
           </div>
 
           {/* Help Text */}
-          <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-3">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
+          <div className={cn(
+            'rounded-lg border p-3',
+            'bg-info/10 dark:bg-info/5',
+            'border-info/30 dark:border-info/20'
+          )}>
+            <p className="text-sm text-info-foreground">
               <strong>What is masquerading?</strong> Masquerade automatically translates internal
               IP addresses to the router's WAN IP for outbound traffic. This is typically used for
-              home/office networks to share a single public IP.
+              home and office networks to share a single public IP address.
             </p>
           </div>
 
@@ -211,3 +226,7 @@ export function MasqueradeQuickDialog({
     </Dialog>
   );
 }
+
+MasqueradeQuickDialogInner.displayName = 'MasqueradeQuickDialog';
+
+export const MasqueradeQuickDialog = memo(MasqueradeQuickDialogInner);

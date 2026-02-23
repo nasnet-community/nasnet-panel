@@ -3,16 +3,20 @@
  *
  * Configure WAN health monitoring with netwatch integration.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 5: Health Check)
+ *
+ * @description Form for configuring WAN health checks with target IP, interval, timeout,
+ * and failure threshold. Includes quick presets and real-time validation.
  */
 
-import { useEffect } from 'react';
+import { useEffect, memo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label, Input, Switch, Button } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import {
   healthCheckSchema,
-  healthCheckDefaultValues,
+  HEALTH_CHECK_DEFAULT_VALUES,
   validateTimeoutInterval,
   HEALTH_CHECK_TARGETS,
   INTERVAL_PRESETS,
@@ -29,40 +33,40 @@ export interface HealthCheckFormProps {
   initialValues?: Partial<HealthCheckFormValues>;
 }
 
-export function HealthCheckForm({
+const HealthCheckFormComponent = ({
   routerID,
   wanID,
   gateway,
   onSuccess,
   onCancel,
   initialValues,
-}: HealthCheckFormProps) {
+}: HealthCheckFormProps) => {
   const form = useForm<HealthCheckFormValues>({
     resolver: zodResolver(healthCheckSchema) as any,
-    defaultValues: initialValues || healthCheckDefaultValues,
+    defaultValues: initialValues || HEALTH_CHECK_DEFAULT_VALUES,
   });
 
-  const isEnabled = form.watch('enabled');
+  const isEnabled = form.watch('isEnabled');
   const targetValue = form.watch('target');
-  const intervalValue = form.watch('interval');
-  const timeoutValue = form.watch('timeout');
+  const intervalValue = form.watch('intervalSeconds');
+  const timeoutValue = form.watch('timeoutSeconds');
 
   // Validate timeout vs interval relationship
   useEffect(() => {
     if (timeoutValue && intervalValue) {
       const validation = validateTimeoutInterval({
         ...form.getValues(),
-        interval: intervalValue,
-        timeout: timeoutValue,
+        intervalSeconds: intervalValue,
+        timeoutSeconds: timeoutValue,
       });
 
-      if (!validation.valid) {
-        form.setError('timeout', {
+      if (!validation.isValid) {
+        form.setError('timeoutSeconds', {
           type: 'manual',
           message: validation.error,
         });
       } else {
-        form.clearErrors('timeout');
+        form.clearErrors('timeoutSeconds');
       }
     }
   }, [timeoutValue, intervalValue, form]);
@@ -70,26 +74,26 @@ export function HealthCheckForm({
   /**
    * Apply health check target preset
    */
-  const applyTargetPreset = (target: string) => {
+  const handleApplyTargetPreset = useCallback((target: string) => {
     // If GATEWAY preset, use actual gateway IP
     if (target === 'gateway' && gateway) {
       form.setValue('target', gateway, { shouldDirty: true });
     } else {
       form.setValue('target', target, { shouldDirty: true });
     }
-  };
+  }, [gateway, form]);
 
   /**
    * Apply interval preset
    */
-  const applyIntervalPreset = (interval: number) => {
-    form.setValue('interval', interval, { shouldDirty: true });
-  };
+  const handleApplyIntervalPreset = useCallback((interval: number) => {
+    form.setValue('intervalSeconds', interval, { shouldDirty: true });
+  }, [form]);
 
   /**
    * Handle form submission
    */
-  const onSubmit = (async (data: HealthCheckFormValues) => {
+  const handleSubmit = useCallback((async (data: HealthCheckFormValues) => {
     try {
       // TODO: Call GraphQL mutation to configure health check
       console.log('Configure health check:', { routerID, wanID, ...data });
@@ -100,10 +104,10 @@ export function HealthCheckForm({
     } catch (error) {
       console.error('Health check configuration failed:', error);
     }
-  }) as any;
+  }) as any, [routerID, wanID, onSuccess]);
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       {/* Enable/Disable Toggle */}
       <FormSection
         title="Health Monitoring"
@@ -121,9 +125,9 @@ export function HealthCheckForm({
           </div>
           <Switch
             id="enabled"
-            checked={form.watch('enabled')}
+            checked={form.watch('isEnabled')}
             onCheckedChange={(checked) =>
-              form.setValue('enabled', checked, { shouldDirty: true })
+              form.setValue('isEnabled', checked, { shouldDirty: true })
             }
             aria-label="Enable or disable health monitoring"
           />
@@ -132,7 +136,7 @@ export function HealthCheckForm({
         {!isEnabled && (
           <div className="mt-4 rounded-lg border border-warning/20 bg-warning/5 p-4">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium">Health Monitoring Disabled</p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -173,12 +177,10 @@ export function HealthCheckForm({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => applyTargetPreset(targetVal)}
-                        className={
-                          targetValue === targetVal
-                            ? 'border-primary bg-primary/10'
-                            : ''
-                        }
+                        onClick={() => handleApplyTargetPreset(targetVal)}
+                        className={cn(
+                          targetValue === targetVal && 'border-primary bg-primary/10'
+                        )}
                       >
                         <div className="text-left">
                           <div className="font-medium text-xs">
@@ -243,12 +245,10 @@ export function HealthCheckForm({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => applyIntervalPreset(preset.value)}
-                      className={
-                        intervalValue === preset.value
-                          ? 'border-primary bg-primary/10'
-                          : ''
-                      }
+                      onClick={() => handleApplyIntervalPreset(preset.value)}
+                      className={cn(
+                        intervalValue === preset.value && 'border-primary bg-primary/10'
+                      )}
                     >
                       <div className="text-left">
                         <div className="font-medium text-xs">{preset.label}</div>
@@ -265,7 +265,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="interval">Interval (seconds)</Label>
-                  <FieldHelp field="interval" />
+                  <FieldHelp field="intervalSeconds" />
                 </div>
                 <Input
                   id="interval"
@@ -273,16 +273,16 @@ export function HealthCheckForm({
                   min={5}
                   max={300}
                   step={5}
-                  {...form.register('interval', { valueAsNumber: true })}
+                  {...form.register('intervalSeconds', { valueAsNumber: true })}
                   aria-describedby="interval-error interval-help"
                 />
-                {form.formState.errors.interval && (
+                {form.formState.errors.intervalSeconds && (
                   <p
                     id="interval-error"
                     className="text-sm text-error mt-1"
                     role="alert"
                   >
-                    {form.formState.errors.interval.message}
+                    {form.formState.errors.intervalSeconds.message}
                   </p>
                 )}
                 <p
@@ -297,7 +297,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="timeout">Timeout (seconds)</Label>
-                  <FieldHelp field="timeout" />
+                  <FieldHelp field="timeoutSeconds" />
                 </div>
                 <Input
                   id="timeout"
@@ -305,16 +305,16 @@ export function HealthCheckForm({
                   min={1}
                   max={30}
                   step={1}
-                  {...form.register('timeout', { valueAsNumber: true })}
+                  {...form.register('timeoutSeconds', { valueAsNumber: true })}
                   aria-describedby="timeout-error timeout-help"
                 />
-                {form.formState.errors.timeout && (
+                {form.formState.errors.timeoutSeconds && (
                   <p
                     id="timeout-error"
                     className="text-sm text-error mt-1"
                     role="alert"
                   >
-                    {form.formState.errors.timeout.message}
+                    {form.formState.errors.timeoutSeconds.message}
                   </p>
                 )}
                 <p
@@ -409,4 +409,8 @@ export function HealthCheckForm({
       </div>
     </form>
   );
-}
+};
+
+HealthCheckFormComponent.displayName = 'HealthCheckForm';
+
+export const HealthCheckForm = memo(HealthCheckFormComponent);

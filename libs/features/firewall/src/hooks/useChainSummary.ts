@@ -1,6 +1,13 @@
 /**
  * Chain Summary Hook
- * Aggregates firewall filter rules by chain to provide summary statistics
+ * @description Aggregates firewall filter rules by chain to provide summary statistics.
+ * Computes rule counts per action (accept, drop, reject, log) and tracks disabled rules.
+ *
+ * @example
+ * const summaries = useChainSummary(rules);
+ * summaries.forEach(summary => {
+ *   console.log(`${summary.chain}: ${summary.totalRules} rules`);
+ * });
  */
 
 import { useMemo } from 'react';
@@ -97,31 +104,37 @@ export function useChainSummary(rules: FirewallRule[] | undefined): ChainSummary
 }
 
 /**
- * Get color class for a chain
+ * Get semantic color token for a chain
+ * @description Maps firewall chains to design system semantic color tokens.
+ * @param chain - The firewall chain identifier
+ * @returns Semantic color token for Tailwind CSS
  */
 export function getChainColor(chain: FirewallChain): string {
-  const colors: Record<FirewallChain, string> = {
-    input: 'blue',
-    forward: 'purple',
-    output: 'amber',
-    prerouting: 'teal',
-    postrouting: 'rose',
+  const CHAIN_COLORS: Record<FirewallChain, string> = {
+    input: 'info',           // Blue for incoming traffic
+    forward: 'warning',      // Amber for pass-through
+    output: 'success',       // Green for outgoing
+    prerouting: 'info',      // Blue for pre-routing
+    postrouting: 'success',  // Green for post-routing
   };
-  return colors[chain] || 'slate';
+  return CHAIN_COLORS[chain] || 'muted';
 }
 
 /**
- * Get chain description
+ * Get human-readable description for a chain
+ * @description Provides user-friendly explanations of firewall chain purposes.
+ * @param chain - The firewall chain identifier
+ * @returns Localized description of the chain's purpose
  */
 export function getChainDescription(chain: FirewallChain): string {
-  const descriptions: Record<FirewallChain, string> = {
+  const CHAIN_DESCRIPTIONS: Record<FirewallChain, string> = {
     input: 'Traffic destined to the router',
     forward: 'Traffic passing through the router',
     output: 'Traffic originating from the router',
     prerouting: 'Before routing decision (NAT)',
     postrouting: 'After routing decision (NAT)',
   };
-  return descriptions[chain] || chain;
+  return CHAIN_DESCRIPTIONS[chain] || chain;
 }
 
 

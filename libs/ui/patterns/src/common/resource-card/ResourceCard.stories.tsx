@@ -5,7 +5,7 @@
  * Demonstrates different variants, states, and platform presentations.
  */
 
-import { Play, Settings, Trash2, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { Play, Settings, Trash2, Wifi, RefreshCw } from 'lucide-react';
 
 import { ResourceCard } from './ResourceCard';
 import { ResourceCardDesktop } from './ResourceCard.Desktop';

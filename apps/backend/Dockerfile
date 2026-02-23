@@ -9,12 +9,13 @@ COPY libs/ ./libs/
 COPY shared/ ./shared/
 
 RUN npm ci --no-audit --no-fund --legacy-peer-deps
+RUN node libs/ui/tokens/build.js
 RUN npx nx build connect
 
 # Stage 2: Download hev-socks5-tunnel binary (multi-arch)
 FROM --platform=$BUILDPLATFORM alpine:3.21 AS hevdownloader
 ARG TARGETOS TARGETARCH TARGETVARIANT
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl upx
 
 WORKDIR /tmp
 # Download hev-socks5-tunnel binary from GitHub releases
@@ -23,10 +24,10 @@ RUN set -eux; \
     HEV_VERSION="2.7.3"; \
     case "${TARGETARCH}" in \
         amd64) HEV_ARCH="x86_64" ;; \
-        arm64) HEV_ARCH="aarch64" ;; \
+        arm64) HEV_ARCH="arm64" ;; \
         arm) \
             case "${TARGETVARIANT}" in \
-                v7) HEV_ARCH="armhf" ;; \
+                v7) HEV_ARCH="arm32hf" ;; \
                 *) echo "Unsupported ARM variant: ${TARGETVARIANT}"; exit 1 ;; \
             esac ;; \
         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
@@ -37,27 +38,29 @@ RUN set -eux; \
     chmod +x /tmp/hev-socks5-tunnel; \
     /tmp/hev-socks5-tunnel -v || true
 
+# Compress with UPX (saves ~2-3MB)
+RUN upx --best --lzma /tmp/hev-socks5-tunnel || true
+
 # Stage 3: Build Go backend (embed dist)
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS gobuilder
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS gobuilder
 ARG TARGETOS TARGETARCH TARGETVARIANT
 RUN apk add --no-cache ca-certificates upx
 WORKDIR /workspace
 
-# Copy ent module (dependency) and download its deps
-COPY libs/data/ent/go.mod libs/data/ent/go.sum ./libs/data/ent/
-RUN cd libs/data/ent && go mod download
-
-# Copy backend module (has replace directive pointing to ../../libs/data/ent)
+# Copy backend module and download its deps
 COPY apps/backend/go.mod apps/backend/go.sum ./apps/backend/
 WORKDIR /workspace/apps/backend
 RUN go mod download
 
 # Copy source files
-COPY libs/data/ent/ /workspace/libs/data/ent/
 COPY apps/backend/ ./
 
 # Copy built frontend into cmd/nnc/dist/ (so //go:embed dist/** works from cmd/nnc/)
 COPY --from=frontend /workspace/dist/apps/connect ./cmd/nnc/dist
+
+# Pre-compress JS/CSS assets for smaller embedded binary (~70-80% size reduction)
+# gzip replaces originals; static handler serves .gz with Content-Encoding: gzip
+RUN find cmd/nnc/dist -type f \( -name "*.js" -o -name "*.css" \) -exec gzip -9 {} \;
 
 # Build static binary from cmd/nnc/ entry point; compress with upx if available
 RUN set -eux; \
@@ -77,7 +80,7 @@ COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=gobuilder /workspace/apps/backend/app /app
 
 # Copy hev-socks5-tunnel binary for SOCKS-to-TUN gateway (NAS-8.14)
-COPY --from=hevdownloader /tmp/hev-socks5-tunnel /app/hev-socks5-tunnel
+COPY --from=hevdownloader /tmp/hev-socks5-tunnel /hev-socks5-tunnel
 
 ENV PORT=80
 ENV GOMAXPROCS=1
@@ -99,7 +102,7 @@ RUN apk add --no-cache ca-certificates curl
 COPY --from=gobuilder /workspace/apps/backend/app /app
 
 # Copy hev-socks5-tunnel binary for SOCKS-to-TUN gateway (NAS-8.14)
-COPY --from=hevdownloader /tmp/hev-socks5-tunnel /app/hev-socks5-tunnel
+COPY --from=hevdownloader /tmp/hev-socks5-tunnel /hev-socks5-tunnel
 
 ENV PORT=80
 ENV GOMAXPROCS=1

@@ -1,0 +1,60 @@
+{
+  "title": "VPN",
+  "overview": "نمای کلی VPN",
+  "servers": {
+    "title": "سرورهای VPN",
+    "name": "نام سرور",
+    "type": "پروتکل",
+    "status": "وضعیت",
+    "port": "پورت",
+    "connectedClients": "کلاینت‌های متصل",
+    "maxClients": "حداکثر کلاینت",
+    "running": "در حال اجرا",
+    "stopped": "متوقف",
+    "addServer": "افزودن سرور",
+    "editServer": "ویرایش سرور",
+    "deleteServer": "حذف سرور",
+    "startServer": "شروع سرور",
+    "stopServer": "توقف سرور",
+    "noServers": "سرور VPN پیکربندی نشده"
+  },
+  "clients": {
+    "title": "کلاینت‌های VPN",
+    "name": "نام کلاینت",
+    "server": "سرور",
+    "status": "وضعیت",
+    "connected": "متصل",
+    "disconnected": "قطع",
+    "connecting": "در حال اتصال",
+    "uptime": "مدت اتصال",
+    "bytesIn": "بایت دریافتی",
+    "bytesOut": "بایت ارسالی",
+    "remoteAddress": "آدرس ریموت",
+    "localAddress": "آدرس محلی",
+    "encoding": "رمزنگاری",
+    "noClients": "کلاینت VPN متصلی وجود ندارد"
+  },
+  "protocols": {
+    "wireguard": "وایرگارد",
+    "openvpn": "اوپن‌وی‌پی‌ان",
+    "l2tp": "L2TP",
+    "pptp": "PPTP",
+    "sstp": "SSTP",
+    "ipsec": "IPsec",
+    "ikev2": "IKEv2"
+  },
+  "status": {
+    "allServersUp": "تمام سرورهای VPN عملیاتی",
+    "someServersDown": "{{count}} سرور غیرفعال",
+    "someServersDown_other": "{{count}} سرور غیرفعال",
+    "noServersConfigured": "سرور VPN پیکربندی نشده",
+    "totalConnections": "کل اتصالات",
+    "activeConnections": "اتصالات فعال"
+  },
+  "actions": {
+    "generateConfig": "ایجاد پیکربندی",
+    "downloadConfig": "دانلود پیکربندی",
+    "exportPeers": "خروجی همتایان",
+    "viewLogs": "مشاهده لاگ‌ها"
+  }
+}

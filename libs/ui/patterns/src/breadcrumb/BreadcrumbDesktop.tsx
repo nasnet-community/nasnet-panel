@@ -3,10 +3,11 @@
  * Desktop presenter for breadcrumbs (full path)
  *
  * Features:
- * - Full path display
- * - Clickable segments
+ * - Full path display with 32–38px click targets
+ * - All navigation items visible (no collapse needed)
  * - RTL support
  * - ARIA-compliant
+ * - Keyboard navigation
  *
  * @see NAS-4.10: Implement Navigation & Command Palette
  * @see ADR-018: Headless Platform Presenters
@@ -14,9 +15,8 @@
 
 import * as React from 'react';
 
-import { ChevronRight, ChevronLeft, Home } from 'lucide-react';
-
-import { cn } from '@nasnet/ui/primitives';
+import { Home, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn, Icon } from '@nasnet/ui/primitives';
 
 import { useBreadcrumb, Link } from './useBreadcrumb';
 
@@ -34,7 +34,7 @@ export interface BreadcrumbDesktopProps {
  * Desktop breadcrumb presenter
  * Shows full navigation path
  */
-export function BreadcrumbDesktop({
+const BreadcrumbDesktop = React.memo(function BreadcrumbDesktop({
   showHomeIcon = true,
   className,
 }: BreadcrumbDesktopProps) {
@@ -42,7 +42,7 @@ export function BreadcrumbDesktop({
 
   if (!hasBreadcrumbs) return null;
 
-  const Separator = separator === 'ChevronLeft' ? ChevronLeft : ChevronRight;
+  const SeparatorIcon = separator === 'ChevronLeft' ? ChevronLeft : ChevronRight;
 
   return (
     <nav
@@ -50,12 +50,13 @@ export function BreadcrumbDesktop({
       dir={dir}
       className={cn('flex items-center', className)}
     >
-      <ol className="flex items-center gap-1 text-sm">
+      <ol className="flex items-center gap-inlineGap text-sm">
         {segments.map((segment, index) => (
           <li key={segment.key} className="flex items-center">
             {/* Separator (except first item) */}
             {index > 0 && (
-              <Separator
+              <Icon
+                icon={SeparatorIcon}
                 className="mx-1 h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
               />
@@ -70,7 +71,11 @@ export function BreadcrumbDesktop({
               >
                 {showHomeIcon && index === 0 ? (
                   <span className="flex items-center gap-1.5">
-                    <Home className="h-4 w-4" aria-hidden="true" />
+                    <Icon
+                      icon={Home}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
                     <span className="sr-only">{segment.label}</span>
                   </span>
                 ) : (
@@ -81,11 +86,15 @@ export function BreadcrumbDesktop({
               // Clickable link
               <Link
                 to={segment.path}
-                className="text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-1 -mx-1"
+                className="rounded px-2 -mx-2 h-9 flex items-center text-muted-foreground transition-colors hover:text-foreground hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {showHomeIcon && index === 0 ? (
                   <span className="flex items-center gap-1.5">
-                    <Home className="h-4 w-4" aria-hidden="true" />
+                    <Icon
+                      icon={Home}
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
                     <span className="sr-only">{segment.label}</span>
                   </span>
                 ) : (
@@ -98,4 +107,8 @@ export function BreadcrumbDesktop({
       </ol>
     </nav>
   );
-}
+});
+
+BreadcrumbDesktop.displayName = 'BreadcrumbDesktop';
+
+export { BreadcrumbDesktop };

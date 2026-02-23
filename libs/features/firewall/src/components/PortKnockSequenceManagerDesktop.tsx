@@ -6,7 +6,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -39,6 +39,9 @@ import { Pencil, Trash2, ShieldAlert, Clock, Activity } from 'lucide-react';
 // Types
 // ============================================================================
 
+/**
+ * @description Desktop table presenter for port knock sequence management
+ */
 export interface PortKnockSequenceManagerDesktopProps {
   className?: string;
   onEdit?: (sequenceId: string) => void;
@@ -49,6 +52,9 @@ export interface PortKnockSequenceManagerDesktopProps {
 // Status Badge Component
 // ============================================================================
 
+/**
+ * @description Badge showing enabled/disabled status with semantic colors
+ */
 function StatusBadge({ enabled }: { enabled: boolean }) {
   return (
     <Badge variant={enabled ? 'success' : 'secondary'}>
@@ -56,6 +62,8 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
     </Badge>
   );
 }
+
+StatusBadge.displayName = 'StatusBadge';
 
 // ============================================================================
 // Main Component
@@ -78,26 +86,26 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
 
   const sequences = data?.portKnockSequences || [];
 
-  const handleToggle = async (sequence: PortKnockSequence) => {
+  const handleToggle = useCallback(async (sequence: PortKnockSequence) => {
     try {
       await toggleSequence({
         variables: {
           routerId: activeRouterId!,
           id: sequence.id!,
-          enabled: !sequence.enabled,
+          enabled: !sequence.isEnabled,
         },
       });
     } catch (err) {
       console.error('Failed to toggle port knock sequence:', err);
     }
-  };
+  }, [activeRouterId, toggleSequence]);
 
-  const handleDeleteClick = (sequence: PortKnockSequence) => {
+  const handleDeleteClick = useCallback((sequence: PortKnockSequence) => {
     setSequenceToDelete(sequence);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!sequenceToDelete) return;
 
     try {
@@ -112,7 +120,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
     } catch (err) {
       console.error('Failed to delete port knock sequence:', err);
     }
-  };
+  }, [sequenceToDelete, activeRouterId, deleteSequence]);
 
   if (loading) {
     return (
@@ -167,7 +175,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
           {sequences.map((sequence) => (
             <TableRow
               key={sequence.id}
-              className={sequence.enabled ? '' : 'opacity-50'}
+              className={sequence.isEnabled ? '' : 'opacity-50'}
               data-testid={`sequence-row-${sequence.id}`}
             >
               <TableCell>
@@ -180,7 +188,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
                     {sequence.protectedProtocol.toUpperCase()}:{sequence.protectedPort}
                   </Badge>
                   {sequence.protectedPort === 22 && (
-                    <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH Protected" />
+                    <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH protected service" />
                   )}
                 </div>
               </TableCell>
@@ -198,18 +206,18 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={sequence.enabled}
+                    checked={sequence.isEnabled}
                     onCheckedChange={() => handleToggle(sequence)}
-                    aria-label={sequence.enabled ? 'Disable sequence' : 'Enable sequence'}
+                    aria-label={sequence.isEnabled ? 'Disable sequence' : 'Enable sequence'}
                     data-testid={`toggle-sequence-${sequence.id}`}
                   />
-                  <StatusBadge enabled={sequence.enabled} />
+                  <StatusBadge enabled={sequence.isEnabled} />
                 </div>
               </TableCell>
 
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-1">
-                  <Activity className="h-3 w-3 text-muted-foreground" />
+                  <Activity className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                   <span className="font-mono text-sm">
                     {sequence.recentAccessCount || 0}
                   </span>
@@ -219,11 +227,11 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               <TableCell>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+                    <Clock className="h-3 w-3" aria-hidden="true" />
                     <span>K: {sequence.knockTimeout}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+                    <Clock className="h-3 w-3" aria-hidden="true" />
                     <span>A: {sequence.accessTimeout}</span>
                   </div>
                 </div>
@@ -264,7 +272,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-2 bg-warning/10 border border-warning/30 rounded">
+                <div className="mt-2 p-2 bg-warning/10 border border-warning rounded text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>

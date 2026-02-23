@@ -1,7 +1,16 @@
+import { memo } from 'react';
+
 import { AlertTriangle, Wifi } from 'lucide-react';
 
 import { useConnectionStore } from '@nasnet/state/stores';
 import { cn } from '@nasnet/ui/primitives';
+
+export interface ConnectionBannerProps {
+  /**
+   * Additional CSS classes
+   */
+  className?: string;
+}
 
 /**
  * ConnectionBanner Component
@@ -17,16 +26,20 @@ import { cn } from '@nasnet/ui/primitives';
  * - Appropriate message for each state
  * - ARIA live region for screen readers
  *
- * Usage:
+ * @example
  * ```tsx
+ * // Basic usage - place below app header
  * <ConnectionBanner />
+ *
+ * // With custom styling
+ * <ConnectionBanner className="mt-2" />
  * ```
  *
  * Positioning:
  * - Place in app layout below header
- * - Will automatically show/hide
+ * - Will automatically show/hide based on connection state
  */
-export function ConnectionBanner() {
+export const ConnectionBanner = memo(function ConnectionBanner({ className }: ConnectionBannerProps = {}) {
   const state = useConnectionStore((store) => store.state);
 
   // Don't render when connected
@@ -41,7 +54,8 @@ export function ConnectionBanner() {
       className={cn(
         'flex items-center gap-3 px-6 py-4 border-b transition-colors',
         'bg-warning/10 border-warning/30 backdrop-blur-sm',
-        'shadow-sm'
+        'shadow-sm',
+        className
       )}
       role="alert"
       aria-live="assertive"
@@ -59,4 +73,6 @@ export function ConnectionBanner() {
       </p>
     </div>
   );
-}
+});
+
+ConnectionBanner.displayName = 'ConnectionBanner';

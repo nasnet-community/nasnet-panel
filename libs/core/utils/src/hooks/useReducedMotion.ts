@@ -13,9 +13,10 @@ import { useState, useEffect } from 'react';
  * Hook to detect if user prefers reduced motion.
  *
  * Respects the prefers-reduced-motion media query, which users
- * can set in their operating system accessibility settings.
+ * can set in their operating system accessibility settings. This hook
+ * sets up a listener and updates the return value when the preference changes.
  *
- * @returns {boolean} true if user prefers reduced motion
+ * @returns true if user prefers reduced motion, false otherwise
  *
  * @example
  * ```tsx
@@ -72,9 +73,19 @@ export function useReducedMotion(): boolean {
 
 /**
  * Static check for reduced motion preference.
- * Use this for non-reactive contexts (e.g., CSS-in-JS at module level).
  *
- * @returns {boolean} true if user prefers reduced motion
+ * Use this for non-reactive contexts (e.g., CSS-in-JS at module level).
+ * This function does not set up event listeners, making it suitable for
+ * one-time checks outside of React components.
+ *
+ * @returns true if user prefers reduced motion, false otherwise
+ *
+ * @example
+ * ```tsx
+ * // At module level or outside React
+ * const prefersReduced = getReducedMotionPreference();
+ * const animationDuration = prefersReduced ? 0 : 300;
+ * ```
  */
 export function getReducedMotionPreference(): boolean {
   if (typeof window === 'undefined' || !window.matchMedia) {

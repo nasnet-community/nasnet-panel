@@ -5,7 +5,6 @@
  * link speeds, and sorting interfaces by priority.
  */
 
-import { useState, useEffect } from 'react';
 import type { InterfaceType } from './types';
 
 /**
@@ -56,8 +55,15 @@ export function formatLinkSpeed(speed: string | undefined): string {
 }
 
 /**
- * Priority order for interface types (lower = higher priority).
- * Ethernet first, then Bridge, Wireless, VPN, etc.
+ * Priority order for interface types (lower index = higher priority).
+ *
+ * @description
+ * Determines sort order in interface lists.
+ * Used to display Ethernet interfaces first (most common),
+ * followed by bridges, wireless, VPN tunnels, etc.
+ *
+ * @example
+ * Ethernet (1) > Bridge (2) > Wireless (3) > VPN (4) > Tunnel (5) > VLAN (6) > Loopback (7)
  */
 export const INTERFACE_TYPE_PRIORITY: Record<InterfaceType, number> = {
   ethernet: 1,
@@ -98,34 +104,3 @@ export function sortInterfacesByPriority<
   });
 }
 
-/**
- * Hook to detect user's reduced motion preference.
- * Respects the prefers-reduced-motion media query for accessibility.
- *
- * @returns true if user prefers reduced motion
- *
- * @example
- * function MyComponent() {
- *   const prefersReducedMotion = useReducedMotion();
- *   return (
- *     <div className={cn(!prefersReducedMotion && 'animate-pulse')}>
- *       Content
- *     </div>
- *   );
- * }
- */
-export function useReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) =>
-      setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  return prefersReducedMotion;
-}

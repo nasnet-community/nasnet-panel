@@ -55,7 +55,10 @@ import type { DeviceListItemProps } from './device-list-item.types';
  * />
  * ```
  */
-export function DeviceListItem({
+/**
+ * Internal component function
+ */
+function DeviceListItemComponent({
   device,
   showHostname = true,
   onClick,
@@ -103,3 +106,9 @@ export function DeviceListItem({
     </div>
   );
 }
+
+/**
+ * Memoized DeviceListItem component
+ */
+export const DeviceListItem = React.memo(DeviceListItemComponent);
+DeviceListItem.displayName = 'DeviceListItem';

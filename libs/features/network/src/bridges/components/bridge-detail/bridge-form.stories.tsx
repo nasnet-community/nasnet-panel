@@ -1,4 +1,4 @@
-import { action } from '@storybook/addon-actions';
+import { fn } from 'storybook/test';
 
 import { BridgeForm } from './bridge-form';
 
@@ -29,8 +29,8 @@ type Story = StoryObj<typeof BridgeForm>;
 export const CreateMode: Story = {
   args: {
     bridge: null,
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -38,8 +38,8 @@ export const CreateMode: Story = {
 export const CreateModeSubmitting: Story = {
   args: {
     bridge: null,
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: true,
   },
 };
@@ -47,24 +47,28 @@ export const CreateModeSubmitting: Story = {
 export const EditMode: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-1',
+      id: 'bridge-1',
       name: 'bridge1',
       comment: 'Main LAN bridge',
       disabled: false,
       running: true,
       macAddress: '00:11:22:33:44:55',
       mtu: 1500,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
       ports: [
-        { uuid: 'p1', interfaceName: 'ether2' },
-        { uuid: 'p2', interfaceName: 'ether3' },
+        { interface: 'ether2' as const } as any,
+        { interface: 'ether3' as const } as any,
       ],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -72,23 +76,27 @@ export const EditMode: Story = {
 export const EditModeWithVlanFiltering: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-2',
+      id: 'bridge-2',
       name: 'bridge-guest',
       comment: 'Guest network with VLAN filtering',
       disabled: false,
       running: true,
       macAddress: 'AA:BB:CC:DD:EE:FF',
       mtu: 1500,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 32768,
       vlanFiltering: true,
       pvid: 100,
       ports: [
-        { uuid: 'p3', interfaceName: 'wlan1' },
+        { interface: 'wlan1' as const } as any,
       ],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -96,21 +104,25 @@ export const EditModeWithVlanFiltering: Story = {
 export const EditModeNoSTP: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-3',
+      id: 'bridge-3',
       name: 'bridge-iot',
       comment: 'IoT devices - no STP',
       disabled: false,
       running: true,
       macAddress: '11:22:33:44:55:66',
       mtu: 1500,
-      protocol: 'none',
+      protocol: 'NONE' as const,
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -118,21 +130,25 @@ export const EditModeNoSTP: Story = {
 export const EditModeMSTP: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-4',
+      id: 'bridge-4',
       name: 'bridge-mstp',
       comment: 'Bridge with MSTP protocol',
       disabled: false,
       running: true,
       macAddress: 'FF:EE:DD:CC:BB:AA',
       mtu: 1500,
-      protocol: 'mstp',
+      protocol: 'MSTP' as const,
       priority: 16384,
       vlanFiltering: true,
       pvid: 10,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -140,21 +156,25 @@ export const EditModeMSTP: Story = {
 export const EditModeSubmitting: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-1',
+      id: 'bridge-5',
       name: 'bridge1',
       comment: 'Main LAN bridge',
       disabled: false,
       running: true,
       macAddress: '00:11:22:33:44:55',
       mtu: 1500,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: true,
   },
 };
@@ -162,21 +182,25 @@ export const EditModeSubmitting: Story = {
 export const CustomMTU: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-5',
+      id: 'bridge-6',
       name: 'bridge-jumbo',
       comment: 'Bridge with jumbo frames',
       disabled: false,
       running: true,
       macAddress: '00:AA:BB:CC:DD:EE',
       mtu: 9000,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };
@@ -184,21 +208,25 @@ export const CustomMTU: Story = {
 export const HighPriority: Story = {
   args: {
     bridge: {
-      uuid: 'bridge-6',
+      id: 'bridge-7',
       name: 'bridge-root',
       comment: 'Root bridge candidate (low priority)',
       disabled: false,
       running: true,
       macAddress: '00:11:22:33:44:55',
       mtu: 1500,
-      protocol: 'rstp',
+      protocol: 'RSTP' as const,
       priority: 4096, // Low priority = more likely to be root
       vlanFiltering: false,
       pvid: 1,
       ports: [],
+      dependentDhcpServers: [],
+      dependentRoutes: [],
+      ipAddresses: [],
+      vlans: [],
     },
-    onSubmit: action('onSubmit'),
-    onCancel: action('onCancel'),
+    onSubmit: fn(),
+    onCancel: fn(),
     isSubmitting: false,
   },
 };

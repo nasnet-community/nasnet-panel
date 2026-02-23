@@ -1,10 +1,35 @@
 /**
  * BogonFilterDialogMobile - Mobile Platform Presenter
  *
- * Sheet with card sections and 44px touch targets.
- * Optimized for thumb navigation.
+ * Sheet-based presentation optimized for mobile viewports (<640px).
+ * Features bottom-sheet layout, 44px touch targets, progressive disclosure.
+ *
+ * Platform-Specific Optimizations:
+ * - Bottom sheet (side="bottom") for thumb-friendly navigation
+ * - 44px minimum touch targets on all interactive elements
+ * - Card-based vertical layout (single column)
+ * - Simplified category display (no grid, stackable cards)
+ * - Full-width action buttons
+ * - Touch-friendly spacing (p-3, gap-3)
+ * - Swipe-to-close gesture support (native Sheet behavior)
+ *
+ * @component
+ * @internal Used by BogonFilterDialog platform detection wrapper
+ *
+ * @example
+ * ```tsx
+ * <BogonFilterDialogMobile
+ *   routerId="router-1"
+ *   open={true}
+ *   onClose={() => {}}
+ *   onSuccess={(count) => console.log(`Created ${count} rules`)}
+ *   availableInterfaces={['ether1-wan', 'pppoe-out1']}
+ * />
+ * ```
  *
  * @module @nasnet/ui/patterns/bogon-filter-dialog
+ * @see [BogonFilterDialog](./BogonFilterDialog.tsx) - Auto-detecting wrapper
+ * @see [useBogonFilterDialog](./use-bogon-filter-dialog.ts) - Headless logic hook
  */
 
 import { memo, useState } from 'react';
@@ -20,7 +45,6 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-
   Button,
   Card,
   CardContent,
@@ -34,21 +58,28 @@ import {
   Checkbox,
   Alert,
   AlertDescription,
-  Progress} from '@nasnet/ui/primitives';
+  Progress,
+} from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { useBogonFilterDialog } from './use-bogon-filter-dialog';
 
 import type { BogonFilterDialogProps } from './bogon-filter-dialog.types';
 
-
 /**
  * Mobile presenter for bogon filter dialog.
  *
- * Features:
- * - Sheet with card-based layout
- * - 44px minimum touch targets
- * - Simplified category cards
- * - Bottom-sheet style
+ * Renders a bottom Sheet with:
+ * - 44px minimum touch targets for accessibility
+ * - Card-based vertical layout
+ * - Simplified category display (stacked, not gridded)
+ * - Full-width action buttons (h-11 for comfortable tapping)
+ * - Warning alert for private address blocking
+ * - Progress indicator during batch rule creation
+ * - Touch-friendly spacing and swipe gesture support
+ *
+ * @param props - Standard bogon filter dialog props
+ * @returns Rendered mobile presentation
  */
 export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
   routerId,
@@ -164,11 +195,12 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
               {dialog.allCategories.map((category) => (
                 <div
                   key={category}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={cn(
+                    'p-3 border rounded-lg cursor-pointer transition-colors',
                     dialog.isCategorySelected(category)
                       ? 'border-primary bg-primary/5'
                       : 'hover:border-primary/50'
-                  }`}
+                  )}
                   onClick={() => !isGenerating && dialog.toggleCategory(category)}
                 >
                   <div className="flex items-start gap-3">

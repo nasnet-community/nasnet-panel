@@ -16,7 +16,7 @@ import { LazyDnsTab } from '@/app/routes/router-panel/tabs/lazy';
  */
 function DnsTabSkeleton() {
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-6 p-4" aria-busy="true" aria-label="Loading DNS configuration">
       <Skeleton className="h-8 w-48" />
       <div className="space-y-4">
         <Skeleton className="h-64 w-full" />

@@ -7,11 +7,15 @@ import {
 import { toast } from 'sonner';
 import type { Bridge } from '@nasnet/api-client/generated';
 
+const UNDO_TOAST_DURATION = 10000; // 10 seconds
+
 /**
- * Headless hook for bridge list logic
- * Manages bridge selection, filtering, and undo operations
+ * Headless hook for bridge list logic.
+ * Manages bridge selection, filtering, and undo operations.
+ * Implements stable callbacks and memoized filters for optimal performance.
  *
  * @param routerId - Router ID to fetch bridges for
+ * @returns Bridge list state, filters, and action handlers
  */
 export function useBridgeList(routerId: string) {
   const { bridges, loading, error, refetch } = useBridges(routerId);
@@ -25,15 +29,15 @@ export function useBridgeList(routerId: string) {
   const [vlanFilteringFilter, setVlanFilteringFilter] = useState<boolean | null>(null);
   const [selectedBridgeId, setSelectedBridgeId] = useState<string | null>(null);
 
-  // Filtered bridges
+  // Filtered bridges - memoized for performance
   const filteredBridges = useMemo(() => {
     return bridges
-      .filter((bridge: any) =>
+      .filter((bridge: Bridge) =>
         bridge.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .filter((bridge: any) => !protocolFilter || bridge.protocol === protocolFilter)
+      .filter((bridge: Bridge) => !protocolFilter || bridge.protocol === protocolFilter)
       .filter(
-        (bridge: any) =>
+        (bridge: Bridge) =>
           vlanFilteringFilter === null ||
           bridge.vlanFiltering === vlanFilteringFilter
       );
@@ -52,7 +56,7 @@ export function useBridgeList(routerId: string) {
 
           // Show success toast with undo button
           toast.success('Bridge deleted', {
-            duration: 10000, // 10 seconds
+            duration: UNDO_TOAST_DURATION,
             action: operationId
               ? {
                   label: 'Undo',
@@ -82,12 +86,12 @@ export function useBridgeList(routerId: string) {
   );
 
   // Clear selection
-  const clearSelection = useCallback(() => {
+  const handleClearSelection = useCallback(() => {
     setSelectedIds(new Set());
   }, []);
 
   // Toggle selection
-  const toggleSelection = useCallback((uuid: string) => {
+  const handleToggleSelection = useCallback((uuid: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(uuid)) {
@@ -100,7 +104,7 @@ export function useBridgeList(routerId: string) {
   }, []);
 
   // Select all
-  const selectAll = useCallback(() => {
+  const handleSelectAll = useCallback(() => {
     setSelectedIds(new Set(filteredBridges.map((b: Bridge) => b.id)));
   }, [filteredBridges]);
 
@@ -108,15 +112,15 @@ export function useBridgeList(routerId: string) {
     // Data
     bridges: filteredBridges,
     allBridges: bridges,
-    loading,
-    error,
+    isLoading: loading,
+    hasError: error,
 
     // Selection
     selectedIds,
     setSelectedIds,
-    toggleSelection,
-    selectAll,
-    clearSelection,
+    handleToggleSelection,
+    handleSelectAll,
+    handleClearSelection,
 
     // Filters
     searchQuery,

@@ -12,13 +12,15 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 
+import { useTranslation } from '@nasnet/core/i18n';
 import { DnsLookupTool } from '@nasnet/features/diagnostics';
 
 export const Route = createFileRoute('/dashboard/dns-lookup')({
   component: DnsLookupPage,
 });
 
-function DnsLookupPage() {
+export function DnsLookupPage() {
+  const { t } = useTranslation('diagnostics');
   // TODO: Get actual device ID from router context or state
   // For now, using placeholder until router context is implemented
   const deviceId = 'current-router-id';
@@ -26,9 +28,9 @@ function DnsLookupPage() {
   return (
     <div className="container py-6 space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">DNS Lookup</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("dnsLookup.title")}</h1>
         <p className="text-muted-foreground">
-          Query DNS records and compare server responses for troubleshooting DNS resolution issues.
+          {t('dnsLookup.description')}
         </p>
       </div>
 

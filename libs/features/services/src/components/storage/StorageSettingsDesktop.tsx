@@ -1,18 +1,22 @@
 /**
  * StorageSettingsDesktop Component
- * Desktop presenter for storage configuration (>1024px)
+ * @description Desktop presenter for external storage configuration (>1024px viewport).
+ * Provides power-user experience with two-column layout, dense tables, and inline controls.
  *
- * Features:
- * - Two-column layout (status left, usage right)
- * - Dense data tables
- * - Inline controls with hover states
- * - Progressive disclosure (Essential → Common → Advanced)
+ * @features
+ * - Two-column layout: Configuration (left) + Usage Metrics (right)
+ * - Dense data tables with sortable mount points and service breakdown
+ * - Progressive disclosure sections: Common (service breakdown) + Advanced (mount details)
+ * - Inline controls with hover states (switches, selects, buttons)
+ * - Real-time storage status with color-coded warnings
+ * - Disconnect banner with affected services list
  *
  * @see NAS-8.20: External Storage Management
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
 import * as React from 'react';
+import { useCallback } from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import {
   ChevronDown,
@@ -54,15 +58,17 @@ import { StorageUsageBar } from './StorageUsageBar';
 import { StorageDisconnectBanner } from './StorageDisconnectBanner';
 
 /**
- * StorageSettingsDesktop props
+ * StorageSettingsDesktop component props
  */
 export interface StorageSettingsDesktopProps {
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 }
 
 /**
- * Format bytes to human-readable string
+ * Format bytes to human-readable string using BigInt for large values
+ * @param {string} bytes - Bytes value as serialized uint64 string
+ * @returns {string} Formatted value with unit (B, KB, MB, GB, TB)
  */
 function formatBytes(bytes: string): string {
   const num = BigInt(bytes);
@@ -80,7 +86,9 @@ function formatBytes(bytes: string): string {
 
 /**
  * StorageSettingsDesktop component
- * Desktop-optimized storage settings UI with two-column layout
+ * @description Desktop-optimized storage configuration with two-column layout and dense tables
+ * @param {StorageSettingsDesktopProps} props - Component props
+ * @returns {React.ReactNode} Rendered desktop storage settings UI
  */
 export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop({ className }: StorageSettingsDesktopProps) {
   const {
@@ -118,6 +126,22 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
     }
   }, [externalMounts, selectedMount]);
 
+  const handleStorageToggle = useCallback((enabled: boolean) => {
+    if (enabled && selectedMount) {
+      handleEnableStorage(selectedMount);
+    } else {
+      handleDisableStorage(false);
+    }
+  }, [selectedMount, handleEnableStorage, handleDisableStorage]);
+
+  const handleMountSelect = useCallback((value: string) => setSelectedMount(value), []);
+
+  const handleScan = useCallback(() => handleScanStorage(), [handleScanStorage]);
+
+  const handleCommonToggle = useCallback((open: boolean) => setShowCommon(open), [setShowCommon]);
+
+  const handleAdvancedToggle = useCallback((open: boolean) => setShowAdvanced(open), [setShowAdvanced]);
+
   return (
     <div className={cn('flex flex-col gap-6 p-6', className)}>
       {/* Disconnect Warning Banner */}
@@ -154,7 +178,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Detection Warning */}
+            {/* Detection Warning: Alert when no external storage devices found */}
             {!isStorageDetected && (
               <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
                 <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
@@ -164,14 +188,17 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               </div>
             )}
 
-            {/* Enable Toggle */}
+            {/* Enable Toggle: Switch to enable/disable external storage */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Label htmlFor="storage-enabled-desktop">
                   Enable External Storage
                 </Label>
-                <Tooltip {...{ content: "Store service binaries on external storage instead of flash" } as any}>
+                <Tooltip>
                   <Info className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
+                  <span slot="content" className="text-sm">
+                    Store service binaries on external storage instead of flash
+                  </span>
                 </Tooltip>
               </div>
               <Switch
@@ -179,23 +206,17 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                 checked={isStorageConfigured}
                 disabled={!isStorageDetected || configuring}
                 aria-label="Enable external storage"
-                onCheckedChange={(enabled) => {
-                  if (enabled && selectedMount) {
-                    handleEnableStorage(selectedMount);
-                  } else {
-                    handleDisableStorage(false);
-                  }
-                }}
+                onCheckedChange={handleStorageToggle}
               />
             </div>
 
-            {/* Mount Point Selector */}
+            {/* Mount Point Selector: Choose which storage device to use */}
             {isStorageDetected && (
               <div className="space-y-2">
                 <Label htmlFor="mount-select-desktop">Storage Location</Label>
                 <Select
                   value={selectedMount}
-                  onValueChange={setSelectedMount}
+                  onValueChange={handleMountSelect}
                   disabled={!isStorageDetected || configuring}
                 >
                   <SelectTrigger id="mount-select-desktop">
@@ -204,7 +225,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                   <SelectContent>
                     {externalMounts.map((mount) => (
                       <SelectItem key={mount.path} value={mount.path}>
-                        {mount.path} - {formatBytes(mount.availableBytes)} free (
+                        <span className="font-mono">{mount.path}</span> - {formatBytes(mount.availableBytes)} free (
                         {mount.filesystem})
                       </SelectItem>
                     ))}
@@ -213,12 +234,13 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               </div>
             )}
 
-            {/* Scan Button */}
+            {/* Scan Button: Trigger manual scan for storage devices */}
             <Button
               variant="outline"
               className="w-full"
-              onClick={handleScanStorage}
+              onClick={handleScan}
               disabled={scanning}
+              aria-label={scanning ? 'Scanning for storage devices' : 'Scan for storage devices'}
             >
               <RefreshCw
                 className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')}
@@ -264,18 +286,18 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               </div>
             )}
 
-            {/* Total Summary */}
+            {/* Total Summary: Aggregate capacity across all storage */}
             {usage && (
               <div className="pt-4 border-t border-border space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Capacity:</span>
-                  <span className="font-medium">
+                  <span className="font-medium font-mono">
                     {formatBytes(usage.totalCapacityBytes)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Used:</span>
-                  <span className="font-medium">
+                  <span className="font-medium font-mono">
                     {formatBytes(usage.totalUsedBytes)}
                   </span>
                 </div>
@@ -285,8 +307,8 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
         </Card>
       </div>
 
-      {/* Common Section: Service Breakdown Table */}
-      <Collapsible.Root open={showCommon} onOpenChange={setShowCommon}>
+      {/* Common Section: Service Breakdown Table (collapsed by default) */}
+      <Collapsible.Root open={showCommon} onOpenChange={handleCommonToggle}>
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -312,11 +334,11 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                     <TableRow>
                       <TableHead>Service</TableHead>
                       <TableHead className="text-right">Instances</TableHead>
-                      <TableHead className="text-right">Binary</TableHead>
-                      <TableHead className="text-right">Data</TableHead>
-                      <TableHead className="text-right">Config</TableHead>
-                      <TableHead className="text-right">Logs</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-right font-mono">Binary</TableHead>
+                      <TableHead className="text-right font-mono">Data</TableHead>
+                      <TableHead className="text-right font-mono">Config</TableHead>
+                      <TableHead className="text-right font-mono">Logs</TableHead>
+                      <TableHead className="text-right font-mono">Total</TableHead>
                       <TableHead>Location</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -329,19 +351,19 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                         <TableCell className="text-right">
                           {feature.instanceCount}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-mono">
                           {formatBytes(feature.binarySize)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-mono">
                           {formatBytes(feature.dataSize)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-mono">
                           {formatBytes(feature.configSize)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-mono">
                           {formatBytes(feature.logsSize)}
                         </TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="text-right font-medium font-mono">
                           {formatBytes(feature.totalSize)}
                         </TableCell>
                         <TableCell>
@@ -361,8 +383,8 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
         </Collapsible.Content>
       </Collapsible.Root>
 
-      {/* Advanced Section: Mount Point Details Table */}
-      <Collapsible.Root open={showAdvanced} onOpenChange={setShowAdvanced}>
+      {/* Advanced Section: Mount Point Details Table (collapsed by default) */}
+      <Collapsible.Root open={showAdvanced} onOpenChange={handleAdvancedToggle}>
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -385,33 +407,33 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mount Point</TableHead>
+                    <TableHead className="font-mono">Mount Point</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-right">Used</TableHead>
-                    <TableHead className="text-right">Free</TableHead>
-                    <TableHead className="text-right">Usage %</TableHead>
+                    <TableHead className="text-right font-mono">Total</TableHead>
+                    <TableHead className="text-right font-mono">Used</TableHead>
+                    <TableHead className="text-right font-mono">Free</TableHead>
+                    <TableHead className="text-right font-mono">Usage %</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Filesystem</TableHead>
+                    <TableHead className="font-mono">Filesystem</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {externalMounts.map((mount) => (
                     <TableRow key={mount.path}>
-                      <TableCell className="font-mono">{mount.path}</TableCell>
+                      <TableCell className="font-mono text-sm">{mount.path}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{mount.locationType}</Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-mono">
                         {formatBytes(mount.totalBytes)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-mono">
                         {formatBytes(mount.usedBytes)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-mono">
                         {formatBytes(mount.availableBytes)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-mono">
                         {mount.usagePercent.toFixed(1)}%
                       </TableCell>
                       <TableCell>

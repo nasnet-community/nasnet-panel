@@ -125,7 +125,7 @@ const basicSteps: StepConfig[] = [
   { id: 'review', title: 'Preview & Apply', description: 'Review and generate config' },
 ];
 
-const stepsWithIcons: StepConfig[] = [
+const _stepsWithIcons: StepConfig[] = [
   { id: 'router', title: 'Choose Router', description: 'Select your router', icon: 'router' },
   { id: 'wan', title: 'WAN Configuration', description: 'Configure WAN', icon: 'globe' },
   { id: 'lan', title: 'LAN Setup', description: 'Configure LAN', icon: 'network' },
@@ -179,7 +179,7 @@ export const Default: Story = {
  * With completed steps - 3 complete, 1 current, 1 future
  */
 export const WithCompletedSteps: Story = {
-  render: (args) => {
+  render: (_args) => {
     // Create a component with pre-advanced stepper
     function PreAdvancedStepper() {
       const stepper = useStepper({
@@ -195,7 +195,7 @@ export const WithCompletedSteps: Story = {
           await stepper.next(); // Complete step 2, go to 3
         };
         advanceSteps();
-      }, []);
+      }, [stepper]);
 
       return (
         <div className="flex gap-8">
@@ -261,7 +261,7 @@ export const CurrentStepHighlighted: Story = {
  * With error state and tooltip
  */
 export const WithErrorState: Story = {
-  render: (args) => {
+  render: (_args) => {
     function ErrorStateStepper() {
       const stepper = useStepper({
         steps: [
@@ -286,7 +286,7 @@ export const WithErrorState: Story = {
       // Trigger validation error on mount
       React.useEffect(() => {
         stepper.next(); // This will fail validation and set errors
-      }, []);
+      }, [stepper]);
 
       return (
         <div className="flex gap-8">

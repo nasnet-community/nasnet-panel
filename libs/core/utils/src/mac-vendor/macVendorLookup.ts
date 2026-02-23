@@ -1,8 +1,11 @@
-// =============================================================================
-// MAC Vendor Lookup Utility
-// =============================================================================
-// Provides vendor name lookup from MAC address using OUI (Organizationally
-// Unique Identifier) database
+/**
+ * MAC Vendor Lookup Utility
+ *
+ * Provides vendor name lookup from MAC addresses using IEEE OUI database.
+ * Includes validation, formatting, and lookup functions for MAC addresses.
+ *
+ * @module @nasnet/core/utils/mac-vendor/macVendorLookup
+ */
 
 import { OUI_DATABASE } from './oui-database';
 
@@ -35,7 +38,7 @@ export function lookupVendor(mac: string): string | null {
   // Format as XX:YY:ZZ to match database keys
   const oui = `${normalized.slice(0, 2)}:${normalized.slice(2, 4)}:${normalized.slice(4, 6)}`;
 
-  return OUI_DATABASE[oui] ?? null;
+  return (OUI_DATABASE as Record<string, string>)[oui] ?? null;
 }
 
 /**

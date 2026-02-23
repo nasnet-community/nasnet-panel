@@ -1,5 +1,5 @@
 /**
- * PPPoE Client Configuration Validation Schemas
+ * @description PPPoE Client Configuration Validation Schemas
  *
  * Zod schemas for validating PPPoE WAN client wizard (5 steps).
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
@@ -12,39 +12,37 @@ import { z } from 'zod';
 // =============================================================================
 
 /**
- * Schema for Step 1: Interface Selection
+ * @description Schema for Step 1: Interface Selection
  *
  * Validates physical interface selection for PPPoE client.
  * Only Ethernet interfaces are valid for PPPoE.
  */
 export const pppoeInterfaceStepSchema = z.object({
   /**
-   * Name for the PPPoE interface (virtual interface created by RouterOS)
-   * Examples: "pppoe-wan", "pppoe-wan1", "pppoe-isp"
+   * Name for the PPPoE interface (e.g. pppoe-wan, pppoe-isp)
    */
   name: z
     .string({
       required_error: 'PPPoE interface name is required',
       invalid_type_error: 'Name must be a valid string',
     })
-    .min(1, 'Name cannot be empty')
-    .max(64, 'Name too long (max 64 characters)')
+    .min(1, 'Please provide a name for the PPPoE interface')
+    .max(64, 'Interface name exceeds maximum length of 64 characters')
     .regex(
       /^[a-zA-Z0-9_-]+$/,
       'Name can only contain letters, numbers, hyphens, and underscores'
     ),
 
   /**
-   * Physical interface to bind PPPoE to
-   * Examples: "ether1", "ether2", "sfp1"
+   * Physical interface to bind PPPoE to (e.g. ether1, ether2, sfp1)
    */
   interface: z
     .string({
       required_error: 'Physical interface is required',
       invalid_type_error: 'Interface must be a valid string',
     })
-    .min(1, 'Interface cannot be empty')
-    .max(64, 'Interface name too long'),
+    .min(1, 'Please select a physical interface')
+    .max(64, 'Interface name exceeds maximum length of 64 characters'),
 });
 
 export type PppoeInterfaceStepFormValues = z.infer<
@@ -56,41 +54,38 @@ export type PppoeInterfaceStepFormValues = z.infer<
 // =============================================================================
 
 /**
- * Schema for Step 2: Authentication Credentials
+ * @description Schema for Step 2: Authentication Credentials
  *
  * Validates PPPoE username and password.
  * IMPORTANT: Password is never logged or cached.
  */
 export const pppoeCredentialsStepSchema = z.object({
   /**
-   * PPPoE username (provided by ISP)
-   * Examples: "user@isp.com", "username", "subscriber123"
+   * PPPoE username provided by ISP (e.g. user@isp.com)
    */
   username: z
     .string({
       required_error: 'Username is required',
       invalid_type_error: 'Username must be a valid string',
     })
-    .min(1, 'Username cannot be empty')
-    .max(255, 'Username too long (max 255 characters)'),
+    .min(1, 'Please enter your PPPoE username')
+    .max(255, 'Username exceeds maximum length of 255 characters'),
 
   /**
-   * PPPoE password (provided by ISP)
-   * SECURITY: This value is NEVER logged or cached
+   * PPPoE password provided by ISP (NEVER logged or cached)
    */
   password: z
     .string({
       required_error: 'Password is required',
       invalid_type_error: 'Password must be a valid string',
     })
-    .min(1, 'Password cannot be empty')
-    .max(255, 'Password too long (max 255 characters)'),
+    .min(1, 'Please enter your PPPoE password')
+    .max(255, 'Password exceeds maximum length of 255 characters'),
 
   /**
-   * Optional service name (ISP-specific)
-   * Leave empty if not required by your ISP
+   * Optional service name specific to your ISP
    */
-  serviceName: z.string().max(255, 'Service name too long').optional(),
+  serviceName: z.string().max(255, 'Service name exceeds maximum length of 255 characters').optional(),
 });
 
 export type PppoeCredentialsStepFormValues = z.infer<
@@ -102,7 +97,7 @@ export type PppoeCredentialsStepFormValues = z.infer<
 // =============================================================================
 
 /**
- * Schema for Step 3: Advanced Options
+ * @description Schema for Step 3: Advanced Options
  *
  * Validates PPPoE advanced settings (MTU, MRU, DNS, routing).
  * RouterOS constraints:
@@ -111,9 +106,7 @@ export type PppoeCredentialsStepFormValues = z.infer<
  */
 export const pppoeOptionsStepSchema = z.object({
   /**
-   * Maximum Transmission Unit (bytes)
-   * Default: 1492 (Ethernet 1500 - 8 bytes PPPoE overhead)
-   * Range: 512-65535
+   * Maximum Transmission Unit in bytes (default: 1492 for PPPoE)
    */
   mtu: z
     .number({
@@ -124,9 +117,7 @@ export const pppoeOptionsStepSchema = z.object({
     .optional(),
 
   /**
-   * Maximum Receive Unit (bytes)
-   * Default: Same as MTU
-   * Range: 512-65535
+   * Maximum Receive Unit in bytes (typically same as MTU)
    */
   mru: z
     .number({
@@ -137,22 +128,17 @@ export const pppoeOptionsStepSchema = z.object({
     .optional(),
 
   /**
-   * Whether to add default route via PPPoE gateway
-   * Default: true
-   * Warning: Disabling may cause connectivity issues for WAN
+   * Whether to add default route via PPPoE gateway (default: true)
    */
-  addDefaultRoute: z.boolean().default(true),
+  shouldAddDefaultRoute: z.boolean().default(true),
 
   /**
-   * Whether to use DNS servers provided by ISP via PPPoE
-   * Default: true
-   * If disabled, static DNS configuration will be used
+   * Whether to use DNS servers provided by ISP (default: true)
    */
-  usePeerDNS: z.boolean().default(true),
+  shouldUsePeerDNS: z.boolean().default(true),
 
   /**
-   * Optional comment for identification
-   * RouterOS limit: 255 characters
+   * Optional comment for identification (max 255 characters)
    */
   comment: z
     .string()
@@ -169,7 +155,7 @@ export type PppoeOptionsStepFormValues = z.infer<
 // =============================================================================
 
 /**
- * Complete PPPoE client configuration schema
+ * @description Complete PPPoE client configuration schema
  * Combines all wizard steps into a single schema for submission
  */
 export const pppoeClientSchema = z.object({
@@ -185,22 +171,20 @@ export const pppoeClientSchema = z.object({
   // Step 3: Options
   mtu: pppoeOptionsStepSchema.shape.mtu,
   mru: pppoeOptionsStepSchema.shape.mru,
-  addDefaultRoute: pppoeOptionsStepSchema.shape.addDefaultRoute,
-  usePeerDNS: pppoeOptionsStepSchema.shape.usePeerDNS,
+  shouldAddDefaultRoute: pppoeOptionsStepSchema.shape.shouldAddDefaultRoute,
+  shouldUsePeerDNS: pppoeOptionsStepSchema.shape.shouldUsePeerDNS,
   comment: pppoeOptionsStepSchema.shape.comment,
 });
 
 /**
- * TypeScript type inferred from complete pppoeClientSchema
- * Use this for final form submission
+ * @description TypeScript type inferred from complete pppoeClientSchema
  */
 export type PppoeClientFormValues = z.infer<typeof pppoeClientSchema>;
 
 /**
- * Default values for PPPoE client wizard
- * Used to initialize React Hook Form
+ * @description Default values for PPPoE client wizard
  */
-export const pppoeClientDefaultValues: Partial<PppoeClientFormValues> = {
+export const PPPOE_CLIENT_DEFAULT_VALUES: Partial<PppoeClientFormValues> = {
   name: '',
   interface: '',
   username: '',
@@ -208,13 +192,13 @@ export const pppoeClientDefaultValues: Partial<PppoeClientFormValues> = {
   serviceName: '',
   mtu: 1492, // Standard PPPoE MTU (1500 - 8 bytes overhead)
   mru: 1492,
-  addDefaultRoute: true,
-  usePeerDNS: true,
+  shouldAddDefaultRoute: true,
+  shouldUsePeerDNS: true,
   comment: '',
 };
 
 /**
- * MTU Presets for common scenarios
+ * @description MTU Presets for common scenarios
  */
 export const MTU_PRESETS = {
   PPPOE_STANDARD: { value: 1492, label: 'Standard PPPoE (1492)' },

@@ -7,10 +7,14 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { ChainSummaryCards } from './ChainSummaryCards';
+import { fn } from 'storybook/test';
+
 import type { FirewallChain } from '@nasnet/core/types';
+
+import { ChainSummaryCards } from './ChainSummaryCards';
+
+import type { Meta, StoryObj } from '@storybook/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
  * ChainSummaryCards - Per-chain statistics cards with selection support
@@ -41,10 +45,28 @@ import type { FirewallChain } from '@nasnet/core/types';
  * />
  * ```
  */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: Infinity,
+    },
+  },
+});
+
+function QueryWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+}
+
 const meta = {
   title: 'Features/Firewall/ChainSummaryCards',
   component: ChainSummaryCards,
   tags: ['autodocs'],
+  decorators: [(Story) => <QueryWrapper><Story /></QueryWrapper>],
   parameters: {
     layout: 'padded',
     docs: {
@@ -69,6 +91,10 @@ const meta = {
     onChainSelect: {
       action: 'chainSelected',
       description: 'Callback fired when a chain card is clicked',
+    },
+    className: {
+      control: 'text',
+      description: 'Optional CSS class name',
     },
   },
   args: {

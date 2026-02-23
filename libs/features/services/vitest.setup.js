@@ -1,3 +1,4 @@
+/* global exports, require, window, global, console, module */
 "use strict";
 /**
  * Vitest Setup File for Services Feature

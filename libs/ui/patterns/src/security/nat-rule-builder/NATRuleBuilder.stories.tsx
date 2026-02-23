@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const action = (name: string) => fn().mockName(name);
 
@@ -305,8 +305,14 @@ export const LoadingStates: Story = {
     interfaceLists: mockInterfaceLists,
     addressLists: mockAddressLists,
     isSaving: true,
-    onSave: action('onSave'),
-    onDelete: action('onDelete'),
+    onSave: async (rule: NATRuleInput) => {
+      action('onSave')(rule);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    },
+    onDelete: async () => {
+      action('onDelete')();
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    },
     onClose: action('onClose'),
     initialRule: {
       id: 'nat-rule-1',

@@ -5,7 +5,7 @@
  * expandable detail sheet, and "New" badge indicator.
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { LeaseCard } from './LeaseCard';
 

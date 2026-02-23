@@ -5,10 +5,12 @@
  * active alerts, acknowledged alerts, loading, error, empty, and paginated.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { MockedProvider } from '@apollo/client/testing';
 import { gql } from '@apollo/client';
+import { MockedProvider } from '@apollo/client/testing';
+
 import { AlertList } from './AlertList';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Shared GraphQL fragments — must match queries in useAlerts hook
@@ -56,7 +58,7 @@ const GET_ALERTS = gql`
   }
 `;
 
-const ALERT_EVENTS_SUBSCRIPTION = gql`
+const _ALERT_EVENTS_SUBSCRIPTION = gql`
   subscription AlertEvents($deviceId: ID) {
     alertEvents(deviceId: $deviceId) {
       alert {
@@ -77,7 +79,7 @@ const ALERT_EVENTS_SUBSCRIPTION = gql`
   }
 `;
 
-const ACKNOWLEDGE_ALERT = gql`
+const _ACKNOWLEDGE_ALERT = gql`
   mutation AcknowledgeAlert($alertId: ID!) {
     acknowledgeAlert(alertId: $alertId) {
       alert {
@@ -101,9 +103,9 @@ const baseAlertNode = {
   ruleId: 'rule-001',
   eventType: 'device.cpu.high',
   deviceId: 'router-main',
-  acknowledgedAt: null,
-  acknowledgedBy: null,
-  data: null,
+  acknowledgedAt: null as string | null,
+  acknowledgedBy: null as string | null,
+  data: null as Record<string, any> | null,
 };
 
 const mockAlerts = [
@@ -111,7 +113,7 @@ const mockAlerts = [
     node: {
       ...baseAlertNode,
       id: 'alert-001',
-      severity: 'CRITICAL',
+      severity: 'CRITICAL' as const,
       title: 'CPU Usage Critical',
       message: 'CPU usage has exceeded 95% for more than 5 minutes.',
       triggeredAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
@@ -124,7 +126,7 @@ const mockAlerts = [
       id: 'alert-002',
       ruleId: 'rule-002',
       eventType: 'vpn.tunnel.down',
-      severity: 'WARNING',
+      severity: 'WARNING' as const,
       title: 'VPN Tunnel Disconnected',
       message: 'WireGuard tunnel wg0 has been down for 2 minutes.',
       triggeredAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
@@ -137,7 +139,7 @@ const mockAlerts = [
       id: 'alert-003',
       ruleId: 'rule-003',
       eventType: 'interface.down',
-      severity: 'INFO',
+      severity: 'INFO' as const,
       title: 'Interface ether2 Down',
       message: 'Ethernet interface ether2 has lost link.',
       triggeredAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
@@ -151,7 +153,7 @@ const acknowledgedAlerts = [
     node: {
       ...baseAlertNode,
       id: 'alert-ack-001',
-      severity: 'WARNING',
+      severity: 'WARNING' as const,
       title: 'Memory Usage High',
       message: 'Memory utilization reached 82%.',
       triggeredAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
@@ -164,7 +166,7 @@ const acknowledgedAlerts = [
     node: {
       ...baseAlertNode,
       id: 'alert-ack-002',
-      severity: 'INFO',
+      severity: 'INFO' as const,
       title: 'DHCP Lease Pool Low',
       message: 'DHCP pool has fewer than 10 addresses remaining.',
       triggeredAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
@@ -180,7 +182,7 @@ const queuedAlerts = [
     node: {
       ...baseAlertNode,
       id: 'alert-queued-001',
-      severity: 'WARNING',
+      severity: 'WARNING' as const,
       title: 'Backup Failed',
       message: 'Scheduled backup to USB storage failed — device not mounted.',
       triggeredAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
@@ -192,11 +194,11 @@ const queuedAlerts = [
     node: {
       ...baseAlertNode,
       id: 'alert-queued-002',
-      severity: 'CRITICAL',
+      severity: 'CRITICAL' as const,
       title: 'Firewall Attack Detected',
       message: 'Port scan detected from 203.0.113.45 — rule triggered.',
       triggeredAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
-      data: { bypassedQuietHours: true },
+      data: { shouldBypassQuietHours: true },
     },
     cursor: 'cursor-q-002',
   },
@@ -291,7 +293,7 @@ const meta: Meta<typeof AlertList> = {
       control: 'select',
       options: [undefined, 'CRITICAL', 'WARNING', 'INFO'],
     },
-    acknowledged: {
+    shouldShowAcknowledged: {
       control: 'boolean',
     },
     limit: {
@@ -362,7 +364,7 @@ export const WithQueuedAlerts: Story = {
  */
 export const Acknowledged: Story = {
   args: {
-    acknowledged: true,
+    shouldShowAcknowledged: true,
   },
   decorators: [
     (Story) => (

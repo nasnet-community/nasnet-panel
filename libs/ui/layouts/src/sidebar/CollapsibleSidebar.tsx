@@ -127,117 +127,118 @@ export interface CollapsibleSidebarProps {
  * }
  * ```
  */
-export const CollapsibleSidebar = React.forwardRef<
-  HTMLElement,
-  CollapsibleSidebarProps
->(
-  (
-    {
-      children,
-      isCollapsed = false,
-      onToggle,
-      showToggle = true,
-      togglePosition = 'bottom',
-      collapsedWidth = SIDEBAR_WIDTHS.COLLAPSED,
-      expandedWidth = SIDEBAR_WIDTHS.EXPANDED,
-      position = 'left',
-      className,
-    },
-    ref
-  ) => {
-    const prefersReducedMotion = useReducedMotion();
-    const currentWidth = isCollapsed ? collapsedWidth : expandedWidth;
+export const CollapsibleSidebar = React.memo(
+  React.forwardRef<
+    HTMLElement,
+    CollapsibleSidebarProps
+  >(
+    (
+      {
+        children,
+        isCollapsed = false,
+        onToggle,
+        showToggle = true,
+        togglePosition = 'bottom',
+        collapsedWidth = SIDEBAR_WIDTHS.COLLAPSED,
+        expandedWidth = SIDEBAR_WIDTHS.EXPANDED,
+        position = 'left',
+        className,
+      },
+      ref
+    ) => {
+      const prefersReducedMotion = useReducedMotion();
+      const currentWidth = isCollapsed ? collapsedWidth : expandedWidth;
 
-    // Toggle button position classes
-    const togglePositionClasses = {
-      top: 'top-4',
-      middle: 'top-1/2 -translate-y-1/2',
-      bottom: 'bottom-4',
-    };
-
-    // Handle keyboard shortcut (Cmd+B / Ctrl+B)
-    React.useEffect(() => {
-      if (!onToggle) return;
-
-      const handleKeyDown = (event: KeyboardEvent) => {
-        if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
-          event.preventDefault();
-          onToggle();
-        }
+      // Toggle button position classes
+      const togglePositionClasses = {
+        top: 'top-4',
+        middle: 'top-1/2 -translate-y-1/2',
+        bottom: 'bottom-4',
       };
 
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onToggle]);
+      // Handle keyboard shortcut (Cmd+B / Ctrl+B)
+      React.useEffect(() => {
+        if (!onToggle) return;
 
-    return (
-      <aside
-        ref={ref}
-        className={cn(
-          'relative flex flex-col h-full',
-          'bg-sidebar',
-          'border-border',
-          position === 'left' ? 'border-r' : 'border-l',
-          // Transition
-          !prefersReducedMotion && 'transition-all ease-out',
-          !prefersReducedMotion && `duration-${ANIMATION_DURATIONS.SIDEBAR}`,
-          className
-        )}
-        style={{
-          width: currentWidth,
-          minWidth: currentWidth,
-          transitionDuration: prefersReducedMotion
-            ? '0ms'
-            : `${ANIMATION_DURATIONS.SIDEBAR}ms`,
-        }}
-        aria-label={isCollapsed ? 'Collapsed sidebar' : 'Expanded sidebar'}
-        data-collapsed={isCollapsed}
-      >
-        {/* Sidebar content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          {children}
-        </div>
+        const handleKeyDown = (event: KeyboardEvent) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
+            event.preventDefault();
+            onToggle();
+          }
+        };
 
-        {/* Collapse toggle button */}
-        {showToggle && onToggle && (
-          <button
-            onClick={onToggle}
-            className={cn(
-              'absolute z-10',
-              position === 'left' ? '-right-3' : '-left-3',
-              togglePositionClasses[togglePosition],
-              // Button styles
-              'w-6 h-6 rounded-full',
-              'bg-card',
-              'border border-border',
-              'shadow-sm',
-              'flex items-center justify-center',
-              // Interaction
-              'hover:bg-accent',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              'active:scale-95',
-              // Transition
-              !prefersReducedMotion && 'transition-all duration-150'
-            )}
-            aria-expanded={!isCollapsed}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (${
-              typeof navigator !== 'undefined' &&
-              navigator.platform?.includes('Mac')
-                ? '⌘'
-                : 'Ctrl'
-            }+B)`}
-          >
-            <CollapseIcon
-              isCollapsed={isCollapsed}
-              position={position}
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          </button>
-        )}
-      </aside>
-    );
-  }
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [onToggle]);
+
+      return (
+        <aside
+          ref={ref}
+          className={cn(
+            'relative flex flex-col h-full',
+            'bg-sidebar',
+            'border-border',
+            position === 'left' ? 'border-r' : 'border-l',
+            // Transition - use inline style for dynamic duration
+            !prefersReducedMotion && 'transition-all ease-out',
+            className
+          )}
+          style={{
+            width: currentWidth,
+            minWidth: currentWidth,
+            transitionDuration: prefersReducedMotion
+              ? '0ms'
+              : `${ANIMATION_DURATIONS.SIDEBAR}ms`,
+          }}
+          aria-label={isCollapsed ? 'Collapsed sidebar' : 'Expanded sidebar'}
+          data-collapsed={isCollapsed}
+        >
+          {/* Sidebar content */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            {children}
+          </div>
+
+          {/* Collapse toggle button */}
+          {showToggle && onToggle && (
+            <button
+              onClick={onToggle}
+              className={cn(
+                'absolute z-10',
+                position === 'left' ? '-right-3' : '-left-3',
+                togglePositionClasses[togglePosition],
+                // Button styles
+                'w-6 h-6 rounded-full',
+                'bg-card',
+                'border border-border',
+                'shadow-sm',
+                'flex items-center justify-center',
+                // Interaction
+                'hover:bg-accent',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'active:scale-95',
+                // Transition
+                !prefersReducedMotion && 'transition-all duration-150'
+              )}
+              aria-expanded={!isCollapsed}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (${
+                typeof navigator !== 'undefined' &&
+                navigator.platform?.includes('Mac')
+                  ? '⌘'
+                  : 'Ctrl'
+              }+B)`}
+            >
+              <CollapseIcon
+                isCollapsed={isCollapsed}
+                position={position}
+                prefersReducedMotion={prefersReducedMotion}
+              />
+            </button>
+          )}
+        </aside>
+      );
+    }
+  )
 );
 
 CollapsibleSidebar.displayName = 'CollapsibleSidebar';
@@ -251,7 +252,7 @@ interface CollapseIconProps {
   prefersReducedMotion: boolean;
 }
 
-function CollapseIcon({
+const CollapseIcon = React.memo(function CollapseIcon({
   isCollapsed,
   position,
   prefersReducedMotion,
@@ -282,7 +283,7 @@ function CollapseIcon({
       />
     </svg>
   );
-}
+});
 
 /**
  * Context for sidebar collapsed state

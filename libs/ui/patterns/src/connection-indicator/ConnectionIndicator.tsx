@@ -8,7 +8,7 @@
  * @see Docs/architecture/adrs/018-headless-platform-presenters.md
  */
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { Circle, Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
@@ -63,7 +63,7 @@ const LATENCY_QUALITY_CLASSES = {
  * Mobile presenter for connection indicator.
  * Compact design optimized for small screens and touch interaction.
  */
-function ConnectionIndicatorMobile({ state }: { state: ConnectionIndicatorState }) {
+const ConnectionIndicatorMobile = memo(function ConnectionIndicatorMobile({ state }: { state: ConnectionIndicatorState }) {
   const colors = STATUS_COLOR_CLASSES[state.statusColor];
 
   return (
@@ -93,7 +93,9 @@ function ConnectionIndicatorMobile({ state }: { state: ConnectionIndicatorState 
       )}
     </button>
   );
-}
+});
+
+ConnectionIndicatorMobile.displayName = 'ConnectionIndicatorMobile';
 
 // ===== Desktop Presenter =====
 
@@ -101,7 +103,7 @@ function ConnectionIndicatorMobile({ state }: { state: ConnectionIndicatorState 
  * Desktop presenter for connection indicator.
  * Information-dense design with latency and protocol details.
  */
-function ConnectionIndicatorDesktop({ state }: { state: ConnectionIndicatorState }) {
+const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ state }: { state: ConnectionIndicatorState }) {
   const colors = STATUS_COLOR_CLASSES[state.statusColor];
 
   // Build tooltip content
@@ -198,7 +200,9 @@ function ConnectionIndicatorDesktop({ state }: { state: ConnectionIndicatorState
       )}
     </div>
   );
-}
+});
+
+ConnectionIndicatorDesktop.displayName = 'ConnectionIndicatorDesktop';
 
 // ===== Main Component =====
 

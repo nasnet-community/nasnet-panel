@@ -126,6 +126,26 @@ func NewInstanceManager(cfg InstanceManagerConfig) (*InstanceManager, error) {
 	return im, nil
 }
 
+// GetInstanceHealthStatus returns the current health state string for an instance.
+// Returns "UNKNOWN" if the instance is not registered with the health checker.
+func (im *InstanceManager) GetInstanceHealthStatus(instanceID string) (string, error) {
+	if im.healthChecker == nil {
+		return "UNKNOWN", nil
+	}
+	state, err := im.healthChecker.GetInstanceHealth(instanceID)
+	if err != nil {
+		return "UNKNOWN", nil //nolint:nilerr // not-found is not an error for callers
+	}
+	return string(state.CurrentState), nil
+}
+
+// PathResolver returns the path resolver instance.
+func (im *InstanceManager) PathResolver() storage.PathResolverPort {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+	return im.config.PathResolver
+}
+
 // IsolationVerifier returns the isolation verifier instance (may be nil)
 func (im *InstanceManager) IsolationVerifier() *isolation.IsolationVerifier {
 	im.mu.RLock()

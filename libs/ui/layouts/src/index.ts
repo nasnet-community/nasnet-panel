@@ -1,7 +1,23 @@
-// UI Layouts Library - Layout components for NasNetConnect
-// Structural components for page layout and application shell
+/**
+ * UI Layouts Library - Structural Layout Components
+ *
+ * Provides responsive layout components for NasNetConnect:
+ * - AppShell: Main application wrapper with header, sidebar, footer (pattern component)
+ * - PageContainer: Page content wrapper with title, description, actions
+ * - SidebarLayout: Flexible sidebar + content layout with collapse support
+ * - BottomNavigation: Mobile-first bottom tab bar navigation
+ * - MobileHeader: Mobile-optimized header with greeting and title
+ * - CardLayout: Grid/flex container for card-based content
+ * - StatusLayout: Status/connection banner area
+ * - MobileAppShell: Mobile-first responsive application shell
+ * - ResponsiveShell: Auto-switching layout based on platform (ADR-018)
+ * - CollapsibleSidebar: Sidebar with collapse/expand behavior
+ *
+ * @see https://Docs/design/PLATFORM_PRESENTER_GUIDE.md
+ * @see https://Docs/architecture/adrs/017-three-layer-component-architecture.md
+ */
 
-// AppShell - Main application wrapper with header, sidebar, footer
+// AppShell - Main application wrapper with header, sidebar, footer (pattern component)
 export { AppShell } from './app-shell';
 export type { AppShellProps } from './app-shell';
 

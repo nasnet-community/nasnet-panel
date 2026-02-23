@@ -6,12 +6,16 @@
  * with highlight functionality.
  *
  * Features:
- * - Find rules by log prefix
+ * - Find rules by log prefix (case-insensitive)
  * - Navigate to filter rules page with highlight query param
  * - Toast notification for "rule not found" case
  * - Type-safe TanStack Router navigation
  *
- * @see Task #9: Integration Task - Rule Navigation
+ * @example
+ * ```tsx
+ * const { navigateToRuleByPrefix } = useRuleNavigation({ routerId: '123' });
+ * navigateToRuleByPrefix('SSH-DROP');
+ * ```
  */
 
 import { useCallback } from 'react';
@@ -25,18 +29,18 @@ import type { FilterRule } from '@nasnet/core/types';
 // ============================================================================
 
 export interface UseRuleNavigationOptions {
-  /** Target router ID */
+  /** Target router ID for querying filter rules */
   routerId: string;
 }
 
 export interface UseRuleNavigationReturn {
-  /** Find a filter rule by log prefix */
+  /** Find a filter rule by log prefix (case-insensitive) */
   findRuleByPrefix: (prefix: string) => FilterRule | undefined;
-  /** Navigate to a specific rule with highlight */
+  /** Navigate to the filter rules page with a specific rule highlighted */
   navigateToRule: (ruleId: string) => void;
-  /** Combined: find by prefix and navigate (with error handling) */
+  /** Find a rule by prefix and navigate with error handling */
   navigateToRuleByPrefix: (prefix: string) => void;
-  /** Whether filter rules are currently loading */
+  /** Loading state for filter rules query */
   isLoading: boolean;
 }
 
@@ -45,22 +49,28 @@ export interface UseRuleNavigationReturn {
 // ============================================================================
 
 /**
- * Hook for navigating to firewall filter rules from log entries
+ * Hook for navigating to firewall filter rules from log entries.
  *
- * @param options - Hook options with router ID
- * @returns Navigation functions and loading state
+ * Provides functions to find rules by their log prefix and navigate to them
+ * with automatic highlight. Useful for connecting firewall logs to their rules.
+ *
+ * @param options - Hook options including target router ID
+ * @returns Object with navigation functions and loading state
  *
  * @example
  * ```tsx
- * function LogEntry({ entry }: { entry: FirewallLogEntry }) {
- *   const { navigateToRuleByPrefix } = useRuleNavigation({
- *     routerId: router.id
+ * function FirewallLogEntry({ entry }: { entry: FirewallLogEntry }) {
+ *   const { navigateToRuleByPrefix, isLoading } = useRuleNavigation({
+ *     routerId: routerId
  *   });
  *
  *   return (
- *     <button onClick={() => navigateToRuleByPrefix(entry.prefix)}>
+ *     <Button
+ *       onClick={() => navigateToRuleByPrefix(entry.prefix)}
+ *       disabled={isLoading}
+ *     >
  *       View Rule
- *     </button>
+ *     </Button>
  *   );
  * }
  * ```
@@ -76,10 +86,13 @@ export function useRuleNavigation({
   });
 
   /**
-   * Find a filter rule by its log prefix
+   * Find a filter rule by its log prefix (case-insensitive)
+   *
+   * Searches through cached filter rules to find one matching the given prefix.
+   * Comparison is case-insensitive to handle various prefix formats.
    *
    * @param prefix - Log prefix to search for (e.g., "SSH-DROP", "WEB-ALLOW")
-   * @returns The matching FilterRule or undefined if not found
+   * @returns The matching FilterRule, or undefined if not found
    */
   const findRuleByPrefix = useCallback(
     (prefix: string): FilterRule | undefined => {
@@ -87,7 +100,7 @@ export function useRuleNavigation({
         return undefined;
       }
 
-      // Search for rule with matching log prefix
+      // Search for rule with matching log prefix (case-insensitive)
       return rules.find(
         (rule) => rule.logPrefix && rule.logPrefix.toLowerCase() === prefix.toLowerCase()
       );
@@ -96,13 +109,15 @@ export function useRuleNavigation({
   );
 
   /**
-   * Navigate to the filter rules page with highlight query parameter
+   * Navigate to the filter rules page with a specific rule highlighted
    *
-   * @param ruleId - Rule ID to highlight (e.g., "*1", "*2")
+   * Navigates to the firewall filter rules page and passes the rule ID as
+   * a query parameter so it can be highlighted/scrolled into view.
+   *
+   * @param ruleId - Rule ID to highlight (e.g., "*1", "*2", "rule:123")
    */
   const navigateToRule = useCallback(
     (ruleId: string): void => {
-      // Navigate to filter rules page with highlight query param
       navigate({
         to: '/router/$id/firewall' as any,
         params: { id: routerId } as any,
@@ -113,27 +128,29 @@ export function useRuleNavigation({
   );
 
   /**
-   * Find a rule by prefix and navigate to it (with error handling)
+   * Find a rule by prefix and navigate to it with error handling
    *
-   * Shows a toast notification if the rule is not found.
+   * Combines findRuleByPrefix and navigateToRule. Shows a helpful error
+   * toast if the rule is not found, or navigates and highlights the rule
+   * if found.
    *
-   * @param prefix - Log prefix to search for
+   * @param prefix - Log prefix to search for (e.g., "SSH-DROP")
    */
   const navigateToRuleByPrefix = useCallback(
     (prefix: string): void => {
       const rule = findRuleByPrefix(prefix);
 
       if (!rule) {
-        // Show error toast
+        // Show error toast with actionable message
         toast({
-          variant: 'error',
+          variant: 'destructive',
           title: 'Rule Not Found',
-          description: `No filter rule found with log prefix "${prefix}". The rule may have been deleted or the prefix was changed.`,
+          description: `No filter rule found with log prefix "${prefix}". The rule may have been deleted or the prefix was recently changed.`,
         });
         return;
       }
 
-      // Navigate to the rule
+      // Navigate to the rule with highlight
       navigateToRule(rule.id!);
     },
     [findRuleByPrefix, navigateToRule]

@@ -10,11 +10,12 @@
  * @module @nasnet/features/firewall/components
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, FileText, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import {
   Dialog,
   DialogContent,
@@ -92,19 +93,37 @@ export interface SaveTemplateDialogProps {
   open?: boolean;
   /** Callback when open state changes (controlled mode) */
   onOpenChange?: (open: boolean) => void;
+  /** Optional CSS class for styling */
+  className?: string;
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-export function SaveTemplateDialog({
+/**
+ * SaveTemplateDialog Component
+ *
+ * @description Provides a dialog for saving firewall rules as reusable templates
+ * with variable parameterization and version control.
+ *
+ * @example
+ * ```tsx
+ * <SaveTemplateDialog
+ *   rules={selectedRules}
+ *   onSave={handleSaveTemplate}
+ *   existingNames={templateNames}
+ * />
+ * ```
+ */
+export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponent({
   rules,
   existingNames = [],
   onSave,
   trigger,
   open: controlledOpen,
   onOpenChange,
+  className,
 }: SaveTemplateDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -133,7 +152,7 @@ export function SaveTemplateDialog({
               label: 'WAN IP Address',
               type: 'IP',
               defaultValue: ip,
-              required: true,
+              isRequired: true,
               description: 'External/WAN interface IP address',
             });
           }
@@ -150,7 +169,7 @@ export function SaveTemplateDialog({
               label: 'LAN Subnet',
               type: 'SUBNET',
               defaultValue: subnet,
-              required: true,
+              isRequired: true,
               description: 'Local network subnet in CIDR notation',
             });
           }
@@ -166,7 +185,7 @@ export function SaveTemplateDialog({
             label: 'LAN Interface',
             type: 'INTERFACE',
             defaultValue: iface as string,
-            required: true,
+            isRequired: true,
             description: 'LAN-facing network interface',
           });
         }
@@ -181,7 +200,7 @@ export function SaveTemplateDialog({
             label: 'Service Port',
             type: 'PORT',
             defaultValue: port as string,
-            required: false,
+            isRequired: false,
             description: 'Service port number',
           });
         }
@@ -435,6 +454,7 @@ export function SaveTemplateDialog({
                           id={`var-${variable.name}`}
                           checked={selectedVariables.has(variable.name)}
                           onCheckedChange={() => toggleVariable(variable.name)}
+                          aria-label={`Select ${variable.label} as variable`}
                         />
                         <div className="flex-1 space-y-1">
                           <Label
@@ -442,7 +462,7 @@ export function SaveTemplateDialog({
                             className="cursor-pointer font-medium"
                           >
                             {variable.label}
-                            {variable.required && (
+                            {variable.isRequired && (
                               <span className="ml-1 text-destructive">*</span>
                             )}
                           </Label>
@@ -450,7 +470,7 @@ export function SaveTemplateDialog({
                             {variable.description}
                           </p>
                           {variable.defaultValue && (
-                            <code className="text-xs bg-muted px-2 py-0.5 rounded">
+                            <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono">
                               Default: {variable.defaultValue}
                             </code>
                           )}
@@ -501,4 +521,6 @@ export function SaveTemplateDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+SaveTemplateDialog.displayName = 'SaveTemplateDialog';

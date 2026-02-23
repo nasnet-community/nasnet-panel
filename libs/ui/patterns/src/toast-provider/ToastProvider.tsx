@@ -115,7 +115,7 @@ const TOAST_CLASS_NAMES = {
  * </ToastProvider>
  * ```
  */
-export function ToastProvider({
+function ToastProviderComponent({
   children,
   position,
   visibleToasts = 3,
@@ -154,5 +154,8 @@ export function ToastProvider({
     </>
   );
 }
+
+export const ToastProvider = React.memo(ToastProviderComponent);
+ToastProvider.displayName = 'ToastProvider';
 
 export default ToastProvider;

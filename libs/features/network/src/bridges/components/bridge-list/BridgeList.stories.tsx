@@ -1,7 +1,8 @@
+import type { ApolloQueryResult } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
+import type { Meta, StoryObj } from '@storybook/react';
 import { BridgeListDesktop } from './BridgeListDesktop';
 import { BridgeListMobile } from './BridgeListMobile';
-
-import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Bridge List Component Stories
@@ -17,7 +18,7 @@ const mockBridges = [
     running: true,
     macAddress: '00:11:22:33:44:55',
     mtu: 1500,
-    protocol: 'rstp',
+    protocol: 'RSTP',
     priority: 32768,
     vlanFiltering: false,
     pvid: 1,
@@ -36,7 +37,7 @@ const mockBridges = [
     running: true,
     macAddress: 'AA:BB:CC:DD:EE:FF',
     mtu: 1500,
-    protocol: 'rstp',
+    protocol: 'RSTP',
     priority: 32768,
     vlanFiltering: true,
     pvid: 100,
@@ -53,7 +54,7 @@ const mockBridges = [
     running: false,
     macAddress: '11:22:33:44:55:66',
     mtu: 1500,
-    protocol: 'none',
+    protocol: 'NONE',
     priority: 32768,
     vlanFiltering: false,
     pvid: 1,
@@ -68,7 +69,7 @@ const mockBridges = [
     running: false,
     macAddress: 'FF:EE:DD:CC:BB:AA',
     mtu: 1500,
-    protocol: 'stp',
+    protocol: 'STP',
     priority: 32768,
     vlanFiltering: false,
     pvid: 1,
@@ -79,13 +80,12 @@ const mockBridges = [
 
 const baseProps = {
   bridges: mockBridges,
-  allBridges: mockBridges,
-  loading: false,
-  error: null,
+  isLoading: false,
+  hasError: undefined,
   selectedIds: new Set<string>(),
-  toggleSelection: () => {},
-  selectAll: () => {},
-  clearSelection: () => {},
+  handleToggleSelection: () => {},
+  handleSelectAll: () => {},
+  handleClearSelection: () => {},
   searchQuery: '',
   setSearchQuery: () => {},
   protocolFilter: null,
@@ -94,7 +94,7 @@ const baseProps = {
   setVlanFilteringFilter: () => {},
   setSelectedBridgeId: () => {},
   handleDelete: async () => {},
-  refetch: async () => {},
+  refetch: async (): Promise<ApolloQueryResult<any>> => ({} as ApolloQueryResult<any>),
   routerId: 'router-1',
 };
 
@@ -123,7 +123,7 @@ export const Loading: StoryDesktop = {
   args: {
     ...baseProps,
     bridges: [],
-    loading: true,
+    isLoading: true,
   },
 };
 
@@ -135,11 +135,11 @@ export const Empty: StoryDesktop = {
   },
 };
 
-export const Error: StoryDesktop = {
+export const ErrorState: StoryDesktop = {
   args: {
     ...baseProps,
     bridges: [],
-    error: new Error('Failed to load bridges from router'),
+    hasError: new ApolloError({ errorMessage: 'Failed to load bridges' }),
   },
 };
 
@@ -195,8 +195,6 @@ const metaMobile: Meta<typeof BridgeListMobile> = {
   tags: ['autodocs'],
 };
 
-export { metaMobile };
-
 type StoryMobile = StoryObj<typeof BridgeListMobile>;
 
 export const MobileDefault: StoryMobile = {
@@ -207,7 +205,7 @@ export const MobileLoading: StoryMobile = {
   args: {
     ...baseProps,
     bridges: [],
-    loading: true,
+    isLoading: true,
   },
 };
 
@@ -219,11 +217,11 @@ export const MobileEmpty: StoryMobile = {
   },
 };
 
-export const MobileError: StoryMobile = {
+export const MobileErrorState: StoryMobile = {
   args: {
     ...baseProps,
     bridges: [],
-    error: new Error('Failed to load bridges'),
+    hasError: new ApolloError({ errorMessage: 'Failed to load bridges' }),
   },
 };
 
@@ -241,3 +239,6 @@ export const MobileLongList: StoryMobile = {
     bridges: mockBridges.concat(mockBridges).concat(mockBridges),
   },
 };
+
+// Export metaMobile for mobile stories support
+export { metaMobile };

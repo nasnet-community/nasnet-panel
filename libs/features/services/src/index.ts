@@ -39,6 +39,9 @@ export type { VLANPoolConfigProps } from './components/VLANPoolConfig';
 
 export { StopDependentsDialog } from './components/StopDependentsDialog';
 
+export { UpdateAllPanel } from './components/UpdateAllPanel';
+export type { UpdateAllPanelProps } from './components/UpdateAllPanel';
+
 // Service Logs & Diagnostics Components (NAS-8.12)
 export { ServiceLogViewer } from './components/ServiceLogViewer';
 export type {

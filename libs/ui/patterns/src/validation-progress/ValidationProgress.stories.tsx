@@ -7,7 +7,7 @@
 import { ValidationProgress } from './ValidationProgress';
 import { ValidationStage } from './ValidationStage';
 
-import type { ValidationStageResult, ValidationStageName } from './types';
+import type { ValidationStageName } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ValidationProgress> = {
@@ -170,7 +170,7 @@ export const MediumRisk: Story = {
 
 // ===== ValidationStage Component Stories =====
 
-const stageMeta: Meta<typeof ValidationStage> = {
+const _stageMeta: Meta<typeof ValidationStage> = {
   title: 'Patterns/Forms/ValidationStage',
   component: ValidationStage,
   tags: ['autodocs'],

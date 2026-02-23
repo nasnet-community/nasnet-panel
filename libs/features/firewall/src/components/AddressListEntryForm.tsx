@@ -1,31 +1,43 @@
 /**
  * AddressListEntryForm Component
+ * @description Form for creating firewall address list entries with validation
  *
- * Form for creating address list entries with validation.
- * Supports IP addresses, CIDR notation, and IP ranges.
- *
- * Layer 3 Domain Component - Uses Apollo Client hooks for data operations
- *
- * @module @nasnet/features/firewall/components
+ * Features:
+ * - IP address, CIDR notation, and IP range support
+ * - Auto-detect address format from input
+ * - Existing list dropdown or create new list option
+ * - Optional timeout field (duration format: 1d, 12h, 30m)
+ * - Optional comment field with character counter
+ * - React Hook Form + Zod validation
+ * - Professional error messages and field help text
+ * - Accessible form with aria-labels and error descriptions
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@nasnet/ui/utils';
 
-import { Button } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
-import { Label } from '@nasnet/ui/primitives';
-import { Textarea } from '@nasnet/ui/primitives';
-import { Select } from '@nasnet/ui/primitives';
-import { IPInput } from '@nasnet/ui/patterns';
+import {
+  Button,
+  Input,
+  Label,
+  Textarea,
+} from '@nasnet/ui/primitives';
 
 import { addressListEntrySchema } from '../schemas/addressListSchemas';
 import type { AddressListEntryFormData } from '../schemas/addressListSchemas';
 
-// ============================================
-// TYPES
-// ============================================
+// ============================================================================
+// Constants
+// ============================================================================
+
+const MAX_COMMENT_LENGTH = 200;
+const ADDRESS_FORMAT_OPTIONS = {
+  IP: 'ip' as const,
+  CIDR: 'cidr' as const,
+  RANGE: 'range' as const,
+};
 
 export interface AddressListEntryFormProps {
   /** Existing address lists for autocomplete */
@@ -42,12 +54,9 @@ export interface AddressListEntryFormProps {
   className?: string;
 }
 
-// ============================================
-// COMPONENT
-// ============================================
-
 /**
- * Form for creating address list entries
+ * AddressListEntryForm Component
+ * @description Form for creating firewall address list entries
  *
  * @example
  * ```tsx
@@ -58,14 +67,14 @@ export interface AddressListEntryFormProps {
  * />
  * ```
  */
-export function AddressListEntryForm({
+export const AddressListEntryForm = ({
   existingLists = [],
   defaultList,
   onSubmit,
   onCancel,
   isLoading = false,
   className,
-}: AddressListEntryFormProps) {
+}: AddressListEntryFormProps) => {
   const [addressFormat, setAddressFormat] = useState<'ip' | 'cidr' | 'range'>('ip');
   const [showCreateNewList, setShowCreateNewList] = useState(false);
 
@@ -88,31 +97,29 @@ export function AddressListEntryForm({
 
   const watchedAddress = watch('address');
 
-  // Auto-detect address format from input
   useEffect(() => {
     if (!watchedAddress) {
-      setAddressFormat('ip');
+      setAddressFormat(ADDRESS_FORMAT_OPTIONS.IP);
       return;
     }
 
     if (watchedAddress.includes('/')) {
-      setAddressFormat('cidr');
+      setAddressFormat(ADDRESS_FORMAT_OPTIONS.CIDR);
     } else if (watchedAddress.includes('-')) {
-      setAddressFormat('range');
+      setAddressFormat(ADDRESS_FORMAT_OPTIONS.RANGE);
     } else {
-      setAddressFormat('ip');
+      setAddressFormat(ADDRESS_FORMAT_OPTIONS.IP);
     }
   }, [watchedAddress]);
 
-  const handleFormSubmit = async (data: AddressListEntryFormData) => {
+  const handleFormSubmit = useCallback(async (data: AddressListEntryFormData) => {
     try {
       await onSubmit(data);
-      reset(); // Reset form after successful submission
+      reset();
     } catch (error) {
-      // Error handling is done by the parent component
       console.error('Form submission error:', error);
     }
-  };
+  }, [onSubmit, reset]);
 
   const listOptions = showCreateNewList
     ? []
@@ -121,7 +128,7 @@ export function AddressListEntryForm({
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
-      className={className}
+      className={cn(className)}
       noValidate
     >
       <div className="space-y-4">
@@ -221,10 +228,10 @@ export function AddressListEntryForm({
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>Format detected:</span>
-              <span className="font-mono font-semibold">
-                {addressFormat === 'ip' && 'Single IP'}
-                {addressFormat === 'cidr' && 'CIDR Subnet'}
-                {addressFormat === 'range' && 'IP Range'}
+              <span className="font-mono font-semibold text-foreground">
+                {addressFormat === ADDRESS_FORMAT_OPTIONS.IP && 'Single IP'}
+                {addressFormat === ADDRESS_FORMAT_OPTIONS.CIDR && 'CIDR Subnet'}
+                {addressFormat === ADDRESS_FORMAT_OPTIONS.RANGE && 'IP Range'}
               </span>
             </div>
           </div>
@@ -281,7 +288,7 @@ export function AddressListEntryForm({
             aria-invalid={!!errors.comment}
             aria-describedby={errors.comment ? 'comment-error' : undefined}
             rows={3}
-            maxLength={200}
+            maxLength={MAX_COMMENT_LENGTH}
           />
 
           {errors.comment && (
@@ -291,7 +298,7 @@ export function AddressListEntryForm({
           )}
 
           <p className="text-xs text-muted-foreground text-right">
-            {watch('comment')?.length || 0} / 200 characters
+            {watch('comment')?.length || 0} / {MAX_COMMENT_LENGTH} characters
           </p>
         </div>
 
@@ -318,4 +325,6 @@ export function AddressListEntryForm({
       </div>
     </form>
   );
-}
+};
+
+AddressListEntryForm.displayName = 'AddressListEntryForm';

@@ -28,7 +28,7 @@ type SeedProps = {
 function SeedStores({ connectionState, routerIp = '', unreadCount = 0 }: SeedProps) {
   useEffect(() => {
     // Seed connection store
-    const connStore = useConnectionStore.getState() as {
+    const _connStore = useConnectionStore.getState() as {
       setState?: (s: object) => void;
     };
     // zustand stores expose setState via the store itself
@@ -161,6 +161,44 @@ export const DisconnectedWithManyNotifications: Story = {
     docs: {
       description: {
         story: 'Disconnected with a large number of unread notifications, verifying badge overflow display.',
+      },
+    },
+  },
+};
+
+/**
+ * Mobile viewport story – verifies the header adapts to narrow screens.
+ */
+export const Mobile: Story = {
+  args: {
+    connectionState: 'connected',
+    routerIp: '192.168.88.1',
+    unreadCount: 3,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story: 'AppHeader rendered on a mobile viewport (375px). Logo, connection status, and notification bell are properly spaced for touch interaction.',
+      },
+    },
+  },
+};
+
+/**
+ * Desktop viewport story – verifies the header layout optimized for larger screens.
+ */
+export const Desktop: Story = {
+  args: {
+    connectionState: 'connected',
+    routerIp: '192.168.88.1',
+    unreadCount: 0,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+    docs: {
+      description: {
+        story: 'AppHeader rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and clear visual hierarchy.',
       },
     },
   },

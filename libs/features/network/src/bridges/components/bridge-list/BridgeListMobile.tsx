@@ -1,9 +1,10 @@
 import { memo, useState } from 'react';
-import { Card, CardContent } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
 import {
+  Card,
+  CardContent,
+  Button,
+  Badge,
+  Input,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,8 +21,8 @@ export interface BridgeListMobileProps extends UseBridgeListReturn {
 
 export const BridgeListMobile = memo(function BridgeListMobile({
   bridges,
-  loading,
-  error,
+  isLoading,
+  hasError,
   searchQuery,
   setSearchQuery,
   setSelectedBridgeId,
@@ -79,25 +80,25 @@ export const BridgeListMobile = memo(function BridgeListMobile({
       </div>
 
       {/* Loading State */}
-      {loading && (
+      {isLoading && (
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
 
       {/* Error State */}
-      {error && (
+      {hasError && (
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <p className="text-sm text-destructive">
-              Failed to load bridges: {error.message}
+              Failed to load bridges: {hasError.message}
             </p>
           </CardContent>
         </Card>
       )}
 
       {/* Empty State */}
-      {!loading && !error && bridges.length === 0 && (
+      {!isLoading && !hasError && bridges.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-lg font-medium text-muted-foreground">
             No bridges configured

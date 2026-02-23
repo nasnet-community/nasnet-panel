@@ -14,13 +14,13 @@
  * @see NAS-7.5: Implement Mangle Rules
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 
 import { ArrowRight, ArrowDown, Filter, Package, Router } from 'lucide-react';
 
 import type { MangleChain } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
-import { Card, Badge, Button } from '@nasnet/ui/primitives';
+import { Card, Badge, Button, cn } from '@nasnet/ui/primitives';
 
 
 // ============================================================================
@@ -73,15 +73,15 @@ const ChainNode = memo(function ChainNode({
   return (
     <button
       onClick={onClick}
-      className={`
-        relative flex flex-col items-center justify-center
-        min-w-[120px] h-20 px-4 py-2
-        rounded-lg border-2 transition-all
-        ${isSelected ? 'border-primary bg-primary/10 shadow-md' : 'border-muted bg-background'}
-        ${isHighlighted ? 'ring-2 ring-warning ring-offset-2' : ''}
-        hover:border-primary/50 hover:shadow-sm
-        focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
-      `}
+      className={cn(
+        'relative flex flex-col items-center justify-center',
+        'min-w-[120px] h-20 px-4 py-2',
+        'rounded-lg border-2 transition-all',
+        isSelected ? 'border-primary bg-primary/10 shadow-md' : 'border-muted bg-background',
+        isHighlighted && 'ring-2 ring-warning ring-offset-2',
+        'hover:border-primary/50 hover:shadow-sm',
+        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+      )}
       aria-label={`${label} chain - ${count} rules`}
       aria-pressed={isSelected}
     >

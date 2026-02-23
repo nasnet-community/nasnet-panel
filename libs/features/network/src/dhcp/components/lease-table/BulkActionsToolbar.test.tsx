@@ -6,9 +6,9 @@ import { BulkActionsToolbar } from './BulkActionsToolbar';
 describe('BulkActionsToolbar', () => {
   const defaultProps = {
     selectedCount: 0,
-    onMakeAllStatic: vi.fn(),
-    onDeleteSelected: vi.fn(),
-    onClearSelection: vi.fn(),
+    onMakeStatic: vi.fn(),
+    onDelete: vi.fn(),
+    onClear: vi.fn(),
   };
 
   beforeEach(() => {
@@ -52,7 +52,7 @@ describe('BulkActionsToolbar', () => {
       });
     });
 
-    it('should call onMakeAllStatic when confirmed', async () => {
+    it('should call onMakeStatic when confirmed', async () => {
       const user = userEvent.setup();
       render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
 
@@ -62,10 +62,10 @@ describe('BulkActionsToolbar', () => {
       const confirmButton = await screen.findByText('Confirm');
       await user.click(confirmButton);
 
-      expect(defaultProps.onMakeAllStatic).toHaveBeenCalled();
+      expect(defaultProps.onMakeStatic).toHaveBeenCalled();
     });
 
-    it('should not call onMakeAllStatic when cancelled', async () => {
+    it('should not call onMakeStatic when cancelled', async () => {
       const user = userEvent.setup();
       render(<BulkActionsToolbar {...defaultProps} selectedCount={2} />);
 
@@ -75,7 +75,7 @@ describe('BulkActionsToolbar', () => {
       const cancelButton = await screen.findByText('Cancel');
       await user.click(cancelButton);
 
-      expect(defaultProps.onMakeAllStatic).not.toHaveBeenCalled();
+      expect(defaultProps.onMakeStatic).not.toHaveBeenCalled();
     });
 
     it('should close dialog after confirmation', async () => {
@@ -116,7 +116,7 @@ describe('BulkActionsToolbar', () => {
       });
     });
 
-    it('should call onDeleteSelected when confirmed', async () => {
+    it('should call onDelete when confirmed', async () => {
       const user = userEvent.setup();
       render(<BulkActionsToolbar {...defaultProps} selectedCount={4} />);
 
@@ -126,10 +126,10 @@ describe('BulkActionsToolbar', () => {
       const confirmButton = await screen.findByText('Confirm');
       await user.click(confirmButton);
 
-      expect(defaultProps.onDeleteSelected).toHaveBeenCalled();
+      expect(defaultProps.onDelete).toHaveBeenCalled();
     });
 
-    it('should not call onDeleteSelected when cancelled', async () => {
+    it('should not call onDelete when cancelled', async () => {
       const user = userEvent.setup();
       render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
 
@@ -139,7 +139,7 @@ describe('BulkActionsToolbar', () => {
       const cancelButton = await screen.findByText('Cancel');
       await user.click(cancelButton);
 
-      expect(defaultProps.onDeleteSelected).not.toHaveBeenCalled();
+      expect(defaultProps.onDelete).not.toHaveBeenCalled();
     });
 
     it('should show destructive variant for delete button', () => {
@@ -155,14 +155,14 @@ describe('BulkActionsToolbar', () => {
       expect(screen.getByText('Clear')).toBeInTheDocument();
     });
 
-    it('should call onClearSelection when clicked', async () => {
+    it('should call onClear when clicked', async () => {
       const user = userEvent.setup();
       render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
 
       const button = screen.getByText('Clear');
       await user.click(button);
 
-      expect(defaultProps.onClearSelection).toHaveBeenCalled();
+      expect(defaultProps.onClear).toHaveBeenCalled();
     });
 
     it('should not show confirmation for clear action', async () => {
@@ -172,7 +172,7 @@ describe('BulkActionsToolbar', () => {
       const button = screen.getByText('Clear');
       await user.click(button);
 
-      expect(defaultProps.onClearSelection).toHaveBeenCalledTimes(1);
+      expect(defaultProps.onClear).toHaveBeenCalledTimes(1);
       expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
     });
   });

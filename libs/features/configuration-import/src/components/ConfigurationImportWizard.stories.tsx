@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { ConfigurationImportWizard } from './ConfigurationImportWizard';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * NOTE: ConfigurationImportWizard relies on several API hooks at runtime:

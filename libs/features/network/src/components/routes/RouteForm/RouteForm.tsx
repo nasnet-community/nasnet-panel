@@ -17,7 +17,7 @@
  * ```
  */
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { useRouteForm } from './useRouteForm';
@@ -38,6 +38,8 @@ import type { RouteFormProps } from './types';
  * - Validation with Zod + React Hook Form
  * - Real-time form validation
  * - Warning display for unreachable gateways
+ *
+ * @description Headless + Platform Presenters pattern with mobile/desktop adaptive layouts
  */
 function RouteFormComponent(props: RouteFormProps) {
   const platform = usePlatform();
@@ -52,6 +54,10 @@ function RouteFormComponent(props: RouteFormProps) {
     handleCancel,
   } = useRouteForm(props);
 
+  // Memoize callbacks for stable references
+  const memoizedHandleSubmit = useCallback(handleSubmit, [handleSubmit]);
+  const memoizedHandleCancel = useCallback(handleCancel, [handleCancel]);
+
   // Props to pass to presenters
   const presenterProps = {
     form,
@@ -59,8 +65,8 @@ function RouteFormComponent(props: RouteFormProps) {
     tableOptions,
     interfaces: props.interfaces,
     loading,
-    handleSubmit,
-    handleCancel,
+    handleSubmit: memoizedHandleSubmit,
+    handleCancel: memoizedHandleCancel,
     mode: props.mode,
   };
 
@@ -73,6 +79,8 @@ function RouteFormComponent(props: RouteFormProps) {
       return <RouteFormDesktop {...presenterProps} />;
   }
 }
+
+RouteFormComponent.displayName = 'RouteFormComponent';
 
 // Wrap with memo for performance optimization
 export const RouteForm = memo(RouteFormComponent);

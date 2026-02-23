@@ -20,6 +20,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Icon,
+  cn,
 } from '@nasnet/ui/primitives';
 
 import { useResourceCard } from './useResourceCard';
@@ -35,7 +37,7 @@ import type { BaseResource, ResourceCardProps } from './types';
  * - Dropdown menu for secondary actions
  * - Inline primary action button
  */
-export function ResourceCardDesktop<T extends BaseResource>(
+function ResourceCardDesktopComponent<T extends BaseResource>(
   props: ResourceCardProps<T>
 ) {
   const { resource, className, children, showLivePulse = true } = props;
@@ -53,10 +55,10 @@ export function ResourceCardDesktop<T extends BaseResource>(
 
   return (
     <Card
-      className={`
-        p-4 transition-colors hover:bg-muted/50 cursor-pointer
-        ${className || ''}
-      `.trim()}
+      className={cn(
+        'p-4 transition-colors hover:bg-muted/50 cursor-pointer',
+        className
+      )}
       onClick={handleClick}
       role="article"
       aria-label={`${resource.name} - ${statusLabel}`}
@@ -72,7 +74,7 @@ export function ResourceCardDesktop<T extends BaseResource>(
               </Badge>
               {isOnline && showLivePulse && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-success rounded-full animate-pulse"
                   aria-hidden="true"
                 />
               )}
@@ -122,7 +124,11 @@ export function ResourceCardDesktop<T extends BaseResource>(
                       size="sm"
                       aria-label="More actions"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <Icon
+                        icon={MoreHorizontal}
+                        size="sm"
+                        className="text-foreground"
+                      />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -159,4 +165,8 @@ export function ResourceCardDesktop<T extends BaseResource>(
   );
 }
 
-ResourceCardDesktop.displayName = 'ResourceCardDesktop';
+ResourceCardDesktopComponent.displayName = 'ResourceCardDesktop';
+
+export const ResourceCardDesktop = React.memo(
+  ResourceCardDesktopComponent
+) as typeof ResourceCardDesktopComponent;

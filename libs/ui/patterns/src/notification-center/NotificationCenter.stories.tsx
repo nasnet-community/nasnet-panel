@@ -4,7 +4,7 @@
  * Interactive stories demonstrating notification center functionality.
  */
 
-import React, { useState , useEffect } from 'react';
+import React, { useState } from 'react';
 
 
 import { useAlertNotificationStore } from '@nasnet/state/stores';
@@ -44,14 +44,14 @@ function generateMockNotifications(count: number) {
     'SSL certificate will expire in 7 days. Renewal required.',
   ];
 
-  const now = Date.now();
-  const notifications = [];
+  const _now = Date.now();
+  const _notifications = [];
 
   for (let i = 0; i < count; i++) {
     const severity = severities[Math.floor(Math.random() * severities.length)];
     const titleIndex = Math.floor(Math.random() * titles.length);
 
-    notifications.push({
+    _notifications.push({
       alertId: `alert_${i}`,
       title: titles[titleIndex],
       message: messages[titleIndex],
@@ -62,7 +62,7 @@ function generateMockNotifications(count: number) {
     });
   }
 
-  return notifications;
+  return _notifications;
 }
 
 /**
@@ -247,7 +247,7 @@ export const MixedReadState: Story = {
     const addNotification = useAlertNotificationStore((state) => state.addNotification);
     const markAsRead = useAlertNotificationStore((state) => state.markAsRead);
     const clearAll = useAlertNotificationStore((state) => state.clearAll);
-    const notifications = useAlertNotificationStore((state) => state.notifications);
+    const _notifications = useAlertNotificationStore((state) => state.notifications);
 
     const handlePopulate = () => {
       clearAll();

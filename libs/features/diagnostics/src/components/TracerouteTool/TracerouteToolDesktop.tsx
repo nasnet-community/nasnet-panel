@@ -5,7 +5,7 @@
  * Form on the left, real-time hop results and path visualization on the right.
  */
 
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -76,7 +76,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
 
   const protocol = watch('protocol');
 
-  const onSubmit = async (values: TracerouteFormValues) => {
+  const onSubmit = useCallback(async (values: TracerouteFormValues) => {
     await traceroute.run({
       target: values.target,
       maxHops: values.maxHops || 30,
@@ -84,44 +84,16 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
       probeCount: values.probeCount || 3,
       protocol: values.protocol || 'ICMP',
     });
-  };
+  }, [traceroute]);
 
-  const handleStop = async () => {
+  const handleStop = useCallback(async () => {
     await traceroute.cancel();
-  };
-
-  /**
-   * Copy results to clipboard as text
-   */
-  const handleCopyResults = async () => {
-    if (!traceroute.hops.length) return;
-
-    const text = formatResultsAsText();
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  /**
-   * Download results as JSON
-   */
-  const handleDownloadJSON = () => {
-    if (!traceroute.result) return;
-
-    const json = JSON.stringify(traceroute.result, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `traceroute-${traceroute.result.target}-${new Date().toISOString()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  }, [traceroute]);
 
   /**
    * Format results as plain text (similar to CLI traceroute output)
    */
-  const formatResultsAsText = (): string => {
+  const formatResultsAsText = useCallback((): string => {
     const lines: string[] = [];
     const target = traceroute.result?.target || watch('target');
 
@@ -148,7 +120,35 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
     }
 
     return lines.join('\n');
-  };
+  }, [traceroute.result, traceroute.hops, watch]);
+
+  /**
+   * Copy results to clipboard as text
+   */
+  const handleCopyResults = useCallback(async () => {
+    if (!traceroute.hops.length) return;
+
+    const text = formatResultsAsText();
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [traceroute.hops, formatResultsAsText]);
+
+  /**
+   * Download results as JSON
+   */
+  const handleDownloadJSON = useCallback(() => {
+    if (!traceroute.result) return;
+
+    const json = JSON.stringify(traceroute.result, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `traceroute-${traceroute.result.target}-${new Date().toISOString()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [traceroute.result]);
 
   /**
    * Status message based on current state
@@ -185,6 +185,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                 aria-describedby="traceroute-target-description"
                 disabled={traceroute.isRunning}
                 autoComplete="off"
+                className="font-mono"
                 {...register('target')}
               />
               <p id="traceroute-target-description" className="text-sm text-muted-foreground">

@@ -23,6 +23,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  cn,
 } from '@nasnet/ui/primitives';
 import { Bell, BellOff, Plus, Trash2, Volume2, VolumeX } from 'lucide-react';
 import type { LogTopic, LogSeverity } from '@nasnet/core/types';
@@ -55,12 +56,18 @@ export interface AlertSettingsDialogProps {
    * Trigger element (defaults to Bell icon button)
    */
   trigger?: React.ReactNode;
+  /**
+   * Additional class names
+   */
+  className?: string;
 }
 
 /**
- * Dialog for configuring log alert settings
+ * @description Dialog for configuring log alert settings and notification rules
+ * Allows users to enable/disable alerts, configure notification preferences, manage alert rules, and set up browser notifications.
  */
-export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
+export const AlertSettingsDialog = React.memo(
+  function AlertSettingsDialog({ trigger, className }: AlertSettingsDialogProps) {
   const {
     settings,
     isEnabled,
@@ -78,16 +85,16 @@ export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [editingRule, setEditingRule] = React.useState<AlertRule | null>(null);
 
-  const handleRequestPermission = async () => {
+  const handleRequestPermission = React.useCallback(async () => {
     const permission = await requestPermission();
     if (permission === 'denied') {
       alert(
         'Notification permission was denied. Please enable it in your browser settings.'
       );
     }
-  };
+  }, [requestPermission]);
 
-  const handleCreateRule = () => {
+  const handleCreateRule = React.useCallback(() => {
     const newRule: AlertRule = {
       id: `rule-${Date.now()}`,
       name: 'New Alert Rule',
@@ -98,12 +105,15 @@ export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
       soundEnabled: false,
     };
     setEditingRule(newRule);
-  };
+  }, []);
 
-  const handleSaveRule = (rule: AlertRule) => {
-    upsertRule(rule);
-    setEditingRule(null);
-  };
+  const handleSaveRule = React.useCallback(
+    (rule: AlertRule) => {
+      upsertRule(rule);
+      setEditingRule(null);
+    },
+    [upsertRule]
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -149,13 +159,14 @@ export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
                     <p className="text-sm text-muted-foreground">
                       Status:{' '}
                       <span
-                        className={
+                        className={cn(
+                          'font-mono',
                           notificationPermission === 'granted'
                             ? 'text-success'
                             : notificationPermission === 'denied'
                               ? 'text-error'
                               : 'text-warning'
-                        }
+                        )}
                       >
                         {notificationPermission}
                       </span>
@@ -175,14 +186,14 @@ export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
 
               {/* Notification Preference */}
               <div className="space-y-2">
-                <label className="font-medium">Notification Type</label>
+                <label htmlFor="notif-pref-select" className="font-medium">Notification Type</label>
                 <Select
                   value={settings.notificationPreference}
                   onValueChange={(value) =>
                     setNotificationPreference(value as NotificationPreference)
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="notif-pref-select" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,10 +315,12 @@ export function AlertSettingsDialog({ trigger }: AlertSettingsDialogProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+AlertSettingsDialog.displayName = 'AlertSettingsDialog';
 
 /**
- * Rule Editor Dialog Component
+ * @description Rule Editor Dialog for creating/editing alert rules
  */
 interface RuleEditorDialogProps {
   rule: AlertRule;
@@ -315,26 +328,33 @@ interface RuleEditorDialogProps {
   onCancel: () => void;
 }
 
-function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
-  const [editedRule, setEditedRule] = React.useState<AlertRule>({ ...rule });
+const RuleEditorDialog = React.memo(
+  function RuleEditorDialog({
+    rule,
+    onSave,
+    onCancel,
+  }: RuleEditorDialogProps) {
+    const [editedRule, setEditedRule] = React.useState<AlertRule>({
+      ...rule,
+    });
 
-  const handleTopicToggle = (topic: LogTopic) => {
-    setEditedRule((prev) => ({
-      ...prev,
-      topics: prev.topics.includes(topic)
-        ? prev.topics.filter((t) => t !== topic)
-        : [...prev.topics, topic],
-    }));
-  };
+    const handleTopicToggle = React.useCallback((topic: LogTopic) => {
+      setEditedRule((prev) => ({
+        ...prev,
+        topics: prev.topics.includes(topic)
+          ? prev.topics.filter((t) => t !== topic)
+          : [...prev.topics, topic],
+      }));
+    }, []);
 
-  const handleSeverityToggle = (severity: LogSeverity) => {
-    setEditedRule((prev) => ({
-      ...prev,
-      severities: prev.severities.includes(severity)
-        ? prev.severities.filter((s) => s !== severity)
-        : [...prev.severities, severity],
-    }));
-  };
+    const handleSeverityToggle = React.useCallback((severity: LogSeverity) => {
+      setEditedRule((prev) => ({
+        ...prev,
+        severities: prev.severities.includes(severity)
+          ? prev.severities.filter((s) => s !== severity)
+          : [...prev.severities, severity],
+      }));
+    }, []);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
@@ -348,8 +368,9 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
         <div className="space-y-4 py-4">
           {/* Rule Name */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Rule Name</label>
+            <label htmlFor="rule-name-input" className="text-sm font-medium">Rule Name</label>
             <Input
+              id="rule-name-input"
               value={editedRule.name}
               onChange={(e) =>
                 setEditedRule((prev) => ({ ...prev, name: e.target.value }))
@@ -360,10 +381,10 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
 
           {/* Topics */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label htmlFor="topics-fieldset" className="text-sm font-medium">
               Topics (empty = all topics)
             </label>
-            <div className="flex flex-wrap gap-2">
+            <fieldset id="topics-fieldset" className="flex flex-wrap gap-2">
               {ALL_TOPICS.map((topic) => (
                 <Button
                   key={topic}
@@ -375,15 +396,15 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
                   {topic}
                 </Button>
               ))}
-            </div>
+            </fieldset>
           </div>
 
           {/* Severities */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label htmlFor="severities-fieldset" className="text-sm font-medium">
               Severities (empty = all severities)
             </label>
-            <div className="flex flex-wrap gap-2">
+            <fieldset id="severities-fieldset" className="flex flex-wrap gap-2">
               {ALL_SEVERITIES.map((severity) => (
                 <Button
                   key={severity}
@@ -397,12 +418,12 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
                   {severity}
                 </Button>
               ))}
-            </div>
+            </fieldset>
           </div>
 
           {/* Notification Type */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Notification Type</label>
+            <label htmlFor="rule-notif-type-select" className="text-sm font-medium">Notification Type</label>
             <Select
               value={editedRule.notificationType}
               onValueChange={(value) =>
@@ -412,7 +433,7 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
                 }))
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="rule-notif-type-select" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -425,8 +446,9 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
 
           {/* Sound */}
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Play Sound</label>
+            <label htmlFor="rule-sound-switch" className="text-sm font-medium">Play Sound</label>
             <Switch
+              id="rule-sound-switch"
               checked={editedRule.soundEnabled}
               onCheckedChange={(checked) =>
                 setEditedRule((prev) => ({ ...prev, soundEnabled: checked }))
@@ -436,10 +458,11 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
 
           {/* Message Pattern */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label htmlFor="message-pattern-input" className="text-sm font-medium">
               Message Pattern (optional regex)
             </label>
             <Input
+              id="message-pattern-input"
               value={editedRule.messagePattern || ''}
               onChange={(e) =>
                 setEditedRule((prev) => ({
@@ -461,7 +484,10 @@ function RuleEditorDialog({ rule, onSave, onCancel }: RuleEditorDialogProps) {
       </DialogContent>
     </Dialog>
   );
-}
+  }
+);
+
+RuleEditorDialog.displayName = 'RuleEditorDialog';
 
 
 

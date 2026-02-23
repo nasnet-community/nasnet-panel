@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:ui", "scope:shared"],
   "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/ui/tokens/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {

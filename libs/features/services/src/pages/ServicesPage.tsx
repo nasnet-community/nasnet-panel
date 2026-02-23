@@ -10,14 +10,18 @@
 import * as React from 'react';
 import { useState, useMemo } from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import { HardDrive, ChevronDown, ChevronUp, Cpu, Upload } from 'lucide-react';
+import { HardDrive, ChevronDown, ChevronUp, Cpu, Upload, ArrowUp, Network } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import {
   useServiceInstances,
   useInstanceMutations,
   useStorageConfig,
   useSystemResources,
+  useAvailableUpdates,
+  useCheckForUpdates,
+  useDependencies,
 } from '@nasnet/api-client/queries';
 import {
   useServiceUIStore,
@@ -34,9 +38,11 @@ import { cn } from '@nasnet/ui/utils';
 
 import { InstallDialog } from '../components/InstallDialog';
 import { StorageSettings } from '../components/storage/StorageSettings';
+import { UpdateAllPanel } from '../components/UpdateAllPanel';
+import { PortRegistryView } from '../components/PortRegistryView';
+import { StopDependentsDialog } from '../components/StopDependentsDialog';
 
-import type { Service } from '@nasnet/ui/patterns';
-import type { BulkOperation, InstanceFilters, InstanceSort } from '@nasnet/ui/patterns';
+import type { Service, BulkOperation, InstanceFilters, InstanceSort } from '@nasnet/ui/patterns';
 
 /**
  * ServicesPage props
@@ -44,6 +50,10 @@ import type { BulkOperation, InstanceFilters, InstanceSort } from '@nasnet/ui/pa
 export interface ServicesPageProps {
   /** Router ID */
   routerId: string;
+  /** Callback when an instance is clicked (for navigation) */
+  onInstanceClick?: (instanceId: string) => void;
+  /** Callback when import is completed */
+  onImportComplete?: (instanceId: string) => void;
 }
 
 /**
@@ -57,7 +67,11 @@ export interface ServicesPageProps {
  * - Install new service dialog
  * - Real-time status updates via subscriptions
  */
-export const ServicesPage = React.memo(function ServicesPage({ routerId }: ServicesPageProps) {
+export const ServicesPage = React.memo(function ServicesPage({
+  routerId,
+  onInstanceClick,
+  onImportComplete,
+}: ServicesPageProps) {
   const { t } = useTranslation();
 
   // Fetch service instances
@@ -77,6 +91,14 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
     loading: resourcesLoading,
     error: resourcesError,
   } = useSystemResources(routerId);
+
+  // Available updates (NAS-8.7)
+  const { updates: updatesData, loading: updatesLoading } = useAvailableUpdates(
+    { routerId },
+    { skip: !routerId }
+  );
+
+  const [checkForUpdates] = useCheckForUpdates();
 
   // Instance mutations
   const { startInstance, stopInstance, restartInstance, deleteInstance } =
@@ -107,6 +129,16 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
 
   // Import dialog state
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+
+  // Updates section state
+  const [updatesOpen, setUpdatesOpen] = useState(false);
+
+  // Port registry section state
+  const [portsOpen, setPortsOpen] = useState(false);
+
+  // Stop dependents dialog state (NAS-8.19)
+  const [stopDialogOpen, setStopDialogOpen] = useState(false);
+  const [pendingStopInstance, setPendingStopInstance] = useState<{ id: string; name: string; featureId: string } | null>(null);
 
   // Resource overview section state
   const [resourcesOpen, setResourcesOpen] = useState(true); // Expanded by default
@@ -191,10 +223,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
   // Handle instance click (navigate to detail page)
   const handleInstanceClick = React.useCallback(
     (instance: Service) => {
-      // TODO: Navigate to service detail page
-      console.log('Navigate to instance:', instance.id);
+      onInstanceClick?.(instance.id);
     },
-    []
+    [onInstanceClick]
   );
 
   // Handle bulk operations
@@ -208,6 +239,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
                 startInstance({ routerID: routerId, instanceID: id })
               )
             );
+            toast.success(
+              t('services.bulkOperations.startSuccess', { count: instanceIds.length })
+            );
             break;
 
           case 'stop':
@@ -216,6 +250,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
                 stopInstance({ routerID: routerId, instanceID: id })
               )
             );
+            toast.success(
+              t('services.bulkOperations.stopSuccess', { count: instanceIds.length })
+            );
             break;
 
           case 'restart':
@@ -223,6 +260,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
               instanceIds.map((id) =>
                 restartInstance({ routerID: routerId, instanceID: id })
               )
+            );
+            toast.success(
+              t('services.bulkOperations.restartSuccess', { count: instanceIds.length })
             );
             break;
 
@@ -233,6 +273,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
                 deleteInstance({ routerID: routerId, instanceID: id })
               )
             );
+            toast.success(
+              t('services.bulkOperations.deleteSuccess', { count: instanceIds.length })
+            );
             break;
         }
 
@@ -242,11 +285,22 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
         // Refetch instances
         await refetch();
       } catch (err) {
-        console.error('Bulk operation failed:', err);
-        // TODO: Show error toast
+        const errorMessage = err instanceof Error ? err.message : t('common.unknownError');
+        toast.error(
+          t('services.bulkOperations.error', { operation, message: errorMessage })
+        );
       }
     },
-    [routerId, startInstance, stopInstance, restartInstance, deleteInstance, clearServiceSelection, refetch]
+    [
+      routerId,
+      startInstance,
+      stopInstance,
+      restartInstance,
+      deleteInstance,
+      clearServiceSelection,
+      refetch,
+      t,
+    ]
   );
 
   // Handle install success
@@ -289,10 +343,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
   // Handle resource panel instance click
   const handleResourceInstanceClick = React.useCallback(
     (instance: { id: string }) => {
-      // TODO: Navigate to service detail page
-      console.log('Navigate to instance from resource panel:', instance.id);
+      onInstanceClick?.(instance.id);
     },
-    []
+    [onInstanceClick]
   );
 
   return (
@@ -302,9 +355,9 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">Service Instances</h1>
+              <h1 className="text-2xl font-bold">{t('services.page.title')}</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Manage downloadable network services on your router
+                {t('services.page.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -321,7 +374,7 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
                 variant="default"
                 size="lg"
                 onClick={() => setInstallDialogOpen(true)}
-                aria-label="Install Service"
+                aria-label={t('services.actions.install')}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -337,7 +390,7 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Install Service
+                {t('services.actions.install')}
               </Button>
             </div>
           </div>
@@ -351,11 +404,11 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
       >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label="Toggle resource overview section">
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.resourceOverview.toggle')}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Cpu className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  <CardTitle>Resource Overview</CardTitle>
+                  <CardTitle>{t('services.sections.resourceOverview.title')}</CardTitle>
                   {resourcesData && (
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
                       {resourcesData.systemResources.instances.length} instances
@@ -402,15 +455,57 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
         </Card>
       </Collapsible.Root>
 
+      {/* Available Updates Section (NAS-8.7) */}
+      {updatesData && updatesData.length > 0 && (
+        <Collapsible.Root open={updatesOpen} onOpenChange={setUpdatesOpen}>
+          <Card>
+            <Collapsible.Trigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.updates.toggle')}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ArrowUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                    <CardTitle>{t('services.sections.updates.title')}</CardTitle>
+                    <span className="text-xs px-2 py-1 rounded-full bg-warning/10 text-warning">
+                      {updatesData.length} update{updatesData.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {updatesOpen ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  )}
+                </div>
+              </CardHeader>
+            </Collapsible.Trigger>
+            <Collapsible.Content>
+              <Separator />
+              <CardContent className="pt-6">
+                <UpdateAllPanel
+                  updates={updatesData}
+                  onUpdateAll={() => {
+                    // TODO: Trigger update all flow
+                    console.log('Update all triggered');
+                  }}
+                  onUpdate={(instanceId) => {
+                    onInstanceClick?.(instanceId);
+                  }}
+                  loading={updatesLoading}
+                />
+              </CardContent>
+            </Collapsible.Content>
+          </Card>
+        </Collapsible.Root>
+      )}
+
       {/* Storage Management Section */}
       <Collapsible.Root open={storageOpen} onOpenChange={setStorageOpen}>
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label="Toggle storage management section">
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.storage.toggle')}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <HardDrive className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  <CardTitle>Storage Management</CardTitle>
+                  <CardTitle>{t('services.sections.storage.title')}</CardTitle>
                   {storageConfig?.enabled && (
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
                       Configured
@@ -429,6 +524,33 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
             <Separator />
             <CardContent className="pt-0">
               <StorageSettings />
+            </CardContent>
+          </Collapsible.Content>
+        </Card>
+      </Collapsible.Root>
+
+      {/* Port Allocations Section (NAS-8.16) */}
+      <Collapsible.Root open={portsOpen} onOpenChange={setPortsOpen}>
+        <Card>
+          <Collapsible.Trigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.ports.toggle')}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Network className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <CardTitle>{t('services.sections.ports.title')}</CardTitle>
+                </div>
+                {portsOpen ? (
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+            </CardHeader>
+          </Collapsible.Trigger>
+          <Collapsible.Content>
+            <Separator />
+            <CardContent className="pt-6">
+              <PortRegistryView routerId={routerId} />
             </CardContent>
           </Collapsible.Content>
         </Card>
@@ -453,13 +575,13 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
         emptyState={
           <div className="text-center py-12">
             <h3 className="text-lg font-semibold mb-2">
-              No services installed yet
+              {t('services.empty.title')}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Install network services from the Feature Marketplace to get started
+              {t('services.empty.description')}
             </p>
             <Button onClick={() => setInstallDialogOpen(true)}>
-              Install Your First Service
+              {t('services.empty.action')}
             </Button>
           </div>
         }
@@ -483,10 +605,29 @@ export const ServicesPage = React.memo(function ServicesPage({ routerId }: Servi
         onImportComplete={async (instanceId: string) => {
           // Refetch instances
           await refetch();
-          // Navigate to new instance detail page
-          console.log('Import successful, navigate to:', instanceId);
+          // Call optional import complete callback
+          onImportComplete?.(instanceId);
         }}
       />
+
+      {/* Stop Dependents Dialog (NAS-8.19) */}
+      {pendingStopInstance && (
+        <StopDependentsDialog
+          open={stopDialogOpen}
+          onOpenChange={setStopDialogOpen}
+          instanceName={pendingStopInstance.name}
+          featureId={pendingStopInstance.featureId}
+          dependents={[]}
+          onConfirm={async (mode) => {
+            if (pendingStopInstance) {
+              await stopInstance({ routerID: routerId, instanceID: pendingStopInstance.id });
+              setStopDialogOpen(false);
+              setPendingStopInstance(null);
+              await refetch();
+            }
+          }}
+        />
+      )}
     </div>
   );
 });

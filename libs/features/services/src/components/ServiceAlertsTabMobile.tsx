@@ -4,6 +4,7 @@
  * Mobile-optimized presenter for ServiceAlertsTab pattern.
  * Optimized for touch interaction with 44px minimum targets.
  *
+ * @description
  * Features:
  * - Card list with severity-colored left border
  * - Filter chips for quick severity filtering
@@ -18,15 +19,8 @@
 import * as React from 'react';
 import { useState, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertTriangle,
-  Info,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  X,
-} from 'lucide-react';
-
+import { CheckCircle2, Loader2, AlertTriangle, Info, X } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -34,6 +28,7 @@ import {
   CardContent,
   Input,
   ScrollArea,
+  Icon,
 } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
@@ -47,49 +42,70 @@ import type { ServiceAlert, AlertSeverity } from '@nasnet/api-client/queries';
 const SEVERITY_FILTERS: Array<{
   value: AlertSeverity | 'ALL';
   label: string;
-  icon: React.ElementType;
+  iconName: string;
 }> = [
-  { value: 'ALL', label: 'All', icon: AlertCircle },
-  { value: 'CRITICAL', label: 'Critical', icon: AlertTriangle },
-  { value: 'WARNING', label: 'Warning', icon: AlertTriangle },
-  { value: 'INFO', label: 'Info', icon: Info },
+  { value: 'ALL', label: 'All', iconName: 'alert-circle' },
+  { value: 'CRITICAL', label: 'Critical', iconName: 'alert-triangle' },
+  { value: 'WARNING', label: 'Warning', iconName: 'alert-triangle' },
+  { value: 'INFO', label: 'Info', iconName: 'info' },
 ];
 
 /**
- * Get severity color classes
+ * Get severity color classes and icon name
  */
 function getSeverityStyles(severity: AlertSeverity): {
   borderColor: string;
   badgeVariant: 'error' | 'warning' | 'info';
-  icon: React.ElementType;
+  iconName: string;
 } {
   switch (severity) {
     case 'CRITICAL':
       return {
         borderColor: 'border-l-destructive',
         badgeVariant: 'error',
-        icon: AlertTriangle,
+        iconName: 'alert-triangle',
       };
     case 'WARNING':
       return {
         borderColor: 'border-l-warning',
         badgeVariant: 'warning',
-        icon: AlertTriangle,
+        iconName: 'alert-triangle',
       };
     case 'INFO':
     default:
       return {
         borderColor: 'border-l-info',
         badgeVariant: 'info',
-        icon: Info,
+        iconName: 'info',
       };
   }
 }
 
 /**
- * Alert Card Component with swipe-to-acknowledge
+ * Get icon component from icon name
  */
-function AlertCard({
+function getIconComponent(iconName: string): React.ComponentType<any> {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    'alert-circle': AlertTriangle,
+    'alert-triangle': AlertTriangle,
+    'info': Info,
+  };
+  return iconMap[iconName] || Info;
+}
+
+/**
+ * AlertCard component
+ *
+ * @description
+ * Individual alert card with swipe-to-acknowledge gesture support.
+ * Displays alert details with severity-colored border and acknowledgment status.
+ *
+ * @param alert - Alert data
+ * @param onAcknowledge - Callback when alert is acknowledged
+ * @param acknowledging - Loading state during acknowledgment
+ * @returns Rendered alert card
+ */
+function AlertCardComponent({
   alert,
   onAcknowledge,
   acknowledging,
@@ -103,7 +119,6 @@ function AlertCard({
   const startX = React.useRef(0);
 
   const styles = getSeverityStyles(alert.severity);
-  const Icon = styles.icon;
 
   // Swipe gesture handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -145,7 +160,7 @@ function AlertCard({
       {/* Acknowledge action revealed on swipe */}
       {!alert.acknowledgedAt && (
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-success flex items-center justify-center">
-          <CheckCircle2 className="h-6 w-6 text-white" />
+          <Icon icon={CheckCircle2} className="h-6 w-6 text-white" aria-hidden="true" />
         </div>
       )}
 
@@ -164,7 +179,7 @@ function AlertCard({
           {/* Header row */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+              <Icon icon={getIconComponent(styles.iconName) as LucideIcon} className="h-5 w-5 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-base truncate">{alert.title}</h4>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -206,19 +221,19 @@ function AlertCard({
             >
               {acknowledging ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Icon icon={Loader2} className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
                   Acknowledging...
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <Icon icon={CheckCircle2} className="h-4 w-4 mr-2" aria-hidden="true" />
                   Acknowledge
                 </>
               )}
             </Button>
           ) : (
             <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-success" />
+              <Icon icon={CheckCircle2} className="h-4 w-4 text-success" aria-hidden="true" />
               <span>
                 Acknowledged {formatDistanceToNow(new Date(alert.acknowledgedAt), { addSuffix: true })}
                 {alert.acknowledgedBy && ` by ${alert.acknowledgedBy}`}
@@ -231,8 +246,16 @@ function AlertCard({
   );
 }
 
+export const AlertCard = React.memo(AlertCardComponent);
+AlertCard.displayName = 'AlertCard';
+
 /**
- * Mobile presenter for ServiceAlertsTab
+ * ServiceAlertsTabMobile component
+ *
+ * @description
+ * Mobile presenter for ServiceAlertsTab with touch-optimized interface.
+ * Displays alerts as cards with severity-colored borders.
+ * Supports swipe-to-acknowledge gestures and severity filtering.
  *
  * Features:
  * - Filter chips at top for quick severity filtering
@@ -241,8 +264,11 @@ function AlertCard({
  * - Swipe-to-acknowledge gesture (left swipe)
  * - Large touch targets (44px minimum)
  * - Scroll-based pagination
+ *
+ * @param props - Component props
+ * @returns Rendered mobile alerts tab
  */
-export function ServiceAlertsTabMobile({
+function ServiceAlertsTabMobileComponent({
   routerId,
   instanceId,
   className,
@@ -289,7 +315,7 @@ export function ServiceAlertsTabMobile({
     return (
       <div className={cn('p-4', className)}>
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Icon icon={Loader2} className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">Loading alerts...</p>
         </div>
       </div>
@@ -303,7 +329,7 @@ export function ServiceAlertsTabMobile({
         <Card className="border-destructive">
           <CardContent className="p-6">
             <div className="flex flex-col items-center gap-3">
-              <AlertTriangle className="h-8 w-8 text-destructive" />
+              <Icon icon={AlertTriangle} className="h-8 w-8 text-destructive" aria-hidden="true" />
               <h3 className="font-semibold text-lg">Error Loading Alerts</h3>
               <p className="text-sm text-muted-foreground text-center">
                 {error.message}
@@ -362,8 +388,9 @@ export function ServiceAlertsTabMobile({
                 size="sm"
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
                 onClick={handleClearSearch}
+                aria-label="Clear search"
               >
-                <X className="h-4 w-4" />
+                <Icon icon={X} className="h-4 w-4" aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -371,7 +398,6 @@ export function ServiceAlertsTabMobile({
           {/* Severity filter chips */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             {SEVERITY_FILTERS.map((filter) => {
-              const FilterIcon = filter.icon;
               const isActive =
                 filter.value === 'ALL'
                   ? !filters.severity
@@ -388,8 +414,9 @@ export function ServiceAlertsTabMobile({
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   )}
+                  aria-pressed={isActive}
                 >
-                  <FilterIcon className="h-4 w-4" />
+                  <Icon icon={getIconComponent(filter.iconName) as LucideIcon} className="h-4 w-4" aria-hidden="true" />
                   {filter.label}
                 </button>
               );
@@ -405,7 +432,7 @@ export function ServiceAlertsTabMobile({
             <Card>
               <CardContent className="p-8">
                 <div className="flex flex-col items-center gap-3 text-center">
-                  <Info className="h-12 w-12 text-muted-foreground" />
+                  <Icon icon={Info} className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
                   <h3 className="font-semibold text-lg">No Alerts</h3>
                   <p className="text-sm text-muted-foreground">
                     {filters.severity || filters.searchTerm
@@ -431,4 +458,5 @@ export function ServiceAlertsTabMobile({
   );
 }
 
+export const ServiceAlertsTabMobile = React.memo(ServiceAlertsTabMobileComponent);
 ServiceAlertsTabMobile.displayName = 'ServiceAlertsTab.Mobile';

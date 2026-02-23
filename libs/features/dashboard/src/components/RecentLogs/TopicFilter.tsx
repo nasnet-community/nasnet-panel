@@ -4,6 +4,7 @@
  * Story NAS-5.6: Recent Logs with Filtering
  */
 
+import { memo, useCallback } from 'react';
 import { Filter, Check } from 'lucide-react';
 
 import {
@@ -22,17 +23,40 @@ import type { TopicFilterProps } from './types';
  * Multi-select dropdown for filtering logs by topic
  * Displays selected count badge and supports keyboard navigation
  *
+ * @description
+ * Accessible multi-select filter component for log topics.
+ * Features 44px minimum touch targets, full keyboard navigation (Tab, Space, Arrow keys),
+ * and ARIA labels for screen reader support.
+ * Shows badge with selected count for quick visual feedback.
+ * Includes "Clear filters" button when filters are active.
+ *
+ * @example
+ * ```tsx
+ * const [topics, setTopics] = useState(['firewall', 'dhcp']);
+ * <TopicFilter
+ *   selectedTopics={topics}
+ *   onSelectionChange={setTopics}
+ *   className="w-full"
+ * />
+ * ```
+ *
  * @param selectedTopics - Currently selected topics
  * @param onSelectionChange - Callback when topic selection changes
+ * @param className - Optional CSS class for styling
  */
-export function TopicFilter({ selectedTopics, onSelectionChange }: TopicFilterProps) {
-  const toggleTopic = (topic: typeof selectedTopics[number]) => {
-    if (selectedTopics.includes(topic)) {
-      onSelectionChange(selectedTopics.filter((t) => t !== topic));
-    } else {
-      onSelectionChange([...selectedTopics, topic]);
-    }
-  };
+export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelectionChange, className }: TopicFilterProps) {
+  const toggleTopic = useCallback(
+    (topic: typeof selectedTopics[number]) => {
+      if (selectedTopics.includes(topic)) {
+        onSelectionChange(selectedTopics.filter((t) => t !== topic));
+      } else {
+        onSelectionChange([...selectedTopics, topic]);
+      }
+    },
+    [selectedTopics, onSelectionChange]
+  );
+
+  const handleClearFilters = useCallback(() => onSelectionChange([]), [onSelectionChange]);
 
   const selectedCount = selectedTopics.length;
 
@@ -43,7 +67,7 @@ export function TopicFilter({ selectedTopics, onSelectionChange }: TopicFilterPr
           variant="outline"
           size="sm"
           aria-label="Filter logs by topic"
-          className="min-h-[44px] min-w-[44px]"
+          className={cn('min-h-[44px] min-w-[44px]', className)}
         >
           <Filter className="h-4 w-4" aria-hidden="true" />
           {selectedCount > 0 && (
@@ -94,7 +118,7 @@ export function TopicFilter({ selectedTopics, onSelectionChange }: TopicFilterPr
             variant="ghost"
             size="sm"
             className="w-full mt-2"
-            onClick={() => onSelectionChange([])}
+            onClick={handleClearFilters}
           >
             Clear filters
           </Button>
@@ -102,4 +126,6 @@ export function TopicFilter({ selectedTopics, onSelectionChange }: TopicFilterPr
       </PopoverContent>
     </Popover>
   );
-}
+});
+
+TopicFilter.displayName = 'TopicFilter';

@@ -2,12 +2,20 @@
  * DNS Cache Panel - Desktop Presenter
  * NAS-6.12: DNS Cache & Diagnostics - Task 6.3
  *
- * Desktop layout (>=640px) with stats cards and flush button
+ * @description Desktop layout (>=640px) with stats cards, flush button, and
+ * confirmation dialog with before/after preview. Shows top domains list.
  */
 
 import * as React from 'react';
+import { AlertCircle, Trash2, Database, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@nasnet/ui/primitives/card';
 import { Progress } from '@nasnet/ui/primitives/progress';
 import { Badge } from '@nasnet/ui/primitives/badge';
 import {
@@ -19,11 +27,17 @@ import {
   DialogTitle,
 } from '@nasnet/ui/primitives/dialog';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Database, Trash2, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives/icon';
+import { cn } from '@nasnet/ui/utils';
 import { useDnsCachePanel } from './useDnsCachePanel';
 import type { DnsCachePanelProps } from './types';
 
-export function DnsCachePanelDesktop({
+/**
+ * Desktop presenter for DNS Cache Panel component
+ *
+ * @internal Platform presenter - use DnsCachePanel wrapper for auto-detection
+ */
+function DnsCachePanelDesktopComponent({
   deviceId,
   enablePolling = true,
   onFlushSuccess,
@@ -51,13 +65,27 @@ export function DnsCachePanelDesktop({
     onFlushError,
   });
 
+  const handleOpenFlushDialog = React.useCallback(() => {
+    openFlushDialog();
+  }, [openFlushDialog]);
+
+  const handleCloseFlushDialog = React.useCallback(() => {
+    closeFlushDialog();
+  }, [closeFlushDialog]);
+
+  const handleConfirmFlush = React.useCallback(() => {
+    confirmFlush();
+  }, [confirmFlush]);
+
   if (isError) {
     return (
-      <Card className={className}>
+      <Card className={cn('', className)}>
         <CardContent className="pt-6">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error || 'Failed to load cache statistics'}</AlertDescription>
+            <AlertCircle className="h-4 w-4" aria-hidden />
+            <AlertDescription>
+              {error || 'Failed to load cache statistics'}
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -66,7 +94,7 @@ export function DnsCachePanelDesktop({
 
   return (
     <>
-      <Card className={className}>
+      <Card className={cn('', className)}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -75,11 +103,13 @@ export function DnsCachePanelDesktop({
             </div>
             <Button
               variant="destructive"
-              onClick={openFlushDialog}
-              disabled={isLoading || !cacheStats || cacheStats.totalEntries === 0}
+              onClick={handleOpenFlushDialog}
+              disabled={
+                isLoading || !cacheStats || cacheStats.totalEntries === 0
+              }
               className="gap-2"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden />
               Flush Cache
             </Button>
           </div>
@@ -91,12 +121,19 @@ export function DnsCachePanelDesktop({
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Database className="h-8 w-8 text-muted-foreground" />
+                  <Database
+                    className="h-8 w-8 text-muted-foreground"
+                    aria-hidden
+                  />
                   <div>
                     <div className="text-2xl font-bold">
-                      {isLoading ? '...' : cacheStats?.totalEntries?.toLocaleString() || '0'}
+                      {isLoading
+                        ? '...'
+                        : cacheStats?.totalEntries?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-sm text-muted-foreground">Total Entries</div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Entries
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -106,13 +143,20 @@ export function DnsCachePanelDesktop({
             <Card>
               <CardContent className="pt-6 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">Cache Usage</div>
+                  <div className="text-sm text-muted-foreground">
+                    Cache Usage
+                  </div>
                   <Badge variant="secondary">
-                    {isLoading ? '...' : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
+                    {isLoading
+                      ? '...'
+                      : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
                   </Badge>
                 </div>
-                <Progress value={cacheStats?.cacheUsagePercent || 0} className="h-2" />
-                <div className="text-xs text-muted-foreground text-right">
+                <Progress
+                  value={cacheStats?.cacheUsagePercent || 0}
+                  className="h-2"
+                />
+                <div className="text-xs text-muted-foreground text-right font-mono">
                   {cacheUsedFormatted} / {cacheMaxFormatted}
                 </div>
               </CardContent>
@@ -122,7 +166,10 @@ export function DnsCachePanelDesktop({
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="h-8 w-8 text-semantic-success" />
+                  <TrendingUp
+                    className="h-8 w-8 text-success"
+                    aria-hidden
+                  />
                   <div>
                     <div className="text-2xl font-bold">{hitRateFormatted}</div>
                     <div className="text-sm text-muted-foreground">Hit Rate</div>
@@ -135,7 +182,9 @@ export function DnsCachePanelDesktop({
           {/* Top Domains */}
           {cacheStats?.topDomains && cacheStats.topDomains.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Most Queried Domains (Top 10)</h3>
+              <h3 className="text-sm font-medium">
+                Most Queried Domains (Top 10)
+              </h3>
               <div className="space-y-2">
                 {cacheStats.topDomains.slice(0, 10).map((domain, index) => (
                   <div
@@ -146,7 +195,9 @@ export function DnsCachePanelDesktop({
                       <Badge variant="outline" className="font-mono">
                         #{index + 1}
                       </Badge>
-                      <span className="text-sm font-medium">{domain.domain}</span>
+                      <span className="font-mono text-sm break-all">
+                        {domain.domain}
+                      </span>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {domain.queryCount.toLocaleString()} queries
@@ -160,12 +211,13 @@ export function DnsCachePanelDesktop({
       </Card>
 
       {/* Flush Confirmation Dialog */}
-      <Dialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
+      <Dialog open={isFlushDialogOpen} onOpenChange={handleCloseFlushDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Flush DNS Cache?</DialogTitle>
             <DialogDescription>
-              This will remove all cached DNS entries. This action cannot be undone.
+              This will remove all cached DNS entries. This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -175,33 +227,47 @@ export function DnsCachePanelDesktop({
               <div className="text-sm font-medium">Current Cache Status:</div>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>Entries:</div>
-                <div className="text-right font-mono">{cacheStats.totalEntries}</div>
+                <div className="text-right font-mono">
+                  {cacheStats.totalEntries}
+                </div>
                 <div>Size:</div>
-                <div className="text-right font-mono">{cacheUsedFormatted}</div>
+                <div className="text-right font-mono">
+                  {cacheUsedFormatted}
+                </div>
                 <div>Usage:</div>
-                <div className="text-right font-mono">{cacheStats.cacheUsagePercent.toFixed(1)}%</div>
+                <div className="text-right font-mono">
+                  {cacheStats.cacheUsagePercent.toFixed(1)}%
+                </div>
               </div>
             </div>
           )}
 
           {/* Success Message */}
           {flushResult && (
-            <Alert variant="default" className="border-semantic-success">
-              <CheckCircle2 className="h-4 w-4 text-semantic-success" />
+            <Alert variant="default" className="border-success">
+              <CheckCircle2
+                className="h-4 w-4 text-success"
+                aria-hidden
+              />
               <AlertDescription>
-                Successfully flushed {flushResult.entriesRemoved} entries from DNS cache
+                Successfully flushed {flushResult.entriesRemoved} entries from
+                DNS cache
               </AlertDescription>
             </Alert>
           )}
 
           <DialogFooter>
-            <Button variant="outline" disabled={isFlushing} onClick={closeFlushDialog}>
+            <Button
+              variant="outline"
+              disabled={isFlushing}
+              onClick={handleCloseFlushDialog}
+            >
               Cancel
             </Button>
             <Button
-              onClick={confirmFlush}
+              onClick={handleConfirmFlush}
               disabled={isFlushing || !!flushResult}
-              className="bg-semantic-error hover:bg-semantic-error/90"
+              variant="destructive"
             >
               {isFlushing ? 'Flushing...' : 'Flush Cache'}
             </Button>
@@ -211,3 +277,9 @@ export function DnsCachePanelDesktop({
     </>
   );
 }
+
+DnsCachePanelDesktopComponent.displayName = 'DnsCachePanelDesktop';
+
+export const DnsCachePanelDesktop = React.memo(
+  DnsCachePanelDesktopComponent
+);

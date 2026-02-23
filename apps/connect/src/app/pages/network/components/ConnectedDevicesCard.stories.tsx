@@ -45,7 +45,7 @@ const completeEntry = (id: string, ip: string, mac: string, iface: string): ARPE
   macAddress: mac,
   interface: iface,
   status: 'complete',
-  dynamic: true,
+  isDynamic: true,
 });
 
 const incompleteEntry = (id: string, ip: string, mac: string, iface: string): ARPEntry => ({
@@ -54,7 +54,7 @@ const incompleteEntry = (id: string, ip: string, mac: string, iface: string): AR
   macAddress: mac,
   interface: iface,
   status: 'incomplete',
-  dynamic: true,
+  isDynamic: true,
 });
 
 const failedEntry = (id: string, ip: string, mac: string, iface: string): ARPEntry => ({
@@ -63,7 +63,7 @@ const failedEntry = (id: string, ip: string, mac: string, iface: string): ARPEnt
   macAddress: mac,
   interface: iface,
   status: 'failed',
-  dynamic: false,
+  isDynamic: false,
 });
 
 const STANDARD_ENTRIES: ARPEntry[] = [
@@ -174,5 +174,19 @@ export const ErrorState: Story = {
     docs: {
       description: { story: 'Error banner displayed when the ARP table query fails.' },
     },
+  },
+};
+
+export const Mobile: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...Default,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

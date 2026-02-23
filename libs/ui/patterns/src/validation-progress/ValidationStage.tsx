@@ -108,7 +108,7 @@ export interface ValidationStageProps {
 /**
  * Single validation stage display component.
  */
-export function ValidationStage({
+export const ValidationStage = React.memo(function ValidationStage({
   result,
   isExpanded = false,
   onToggle,
@@ -310,6 +310,6 @@ export function ValidationStage({
       </AnimatePresence>
     </motion.div>
   );
-}
+});
 
 ValidationStage.displayName = 'ValidationStage';

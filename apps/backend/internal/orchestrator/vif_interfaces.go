@@ -2,8 +2,12 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 
 	"backend/generated/ent"
+	"backend/generated/ent/devicerouting"
+	"backend/internal/router"
+	"backend/internal/vif/isolation"
 )
 
 // DeviceRoutingQuerier provides read-only access to DeviceRouting data.
@@ -74,6 +78,35 @@ type PBRCascadeHook interface {
 	OnServiceResumed(ctx context.Context, instanceID string) error
 }
 
+// RealDeviceRoutingQuerier is a production implementation that queries DeviceRouting
+// records from the database using ent.Client.
+type RealDeviceRoutingQuerier struct {
+	client *ent.Client
+}
+
+// NewDeviceRoutingQuerier creates a new RealDeviceRoutingQuerier backed by the given ent.Client.
+func NewDeviceRoutingQuerier(client *ent.Client) *RealDeviceRoutingQuerier {
+	return &RealDeviceRoutingQuerier{client: client}
+}
+
+func (r *RealDeviceRoutingQuerier) GetRoutingsByInstance(ctx context.Context, instanceID string) ([]*ent.DeviceRouting, error) {
+	return r.client.DeviceRouting.Query().
+		Where(devicerouting.InstanceID(instanceID)).
+		All(ctx)
+}
+
+func (r *RealDeviceRoutingQuerier) GetRoutingsByDevice(ctx context.Context, deviceMAC string) ([]*ent.DeviceRouting, error) {
+	return r.client.DeviceRouting.Query().
+		Where(devicerouting.MACAddress(deviceMAC)).
+		All(ctx)
+}
+
+func (r *RealDeviceRoutingQuerier) IsDeviceRouted(ctx context.Context, deviceMAC string) (bool, error) {
+	return r.client.DeviceRouting.Query().
+		Where(devicerouting.MACAddress(deviceMAC)).
+		Exist(ctx)
+}
+
 // NoOpDeviceRoutingQuerier is a stub implementation that returns empty results.
 // Used during development before Story 8.3 is implemented.
 type NoOpDeviceRoutingQuerier struct{}
@@ -110,6 +143,33 @@ func (n *NoOpKillSwitchCoordinator) IsSuspended(ctx context.Context, instanceID 
 	return false, nil
 }
 
+// RealKillSwitchCoordinator is a production implementation that delegates to
+// isolation.KillSwitchManager for actual firewall-based traffic suspension.
+type RealKillSwitchCoordinator struct {
+	mgr *isolation.KillSwitchManager
+}
+
+// NewKillSwitchCoordinator creates a RealKillSwitchCoordinator backed by the given manager.
+func NewKillSwitchCoordinator(mgr *isolation.KillSwitchManager) *RealKillSwitchCoordinator {
+	return &RealKillSwitchCoordinator{mgr: mgr}
+}
+
+func (r *RealKillSwitchCoordinator) SuspendRouting(ctx context.Context, instanceID string) (int, error) {
+	return r.mgr.SuspendRouting(ctx, instanceID)
+}
+
+func (r *RealKillSwitchCoordinator) ResumeRouting(ctx context.Context, instanceID string) (int, error) {
+	return r.mgr.ResumeRouting(ctx, instanceID)
+}
+
+func (r *RealKillSwitchCoordinator) GetSuspendedDevices(ctx context.Context, instanceID string) ([]string, error) {
+	return r.mgr.GetSuspendedDevices(ctx, instanceID)
+}
+
+func (r *RealKillSwitchCoordinator) IsSuspended(ctx context.Context, instanceID string) (bool, error) {
+	return r.mgr.IsSuspended(ctx, instanceID)
+}
+
 // NoOpPBRCascadeHook is a stub implementation that succeeds without side effects.
 // Used during development before Story 8.3 cascade deletion is implemented.
 type NoOpPBRCascadeHook struct{}
@@ -123,5 +183,79 @@ func (n *NoOpPBRCascadeHook) OnServiceSuspended(ctx context.Context, instanceID 
 }
 
 func (n *NoOpPBRCascadeHook) OnServiceResumed(ctx context.Context, instanceID string) error {
+	return nil
+}
+
+// RealPBRCascadeHook is a production implementation that removes mangle rules
+// from the router and cleans up DeviceRouting records when a service instance
+// is deleted or suspended/resumed via schedule.
+type RealPBRCascadeHook struct {
+	client *ent.Client
+	router router.RouterPort
+}
+
+// NewPBRCascadeHook creates a RealPBRCascadeHook backed by the given ent.Client and router.
+func NewPBRCascadeHook(client *ent.Client, r router.RouterPort) *RealPBRCascadeHook {
+	return &RealPBRCascadeHook{client: client, router: r}
+}
+
+// OnServiceDeleted removes associated mangle rules from the router and deletes
+// all DeviceRouting records for the given instanceID. Returns the count deleted.
+func (h *RealPBRCascadeHook) OnServiceDeleted(ctx context.Context, instanceID string) (int, error) {
+	routings, err := h.client.DeviceRouting.Query().
+		Where(devicerouting.InstanceID(instanceID)).
+		All(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("pbr cascade: query routings for instance %s: %w", instanceID, err)
+	}
+
+	// Remove each mangle rule from the router before deleting DB records.
+	for _, r := range routings {
+		if r.MangleRuleID == "" {
+			continue
+		}
+		cmd := router.Command{
+			Path:   "/ip/firewall/mangle",
+			Action: "remove",
+			ID:     r.MangleRuleID,
+		}
+		if _, cmdErr := h.router.ExecuteCommand(ctx, cmd); cmdErr != nil {
+			// Log but do not abort: best-effort cleanup of router rules.
+			_ = cmdErr
+		}
+	}
+
+	// Bulk-delete all DeviceRouting records for this instance.
+	deleted, err := h.client.DeviceRouting.Delete().
+		Where(devicerouting.InstanceID(instanceID)).
+		Exec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("pbr cascade: delete routings for instance %s: %w", instanceID, err)
+	}
+
+	return deleted, nil
+}
+
+// OnServiceSuspended marks all DeviceRouting records for the instance as inactive (Active=false).
+func (h *RealPBRCascadeHook) OnServiceSuspended(ctx context.Context, instanceID string) error {
+	err := h.client.DeviceRouting.Update().
+		Where(devicerouting.InstanceID(instanceID), devicerouting.Active(true)).
+		SetActive(false).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("pbr cascade: suspend routings for instance %s: %w", instanceID, err)
+	}
+	return nil
+}
+
+// OnServiceResumed marks all DeviceRouting records for the instance as active (Active=true).
+func (h *RealPBRCascadeHook) OnServiceResumed(ctx context.Context, instanceID string) error {
+	err := h.client.DeviceRouting.Update().
+		Where(devicerouting.InstanceID(instanceID), devicerouting.Active(false)).
+		SetActive(true).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("pbr cascade: resume routings for instance %s: %w", instanceID, err)
+	}
 	return nil
 }

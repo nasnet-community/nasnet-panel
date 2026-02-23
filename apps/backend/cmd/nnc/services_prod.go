@@ -12,7 +12,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/internal/bootstrap"
-
+	"backend/internal/encryption"
 	"backend/internal/events"
 	"backend/internal/router"
 )
@@ -45,6 +45,12 @@ func initProdServices(
 	alertComponents *bootstrap.AlertComponents,
 	dataDir string,
 ) (*prodServices, error) {
+	// 0. Initialize Encryption Service (shared by core and integration services)
+	encSvc, err := initEncryptionService()
+	if err != nil {
+		return nil, err
+	}
+
 	// 1-2. Initialize Storage and VIF
 	storage, vif, err := initStorageAndVIF(ctx, systemDB, eventBus, routerPort, storageLogger)
 	if err != nil {
@@ -65,7 +71,7 @@ func initProdServices(
 	}
 
 	// 6-7. Initialize Core Services and Diagnostics
-	core, diagnostics, err := initCoreAndDiagnostics(systemDB, eventBus, routerPort, sugar)
+	core, diagnostics, err := initCoreAndDiagnostics(systemDB, eventBus, routerPort, sugar, encSvc)
 	if err != nil {
 		return nil, err
 	}
@@ -77,13 +83,13 @@ func initProdServices(
 	}
 
 	// 10-12. Initialize Monitoring, Traffic, and Scheduling
-	monitoring, traffic, scheduling, err := initMonitoringAndTraffic(ctx, systemDB, eventBus, routerPort, sugar, storageLogger)
+	monitoring, traffic, scheduling, err := initMonitoringAndTraffic(ctx, systemDB, eventBus, routerPort, sugar, storageLogger, vif)
 	if err != nil {
 		return nil, err
 	}
 
 	// 13. Initialize Integration Services
-	integration, err := initIntegrationServices(systemDB, eventBus, alertComponents, orchestrator, storage, routerPort, storageLogger, sugar)
+	integration, err := initIntegrationServices(systemDB, eventBus, alertComponents, orchestrator, storage, routerPort, storageLogger, sugar, encSvc)
 	if err != nil {
 		return nil, err
 	}
@@ -105,4 +111,26 @@ func initProdServices(
 		scheduling:   scheduling,
 		integration:  integration,
 	}, nil
+}
+
+// initEncryptionService creates the encryption service from environment config,
+// falling back to a deterministic dummy key when DB_ENCRYPTION_KEY is not set.
+func initEncryptionService() (*encryption.Service, error) {
+	encSvc, err := encryption.NewServiceFromEnv()
+	if err != nil {
+		log.Printf("Warning: Using dummy encryption key (set DB_ENCRYPTION_KEY in production)")
+		dummyKey := make([]byte, 32)
+		for i := range dummyKey {
+			dummyKey[i] = byte(i)
+		}
+		encSvc, err = encryption.NewService(encryption.Config{
+			Key:        dummyKey,
+			KeyVersion: 1,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	log.Printf("Encryption service initialized")
+	return encSvc, nil
 }

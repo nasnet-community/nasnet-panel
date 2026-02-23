@@ -536,7 +536,7 @@ export const WithServiceGroups: Story = {
         <PortInput
           {...args}
           value={value}
-          onChange={setValue}
+          onChange={(v) => setValue(String(v ?? ''))}
           serviceGroups={serviceGroups}
         />
         <div className="mt-4 p-3 bg-muted rounded-lg">
@@ -610,7 +610,7 @@ export const ServiceGroupsFiltered: Story = {
             protocol="tcp"
             showSuggestions
             value={tcpValue}
-            onChange={setTcpValue}
+            onChange={(v) => setTcpValue(String(v ?? ''))}
             serviceGroups={serviceGroups}
             helpText="Only 'web' and 'dns' groups appear (TCP or Both)"
           />
@@ -622,7 +622,7 @@ export const ServiceGroupsFiltered: Story = {
             protocol="udp"
             showSuggestions
             value={udpValue}
-            onChange={setUdpValue}
+            onChange={(v) => setUdpValue(String(v ?? ''))}
             serviceGroups={serviceGroups}
             helpText="Only 'gaming' and 'dns' groups appear (UDP or Both)"
           />

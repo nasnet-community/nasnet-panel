@@ -1,11 +1,18 @@
 /**
- * Hook for managing alerts and real-time subscriptions
+ * Hooks for managing alerts and real-time subscriptions
  * Per Task 5.5: Implement useAlerts hook with Apollo subscription
  * Per AC7: Alerts arrive via GraphQL subscription, notification area updates without refresh
+ *
+ * @description Provides three hooks for alert management:
+ * - useAlerts: Fetch alerts with filtering/pagination + real-time subscription
+ * - useAcknowledgeAlert: Acknowledge single alert with optimistic update
+ * - useAcknowledgeAlerts: Bulk acknowledge multiple alerts
+ * - useUnacknowledgedAlertCount: Get count of unacknowledged alerts
+ *
+ * Subscriptions auto-cleanup on component unmount via Apollo's built-in cleanup.
  */
-import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { useEffect } from 'react';
+import { useQuery, useMutation, useSubscription, gql } from '@apollo/client';
+import { useEffect, useCallback } from 'react';
 
 // GraphQL queries, mutations, and subscriptions
 const GET_ALERTS = gql`
@@ -100,16 +107,43 @@ const ALERT_EVENTS_SUBSCRIPTION = gql`
 `;
 
 interface UseAlertsOptions {
+  /** Device ID to filter alerts */
   deviceId?: string;
+
+  /** Severity filter (CRITICAL | WARNING | INFO) */
   severity?: 'CRITICAL' | 'WARNING' | 'INFO';
+
+  /** Filter by acknowledged status */
   acknowledged?: boolean;
+
+  /** Pagination limit (default 50) */
   limit?: number;
+
+  /** Pagination offset (default 0) */
   offset?: number;
+
+  /** Enable real-time subscription updates (default true) */
   enableSubscription?: boolean;
 }
 
 /**
- * Hook to fetch alerts with filtering and pagination
+ * Hook to fetch alerts with filtering, pagination, and real-time updates
+ *
+ * @description Fetches alerts from server and subscribes to real-time events.
+ * Uses 'cache-and-network' fetch policy to show cached data immediately while
+ * refreshing in background. Subscriptions automatically cleanup on unmount.
+ *
+ * @param options - Filter, pagination, and subscription options
+ * @returns Query result with subscription data
+ *
+ * @example
+ * ```tsx
+ * const { data, loading, error, subscription } = useAlerts({
+ *   deviceId: 'device-123',
+ *   severity: 'CRITICAL',
+ *   limit: 50,
+ * });
+ * ```
  */
 export function useAlerts(options: UseAlertsOptions = {}) {
   const { deviceId, severity, acknowledged, limit = 50, offset = 0, enableSubscription = true } = options;
@@ -132,6 +166,7 @@ export function useAlerts(options: UseAlertsOptions = {}) {
   });
 
   // Refetch when new alert arrives via subscription
+  // Auto-cleanup handled by Apollo on unmount
   useEffect(() => {
     if (subscriptionResult.data?.alertEvents) {
       queryResult.refetch();
@@ -147,11 +182,31 @@ export function useAlerts(options: UseAlertsOptions = {}) {
 /**
  * Hook to acknowledge a single alert
  * Per Task 5.6: Implement alert acknowledgment flow with optimistic update
+ *
+ * @description Acknowledges a single alert with optimistic UI update.
+ * Immediately updates UI cache while request is in-flight; rolls back on error.
+ * Integrates with Apollo cache for seamless synchronization.
+ *
+ * @returns Object with acknowledgeAlert function and mutation result
+ *
+ * @example
+ * ```tsx
+ * const { acknowledgeAlert, loading } = useAcknowledgeAlert();
+ *
+ * const handleAckAlert = async (alertId) => {
+ *   try {
+ *     await acknowledgeAlert(alertId);
+ *     // UI already updated optimistically
+ *   } catch (error) {
+ *     toast.error(error.message);
+ *   }
+ * };
+ * ```
  */
 export function useAcknowledgeAlert() {
-  const [mutate, result] = useMutation(ACKNOWLEDGE_ALERT, {
+  const [mutate, result] = useMutation<any, any>(ACKNOWLEDGE_ALERT, {
     // Optimistic update
-    optimisticResponse: (vars) => ({
+    optimisticResponse: (vars: any) => ({
       acknowledgeAlert: {
         alert: {
           id: vars.alertId,
@@ -164,7 +219,7 @@ export function useAcknowledgeAlert() {
       },
     }),
     // Update cache after mutation
-    update: (cache, { data }) => {
+    update: (cache, { data }: any) => {
       if (data?.acknowledgeAlert?.alert) {
         cache.modify({
           id: cache.identify({ __typename: 'Alert', id: data.acknowledgeAlert.alert.id }),
@@ -177,17 +232,21 @@ export function useAcknowledgeAlert() {
     },
   });
 
-  const acknowledgeAlert = async (alertId: string) => {
-    const { data } = await mutate({
-      variables: { alertId },
-    });
+  // Memoized acknowledgment handler
+  const acknowledgeAlert = useCallback(
+    async (alertId: string) => {
+      const { data } = await mutate({
+        variables: { alertId },
+      });
 
-    if (data?.acknowledgeAlert?.errors?.length > 0) {
-      throw new Error(data.acknowledgeAlert.errors[0].message);
-    }
+      if (data?.acknowledgeAlert?.errors?.length > 0) {
+        throw new Error(data.acknowledgeAlert.errors[0].message);
+      }
 
-    return data?.acknowledgeAlert?.alert;
-  };
+      return data?.acknowledgeAlert?.alert;
+    },
+    [mutate]
+  );
 
   return {
     acknowledgeAlert,
@@ -197,23 +256,42 @@ export function useAcknowledgeAlert() {
 
 /**
  * Hook to acknowledge multiple alerts (bulk operation)
+ *
+ * @description Acknowledges multiple alerts in a single mutation.
+ * Refetches alerts list after successful operation to ensure cache consistency.
+ *
+ * @returns Object with acknowledgeAlerts function and mutation result
+ *
+ * @example
+ * ```tsx
+ * const { acknowledgeAlerts, loading } = useAcknowledgeAlerts();
+ *
+ * const handleBulkAck = async (selectedIds) => {
+ *   const count = await acknowledgeAlerts(selectedIds);
+ *   toast.success(`Acknowledged ${count} alerts`);
+ * };
+ * ```
  */
 export function useAcknowledgeAlerts() {
-  const [mutate, result] = useMutation(ACKNOWLEDGE_ALERTS, {
+  const [mutate, result] = useMutation<any, any>(ACKNOWLEDGE_ALERTS, {
     refetchQueries: [{ query: GET_ALERTS }],
   });
 
-  const acknowledgeAlerts = async (alertIds: string[]) => {
-    const { data } = await mutate({
-      variables: { alertIds },
-    });
+  // Memoized bulk acknowledgment handler
+  const acknowledgeAlerts = useCallback(
+    async (alertIds: string[]) => {
+      const { data } = await mutate({
+        variables: { alertIds },
+      });
 
-    if (data?.acknowledgeAlerts?.errors?.length > 0) {
-      throw new Error(data.acknowledgeAlerts.errors[0].message);
-    }
+      if (data?.acknowledgeAlerts?.errors?.length > 0) {
+        throw new Error(data.acknowledgeAlerts.errors[0].message);
+      }
 
-    return data?.acknowledgeAlerts?.acknowledgedCount;
-  };
+      return data?.acknowledgeAlerts?.acknowledgedCount;
+    },
+    [mutate]
+  );
 
   return {
     acknowledgeAlerts,
@@ -223,6 +301,19 @@ export function useAcknowledgeAlerts() {
 
 /**
  * Get count of unacknowledged alerts
+ *
+ * @description Fetches count of unacknowledged alerts, optionally filtered by device.
+ * Subscribes to real-time updates for live count changes.
+ * Unsubscribes automatically on unmount.
+ *
+ * @param deviceId - Optional device ID to filter alerts
+ * @returns Count of unacknowledged alerts
+ *
+ * @example
+ * ```tsx
+ * const unackedCount = useUnacknowledgedAlertCount(routerId);
+ * return <Badge>{unackedCount}</Badge>;
+ * ```
  */
 export function useUnacknowledgedAlertCount(deviceId?: string) {
   const { data } = useAlerts({

@@ -5,7 +5,10 @@
  * Implements FR0-21: Real-time connection status with auto-refresh
  */
 
+import * as React from 'react';
+
 import { RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useWireGuardInterfaces,
@@ -29,7 +32,8 @@ import { Skeleton, Button } from '@nasnet/ui/primitives';
  * @example
  * Route: /vpn
  */
-export function VPNPage() {
+export const VPNPage = React.memo(function VPNPage() {
+  const { t } = useTranslation('vpn');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Parallel queries for all VPN types
@@ -51,11 +55,11 @@ export function VPNPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-foreground mb-1">
-              VPN Configuration
+              {t('title')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              View your VPN setup and monitor interface status{' '}
-              <span className="text-xs opacity-70">(Auto-refreshes every 5s)</span>
+              {t('overview')}{' '}
+              <span className="text-xs opacity-70">{t('status.autoRefresh')}</span>
             </p>
           </div>
           {/* Manual Refresh Button */}
@@ -65,10 +69,10 @@ export function VPNPage() {
             onClick={() => refetch()}
             disabled={isLoading || isFetching}
             className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
-            aria-label="Refresh VPN interfaces"
+            aria-label={t('button.refresh', { ns: 'common' })}
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
-            Refresh
+            {t('button.refresh', { ns: 'common' })}
           </Button>
         </div>
 
@@ -103,10 +107,10 @@ export function VPNPage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Failed to load VPN interfaces
+                  {t('status.failedToLoad')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Unable to retrieve VPN configuration from the router. Please check your connection.
+                  {t('status.failedMessage')}
                 </p>
               </div>
             </div>
@@ -133,10 +137,10 @@ export function VPNPage() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              No WireGuard interfaces configured
+              {t('status.noWireGuardConfigured')}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Your router doesn't have any WireGuard VPN interfaces set up yet.
+              {t('status.noWireGuardMessage')}
             </p>
           </div>
         )}
@@ -157,10 +161,10 @@ export function VPNPage() {
         {!isLoading && !isError && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground">
-              Other VPN Types
+              {t('servers.otherVPNTypes')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Additional VPN protocols configured on your router
+              {t('servers.otherVPNTypesDescription')}
             </p>
 
             {/* L2TP Section */}
@@ -177,7 +181,7 @@ export function VPNPage() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No L2TP interfaces configured
+                  {t('status.noL2TPConfigured')}
                 </p>
               )}
             </VPNTypeSection>
@@ -196,7 +200,7 @@ export function VPNPage() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No PPTP interfaces configured
+                  {t('status.noPPTPConfigured')}
                 </p>
               )}
             </VPNTypeSection>
@@ -215,7 +219,7 @@ export function VPNPage() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No SSTP interfaces configured
+                  {t('status.noSSTPConfigured')}
                 </p>
               )}
             </VPNTypeSection>
@@ -224,4 +228,6 @@ export function VPNPage() {
       </div>
     </div>
   );
-}
+});
+
+VPNPage.displayName = 'VPNPage';

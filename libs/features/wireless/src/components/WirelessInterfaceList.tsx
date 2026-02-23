@@ -4,17 +4,19 @@
  * Implements responsive grid layout (stacked mobile, 2-column tablet+)
  */
 
+import * as React from 'react';
+import { Wifi } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { WirelessInterfaceCard } from './WirelessInterfaceCard';
 import { useWirelessInterfaces } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { Wifi } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives';
 
 /**
  * Skeleton loader for wireless interface cards
  * Matches final component structure to prevent layout shift
  */
-function WirelessInterfaceSkeleton() {
+const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonComponent() {
   return (
     <div className="rounded-2xl md:rounded-3xl border border-border p-4 space-y-3 animate-pulse" role="status" aria-label="Loading wireless interface">
       <div className="flex items-start justify-between">
@@ -33,17 +35,17 @@ function WirelessInterfaceSkeleton() {
       </div>
     </div>
   );
-}
+});
 
 /**
  * Empty state component when no wireless interfaces are found
  * Encouraging and helpful, not intimidating
  */
-function WirelessInterfacesEmpty() {
+const WirelessInterfacesEmpty = React.memo(function WirelessInterfacesEmptyComponent() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="status">
       <div className="p-6 rounded-full bg-muted mb-4">
-        <Wifi className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+        <Icon icon={Wifi} size="lg" className="text-muted-foreground" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-semibold text-foreground mb-2">
         No wireless interfaces found
@@ -54,16 +56,20 @@ function WirelessInterfacesEmpty() {
       </p>
     </div>
   );
-}
+});
 
 /**
  * Error state component when API request fails
  */
-function WirelessInterfacesError({ error }: { error: Error }) {
+const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorComponent({ error }: { error: Error }) {
+  const handleRetry = React.useCallback(() => {
+    window.location.reload();
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="alert">
       <div className="p-6 rounded-full bg-destructive/10 mb-4">
-        <Wifi className="h-12 w-12 text-destructive" aria-hidden="true" />
+        <Icon icon={Wifi} size="lg" className="text-destructive" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-semibold text-foreground mb-2">
         Failed to load wireless interfaces
@@ -72,14 +78,15 @@ function WirelessInterfacesError({ error }: { error: Error }) {
         {error.message || 'An error occurred while loading wireless interfaces'}
       </p>
       <button
-        onClick={() => window.location.reload()}
+        onClick={handleRetry}
+        type="button"
         className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Retry
       </button>
     </div>
   );
-}
+});
 
 /**
  * Main list component for wireless interfaces
@@ -90,19 +97,29 @@ function WirelessInterfacesError({ error }: { error: Error }) {
  * - Displays interfaces in responsive grid
  * - Navigates to detail view on card click
  *
+ * @description Responsive list of wireless interfaces with professional loading/error states
+ *
  * @example
  * ```tsx
- * <WirelessInterfaceList />
+ * <WirelessInterfaceList routerId="router-1" />
  * ```
  */
 interface WirelessInterfaceListProps {
   routerId: string;
 }
 
-export function WirelessInterfaceList({ routerId }: WirelessInterfaceListProps) {
+function WirelessInterfaceListComponent({ routerId }: WirelessInterfaceListProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: interfaces, isLoading, error } = useWirelessInterfaces(routerIp);
   const navigate = useNavigate();
+
+  // Memoize click handler for interface cards
+  const handleInterfaceClick = React.useCallback(
+    (interfaceName: string) => {
+      navigate({ to: `/router/${routerId}/wifi/${interfaceName}` as '/' });
+    },
+    [routerId, navigate]
+  );
 
   // Loading state: show skeleton cards
   if (isLoading) {
@@ -132,9 +149,12 @@ export function WirelessInterfaceList({ routerId }: WirelessInterfaceListProps) 
         <WirelessInterfaceCard
           key={iface.id}
           interface={iface}
-          onClick={() => navigate({ to: `/router/${routerId}/wifi/${iface.name}` as '/' })}
+          onClick={() => handleInterfaceClick(iface.name)}
         />
       ))}
     </div>
   );
 }
+
+export const WirelessInterfaceList = React.memo(WirelessInterfaceListComponent);
+WirelessInterfaceList.displayName = 'WirelessInterfaceList';

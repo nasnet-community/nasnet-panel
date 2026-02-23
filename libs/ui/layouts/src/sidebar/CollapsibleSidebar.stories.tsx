@@ -23,6 +23,50 @@ const meta: Meta<typeof CollapsibleSidebar> = {
       },
     },
   },
+  argTypes: {
+    isCollapsed: {
+      control: 'boolean',
+      description: 'Whether the sidebar is currently collapsed',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onToggle: {
+      action: 'toggle clicked',
+      description: 'Callback when the collapse state changes',
+    },
+    showToggle: {
+      control: 'boolean',
+      description: 'Show the collapse toggle button',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    togglePosition: {
+      control: 'select',
+      options: ['top', 'middle', 'bottom'],
+      description: 'Position of the toggle button on the sidebar edge',
+      table: { defaultValue: { summary: 'bottom' } },
+    },
+    position: {
+      control: 'select',
+      options: ['left', 'right'],
+      description: 'Position of the sidebar (left or right side of screen)',
+      table: { defaultValue: { summary: 'left' } },
+    },
+    collapsedWidth: {
+      control: { type: 'number', min: 40, max: 100, step: 10 },
+      description: 'Width of the sidebar when collapsed (in pixels)',
+      table: { defaultValue: { summary: '64' } },
+    },
+    expandedWidth: {
+      control: { type: 'number', min: 200, max: 400, step: 20 },
+      description: 'Width of the sidebar when expanded (in pixels)',
+      table: { defaultValue: { summary: '256' } },
+    },
+    className: {
+      description: 'Additional CSS classes to apply to the sidebar container',
+    },
+    children: {
+      description: 'Content to render inside the sidebar',
+    },
+  },
   decorators: [
     (Story) => (
       // Provide a full-height container so the sidebar fills vertically
@@ -100,6 +144,10 @@ function AdaptiveNavMenu() {
 // Stories
 // ---------------------------------------------------------------------------
 
+/**
+ * Default state: sidebar is expanded
+ * Shows full navigation labels and the collapse toggle button
+ */
 export const Expanded: Story = {
   args: {
     isCollapsed: false,
@@ -109,6 +157,10 @@ export const Expanded: Story = {
   },
 };
 
+/**
+ * Collapsed state: sidebar is minimized to icon-only view
+ * Labels are hidden and icons are centered
+ */
 export const Collapsed: Story = {
   args: {
     isCollapsed: true,
@@ -118,6 +170,10 @@ export const Collapsed: Story = {
   },
 };
 
+/**
+ * Toggle button positioned at middle of the sidebar
+ * Useful for sidebars with significant vertical space
+ */
 export const ToggleAtMiddle: Story = {
   name: 'Toggle Button at Middle',
   args: {
@@ -128,6 +184,10 @@ export const ToggleAtMiddle: Story = {
   },
 };
 
+/**
+ * Sidebar without toggle button
+ * Useful when collapse/expand is controlled elsewhere (e.g., menu button in header)
+ */
 export const NoToggleButton: Story = {
   name: 'Without Toggle Button',
   args: {
@@ -137,6 +197,10 @@ export const NoToggleButton: Story = {
   },
 };
 
+/**
+ * Sidebar positioned on the right side of the screen
+ * Common in RTL layouts and right-aligned application designs
+ */
 export const RightPosition: Story = {
   name: 'Right-Side Sidebar',
   decorators: [
@@ -176,6 +240,11 @@ export const RightPosition: Story = {
  * Interactive story with local state wired to toggle, demonstrating the
  * pattern used in the app layer when connecting the Zustand sidebar store.
  * Also shows how CollapsibleSidebarProvider feeds context to children.
+ *
+ * Try:
+ * - Click the toggle button on the sidebar edge
+ * - Press Ctrl+B / Cmd+B to toggle via keyboard shortcut
+ * - Observe how the navigation labels hide when collapsed
  */
 export const Interactive: Story = {
   render: () => {
@@ -220,6 +289,10 @@ export const Interactive: Story = {
   },
 };
 
+/**
+ * Example with custom width values
+ * Demonstrates how to configure non-standard sidebar dimensions
+ */
 export const CustomWidths: Story = {
   name: 'Custom Widths (80px collapsed / 320px expanded)',
   args: {

@@ -180,3 +180,39 @@ export const AlternateRouter: Story = {
     },
   },
 };
+
+/**
+ * Mobile viewport story – verifies the page layout and controls are usable on small screens.
+ */
+export const Mobile: Story = {
+  name: 'Mobile Viewport',
+  args: {
+    routerId: 'router-uuid-1234',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story: 'VlanManagementPage rendered on a mobile viewport (375px). Verifies the "Create VLAN" button, tabs, and list/topology views adapt to narrow screens.',
+      },
+    },
+  },
+};
+
+/**
+ * Desktop viewport story – verifies the page layout optimized for larger screens.
+ */
+export const Desktop: Story = {
+  name: 'Desktop Viewport',
+  args: {
+    routerId: 'router-uuid-1234',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+    docs: {
+      description: {
+        story: 'VlanManagementPage rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and data presentation.',
+      },
+    },
+  },
+};

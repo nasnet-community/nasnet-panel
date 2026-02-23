@@ -4,21 +4,21 @@
  * Mobile-optimized presenter for DiagnosticsPanel pattern.
  * Touch-first interface with 44px targets and simplified layout.
  *
+ * @description
+ * Features:
+ * - Touch-optimized with 44px tap targets
+ * - Expandable accordions for test details
+ * - Simplified layout for small screens
+ * - Progress indicator during execution
+ * - Startup failure alerts
+ *
  * @see NAS-8.12: Service Logs & Diagnostics
  * @see ADR-018: Headless Platform Presenters
  */
 
 import * as React from 'react';
-import {
-  Check,
-  X,
-  AlertTriangle,
-  Minus,
-  Play,
-  RefreshCw,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+import { Play, RefreshCw, Check, X, AlertTriangle, Minus } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import {
   Button,
@@ -35,7 +35,9 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import {
   useDiagnosticsPanel,
@@ -44,26 +46,17 @@ import {
 import type { DiagnosticResult, StartupDiagnostics } from '@nasnet/api-client/queries';
 
 /**
- * Icon map for test status
- */
-const StatusIcon = {
-  check: Check,
-  x: X,
-  alert: AlertTriangle,
-  minus: Minus,
-};
-
-/**
- * Mobile presenter for DiagnosticsPanel
+ * DiagnosticsPanelMobile component
  *
- * Features:
- * - Touch-optimized with 44px tap targets
- * - Expandable accordions for test details
- * - Simplified layout for small screens
- * - Progress indicator during execution
- * - Startup failure alerts
+ * @description
+ * Mobile presenter for DiagnosticsPanel with touch-optimized interface.
+ * Uses accordions for test details with 44px touch targets.
+ * Simplified layout for small screens with progressive disclosure.
+ *
+ * @param props - Component props
+ * @returns Rendered mobile diagnostics panel
  */
-export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
+function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
   const { className } = props;
 
   const {
@@ -85,14 +78,15 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
     formatDuration,
   } = useDiagnosticsPanel(props);
 
-  const renderTestResult = (result: DiagnosticResult, index: number) => {
-    const Icon = StatusIcon[getStatusIcon(result.status)];
+  const renderTestResult = React.useCallback((result: DiagnosticResult, index: number) => {
+    const iconName = getStatusIcon(result.status);
+    const statusIcon = getStatusIconComponent(iconName);
 
     return (
       <AccordionItem key={result.id} value={`test-${index}`}>
         <AccordionTrigger className="min-h-[44px] hover:no-underline">
           <div className="flex items-center gap-3 flex-1 text-left">
-            <Icon className={`h-5 w-5 ${getStatusColor(result.status)} shrink-0`} />
+            <Icon icon={statusIcon as LucideIcon} className={cn('h-5 w-5 shrink-0', getStatusColor(result.status))} aria-hidden="true" />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{result.testName}</div>
               <p className="text-sm text-muted-foreground truncate">{result.message}</p>
@@ -130,9 +124,9 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
         </AccordionContent>
       </AccordionItem>
     );
-  };
+  }, [getStatusIcon, getStatusColor]);
 
-  const renderDiagnosticRun = (run: StartupDiagnostics, runIndex: number) => {
+  const renderDiagnosticRun = React.useCallback((run: StartupDiagnostics, runIndex: number) => {
     const timestamp = new Date(run.timestamp).toLocaleString();
 
     return (
@@ -160,7 +154,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
         </AccordionContent>
       </AccordionItem>
     );
-  };
+  }, [renderTestResult]);
 
   return (
     <Card className={className}>
@@ -177,7 +171,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
             onClick={refreshHistory}
             disabled={isLoadingHistory}
           >
-            <RefreshCw className={`mr-2 h-5 w-5 ${isLoadingHistory ? 'animate-spin' : ''}`} />
+            <Icon icon={RefreshCw} className={cn('mr-2 h-5 w-5', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
             Refresh
           </Button>
           <Button
@@ -186,7 +180,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
             onClick={runDiagnostics}
             disabled={isRunning}
           >
-            <Play className="mr-2 h-5 w-5" />
+            <Icon icon={Play} className="mr-2 h-5 w-5" aria-hidden="true" />
             {isRunning ? 'Running...' : 'Run Tests'}
           </Button>
         </div>
@@ -196,7 +190,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
         {/* Startup failure alert */}
         {latestRun && hasLatestFailures && (
           <Alert variant="destructive">
-            <AlertTriangle className="h-5 w-5" />
+            <Icon icon={AlertTriangle} className="h-5 w-5" aria-hidden="true" />
             <AlertTitle>Startup Failures</AlertTitle>
             <AlertDescription>
               {latestRun.failedCount} test(s) failed during startup. Expand the latest
@@ -208,7 +202,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
         {/* Error state */}
         {(runError || historyError) && (
           <Alert variant="destructive">
-            <X className="h-5 w-5" />
+            <Icon icon={X} className="h-5 w-5" aria-hidden="true" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
               {runError?.message || historyError?.message}
@@ -263,3 +257,17 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
     </Card>
   );
 }
+
+// Helper function to map status to icon components
+function getStatusIconComponent(status: 'check' | 'x' | 'alert' | 'minus'): React.ComponentType<any> {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    check: Check,
+    x: X,
+    alert: AlertTriangle,
+    minus: Minus,
+  };
+  return iconMap[status] || Minus;
+}
+
+export const DiagnosticsPanelMobile = React.memo(DiagnosticsPanelMobileComponent);
+DiagnosticsPanelMobile.displayName = 'DiagnosticsPanel.Mobile';

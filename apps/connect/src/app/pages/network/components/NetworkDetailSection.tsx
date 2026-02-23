@@ -4,7 +4,11 @@
  * (IP addresses, DNS, gateway, VLAN info, etc.)
  */
 
-import { cn } from '@/lib/utils';
+import React from 'react';
+
+import { useTranslation } from 'react-i18next';
+
+import { cn } from '@nasnet/ui/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,40 +43,41 @@ interface NetworkDetailSectionProps {
 // ---------------------------------------------------------------------------
 
 const BADGE_CLASSES: Record<NonNullable<NetworkDetailItem['badge']>, string> = {
-  success: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
-  warning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
-  error: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-  info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
-  neutral: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+  success: 'bg-success/15 text-success',
+  warning: 'bg-warning/15 text-warning',
+  error: 'bg-error/15 text-error',
+  info: 'bg-info/15 text-info',
+  neutral: 'bg-muted text-muted-foreground',
 };
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function NetworkDetailSection({
+export const NetworkDetailSection = React.memo(function NetworkDetailSection({
   title,
   description,
   items,
   isLoading = false,
   className,
 }: NetworkDetailSectionProps) {
+  const { t } = useTranslation('network');
   if (isLoading) {
     return (
       <div
         className={cn(
-          'bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4',
+          'bg-card rounded-xl border border-border p-4',
           className,
         )}
         aria-busy="true"
         aria-label={`Loading ${title}`}
       >
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32" />
+          <div className="h-4 bg-muted rounded w-32" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex justify-between gap-4">
-              <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24" />
-              <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-36" />
+              <div className="h-3 bg-muted rounded w-24" />
+              <div className="h-3 bg-muted rounded w-36" />
             </div>
           ))}
         </div>
@@ -83,7 +88,7 @@ export function NetworkDetailSection({
   return (
     <section
       className={cn(
-        'bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4',
+        'bg-card rounded-xl border border-border p-4',
         className,
       )}
       aria-labelledby={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
@@ -92,12 +97,12 @@ export function NetworkDetailSection({
       <div className="mb-3">
         <h3
           id={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           {title}
         </h3>
         {description && (
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{description}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
 
@@ -108,13 +113,13 @@ export function NetworkDetailSection({
             key={idx}
             className="flex items-start justify-between gap-4 text-sm"
           >
-            <dt className="text-slate-500 dark:text-slate-400 shrink-0">{item.label}</dt>
+            <dt className="text-muted-foreground shrink-0">{item.label}</dt>
             <dd
               className={cn(
                 'text-right',
                 item.mono
-                  ? 'font-mono text-xs text-slate-900 dark:text-white'
-                  : 'text-slate-900 dark:text-white',
+                  ? 'font-mono text-xs text-foreground'
+                  : 'text-foreground',
               )}
             >
               {item.badge ? (
@@ -135,8 +140,10 @@ export function NetworkDetailSection({
       </dl>
 
       {items.length === 0 && (
-        <p className="text-xs text-slate-400 dark:text-slate-500">No details available.</p>
+        <p className="text-xs text-muted-foreground">{t('status.noDetailsAvailable')}</p>
       )}
     </section>
   );
-}
+});
+
+NetworkDetailSection.displayName = 'NetworkDetailSection';

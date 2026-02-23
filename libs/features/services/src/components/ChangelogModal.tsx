@@ -1,10 +1,31 @@
 /**
  * ChangelogModal Component (NAS-8.7)
- * Displays GitHub release notes with markdown rendering
+ *
+ * Displays GitHub release notes with version information and warnings.
+ *
+ * @description Displays a modal with release notes for service updates, including severity,
+ * version diff, security warnings, and a link to the full changelog on GitHub.
+ *
+ * @example
+ * ```tsx
+ * <ChangelogModal
+ *   open={modalOpen}
+ *   onClose={() => setModalOpen(false)}
+ *   instanceName="Tor Proxy"
+ *   currentVersion="1.0.0"
+ *   newVersion="1.1.0"
+ *   severity="SECURITY"
+ *   changelogUrl="https://github.com/torproject/tor/releases/tag/v1.1.0"
+ *   securityFixes={true}
+ * />
+ * ```
  */
 
-import * as React from 'react';
+import React from 'react';
+
 import { ExternalLink, ShieldAlert, AlertCircle, ArrowUp, CheckCircle } from 'lucide-react';
+
+import type { UpdateSeverity } from '@nasnet/api-client/queries';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +37,6 @@ import {
   Separator,
   cn,
 } from '@nasnet/ui/primitives';
-import type { UpdateSeverity } from '@nasnet/api-client/queries';
 
 export interface ChangelogModalProps {
   /** Whether the modal is open */
@@ -48,6 +68,9 @@ export interface ChangelogModalProps {
 
   /** Whether update has breaking changes */
   breakingChanges?: boolean;
+
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
@@ -80,31 +103,7 @@ const SEVERITY_LABELS: Record<UpdateSeverity, string> = {
   PATCH: 'Patch Update',
 };
 
-/**
- * ChangelogModal
- *
- * Displays release notes from GitHub with:
- * - Severity badge
- * - Version diff (current → new)
- * - Release date
- * - Link to full changelog on GitHub
- * - Security/breaking change warnings
- *
- * @example
- * ```tsx
- * <ChangelogModal
- *   open={modalOpen}
- *   onClose={() => setModalOpen(false)}
- *   instanceName="Tor Proxy"
- *   currentVersion="1.0.0"
- *   newVersion="1.1.0"
- *   severity="SECURITY"
- *   changelogUrl="https://github.com/torproject/tor/releases/tag/v1.1.0"
- *   securityFixes={true}
- * />
- * ```
- */
-export function ChangelogModal(props: ChangelogModalProps) {
+function ChangelogModalComponent(props: ChangelogModalProps) {
   const {
     open,
     onClose,
@@ -116,6 +115,7 @@ export function ChangelogModal(props: ChangelogModalProps) {
     releaseDate,
     securityFixes,
     breakingChanges,
+    className,
   } = props;
 
   const SeverityIcon = SEVERITY_ICONS[severity];
@@ -146,7 +146,7 @@ export function ChangelogModal(props: ChangelogModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className={cn('max-w-2xl max-h-[80vh] overflow-y-auto', className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <SeverityIcon className="h-6 w-6" aria-hidden="true" />
@@ -166,7 +166,7 @@ export function ChangelogModal(props: ChangelogModalProps) {
                 severityColor
               )}
             >
-              <SeverityIcon className="h-4 w-4" />
+              <SeverityIcon className="h-4 w-4" aria-hidden="true" />
               {severityLabel}
             </Badge>
             {formattedDate && (
@@ -193,7 +193,10 @@ export function ChangelogModal(props: ChangelogModalProps) {
             <div className="space-y-2">
               {securityFixes && (
                 <div className="flex items-start gap-3 rounded-md border border-error/20 bg-error/5 p-3">
-                  <ShieldAlert className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+                  <ShieldAlert
+                    className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-error">
                       Security Fixes Included
@@ -207,7 +210,10 @@ export function ChangelogModal(props: ChangelogModalProps) {
               )}
               {breakingChanges && (
                 <div className="flex items-start gap-3 rounded-md border border-warning/20 bg-warning/5 p-3">
-                  <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+                  <AlertCircle
+                    className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-warning">
                       Breaking Changes
@@ -233,7 +239,7 @@ export function ChangelogModal(props: ChangelogModalProps) {
               onClick={handleOpenChangelog}
               className="inline-flex items-center gap-2"
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
               View Full Changelog on GitHub
             </Button>
           </div>
@@ -242,3 +248,9 @@ export function ChangelogModal(props: ChangelogModalProps) {
     </Dialog>
   );
 }
+
+/**
+ * ChangelogModal - Displays release notes for service updates
+ */
+export const ChangelogModal = React.memo(ChangelogModalComponent);
+ChangelogModal.displayName = 'ChangelogModal';

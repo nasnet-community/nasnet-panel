@@ -1,5 +1,6 @@
 /**
- * React hook for log alerts
+ * @description React hook for managing log alerts and notifications
+ * Provides alert configuration, rule management, and permission handling.
  * Epic 0.8: System Logs - Real-time Alerts/Notifications
  */
 
@@ -65,7 +66,7 @@ export interface UseLogAlertsReturn {
 }
 
 /**
- * Hook for managing log alerts
+ * Hook for managing log alerts with settings persistence
  */
 export function useLogAlerts(): UseLogAlertsReturn {
   const { toast } = useToast();
@@ -81,7 +82,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
 
   // Set up toast handler
   React.useEffect(() => {
-    alertService.setToastHandler((log, rule) => {
+    const handleToastAlert = (log: LogEntry, rule: AlertRule) => {
       const severityVariant: Record<string, 'default' | 'destructive'> = {
         debug: 'default',
         info: 'default',
@@ -95,14 +96,16 @@ export function useLogAlerts(): UseLogAlertsReturn {
         description: `[${log.topic}] ${log.message}`,
         variant: severityVariant[log.severity] || 'default',
       });
-    });
+    };
+
+    alertService.setToastHandler(handleToastAlert);
   }, [alertService, toast]);
 
   const refreshSettings = React.useCallback(() => {
     setSettings(alertService.getSettings());
   }, [alertService]);
 
-  const setEnabled = React.useCallback(
+  const handleSetEnabled = React.useCallback(
     (enabled: boolean) => {
       alertService.updateSettings({ enabled });
       refreshSettings();
@@ -110,7 +113,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, refreshSettings]
   );
 
-  const setNotificationPreference = React.useCallback(
+  const handleSetNotificationPreference = React.useCallback(
     (notificationPreference: NotificationPreference) => {
       alertService.updateSettings({ notificationPreference });
       refreshSettings();
@@ -118,7 +121,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, refreshSettings]
   );
 
-  const setSoundEnabled = React.useCallback(
+  const handleSetSoundEnabled = React.useCallback(
     (soundEnabled: boolean) => {
       alertService.updateSettings({ soundEnabled });
       refreshSettings();
@@ -126,7 +129,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, refreshSettings]
   );
 
-  const upsertRule = React.useCallback(
+  const handleUpsertRule = React.useCallback(
     (rule: AlertRule) => {
       alertService.upsertRule(rule);
       refreshSettings();
@@ -134,7 +137,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, refreshSettings]
   );
 
-  const removeRule = React.useCallback(
+  const handleRemoveRule = React.useCallback(
     (ruleId: string) => {
       alertService.removeRule(ruleId);
       refreshSettings();
@@ -142,7 +145,7 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, refreshSettings]
   );
 
-  const toggleRule = React.useCallback(
+  const handleToggleRule = React.useCallback(
     (ruleId: string) => {
       const rule = settings.rules.find((r) => r.id === ruleId);
       if (rule) {
@@ -153,13 +156,13 @@ export function useLogAlerts(): UseLogAlertsReturn {
     [alertService, settings.rules, refreshSettings]
   );
 
-  const requestPermission = React.useCallback(async () => {
+  const handleRequestPermission = React.useCallback(async () => {
     const permission = await alertService.requestNotificationPermission();
     setNotificationPermission(permission);
     return permission;
   }, [alertService]);
 
-  const processLogs = React.useCallback(
+  const handleProcessLogs = React.useCallback(
     (logs: LogEntry[]) => {
       alertService.processLogEntries(logs);
     },
@@ -169,16 +172,16 @@ export function useLogAlerts(): UseLogAlertsReturn {
   return {
     settings,
     isEnabled: settings.enabled,
-    setEnabled,
-    setNotificationPreference,
-    setSoundEnabled,
-    upsertRule,
-    removeRule,
-    toggleRule,
-    requestPermission,
+    setEnabled: handleSetEnabled,
+    setNotificationPreference: handleSetNotificationPreference,
+    setSoundEnabled: handleSetSoundEnabled,
+    upsertRule: handleUpsertRule,
+    removeRule: handleRemoveRule,
+    toggleRule: handleToggleRule,
+    requestPermission: handleRequestPermission,
     notificationPermission,
     isBrowserNotificationSupported: alertService.isBrowserNotificationSupported(),
-    processLogs,
+    processLogs: handleProcessLogs,
   };
 }
 

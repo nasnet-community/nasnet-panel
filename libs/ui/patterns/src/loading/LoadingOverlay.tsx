@@ -67,7 +67,7 @@ export interface LoadingOverlayProps {
  * />
  * ```
  */
-export function LoadingOverlay({
+export const LoadingOverlay = React.memo(function LoadingOverlay({
   isLoading,
   message = 'Loading...',
   description,
@@ -146,6 +146,6 @@ export function LoadingOverlay({
   }
 
   return overlayContent;
-}
+});
 
 LoadingOverlay.displayName = 'LoadingOverlay';

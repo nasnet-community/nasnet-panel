@@ -1,2 +1,2 @@
-export { ConnectionBanner } from './ConnectionBanner';
+export { ConnectionBanner, type ConnectionBannerProps } from './ConnectionBanner';
 

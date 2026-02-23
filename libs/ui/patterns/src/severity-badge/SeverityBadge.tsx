@@ -116,3 +116,5 @@ function SeverityBadgeBase({
 }
 
 export const SeverityBadge = React.memo(SeverityBadgeBase);
+
+SeverityBadge.displayName = 'SeverityBadge';

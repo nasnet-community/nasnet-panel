@@ -1,17 +1,25 @@
 /**
- * ImportTemplateDialog - Import custom firewall templates
+ * ImportTemplateDialog Component
  *
- * Features:
- * - File upload (JSON/YAML)
- * - Drag-and-drop support
- * - Zod validation with detailed errors
- * - Preview before import
- * - Conflict detection for duplicate names
+ * @description Multi-step dialog for importing firewall templates from JSON/YAML files
+ * with drag-and-drop support, automatic validation, conflict detection, and preview
+ * before final import. Supports both controlled and uncontrolled modes.
  *
- * @module @nasnet/features/firewall/components
+ * @example
+ * ```tsx
+ * const [open, setOpen] = useState(false);
+ * <ImportTemplateDialog
+ *   existingNames={['SSH Rules', 'Web Services']}
+ *   onImport={async (template) => {
+ *     await importTemplateAPI(template);
+ *   }}
+ *   open={open}
+ *   onOpenChange={setOpen}
+ * />
+ * ```
  */
 
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle2, X, FileJson, FileCode } from 'lucide-react';
 import yaml from 'js-yaml';
 import {
@@ -52,15 +60,15 @@ interface ParsedTemplateData {
 // ============================================
 
 export interface ImportTemplateDialogProps {
-  /** Existing template names (for conflict detection) */
+  /** Existing template names for conflict detection */
   existingNames?: string[];
-  /** Callback when template is imported */
+  /** Callback when template is successfully imported */
   onImport: (template: FirewallTemplate) => Promise<void>;
-  /** Trigger element */
+  /** Optional trigger element to open dialog */
   trigger?: React.ReactNode;
-  /** Whether dialog is open (controlled mode) */
+  /** Controlled: whether dialog is open */
   open?: boolean;
-  /** Callback when open state changes (controlled mode) */
+  /** Controlled: callback when open state changes */
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -68,7 +76,10 @@ export interface ImportTemplateDialogProps {
 // COMPONENT
 // ============================================
 
-export function ImportTemplateDialog({
+/**
+ * Multi-step import dialog with file upload, validation, and preview
+ */
+export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
   existingNames = [],
   onImport,
   trigger,
@@ -100,7 +111,7 @@ export function ImportTemplateDialog({
       if (!newOpen) {
         handleReset();
       }
-      setOpen(newOpen);
+      setOpen(newOpen as any);
     },
     [handleReset, setOpen]
   );
@@ -243,7 +254,7 @@ export function ImportTemplateDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+            <Upload className="h-5 w-5" aria-hidden="true" />
             Import Template
           </DialogTitle>
           <DialogDescription>
@@ -259,11 +270,13 @@ export function ImportTemplateDialog({
               className={`relative flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 transition-colors ${
                 isDragging
                   ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                  : 'border-border hover:border-muted-foreground/50'
               }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
+              role="region"
+              aria-label="File drop zone"
             >
               <div className="flex gap-4">
                 <FileJson className="h-12 w-12 text-muted-foreground" />
@@ -311,7 +324,11 @@ export function ImportTemplateDialog({
         {/* Validating Step */}
         {step === 'validating' && (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <div
+              className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
+              role="status"
+              aria-label="Validating template"
+            />
             <p className="text-lg font-medium">Validating template...</p>
           </div>
         )}
@@ -357,14 +374,14 @@ export function ImportTemplateDialog({
             <ScrollArea className="max-h-60">
               {parsedData.validation.success ? (
                 <Alert>
-                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                   <AlertDescription>
                     Template is valid and ready to import
                   </AlertDescription>
                 </Alert>
               ) : (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
+                <Alert variant="destructive" role="alert">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription>
                     <p className="font-medium mb-2">Validation Errors:</p>
                     <ul className="list-disc list-inside space-y-1">
@@ -380,8 +397,8 @@ export function ImportTemplateDialog({
 
               {/* Warnings */}
               {parsedData.validation.warnings.length > 0 && (
-                <Alert variant="default" className="mt-3">
-                  <AlertCircle className="h-4 w-4 text-warning" />
+                <Alert variant="default" className="mt-3" role="status">
+                  <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
                   <AlertDescription>
                     <p className="font-medium mb-2">Warnings:</p>
                     <ul className="list-disc list-inside space-y-1">
@@ -431,15 +448,19 @@ export function ImportTemplateDialog({
         {/* Importing Step */}
         {step === 'importing' && (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <div
+              className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
+              role="status"
+              aria-label="Importing template"
+            />
             <p className="text-lg font-medium">Importing template...</p>
           </div>
         )}
 
         {/* Complete Step */}
         {step === 'complete' && (
-          <div className="flex flex-col items-center justify-center gap-4 py-12">
-            <CheckCircle2 className="h-16 w-16 text-success" />
+          <div className="flex flex-col items-center justify-center gap-4 py-12" role="status">
+            <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
             <p className="text-lg font-medium">Template imported successfully!</p>
           </div>
         )}
@@ -470,4 +491,5 @@ export function ImportTemplateDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+ImportTemplateDialog.displayName = 'ImportTemplateDialog';

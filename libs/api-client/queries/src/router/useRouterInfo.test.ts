@@ -32,20 +32,22 @@ describe('useRouterInfo', () => {
     vi.clearAllMocks();
   });
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
 
   describe('Query Keys', () => {
     it('should have correct query key structure', () => {
+      const testIp = '192.168.1.1';
       expect(routerKeys.all).toEqual(['router']);
-      expect(routerKeys.resource()).toEqual(['router', 'resource']);
-      expect(routerKeys.info()).toEqual(['router', 'info']);
-      expect(routerKeys.routerboard()).toEqual(['router', 'routerboard']);
+      expect(routerKeys.resource(testIp)).toEqual(['router', 'resource', testIp]);
+      expect(routerKeys.info(testIp)).toEqual(['router', 'info', testIp]);
+      expect(routerKeys.routerboard(testIp)).toEqual(['router', 'routerboard', testIp]);
     });
   });
 
   describe('useRouterInfo Hook', () => {
+    const testRouterIp = '192.168.1.1';
+
     it('should fetch and combine system resource and identity data', async () => {
       const mockResource = {
         uptime: '3d4h25m12s',
@@ -69,7 +71,7 @@ describe('useRouterInfo', () => {
         .mockResolvedValueOnce({ data: mockResource })
         .mockResolvedValueOnce({ data: mockIdentity });
 
-      const { result } = renderHook(() => useRouterInfo(), { wrapper });
+      const { result } = renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       // Wait for the query to settle
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -89,7 +91,7 @@ describe('useRouterInfo', () => {
 
       vi.mocked(apiClient.get).mockRejectedValueOnce(mockError);
 
-      const { result } = renderHook(() => useRouterInfo(), { wrapper });
+      const { result } = renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       await waitFor(() => expect(result.current.isError).toBe(true));
 
@@ -97,25 +99,27 @@ describe('useRouterInfo', () => {
     });
 
     it('should use correct query key', () => {
-      renderHook(() => useRouterInfo(), { wrapper });
+      renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info()));
+      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp)));
 
       expect(infoQuery).toBeDefined();
     });
 
     it('should have correct staleTime configuration (60000ms)', () => {
-      const { result } = renderHook(() => useRouterInfo(), { wrapper });
+      const { result } = renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info()));
+      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp)));
 
-      expect(infoQuery?.options.staleTime).toBe(60000);
+      expect((infoQuery?.options as any)?.staleTime).toBe(60000);
     });
   });
 
   describe('useRouterResource Hook', () => {
+    const testRouterIp = '192.168.1.1';
+
     it('should fetch system resource data', async () => {
       const mockResource: SystemResource = {
         uptime: '5d2h15m30s',
@@ -132,7 +136,7 @@ describe('useRouterInfo', () => {
 
       vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockResource });
 
-      const { result } = renderHook(() => useRouterResource(), { wrapper });
+      const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -140,36 +144,36 @@ describe('useRouterInfo', () => {
     });
 
     it('should have polling configuration (5000ms refetch interval)', () => {
-      const { result } = renderHook(() => useRouterResource(), { wrapper });
+      const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
       const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource())
+        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
-      expect(resourceQuery?.options.refetchInterval).toBe(5000);
+      expect((resourceQuery?.options as any)?.refetchInterval).toBe(5000);
     });
 
     it('should not refetch in background when tab is hidden', () => {
-      const { result } = renderHook(() => useRouterResource(), { wrapper });
+      const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
       const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource())
+        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
-      expect(resourceQuery?.options.refetchIntervalInBackground).toBe(false);
+      expect((resourceQuery?.options as any)?.refetchIntervalInBackground).toBe(false);
     });
 
     it('should have correct staleTime (5000ms)', () => {
-      const { result } = renderHook(() => useRouterResource(), { wrapper });
+      const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
       const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource())
+        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
-      expect(resourceQuery?.options.staleTime).toBe(5000);
+      expect((resourceQuery?.options as any)?.staleTime).toBe(5000);
     });
   });
 });

@@ -19,7 +19,7 @@
  * @see NAS-4.23 - Implement Clipboard Integration
  */
 
-import * as React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { Copy, Check, Eye, EyeOff } from 'lucide-react';
 
@@ -149,7 +149,7 @@ function getTypeLabel(type: CopyableValueType): string {
  * Displays a value with inline copy functionality.
  * Hover to reveal copy icon on desktop, always visible on mobile.
  */
-export function CopyableValue({
+export const CopyableValue = React.memo(function CopyableValue({
   value,
   type = 'text',
   masked: maskedProp,
@@ -187,7 +187,7 @@ export function CopyableValue({
   const shouldShowToast = showToastProp ?? sensitive;
 
   // State for revealed sensitive values
-  const [revealed, setRevealed] = React.useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   // Displayed value (masked or revealed)
   const displayValue = shouldMask && !revealed ? maskValue(value, maskedVisibleChars) : value;
@@ -202,15 +202,21 @@ export function CopyableValue({
   // Technical values use monospace font
   const useMono = type === 'ip' || type === 'mac' || type === 'hostname' || type === 'api-key' || type === 'token';
 
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    await copy(value);
-  };
+  const handleCopy = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      await copy(value);
+    },
+    [copy, value]
+  );
 
-  const toggleReveal = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setRevealed(!revealed);
-  };
+  const toggleReveal = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setRevealed((prev) => !prev);
+    },
+    []
+  );
 
   const effectiveAriaLabel = ariaLabel ?? `${getTypeLabel(type)}: ${shouldMask && !revealed ? 'hidden' : value}`;
 
@@ -292,6 +298,6 @@ export function CopyableValue({
       </TooltipProvider>
     </span>
   );
-}
+}) as React.FC<CopyableValueProps>;
 
 CopyableValue.displayName = 'CopyableValue';

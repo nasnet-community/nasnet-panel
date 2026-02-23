@@ -2,7 +2,25 @@
  * Accordion Component
  *
  * Built on @radix-ui/react-collapsible
- * Simple accordion implementation for mobile layouts
+ * Simple accordion implementation for expanding/collapsing content sections.
+ * Supports single and multiple open items simultaneously.
+ *
+ * Accessibility:
+ * - Keyboard navigation: Tab to move between items, Enter/Space to toggle
+ * - Screen reader support via semantic HTML + ARIA attributes
+ * - Focus visible indicators on trigger buttons
+ * - Respects prefers-reduced-motion for animations
+ *
+ * @module @nasnet/ui/primitives/accordion
+ * @example
+ * ```tsx
+ * <Accordion type="single">
+ *   <AccordionItem value="item-1">
+ *     <AccordionTrigger>Section 1</AccordionTrigger>
+ *     <AccordionContent>Content here</AccordionContent>
+ *   </AccordionItem>
+ * </Accordion>
+ * ```
  */
 
 import * as React from 'react';
@@ -11,6 +29,7 @@ import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import { ChevronDown } from 'lucide-react';
 
 import { cn } from './lib/utils';
+import { useReducedMotion } from './lib/use-reduced-motion';
 
 // ============================================================================
 // Accordion Context
@@ -125,21 +144,30 @@ export interface AccordionTriggerProps extends React.ButtonHTMLAttributes<HTMLBu
 
 const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerProps>(
   ({ className, children, ...props }, ref) => {
+    const prefersReducedMotion = useReducedMotion();
+
     return (
       <CollapsiblePrimitive.Trigger asChild>
         <button
           ref={ref}
           className={cn(
-            'flex w-full items-center justify-between p-4 font-medium transition-all',
+            'flex w-full items-center justify-between px-4 py-3 font-medium',
+            'transition-colors duration-200',
             'hover:bg-muted/50',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             '[&[data-state=open]>svg]:rotate-180',
             className
           )}
+          aria-expanded={props['aria-expanded'] ?? false}
           {...props}
         >
           {children}
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 shrink-0 transition-transform',
+              !prefersReducedMotion && 'duration-200'
+            )}
+          />
         </button>
       </CollapsiblePrimitive.Trigger>
     );
@@ -158,15 +186,19 @@ export interface AccordionContentProps {
 
 const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>(
   ({ className, children }, ref) => {
+    const prefersReducedMotion = useReducedMotion();
+
     return (
       <CollapsiblePrimitive.Content
         ref={ref}
         className={cn(
-          'overflow-hidden transition-all',
-          'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'
+          'overflow-hidden',
+          !prefersReducedMotion && 'transition-all',
+          !prefersReducedMotion &&
+            'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'
         )}
       >
-        <div className={cn('p-4 pt-0', className)}>{children}</div>
+        <div className={cn('px-4 py-3', className)}>{children}</div>
       </CollapsiblePrimitive.Content>
     );
   }

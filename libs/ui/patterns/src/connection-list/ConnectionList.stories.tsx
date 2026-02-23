@@ -14,15 +14,15 @@
  * Story: NAS-7.4 - Implement Connection Tracking
  */
 
-import { ConnectionList, useConnectionList } from './ConnectionList';
+import { ConnectionList, useConnectionList } from './index';
 
 import type { ConnectionEntry } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock data generators
 function generateMockConnection(id: number): ConnectionEntry {
-  const protocols = ['tcp', 'udp', 'icmp'];
-  const states = ['established', 'new', 'related', 'time-wait', 'syn-sent'];
+  const protocols = ['tcp', 'udp', 'icmp'] as const;
+  const states = ['established', 'new', 'related', 'time-wait', 'syn-sent'] as const;
 
   return {
     id: `*${id.toString(16).toUpperCase()}`,
@@ -45,7 +45,15 @@ function generateMockConnections(count: number): ConnectionEntry[] {
 }
 
 // Wrapper component to use the hook
-function ConnectionListWrapper({ connections, onKillConnection, loading }: any) {
+function ConnectionListWrapper({
+  connections,
+  onKillConnection,
+  loading,
+}: {
+  connections: ConnectionEntry[];
+  onKillConnection: (connection: ConnectionEntry) => void;
+  loading: boolean;
+}) {
   const connectionList = useConnectionList({
     connections,
     onRefresh: () => console.log('Refresh requested'),
@@ -61,7 +69,7 @@ function ConnectionListWrapper({ connections, onKillConnection, loading }: any) 
 }
 
 const meta: Meta<typeof ConnectionListWrapper> = {
-  title: 'Patterns/Connection Tracking/ConnectionList',
+  title: 'Patterns/Common/ConnectionList',
   component: ConnectionListWrapper,
   parameters: {
     layout: 'fullscreen',
@@ -73,6 +81,20 @@ const meta: Meta<typeof ConnectionListWrapper> = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    connections: {
+      description: 'Array of connection entries to display',
+      control: { type: 'object' },
+    },
+    onKillConnection: {
+      description: 'Callback fired when user clicks kill connection action',
+      action: 'killConnection',
+    },
+    loading: {
+      description: 'Loading state while fetching connections',
+      control: 'boolean',
+    },
+  },
 };
 
 export default meta;

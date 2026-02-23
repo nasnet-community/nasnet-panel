@@ -59,6 +59,13 @@ export interface DHCPPool {
 
 /**
  * Lease status types from RouterOS DHCP server
+ *
+ * @remarks
+ * Represents the current state of a DHCP lease allocation:
+ * - `bound` - Active lease in use by the client
+ * - `waiting` - Waiting for client confirmation
+ * - `busy` - IP address is in use by another device
+ * - `offered` - DHCP offer has been sent to the client
  */
 export type LeaseStatus =
   | 'bound'      // Active lease in use
@@ -139,7 +146,12 @@ export interface LeaseDisplayRow {
 
 /**
  * DHCP Client status types
- * Status of DHCP client on WAN interfaces
+ *
+ * Represents the current state of a DHCP client on WAN interfaces:
+ * - `bound` - Successfully obtained a lease from DHCP server
+ * - `searching` - Actively searching for a DHCP server
+ * - `requesting` - Requesting a lease from the server
+ * - `stopped` - DHCP client is stopped or disabled
  */
 export type DHCPClientStatus =
   | 'bound'       // Successfully obtained lease

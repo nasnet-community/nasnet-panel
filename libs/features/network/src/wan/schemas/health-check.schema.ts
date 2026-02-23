@@ -1,5 +1,5 @@
 /**
- * Health Check Schema
+ * @description Health Check Schema
  *
  * Zod validation for WAN health check configuration form.
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 5: Health Check)
@@ -7,12 +7,14 @@
 
 import { z } from 'zod';
 
-// IPv4 address or hostname regex
-const ipv4OrHostnameRegex =
+/**
+ * @description Regex to validate IPv4 address or hostname
+ */
+const IPV4_OR_HOSTNAME_REGEX =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
 
 /**
- * Health check target presets for common services
+ * @description Health check target presets for common services
  */
 export const HEALTH_CHECK_TARGETS = {
   CLOUDFLARE: {
@@ -38,7 +40,7 @@ export const HEALTH_CHECK_TARGETS = {
 } as const;
 
 /**
- * Interval presets (in seconds)
+ * @description Interval presets in seconds for health checks
  */
 export const INTERVAL_PRESETS = {
   FAST: {
@@ -64,79 +66,83 @@ export const INTERVAL_PRESETS = {
 } as const;
 
 /**
- * Validation schema for health check form
+ * @description Validation schema for health check form
  */
 export const healthCheckSchema = z.object({
-  enabled: z.boolean(),
+  isEnabled: z.boolean(),
 
   target: z
     .string()
-    .min(1, 'Target is required')
-    .regex(ipv4OrHostnameRegex, 'Invalid IP address or hostname')
+    .min(1, 'Please specify a target IP or hostname to check')
+    .regex(IPV4_OR_HOSTNAME_REGEX, 'Target must be a valid IP address or hostname')
     .refine(
       (val) => val !== '0.0.0.0' && val !== '255.255.255.255',
-      'Invalid target IP address'
+      'Target IP address is invalid (cannot be 0.0.0.0 or 255.255.255.255)'
     ),
 
-  interval: z
+  intervalSeconds: z
     .number()
-    .int('Interval must be an integer')
+    .int('Interval must be a whole number')
     .min(5, 'Interval must be at least 5 seconds')
-    .max(300, 'Interval must not exceed 300 seconds (5 minutes)'),
+    .max(300, 'Interval cannot exceed 300 seconds (5 minutes)'),
 
-  timeout: z
+  timeoutSeconds: z
     .number()
-    .int('Timeout must be an integer')
+    .int('Timeout must be a whole number')
     .min(1, 'Timeout must be at least 1 second')
-    .max(30, 'Timeout must not exceed 30 seconds')
+    .max(30, 'Timeout cannot exceed 30 seconds')
     .optional()
     .default(2),
 
   failureThreshold: z
     .number()
-    .int('Failure threshold must be an integer')
+    .int('Failure threshold must be a whole number')
     .min(1, 'Failure threshold must be at least 1')
-    .max(10, 'Failure threshold must not exceed 10')
+    .max(10, 'Failure threshold cannot exceed 10')
     .optional()
     .default(3),
 
-  comment: z.string().max(255, 'Comment must not exceed 255 characters').optional(),
+  comment: z.string().max(255, 'Comment cannot exceed 255 characters').optional(),
 });
 
 /**
- * Infer TypeScript type from schema
+ * @description TypeScript type inferred from healthCheckSchema
  */
 export type HealthCheckFormValues = z.infer<typeof healthCheckSchema>;
 
 /**
- * Default form values
+ * @description Default form values for health check configuration
  */
-export const healthCheckDefaultValues: HealthCheckFormValues = {
-  enabled: true,
+export const HEALTH_CHECK_DEFAULT_VALUES: HealthCheckFormValues = {
+  isEnabled: true,
   target: '1.1.1.1', // Cloudflare DNS
-  interval: 10, // 10 seconds
-  timeout: 2, // 2 seconds
+  intervalSeconds: 10, // 10 seconds
+  timeoutSeconds: 2, // 2 seconds
   failureThreshold: 3, // 3 consecutive failures
   comment: '',
 };
 
 /**
- * Validation helper for timeout vs interval
+ * @description Validates that timeout is less than interval
+ * @param data Health check form values to validate
+ * @returns Object with valid flag and optional error message
  */
 export const validateTimeoutInterval = (
   data: HealthCheckFormValues
-): { valid: boolean; error?: string } => {
-  if (data.timeout && data.timeout >= data.interval) {
+): { isValid: boolean; error?: string } => {
+  if (data.timeoutSeconds && data.timeoutSeconds >= data.intervalSeconds) {
     return {
-      valid: false,
-      error: 'Timeout must be less than interval',
+      isValid: false,
+      error: 'Timeout must be less than the check interval',
     };
   }
-  return { valid: true };
+  return { isValid: true };
 };
 
 /**
- * Helper to check if target is reachable (for preview)
+ * @description Checks if a target matches one of the common presets
+ * @param target The target IP or hostname to check
+ * @returns True if target is a known common preset
  */
 export const isCommonTarget = (target: string): boolean => {
   return Object.values(HEALTH_CHECK_TARGETS).some((t) => t.value === target);

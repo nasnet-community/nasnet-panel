@@ -409,7 +409,6 @@ describe('Accessibility', () => {
     const { container } = render(<SubnetCalculations info={mockInfo} />);
     const results = await axe(container);
 
-    // @ts-expect-error - vitest-axe extends expect in setup.ts
     expect(results).toHaveNoViolations();
   });
 
@@ -424,7 +423,6 @@ describe('Accessibility', () => {
     );
     const results = await axe(container);
 
-    // @ts-expect-error - vitest-axe extends expect in setup.ts
     expect(results).toHaveNoViolations();
   });
 
@@ -438,7 +436,6 @@ describe('Accessibility', () => {
     const { container } = render(<OverlapWarning overlap={mockOverlap} />);
     const results = await axe(container);
 
-    // @ts-expect-error - vitest-axe extends expect in setup.ts
     expect(results).toHaveNoViolations();
   });
 });

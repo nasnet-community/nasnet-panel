@@ -7,11 +7,10 @@
  * @module @nasnet/ui/patterns/filter-rule-editor
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { FilterRuleEditor } from './FilterRuleEditor';
 
-import type { FilterRuleEditorProps } from './filter-rule-editor.types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -100,7 +99,7 @@ const meta = {
       description: 'Is editor dialog open',
     },
     mode: {
-      control: 'radio',
+      control: 'select',
       options: ['create', 'edit'],
       description: 'Editor mode (create new rule or edit existing)',
     },
@@ -387,7 +386,10 @@ export const MobileVariant: Story = {
         ...originalModule,
         usePlatform: () => 'mobile',
       };
-      require.cache[require.resolve('@nasnet/ui/layouts')].exports = mockedModule;
+      const cacheEntry = require.cache[require.resolve('@nasnet/ui/layouts')];
+      if (cacheEntry?.exports) {
+        cacheEntry.exports = mockedModule;
+      }
 
       return <Story />;
     },

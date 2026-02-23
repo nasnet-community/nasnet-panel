@@ -9,3 +9,5 @@ import { NetworkDashboard } from '../../../pages/network/NetworkDashboard';
 export function NetworkTab() {
   return <NetworkDashboard />;
 }
+
+NetworkTab.displayName = 'NetworkTab';

@@ -6,7 +6,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -36,6 +36,9 @@ import { Pencil, Trash2, ShieldAlert, Clock, Activity } from 'lucide-react';
 // Types
 // ============================================================================
 
+/**
+ * @description Mobile card presenter for port knock sequence management
+ */
 export interface PortKnockSequenceManagerMobileProps {
   className?: string;
   onEdit?: (sequenceId: string) => void;
@@ -46,6 +49,9 @@ export interface PortKnockSequenceManagerMobileProps {
 // Sequence Card Component
 // ============================================================================
 
+/**
+ * @description Props for individual sequence card
+ */
 interface SequenceCardProps {
   sequence: PortKnockSequence;
   onEdit?: (sequenceId: string) => void;
@@ -53,21 +59,24 @@ interface SequenceCardProps {
   onDelete: (sequence: PortKnockSequence) => void;
 }
 
-function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProps) {
+/**
+ * @description Card component for a single port knock sequence
+ */
+const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProps) {
   return (
-    <Card className={sequence.enabled ? '' : 'opacity-50'}>
+    <Card className={sequence.isEnabled ? '' : 'opacity-50'}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-base">{sequence.name}</h3>
               {sequence.protectedPort === 22 && (
-                <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH Protected" />
+                <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH protected service" />
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant={sequence.enabled ? 'success' : 'secondary'} className="text-xs">
-                {sequence.enabled ? 'Active' : 'Disabled'}
+              <Badge variant={sequence.isEnabled ? 'success' : 'secondary'} className="text-xs">
+                {sequence.isEnabled ? 'Active' : 'Disabled'}
               </Badge>
               <Badge variant="secondary" className="font-mono text-xs">
                 {sequence.protectedProtocol.toUpperCase()}:{sequence.protectedPort}
@@ -75,9 +84,9 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
             </div>
           </div>
           <Switch
-            checked={sequence.enabled}
+            checked={sequence.isEnabled}
             onCheckedChange={() => onToggle(sequence)}
-            aria-label={sequence.enabled ? 'Disable sequence' : 'Enable sequence'}
+            aria-label={sequence.isEnabled ? 'Disable sequence' : 'Enable sequence'}
             className="ml-2"
           />
         </div>
@@ -99,15 +108,15 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
         {/* Stats */}
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
-            <Activity className="h-3 w-3" />
+            <Activity className="h-3 w-3" aria-hidden="true" />
             <span>Recent: <strong className="font-mono">{sequence.recentAccessCount || 0}</strong></span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3 w-3" aria-hidden="true" />
             <span>Knock: {sequence.knockTimeout}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3 w-3" aria-hidden="true" />
             <span>Access: {sequence.accessTimeout}</span>
           </div>
         </div>
@@ -137,7 +146,9 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
       </CardContent>
     </Card>
   );
-}
+});
+
+SequenceCard.displayName = 'SequenceCard';
 
 // ============================================================================
 // Main Component
@@ -160,26 +171,26 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
 
   const sequences = data?.portKnockSequences || [];
 
-  const handleToggle = async (sequence: PortKnockSequence) => {
+  const handleToggle = useCallback(async (sequence: PortKnockSequence) => {
     try {
       await toggleSequence({
         variables: {
           routerId: activeRouterId!,
           id: sequence.id!,
-          enabled: !sequence.enabled,
+          enabled: !sequence.isEnabled,
         },
       });
     } catch (err) {
       console.error('Failed to toggle port knock sequence:', err);
     }
-  };
+  }, [activeRouterId, toggleSequence]);
 
-  const handleDeleteClick = (sequence: PortKnockSequence) => {
+  const handleDeleteClick = useCallback((sequence: PortKnockSequence) => {
     setSequenceToDelete(sequence);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!sequenceToDelete) return;
 
     try {
@@ -194,7 +205,7 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
     } catch (err) {
       console.error('Failed to delete port knock sequence:', err);
     }
-  };
+  }, [sequenceToDelete, activeRouterId, deleteSequence]);
 
   if (loading) {
     return (
@@ -252,7 +263,7 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-2 bg-warning/10 border border-warning/30 rounded text-sm">
+                <div className="mt-2 p-2 bg-warning/10 border border-warning rounded text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>

@@ -14,7 +14,6 @@ import { HistoryPanel } from './HistoryPanel';
 import { HistoryPanelDesktop } from './HistoryPanelDesktop';
 import { HistoryPanelMobile } from './HistoryPanelMobile';
 
-import type { HistoryPanelProps } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 // Reset history store before each story

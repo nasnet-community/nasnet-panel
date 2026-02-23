@@ -7,7 +7,8 @@
  * @module libs/features/network/src/dhcp/hooks/useNewLeaseDetection
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import type { DHCPLease } from '@nasnet/core/types';
 
 /**
@@ -18,14 +19,20 @@ export interface UseNewLeaseDetectionReturn {
   newLeaseIds: Set<string>;
 }
 
+// Auto-fade duration for new lease indicator (milliseconds)
+const NEW_LEASE_AUTO_FADE_MS = 5000;
+
 /**
  * Hook to detect and track new DHCP leases with auto-fade functionality
+ * @description Tracks new lease additions and auto-fades the "New" badge after 5 seconds.
+ * Properly cleans up timeouts on unmount and effect re-runs.
  *
  * Features:
  * - Detects new leases by comparing previous vs current lease IDs
  * - Auto-fades "New" badge after 5 seconds
  * - Uses useRef to track previous state without causing re-renders
  * - Handles lease ID changes gracefully (additions/removals)
+ * - Cleans up timeouts on unmount/re-run to prevent memory leaks
  *
  * Usage:
  * ```tsx
@@ -65,10 +72,10 @@ export function useNewLeaseDetection(
   // State for new lease IDs (triggers re-render for UI updates)
   const [newLeaseIds, setNewLeaseIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    // Extract current lease IDs
-    const currentIds = new Set(leases.map((lease) => lease.id));
+  // Memoize current lease IDs to prevent unnecessary comparisons
+  const currentIds = useMemo(() => new Set(leases.map((lease) => lease.id)), [leases]);
 
+  useEffect(() => {
     // Detect new IDs (present in current but not in previous)
     const newIds = new Set<string>();
     currentIds.forEach((id) => {
@@ -85,26 +92,26 @@ export function useNewLeaseDetection(
         return updated;
       });
 
-      // Auto-fade: Remove "New" badge after 5 seconds
+      // Auto-fade: Remove "New" badge after configured duration
       const fadeTimeout = setTimeout(() => {
         setNewLeaseIds((prev) => {
           const updated = new Set(prev);
           newIds.forEach((id) => updated.delete(id));
           return updated;
         });
-      }, 5000);
+      }, NEW_LEASE_AUTO_FADE_MS);
 
       // Update ref for next comparison
       prevLeaseIdsRef.current = currentIds;
 
-      // Cleanup timeout on unmount or next effect run
+      // Cleanup timeout on unmount or next effect run to prevent memory leaks
       return () => clearTimeout(fadeTimeout);
     }
 
     // Update ref for next comparison
     prevLeaseIdsRef.current = currentIds;
     return undefined;
-  }, [leases]);
+  }, [currentIds]);
 
   return { newLeaseIds };
 }

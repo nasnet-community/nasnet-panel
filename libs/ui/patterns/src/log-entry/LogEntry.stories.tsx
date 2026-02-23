@@ -3,13 +3,11 @@
  * Displays a single system log entry with timestamp, topic badge, severity badge, and message
  */
 
+import type { Meta, StoryObj } from '@storybook/react';
 import { LogEntry } from './LogEntry';
 
-import type { Meta, StoryObj } from '@storybook/react';
-
-
-const meta: Meta<typeof LogEntry> = {
-  title: 'Patterns/LogEntry',
+const meta = {
+  title: 'Patterns/Common/LogEntry',
   component: LogEntry,
   tags: ['autodocs'],
   parameters: {
@@ -22,9 +20,13 @@ const meta: Meta<typeof LogEntry> = {
     },
   },
   argTypes: {
+    entry: {
+      description: 'Log entry data object with id, timestamp, topic, severity, and message',
+      control: { type: 'object' },
+    },
     compact: {
       control: 'boolean',
-      description: 'Use compact layout for mobile viewports',
+      description: 'Use compact layout for mobile viewports (<640px)',
     },
     showDate: {
       control: 'boolean',
@@ -38,11 +40,18 @@ const meta: Meta<typeof LogEntry> = {
       control: 'text',
       description: 'Highlight matching text in the log message',
     },
+    onToggleBookmark: {
+      action: 'bookmark toggled',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class names',
+    },
   },
-};
+} satisfies Meta<typeof LogEntry>;
 
 export default meta;
-type Story = StoryObj<typeof LogEntry>;
+type Story = StoryObj<typeof meta>;
 
 // ---------------------------------------------------------------------------
 // Shared mock entries
@@ -103,6 +112,49 @@ export const Default: Story = {
   },
 };
 
+export const Mobile: Story = {
+  name: 'Mobile (<640px)',
+  args: {
+    entry: systemCriticalEntry,
+    compact: true,
+    isBookmarked: false,
+    onToggleBookmark: () => {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+};
+
+export const Tablet: Story = {
+  name: 'Tablet (640-1024px)',
+  args: {
+    entry: firewallEntry,
+    showDate: false,
+    compact: false,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+};
+
+export const Desktop: Story = {
+  name: 'Desktop (>1024px)',
+  args: {
+    entry: firewallEntry,
+    showDate: false,
+    compact: false,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+};
+
 export const InfoEntry: Story = {
   name: 'Info – DHCP Lease',
   args: {
@@ -134,7 +186,7 @@ export const WithSearchHighlight: Story = {
     docs: {
       description: {
         story:
-          'When `searchTerm` is provided the matching text inside the message is highlighted using a primary-coloured `<mark>` element.',
+          'When `searchTerm` is provided, matching text inside the message is highlighted using a primary-coloured `<mark>` element.',
       },
     },
   },
@@ -145,32 +197,14 @@ export const Bookmarked: Story = {
   args: {
     entry: vpnEntry,
     isBookmarked: true,
-    onToggleBookmark: (entry) => alert(`Toggle bookmark: ${entry.id}`),
+    onToggleBookmark: () => {},
     compact: false,
   },
   parameters: {
     docs: {
       description: {
         story:
-          'When `isBookmarked` is true and `onToggleBookmark` is provided the Pin icon appears filled. The action buttons become visible on hover.',
-      },
-    },
-  },
-};
-
-export const CompactMobile: Story = {
-  name: 'Compact (Mobile Layout)',
-  args: {
-    entry: systemCriticalEntry,
-    compact: true,
-    isBookmarked: false,
-    onToggleBookmark: (entry) => alert(`Toggle bookmark: ${entry.id}`),
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The compact layout stacks badges and message vertically for narrow mobile viewports, using smaller type and condensed spacing.',
+          'When `isBookmarked` is true and `onToggleBookmark` is provided, the Pin icon appears filled. Action buttons become visible on hover.',
       },
     },
   },

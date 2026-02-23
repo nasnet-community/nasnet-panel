@@ -7,7 +7,8 @@
  * @see Story NAS-6.10 - Implement Route Lookup Diagnostic - Task 9
  */
 
-import type { Route, RouteType, RouteScope, RouteLookupResult, RouteLookupCandidate, VPNTunnelInfo, TunnelStatus } from '@nasnet/api-client/generated';
+import type { Route, RouteType, RouteScope, RouteLookupResult, RouteLookupCandidate, VpnTunnelInfo, TunnelStatus } from '@nasnet/api-client/generated';
+import { ROUTE_LOOKUP_QUERY } from '@nasnet/api-client/queries';
 
 // =============================================================================
 // Mock Route Objects
@@ -304,6 +305,13 @@ export const mockRouteLookupResult = {
 
 /**
  * Creates a mock Apollo Client response for the routeLookup query
+ * @description Builds a mock Apollo Client handler for the routeLookup GraphQL query,
+ * returning a successful response with the provided result data.
+ * @param routerId - Target router ID
+ * @param destination - Destination IP address to look up
+ * @param result - RouteLookupResult object to return as the response
+ * @param source - Optional source IP address for the lookup
+ * @returns Mock Apollo handler object with request and result
  */
 export function createRouteLookupMock(
   routerId: string,
@@ -313,7 +321,7 @@ export function createRouteLookupMock(
 ) {
   return {
     request: {
-      query: require('./routeLookup.graphql').ROUTE_LOOKUP,
+      query: ROUTE_LOOKUP_QUERY,
       variables: {
         routerId,
         destination,
@@ -330,6 +338,13 @@ export function createRouteLookupMock(
 
 /**
  * Creates a mock Apollo Client error response
+ * @description Builds a mock Apollo Client handler for the routeLookup GraphQL query
+ * that returns an error. Useful for testing error handling paths.
+ * @param routerId - Target router ID
+ * @param destination - Destination IP address to look up
+ * @param errorMessage - Error message to return
+ * @param source - Optional source IP address for the lookup
+ * @returns Mock Apollo handler object with request and error
  */
 export function createRouteLookupErrorMock(
   routerId: string,
@@ -339,7 +354,7 @@ export function createRouteLookupErrorMock(
 ) {
   return {
     request: {
-      query: require('./routeLookup.graphql').ROUTE_LOOKUP,
+      query: ROUTE_LOOKUP_QUERY,
       variables: {
         routerId,
         destination,
@@ -352,6 +367,12 @@ export function createRouteLookupErrorMock(
 
 /**
  * Creates a loading state mock (never resolves)
+ * @description Builds a mock Apollo Client handler for the routeLookup GraphQL query
+ * that never resolves. Useful for testing loading state UI.
+ * @param routerId - Target router ID
+ * @param destination - Destination IP address to look up
+ * @param source - Optional source IP address for the lookup
+ * @returns Mock Apollo handler object with infinite delay
  */
 export function createRouteLookupLoadingMock(
   routerId: string,
@@ -360,7 +381,7 @@ export function createRouteLookupLoadingMock(
 ) {
   return {
     request: {
-      query: require('./routeLookup.graphql').ROUTE_LOOKUP,
+      query: ROUTE_LOOKUP_QUERY,
       variables: {
         routerId,
         destination,
@@ -377,11 +398,18 @@ export function createRouteLookupLoadingMock(
 
 /**
  * Helper to wait for async updates in tests
+ * @description Waits for the next microtask tick by resolving a Promise.
+ * Useful for allowing async state updates to complete in test code.
+ * @returns Promise that resolves after the current microtask queue
  */
-export const waitForAsync = () => new Promise((resolve) => setTimeout(resolve, 0));
+export const WAIT_FOR_ASYNC = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 /**
  * Helper to create a custom route for testing edge cases
+ * @description Creates a mock Route object with the specificNetwork as base,
+ * applying any provided overrides. Useful for testing various route scenarios.
+ * @param overrides - Partial Route object to override default mock values
+ * @returns Complete mock Route object with overrides applied
  */
 export function createMockRoute(overrides: Partial<Route>): Route {
   return {
@@ -392,8 +420,12 @@ export function createMockRoute(overrides: Partial<Route>): Route {
 
 /**
  * Helper to create a custom VPN tunnel for testing
+ * @description Creates a mock VpnTunnelInfo object with wireguardConnected as base,
+ * applying any provided overrides. Useful for testing VPN tunnel scenarios.
+ * @param overrides - Partial VpnTunnelInfo object to override default mock values
+ * @returns Complete mock VpnTunnelInfo object with overrides applied
  */
-export function createMockVPNTunnel(overrides: Partial<VPNTunnelInfo>): VPNTunnelInfo {
+export function createMockVPNTunnel(overrides: Partial<VpnTunnelInfo>): VpnTunnelInfo {
   return {
     ...mockVPNTunnel.wireguardConnected,
     ...overrides,
@@ -402,6 +434,10 @@ export function createMockVPNTunnel(overrides: Partial<VPNTunnelInfo>): VPNTunne
 
 /**
  * Helper to create a custom candidate for testing
+ * @description Creates a mock RouteLookupCandidate object with sensible defaults,
+ * applying any provided overrides. Useful for testing route selection logic and candidate comparisons.
+ * @param overrides - Partial RouteLookupCandidate object to override default mock values
+ * @returns Complete mock RouteLookupCandidate object with overrides applied
  */
 export function createMockCandidate(overrides: Partial<RouteLookupCandidate>): RouteLookupCandidate {
   return {

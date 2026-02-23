@@ -12,9 +12,11 @@
  * decorators in a full Storybook environment.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { WirelessInterfaceDetail } from './WirelessInterfaceDetail';
 import type { WirelessInterfaceDetail as WirelessInterfaceDetailType, SecurityProfile } from '@nasnet/core/types';
+
+import { WirelessInterfaceDetail } from './WirelessInterfaceDetail';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared security profile fixtures

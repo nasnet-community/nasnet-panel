@@ -12,23 +12,32 @@ import type { StatsDataPoint, StatsTimeRangeInput } from '@nasnet/api-client/gen
  * Options for useStatsExport hook
  */
 export interface UseStatsExportOptions {
-  /** Interface ID */
+  /** Interface ID (technical identifier) */
   interfaceId: string;
   /** Interface display name */
   interfaceName: string;
 }
 
+// Constants
+const EXPORT_DATE_FORMAT_LENGTH = 16;
+const EXPORT_PNG_PIXEL_RATIO = 2;
+const EXPORT_BG_COLOR_WHITE = '#ffffff';
+
 /**
  * Formats date for safe filename usage
  * Converts "2024-01-15T10:30:00.000Z" to "2024-01-15_1030"
+ *
+ * @internal Used internally for filename formatting
  */
 function formatDateForFilename(date: string): string {
-  const cleaned = date.replace(/[:.]/g, '-').slice(0, 16);
+  const cleaned = date.replace(/[:.]/g, '-').slice(0, EXPORT_DATE_FORMAT_LENGTH);
   return cleaned.replace('T', '_');
 }
 
 /**
  * Triggers browser download of file
+ *
+ * @internal Used internally for download functionality
  */
 function downloadFile(content: string | Blob, filename: string, mimeType: string): void {
   const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType });
@@ -164,11 +173,12 @@ export function useStatsExport({ interfaceId, interfaceName }: UseStatsExportOpt
    * Uses html-to-image library (dynamic import to reduce bundle size).
    *
    * @param chartRef - React ref to the chart container element
+   * @throws Error if PNG export fails
    */
   const exportPng = useCallback(
     async (chartRef: RefObject<HTMLDivElement>) => {
       if (!chartRef.current) {
-        console.warn('Chart ref is not available for PNG export');
+        console.warn('Chart reference not available for PNG export');
         return;
       }
 
@@ -177,8 +187,8 @@ export function useStatsExport({ interfaceId, interfaceName }: UseStatsExportOpt
         const { toPng } = await import('html-to-image');
 
         const dataUrl = await toPng(chartRef.current, {
-          backgroundColor: '#ffffff',
-          pixelRatio: 2, // Higher quality (2x resolution)
+          backgroundColor: EXPORT_BG_COLOR_WHITE,
+          pixelRatio: EXPORT_PNG_PIXEL_RATIO,
         });
 
         const filename = `${interfaceName}-bandwidth-chart.png`;
@@ -188,8 +198,8 @@ export function useStatsExport({ interfaceId, interfaceName }: UseStatsExportOpt
         const blob = await response.blob();
         downloadFile(blob, filename, 'image/png');
       } catch (error) {
-        console.error('Failed to export chart as PNG:', error);
-        throw new Error('PNG export failed. Please try again.');
+        console.error('PNG export failed:', error);
+        throw new Error('Failed to export chart as PNG. Please try again.');
       }
     },
     [interfaceName]

@@ -3,11 +3,18 @@
  * Displays all DHCP servers with mobile/desktop responsive views
  *
  * Story: NAS-6.3 - Implement DHCP Server Management
+ *
+ * @description Responsive page for listing and managing DHCP servers across devices.
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useDHCPServers } from '@nasnet/api-client/queries';
+import {
+  useDHCPServers,
+  useEnableDHCPServer,
+  useDisableDHCPServer,
+  useDeleteDHCPServer,
+} from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { usePlatform } from '@nasnet/ui/layouts';
 import {
@@ -25,10 +32,8 @@ import {
   DropdownMenuSeparator,
   toast,
 } from '@nasnet/ui/primitives';
-import { Plus, MoreVertical, Eye, Edit, Power, PowerOff, Trash2 } from 'lucide-react';
-import { useEnableDHCPServer, useDisableDHCPServer, useDeleteDHCPServer } from '@nasnet/api-client/queries';
+import { Plus, MoreVertical, Eye, Edit, Power, PowerOff, Trash2, Server } from 'lucide-react';
 import type { DHCPServer } from '@nasnet/core/types';
-import { Server } from 'lucide-react';
 
 export function DHCPServerList() {
   const navigate = useNavigate();
@@ -43,44 +48,59 @@ export function DHCPServerList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Handle server actions
-  const handleView = (serverId: string) => {
-    navigate({ to: '/network/dhcp/$serverId', params: { serverId } });
-  };
+  const handleView = useCallback(
+    (serverId: string) => {
+      navigate({ to: '/network/dhcp/$serverId', params: { serverId } });
+    },
+    [navigate]
+  );
 
-  const handleEdit = (serverId: string) => {
-    navigate({ to: '/network/dhcp/$serverId', params: { serverId } });
-  };
+  const handleEdit = useCallback(
+    (serverId: string) => {
+      navigate({ to: '/network/dhcp/$serverId', params: { serverId } });
+    },
+    [navigate]
+  );
 
-  const handleEnable = async (serverId: string) => {
-    await enableMutation.mutateAsync(serverId as any);
-  };
+  const handleEnable = useCallback(
+    async (serverId: string) => {
+      await enableMutation.mutateAsync(serverId as any);
+    },
+    [enableMutation]
+  );
 
-  const handleDisable = async (serverId: string) => {
-    await disableMutation.mutateAsync(serverId as any);
-  };
+  const handleDisable = useCallback(
+    async (serverId: string) => {
+      await disableMutation.mutateAsync(serverId as any);
+    },
+    [disableMutation]
+  );
 
-  const handleDelete = async (serverId: string) => {
-    setDeletingId(serverId);
-    try {
-      await deleteMutation.mutateAsync(serverId as any);
-      toast({
-        title: 'DHCP server deleted',
-        description: 'The DHCP server has been deleted successfully',
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to delete DHCP server',
-        description: error instanceof Error ? error.message : 'An error occurred',
-      });
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  const handleDelete = useCallback(
+    async (serverId: string) => {
+      setDeletingId(serverId);
+      try {
+        await deleteMutation.mutateAsync(serverId as any);
+        toast({
+          title: 'DHCP server deleted',
+          description: 'The DHCP server has been deleted successfully',
+        });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to delete DHCP server',
+          description: error instanceof Error ? error.message : 'An error occurred',
+        });
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [deleteMutation]
+  );
 
-  const handleCreateNew = () => {
+  const handleCreateNew = useCallback(() => {
     navigate({ to: '/network/dhcp/new' });
-  };
+  }, [navigate]);
 
   // Desktop table columns
   const columns: any[] = [
@@ -95,14 +115,14 @@ export function DHCPServerList() {
       accessorKey: 'interface',
       header: 'Interface',
       cell: ({ row }: { row: any }) => (
-        <span className="font-mono text-sm">{row.original.interface}</span>
+        <code className="font-mono text-sm">{row.original.interface}</code>
       ),
     },
     {
       accessorKey: 'addressPool',
       header: 'Pool',
       cell: ({ row }: { row: any }) => (
-        <span className="font-mono text-sm">{row.original.addressPool}</span>
+        <code className="font-mono text-sm">{row.original.addressPool}</code>
       ),
     },
     {
@@ -112,11 +132,11 @@ export function DHCPServerList() {
         <div className="space-y-1">
           <div className="text-sm">
             <span className="text-muted-foreground">GW:</span>{' '}
-            <span className="font-mono">{row.original.gateway || 'N/A'}</span>
+            <code className="font-mono">{row.original.gateway || 'N/A'}</code>
           </div>
           <div className="text-sm">
             <span className="text-muted-foreground">DNS:</span>{' '}
-            <span className="font-mono">{row.original.dnsServers?.join(', ') || 'N/A'}</span>
+            <code className="font-mono">{row.original.dnsServers?.join(', ') || 'N/A'}</code>
           </div>
         </div>
       ),
@@ -125,7 +145,7 @@ export function DHCPServerList() {
       accessorKey: 'leaseTime',
       header: 'Lease Time',
       cell: ({ row }: { row: any }) => (
-        <span className="font-mono text-sm">{row.original.leaseTime}</span>
+        <code className="font-mono text-sm">{row.original.leaseTime}</code>
       ),
     },
     {
@@ -150,29 +170,32 @@ export function DHCPServerList() {
       cell: ({ row }: { row: any }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Actions for ${row.original.name} server`}
+            >
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleView(row.original.id)}>
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEdit(row.original.id)}>
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {row.original.disabled ? (
               <DropdownMenuItem onClick={() => handleEnable(row.original.id)}>
-                <Power className="h-4 w-4 mr-2" />
+                <Power className="h-4 w-4 mr-2" aria-hidden="true" />
                 Enable
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => handleDisable(row.original.id)}>
-                <PowerOff className="h-4 w-4 mr-2" />
+                <PowerOff className="h-4 w-4 mr-2" aria-hidden="true" />
                 Disable
               </DropdownMenuItem>
             )}
@@ -182,7 +205,7 @@ export function DHCPServerList() {
               className="text-destructive"
               disabled={deletingId === row.original.id}
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
               {deletingId === row.original.id ? 'Deleting...' : 'Delete'}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -261,7 +284,7 @@ export function DHCPServerList() {
           </p>
         </div>
         <Button onClick={handleCreateNew}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           Create DHCP Server
         </Button>
       </div>

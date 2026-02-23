@@ -14,9 +14,8 @@
  * @see Story 4.4: Apollo Client Setup
  */
 
-import { useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import { useSubscription, gql } from '@apollo/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // TODO (Task 4): Import generated types from GraphQL codegen
 // import { OnRouterStatusChangedSubscription, OnRouterStatusChangedSubscriptionVariables } from '@nasnet/api-client/generated';
@@ -52,13 +51,17 @@ export interface UseRouterStatusSubscriptionOptions {
 const SUBSCRIPTION_TIMEOUT = 30000; // 30 seconds without message = stale
 
 /**
- * Subscribe to real-time router status updates
+ * @description Subscribe to real-time router status updates via WebSocket subscription.
+ * Monitors subscription health and falls back to polling when stale. Automatically
+ * cleans up subscriptions and timers on unmount to prevent memory leaks.
  *
  * Features:
- * - WebSocket-based live updates
+ * - WebSocket-based live updates via Apollo Client subscription
  * - Auto-reconnect on connection drop
- * - Subscription health monitoring
- * - Automatic fallback to polling when stale
+ * - Subscription health monitoring with timeout detection
+ * - Automatic fallback to polling when WebSocket stale (>30 seconds without message)
+ * - Stable callback references with useCallback
+ * - Cleanup on unmount: clears timeout timer and manages subscription lifecycle
  *
  * @example
  * ```tsx
@@ -76,6 +79,10 @@ const SUBSCRIPTION_TIMEOUT = 30000; // 30 seconds without message = stale
  *   return <Card>...</Card>;
  * }
  * ```
+ *
+ * @see Apollo Client subscriptions: {@link https://www.apollographql.com/docs/react/data/subscriptions/}
+ * @see Story 2.6: GraphQL Subscriptions (Backend)
+ * @see Story 4.4: Apollo Client Setup
  */
 export function useRouterStatusSubscription({
   routerId,
@@ -85,20 +92,32 @@ export function useRouterStatusSubscription({
 }: UseRouterStatusSubscriptionOptions) {
   const [lastMessageTime, setLastMessageTime] = useState<number>(Date.now());
   const [isSubscriptionHealthy, setSubscriptionHealthy] = useState<boolean>(true);
+  const healthCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const subscription = useSubscription(ON_ROUTER_STATUS_CHANGED, {
-    variables: { routerId },
-    skip,
-    onData: (options) => {
+  // Memoize callbacks to ensure stable references (prevents subscription re-trigger)
+  const handleData = useCallback(
+    (options: any) => {
       setLastMessageTime(Date.now());
       setSubscriptionHealthy(true);
       onData?.(options.data);
     },
-    onError: (error) => {
+    [onData]
+  );
+
+  const handleError = useCallback(
+    (error: Error) => {
       console.error('Router status subscription error:', error);
       setSubscriptionHealthy(false);
       onError?.(error);
     },
+    [onError]
+  );
+
+  const subscription = useSubscription(ON_ROUTER_STATUS_CHANGED, {
+    variables: { routerId },
+    skip,
+    onData: handleData,
+    onError: handleError,
     context: {
       headers: {
         'X-Router-Id': routerId,
@@ -106,12 +125,17 @@ export function useRouterStatusSubscription({
     },
   });
 
-  // Monitor subscription health
+  // Monitor subscription health and cleanup on unmount
   // If no message received in SUBSCRIPTION_TIMEOUT, mark as stale
   useEffect(() => {
     if (skip) return;
 
-    const timer = setInterval(() => {
+    // Clear any existing timer
+    if (healthCheckTimerRef.current) {
+      clearInterval(healthCheckTimerRef.current);
+    }
+
+    healthCheckTimerRef.current = setInterval(() => {
       const timeSinceLastMessage = Date.now() - lastMessageTime;
 
       if (timeSinceLastMessage > SUBSCRIPTION_TIMEOUT) {
@@ -122,7 +146,13 @@ export function useRouterStatusSubscription({
       }
     }, SUBSCRIPTION_TIMEOUT);
 
-    return () => clearInterval(timer);
+    // Cleanup: Clear timer on unmount or when dependencies change
+    return () => {
+      if (healthCheckTimerRef.current) {
+        clearInterval(healthCheckTimerRef.current);
+        healthCheckTimerRef.current = null;
+      }
+    };
   }, [lastMessageTime, skip]);
 
   return {

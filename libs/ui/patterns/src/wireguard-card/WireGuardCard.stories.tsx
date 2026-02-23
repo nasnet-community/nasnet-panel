@@ -87,15 +87,15 @@ function MockWireGuardCard({
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
   const [copied, setCopied] = React.useState(false);
 
-  const status = wgInterface.disabled
+  const status = wgInterface.isDisabled
     ? 'offline'
-    : wgInterface.running
+    : wgInterface.isRunning
     ? 'online'
     : 'warning';
 
-  const statusLabel = wgInterface.disabled
+  const statusLabel = wgInterface.isDisabled
     ? 'Disabled'
-    : wgInterface.running
+    : wgInterface.isRunning
     ? 'Active'
     : 'Inactive';
 
@@ -324,8 +324,8 @@ export const ActiveWithPeers: Story = {
     wgInterface: {
       id: 'wg0',
       name: 'wg0',
-      running: true,
-      disabled: false,
+      isRunning: true,
+      isDisabled: false,
       listenPort: 13231,
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',
@@ -348,8 +348,8 @@ export const ExpandedWithPeers: Story = {
     wgInterface: {
       id: 'wg0',
       name: 'wg0',
-      running: true,
-      disabled: false,
+      isRunning: true,
+      isDisabled: false,
       listenPort: 13231,
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',
@@ -372,8 +372,8 @@ export const Inactive: Story = {
     wgInterface: {
       id: 'wg1',
       name: 'wg1',
-      running: false,
-      disabled: false,
+      isRunning: false,
+      isDisabled: false,
       listenPort: 51820,
       mtu: 1420,
       publicKey: 'aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ5aB=',
@@ -391,8 +391,8 @@ export const Disabled: Story = {
     wgInterface: {
       id: 'wg2',
       name: 'wg-backup',
-      running: false,
-      disabled: true,
+      isRunning: false,
+      isDisabled: true,
       listenPort: 51820,
       mtu: 1420,
       publicKey: 'zZ9yY8xX7wW6vV5uU4tT3sS2rR1qQ0pP9oO8nN7mM=',
@@ -411,8 +411,8 @@ export const WithConnectionStats: Story = {
     wgInterface: {
       id: 'wg0',
       name: 'wg0',
-      running: true,
-      disabled: false,
+      isRunning: true,
+      isDisabled: false,
       listenPort: 13231,
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',
@@ -441,8 +441,8 @@ export const PeersLoading: Story = {
     wgInterface: {
       id: 'wg0',
       name: 'wg0',
-      running: true,
-      disabled: false,
+      isRunning: true,
+      isDisabled: false,
       listenPort: 13231,
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',
@@ -470,8 +470,8 @@ export const PeersError: Story = {
     wgInterface: {
       id: 'wg0',
       name: 'wg0',
-      running: true,
-      disabled: false,
+      isRunning: true,
+      isDisabled: false,
       listenPort: 13231,
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',

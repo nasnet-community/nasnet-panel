@@ -57,8 +57,11 @@ import type { ConfidenceIndicatorProps } from './confidence-indicator.types';
  *   showLabel
  * />
  * ```
+ *
+ * @see ADR-018: Platform Presenter Pattern
+ * @see DESIGN_TOKENS.md: Confidence indicator color tokens
  */
-export function ConfidenceIndicator({
+const ConfidenceIndicator = React.memo(function ConfidenceIndicator({
   confidence,
   method,
   onOverride,
@@ -118,4 +121,8 @@ export function ConfidenceIndicator({
       <span className="sr-only">{state.ariaLabel}</span>
     </div>
   );
-}
+});
+
+ConfidenceIndicator.displayName = 'ConfidenceIndicator';
+
+export { ConfidenceIndicator };

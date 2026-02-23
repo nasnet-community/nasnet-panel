@@ -3,30 +3,35 @@
  * Displays link status (up/down/unknown) with icons
  */
 
+import React from 'react';
+
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 import { type LinkStatus } from '@nasnet/core/types';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface LinkStatusIndicatorProps {
   linkStatus: LinkStatus;
   className?: string;
 }
 
-export function LinkStatusIndicator({
+export const LinkStatusIndicator = React.memo(function LinkStatusIndicator({
   linkStatus,
   className,
 }: LinkStatusIndicatorProps) {
+  const { t } = useTranslation('network');
   const Icon =
     linkStatus === 'up' ? ArrowUp : linkStatus === 'down' ? ArrowDown : Minus;
 
   const colorClass =
     linkStatus === 'up'
-      ? 'text-green-600 dark:text-green-400'
+      ? 'text-success'
       : linkStatus === 'down'
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-gray-500';
+        ? 'text-error'
+        : 'text-muted-foreground';
 
   return (
     <span
@@ -37,7 +42,9 @@ export function LinkStatusIndicator({
       )}
     >
       <Icon className="w-3 h-3" />
-      {linkStatus === 'up' ? 'Link Up' : linkStatus === 'down' ? 'Link Down' : 'Unknown'}
+      {linkStatus === 'up' ? t('interfaces.linkUp') : linkStatus === 'down' ? t('interfaces.linkDown') : t('status.unknown', { ns: 'common' })}
     </span>
   );
-}
+});
+
+LinkStatusIndicator.displayName = 'LinkStatusIndicator';

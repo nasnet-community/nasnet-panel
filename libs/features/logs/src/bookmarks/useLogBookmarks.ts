@@ -49,7 +49,9 @@ export interface UseLogBookmarksReturn {
 }
 
 /**
- * Load bookmarks from sessionStorage
+ * @description Load bookmarked log entries from sessionStorage.
+ * Returns an empty array if storage is unavailable or parsing fails.
+ * @returns Array of previously bookmarked LogEntry objects
  */
 function loadBookmarks(): LogEntry[] {
   if (typeof window === 'undefined') return [];
@@ -71,7 +73,9 @@ function loadBookmarks(): LogEntry[] {
 }
 
 /**
- * Save bookmarks to sessionStorage
+ * @description Persist bookmarked log entries to sessionStorage.
+ * Silently fails if storage is unavailable (e.g., in private browsing).
+ * @param logs - Array of LogEntry objects to persist
  */
 function saveBookmarks(logs: LogEntry[]): void {
   if (typeof window === 'undefined') return;
@@ -84,7 +88,14 @@ function saveBookmarks(logs: LogEntry[]): void {
 }
 
 /**
- * Hook for managing bookmarked log entries
+ * @description Hook for managing bookmarked log entries with sessionStorage persistence.
+ * Maintains a set of bookmarked log IDs for O(1) lookup and provides operations
+ * to add, remove, and clear bookmarks. Limited to 50 bookmarks maximum.
+ * @example
+ * const { bookmarkedLogs, toggleBookmark, isBookmarked } = useLogBookmarks();
+ * if (isBookmarked(logId)) {
+ *   toggleBookmark(log);
+ * }
  */
 export function useLogBookmarks(): UseLogBookmarksReturn {
   const [bookmarkedLogs, setBookmarkedLogs] = React.useState<LogEntry[]>(() =>
@@ -143,17 +154,28 @@ export function useLogBookmarks(): UseLogBookmarksReturn {
     setBookmarkedLogs([]);
   }, []);
 
-  return {
-    bookmarkedIds,
-    bookmarkedLogs,
-    isBookmarked,
-    toggleBookmark,
-    addBookmark,
-    removeBookmark,
-    clearBookmarks,
-    count: bookmarkedLogs.length,
-    isMaxReached: bookmarkedLogs.length >= MAX_BOOKMARKS,
-  };
+  return React.useMemo(
+    () => ({
+      bookmarkedIds,
+      bookmarkedLogs,
+      isBookmarked,
+      toggleBookmark,
+      addBookmark,
+      removeBookmark,
+      clearBookmarks,
+      count: bookmarkedLogs.length,
+      isMaxReached: bookmarkedLogs.length >= MAX_BOOKMARKS,
+    }),
+    [
+      bookmarkedIds,
+      bookmarkedLogs,
+      isBookmarked,
+      toggleBookmark,
+      addBookmark,
+      removeBookmark,
+      clearBookmarks,
+    ]
+  );
 }
 
 

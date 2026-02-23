@@ -1,6 +1,10 @@
 /**
  * ServiceTrafficPanelMobile Component
- * Mobile presenter for service traffic statistics panel
+ *
+ * Mobile presenter for service traffic statistics panel.
+ *
+ * @description Mobile-optimized presenter with stacked card layout and
+ * simplified metrics for touch-first interactions.
  *
  * NAS-8.8: Implement Traffic Statistics and Quota Management
  * ADR-018: Headless + Platform Presenters
@@ -11,12 +15,21 @@
  * - Simplified metrics
  */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import { AlertCircle, TrendingUp, TrendingDown, Activity } from 'lucide-react';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { Progress } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
+import { memo } from 'react';
+import { Activity, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Icon,
+  Alert,
+  AlertDescription,
+  Skeleton,
+  Progress,
+  Badge,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import { useServiceTrafficPanel } from './use-service-traffic-panel';
 import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
@@ -79,7 +92,7 @@ function formatBytesBigInt(bytes: bigint, decimals = 1): string {
  * - Simplified metrics for small screens
  * - Collapsible sections for device breakdown
  */
-export function ServiceTrafficPanelMobile({
+function ServiceTrafficPanelMobileComponent({
   routerID,
   instanceID,
   instanceName,
@@ -126,7 +139,7 @@ export function ServiceTrafficPanelMobile({
     return (
       <div className={cn('space-y-4', className)}>
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <Icon icon={AlertCircle} className="h-4 w-4" />
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </div>
@@ -143,7 +156,7 @@ export function ServiceTrafficPanelMobile({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
+            <Icon icon={Activity} className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle className="text-lg">{instanceName}</CardTitle>
           </div>
           <CardDescription>Traffic Statistics</CardDescription>
@@ -153,7 +166,7 @@ export function ServiceTrafficPanelMobile({
       {/* Quota Alert */}
       {quotaExceeded && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <Icon icon={AlertCircle} className="h-4 w-4" />
           <AlertDescription>
             Traffic quota limit has been exceeded
           </AlertDescription>
@@ -161,7 +174,7 @@ export function ServiceTrafficPanelMobile({
       )}
       {quotaWarning && !quotaExceeded && (
         <Alert variant="warning">
-          <AlertCircle className="h-4 w-4" />
+          <Icon icon={AlertCircle} className="h-4 w-4" />
           <AlertDescription>
             Approaching traffic quota limit ({quotaUsagePercent.toFixed(1)}%)
           </AlertDescription>
@@ -178,7 +191,7 @@ export function ServiceTrafficPanelMobile({
             {uploadRate !== null && (
               <div className="flex items-center justify-between rounded-lg bg-muted p-4">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="h-5 w-5 text-blue-500" />
+                  <Icon icon={TrendingUp} className="h-5 w-5 text-info" aria-hidden="true" />
                   <span className="text-sm font-medium">Upload</span>
                 </div>
                 <span className="text-lg font-mono font-semibold">
@@ -189,7 +202,7 @@ export function ServiceTrafficPanelMobile({
             {downloadRate !== null && (
               <div className="flex items-center justify-between rounded-lg bg-muted p-4">
                 <div className="flex items-center gap-3">
-                  <TrendingDown className="h-5 w-5 text-green-500" />
+                  <Icon icon={TrendingDown} className="h-5 w-5 text-success" aria-hidden="true" />
                   <span className="text-sm font-medium">Download</span>
                 </div>
                 <span className="text-lg font-mono font-semibold">
@@ -302,3 +315,6 @@ export function ServiceTrafficPanelMobile({
     </div>
   );
 }
+
+export const ServiceTrafficPanelMobile = memo(ServiceTrafficPanelMobileComponent);
+ServiceTrafficPanelMobile.displayName = 'ServiceTrafficPanel.Mobile';

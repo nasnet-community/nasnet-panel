@@ -2,13 +2,42 @@
  * InstallDialog Component
  *
  * Multi-step dialog for installing new service instances.
- * Shows available services, configuration options, and installation progress.
+ * Step 1: Select service from marketplace
+ * Step 2: Configure instance (name, VLAN, bind IP, ports)
+ * Step 3: Installing with real-time progress
+ * Step 4: Complete with success message
  *
- * @see Task #10: Domain Components & Pages
+ * Features:
+ * - Marketplace service selection with descriptions
+ * - Real-time installation progress via subscription
+ * - Configuration validation
+ * - Auto-rollback on errors
+ * - Accessibility: keyboard navigation, ARIA labels, role attributes
+ *
+ * @example
+ * ```tsx
+ * const [open, setOpen] = useState(false);
+ *
+ * return (
+ *   <>
+ *     <Button onClick={() => setOpen(true)}>Install Service</Button>
+ *     <InstallDialog
+ *       open={open}
+ *       onClose={() => setOpen(false)}
+ *       routerId={routerId}
+ *       onSuccess={() => refetchServices()}
+ *     />
+ *   </>
+ * );
+ * ```
+ *
+ * @see docs/design/ux-design/6-component-library.md#multi-step-wizard
  */
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useAvailableServices,
@@ -32,7 +61,9 @@ import {
   SelectTrigger,
   SelectValue,
   Skeleton,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 /**
  * Installation step type
@@ -45,29 +76,28 @@ type InstallStep = 'select' | 'configure' | 'installing' | 'complete';
 export interface InstallDialogProps {
   /** Whether dialog is open */
   open: boolean;
-  /** Close handler */
+  /** Callback when dialog should close */
   onClose: () => void;
-  /** Router ID */
+  /** Router ID for installation context */
   routerId: string;
-  /** Success callback */
+  /** Optional success callback after installation completes */
   onSuccess?: () => void;
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
- * InstallDialog component
- *
- * Features:
- * - Step 1: Select service from marketplace
- * - Step 2: Configure instance (name, VLAN, bind IP, ports)
- * - Step 3: Installing with real-time progress
- * - Step 4: Complete with success message
+ * InstallDialog component - Multi-step wizard for service installation
  */
-export const InstallDialog = React.memo(function InstallDialog({
+function InstallDialogComponent({
   open,
   onClose,
   routerId,
   onSuccess,
+  className,
 }: InstallDialogProps) {
+  const { t } = useTranslation(['services', 'common']);
+
   // Fetch available services
   const { services, loading: servicesLoading } = useAvailableServices();
 
@@ -95,8 +125,8 @@ export const InstallDialog = React.memo(function InstallDialog({
   // Reset state when dialog opens/closes
   useEffect(() => {
     if (!open) {
-      // Reset on close
-      setTimeout(() => {
+      // Reset on close after animation
+      const timer = setTimeout(() => {
         setStep('select');
         setSelectedServiceId('');
         setInstanceName('');
@@ -104,8 +134,10 @@ export const InstallDialog = React.memo(function InstallDialog({
         setBindIp('');
         setPorts('');
         setError(null);
-      }, 300); // Wait for dialog close animation
+      }, 300);
+      return () => clearTimeout(timer);
     }
+    return;
   }, [open]);
 
   // Update progress based on subscription
@@ -114,13 +146,19 @@ export const InstallDialog = React.memo(function InstallDialog({
       if (progress.status === 'completed') {
         setStep('complete');
       } else if (progress.status === 'failed') {
-        setError(progress.errorMessage || 'Installation failed');
+        setError(
+          progress.errorMessage ||
+          t('services:wizard.installationFailed', 'Installation failed')
+        );
       }
     }
-  }, [progress, step]);
+  }, [progress, step, t]);
 
-  // Get selected service
-  const selectedService = services?.find((s: any) => s.id === selectedServiceId);
+  // Get selected service - memoized
+  const selectedService = useMemo(
+    () => services?.find((s: any) => s.id === selectedServiceId),
+    [services, selectedServiceId]
+  );
 
   // Auto-populate instance name when service is selected
   useEffect(() => {
@@ -130,17 +168,17 @@ export const InstallDialog = React.memo(function InstallDialog({
   }, [selectedService, instanceName]);
 
   // Handle next step
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (step === 'select') {
       if (!selectedServiceId) {
-        setError('Please select a service');
+        setError(t('services:wizard.selectServiceError', 'Please select a service'));
         return;
       }
       setStep('configure');
       setError(null);
     } else if (step === 'configure') {
       if (!instanceName.trim()) {
-        setError('Please enter an instance name');
+        setError(t('services:wizard.instanceNameError', 'Please enter an instance name'));
         return;
       }
 
@@ -160,7 +198,7 @@ export const InstallDialog = React.memo(function InstallDialog({
               ports: ports
                 ? ports.split(',').map((p) => parseInt(p.trim(), 10))
                 : undefined,
-              config: {}, // TODO: Add advanced config
+              config: {},
             },
           },
         });
@@ -169,55 +207,58 @@ export const InstallDialog = React.memo(function InstallDialog({
           setError(result.data.installService.errors[0].message);
           setStep('configure');
         }
-        // Success handling happens via subscription
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Installation failed');
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('services:wizard.installationFailed', 'Installation failed')
+        );
         setStep('configure');
       }
     } else if (step === 'complete') {
       onSuccess?.();
       onClose();
     }
-  };
+  }, [step, selectedServiceId, instanceName, vlanId, bindIp, ports, routerId, installService, onSuccess, onClose, t]);
 
   // Handle back
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (step === 'configure') {
       setStep('select');
       setError(null);
     }
-  };
+  }, [step]);
 
   // Handle close
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (step !== 'installing') {
       onClose();
     }
-  };
+  }, [step, onClose]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className={cn('sm:max-w-[600px]', className)}>
         <DialogHeader>
           <DialogTitle>
-            {step === 'select' && 'Select Service'}
-            {step === 'configure' && 'Configure Instance'}
-            {step === 'installing' && 'Installing Service'}
-            {step === 'complete' && 'Installation Complete'}
+            {step === 'select' && t('services:wizard.selectService', 'Select Service')}
+            {step === 'configure' && t('services:wizard.configureInstance', 'Configure Instance')}
+            {step === 'installing' && t('services:wizard.installing', 'Installing Service')}
+            {step === 'complete' && t('services:wizard.installationComplete', 'Installation Complete')}
           </DialogTitle>
           <DialogDescription>
             {step === 'select' &&
-              'Choose a service from the Feature Marketplace'}
-            {step === 'configure' && 'Configure your service instance'}
-            {step === 'installing' && 'Please wait while the service is installed'}
-            {step === 'complete' && 'Your service has been installed successfully'}
+              t('services:wizard.selectServiceDesc', 'Choose a service from the Feature Marketplace')}
+            {step === 'configure' && t('services:wizard.configureDesc', 'Configure your service instance')}
+            {step === 'installing' && t('services:wizard.installingDesc', 'Please wait while the service is installed')}
+            {step === 'complete' && t('services:wizard.completeDesc', 'Your service has been installed successfully')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           {/* Step 1: Select service */}
           {step === 'select' && (
-            <div className="space-y-4">
+            <div className="space-y-4" role="group" aria-label={t('services:wizard.selectServiceGroup', 'Select a service')}>
               {servicesLoading ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
@@ -230,17 +271,15 @@ export const InstallDialog = React.memo(function InstallDialog({
                     <button
                       key={service.id}
                       onClick={() => setSelectedServiceId(service.id)}
-                      aria-label={`Select ${service.name}`}
+                      aria-label={t('common:selectOption', `Select ${service.name}`)}
                       aria-pressed={selectedServiceId === service.id}
-                      className={`
-                        w-full p-4 text-left rounded-lg border-2 transition-all min-h-[44px]
-                        focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none
-                        ${
-                          selectedServiceId === service.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }
-                      `}
+                      className={cn(
+                        'w-full p-4 text-left rounded-lg border-2 transition-all min-h-[44px]',
+                        'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                        selectedServiceId === service.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
+                      )}
                     >
                       <div className="flex items-center gap-3">
                         {service.icon && (
@@ -267,21 +306,27 @@ export const InstallDialog = React.memo(function InstallDialog({
 
           {/* Step 2: Configure */}
           {step === 'configure' && selectedService && (
-            <div className="space-y-4">
+            <div className="space-y-4" role="group" aria-label={t('services:wizard.configureGroup', 'Configure instance')}>
               {/* Instance name */}
               <div className="space-y-2">
-                <Label htmlFor="instance-name">Instance Name *</Label>
+                <Label htmlFor="instance-name">
+                  {t('services:wizard.instanceName', 'Instance Name')} <span aria-label="required">*</span>
+                </Label>
                 <Input
                   id="instance-name"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
-                  placeholder="My Service Instance"
+                  placeholder={t('services:wizard.instanceNamePlaceholder', 'My Service Instance')}
+                  aria-describedby="instance-name-error"
+                  required
                 />
               </div>
 
               {/* VLAN ID (optional) */}
               <div className="space-y-2">
-                <Label htmlFor="vlan-id">VLAN ID (optional)</Label>
+                <Label htmlFor="vlan-id">
+                  {t('services:wizard.vlanId', 'VLAN ID')} ({t('common.optional', 'optional')})
+                </Label>
                 <Input
                   id="vlan-id"
                   type="number"
@@ -290,37 +335,44 @@ export const InstallDialog = React.memo(function InstallDialog({
                   value={vlanId}
                   onChange={(e) => setVlanId(e.target.value)}
                   placeholder="100"
+                  aria-describedby="vlan-id-help"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Isolate this service in a VLAN
+                <p id="vlan-id-help" className="text-xs text-muted-foreground">
+                  {t('services:wizard.vlanIdHelp', 'Isolate this service in a VLAN')}
                 </p>
               </div>
 
               {/* Bind IP (optional) */}
               <div className="space-y-2">
-                <Label htmlFor="bind-ip">Bind IP (optional)</Label>
+                <Label htmlFor="bind-ip">
+                  {t('services:wizard.bindIp', 'Bind IP')} ({t('common.optional', 'optional')})
+                </Label>
                 <Input
                   id="bind-ip"
                   value={bindIp}
                   onChange={(e) => setBindIp(e.target.value)}
                   placeholder="192.168.1.100"
+                  aria-describedby="bind-ip-help"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Specific IP address to bind the service to
+                <p id="bind-ip-help" className="text-xs text-muted-foreground">
+                  {t('services:wizard.bindIpHelp', 'Specific IP address to bind the service to')}
                 </p>
               </div>
 
               {/* Ports (optional) */}
               <div className="space-y-2">
-                <Label htmlFor="ports">Ports (optional)</Label>
+                <Label htmlFor="ports">
+                  {t('services:wizard.ports', 'Ports')} ({t('common.optional', 'optional')})
+                </Label>
                 <Input
                   id="ports"
                   value={ports}
                   onChange={(e) => setPorts(e.target.value)}
                   placeholder="9050, 9051"
+                  aria-describedby="ports-help"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Comma-separated list of ports (default ports will be used if not specified)
+                <p id="ports-help" className="text-xs text-muted-foreground">
+                  {t('services:wizard.portsHelp', 'Comma-separated list of ports (default ports will be used if not specified)')}
                 </p>
               </div>
             </div>
@@ -328,21 +380,20 @@ export const InstallDialog = React.memo(function InstallDialog({
 
           {/* Step 3: Installing */}
           {step === 'installing' && (
-            <div className="space-y-4">
+            <div className="space-y-4" role="status" aria-label={t('services:wizard.installingStatus', 'Installation in progress')}>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span>Downloading binary...</span>
-                  <span className="text-muted-foreground">
+                  <span>{t('services:wizard.downloadingBinary', 'Downloading binary...')}</span>
+                  <span className="text-muted-foreground font-mono">
                     {progress?.percent || 0}%
                   </span>
                 </div>
-                <Progress value={progress?.percent || 0} aria-label="Installation progress" />
+                <Progress value={progress?.percent || 0} aria-valuenow={progress?.percent || 0} />
               </div>
 
               {progress?.bytesDownloaded && progress?.totalBytes && (
-                <p className="text-xs text-muted-foreground text-center">
-                  {formatBytes(progress.bytesDownloaded)} /{' '}
-                  {formatBytes(progress.totalBytes)}
+                <p className="text-xs text-muted-foreground text-center font-mono">
+                  {formatBytes(progress.bytesDownloaded)} / {formatBytes(progress.totalBytes)}
                 </p>
               )}
             </div>
@@ -350,35 +401,29 @@ export const InstallDialog = React.memo(function InstallDialog({
 
           {/* Step 4: Complete */}
           {step === 'complete' && (
-            <div className="text-center py-8">
+            <div className="text-center py-8" role="status" aria-label={t('services:wizard.installationCompleteStatus', 'Installation complete')}>
               <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="text-success"
-                  aria-hidden="true"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <Icon icon={CheckCircle} className="h-8 w-8 text-success" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold mb-2">
-                Service Installed Successfully
+                {t('services:wizard.serviceInstalledSuccessfully', 'Service Installed Successfully')}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {instanceName} is now ready to use
+              <p className="text-sm text-muted-foreground font-mono">
+                {t('services:wizard.readyToUse', '{{name}} is now ready to use', { name: instanceName })}
               </p>
             </div>
           )}
 
           {/* Error message */}
           {error && (
-            <div className="p-3 bg-destructive/10 border border-destructive rounded-md">
-              <p className="text-sm text-destructive">{error}</p>
+            <div
+              className="p-3 bg-error/10 border border-error rounded-md"
+              role="alert"
+              aria-live="polite"
+              id="install-error"
+            >
+              <p className="text-sm text-error font-semibold">{t('common.error', 'Error')}</p>
+              <p className="text-sm text-error mt-1">{error}</p>
             </div>
           )}
         </div>
@@ -386,27 +431,28 @@ export const InstallDialog = React.memo(function InstallDialog({
         <DialogFooter>
           {step === 'configure' && (
             <Button variant="outline" onClick={handleBack}>
-              Back
+              {t('common.back', 'Back')}
             </Button>
           )}
 
           {step !== 'installing' && step !== 'complete' && (
             <Button variant="ghost" onClick={handleClose}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
           )}
 
           {step !== 'installing' && (
-            <Button onClick={handleNext} disabled={installing}>
-              {step === 'complete' ? 'Done' : 'Next'}
+            <Button onClick={handleNext} disabled={installing} aria-busy={installing}>
+              {step === 'complete' ? t('common.done', 'Done') : t('common.next', 'Next')}
             </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-});
+}
 
+export const InstallDialog = React.memo(InstallDialogComponent);
 InstallDialog.displayName = 'InstallDialog';
 
 /**

@@ -6,10 +6,12 @@
  * and a prerequisite warning card.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { ServiceTemplate } from '@nasnet/api-client/generated';
 
 import { ReviewStep } from './ReviewStep';
-import type { ServiceTemplate } from '@nasnet/api-client/generated';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 // ---------------------------------------------------------------------------
 // Shared mock data
@@ -44,9 +46,9 @@ const baseTemplate: ServiceTemplate = {
       name: 'TOR_NAME',
       label: 'Instance Name',
       description: 'Human-readable name for this Tor instance',
-      type: 'STRING',
+      type: 'STRING' as const,
       required: true,
-      default: 'tor-1',
+      default: 'tor-1' as any,
       enumValues: null,
       minValue: null,
       maxValue: null,
@@ -85,7 +87,7 @@ const chainTemplate: ServiceTemplate = {
       serviceType: 'xray-core',
       memoryLimitMB: 128,
       dependsOn: null,
-      portMappings: null,
+      portMappings: [{ internal: 8080, external: 8080, protocol: 'TCP' }],
       requiresBridge: true,
       vlanID: null,
       cpuShares: 512,
@@ -108,7 +110,7 @@ const chainTemplate: ServiceTemplate = {
       name: 'XRAY_UUID',
       label: 'Xray UUID',
       description: 'UUID for Xray VLESS/VMess configuration',
-      type: 'STRING',
+      type: 'STRING' as const,
       required: true,
       default: null,
       enumValues: null,
@@ -120,9 +122,9 @@ const chainTemplate: ServiceTemplate = {
       name: 'XRAY_PORT',
       label: 'Xray Listen Port',
       description: 'Port Xray listens on',
-      type: 'NUMBER',
+      type: 'NUMBER' as const,
       required: false,
-      default: 1080,
+      default: 1080 as any,
       enumValues: null,
       minValue: 1024,
       maxValue: 65535,
@@ -132,9 +134,9 @@ const chainTemplate: ServiceTemplate = {
       name: 'ENABLE_OBFS',
       label: 'Enable Obfuscation',
       description: 'Enable traffic obfuscation',
-      type: 'BOOLEAN',
+      type: 'BOOLEAN' as const,
       required: false,
-      default: true,
+      default: true as any,
       enumValues: null,
       minValue: null,
       maxValue: null,
@@ -218,8 +220,8 @@ export const MultiServiceWithVariables: Story = {
     template: chainTemplate,
     variables: {
       XRAY_UUID: '550e8400-e29b-41d4-a716-446655440000',
-      XRAY_PORT: 1080,
-      ENABLE_OBFS: true,
+      XRAY_PORT: 1080 as any,
+      ENABLE_OBFS: true as any,
     },
   },
 };
@@ -234,8 +236,8 @@ export const WithPrerequisites: Story = {
     template: chainTemplate,
     variables: {
       XRAY_UUID: 'abcdef-1234-5678-uuid',
-      XRAY_PORT: 443,
-      ENABLE_OBFS: false,
+      XRAY_PORT: 443 as any,
+      ENABLE_OBFS: false as any,
     },
   },
 };
@@ -293,8 +295,8 @@ export const FullReview: Story = {
     template: chainTemplate,
     variables: {
       XRAY_UUID: 'd4c5b6a7-e8f9-0123-4567-89abcdef0123',
-      XRAY_PORT: 8443,
-      ENABLE_OBFS: true,
+      XRAY_PORT: 8443 as any,
+      ENABLE_OBFS: true as any,
     },
   },
 };

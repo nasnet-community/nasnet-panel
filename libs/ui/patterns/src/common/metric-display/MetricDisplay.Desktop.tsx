@@ -1,10 +1,13 @@
 /**
  * MetricDisplay Desktop Presenter
  *
- * Optimized for desktop with hover states and denser layout.
+ * Optimized for desktop (>1024px) with hover states, denser layout, and full details visibility.
+ * Supports keyboard navigation and mouse interaction with comprehensive accessibility.
  *
  * @see ADR-018 for Headless + Presenter architecture
  */
+
+import { memo, useCallback } from 'react';
 
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 
@@ -17,12 +20,13 @@ import type { MetricDisplayProps } from './types';
 /**
  * Desktop-optimized MetricDisplay presenter
  *
- * - Compact card layout
- * - Hover states for interactivity
- * - Horizontal layout for trend
- * - Keyboard navigation support
+ * - Compact card layout with semantic design tokens
+ * - Hover states for mouse users
+ * - Horizontal trend layout for quick scanning
+ * - Full keyboard navigation support (Enter/Space)
+ * - Responsive focus indicators (3px ring offset)
  */
-export function MetricDisplayDesktop(props: MetricDisplayProps) {
+function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
   const { label, icon: Icon, description, isLoading, onClick, className } = props;
 
   const {
@@ -45,11 +49,23 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
           ? Minus
           : null;
 
+  // Memoize keyboard handler for stable reference
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isInteractive) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick?.();
+      }
+    },
+    [isInteractive, onClick]
+  );
+
   if (isLoading) {
     return (
       <div
         className={cn(
-          'bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700',
+          'bg-card dark:bg-slate-800 rounded-xl border border-border dark:border-slate-700',
           sizeClasses.container,
           className
         )}
@@ -59,7 +75,7 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
             <Skeleton className="h-4 w-16 mb-2" />
             <Skeleton className="h-7 w-24" />
           </div>
-          <Skeleton className="h-6 w-6 rounded" />
+          <Skeleton className="h-6 w-6 rounded flex-shrink-0" />
         </div>
       </div>
     );
@@ -71,23 +87,14 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
     <Component
       {...ariaProps}
       onClick={onClick}
-      onKeyDown={
-        isInteractive
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick?.();
-              }
-            }
-          : undefined
-      }
+      onKeyDown={handleKeyDown}
       className={cn(
-        'text-left bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700',
+        'text-left bg-card dark:bg-slate-800 rounded-xl border border-border dark:border-slate-700',
         'transition-all duration-150',
         isInteractive && [
           'cursor-pointer',
-          'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          'hover:shadow-md hover:border-primary/20 dark:hover:border-slate-600',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950',
         ],
         sizeClasses.container,
         className
@@ -99,7 +106,7 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
           {/* Label */}
           <span
             className={cn(
-              'block font-medium text-slate-600 dark:text-slate-400 mb-1',
+              'block font-medium text-muted-foreground mb-1',
               sizeClasses.label
             )}
           >
@@ -123,7 +130,7 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
 
           {/* Description */}
           {description && (
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 truncate">
+            <p className="mt-1 text-xs text-muted-foreground truncate">
               {description}
             </p>
           )}
@@ -133,7 +140,7 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
         {Icon && (
           <Icon
             className={cn(
-              'text-slate-400 dark:text-slate-500 flex-shrink-0 ml-3',
+              'text-muted-foreground flex-shrink-0 ml-3',
               sizeClasses.icon
             )}
           />
@@ -142,3 +149,7 @@ export function MetricDisplayDesktop(props: MetricDisplayProps) {
     </Component>
   );
 }
+
+MetricDisplayDesktopComponent.displayName = 'MetricDisplayDesktop';
+
+export const MetricDisplayDesktop = memo(MetricDisplayDesktopComponent);

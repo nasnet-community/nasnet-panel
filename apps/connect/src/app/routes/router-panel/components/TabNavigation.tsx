@@ -1,6 +1,6 @@
-import { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
-import { useNavigate, useRouterState } from '@tanstack/react-router';
+import { useNavigate, useRouterState, useParams } from '@tanstack/react-router';
 import {
   LayoutDashboard,
   Wifi,
@@ -13,6 +13,7 @@ import {
   Store,
   Boxes
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -24,7 +25,6 @@ import {
   preloadPluginStoreTab,
   preloadAllHeavyTabs,
 } from '@/app/routes/router-panel/tabs/lazy';
-import { Route } from '@/routes/router/$id/route';
 
 /**
  * Tab definition interface
@@ -145,8 +145,9 @@ const tabs: TabDefinition[] = [
  * <TabNavigation />
  * ```
  */
-export function TabNavigation() {
-  const { id } = Route.useParams();
+export const TabNavigation = React.memo(function TabNavigation() {
+  const { t } = useTranslation('router');
+  const { id } = useParams({ from: '/router/$id' });
   const navigate = useNavigate();
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
@@ -281,4 +282,5 @@ export function TabNavigation() {
       </nav>
     </>
   );
-}
+});
+TabNavigation.displayName = 'TabNavigation';

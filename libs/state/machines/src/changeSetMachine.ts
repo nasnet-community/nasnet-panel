@@ -192,7 +192,7 @@ function sortItemsByDependency(items: ChangeSetItem[]): ChangeSetItem[] {
 
   // Map sorted IDs back to items
   const itemMap = new Map(items.map((item) => [item.id, item]));
-  return result.sortedIds.map((id) => itemMap.get(id)!).filter(Boolean);
+  return [...result.sortedIds].map((id) => itemMap.get(id)!).filter(Boolean);
 }
 
 /**
@@ -315,10 +315,12 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
         for (const step of rollbackPlan) {
           try {
             await rollbackItem({ rollbackStep: step, routerId });
-            step.success = true;
+            Object.assign(step, { success: true });
           } catch (error) {
-            step.success = false;
-            step.error = error instanceof Error ? error.message : 'Rollback failed';
+            Object.assign(step, {
+              success: false,
+              error: error instanceof Error ? error.message : 'Rollback failed',
+            });
             // Continue with remaining items even if one fails
           }
         }
@@ -345,7 +347,7 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
           event.type === 'LOAD' ? event.routerId : null,
         sortedItems: ({ event }) =>
           event.type === 'LOAD'
-            ? sortItemsByDependency(event.changeSet.items)
+            ? sortItemsByDependency([...event.changeSet.items])
             : [],
         currentItemIndex: 0,
         appliedItems: [],
@@ -415,10 +417,10 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
           }
 
           const rollbackStep = createRollbackStep(currentItem, resourceUuid);
-          rollbackStep.rollbackOrder = context.rollbackPlan.length;
+          const stepWithOrder = { ...rollbackStep, rollbackOrder: context.rollbackPlan.length };
 
           // Insert at beginning (reverse order)
-          return [rollbackStep, ...context.rollbackPlan];
+          return [stepWithOrder, ...context.rollbackPlan];
         },
       }),
       nextItem: assign({

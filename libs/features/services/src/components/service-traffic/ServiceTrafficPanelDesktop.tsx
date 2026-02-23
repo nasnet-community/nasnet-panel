@@ -1,18 +1,31 @@
 /**
  * ServiceTrafficPanelDesktop Component
- * Desktop presenter for service traffic statistics panel
+ *
+ * Desktop presenter for service traffic statistics panel with rich data visualization.
+ *
+ * @description Desktop-optimized presenter with dense grid layout, traffic charts,
+ * quota management, and device breakdown table.
  *
  * NAS-8.8: Implement Traffic Statistics and Quota Management
  * ADR-018: Headless + Platform Presenters
  */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import { AlertCircle, TrendingUp, TrendingDown, Activity, Settings } from 'lucide-react';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Progress } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
+import { memo } from 'react';
+import { Activity, AlertCircle, TrendingUp, TrendingDown, Settings } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Icon,
+  Alert,
+  AlertDescription,
+  Skeleton,
+  Button,
+  Progress,
+  Badge,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import { useServiceTrafficPanel } from './use-service-traffic-panel';
 import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
@@ -110,7 +123,7 @@ function StatsCounter({ value, label, unit = 'bytes', className }: StatsCounterP
  * - Device breakdown table (top consumers)
  * - Historical traffic chart
  */
-export function ServiceTrafficPanelDesktop({
+function ServiceTrafficPanelDesktopComponent({
   routerID,
   instanceID,
   instanceName,
@@ -164,7 +177,7 @@ export function ServiceTrafficPanelDesktop({
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <Icon icon={AlertCircle} className="h-4 w-4" />
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         </CardContent>
@@ -177,12 +190,12 @@ export function ServiceTrafficPanelDesktop({
   }
 
   return (
-    <Card className={className}>
+    <Card className={cn('', className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
+              <Icon icon={Activity} className="h-5 w-5 text-primary" aria-hidden="true" />
               {instanceName} Traffic Statistics
             </CardTitle>
             <CardDescription>
@@ -191,7 +204,7 @@ export function ServiceTrafficPanelDesktop({
           </div>
           {quotaExceeded && (
             <Alert variant="destructive" className="w-auto">
-              <AlertCircle className="h-4 w-4" />
+              <Icon icon={AlertCircle} className="h-4 w-4" />
               <AlertDescription className="text-sm">
                 Quota limit exceeded
               </AlertDescription>
@@ -199,7 +212,7 @@ export function ServiceTrafficPanelDesktop({
           )}
           {quotaWarning && !quotaExceeded && (
             <Alert variant="warning" className="w-auto">
-              <AlertCircle className="h-4 w-4" />
+              <Icon icon={AlertCircle} className="h-4 w-4" />
               <AlertDescription className="text-sm">
                 Quota warning threshold reached
               </AlertDescription>
@@ -247,7 +260,7 @@ export function ServiceTrafficPanelDesktop({
             <div className="grid grid-cols-2 gap-4">
               {uploadRate !== null && (
                 <div className="flex items-center gap-3 rounded-md border bg-card p-4">
-                  <TrendingUp className="h-6 w-6 text-blue-500" />
+                  <Icon icon={TrendingUp} className="h-6 w-6 text-info" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Upload Rate</p>
                     <p className="text-2xl font-mono font-semibold tabular-nums">
@@ -258,7 +271,7 @@ export function ServiceTrafficPanelDesktop({
               )}
               {downloadRate !== null && (
                 <div className="flex items-center gap-3 rounded-md border bg-card p-4">
-                  <TrendingDown className="h-6 w-6 text-green-500" />
+                  <Icon icon={TrendingDown} className="h-6 w-6 text-success" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Download Rate</p>
                     <p className="text-2xl font-mono font-semibold tabular-nums">
@@ -278,8 +291,8 @@ export function ServiceTrafficPanelDesktop({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Traffic Quota
               </h3>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
+              <Button variant="ghost" size="sm" aria-label="Configure traffic quota settings">
+                <Icon icon={Settings} className="h-4 w-4 mr-2" />
                 Configure
               </Button>
             </div>
@@ -351,3 +364,6 @@ export function ServiceTrafficPanelDesktop({
     </Card>
   );
 }
+
+export const ServiceTrafficPanelDesktop = memo(ServiceTrafficPanelDesktopComponent);
+ServiceTrafficPanelDesktop.displayName = 'ServiceTrafficPanel.Desktop';

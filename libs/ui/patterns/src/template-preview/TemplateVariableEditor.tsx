@@ -28,7 +28,7 @@ import type {
 
 export interface TemplateVariableEditorProps {
   /** Template variables to edit */
-  variables: TemplateVariable[];
+  variables: readonly TemplateVariable[];
 
   /** React Hook Form instance */
   form: UseFormReturn<TemplateVariableValues>;
@@ -122,7 +122,7 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
       <div className="space-y-2">
         <Label htmlFor={variable.name}>
           {variable.label}
-          {variable.required && <span className="text-destructive ml-1">*</span>}
+          {variable.isRequired && <span className="text-destructive ml-1">*</span>}
         </Label>
 
         <Controller
@@ -171,7 +171,7 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
     <div className="space-y-2">
       <Label htmlFor={variable.name}>
         {variable.label}
-        {variable.required && <span className="text-destructive ml-1">*</span>}
+        {variable.isRequired && <span className="text-destructive ml-1">*</span>}
       </Label>
 
       <Input

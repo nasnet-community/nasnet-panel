@@ -7,8 +7,9 @@
  * - Invisible when no queuing data is present
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { QueuedAlertBadge } from './QueuedAlertBadge';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta
@@ -42,7 +43,7 @@ When neither prop is provided the component renders \`null\`.
       control: 'text',
       description: 'ISO 8601 timestamp for when the alert will be delivered',
     },
-    bypassedQuietHours: {
+    shouldBypassQuietHours: {
       control: 'boolean',
       description: 'Whether this alert bypassed quiet hours due to CRITICAL severity',
     },
@@ -124,7 +125,7 @@ export const QueuedImminently: Story = {
  */
 export const BypassedQuietHours: Story = {
   args: {
-    bypassedQuietHours: true,
+    shouldBypassQuietHours: true,
   },
   parameters: {
     docs: {
@@ -142,7 +143,7 @@ export const BypassedQuietHours: Story = {
 export const NoQueueData: Story = {
   args: {
     queuedUntil: undefined,
-    bypassedQuietHours: false,
+    shouldBypassQuietHours: false,
   },
   decorators: [
     (Story) => (
@@ -163,12 +164,12 @@ export const NoQueueData: Story = {
 };
 
 /**
- * Both props provided — bypassedQuietHours takes precedence.
+ * Both props provided — shouldBypassQuietHours takes precedence.
  */
 export const BothProps: Story = {
   args: {
     queuedUntil: hoursFromNow(4),
-    bypassedQuietHours: true,
+    shouldBypassQuietHours: true,
   },
   parameters: {
     docs: {

@@ -154,7 +154,7 @@ const variantConfigs: Record<ErrorPageVariant, VariantConfig> = {
  * />
  * ```
  */
-export function ErrorPage({
+function ErrorPageComponent({
   variant = 'error',
   statusCode,
   title,
@@ -172,18 +172,18 @@ export function ErrorPage({
 }: ErrorPageProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
-  const config = variantConfigs[variant];
-  const Icon = config.icon;
+  const config = React.useMemo(() => variantConfigs[variant], [variant]);
+  const Icon = React.useMemo(() => config.icon, [config]);
 
-  const handleGoBack = () => {
+  const handleGoBack = React.useCallback(() => {
     window.history.back();
-  };
+  }, []);
 
-  const handleGoHome = () => {
+  const handleGoHome = React.useCallback(() => {
     window.location.href = '/';
-  };
+  }, []);
 
-  const handleCopyError = () => {
+  const handleCopyError = React.useCallback(() => {
     const errorData = {
       statusCode,
       errorCode,
@@ -193,7 +193,15 @@ export function ErrorPage({
       timestamp: new Date().toISOString(),
     };
     navigator.clipboard.writeText(JSON.stringify(errorData, null, 2));
-  };
+  }, [statusCode, errorCode, technicalMessage, stackTrace]);
+
+  const handleRetry = React.useCallback(() => {
+    onRetry?.();
+  }, [onRetry]);
+
+  const handleReport = React.useCallback(() => {
+    onReport?.();
+  }, [onReport]);
 
   return (
     <div
@@ -252,7 +260,7 @@ export function ErrorPage({
         {/* Primary Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           {onRetry && (
-            <Button onClick={onRetry} size="lg">
+            <Button onClick={handleRetry} size="lg">
               <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
               {retryLabel}
             </Button>
@@ -297,7 +305,7 @@ export function ErrorPage({
 
           {onReport && (
             <button
-              onClick={onReport}
+              onClick={handleReport}
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <Bug className="w-4 h-4" aria-hidden="true" />
@@ -339,3 +347,10 @@ export function ErrorPage({
     </div>
   );
 }
+
+ErrorPageComponent.displayName = 'ErrorPage';
+
+/**
+ * Memoized ErrorPage component
+ */
+export const ErrorPage = React.memo(ErrorPageComponent);

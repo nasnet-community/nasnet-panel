@@ -1,29 +1,34 @@
 /**
  * Traffic Flow Diagram Component
- * Visual representation of packet flow through firewall chains
- * Epic 0.6 Enhancement: Traffic Flow Visualization
+ *
+ * Visual representation of packet flow through firewall chains with rule counts,
+ * animated traffic indicators, and interactive chain filtering.
+ *
+ * @description Displays the complete firewall packet flow through all chains
+ * (PREROUTING, ROUTING, FORWARD, POSTROUTING, INPUT, LOCAL, OUTPUT) with rule
+ * counts and highlights for active/selected chains. Click nodes to filter rules
+ * by chain. Responsive SVG adapts layout for all screen sizes.
+ *
+ * @example
+ * ```tsx
+ * <TrafficFlowDiagram
+ *   activeChain="forward"
+ *   onChainClick={(chain) => filterRulesByChain(chain)}
+ * />
+ * ```
  */
 
-import { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useFilterRules, useNATRules } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import type { FirewallChain } from '@nasnet/core/types';
 import './TrafficFlowDiagram.css';
 
-/**
- * Chain node component
- */
-function ChainNode({
-  label,
-  count,
-  isActive,
-  isHighlighted,
-  onClick,
-  x,
-  y,
-  width = 100,
-  height = 40,
-}: {
+// ============================================================================
+// CHAIN NODE COMPONENT
+// ============================================================================
+
+interface ChainNodeProps {
   label: string;
   count: number;
   isActive: boolean;
@@ -33,14 +38,36 @@ function ChainNode({
   y: number;
   width?: number;
   height?: number;
-}) {
-  const rx = 8; // border radius
+}
+
+/**
+ * Chain node component - Interactive clickable firewall chain node
+ */
+const ChainNode = React.memo(function ChainNode({
+  label,
+  count,
+  isActive,
+  isHighlighted,
+  onClick,
+  x,
+  y,
+  width = 100,
+  height = 40,
+}: ChainNodeProps) {
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
+  const BORDER_RADIUS = 8;
 
   return (
     <g
       className={`chain-node ${onClick ? 'cursor-pointer' : ''}`}
-      onClick={onClick}
+      onClick={handleClick}
       transform={`translate(${x}, ${y})`}
+      role="button"
+      tabIndex={0}
+      aria-label={`${label} chain with ${count} rules`}
     >
       {/* Background */}
       <rect
@@ -48,15 +75,15 @@ function ChainNode({
         y={-height / 2}
         width={width}
         height={height}
-        rx={rx}
+        rx={BORDER_RADIUS}
         className={`
           transition-all duration-200
           ${
             isHighlighted
-              ? 'fill-primary-100 stroke-primary-500 stroke-2 dark:fill-primary-950'
+              ? 'fill-primary stroke-primary stroke-2'
               : isActive
-              ? 'fill-slate-100 stroke-slate-400 dark:fill-slate-700 dark:stroke-slate-500'
-              : 'fill-slate-50 stroke-slate-300 dark:fill-slate-800 dark:stroke-slate-600'
+              ? 'fill-muted stroke-border'
+              : 'fill-background stroke-border'
           }
         `}
       />
@@ -65,8 +92,8 @@ function ChainNode({
       <text
         className={`text-xs font-medium ${
           isHighlighted
-            ? 'fill-primary-700 dark:fill-primary-300'
-            : 'fill-slate-700 dark:fill-slate-300'
+            ? 'fill-primary-foreground'
+            : 'fill-foreground'
         }`}
         textAnchor="middle"
         dy="-0.2em"
@@ -77,7 +104,7 @@ function ChainNode({
       {/* Count badge */}
       {count > 0 && (
         <text
-          className="text-[10px] fill-slate-500 dark:fill-slate-400"
+          className="text-[10px] fill-muted-foreground"
           textAnchor="middle"
           dy="1.2em"
         >
@@ -86,20 +113,27 @@ function ChainNode({
       )}
     </g>
   );
-}
+});
+ChainNode.displayName = 'ChainNode';
 
-/**
- * Arrow path component
- */
-function ArrowPath({
-  d,
-  isAnimated,
-  isHighlighted,
-}: {
+// ============================================================================
+// ARROW PATH COMPONENT
+// ============================================================================
+
+interface ArrowPathProps {
   d: string;
   isAnimated: boolean;
   isHighlighted: boolean;
-}) {
+}
+
+/**
+ * Arrow path component - Animated dashed line showing traffic flow direction
+ */
+const ArrowPath = React.memo(function ArrowPath({
+  d,
+  isAnimated,
+  isHighlighted,
+}: ArrowPathProps) {
   return (
     <>
       {/* Base path */}
@@ -110,8 +144,8 @@ function ArrowPath({
           transition-all duration-200
           ${
             isHighlighted
-              ? 'stroke-primary-500 stroke-2'
-              : 'stroke-slate-300 dark:stroke-slate-600'
+              ? 'stroke-primary stroke-2'
+              : 'stroke-border'
           }
         `}
         markerEnd="url(#arrowhead)"
@@ -121,34 +155,36 @@ function ArrowPath({
         <path
           d={d}
           fill="none"
-          className="traffic-flow-path stroke-primary-400 dark:stroke-primary-500"
+          className="traffic-flow-path stroke-primary"
           strokeDasharray="8,4"
         />
       )}
     </>
   );
-}
+});
+ArrowPath.displayName = 'ArrowPath';
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 export interface TrafficFlowDiagramProps {
+  /** Optional CSS class name for custom styling */
   className?: string;
+  /** Currently highlighted chain for visual emphasis */
   activeChain?: FirewallChain | null;
+  /** Callback when user clicks a chain node */
   onChainClick?: (chain: FirewallChain) => void;
 }
 
 /**
  * TrafficFlowDiagram Component
  *
- * Features:
- * - Visual representation of packet flow through firewall chains
- * - Animated dashed lines showing traffic direction
- * - Interactive chain nodes (click to filter)
- * - Responsive design (horizontal on desktop, simplified on mobile)
- * - Shows rule counts per chain
- *
- * @param props - Component props
- * @returns Traffic flow diagram component
+ * Visual representation of packet flow through all firewall chains with rule counts
+ * and interactive filtering. Displays the packet path from input through routing
+ * decisions to output, with animated traffic indicators.
  */
-export function TrafficFlowDiagram({
+export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
   className,
   activeChain,
   onChainClick,
@@ -156,6 +192,10 @@ export function TrafficFlowDiagram({
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: filterRules } = useFilterRules(routerIp);
   const { data: natRules } = useNATRules(routerIp);
+
+  const handleChainClick = useCallback((chain: FirewallChain) => {
+    onChainClick?.(chain);
+  }, [onChainClick]);
 
   // Calculate rule counts per chain
   const chainCounts = useMemo(() => {
@@ -186,12 +226,11 @@ export function TrafficFlowDiagram({
     return counts;
   }, [filterRules, natRules]);
 
-  // SVG dimensions
-  const width = 700;
-  const height = 200;
+  // SVG dimensions and node positions (constants)
+  const SVG_WIDTH = 700;
+  const SVG_HEIGHT = 200;
 
-  // Node positions
-  const nodes = {
+  const NODE_POSITIONS = useMemo(() => ({
     prerouting: { x: 80, y: 50 },
     routing: { x: 220, y: 50 },
     forward: { x: 420, y: 50 },
@@ -199,7 +238,7 @@ export function TrafficFlowDiagram({
     input: { x: 220, y: 150 },
     local: { x: 350, y: 150 },
     output: { x: 480, y: 150 },
-  };
+  }), []);
 
   return (
     <div className={className}>
@@ -212,11 +251,12 @@ export function TrafficFlowDiagram({
       </div>
 
       {/* Diagram container */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
+      <div className="bg-card rounded-xl border border-border p-4 overflow-x-auto">
         <svg
-          viewBox={`0 0 ${width} ${height}`}
+          viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="w-full h-auto min-w-[600px]"
           style={{ maxHeight: '250px' }}
+          aria-label="Firewall chain packet flow diagram"
         >
           {/* Definitions */}
           <defs>
@@ -231,7 +271,7 @@ export function TrafficFlowDiagram({
             >
               <polygon
                 points="0 0, 10 3.5, 0 7"
-                className="fill-slate-400 dark:fill-slate-500"
+                className="fill-border"
               />
             </marker>
             <marker
@@ -242,7 +282,7 @@ export function TrafficFlowDiagram({
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" className="fill-primary-500" />
+              <polygon points="0 0, 10 3.5, 0 7" className="fill-primary" />
             </marker>
           </defs>
 
@@ -250,63 +290,63 @@ export function TrafficFlowDiagram({
           <g className="paths">
             {/* IN -> Prerouting */}
             <ArrowPath
-              d={`M 10,50 L ${nodes.prerouting.x - 55},50`}
+              d={`M 10,50 L ${NODE_POSITIONS.prerouting.x - 55},50`}
               isAnimated
               isHighlighted={activeChain === 'prerouting'}
             />
 
             {/* Prerouting -> Routing */}
             <ArrowPath
-              d={`M ${nodes.prerouting.x + 55},50 L ${nodes.routing.x - 50},50`}
+              d={`M ${NODE_POSITIONS.prerouting.x + 55},50 L ${NODE_POSITIONS.routing.x - 50},50`}
               isAnimated
               isHighlighted={activeChain === 'prerouting'}
             />
 
             {/* Routing -> Forward */}
             <ArrowPath
-              d={`M ${nodes.routing.x + 50},50 L ${nodes.forward.x - 55},50`}
+              d={`M ${NODE_POSITIONS.routing.x + 50},50 L ${NODE_POSITIONS.forward.x - 55},50`}
               isAnimated
               isHighlighted={activeChain === 'forward'}
             />
 
             {/* Forward -> Postrouting */}
             <ArrowPath
-              d={`M ${nodes.forward.x + 55},50 L ${nodes.postrouting.x - 60},50`}
+              d={`M ${NODE_POSITIONS.forward.x + 55},50 L ${NODE_POSITIONS.postrouting.x - 60},50`}
               isAnimated
               isHighlighted={activeChain === 'forward' || activeChain === 'postrouting'}
             />
 
             {/* Postrouting -> OUT */}
             <ArrowPath
-              d={`M ${nodes.postrouting.x + 60},50 L ${width - 10},50`}
+              d={`M ${NODE_POSITIONS.postrouting.x + 60},50 L ${SVG_WIDTH - 10},50`}
               isAnimated
               isHighlighted={activeChain === 'postrouting'}
             />
 
             {/* Routing -> Input (down) */}
             <ArrowPath
-              d={`M ${nodes.routing.x},70 L ${nodes.routing.x},${nodes.input.y - 20}`}
+              d={`M ${NODE_POSITIONS.routing.x},70 L ${NODE_POSITIONS.routing.x},${NODE_POSITIONS.input.y - 20}`}
               isAnimated
               isHighlighted={activeChain === 'input'}
             />
 
             {/* Input -> Local */}
             <ArrowPath
-              d={`M ${nodes.input.x + 55},150 L ${nodes.local.x - 55},150`}
+              d={`M ${NODE_POSITIONS.input.x + 55},150 L ${NODE_POSITIONS.local.x - 55},150`}
               isAnimated
               isHighlighted={activeChain === 'input'}
             />
 
             {/* Local -> Output */}
             <ArrowPath
-              d={`M ${nodes.local.x + 55},150 L ${nodes.output.x - 55},150`}
+              d={`M ${NODE_POSITIONS.local.x + 55},150 L ${NODE_POSITIONS.output.x - 55},150`}
               isAnimated
               isHighlighted={activeChain === 'output'}
             />
 
             {/* Output -> Postrouting (up) */}
             <ArrowPath
-              d={`M ${nodes.output.x + 20},130 Q ${nodes.output.x + 60},100 ${nodes.postrouting.x - 30},70`}
+              d={`M ${NODE_POSITIONS.output.x + 20},130 Q ${NODE_POSITIONS.output.x + 60},100 ${NODE_POSITIONS.postrouting.x - 30},70`}
               isAnimated
               isHighlighted={activeChain === 'output' || activeChain === 'postrouting'}
             />
@@ -317,14 +357,14 @@ export function TrafficFlowDiagram({
             <text
               x={10}
               y={35}
-              className="text-xs fill-slate-500 dark:fill-slate-400"
+              className="text-xs fill-muted-foreground"
             >
               IN
             </text>
             <text
-              x={width - 30}
+              x={SVG_WIDTH - 30}
               y={35}
-              className="text-xs fill-slate-500 dark:fill-slate-400"
+              className="text-xs fill-muted-foreground"
             >
               OUT
             </text>
@@ -337,26 +377,26 @@ export function TrafficFlowDiagram({
               count={chainCounts.prerouting}
               isActive={chainCounts.prerouting > 0}
               isHighlighted={activeChain === 'prerouting'}
-              onClick={() => onChainClick?.('prerouting')}
-              x={nodes.prerouting.x}
-              y={nodes.prerouting.y}
+              onClick={() => handleChainClick('prerouting')}
+              x={NODE_POSITIONS.prerouting.x}
+              y={NODE_POSITIONS.prerouting.y}
               width={100}
               height={40}
             />
 
             {/* Routing Decision (not clickable) */}
-            <g transform={`translate(${nodes.routing.x}, ${nodes.routing.y})`}>
+            <g transform={`translate(${NODE_POSITIONS.routing.x}, ${NODE_POSITIONS.routing.y})`}>
               <rect
                 x={-45}
                 y={-20}
                 width={90}
                 height={40}
                 rx={4}
-                className="fill-slate-200 stroke-slate-400 dark:fill-slate-600 dark:stroke-slate-500"
+                className="fill-muted stroke-border"
                 style={{ transform: 'rotate(45deg) scale(0.7)' }}
               />
               <text
-                className="text-[9px] font-medium fill-slate-600 dark:fill-slate-300"
+                className="text-[9px] font-medium fill-foreground"
                 textAnchor="middle"
                 dy="0.3em"
               >
@@ -369,9 +409,9 @@ export function TrafficFlowDiagram({
               count={chainCounts.forward}
               isActive={chainCounts.forward > 0}
               isHighlighted={activeChain === 'forward'}
-              onClick={() => onChainClick?.('forward')}
-              x={nodes.forward.x}
-              y={nodes.forward.y}
+              onClick={() => handleChainClick('forward')}
+              x={NODE_POSITIONS.forward.x}
+              y={NODE_POSITIONS.forward.y}
               width={100}
               height={40}
             />
@@ -381,9 +421,9 @@ export function TrafficFlowDiagram({
               count={chainCounts.postrouting}
               isActive={chainCounts.postrouting > 0}
               isHighlighted={activeChain === 'postrouting'}
-              onClick={() => onChainClick?.('postrouting')}
-              x={nodes.postrouting.x}
-              y={nodes.postrouting.y}
+              onClick={() => handleChainClick('postrouting')}
+              x={NODE_POSITIONS.postrouting.x}
+              y={NODE_POSITIONS.postrouting.y}
               width={110}
               height={40}
             />
@@ -393,25 +433,25 @@ export function TrafficFlowDiagram({
               count={chainCounts.input}
               isActive={chainCounts.input > 0}
               isHighlighted={activeChain === 'input'}
-              onClick={() => onChainClick?.('input')}
-              x={nodes.input.x}
-              y={nodes.input.y}
+              onClick={() => handleChainClick('input')}
+              x={NODE_POSITIONS.input.x}
+              y={NODE_POSITIONS.input.y}
               width={100}
               height={40}
             />
 
             {/* Local Process (not clickable) */}
-            <g transform={`translate(${nodes.local.x}, ${nodes.local.y})`}>
+            <g transform={`translate(${NODE_POSITIONS.local.x}, ${NODE_POSITIONS.local.y})`}>
               <rect
                 x={-50}
                 y={-20}
                 width={100}
                 height={40}
                 rx={20}
-                className="fill-secondary-100 stroke-secondary-400 dark:fill-secondary-950 dark:stroke-secondary-600"
+                className="fill-secondary stroke-secondary-foreground/50"
               />
               <text
-                className="text-[10px] font-medium fill-secondary-700 dark:fill-secondary-300"
+                className="text-[10px] font-medium fill-secondary-foreground"
                 textAnchor="middle"
                 dy="0.3em"
               >
@@ -424,9 +464,9 @@ export function TrafficFlowDiagram({
               count={chainCounts.output}
               isActive={chainCounts.output > 0}
               isHighlighted={activeChain === 'output'}
-              onClick={() => onChainClick?.('output')}
-              x={nodes.output.x}
-              y={nodes.output.y}
+              onClick={() => handleChainClick('output')}
+              x={NODE_POSITIONS.output.x}
+              y={NODE_POSITIONS.output.y}
               width={100}
               height={40}
             />
@@ -435,22 +475,22 @@ export function TrafficFlowDiagram({
       </div>
 
       {/* Legend */}
-      <div className="mt-2 px-2 flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <div className="mt-2 px-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-0.5 bg-slate-400 dark:bg-slate-500" />
+          <span className="inline-block w-4 h-0.5 bg-border" />
           Packet flow
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-6 h-0.5 border-t-2 border-dashed border-primary-400" />
+          <span className="inline-block w-6 h-0.5 border-t-2 border-dashed border-primary" />
           Active traffic
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded bg-slate-100 border border-slate-300 dark:bg-slate-700 dark:border-slate-600" />
+          <span className="inline-block w-3 h-3 rounded bg-muted border border-border" />
           Chain (click to filter)
         </span>
       </div>
     </div>
   );
-}
-
+});
+TrafficFlowDiagram.displayName = 'TrafficFlowDiagram';
 

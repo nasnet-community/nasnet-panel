@@ -2,12 +2,20 @@
  * ExportMenu Component
  * Dropdown menu for exporting interface statistics data
  *
+ * @description
+ * Provides export options for interface statistics data in multiple formats.
+ * Renders as a dropdown with three options: CSV (spreadsheet), JSON (structured),
+ * and PNG (chart screenshot).
+ *
  * NAS-6.9: Implement Interface Traffic Statistics (Task 7 - AC5)
  */
 
+import { memo, useCallback } from 'react';
+
 import { Download } from 'lucide-react';
-import { Button } from '@nasnet/ui/primitives';
+
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -22,16 +30,18 @@ export interface ExportMenuProps {
   /** Handler for PNG export */
   onExportPng: () => void;
   /** Disable menu when no data available */
-  disabled?: boolean;
+  isDisabled?: boolean;
+  /** Optional className for styling */
+  className?: string;
 }
 
 /**
  * ExportMenu Component
  *
- * Provides a dropdown menu with three export options:
- * - Export as CSV (spreadsheet format)
- * - Export as JSON (structured data)
- * - Export Chart as PNG (screenshot)
+ * Provides a dropdown menu with three export options for statistics data:
+ * - CSV (spreadsheet format for analysis)
+ * - JSON (structured data for integration)
+ * - PNG (chart screenshot for sharing)
  *
  * @example
  * ```tsx
@@ -46,40 +56,49 @@ export interface ExportMenuProps {
  *   onExportCsv={() => exportCsv(data.dataPoints, timeRange)}
  *   onExportJson={() => exportJson(data.dataPoints, timeRange)}
  *   onExportPng={() => exportPng(chartRef)}
- *   disabled={!data || loading}
+ *   isDisabled={!data || loading}
  * />
  * ```
  */
-export function ExportMenu({
+export const ExportMenu = memo(function ExportMenu({
   onExportCsv,
   onExportJson,
   onExportPng,
-  disabled = false,
+  isDisabled = false,
+  className,
 }: ExportMenuProps) {
+  // Memoized callbacks to maintain stable references
+  const handleExportCsv = useCallback(onExportCsv, [onExportCsv]);
+  const handleExportJson = useCallback(onExportJson, [onExportJson]);
+  const handleExportPng = useCallback(onExportPng, [onExportPng]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="sm"
-          disabled={disabled}
-          aria-label="Export statistics data"
+          disabled={isDisabled}
+          aria-label="Export statistics data in CSV, JSON, or PNG format"
+          className={className}
         >
-          <Download className="h-4 w-4 mr-2" />
+          <Download className="h-4 w-4 mr-2" aria-hidden="true" />
           Export
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onExportCsv}>
+        <DropdownMenuItem onClick={handleExportCsv}>
           Export as CSV
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onExportJson}>
+        <DropdownMenuItem onClick={handleExportJson}>
           Export as JSON
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onExportPng}>
+        <DropdownMenuItem onClick={handleExportPng}>
           Export Chart as PNG
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+});
+
+ExportMenu.displayName = 'ExportMenu';

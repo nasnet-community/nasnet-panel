@@ -31,24 +31,24 @@ interface L2TPServerRaw {
  */
 function transformL2TPServer(raw: L2TPServerRaw): L2TPServer {
   const authMethods = raw.authentication?.split(',').map(a => a.trim()) || ['mschap2'];
-  
+
   return {
     id: 'l2tp-server',
     name: 'L2TP Server',
     type: 'l2tp-server',
-    disabled: raw.enabled !== 'true',
-    running: raw.enabled === 'true',
-    enabled: raw.enabled === 'true',
+    isDisabled: raw.enabled !== 'true',
+    isRunning: raw.enabled === 'true',
+    isEnabled: raw.enabled === 'true',
     maxMtu: parseInt(raw['max-mtu'] || '1450', 10),
     maxMru: parseInt(raw['max-mru'] || '1450', 10),
     mrru: raw.mrru ? parseInt(raw.mrru, 10) : undefined,
     authentication: authMethods as L2TPServer['authentication'],
     defaultProfile: raw['default-profile'],
-    useIpsec: raw['use-ipsec'] === 'yes' || raw['use-ipsec'] === 'required',
+    shouldUseIpsec: raw['use-ipsec'] === 'yes' || raw['use-ipsec'] === 'required',
     ipsecSecret: raw['ipsec-secret'],
-    allowFastPath: raw['allow-fast-path'] === 'yes',
+    shouldAllowFastPath: raw['allow-fast-path'] === 'yes',
     callerIdType: raw['caller-id-type'] as 'ip-address' | 'number',
-    oneSessionPerHost: raw['one-session-per-host'] === 'yes',
+    shouldLimitOneSessionPerHost: raw['one-session-per-host'] === 'yes',
     maxSessions: raw['max-sessions'] ? parseInt(raw['max-sessions'], 10) : undefined,
   };
 }

@@ -10,7 +10,7 @@ import {
   ResourceLifecycleStateSchema,
   ValidationSeveritySchema,
   RuntimeHealthSchema,
-  ValidationErrorSchema,
+  ValidationIssueSchema,
   ValidationResultSchema,
   DeploymentStateSchema,
   RuntimeStateSchema,
@@ -62,16 +62,16 @@ describe('Resource Schemas', () => {
     });
   });
 
-  describe('ValidationErrorSchema', () => {
-    it('should accept valid validation errors', () => {
-      const error = {
+  describe('ValidationIssueSchema', () => {
+    it('should accept valid validation issues', () => {
+      const issue = {
         code: 'INVALID_PORT',
         message: 'Port must be between 1 and 65535',
         field: 'configuration.listenPort',
         severity: 'ERROR' as const,
       };
 
-      const result = ValidationErrorSchema.parse(error);
+      const result = ValidationIssueSchema.parse(issue);
       expect(result.code).toBe('INVALID_PORT');
       expect(result.message).toBe('Port must be between 1 and 65535');
       expect(result.field).toBe('configuration.listenPort');
@@ -79,7 +79,7 @@ describe('Resource Schemas', () => {
     });
 
     it('should accept optional fields', () => {
-      const error = {
+      const issue = {
         code: 'MISSING_KEY',
         message: 'Private key is required',
         field: 'configuration.privateKey',
@@ -88,14 +88,14 @@ describe('Resource Schemas', () => {
         docsUrl: 'https://docs.example.com/wireguard-keys',
       };
 
-      const result = ValidationErrorSchema.parse(error);
+      const result = ValidationIssueSchema.parse(issue);
       expect(result.suggestedFix).toBe('Generate a new WireGuard private key');
       expect(result.docsUrl).toBe('https://docs.example.com/wireguard-keys');
     });
 
     it('should reject missing required fields', () => {
       expect(() =>
-        ValidationErrorSchema.parse({
+        ValidationIssueSchema.parse({
           code: 'ERR',
           message: 'Error',
           // missing field and severity
@@ -108,15 +108,18 @@ describe('Resource Schemas', () => {
     it('should accept valid validation result', () => {
       const result = {
         canApply: true,
-        stage: 'FINAL' as const,
+        stage: 'COMPLETE' as const,
         errors: [],
         warnings: [],
+        conflicts: [],
+        requiredDependencies: [],
         validatedAt: '2024-01-15T10:30:00Z',
+        validationDurationMs: 100,
       };
 
       const parsed = ValidationResultSchema.parse(result);
       expect(parsed.canApply).toBe(true);
-      expect(parsed.stage).toBe('FINAL');
+      expect(parsed.stage).toBe('COMPLETE');
       expect(parsed.errors).toHaveLength(0);
     });
 
@@ -140,6 +143,8 @@ describe('Resource Schemas', () => {
             severity: 'WARNING' as const,
           },
         ],
+        conflicts: [],
+        requiredDependencies: [],
         validatedAt: '2024-01-15T10:30:00Z',
         validationDurationMs: 150,
       };
@@ -219,21 +224,19 @@ describe('Resource Schemas', () => {
       expect(parsed.category).toBe('VPN');
     });
 
-    it('should accept create input with metadata', () => {
+    it('should accept create input with optional fields', () => {
       const input = {
         routerId: 'router-1',
         type: 'wireguard-client',
         category: 'VPN' as const,
         configuration: { name: 'my-vpn' },
-        metadata: {
-          tags: ['production', 'vpn'],
-          description: 'Production VPN client',
-        },
+        tags: ['production', 'vpn'],
+        description: 'Production VPN client',
       };
 
       const parsed = CreateResourceInputSchema.parse(input);
-      expect(parsed.metadata?.tags).toEqual(['production', 'vpn']);
-      expect(parsed.metadata?.description).toBe('Production VPN client');
+      expect(parsed.tags).toEqual(['production', 'vpn']);
+      expect(parsed.description).toBe('Production VPN client');
     });
 
     it('should reject missing required fields', () => {
@@ -249,7 +252,6 @@ describe('Resource Schemas', () => {
   describe('UpdateResourceInputSchema', () => {
     it('should accept valid update input', () => {
       const input = {
-        uuid: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
         configuration: {
           name: 'updated-vpn',
           listenPort: 51821,
@@ -257,30 +259,29 @@ describe('Resource Schemas', () => {
       };
 
       const parsed = UpdateResourceInputSchema.parse(input);
-      expect(parsed.uuid).toBe('01ARZ3NDEKTSV4RRFFQ69G5FAV');
-      expect(parsed.configuration?.name).toBe('updated-vpn');
+      expect(parsed.configuration).toBeDefined();
     });
 
-    it('should accept metadata-only update', () => {
+    it('should accept partial configuration update', () => {
       const input = {
-        uuid: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-        metadata: {
-          isFavorite: true,
-          tags: ['important'],
+        configuration: {
+          name: 'updated-vpn',
         },
+        tags: ['important'],
       };
 
       const parsed = UpdateResourceInputSchema.parse(input);
-      expect(parsed.metadata?.isFavorite).toBe(true);
-      expect(parsed.metadata?.tags).toEqual(['important']);
+      expect(parsed.configuration).toBeDefined();
+      expect(parsed.tags).toEqual(['important']);
     });
 
-    it('should require uuid', () => {
-      expect(() =>
-        UpdateResourceInputSchema.parse({
-          configuration: { name: 'test' },
-        })
-      ).toThrow();
+    it('should allow minimal update', () => {
+      const input = {
+        description: 'Updated description',
+      };
+
+      const parsed = UpdateResourceInputSchema.parse(input);
+      expect(parsed.description).toBe('Updated description');
     });
   });
 });

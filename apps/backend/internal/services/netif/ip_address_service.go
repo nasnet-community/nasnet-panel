@@ -3,7 +3,6 @@ package netif
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync"
@@ -11,6 +10,8 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/router"
+
+	"go.uber.org/zap"
 )
 
 // IPAddressService provides IP address management operations for routers.
@@ -19,12 +20,14 @@ type IPAddressService struct {
 	eventBus       events.EventBus
 	eventPublisher *events.Publisher
 	cache          *ipAddressCache
+	logger         *zap.SugaredLogger
 }
 
 // IPAddressServiceConfig holds configuration for IPAddressService.
 type IPAddressServiceConfig struct {
 	RouterPort router.RouterPort
 	EventBus   events.EventBus
+	Logger     *zap.SugaredLogger
 }
 
 // ipAddressCache provides simple in-memory caching for IP address data.
@@ -70,10 +73,15 @@ func (c *ipAddressCache) Invalidate(routerID string) {
 
 // NewIPAddressService creates a new IPAddressService with the given configuration.
 func NewIPAddressService(cfg IPAddressServiceConfig) *IPAddressService {
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop().Sugar()
+	}
 	s := &IPAddressService{
 		routerPort: cfg.RouterPort,
 		eventBus:   cfg.EventBus,
 		cache:      newIPAddressCache(10 * time.Second),
+		logger:     logger,
 	}
 	if cfg.EventBus != nil {
 		s.eventPublisher = events.NewPublisher(cfg.EventBus, "ip-address-service")
@@ -89,14 +97,14 @@ func (s *IPAddressService) ListIPAddresses(
 ) ([]*IPAddressData, error) {
 
 	if cached := s.cache.Get(routerID); cached != nil {
-		log.Printf("returning cached IP addresses for router %s (count: %d)", routerID, len(cached))
+		s.logger.Debugw("returning cached IP addresses", "router_id", routerID, "count", len(cached))
 		return filterByInterface(cached, interfaceID), nil
 	}
 
-	log.Printf("fetching IP addresses from router: router_id=%s", routerID)
+	s.logger.Debugw("fetching IP addresses from router", "router_id", routerID)
 	ipAddresses, err := s.fetchIPAddresses(ctx, routerID)
 	if err != nil {
-		log.Printf("failed to fetch IP addresses: router_id=%s error=%v", routerID, err)
+		s.logger.Errorw("failed to fetch IP addresses", "router_id", routerID, "error", err)
 		return nil, fmt.Errorf("failed to fetch IP addresses: %w", err)
 	}
 
@@ -161,8 +169,7 @@ func (s *IPAddressService) CreateIPAddress(
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-created", events.PriorityNormal, "ip-address-service")
 		if err := s.eventBus.Publish(ctx, &event); err != nil {
-			// TODO: s.log field missing - add logger to IPAddressService struct
-			log.Printf("WARN: failed to publish event: %v", err)
+			s.logger.Warnw("failed to publish event", "error", err)
 		}
 	}
 
@@ -212,8 +219,7 @@ func (s *IPAddressService) UpdateIPAddress(
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-updated", events.PriorityNormal, "ip-address-service")
 		if err := s.eventBus.Publish(ctx, &event); err != nil {
-			// TODO: s.log field missing - add logger to IPAddressService struct
-			log.Printf("WARN: failed to publish event: %v", err)
+			s.logger.Warnw("failed to publish event", "error", err)
 		}
 	}
 
@@ -228,8 +234,11 @@ func (s *IPAddressService) DeleteIPAddress(ctx context.Context, routerID, ipID s
 	}
 
 	if deps.HasDependencies {
-		log.Printf("deleting IP address with dependencies: ip_id=%s dhcp=%d routes=%d",
-			ipID, len(deps.DHCPServers), len(deps.Routes))
+		s.logger.Warnw("deleting IP address with dependencies",
+			"ip_id", ipID,
+			"dhcp_count", len(deps.DHCPServers),
+			"route_count", len(deps.Routes),
+		)
 	}
 
 	cmd := router.Command{
@@ -248,8 +257,7 @@ func (s *IPAddressService) DeleteIPAddress(ctx context.Context, routerID, ipID s
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-deleted", events.PriorityNormal, "ip-address-service")
 		if err := s.eventBus.Publish(ctx, &event); err != nil {
-			// TODO: s.log field missing - add logger to IPAddressService struct
-			log.Printf("WARN: failed to publish event: %v", err)
+			s.logger.Warnw("failed to publish event", "error", err)
 		}
 	}
 

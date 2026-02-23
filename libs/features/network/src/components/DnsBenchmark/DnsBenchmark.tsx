@@ -18,6 +18,8 @@ import type { DnsBenchmarkProps } from './types';
  * Tests all configured DNS servers and displays results sorted by response time.
  * Automatically adapts UI for mobile (<640px) and desktop (>=640px) viewports.
  *
+ * @description Headless + Platform Presenters pattern for DNS performance testing
+ *
  * @example
  * ```tsx
  * <DnsBenchmark
@@ -27,7 +29,7 @@ import type { DnsBenchmarkProps } from './types';
  * />
  * ```
  */
-export const DnsBenchmark = memo(function DnsBenchmark(props: DnsBenchmarkProps) {
+function DnsBenchmarkComponent(props: DnsBenchmarkProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -35,4 +37,10 @@ export const DnsBenchmark = memo(function DnsBenchmark(props: DnsBenchmarkProps)
   ) : (
     <DnsBenchmarkDesktop {...props} />
   );
-});
+}
+
+DnsBenchmarkComponent.displayName = 'DnsBenchmarkComponent';
+
+export const DnsBenchmark = memo(DnsBenchmarkComponent);
+
+DnsBenchmark.displayName = 'DnsBenchmark';

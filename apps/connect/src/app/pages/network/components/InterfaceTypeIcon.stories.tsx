@@ -52,52 +52,52 @@ type Story = StoryObj<typeof InterfaceTypeIcon>;
 
 export const Ethernet: Story = {
   name: 'ether — Ethernet (Network icon)',
-  args: { type: 'ether', className: 'w-6 h-6 text-blue-500' },
+  args: { type: 'ether', className: 'w-6 h-6 text-info' },
 };
 
 export const Bridge: Story = {
   name: 'bridge — Bridge (Layers icon)',
-  args: { type: 'bridge', className: 'w-6 h-6 text-indigo-500' },
+  args: { type: 'bridge', className: 'w-6 h-6 text-primary' },
 };
 
 export const VLAN: Story = {
   name: 'vlan — VLAN (Tag icon)',
-  args: { type: 'vlan', className: 'w-6 h-6 text-violet-500' },
+  args: { type: 'vlan', className: 'w-6 h-6 text-primary' },
 };
 
 export const Wireless: Story = {
   name: 'wireless — Wireless (Wifi icon)',
-  args: { type: 'wireless', className: 'w-6 h-6 text-cyan-500' },
+  args: { type: 'wireless', className: 'w-6 h-6 text-info' },
 };
 
 export const WlanAlias: Story = {
   name: 'wlan — WLAN alias (same Wifi icon)',
-  args: { type: 'wlan', className: 'w-6 h-6 text-cyan-500' },
+  args: { type: 'wlan', className: 'w-6 h-6 text-info' },
 };
 
 export const PPPoE: Story = {
   name: 'pppoe — PPPoE (Link icon)',
-  args: { type: 'pppoe', className: 'w-6 h-6 text-amber-500' },
+  args: { type: 'pppoe', className: 'w-6 h-6 text-warning' },
 };
 
 export const VPN: Story = {
   name: 'vpn — VPN (Shield icon)',
-  args: { type: 'vpn', className: 'w-6 h-6 text-emerald-500' },
+  args: { type: 'vpn', className: 'w-6 h-6 text-success' },
 };
 
 export const WireGuard: Story = {
   name: 'wireguard — WireGuard (Lock icon)',
-  args: { type: 'wireguard', className: 'w-6 h-6 text-emerald-600' },
+  args: { type: 'wireguard', className: 'w-6 h-6 text-success' },
 };
 
 export const Loopback: Story = {
   name: 'loopback — Loopback (RefreshCw icon)',
-  args: { type: 'loopback', className: 'w-6 h-6 text-slate-500' },
+  args: { type: 'loopback', className: 'w-6 h-6 text-muted-foreground' },
 };
 
 export const LTE: Story = {
   name: 'lte — LTE (Signal icon)',
-  args: { type: 'lte', className: 'w-6 h-6 text-rose-500' },
+  args: { type: 'lte', className: 'w-6 h-6 text-error' },
 };
 
 export const UnknownFallback: Story = {
@@ -130,8 +130,8 @@ export const Gallery: Story = {
     <div className="flex flex-wrap gap-6 p-4">
       {ALL_TYPES.map(({ type, label }) => (
         <div key={type} className="flex flex-col items-center gap-1">
-          <InterfaceTypeIcon type={type} className="w-7 h-7 text-slate-600 dark:text-slate-300" />
-          <span className="text-xs font-mono text-slate-500">{label}</span>
+          <InterfaceTypeIcon type={type} className="w-7 h-7 text-muted-foreground" />
+          <span className="text-xs font-mono text-muted-foreground">{label}</span>
         </div>
       ))}
     </div>
@@ -143,5 +143,17 @@ export const Gallery: Story = {
           'Side-by-side gallery of every supported interface type with its icon and label, useful for visual regression testing.',
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

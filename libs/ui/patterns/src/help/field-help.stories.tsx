@@ -9,18 +9,14 @@
 
 import * as React from 'react';
 
-
-import { Label, Input, cn } from '@nasnet/ui/primitives';
+import { Label, Input } from '@nasnet/ui/primitives';
 
 import {
   FieldHelp,
-  FieldHelpDesktop,
-  FieldHelpMobile,
   HelpModeToggle,
   HelpIcon,
   HelpPopover,
   HelpSheet,
-  useFieldHelp,
   useHelpMode,
 } from './index';
 

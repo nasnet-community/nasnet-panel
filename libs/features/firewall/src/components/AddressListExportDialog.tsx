@@ -1,10 +1,13 @@
 /**
- * AddressListExportDialog - Export address list entries
- * Supports CSV, JSON, and RouterOS script (.rsc) formats
+ * AddressListExportDialog Component
+ * @description Export address list entries in CSV, JSON, or RouterOS script (.rsc) formats
+ * Allows users to choose format, preview content, and download or copy to clipboard
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { Download, Copy, FileText, CheckCircle2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
+import { Icon } from '@nasnet/ui/primitives/icon';
 import {
   Dialog,
   DialogContent,
@@ -30,31 +33,62 @@ import {
 } from '../utils/addressListFormatters';
 
 export interface AddressListExportDialogProps {
-  /** List name to export */
+  /** List name to export (used in filename and list parameter) */
   listName: string;
   /** Entries to export */
   entries: AddressListEntry[];
-  /** Optional trigger button text */
+  /** Optional trigger button text (default: "Export") */
   triggerText?: string;
+  /** Optional CSS class names to apply */
+  className?: string;
 }
 
-export function AddressListExportDialog({
+/**
+ * AddressListExportDialog Component
+ * @description Modal dialog for exporting address list entries in multiple formats
+ * Features:
+ * - Format selection (CSV, JSON, RouterOS script)
+ * - Content preview with truncation for large files
+ * - Download and copy-to-clipboard actions
+ * - File size estimation
+ *
+ * @example
+ * ```tsx
+ * <AddressListExportDialog
+ *   listName="blocklist"
+ *   entries={entries}
+ *   triggerText="Export"
+ * />
+ * ```
+ *
+ * @param props - Component props
+ * @returns Export dialog with trigger button
+ */
+export const AddressListExportDialog = memo(function AddressListExportDialog({
   listName,
   entries,
   triggerText = 'Export',
+  className,
 }: AddressListExportDialogProps) {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<ExportFormat>('csv');
   const [preview, setPreview] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
 
+  const PREVIEW_MAX_CHARS = 1000;
+  const COPY_SUCCESS_DURATION = 3000;
+
   // Generate preview when format changes
   const handleFormatChange = useCallback(
     (newFormat: ExportFormat) => {
       setFormat(newFormat);
       const formatted = formatAddressList(entries, newFormat, listName);
-      // Limit preview to first 1000 characters for performance
-      setPreview(formatted.length > 1000 ? formatted.slice(0, 1000) + '\n...' : formatted);
+      // Limit preview to first N characters for performance
+      setPreview(
+        formatted.length > PREVIEW_MAX_CHARS
+          ? formatted.slice(0, PREVIEW_MAX_CHARS) + '\n...'
+          : formatted
+      );
       setCopySuccess(false);
     },
     [entries, listName]
@@ -82,17 +116,20 @@ export function AddressListExportDialog({
     const success = await copyToClipboard(content);
     if (success) {
       setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
+      setTimeout(() => setCopySuccess(false), COPY_SUCCESS_DURATION);
     }
   }, [entries, format, listName]);
 
-  const estimatedSize = estimateSize(entries, format, listName);
+  const estimatedSize = useMemo(
+    () => estimateSize(entries, format, listName),
+    [entries, format, listName]
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-2" />
+        <Button variant="outline" size="sm" className={className}>
+          <Icon icon={Download} size={16} className="mr-2" label="" />
           {triggerText}
         </Button>
       </DialogTrigger>
@@ -111,19 +148,19 @@ export function AddressListExportDialog({
             <RadioGroup value={format} onValueChange={handleFormatChange}>
               <div className="space-y-2">
                 {/* CSV Format */}
-                <div className="flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors">
+                <div className={cn('flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors')}>
                   <RadioGroupItem value="csv" id="format-csv" className="mt-1" />
                   <div className="flex-1">
                     <label htmlFor="format-csv" className="cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
+                        <Icon icon={FileText} size={16} />
                         <span className="font-medium">CSV</span>
                         <Badge variant="secondary">Spreadsheet</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         Comma-separated values with header row (IP, Comment, Timeout)
                       </p>
-                      <code className="text-xs text-muted-foreground mt-2 block">
+                      <code className="text-xs text-muted-foreground mt-2 block font-mono">
                         192.168.1.1,"My comment",1d
                       </code>
                     </label>
@@ -131,19 +168,19 @@ export function AddressListExportDialog({
                 </div>
 
                 {/* JSON Format */}
-                <div className="flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors">
+                <div className={cn('flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors')}>
                   <RadioGroupItem value="json" id="format-json" className="mt-1" />
                   <div className="flex-1">
                     <label htmlFor="format-json" className="cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
+                        <Icon icon={FileText} size={16} />
                         <span className="font-medium">JSON</span>
                         <Badge variant="secondary">API-friendly</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         JSON array of objects with address, comment, and timeout
                       </p>
-                      <code className="text-xs text-muted-foreground mt-2 block">
+                      <code className="text-xs text-muted-foreground mt-2 block font-mono">
                         [{`{"address": "192.168.1.1", "comment": "..."}`}]
                       </code>
                     </label>
@@ -151,19 +188,19 @@ export function AddressListExportDialog({
                 </div>
 
                 {/* RouterOS Script Format */}
-                <div className="flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors">
+                <div className={cn('flex items-start space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors')}>
                   <RadioGroupItem value="routeros" id="format-routeros" className="mt-1" />
                   <div className="flex-1">
                     <label htmlFor="format-routeros" className="cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
+                        <Icon icon={FileText} size={16} />
                         <span className="font-medium">RouterOS Script</span>
                         <Badge variant="secondary">.rsc</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         MikroTik script file with add commands for direct import
                       </p>
-                      <code className="text-xs text-muted-foreground mt-2 block">
+                      <code className="text-xs text-muted-foreground mt-2 block font-mono">
                         /ip firewall address-list add list="..." address=...
                       </code>
                     </label>
@@ -209,13 +246,13 @@ export function AddressListExportDialog({
           {/* RouterOS Script Help */}
           {format === 'routeros' && (
             <Alert>
-              <FileText className="h-4 w-4" />
+              <Icon icon={FileText} size={16} />
               <AlertDescription>
                 <p className="font-medium mb-1">How to use RouterOS script:</p>
                 <ol className="text-sm space-y-1 ml-4 list-decimal">
                   <li>Download the .rsc file</li>
                   <li>Upload to router via Files menu</li>
-                  <li>Run: <code className="text-xs bg-muted px-1 py-0.5 rounded">/import file-name=filename.rsc</code></li>
+                  <li>Run: <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">/import file-name=filename.rsc</code></li>
                 </ol>
               </AlertDescription>
             </Alert>
@@ -231,21 +268,25 @@ export function AddressListExportDialog({
                 variant="outline"
                 onClick={handleCopy}
                 disabled={copySuccess}
+                aria-label={copySuccess ? 'Copied to clipboard' : 'Copy to clipboard'}
               >
                 {copySuccess ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 mr-2 text-success" />
+                    <Icon icon={CheckCircle2} size={16} className="mr-2 text-success" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 mr-2" />
+                    <Icon icon={Copy} size={16} className="mr-2" />
                     Copy to Clipboard
                   </>
                 )}
               </Button>
-              <Button onClick={handleDownload}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button
+                onClick={handleDownload}
+                aria-label={`Download ${format} file`}
+              >
+                <Icon icon={Download} size={16} className="mr-2" />
                 Download File
               </Button>
             </div>
@@ -254,4 +295,6 @@ export function AddressListExportDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+AddressListExportDialog.displayName = 'AddressListExportDialog';

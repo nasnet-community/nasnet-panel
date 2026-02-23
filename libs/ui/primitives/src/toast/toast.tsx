@@ -1,3 +1,46 @@
+/**
+ * Toast Component
+ *
+ * Notification component for displaying temporary messages to users.
+ * Supports multiple variants (default, success, warning, error, info),
+ * swipe-to-dismiss gestures, and auto-close functionality.
+ *
+ * Built on Radix UI Toast primitive with composable subcomponents:
+ * - ToastProvider: Root provider (wraps entire app)
+ * - ToastViewport: Container for all toasts
+ * - Toast: Individual toast container
+ * - ToastTitle: Toast title
+ * - ToastDescription: Toast content
+ * - ToastAction: Action button
+ * - ToastClose: Close button
+ *
+ * Accessibility:
+ * - Automatic ARIA live region announcements
+ * - Keyboard accessible (Escape to close)
+ * - Swipe gesture support on touch devices
+ * - Screen reader friendly
+ *
+ * @module @nasnet/ui/primitives/toast
+ * @example
+ * ```tsx
+ * // Setup (in app root)
+ * <ToastProvider>
+ *   <App />
+ *   <ToastViewport />
+ * </ToastProvider>
+ *
+ * // Usage with useToast hook
+ * import { useToast } from '@nasnet/ui/primitives/toast';
+ *
+ * const { toast } = useToast();
+ * toast({
+ *   title: "Success",
+ *   description: "Configuration saved successfully.",
+ *   variant: "success",
+ * });
+ * ```
+ */
+
 import * as React from 'react';
 
 import * as ToastPrimitives from '@radix-ui/react-toast';
@@ -5,23 +48,35 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
 
 import { cn } from '../lib/utils';
+import { Icon } from '../icon';
 
 const ToastProvider = ToastPrimitives.Provider;
 
-const ToastViewport = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Viewport>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Viewport
-    ref={ref}
-    className={cn(
-      'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]',
-      className
-    )}
-    {...props}
-  />
-));
-ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
+/**
+ * Props for the ToastViewport component
+ */
+export interface ToastViewportProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport> {}
+
+/**
+ * ToastViewport component - Container for all toast notifications
+ */
+const ToastViewport = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Viewport>,
+    ToastViewportProps
+  >(({ className, ...props }, ref) => (
+    <ToastPrimitives.Viewport
+      ref={ref}
+      className={cn(
+        'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]',
+        className
+      )}
+      {...props}
+    />
+  ))
+);
+ToastViewport.displayName = 'ToastViewport';
 
 const toastVariants = cva(
   'group pointer-events-auto relative flex w-full items-center justify-between space-x-3 overflow-hidden rounded-2xl border p-4 pr-8 shadow-xl transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[state=open]:slide-in-from-top-2',
@@ -48,85 +103,135 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
-  return (
+/**
+ * Props for the Toast component
+ */
+export interface ToastProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>,
+    VariantProps<typeof toastVariants> {}
+
+/**
+ * Toast component - Individual notification container
+ */
+const Toast = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Root>,
+    ToastProps
+  >(({ className, variant, ...props }, ref) => (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       {...props}
     />
-  );
-});
-Toast.displayName = ToastPrimitives.Root.displayName;
+  ))
+);
+Toast.displayName = 'Toast';
 
-const ToastAction = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Action>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Action
-    ref={ref}
-    className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
-      className
-    )}
-    {...props}
-  />
-));
-ToastAction.displayName = ToastPrimitives.Action.displayName;
+/**
+ * Props for the ToastAction component
+ */
+export interface ToastActionProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action> {}
 
-const ToastClose = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Close>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Close
-    ref={ref}
-    className={cn(
-      'absolute right-2 top-2 rounded-lg p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-accent focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100',
-      className
-    )}
-    toast-close=""
-    {...props}
-  >
-    <X className="h-4 w-4" />
-  </ToastPrimitives.Close>
-));
-ToastClose.displayName = ToastPrimitives.Close.displayName;
+/**
+ * ToastAction component - Action button for toast notifications
+ */
+const ToastAction = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Action>,
+    ToastActionProps
+  >(({ className, ...props }, ref) => (
+    <ToastPrimitives.Action
+      ref={ref}
+      className={cn(
+        'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
+        className
+      )}
+      {...props}
+    />
+  ))
+);
+ToastAction.displayName = 'ToastAction';
 
-const ToastTitle = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Title>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Title
-    ref={ref}
-    className={cn('text-sm font-semibold [&+div]:text-xs', className)}
-    {...props}
-  />
-));
-ToastTitle.displayName = ToastPrimitives.Title.displayName;
+/**
+ * Props for the ToastClose component
+ */
+export interface ToastCloseProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close> {}
 
-const ToastDescription = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Description>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Description
-    ref={ref}
-    className={cn('text-sm opacity-90', className)}
-    {...props}
-  />
-));
-ToastDescription.displayName = ToastPrimitives.Description.displayName;
+/**
+ * ToastClose component - Close button for toast notifications
+ */
+const ToastClose = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Close>,
+    ToastCloseProps
+  >(({ className, ...props }, ref) => (
+    <ToastPrimitives.Close
+      ref={ref}
+      className={cn(
+        'absolute right-2 top-2 rounded-lg p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-accent focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100',
+        className
+      )}
+      aria-label="Close notification"
+      {...props}
+    >
+      <Icon icon={X} size="sm" aria-hidden="true" />
+    </ToastPrimitives.Close>
+  ))
+);
+ToastClose.displayName = 'ToastClose';
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
+/**
+ * Props for the ToastTitle component
+ */
+export interface ToastTitleProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title> {}
 
-type ToastActionElement = React.ReactElement<typeof ToastAction>;
+/**
+ * ToastTitle component - Title for toast notifications
+ */
+const ToastTitle = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Title>,
+    ToastTitleProps
+  >(({ className, ...props }, ref) => (
+    <ToastPrimitives.Title
+      ref={ref}
+      className={cn('text-sm font-semibold [&+div]:text-xs', className)}
+      {...props}
+    />
+  ))
+);
+ToastTitle.displayName = 'ToastTitle';
+
+/**
+ * Props for the ToastDescription component
+ */
+export interface ToastDescriptionProps
+  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description> {}
+
+/**
+ * ToastDescription component - Content for toast notifications
+ */
+const ToastDescription = React.memo(
+  React.forwardRef<
+    React.ElementRef<typeof ToastPrimitives.Description>,
+    ToastDescriptionProps
+  >(({ className, ...props }, ref) => (
+    <ToastPrimitives.Description
+      ref={ref}
+      className={cn('text-sm opacity-90', className)}
+      {...props}
+    />
+  ))
+);
+ToastDescription.displayName = 'ToastDescription';
+
+/** Type for toast action elements */
+export type ToastActionElement = React.ReactElement<typeof ToastAction>;
 
 export {
-  type ToastProps,
-  type ToastActionElement,
   ToastProvider,
   ToastViewport,
   Toast,

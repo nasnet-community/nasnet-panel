@@ -8,8 +8,9 @@
 import * as React from 'react';
 
 import { Filter, Shield } from 'lucide-react';
-
+import type { LucideIcon } from 'lucide-react';
 import {
+  Icon,
   Button,
   Card,
   cn,

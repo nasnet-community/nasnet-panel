@@ -1,0 +1,137 @@
+{
+  "title": "دیوار آتش",
+  "overview": "نمای کلی دیوار آتش",
+  "filterRules": {
+    "title": "قوانین فیلتر",
+    "chain": "زنجیره",
+    "action": "عمل",
+    "protocol": "پروتکل",
+    "srcAddress": "آدرس مبدا",
+    "dstAddress": "آدرس مقصد",
+    "srcPort": "پورت مبدا",
+    "dstPort": "پورت مقصد",
+    "inInterface": "رابط ورودی",
+    "outInterface": "رابط خروجی",
+    "comment": "توضیح",
+    "bytes": "بایت",
+    "packets": "بسته‌ها",
+    "addRule": "افزودن قانون",
+    "editRule": "ویرایش قانون",
+    "deleteRule": "حذف قانون",
+    "noRules": "قانون فیلتری پیکربندی نشده"
+  },
+  "nat": {
+    "title": "قوانین NAT",
+    "chain": "زنجیره",
+    "action": "عمل",
+    "srcAddress": "آدرس مبدا",
+    "dstAddress": "آدرس مقصد",
+    "toAddresses": "به آدرس‌ها",
+    "toPorts": "به پورت‌ها",
+    "protocol": "پروتکل",
+    "noRules": "قانون NAT پیکربندی نشده"
+  },
+  "mangle": {
+    "title": "قوانین Mangle",
+    "chain": "زنجیره",
+    "action": "عمل",
+    "newMss": "MSS جدید",
+    "passthrough": "عبور",
+    "noRules": "قانون Mangle پیکربندی نشده"
+  },
+  "raw": {
+    "title": "قوانین Raw",
+    "chain": "زنجیره",
+    "action": "عمل",
+    "noRules": "قانون Raw پیکربندی نشده"
+  },
+  "addressLists": {
+    "title": "لیست آدرس‌ها",
+    "name": "نام لیست",
+    "address": "آدرس",
+    "creationTime": "تاریخ ایجاد",
+    "timeout": "مهلت",
+    "dynamic": "پویا",
+    "addEntry": "افزودن ورودی",
+    "noEntries": "ورودی لیست آدرس وجود ندارد"
+  },
+  "connections": {
+    "title": "اتصالات",
+    "protocol": "پروتکل",
+    "srcAddress": "مبدا",
+    "dstAddress": "مقصد",
+    "state": "وضعیت",
+    "timeout": "مهلت",
+    "noConnections": "اتصال فعالی وجود ندارد"
+  },
+  "servicePorts": {
+    "title": "پورت‌های سرویس",
+    "name": "سرویس",
+    "ports": "پورت‌ها",
+    "enabled": "فعال",
+    "noServices": "پورت سرویسی پیکربندی نشده"
+  },
+  "portKnocking": {
+    "title": "ضربه زدن پورت",
+    "sequence": "توالی ضربه",
+    "timeout": "مهلت",
+    "noSequences": "توالی ضربه زدن پورت پیکربندی نشده"
+  },
+  "rateLimiting": {
+    "title": "محدودسازی نرخ",
+    "noRules": "قانون محدودسازی نرخ پیکربندی نشده"
+  },
+  "templates": {
+    "title": "قالب‌های دیوار آتش",
+    "apply": "اعمال قالب",
+    "save": "ذخیره به عنوان قالب",
+    "import": "وارد کردن قالب",
+    "export": "خروجی قالب",
+    "noTemplates": "قالبی موجود نیست"
+  },
+  "logs": {
+    "title": "لاگ‌های دیوار آتش",
+    "action": "عمل",
+    "chain": "زنجیره",
+    "srcAddress": "مبدا",
+    "dstAddress": "مقصد",
+    "protocol": "پروتکل",
+    "noLogs": "ورودی لاگ دیوار آتش وجود ندارد"
+  },
+  "status": {
+    "rulesActive": "{{count}} قانون فعال",
+    "rulesActive_other": "{{count}} قانون فعال",
+    "noRulesActive": "قانون فعالی وجود ندارد",
+    "firewallEnabled": "دیوار آتش فعال",
+    "firewallDisabled": "دیوار آتش غیرفعال"
+  },
+  "chains": {
+    "input": "ورودی",
+    "forward": "ارسال",
+    "output": "خروجی",
+    "srcnat": "NAT مبدا",
+    "dstnat": "NAT مقصد",
+    "prerouting": "پیش‌مسیریابی",
+    "postrouting": "پس‌مسیریابی"
+  },
+  "actions": {
+    "accept": "پذیرش",
+    "drop": "حذف",
+    "reject": "رد",
+    "log": "ثبت",
+    "tarpit": "تارپیت",
+    "passthrough": "عبور",
+    "masquerade": "پوشش",
+    "srcNat": "NAT مبدا",
+    "dstNat": "NAT مقصد",
+    "redirect": "تغییر مسیر",
+    "jump": "پرش",
+    "return": "بازگشت"
+  },
+  "quickStats": {
+    "totalRules": "کل قوانین",
+    "activeConnections": "اتصالات فعال",
+    "blockedPackets": "بسته‌های مسدود شده",
+    "passedPackets": "بسته‌های عبور کرده"
+  }
+}

@@ -10,12 +10,24 @@ const meta: Meta<typeof ScrollArea> = {
   component: ScrollArea,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'A scroll area component built on Radix UI ScrollArea primitive. Provides a custom-styled, cross-browser scrollbar. Supports vertical and horizontal scrolling via the ScrollBar sub-component.',
+          'A scroll area component built on Radix UI ScrollArea primitive. Provides custom-styled, cross-browser scrollbars with keyboard and touch support. Supports vertical and horizontal scrolling via the ScrollBar sub-component. Automatically hides scrollbars when not needed. Must set explicit height and width on the component.',
       },
+    },
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+  argTypes: {
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes to merge (e.g., h-64 w-96 for size)',
+    },
+    children: {
+      description: 'Content to scroll within the area',
     },
   },
 };
@@ -180,6 +192,138 @@ export const EmptyState: Story = {
     <ScrollArea className="h-48 w-80 rounded-lg border border-border">
       <div className="flex h-48 items-center justify-center">
         <p className="text-sm text-muted-foreground">No log entries found.</p>
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  render: () => (
+    <ScrollArea className="h-64 w-full rounded-lg border border-border">
+      <div className="p-3">
+        <h4 className="mb-3 text-sm font-semibold">Logs</h4>
+        {logLines.slice(0, 8).map((line, i) => (
+          <p key={i} className="mb-1.5 font-mono text-xs text-muted-foreground">
+            {line}
+          </p>
+        ))}
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Tablet: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+  },
+  render: () => (
+    <ScrollArea className="h-72 w-full rounded-lg border border-border">
+      <div className="p-4">
+        <h4 className="mb-3 text-sm font-semibold">Network Interfaces</h4>
+        <div className="space-y-1">
+          {interfaces.slice(0, 6).map((iface) => (
+            <div
+              key={iface.name}
+              className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    iface.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
+                  }`}
+                />
+                <span className="font-mono text-sm font-medium">{iface.name}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">{iface.speed}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Desktop: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+  },
+  render: () => (
+    <ScrollArea className="h-96 w-[600px] rounded-lg border border-border">
+      <div className="p-4">
+        <h4 className="mb-4 text-sm font-semibold">Complete Network Interface List</h4>
+        <div className="space-y-1">
+          {interfaces.map((iface) => (
+            <div
+              key={iface.name}
+              className="flex items-center justify-between rounded-md px-3 py-2.5 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <span
+                  className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                    iface.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
+                  }`}
+                />
+                <span className="font-mono text-sm font-medium min-w-20">{iface.name}</span>
+                <span className="text-xs text-muted-foreground min-w-16">{iface.type}</span>
+              </div>
+              <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                {iface.ip && <span className="font-mono min-w-32">{iface.ip}</span>}
+                <span className="min-w-20 text-right">{iface.speed}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Loading: Story = {
+  render: () => (
+    <ScrollArea className="h-64 w-[420px] rounded-lg border border-border">
+      <div className="p-4 space-y-3">
+        <div className="h-5 bg-muted rounded animate-pulse w-24" />
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-4 bg-muted rounded animate-pulse w-full" />
+          ))}
+        </div>
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Error: Story = {
+  render: () => (
+    <ScrollArea className="h-48 w-[420px] rounded-lg border border-error/20 bg-error/5">
+      <div className="p-4 flex items-center justify-center min-h-48">
+        <div className="text-center space-y-2">
+          <p className="text-sm font-medium text-error">Failed to load content</p>
+          <p className="text-xs text-error/80">Unable to retrieve scroll area content.</p>
+          <button className="text-xs font-medium text-error hover:underline mt-3">Retry</button>
+        </div>
+      </div>
+    </ScrollArea>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <ScrollArea className="h-64 w-[420px] rounded-lg border border-border">
+      <div className="p-4 flex items-center justify-center min-h-64">
+        <div className="text-center space-y-2">
+          <p className="text-sm font-medium text-foreground">No items found</p>
+          <p className="text-xs text-muted-foreground">The scroll area is empty.</p>
+        </div>
       </div>
     </ScrollArea>
   ),

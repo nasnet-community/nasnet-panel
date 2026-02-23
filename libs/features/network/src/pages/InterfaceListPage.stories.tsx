@@ -5,8 +5,9 @@
  * Covers default, loading, empty, and error states.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { InterfaceListPage } from './InterfaceListPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof InterfaceListPage> = {
   title: 'Pages/Network/InterfaceListPage',

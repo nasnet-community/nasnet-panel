@@ -3,6 +3,10 @@ import { apolloClient } from '@nasnet/api-client/core';
 import { APPLY_TROUBLESHOOT_FIX } from '@nasnet/api-client/queries';
 import type { FixSuggestion } from '../types/troubleshoot.types';
 
+/**
+ * @description Result from applying a fix command to the router via GraphQL mutation.
+ * Indicates success/failure and provides rollback support for automatic recovery.
+ */
 interface FixApplicationResult {
   success: boolean;
   message: string;
@@ -11,12 +15,13 @@ interface FixApplicationResult {
 }
 
 /**
- * Apply a fix command to the router via GraphQL
- * Implements Apply-Confirm-Merge pattern with rollback support
+ * @description Apply a fix command to the router via GraphQL mutation.
+ * Implements the Apply-Confirm-Merge pattern with automatic rollback support.
+ * Manual fixes require user intervention and are rejected by this function.
  *
- * @param sessionId - The troubleshooting session ID
- * @param fix - The fix suggestion to apply
- * @returns FixApplicationResult with success status and details
+ * @param sessionId - The troubleshooting session ID for tracking fix application
+ * @param fix - The fix suggestion object containing command, rollback info, and metadata
+ * @returns Promise<FixApplicationResult> with success status, message, and optional rollback ID
  */
 export async function applyFixCommand(
   sessionId: string,
@@ -27,7 +32,7 @@ export async function applyFixCommand(
     if (fix.isManualFix || !fix.command) {
       return {
         success: false,
-        message: 'This fix requires manual intervention',
+        message: `This fix requires manual intervention. Please follow the suggested steps: ${fix.manualSteps?.join('; ')}`,
       };
     }
 
@@ -41,7 +46,7 @@ export async function applyFixCommand(
     });
 
     if (!data?.applyTroubleshootFix) {
-      throw new Error('No response from fix application');
+      throw new Error('Fix application failed: no response received from the backend. Please verify the router connection and try again.');
     }
 
     const result = data.applyTroubleshootFix;
@@ -53,9 +58,10 @@ export async function applyFixCommand(
       rollbackId: result.success ? `rollback_${fix.issueCode}` : undefined,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to apply the fix. Verify your router is connected and accessible, then retry.';
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to apply fix',
+      message: errorMessage,
     };
   }
 }

@@ -9,22 +9,30 @@ import (
 	"backend/generated/ent/serviceinstance"
 
 	"backend/internal/events"
+	"backend/internal/router"
 )
+
+// defaultThrottleBitsPerSecond is the bandwidth cap applied when THROTTLE action fires.
+// 1 Mbps is a conservative limit that keeps service reachable but penalizes overuse.
+const defaultThrottleBitsPerSecond = 1_000_000 // 1 Mbps
 
 // QuotaEnforcer manages traffic quota enforcement for service instances.
 // It integrates with the traffic aggregator to check quota thresholds
 // and emits events when quotas are approaching or exceeded.
 // Pattern: Event-driven warnings at 80%, 90%, 100% thresholds (NAS-8.8 Task 5).
 type QuotaEnforcer struct {
-	client   *ent.Client
-	eventBus events.EventBus
+	client     *ent.Client
+	eventBus   events.EventBus
+	routerPort router.RouterPort
 }
 
-// NewQuotaEnforcer creates a new quota enforcer
-func NewQuotaEnforcer(client *ent.Client, eventBus events.EventBus) *QuotaEnforcer {
+// NewQuotaEnforcer creates a new quota enforcer.
+// routerPort may be nil; if nil, THROTTLE enforcement is skipped (logged only).
+func NewQuotaEnforcer(client *ent.Client, eventBus events.EventBus, routerPort router.RouterPort) *QuotaEnforcer {
 	return &QuotaEnforcer{
-		client:   client,
-		eventBus: eventBus,
+		client:     client,
+		eventBus:   eventBus,
+		routerPort: routerPort,
 	}
 }
 
@@ -224,13 +232,63 @@ func (e *QuotaEnforcer) EnforceQuota(ctx context.Context, instance *ent.ServiceI
 		return true, nil
 
 	case serviceinstance.QuotaActionTHROTTLE:
-		// Future: Implement traffic throttling via mangle rules
-		// For now, just log (similar to ALERT)
-		return false, nil
+		// Create a MikroTik queue-tree entry that caps the service's traffic.
+		// The queue is named after the instance ID so it is idempotent on re-entry.
+		if throttleErr := e.applyThrottleQueue(ctx, instance); throttleErr != nil {
+			return false, fmt.Errorf("failed to apply throttle queue: %w", throttleErr)
+		}
+		return true, nil
 
 	default:
 		return false, fmt.Errorf("unknown quota action: %s", action)
 	}
+}
+
+// applyThrottleQueue creates (or updates) a MikroTik queue-tree entry that
+// limits the service instance's bandwidth to defaultThrottleBitsPerSecond.
+// The queue name is derived from the instance ID so the operation is idempotent.
+func (e *QuotaEnforcer) applyThrottleQueue(ctx context.Context, instance *ent.ServiceInstance) error {
+	if e.routerPort == nil {
+		// No router connection available; throttle intent is recorded via the
+		// quota-exceeded event already emitted by the caller.
+		return nil
+	}
+
+	queueName := fmt.Sprintf("quota-throttle-%s", instance.ID)
+	maxLimit := fmt.Sprintf("%d", defaultThrottleBitsPerSecond)
+
+	// Try to update an existing queue entry first (idempotent on repeated quota breaches).
+	updateResult, err := e.routerPort.ExecuteCommand(ctx, router.Command{
+		Path:   "/queue/tree",
+		Action: "set",
+		QueryFilter: map[string]string{
+			"name": queueName,
+		},
+		Args: map[string]string{
+			"max-limit": maxLimit,
+			"disabled":  "no",
+		},
+	})
+
+	// If the entry does not exist yet (update returns no match), create it.
+	if err != nil || (updateResult != nil && !updateResult.Success) {
+		_, addErr := e.routerPort.ExecuteCommand(ctx, router.Command{
+			Path:   "/queue/tree",
+			Action: "add",
+			Args: map[string]string{
+				"name":        queueName,
+				"parent":      "global",
+				"packet-mark": instance.ID,
+				"max-limit":   maxLimit,
+				"comment":     fmt.Sprintf("quota-throttle instance=%s", instance.ID),
+			},
+		})
+		if addErr != nil {
+			return fmt.Errorf("add queue tree entry: %w", addErr)
+		}
+	}
+
+	return nil
 }
 
 // ResetQuota resets the quota usage counter for a new period

@@ -1,5 +1,5 @@
-import { memo, useState } from 'react';
-import { Badge, Button, Card, CardContent, CardHeader } from '@nasnet/ui/primitives';
+import { memo, useState, useCallback } from 'react';
+import { Badge, Button, Card, CardContent, CardHeader, cn, Icon } from '@nasnet/ui/primitives';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { GatewayState, formatUptime, type GatewayInfo } from '@nasnet/api-client/queries';
 import type { GatewayStatusCardProps } from './GatewayStatusCard';
@@ -7,6 +7,15 @@ import type { GatewayStatusCardProps } from './GatewayStatusCard';
 /**
  * Mobile gateway status card with collapsible details.
  * Optimized for touch with 44px touch targets and progressive disclosure.
+ *
+ * @example
+ * ```tsx
+ * <GatewayStatusCardMobile
+ *   gateway={gatewayData}
+ *   instanceId="tor-gateway-1"
+ *   serviceName="Tor Browser"
+ * />
+ * ```
  */
 export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
   gateway,
@@ -15,11 +24,15 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 }: GatewayStatusCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const handleToggleExpand = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
+
   const stateColorMap: Record<GatewayState, string> = {
-    [GatewayState.RUNNING]: 'bg-semantic-success text-semantic-success-fg',
-    [GatewayState.STOPPED]: 'bg-semantic-muted text-semantic-muted-fg',
-    [GatewayState.ERROR]: 'bg-semantic-error text-semantic-error-fg',
-    [GatewayState.NOT_NEEDED]: 'bg-semantic-muted text-semantic-muted-fg',
+    [GatewayState.RUNNING]: 'bg-success text-success-foreground',
+    [GatewayState.STOPPED]: 'bg-muted text-muted-foreground',
+    [GatewayState.ERROR]: 'bg-error text-error-foreground',
+    [GatewayState.NOT_NEEDED]: 'bg-muted text-muted-foreground',
   };
 
   const stateLabel: Record<GatewayState, string> = {
@@ -39,7 +52,9 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
             </Badge>
             {gateway.state === GatewayState.RUNNING && (
               <div
-                className="h-2 w-2 rounded-full bg-semantic-success animate-pulse"
+                className="h-2 w-2 rounded-full bg-success animate-pulse"
+                aria-hidden="false"
+                role="status"
                 aria-label="Gateway is healthy"
               />
             )}
@@ -47,7 +62,7 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={handleToggleExpand}
             className="h-11 w-11 p-0"
             aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
             aria-expanded={isExpanded}
@@ -73,7 +88,7 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
             </div>
           )}
 
-          {/* Process ID */}
+          {/* Process ID - technical data with monospace font */}
           {gateway.pid != null && gateway.pid > 0 && (
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">Process ID</span>

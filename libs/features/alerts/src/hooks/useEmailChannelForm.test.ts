@@ -474,7 +474,7 @@ describe('useEmailChannelForm', () => {
     });
 
     it('sets isTesting state during test', async () => {
-      const mockOnTest = vi.fn(
+      const mockOnTest = vi.fn().mockImplementation(
         () => new Promise((resolve) => setTimeout(resolve, 100))
       );
 

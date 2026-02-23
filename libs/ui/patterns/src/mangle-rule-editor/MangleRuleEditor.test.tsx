@@ -16,14 +16,13 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { axe, toHaveNoViolations } from 'vitest-axe';
+import { axe } from 'vitest-axe';
 
 import { MangleRuleEditor } from './MangleRuleEditor';
 
 import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
 
-// Extend expect with axe matchers
-expect.extend(toHaveNoViolations);
+// Note: vitest-axe matchers are extended globally in src/test/setup.ts
 
 // Mock the platform hook
 vi.mock('@nasnet/ui/layouts', () => ({

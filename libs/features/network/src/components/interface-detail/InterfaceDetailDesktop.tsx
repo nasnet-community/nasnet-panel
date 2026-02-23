@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -13,22 +13,33 @@ import {
   Button,
   Skeleton,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { InterfaceEditForm } from '../interface-edit';
 
 export interface InterfaceDetailDesktopProps {
+  /** Interface data object */
   interface: any;
+  /** Whether data is loading */
   loading: boolean;
+  /** Error object if load failed */
   error: any;
+  /** Whether the sheet is open */
   open: boolean;
+  /** Callback to close the sheet */
   onClose: () => void;
+  /** Router ID for API requests */
   routerId: string;
 }
 
 /**
- * Interface Detail Desktop Presenter
- * Displays interface details in a right-side Sheet panel
+ * Interface Detail Desktop Presenter.
+ *
+ * Displays interface details in a right-side Sheet panel with tabs for status,
+ * traffic, and configuration. Supports in-place editing of interface settings.
+ *
+ * @description Right-side panel presenter for desktop (>1024px) with status, traffic, and config tabs
  */
-export function InterfaceDetailDesktop({
+export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
   interface: iface,
   loading,
   error,
@@ -37,6 +48,10 @@ export function InterfaceDetailDesktop({
   routerId,
 }: InterfaceDetailDesktopProps) {
   const [editMode, setEditMode] = useState(false);
+
+  const handleEditModeChange = useCallback((isEditing: boolean) => {
+    setEditMode(isEditing);
+  }, []);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -51,7 +66,7 @@ export function InterfaceDetailDesktop({
 
         {error && (
           <div className="p-8 text-center" role="alert">
-            <p className="text-destructive font-medium">Failed to load interface</p>
+            <p className="text-error font-medium">Failed to load interface</p>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message || 'Unknown error'}
             </p>
@@ -114,15 +129,15 @@ export function InterfaceDetailDesktop({
                       routerId={routerId}
                       interface={iface}
                       onSuccess={() => {
-                        setEditMode(false);
+                        handleEditModeChange(false);
                         // Interface will auto-refresh via subscription
                       }}
-                      onCancel={() => setEditMode(false)}
+                      onCancel={() => handleEditModeChange(false)}
                     />
                   ) : (
                     <InterfaceConfigSection
                       interface={iface}
-                      onEdit={() => setEditMode(true)}
+                      onEdit={() => handleEditModeChange(true)}
                     />
                   )}
                 </TabsContent>
@@ -133,13 +148,21 @@ export function InterfaceDetailDesktop({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+InterfaceDetailDesktop.displayName = 'InterfaceDetailDesktop';
 
 /**
- * Interface Status Section
- * Displays operational status and link information
+ * Interface Status Section.
+ *
+ * Displays operational status and link information in a grid layout.
+ * @description Operational status display (enabled, running, status, type, MAC, link partner, usage)
  */
-function InterfaceStatusSection({ interface: iface }: { interface: any }) {
+const InterfaceStatusSection = memo(function InterfaceStatusSection({
+  interface: iface,
+}: {
+  interface: any;
+}) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -170,24 +193,32 @@ function InterfaceStatusSection({ interface: iface }: { interface: any }) {
       )}
     </div>
   );
-}
+});
+
+InterfaceStatusSection.displayName = 'InterfaceStatusSection';
 
 /**
- * Interface Traffic Section
- * Displays traffic statistics and rates
+ * Interface Traffic Section.
+ *
+ * Displays traffic statistics and rates in two-column grid with TX/RX metrics.
+ * @description Traffic statistics display (TX/RX rates, total bytes)
  */
-function InterfaceTrafficSection({ interface: iface }: { interface: any }) {
-  const formatBytes = (bytes: number) => {
+const InterfaceTrafficSection = memo(function InterfaceTrafficSection({
+  interface: iface,
+}: {
+  interface: any;
+}) {
+  const formatBytes = useCallback((bytes: number) => {
     if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
+    const BYTE_UNIT = 1024;
+    const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const unitIndex = Math.floor(Math.log(bytes) / Math.log(BYTE_UNIT));
+    return `${(bytes / Math.pow(BYTE_UNIT, unitIndex)).toFixed(2)} ${BYTE_UNITS[unitIndex]}`;
+  }, []);
 
-  const formatRate = (bytesPerSec: number) => {
+  const formatRate = useCallback((bytesPerSec: number) => {
     return `${formatBytes(bytesPerSec)}/s`;
-  };
+  }, [formatBytes]);
 
   return (
     <div className="space-y-4">
@@ -214,13 +245,17 @@ function InterfaceTrafficSection({ interface: iface }: { interface: any }) {
       </div>
     </div>
   );
-}
+});
+
+InterfaceTrafficSection.displayName = 'InterfaceTrafficSection';
 
 /**
- * Interface Configuration Section
- * Displays configuration details and edit button
+ * Interface Configuration Section.
+ *
+ * Displays configuration details (MTU, comment, IP addresses) with edit button.
+ * @description Configuration display with edit trigger button
  */
-function InterfaceConfigSection({
+const InterfaceConfigSection = memo(function InterfaceConfigSection({
   interface: iface,
   onEdit,
 }: {
@@ -239,7 +274,7 @@ function InterfaceConfigSection({
           <h4 className="font-medium mb-2">IP Addresses</h4>
           <div className="space-y-1">
             {iface.ip.map((addr: string) => (
-              <div key={addr} className="font-mono text-sm">
+              <div key={addr} className="font-mono text-sm break-all">
                 {addr}
               </div>
             ))}
@@ -254,12 +289,17 @@ function InterfaceConfigSection({
       </div>
     </div>
   );
-}
+});
+
+InterfaceConfigSection.displayName = 'InterfaceConfigSection';
 
 /**
- * Helper component for displaying status items
+ * Status Item Helper.
+ *
+ * Displays a single status metric in a bordered box with label and value.
+ * @description Reusable status metric display component
  */
-function StatusItem({
+const StatusItem = memo(function StatusItem({
   label,
   value,
   className = '',
@@ -269,9 +309,11 @@ function StatusItem({
   className?: string;
 }) {
   return (
-    <div className={`border rounded-lg p-3 ${className}`}>
+    <div className={cn('border rounded-lg p-3', className)}>
       <h4 className="text-xs text-muted-foreground mb-1">{label}</h4>
-      <p className="text-sm font-medium">{value}</p>
+      <p className="text-sm font-medium break-all">{value}</p>
     </div>
   );
-}
+});
+
+StatusItem.displayName = 'StatusItem';

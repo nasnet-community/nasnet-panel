@@ -15,7 +15,7 @@ import {
   templateVariableValuesSchema,
   alertConditionSchema,
   alertRuleTemplateSchema,
-  saveAlertRuleTemplateInputSchema,
+  customAlertRuleTemplateInputSchema,
 } from './alert-rule-template.schema';
 
 // =============================================================================
@@ -301,8 +301,8 @@ describe('alertRuleTemplateSchema', () => {
 // Test Case 9: Save Template Input Schema Validation
 // =============================================================================
 
-describe('saveAlertRuleTemplateInputSchema', () => {
-  it('should validate save template input', () => {
+describe('customAlertRuleTemplateInputSchema', () => {
+  it('should validate custom template input', () => {
     const input = {
       name: 'My Custom Template',
       description: 'A custom alert rule template',
@@ -328,7 +328,7 @@ describe('saveAlertRuleTemplateInputSchema', () => {
       ],
     };
 
-    const result = saveAlertRuleTemplateInputSchema.safeParse(input);
+    const result = customAlertRuleTemplateInputSchema.safeParse(input);
     expect(result.success).toBe(true);
   });
 
@@ -339,12 +339,18 @@ describe('saveAlertRuleTemplateInputSchema', () => {
       category: 'CUSTOM',
       severity: 'INFO',
       eventType: 'test',
-      conditions: [],
+      conditions: [
+        {
+          field: 'test',
+          operator: 'EQUALS',
+          value: 'test',
+        },
+      ],
       channels: ['email'],
       variables: [],
     };
 
-    const result = saveAlertRuleTemplateInputSchema.safeParse(shortName);
+    const result = customAlertRuleTemplateInputSchema.safeParse(shortName);
     expect(result.success).toBe(false);
   });
 
@@ -356,13 +362,19 @@ describe('saveAlertRuleTemplateInputSchema', () => {
       description: longDescription,
       category: 'CUSTOM',
       severity: 'INFO',
-      eventType: 'test',
-      conditions: [],
+      eventType: 'test.event',
+      conditions: [
+        {
+          field: 'test',
+          operator: 'EQUALS',
+          value: 'test',
+        },
+      ],
       channels: ['email'],
       variables: [],
     };
 
-    const result = saveAlertRuleTemplateInputSchema.safeParse(input);
+    const result = customAlertRuleTemplateInputSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
 });

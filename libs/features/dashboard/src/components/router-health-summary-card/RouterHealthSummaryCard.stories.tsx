@@ -12,11 +12,10 @@
  * 7. TabletGrid (online, healthy, fresh, 768px)
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { RouterHealthSummaryCard } from './RouterHealthSummaryCard';
 import { RouterHealthSummaryCardDesktop } from './RouterHealthSummaryCard.Desktop';
-import { RouterHealthSummaryCardMobile } from './RouterHealthSummaryCard.Mobile';
 
 import type { UseRouterHealthCardReturn } from './useRouterHealthCard';
 import type { Meta, StoryObj } from '@storybook/react';

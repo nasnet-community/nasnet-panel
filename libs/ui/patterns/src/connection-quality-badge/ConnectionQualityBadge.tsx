@@ -79,7 +79,8 @@ const QUALITY_COLORS: Record<QualityLevel, string> = {
 };
 
 /**
- * Quality labels
+ * Quality labels (localization keys for i18n integration)
+ * In production, these should be used with i18n: t(`connection.quality.${quality}`)
  */
 const QUALITY_LABELS: Record<QualityLevel, string> = {
   excellent: 'Excellent',

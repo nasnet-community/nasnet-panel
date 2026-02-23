@@ -1,22 +1,49 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/DiagnosticStep.tsx
-import { memo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@nasnet/ui/utils';
 import type { DiagnosticStep as DiagnosticStepType } from '../../types/troubleshoot.types';
 
+/**
+ * Props for DiagnosticStep component
+ */
 interface DiagnosticStepProps {
   /** Step configuration and state */
   step: DiagnosticStepType;
   /** Whether this step is currently active */
   isActive: boolean;
-  /** Step index for display (1-based) */
+  /** Step index for display (1-based, used in badge) */
   stepNumber: number;
-  /** Total steps for progress */
+  /** Total steps for progress context (used in aria-label) */
   totalSteps: number;
-  /** Click handler for completed steps */
+  /** Optional click handler for completed steps (enables keyboard nav) */
   onClick?: () => void;
 }
 
+/**
+ * Diagnostic Step Card
+ *
+ * Displays a single diagnostic step with status icon, name, result message,
+ * execution time, and step number badge. Supports click handlers for
+ * clickable steps and full keyboard navigation (Enter/Space).
+ *
+ * Status indicators use semantic colors: green (success), red (error),
+ * amber (running), gray (pending). Icons always accompany color for
+ * color-blind accessibility.
+ *
+ * @example
+ * ```tsx
+ * <DiagnosticStep
+ *   step={diagnosticStep}
+ *   isActive={index === currentIndex}
+ *   stepNumber={index + 1}
+ *   totalSteps={5}
+ *   onClick={() => handleStepClick(index)}
+ * />
+ * ```
+ *
+ * @see TroubleshootWizardMobile for list usage
+ */
 export const DiagnosticStep = memo(function DiagnosticStep({
   step,
   isActive,
@@ -24,7 +51,8 @@ export const DiagnosticStep = memo(function DiagnosticStep({
   totalSteps,
   onClick,
 }: DiagnosticStepProps) {
-  const getStatusIcon = () => {
+  // Memoize status icon to avoid re-renders
+  const statusIcon = useMemo(() => {
     switch (step.status) {
       case 'passed':
         return <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />;
@@ -36,9 +64,10 @@ export const DiagnosticStep = memo(function DiagnosticStep({
       default:
         return <Clock className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
     }
-  };
+  }, [step.status]);
 
-  const getStatusColor = () => {
+  // Memoize status color classes
+  const statusColor = useMemo(() => {
     switch (step.status) {
       case 'passed':
         return 'border-success bg-success/10';
@@ -50,43 +79,51 @@ export const DiagnosticStep = memo(function DiagnosticStep({
       default:
         return 'border-border bg-muted/50';
     }
-  };
+  }, [step.status]);
 
-  const getAriaLabel = () => {
+  // Memoize aria label
+  const ariaLabel = useMemo(() => {
     let label = `Step ${stepNumber} of ${totalSteps}: ${step.name}`;
     if (step.status === 'passed') label += ' - Passed';
     if (step.status === 'failed') label += ' - Failed';
     if (step.status === 'running') label += ' - Running';
     if (step.status === 'pending') label += ' - Pending';
     return label;
-  };
+  }, [stepNumber, totalSteps, step.name, step.status]);
+
+  // Memoize click handler
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
+  // Memoize keyboard handler
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        onClick();
+      }
+    },
+    [onClick]
+  );
 
   return (
     <div
       className={cn(
         'flex items-center gap-3 p-3 rounded-lg border-2 transition-all min-h-[44px]',
-        getStatusColor(),
+        statusColor,
         isActive && 'ring-2 ring-primary ring-offset-2',
         onClick && 'cursor-pointer hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         step.status === 'pending' && 'opacity-60'
       )}
-      onClick={onClick}
+      onClick={handleClick}
       role="listitem"
-      aria-label={getAriaLabel()}
+      aria-label={ariaLabel}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
+      onKeyDown={handleKeyDown}
     >
       {/* Status Icon */}
-      <div className="flex-shrink-0">{getStatusIcon()}</div>
+      <div className="flex-shrink-0">{statusIcon}</div>
 
       {/* Step Content */}
       <div className="flex-1 min-w-0">
@@ -128,3 +165,5 @@ export const DiagnosticStep = memo(function DiagnosticStep({
     </div>
   );
 });
+
+DiagnosticStep.displayName = 'DiagnosticStep';

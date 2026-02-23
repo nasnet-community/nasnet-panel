@@ -46,7 +46,7 @@ export interface PageHeaderProps {
  * />
  * ```
  */
-export function PageHeader({
+export const PageHeader = React.memo(function PageHeader({
   title,
   description,
   actions,
@@ -65,4 +65,6 @@ export function PageHeader({
       </div>
     </div>
   );
-}
+});
+
+PageHeader.displayName = 'PageHeader';

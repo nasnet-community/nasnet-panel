@@ -11,7 +11,9 @@ import type { DHCPFingerprint } from '@nasnet/core/types';
 
 /**
  * Built-in fingerprint database
- * Contains well-known DHCP fingerprints for common device types
+ * @description Contains well-known DHCP fingerprints for common device types.
+ * Used for automatic device identification based on DHCP option signatures.
+ * Organized by device category (mobile, computer, entertainment, network).
  */
 export const BUILTIN_FINGERPRINTS: DHCPFingerprint[] = [
   // ==================== Mobile Devices ====================
@@ -106,6 +108,7 @@ export const BUILTIN_FINGERPRINTS: DHCPFingerprint[] = [
 
 /**
  * Get fingerprint by hash
+ * @description Performs O(n) lookup to find fingerprint matching the provided hash
  * @param hash - Fingerprint hash identifier
  * @returns Fingerprint or undefined if not found
  */
@@ -115,6 +118,7 @@ export function getFingerprintByHash(hash: string): DHCPFingerprint | undefined 
 
 /**
  * Get all fingerprints for a device type
+ * @description Returns all matching fingerprints filtered by device type
  * @param deviceType - Device type to filter by
  * @returns Array of matching fingerprints
  */
@@ -126,6 +130,7 @@ export function getFingerprintsByDeviceType(
 
 /**
  * Get all fingerprints for a device category
+ * @description Returns all fingerprints matching the provided category (mobile, computer, etc.)
  * @param category - Device category to filter by
  * @returns Array of matching fingerprints
  */
@@ -137,7 +142,8 @@ export function getFingerprintsByCategory(
 
 /**
  * Get statistics about the fingerprint database
- * @returns Database statistics
+ * @description Returns summary statistics including counts and unique values across database
+ * @returns Database statistics with totals and unique categories/device types
  */
 export function getDatabaseStats() {
   const categories = new Set(BUILTIN_FINGERPRINTS.map((fp) => fp.deviceCategory));

@@ -10,31 +10,22 @@
  *   id="1"
  *   name="Office VPN"
  *   protocol="wireguard"
- *   disabled={false}
- *   running={true}
+ *   isDisabled={false}
+ *   isRunning={true}
  *   connectTo="vpn.example.com"
  * />
  * ```
  */
 
-import { memo } from 'react';
-
-import { 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Globe,
-  Clock,
-  ArrowDownUp,
-  Power,
-} from 'lucide-react';
+import { memo, useCallback } from 'react';
+import { MoreVertical, Power, Pencil, Trash2, Globe, Clock, ArrowDownUp } from 'lucide-react';
 
 import type { VPNProtocol } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import {
+  Card,
+  CardContent,
+  CardHeader,
   CardTitle,
   Badge,
   Button,
@@ -44,6 +35,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  Icon,
 } from '@nasnet/ui/primitives';
 
 import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
@@ -58,9 +50,10 @@ export interface VPNClientCardProps {
   /** VPN protocol */
   protocol: VPNProtocol;
   /** Client enabled/disabled */
-  disabled: boolean;
+  isDisabled: boolean;
   /** Client running/connected state */
-  running: boolean;
+  isRunning: boolean;
+
   /** Remote server address */
   connectTo: string;
   /** Remote port */
@@ -100,8 +93,8 @@ function VPNClientCardComponent({
   id,
   name,
   protocol,
-  disabled,
-  running,
+  isDisabled,
+  isRunning,
   connectTo,
   port,
   user,
@@ -118,18 +111,18 @@ function VPNClientCardComponent({
   isToggling = false,
   className = '',
 }: VPNClientCardProps) {
-  const status = disabled ? 'offline' : running ? 'online' : 'warning';
-  const statusLabel = disabled ? 'Disabled' : running ? 'Connected' : 'Disconnected';
+  const status = isDisabled ? 'offline' : isRunning ? 'online' : 'warning';
+  const statusLabel = isDisabled ? 'Disabled' : isRunning ? 'Connected' : 'Disconnected';
 
-  const handleToggle = (checked: boolean) => {
+  const handleToggle = useCallback((checked: boolean) => {
     onToggle?.(id, checked);
-  };
+  }, [id, onToggle]);
 
   return (
     <Card
       className={`
         transition-all duration-200 hover:shadow-md
-        ${running ? 'border-success/30' : ''}
+        ${isRunning ? 'border-success/30' : ''}
         ${className}
       `}
       aria-label={`${name} VPN client - ${statusLabel}`}
@@ -155,41 +148,41 @@ function VPNClientCardComponent({
             {/* Toggle Switch */}
             {onToggle && (
               <Switch
-                checked={!disabled}
+                checked={!isDisabled}
                 onCheckedChange={handleToggle}
                 disabled={isToggling}
-                aria-label={disabled ? 'Enable client' : 'Disable client'}
+                aria-label={isDisabled ? 'Enable client' : 'Disable client'}
               />
             )}
-            
+
             {/* Actions Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
+                  <Icon icon={MoreVertical} className="h-4 w-4" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onConnect && (
                   <DropdownMenuItem onClick={() => onConnect(id)}>
-                    <Power className="mr-2 h-4 w-4" />
-                    {running ? 'Disconnect' : 'Connect'}
+                    <Icon icon={Power} className="mr-2 h-4 w-4" />
+                    {isRunning ? 'Disconnect' : 'Connect'}
                   </DropdownMenuItem>
                 )}
                 {onEdit && (
                   <DropdownMenuItem onClick={() => onEdit(id)}>
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Icon icon={Pencil} className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                 )}
                 {(onConnect || onEdit) && onDelete && <DropdownMenuSeparator />}
                 {onDelete && (
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => onDelete(id)}
                     className="text-error focus:text-error"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
+                    <Icon icon={Trash2} className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
                 )}
@@ -198,13 +191,13 @@ function VPNClientCardComponent({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         {/* Client Info */}
         <div className="space-y-3">
           {/* Remote Server */}
           <div className="flex items-center gap-2 py-2 border-b border-border">
-            <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Icon icon={Globe} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-sm text-muted-foreground">Server</span>
             <span className="text-sm font-medium text-foreground truncate flex-1 text-right">
               {connectTo}{port ? `:${port}` : ''}
@@ -220,12 +213,12 @@ function VPNClientCardComponent({
           )}
 
           {/* Connection Info (when connected) */}
-          {running && (
+          {isRunning && (
             <>
               {/* Uptime */}
               {uptime && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Icon icon={Clock} className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Uptime</span>
                   <span className="font-mono font-medium ml-auto">{uptime}</span>
                 </div>
@@ -252,7 +245,7 @@ function VPNClientCardComponent({
               {/* Traffic Stats */}
               {(rx !== undefined || tx !== undefined) && (
                 <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  <ArrowDownUp className="h-4 w-4 text-muted-foreground" />
+                  <Icon icon={ArrowDownUp} className="h-4 w-4 text-muted-foreground" />
                   <div className="flex items-center gap-4 text-sm">
                     {rx !== undefined && (
                       <div>

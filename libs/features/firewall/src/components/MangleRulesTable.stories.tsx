@@ -7,7 +7,6 @@
  * @module @nasnet/features/firewall
  */
 
-import { fn } from '@storybook/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import type { MangleRule } from '@nasnet/core/types';
@@ -15,6 +14,7 @@ import type { MangleRule } from '@nasnet/core/types';
 import { MangleRulesTable } from './MangleRulesTable';
 
 import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from 'storybook/test';
 
 // Create a wrapper with QueryClient for React Query hooks
 const queryClient = new QueryClient({
@@ -103,6 +103,11 @@ const meta = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    className: { control: 'text', description: 'Optional CSS class name' },
+    chain: { control: 'text', description: 'Optional firewall chain filter' },
+  },
+  args: {},
 } satisfies Meta<typeof MangleRulesTable>;
 
 export default meta;
@@ -152,6 +157,7 @@ const mockRules: MangleRule[] = [
     position: 2,
     newDscp: 46, // EF - Expedited Forwarding for VoIP
     connectionMark: 'voip_traffic',
+    passthrough: true,
     disabled: false,
     log: false,
     comment: 'Set EF DSCP for VoIP traffic',
@@ -195,6 +201,7 @@ const mockRules: MangleRule[] = [
     position: 5,
     protocol: 'tcp',
     dstPort: '25',
+    passthrough: true,
     comment: 'Block outbound SMTP (prevent spam)',
     disabled: true, // Disabled rule
     log: true,
@@ -226,6 +233,7 @@ const mockRules: MangleRule[] = [
     position: 7,
     newDscp: 0, // Best effort (reset DSCP)
     outInterface: 'ether1-wan',
+    passthrough: true,
     disabled: false,
     log: false,
     comment: 'Reset DSCP on WAN interface',
@@ -238,6 +246,7 @@ const mockRules: MangleRule[] = [
     action: 'log',
     position: 8,
     protocol: 'icmp',
+    passthrough: true,
     logPrefix: 'ICMP_FORWARD: ',
     disabled: false,
     log: true,
@@ -253,6 +262,7 @@ const mockRules: MangleRule[] = [
     protocol: 'tcp',
     dstPort: '22',
     srcAddress: '192.168.1.0/24',
+    passthrough: true,
     disabled: false,
     log: false,
     comment: 'Allow SSH from LAN',
@@ -409,7 +419,7 @@ export const MobileView: Story = {
         ...originalModule,
         usePlatform: () => 'mobile',
       };
-      require.cache[require.resolve('@nasnet/ui/layouts')].exports = mockedModule;
+      require.cache[require.resolve('@nasnet/ui/layouts')]!.exports = mockedModule;
 
       return <Story />;
     },
@@ -546,8 +556,10 @@ export const ComplexQoSSetup: Story = {
           method: 'get',
           response: {
             data: mockRules.filter(r =>
-              r.comment?.toLowerCase().includes('voip') ||
-              r.comment?.toLowerCase().includes('gaming')
+              r.comment && (
+                r.comment.toLowerCase().includes('voip') ||
+                r.comment.toLowerCase().includes('gaming')
+              )
             ),
           },
         },

@@ -10,10 +10,12 @@
  * - Security / VPN / Resource category templates
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { AlertTemplateDetailPanel } from './AlertTemplateDetailPanel';
+
 import type { AlertRuleTemplate } from '../../schemas/alert-rule-template.schema';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta
@@ -96,7 +98,7 @@ const networkTemplateNoVariables: AlertRuleTemplate = {
   conditions: [{ field: 'status', operator: 'EQUALS', value: 'offline' }],
   channels: ['email', 'inapp'],
   variables: [],
-  throttle: null,
+  throttle: undefined,
   isBuiltIn: true,
   version: '1.0.0',
   createdAt: '2024-01-01T00:00:00Z',
@@ -194,7 +196,7 @@ const customTemplate: AlertRuleTemplate = {
   conditions: [{ field: 'event_name', operator: 'EQUALS', value: 'my-event' }],
   channels: ['inapp'],
   variables: [],
-  throttle: null,
+  throttle: undefined,
   isBuiltIn: false,
   version: '1.0.0',
   createdAt: '2025-01-10T00:00:00Z',

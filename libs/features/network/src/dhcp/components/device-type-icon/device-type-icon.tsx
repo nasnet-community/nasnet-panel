@@ -23,11 +23,10 @@ import {
   Tv,
   Server,
   HelpCircle,
-  type LucideIcon,
 } from 'lucide-react';
 
-import { cn } from '@nasnet/ui/primitives';
 import {
+  cn,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -40,9 +39,9 @@ import type {
 } from '@nasnet/core/types';
 
 /**
- * Icon mapping for all 22 FingerprintDeviceType values
+ * Icon component mapping for all 22 FingerprintDeviceType values
  */
-const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, LucideIcon> = {
+const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   // Phone/Tablet (3)
   ios: Smartphone,
   android: Smartphone,
@@ -80,15 +79,15 @@ const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, LucideIcon> = {
 
 /**
  * Category color mapping (6 categories)
- * Uses Tailwind color classes for text colors
+ * Uses semantic color tokens for category accents
  */
 const CATEGORY_COLORS: Record<FingerprintDeviceCategory, string> = {
-  mobile: 'text-info',
-  computer: 'text-success',
-  iot: 'text-warning',
-  network: 'text-accent-foreground',
-  entertainment: 'text-primary',
-  other: 'text-muted-foreground',
+  mobile: 'text-info',         // Blue
+  computer: 'text-success',    // Green
+  iot: 'text-warning',         // Amber
+  network: 'text-primary',     // Golden Amber
+  entertainment: 'text-accent', // Cyan
+  other: 'text-muted-foreground', // Gray
 };
 
 /**
@@ -110,7 +109,7 @@ export interface DeviceTypeIconProps {
   /** Show tooltip with device type and confidence */
   showTooltip?: boolean;
 
-  /** Click handler */
+  /** Called when icon is clicked */
   onClick?: () => void;
 }
 
@@ -138,10 +137,10 @@ export const DeviceTypeIcon = React.memo(function DeviceTypeIcon({
   showTooltip = true,
   onClick,
 }: DeviceTypeIconProps) {
-  const Icon = DEVICE_TYPE_ICONS[deviceType] || HelpCircle;
+  const IconComponent = DEVICE_TYPE_ICONS[deviceType] || HelpCircle;
   const colorClass = CATEGORY_COLORS[deviceCategory] || 'text-muted-foreground';
 
-  const icon = onClick ? (
+  const iconElement = onClick ? (
     <button
       type="button"
       onClick={onClick}
@@ -152,20 +151,20 @@ export const DeviceTypeIcon = React.memo(function DeviceTypeIcon({
       )}
       aria-label={`View ${formatDeviceType(deviceType)} details`}
     >
-      <Icon
+      <IconComponent
         className={cn('h-5 w-5', colorClass, className)}
         aria-hidden="true"
       />
     </button>
   ) : (
-    <Icon
+    <IconComponent
       className={cn('h-5 w-5', colorClass, className)}
       aria-hidden={showTooltip ? 'true' : undefined}
     />
   );
 
   if (!showTooltip) {
-    return icon;
+    return iconElement;
   }
 
   const label = formatDeviceType(deviceType);
@@ -178,11 +177,11 @@ export const DeviceTypeIcon = React.memo(function DeviceTypeIcon({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="inline-flex items-center justify-center" role="img" aria-label={tooltipContent}>
-            {icon}
+            {iconElement}
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="text-sm">{tooltipContent}</p>
+          <p className="text-sm font-medium">{tooltipContent}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -195,9 +194,10 @@ DeviceTypeIcon.displayName = 'DeviceTypeIcon';
  * Format device type for human-readable display
  *
  * Converts kebab-case device types to Title Case labels.
+ * Handles special cases like iOS, macOS with proper capitalization.
  *
  * @param type - FingerprintDeviceType to format
- * @returns Human-readable label
+ * @returns Human-readable label for display
  *
  * @example
  * ```typescript
@@ -208,20 +208,30 @@ DeviceTypeIcon.displayName = 'DeviceTypeIcon';
  */
 export function formatDeviceType(type: FingerprintDeviceType): string {
   // Special cases for proper capitalization
-  const specialCases: Record<string, string> = {
+  const DEVICE_TYPE_LABELS: Record<FingerprintDeviceType, string> = {
     ios: 'iOS',
+    android: 'Android',
+    'other-mobile': 'Other Mobile',
+    windows: 'Windows',
     macos: 'macOS',
+    linux: 'Linux',
     chromeos: 'ChromeOS',
+    'smart-speaker': 'Smart Speaker',
+    camera: 'Camera',
+    thermostat: 'Thermostat',
+    'other-iot': 'Other IoT',
+    printer: 'Printer',
     nas: 'NAS',
+    router: 'Router',
+    switch: 'Switch',
+    'gaming-console': 'Gaming Console',
+    'smart-tv': 'Smart TV',
+    'streaming-device': 'Streaming Device',
+    generic: 'Generic Device',
+    server: 'Server',
+    appliance: 'Appliance',
+    unknown: 'Unknown Device',
   };
 
-  if (specialCases[type]) {
-    return specialCases[type];
-  }
-
-  // Convert kebab-case to Title Case
-  return type
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return DEVICE_TYPE_LABELS[type] || type;
 }

@@ -6,6 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MockedProvider } from '@apollo/client/testing';
 import { renderHook, waitFor } from '@testing-library/react';
+import * as React from 'react';
 import { useVLANPoolStatus } from './useVLANPoolStatus';
 import { GET_VLAN_POOL_STATUS } from './vlan.graphql';
 import type { ReactNode } from 'react';
@@ -52,11 +53,8 @@ describe('useVLANPoolStatus', () => {
     },
   ];
 
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      {children}
-    </MockedProvider>
-  );
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
   it('should fetch pool status for a router', async () => {
     const { result } = renderHook(
@@ -91,11 +89,8 @@ describe('useVLANPoolStatus', () => {
       },
     ];
 
-    const warningWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={warningMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const warningWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: warningMocks, addTypename: false }, children);
 
     const { result } = renderHook(
       () => useVLANPoolStatus('router-123', 0),
@@ -132,11 +127,8 @@ describe('useVLANPoolStatus', () => {
       },
     ];
 
-    const errorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={errorMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const errorWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: errorMocks, addTypename: false }, children);
 
     const { result } = renderHook(
       () => useVLANPoolStatus('router-123', 0),

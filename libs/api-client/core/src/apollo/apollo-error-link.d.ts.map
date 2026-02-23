@@ -1,0 +1,1 @@
+{"version":3,"file":"apollo-error-link.d.ts","sourceRoot":"","sources":["apollo-error-link.ts"],"names":[],"mappings":"AAoFA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAgCG;AACH,eAAO,MAAM,SAAS,qCA0FrB,CAAC;AAEF;;;;;;;;GAQG;AACH,wBAAgB,eAAe,CAAC,OAAO,EAAE;IACvC,WAAW,CAAC,EAAE,CAAC,OAAO,EAAE,MAAM,KAAK,IAAI,CAAC;IACxC,cAAc,CAAC,EAAE,CAAC,KAAK,EAAE,KAAK,KAAK,IAAI,CAAC;CACzC,uCAmCA"}

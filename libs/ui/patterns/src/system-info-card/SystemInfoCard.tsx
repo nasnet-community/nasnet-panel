@@ -3,7 +3,7 @@
  * Displays router system information including model, version, uptime, and architecture
  */
 
-import * as React from 'react';
+import React, { useCallback } from 'react';
 
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -37,12 +37,15 @@ export interface SystemInfoCardProps {
  * Shows router model, RouterOS version, uptime, and CPU architecture
  * Includes skeleton loading state and error handling with retry
  */
-export function SystemInfoCard({
+export const SystemInfoCard = React.memo(function SystemInfoCard({
   data,
   isLoading = false,
   error = null,
   onRetry,
 }: SystemInfoCardProps) {
+  const handleRetry = useCallback(() => {
+    onRetry?.();
+  }, [onRetry]);
   // Loading state - show skeleton
   if (isLoading) {
     return (
@@ -74,9 +77,9 @@ export function SystemInfoCard({
               Failed to load system information
             </p>
             {onRetry && (
-              <Button 
-                onClick={onRetry} 
-                variant="outline" 
+              <Button
+                onClick={handleRetry}
+                variant="outline"
                 size="sm"
                 className="rounded-button"
               >
@@ -141,5 +144,6 @@ export function SystemInfoCard({
       </CardContent>
     </Card>
   );
-}
+});
 
+SystemInfoCard.displayName = 'SystemInfoCard';

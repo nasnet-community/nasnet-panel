@@ -2,33 +2,61 @@
  * Traceroute Form Validation Schema
  *
  * Zod schema for validating traceroute input form.
- * Validates target, maxHops, timeout, probeCount, and protocol.
+ * Validates target (IPv4/IPv6/hostname), maxHops, timeout, probeCount, and protocol.
+ *
+ * Note: Error messages are currently hardcoded; future enhancement would localize
+ * via i18n keys using the namespace 'diagnostics.traceroute'.
+ *
+ * @see tracerouteFormSchema for validation rules
+ * @see TracerouteFormValues for inferred type
  */
 
 import { z } from 'zod';
 
 /**
- * Validates IPv4 addresses
+ * Regex pattern for IPv4 addresses
+ * Matches valid IPv4 in dotted-decimal notation (0-255.0-255.0-255.0-255)
  */
 const ipv4Regex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 
 /**
- * Validates IPv6 addresses (simplified)
+ * Regex pattern for IPv6 addresses
+ * Supports full, compressed, IPv4-mapped, and link-local forms
  */
 const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 
 /**
- * Validates hostnames
+ * Regex pattern for domain hostnames and FQDNs
+ * Matches valid DNS names including localhost
  */
 const hostnameRegex = /^(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?|localhost)$/;
 
 /**
  * Traceroute protocol enum for validation
+ * Supports standard network protocols for traceroute probes
  */
 export const TracerouteProtocolEnum = z.enum(['ICMP', 'UDP', 'TCP']);
 
 /**
- * Traceroute form validation schema
+ * Traceroute form validation schema (Zod)
+ *
+ * Validates all input fields for the traceroute form:
+ * - target: IPv4, IPv6, or hostname (required)
+ * - maxHops: 1-64 hops (default 30)
+ * - timeout: 100-30000ms per hop (default 3000ms)
+ * - probeCount: 1-5 probes per hop (default 3)
+ * - protocol: ICMP, UDP, or TCP (default ICMP)
+ *
+ * @example
+ * ```tsx
+ * const result = tracerouteFormSchema.parse({
+ *   target: '8.8.8.8',
+ *   maxHops: 30,
+ *   timeout: 3000,
+ *   probeCount: 3,
+ *   protocol: 'ICMP',
+ * });
+ * ```
  */
 export const tracerouteFormSchema = z.object({
   /**

@@ -6,10 +6,12 @@
  * and platform-specific layouts for the webhook configuration form.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { MockedProvider } from '@apollo/client/testing';
+import { fn } from 'storybook/test';
+
 import { WebhookConfigForm } from './WebhookConfigForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta
@@ -73,13 +75,13 @@ const mockWebhook = {
   url: 'https://hooks.slack.com/services/T000/B000/xxxx',
   method: 'POST' as const,
   authType: 'NONE' as const,
-  username: null,
-  password: null,
-  bearerToken: null,
+  username: undefined,
+  password: undefined,
+  bearerToken: undefined,
   template: 'SLACK' as const,
-  customTemplate: null,
+  customTemplate: undefined,
   headers: {},
-  signingSecret: null,
+  signingSecret: undefined,
   timeoutSeconds: 10,
   retryEnabled: true,
   maxRetries: 3,

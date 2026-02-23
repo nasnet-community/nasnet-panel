@@ -6,23 +6,31 @@
 import type { LogTopic } from '@nasnet/core/types';
 
 /**
- * Action type definition
+ * Action type definition for log entry context actions
  */
 export interface LogAction {
+  /** Unique action identifier */
   id: string;
+  /** Display label for the action button */
   label: string;
-  icon: string; // Lucide icon name
+  /** Lucide icon name (e.g., 'Shield', 'Plus', 'Ban') */
+  icon: string;
+  /** Optional description shown in tooltips */
   description?: string;
   /**
-   * Handler receives the log message for context extraction
+   * Handler type: determines how action is executed.
+   * - 'navigate': Opens a route
+   * - 'dialog': Opens a dialog/modal
+   * - 'api': Makes an API call
    */
   handler: 'navigate' | 'dialog' | 'api';
   /**
-   * Target path or dialog ID
+   * Target path (for navigate) or dialog ID (for dialog handler)
    */
   target?: string;
   /**
-   * Extract data from log message
+   * Regular expression to extract data from log message.
+   * First capture group is returned as extracted value.
    */
   extractPattern?: RegExp;
 }
@@ -193,7 +201,13 @@ export const commonLogActions: LogAction[] = [
 ];
 
 /**
- * Get available actions for a log entry
+ * @description Get all available actions for a given log topic,
+ * including both topic-specific actions and common actions.
+ * @param topic - The log topic (e.g., 'firewall', 'dhcp', 'vpn')
+ * @returns Array of LogAction objects available for this topic
+ * @example
+ * const actions = getActionsForTopic('firewall');
+ * // Returns: [view-rule, add-to-whitelist, block-ip, copy, bookmark, view-details]
  */
 export function getActionsForTopic(topic: LogTopic): LogAction[] {
   const topicActions = logActionsByTopic[topic] || [];
@@ -201,7 +215,15 @@ export function getActionsForTopic(topic: LogTopic): LogAction[] {
 }
 
 /**
- * Extract data from log message using action pattern
+ * @description Extract contextual data from a log message using the action's
+ * regex pattern. Returns the first capture group from the pattern match.
+ * @param message - The log message text to extract data from
+ * @param action - The LogAction containing the extractPattern regex
+ * @returns The extracted value (first capture group) or null if no match
+ * @example
+ * const action = logActionsByTopic.firewall[1]; // 'add-to-whitelist'
+ * const ip = extractDataFromMessage('Blocked from 192.168.1.5', action);
+ * // Returns: '192.168.1.5'
  */
 export function extractDataFromMessage(
   message: string,

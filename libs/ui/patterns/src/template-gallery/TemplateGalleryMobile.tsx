@@ -5,6 +5,7 @@
  * Uses vertical list with bottom sheet filters for touch-friendly interface.
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import { FileText } from 'lucide-react';
@@ -243,7 +244,7 @@ function FilterSheet({ gallery }: FilterSheetProps) {
  * - Apply button on each card
  * - Empty state when no templates match
  */
-export function TemplateGalleryMobile({
+function TemplateGalleryMobileComponent({
   gallery,
   onApplyTemplate,
   loading = false,
@@ -319,3 +320,9 @@ export function TemplateGalleryMobile({
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const TemplateGalleryMobile = memo(TemplateGalleryMobileComponent);
+
+// Set display name for React DevTools
+TemplateGalleryMobile.displayName = 'TemplateGalleryMobile';

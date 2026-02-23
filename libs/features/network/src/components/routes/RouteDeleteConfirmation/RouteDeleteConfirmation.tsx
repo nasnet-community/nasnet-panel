@@ -9,19 +9,21 @@
  * - Consequence display
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Button,
+  Icon,
   Input,
   Label,
 } from '@nasnet/ui/primitives';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import type { Route } from '@nasnet/api-client/generated';
 
 export interface RouteDeleteConfirmationProps {
@@ -80,8 +82,10 @@ function analyzeRouteImpact(route: Route) {
  * - Countdown timer (prevents accidental clicks)
  * - Case-sensitive matching for critical operations
  * - Detailed consequence display
+ *
+ * @description Critical operation dialog with countdown and type-to-confirm pattern
  */
-export function RouteDeleteConfirmation({
+function RouteDeleteConfirmationComponent({
   route,
   open,
   onOpenChange,
@@ -149,13 +153,14 @@ export function RouteDeleteConfirmation({
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div
-              className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+              className={cn(
+                'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
                 impact.severity === 'CRITICAL'
                   ? 'bg-error/10 text-error'
                   : 'bg-warning/10 text-warning'
-              }`}
+              )}
             >
-              <AlertTriangle className="w-5 h-5" />
+              <Icon icon={AlertTriangle} className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <DialogTitle className="text-left">
@@ -177,11 +182,12 @@ export function RouteDeleteConfirmation({
 
           {/* Consequences */}
           <div
-            className={`rounded-lg border-2 p-4 ${
+            className={cn(
+              'rounded-lg border-2 p-4',
               impact.severity === 'CRITICAL'
                 ? 'bg-error/5 border-error/20'
                 : 'bg-warning/5 border-warning/20'
-            }`}
+            )}
           >
             <h4 className="text-sm font-semibold mb-2">Consequences:</h4>
             <ul className="space-y-1">
@@ -218,9 +224,13 @@ export function RouteDeleteConfirmation({
 
           {/* Countdown */}
           {countdown !== null && countdown > 0 && (
-            <div className="text-center">
+            <div className="text-center" aria-live="polite" aria-atomic="true">
               <div className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-muted">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Icon
+                  icon={Loader2}
+                  className="h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
                 <span className="text-sm font-medium">
                   Please wait {countdown} second{countdown !== 1 ? 's' : ''}...
                 </span>
@@ -243,8 +253,15 @@ export function RouteDeleteConfirmation({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm}
+            aria-label={
+              canConfirm
+                ? 'Confirm route deletion'
+                : `Confirm deletion (waiting ${countdown || 0}s)`
+            }
           >
-            {(isSubmitting || loading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {(isSubmitting || loading) && (
+              <Icon icon={Loader2} className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Delete Route
           </Button>
         </DialogFooter>
@@ -252,3 +269,7 @@ export function RouteDeleteConfirmation({
     </Dialog>
   );
 }
+
+RouteDeleteConfirmationComponent.displayName = 'RouteDeleteConfirmationComponent';
+
+export const RouteDeleteConfirmation = memo(RouteDeleteConfirmationComponent);

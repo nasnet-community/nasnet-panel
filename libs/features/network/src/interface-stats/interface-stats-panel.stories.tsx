@@ -12,15 +12,19 @@
  * panel renders its loading/error/data states correctly in Storybook.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { MockedProvider } from '@apollo/client/testing';
+import { fn } from 'storybook/test';
+
+import { GET_INTERFACE_STATS, INTERFACE_STATS_UPDATED } from '@nasnet/api-client/queries';
+
 import {
   InterfaceStatsPanel,
   InterfaceStatsPanelDesktop,
   InterfaceStatsPanelMobile,
 } from './interface-stats-panel';
-import { GET_INTERFACE_STATS, INTERFACE_STATS_UPDATED } from '@nasnet/api-client/queries';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock GraphQL data

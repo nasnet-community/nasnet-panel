@@ -23,7 +23,7 @@ import {
   DEVICE_TYPE_LABELS,
 } from './use-device-card';
 
-import type { DiscoveredDevice } from './device-card.types';
+import type { DiscoveredDevice, DeviceType } from './device-card.types';
 
 // Note: vitest-axe matchers are extended in setup.ts
 

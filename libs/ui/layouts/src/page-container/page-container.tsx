@@ -1,15 +1,58 @@
+/**
+ * Page Container Component
+ *
+ * Responsive content wrapper for page layouts with optional breadcrumbs,
+ * title, description, and action buttons. Uses semantic HTML <main> element
+ * and responsive spacing for mobile, tablet, and desktop.
+ *
+ * Features:
+ * - Semantic HTML <main> element for accessibility
+ * - Configurable max-width (sm/md/lg/xl/2xl/full)
+ * - Optional breadcrumb navigation
+ * - Title with optional description
+ * - Action buttons (top-right)
+ * - Responsive padding (mobile/tablet/desktop)
+ * - Optional card variants (elevated/flat)
+ *
+ * @example
+ * ```tsx
+ * <PageContainer
+ *   title="Firewall Rules"
+ *   description="Manage network firewall rules"
+ *   breadcrumbs={<Breadcrumb items={[...]} />}
+ *   actions={<Button>Add Rule</Button>}
+ * >
+ *   <RulesList />
+ * </PageContainer>
+ * ```
+ *
+ * @see {@link PageContainerProps} for prop interface
+ */
+
 import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
+/**
+ * PageContainer component props
+ * @interface PageContainerProps
+ */
 export interface PageContainerProps {
+  /** Main content to render inside container */
   children: React.ReactNode;
+  /** Optional page title (typically h1) */
   title?: string;
+  /** Optional description text below title */
   description?: string;
+  /** Optional action buttons/controls (rendered top-right) */
   actions?: React.ReactNode;
+  /** Optional breadcrumb navigation component */
   breadcrumbs?: React.ReactNode;
+  /** Optional custom className for root element */
   className?: string;
+  /** Maximum content width breakpoint */
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+  /** Visual variant for container background */
   variant?: 'default' | 'elevated' | 'flat';
 }
 
@@ -24,11 +67,15 @@ const maxWidthClasses = {
 
 const variantClasses = {
   default: '',
-  elevated: 'card-elevated',
-  flat: 'card-flat',
+  elevated: 'bg-surfaceElevated1 rounded-lg',
+  flat: 'bg-background',
 };
 
-const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
+/**
+ * PageContainer - Main content wrapper for page layouts
+ * Provides semantic HTML with responsive spacing and optional header section.
+ */
+const PageContainerImpl = React.forwardRef<HTMLElement, PageContainerProps>(
   (
     {
       children,
@@ -43,28 +90,28 @@ const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
     ref
   ) => {
     return (
-      <div
+      <main
         ref={ref}
         className={cn(
-          'mx-auto w-full px-6 py-4',
+          'mx-auto w-full px-4 py-4 sm:px-6 md:px-8',
           maxWidthClasses[maxWidth],
           variantClasses[variant],
           className
         )}
       >
         {breadcrumbs && (
-          <nav className="mb-4 text-sm text-slate-500 dark:text-slate-400">{breadcrumbs}</nav>
+          <nav className="mb-4 text-sm text-foregroundMuted">{breadcrumbs}</nav>
         )}
         {(title || actions) && (
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               {title && (
-                <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
+                <h1 className="text-2xl font-semibold text-foreground">
                   {title}
                 </h1>
               )}
               {description && (
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-foregroundMuted">
                   {description}
                 </p>
               )}
@@ -73,11 +120,14 @@ const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
           </div>
         )}
         {children}
-      </div>
+      </main>
     );
   }
 );
 
-PageContainer.displayName = 'PageContainer';
+PageContainerImpl.displayName = 'PageContainer';
 
-export { PageContainer };
+/**
+ * PageContainer - Responsive main content wrapper
+ */
+export const PageContainer = React.memo(PageContainerImpl);

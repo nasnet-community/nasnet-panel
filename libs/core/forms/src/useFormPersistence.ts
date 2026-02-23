@@ -182,5 +182,3 @@ export function useFormPersistence<T extends FieldValues>({
     restore,
   };
 }
-
-export default useFormPersistence;

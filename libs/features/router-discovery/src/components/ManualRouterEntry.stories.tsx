@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { ManualRouterEntry } from './ManualRouterEntry';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ManualRouterEntry> = {
   title: 'Features/RouterDiscovery/ManualRouterEntry',

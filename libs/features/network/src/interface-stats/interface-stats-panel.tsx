@@ -11,6 +11,7 @@
  * NAS-6.9: Implement Interface Traffic Statistics
  */
 
+import React from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { InterfaceStatsPanelDesktop } from './interface-stats-panel-desktop';
 import { InterfaceStatsPanelMobile } from './interface-stats-panel-mobile';
@@ -25,6 +26,8 @@ import type { InterfaceStatsPanelProps } from './interface-stats-panel.types';
  * - Error rate percentage with trend indicators
  * - Threshold-based warnings
  *
+ * @description Auto-detects platform and renders appropriate presenter for optimal UX across mobile, tablet, and desktop
+ *
  * @example
  * ```tsx
  * <InterfaceStatsPanel
@@ -36,7 +39,9 @@ import type { InterfaceStatsPanelProps } from './interface-stats-panel.types';
  * />
  * ```
  */
-export function InterfaceStatsPanel(props: InterfaceStatsPanelProps) {
+const InterfaceStatsPanel = React.memo(function InterfaceStatsPanel(
+  props: InterfaceStatsPanelProps
+) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -44,8 +49,11 @@ export function InterfaceStatsPanel(props: InterfaceStatsPanelProps) {
   ) : (
     <InterfaceStatsPanelDesktop {...props} />
   );
-}
+});
+
+InterfaceStatsPanel.displayName = 'InterfaceStatsPanel';
 
 // Re-export presenters for direct usage
 export { InterfaceStatsPanelDesktop, InterfaceStatsPanelMobile };
+export { InterfaceStatsPanel };
 export type { InterfaceStatsPanelProps };

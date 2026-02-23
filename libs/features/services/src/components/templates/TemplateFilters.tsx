@@ -1,10 +1,36 @@
 /**
  * TemplateFilters Component
  *
- * Filter controls for template browsing with search, category, scope, and sort options.
+ * @description Filter controls for template browsing with search, category, scope, and sort options.
+ *
+ * Features:
+ * - Debounced search input
+ * - Category dropdown (6 categories)
+ * - Scope dropdown (3 scopes)
+ * - Sort options (name, updated, category, service count)
+ * - Built-in/Custom toggles
+ * - Reset button when filters active
+ *
+ * @example
+ * ```tsx
+ * <TemplateFilters
+ *   filters={{
+ *     searchQuery: '',
+ *     category: null,
+ *     scope: null,
+ *     sortBy: 'name',
+ *     showBuiltIn: true,
+ *     showCustom: true,
+ *   }}
+ *   onFiltersChange={(updates) => setFilters(prev => ({ ...prev, ...updates }))}
+ *   onReset={() => setFilters(defaultFilters)}
+ *   hasActiveFilters={false}
+ * />
+ * ```
  */
 
-import * as React from 'react';
+import React, { useCallback } from 'react';
+
 import { Search, X, Filter } from 'lucide-react';
 
 import {
@@ -22,47 +48,86 @@ import { cn } from '@nasnet/ui/utils';
 
 import type { TemplateFiltersProps } from './types';
 
-/**
- * TemplateFilters - Filter controls for template browser
- *
- * Features:
- * - Search input with debounce
- * - Category dropdown
- * - Scope dropdown
- * - Sort dropdown
- * - Built-in/Custom toggles
- * - Reset button (when filters active)
- */
-export function TemplateFilters({
+function TemplateFiltersComponent({
   filters,
   onFiltersChange,
   onReset,
   hasActiveFilters,
   className,
 }: TemplateFiltersProps) {
+  // Memoized event handlers
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onFiltersChange({ searchQuery: e.target.value });
+    },
+    [onFiltersChange]
+  );
+
+  const handleClearSearch = useCallback(() => {
+    onFiltersChange({ searchQuery: '' });
+  }, [onFiltersChange]);
+
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      onFiltersChange({ category: value === 'all' ? null : (value as any) });
+    },
+    [onFiltersChange]
+  );
+
+  const handleScopeChange = useCallback(
+    (value: string) => {
+      onFiltersChange({ scope: value === 'all' ? null : (value as any) });
+    },
+    [onFiltersChange]
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      onFiltersChange({ sortBy: value as any });
+    },
+    [onFiltersChange]
+  );
+
+  const handleBuiltInChange = useCallback(
+    (checked: boolean) => {
+      onFiltersChange({ showBuiltIn: checked });
+    },
+    [onFiltersChange]
+  );
+
+  const handleCustomChange = useCallback(
+    (checked: boolean) => {
+      onFiltersChange({ showCustom: checked });
+    },
+    [onFiltersChange]
+  );
   return (
     <div className={cn('space-y-4', className)}>
       {/* Search */}
       <div className="space-y-2">
         <Label htmlFor="template-search">Search Templates</Label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            aria-hidden="true"
+          />
           <Input
             id="template-search"
             type="text"
             placeholder="Search by name, description, or tags..."
             value={filters.searchQuery}
-            onChange={(e) => onFiltersChange({ searchQuery: e.target.value })}
+            onChange={handleSearchChange}
             className="pl-9"
+            aria-describedby="search-help"
           />
           {filters.searchQuery && (
             <button
               type="button"
-              onClick={() => onFiltersChange({ searchQuery: '' })}
+              onClick={handleClearSearch}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -71,12 +136,7 @@ export function TemplateFilters({
       {/* Category Filter */}
       <div className="space-y-2">
         <Label htmlFor="template-category">Category</Label>
-        <Select
-          value={filters.category || 'all'}
-          onValueChange={(value) =>
-            onFiltersChange({ category: value === 'all' ? null : (value as any) })
-          }
-        >
+        <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
           <SelectTrigger id="template-category">
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
@@ -95,12 +155,7 @@ export function TemplateFilters({
       {/* Scope Filter */}
       <div className="space-y-2">
         <Label htmlFor="template-scope">Scope</Label>
-        <Select
-          value={filters.scope || 'all'}
-          onValueChange={(value) =>
-            onFiltersChange({ scope: value === 'all' ? null : (value as any) })
-          }
-        >
+        <Select value={filters.scope || 'all'} onValueChange={handleScopeChange}>
           <SelectTrigger id="template-scope">
             <SelectValue placeholder="All scopes" />
           </SelectTrigger>
@@ -116,10 +171,7 @@ export function TemplateFilters({
       {/* Sort By */}
       <div className="space-y-2">
         <Label htmlFor="template-sort">Sort By</Label>
-        <Select
-          value={filters.sortBy}
-          onValueChange={(value) => onFiltersChange({ sortBy: value as any })}
-        >
+        <Select value={filters.sortBy} onValueChange={handleSortChange}>
           <SelectTrigger id="template-sort">
             <SelectValue />
           </SelectTrigger>
@@ -141,7 +193,8 @@ export function TemplateFilters({
           <Switch
             id="show-builtin"
             checked={filters.showBuiltIn}
-            onCheckedChange={(checked) => onFiltersChange({ showBuiltIn: checked })}
+            onCheckedChange={handleBuiltInChange}
+            aria-label="Show built-in templates"
           />
         </div>
         <div className="flex items-center justify-between">
@@ -151,7 +204,8 @@ export function TemplateFilters({
           <Switch
             id="show-custom"
             checked={filters.showCustom}
-            onCheckedChange={(checked) => onFiltersChange({ showCustom: checked })}
+            onCheckedChange={handleCustomChange}
+            aria-label="Show custom templates"
           />
         </div>
       </div>
@@ -163,11 +217,18 @@ export function TemplateFilters({
           size="sm"
           onClick={onReset}
           className="w-full"
+          aria-label="Reset all filters to defaults"
         >
-          <Filter className="mr-2 h-4 w-4" />
+          <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
           Reset Filters
         </Button>
       )}
     </div>
   );
 }
+
+/**
+ * TemplateFilters - Filter controls for template browser
+ */
+export const TemplateFilters = React.memo(TemplateFiltersComponent);
+TemplateFilters.displayName = 'TemplateFilters';

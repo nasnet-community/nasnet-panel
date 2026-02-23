@@ -30,7 +30,7 @@ const LazyServicePortsPage = lazy(() =>
  */
 function ServicePortsPageSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading service ports">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />

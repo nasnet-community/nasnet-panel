@@ -7,12 +7,11 @@
  * @module @nasnet/ui/patterns/isolation-status
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 import * as Icons from 'lucide-react';
 
-import { cn ,
-  Card,
+import {
   Badge,
   Button,
   Alert,
@@ -21,7 +20,10 @@ import { cn ,
   Input,
   Label,
   ScrollArea,
+  Card,
 } from '@nasnet/ui/primitives';
+
+import { cn } from '@nasnet/ui/utils';
 
 
 import type { IsolationStatusPresenterProps } from './types';
@@ -37,7 +39,7 @@ import type { IsolationStatusPresenterProps } from './types';
  *
  * @param props - Presenter props with computed state
  */
-export function IsolationStatusMobile({
+const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
   state,
   size = 'md',
   className,
@@ -303,4 +305,8 @@ export function IsolationStatusMobile({
       )}
     </Card>
   );
-}
+});
+
+IsolationStatusMobileComponent.displayName = 'IsolationStatusMobile';
+
+export { IsolationStatusMobileComponent as IsolationStatusMobile };

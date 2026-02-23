@@ -5,6 +5,7 @@
  * Two-column layout: variables editor on left, preview on right.
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import { FileText } from 'lucide-react';
@@ -49,7 +50,7 @@ export interface TemplatePreviewDesktopProps {
  * Rules preview panel
  */
 interface RulesPreviewProps {
-  rules: TemplateRule[];
+  rules: readonly TemplateRule[];
 }
 
 function RulesPreview({ rules }: RulesPreviewProps) {
@@ -119,7 +120,7 @@ function RulesPreview({ rules }: RulesPreviewProps) {
  * Conflicts preview panel
  */
 interface ConflictsPreviewProps {
-  conflicts: TemplateConflict[];
+  conflicts: readonly TemplateConflict[];
 }
 
 function ConflictsPreview({ conflicts }: ConflictsPreviewProps) {
@@ -251,7 +252,7 @@ function ImpactAnalysisView({ impactAnalysis }: ImpactAnalysisViewProps) {
  * - Apply/Cancel actions
  * - Loading and error states
  */
-export function TemplatePreviewDesktop({
+function TemplatePreviewDesktopComponent({
   preview,
   onApply,
   onCancel,
@@ -290,7 +291,7 @@ export function TemplatePreviewDesktop({
           </div>
 
           <TemplateVariableEditor
-            variables={variables}
+            variables={[...variables]}
             form={form}
             disabled={isGeneratingPreview || isApplying}
           />
@@ -366,11 +367,11 @@ export function TemplatePreviewDesktop({
               </TabsList>
 
               <TabsContent value="rules" className="flex-1 overflow-y-auto mt-4">
-                <RulesPreview rules={previewResult.resolvedRules || []} />
+                <RulesPreview rules={[...(previewResult.resolvedRules || [])]} />
               </TabsContent>
 
               <TabsContent value="conflicts" className="flex-1 overflow-y-auto mt-4">
-                <ConflictsPreview conflicts={previewResult.conflicts || []} />
+                <ConflictsPreview conflicts={[...(previewResult.conflicts || [])]} />
               </TabsContent>
 
               <TabsContent value="impact" className="flex-1 overflow-y-auto mt-4">
@@ -404,3 +405,9 @@ export function TemplatePreviewDesktop({
     </div>
   );
 }
+
+// Wrap with memo for performance optimization
+export const TemplatePreviewDesktop = memo(TemplatePreviewDesktopComponent);
+
+// Set display name for React DevTools
+TemplatePreviewDesktop.displayName = 'TemplatePreviewDesktop';

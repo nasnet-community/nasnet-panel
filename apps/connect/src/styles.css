@@ -1,7 +1,38 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
 
 /* Import generated design tokens from token pipeline */
 @import "@nasnet/ui/tokens/variables.css";
+
+/* ========================================
+ * FONT FACE DECLARATIONS
+ * Local font loading with font-display: swap for performance
+ * Supports offline/air-gapped environments
+ * ======================================== */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local('Inter Variable'), local('Inter'), local('InterVariable');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: local('JetBrains Mono Variable'), local('JetBrains Mono'), local('JetBrainsMono');
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: local('Satoshi Variable'), local('Satoshi'), local('SatoshiVariable');
+}
 
 /* CSS Variables for shadcn/ui theming */
 /* Based on NasNetConnect UX Design Specification */
@@ -148,241 +179,177 @@
  * ======================================== */
 
 @layer components {
-  /* Status badges - work in both light and dark themes */
+  /* Status badges - use semantic color tokens */
   .status-connected {
-    background-color: #22C55E;
-    color: white;
-  }
-  
-  .dark .status-connected {
-    background-color: #16A34A;
-  }
-  
-  .status-warning {
-    background-color: #F59E0B;
-    color: #0F172A;
-  }
-  
-  .dark .status-warning {
-    background-color: #D97706;
-    color: white;
-  }
-  
-  .status-error {
-    background-color: #EF4444;
-    color: white;
-  }
-  
-  .dark .status-error {
-    background-color: #DC2626;
-  }
-  
-  .status-info {
-    background-color: #0EA5E9;
-    color: white;
-  }
-  
-  .dark .status-info {
-    background-color: #0284C7;
-  }
-  
-  .status-offline {
-    @apply bg-slate-400 text-white dark:bg-slate-600;
+    background-color: var(--semantic-color-success-DEFAULT, hsl(142 71% 45%));
+    color: hsl(var(--foreground));
   }
 
-  /* Card variants */
+  .status-warning {
+    background-color: var(--semantic-color-warning-DEFAULT, hsl(38 92% 50%));
+    color: hsl(var(--foreground));
+  }
+
+  .status-error {
+    background-color: var(--semantic-color-error-DEFAULT, hsl(0 84% 60%));
+    color: hsl(var(--foreground));
+  }
+
+  .status-info {
+    background-color: var(--semantic-color-info-DEFAULT, hsl(199 89% 48%));
+    color: hsl(var(--foreground));
+  }
+
+  .status-offline {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  /* Card variants - use semantic tokens */
   .card-elevated {
-    @apply bg-white shadow-lg border border-slate-200;
-    @apply dark:bg-slate-800 dark:border-slate-700 dark:shadow-xl;
+    @apply bg-card shadow-lg border border-border;
     border-radius: 1rem;
   }
-  
+
   @media (min-width: 768px) {
     .card-elevated {
       border-radius: 1.5rem;
     }
   }
-  
+
   .card-interactive {
-    @apply bg-white shadow-sm border border-slate-200;
-    @apply hover:shadow-md hover:border-slate-300 transition-all duration-200;
-    @apply dark:bg-slate-800 dark:border-slate-700 dark:hover:border-slate-600;
+    @apply bg-card shadow-sm border border-border;
+    @apply hover:shadow-md hover:border-accent transition-all duration-200;
     border-radius: 1rem;
   }
-  
+
   @media (min-width: 768px) {
     .card-interactive {
       border-radius: 1.5rem;
     }
   }
-  
+
   .card-flat {
-    @apply bg-slate-50 border border-slate-200;
-    @apply dark:bg-slate-800 dark:border-slate-700;
+    @apply bg-background border border-border;
     border-radius: 1rem;
   }
-  
+
   @media (min-width: 768px) {
     .card-flat {
       border-radius: 1.5rem;
     }
   }
 
-  /* Button variants - theme-aware */
+  /* Button variants - use semantic tokens */
   .btn-action {
-    @apply text-slate-900 font-semibold py-3 px-6;
+    @apply text-primary-foreground font-semibold py-3 px-6;
     @apply transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: #EFC729;
-    border-radius: 0.75rem;
-  }
-  
-  .btn-action:hover {
-    background-color: #D4A50E;
-  }
-  
-  .btn-action:active {
-    background-color: #9C790A;
-  }
-  
-  .btn-action:focus {
-    --tw-ring-color: #EFC729;
-  }
-  
-  .dark .btn-action:focus {
-    --tw-ring-offset-color: #0F172A;
-  }
-  
-  .btn-secondary {
-    @apply text-white font-semibold py-3 px-6;
-    @apply transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: #4972ba;
-    border-radius: 0.75rem;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #3A5B95;
-  }
-  
-  .btn-secondary:active {
-    background-color: #2C4470;
-  }
-  
-  .btn-secondary:focus {
-    --tw-ring-color: #4972ba;
-  }
-  
-  .dark .btn-secondary:focus {
-    --tw-ring-offset-color: #0F172A;
-  }
-  
-  .btn-ghost {
-    @apply bg-transparent text-slate-700 font-medium py-2 px-4;
-    @apply hover:bg-slate-100 active:bg-slate-200 transition-colors;
-    @apply dark:text-slate-300 dark:hover:bg-slate-800 dark:active:bg-slate-700;
-    border-radius: 0.75rem;
-  }
-  
-  .btn-destructive {
-    @apply font-semibold py-3 px-6 text-white transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: #EF4444;
-    border-radius: 0.75rem;
-  }
-  
-  .btn-destructive:hover {
-    background-color: #DC2626;
-  }
-  
-  .btn-destructive:active {
-    background-color: #B91C1C;
-  }
-  
-  .btn-destructive:focus {
-    --tw-ring-color: #EF4444;
-  }
-  
-  .dark .btn-destructive:focus {
-    --tw-ring-offset-color: #0F172A;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    background-color: hsl(var(--primary));
+    border-radius: var(--radius);
   }
 
-  /* VPN/Connection status indicators */
+  .btn-action:hover {
+    background-color: var(--semantic-color-primary-hover, hsl(47 84% 45%));
+  }
+
+  .btn-action:active {
+    background-color: var(--semantic-color-primary-hover, hsl(47 84% 35%));
+  }
+
+  .btn-secondary {
+    @apply text-secondary-foreground font-semibold py-3 px-6;
+    @apply transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    background-color: hsl(var(--secondary));
+    border-radius: var(--radius);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--semantic-color-secondary-hover, hsl(217 44% 41%));
+  }
+
+  .btn-secondary:active {
+    background-color: var(--semantic-color-secondary-hover, hsl(217 44% 35%));
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-foreground font-medium py-2 px-4;
+    @apply hover:bg-accent active:bg-muted transition-colors;
+    border-radius: var(--radius);
+  }
+
+  .btn-destructive {
+    @apply font-semibold py-3 px-6 text-destructive-foreground transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    background-color: hsl(var(--destructive));
+    border-radius: var(--radius);
+  }
+
+  .btn-destructive:hover {
+    background-color: var(--semantic-color-error-hover, hsl(0 84% 50%));
+  }
+
+  .btn-destructive:active {
+    background-color: var(--semantic-color-error-hover, hsl(0 84% 40%));
+  }
+
+  /* VPN/Connection status indicators - use semantic tokens */
   .status-indicator-connected {
-    @apply w-2 h-2 rounded-full;
-    background-color: #22C55E;
+    @apply w-2 h-2 rounded-full bg-success;
     animation: pulse-glow 2s infinite;
   }
-  
+
   @keyframes pulse-glow {
     0%, 100% {
-      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+      box-shadow: 0 0 0 0 var(--semantic-color-success-DEFAULT, rgba(34, 197, 94, 0.4));
     }
     50% {
-      box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+      box-shadow: 0 0 0 8px transparent;
     }
   }
-  
+
   .status-indicator-connecting {
-    @apply w-2 h-2 rounded-full animate-pulse;
-    background-color: #F59E0B;
+    @apply w-2 h-2 rounded-full bg-warning animate-pulse;
   }
-  
+
   .status-indicator-disconnected {
-    @apply w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600;
+    @apply w-2 h-2 rounded-full bg-muted;
   }
-  
+
   .status-indicator-error {
-    @apply w-2 h-2 rounded-full;
-    background-color: #EF4444;
+    @apply w-2 h-2 rounded-full bg-error;
   }
 
-  /* Surface utilities */
+  /* Surface utilities - use semantic tokens */
   .surface {
-    @apply bg-white dark:bg-slate-800;
+    @apply bg-card;
   }
-  
+
   .surface-secondary {
-    @apply bg-slate-50 dark:bg-slate-700;
+    @apply bg-muted;
   }
 
-  /* Text utilities for better readability */
+  /* Text utilities - use semantic tokens */
   .text-muted {
-    @apply text-slate-500 dark:text-slate-400;
+    @apply text-muted-foreground;
   }
-  
+
   .text-emphasis {
-    @apply text-slate-900 dark:text-slate-50 font-medium;
+    @apply text-foreground font-medium;
   }
 
-  /* Border utilities */
+  /* Border utilities - use semantic tokens */
   .border-default {
-    @apply border-slate-200 dark:border-slate-700;
+    @apply border-border;
   }
 
-  /* Focus states - WCAG compliant */
+  /* Focus states - WCAG compliant, use semantic tokens */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
   }
-  
-  .focus-ring:focus {
-    --tw-ring-color: #EFC729;
-  }
-  
-  .dark .focus-ring:focus {
-    --tw-ring-offset-color: #0F172A;
-  }
-  
+
   .focus-ring-error {
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-  
-  .focus-ring-error:focus {
-    --tw-ring-color: #EF4444;
-  }
-  
-  .dark .focus-ring-error:focus {
-    --tw-ring-offset-color: #0F172A;
+    @apply focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-background;
   }
 }
 

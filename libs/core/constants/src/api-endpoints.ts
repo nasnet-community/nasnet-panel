@@ -1,8 +1,27 @@
 /**
  * API Endpoints
- * Defines all available API endpoints for the backend
+ *
+ * Defines all available API endpoints for the backend service.
+ * Organized by domain: router management, network, DHCP, VPN, configuration, monitoring, and system management.
+ *
+ * @module @nasnet/core/constants/api-endpoints
+ *
+ * @example
+ * ```ts
+ * import { API_ENDPOINTS } from '@nasnet/core/constants';
+ *
+ * // Static endpoints
+ * const listUrl = API_ENDPOINTS.ROUTER_LIST; // '/api/v1/routers'
+ *
+ * // Dynamic endpoints with parameters
+ * const detailUrl = API_ENDPOINTS.ROUTER_DETAIL('router-123');
+ * ```
  */
 
+/**
+ * All available API endpoints organized by domain.
+ * Endpoints may be either static strings or functions that accept parameters.
+ */
 export const API_ENDPOINTS = {
   // Router Management
   ROUTER_LIST: '/api/v1/routers',

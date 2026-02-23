@@ -45,11 +45,11 @@ type Story = StoryObj<typeof TemplatePreview>;
  */
 export const Default: Story = {
   render: () => {
-    const [result, setResult] = useState<TemplatePreviewResult | null>(null);
+    const [_result, setResult] = useState<TemplatePreviewResult | null>(null);
 
     const preview = useTemplatePreview({
       template: mockBasicSecurityTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const previewResult = {
@@ -80,7 +80,7 @@ export const WithConflicts: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockHomeNetworkTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResultWithConflicts,
@@ -108,7 +108,7 @@ export const AutoPreview: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockBasicSecurityTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
         return {
           ...mockPreviewResult,
@@ -139,7 +139,7 @@ export const WithInitialValues: Story = {
     const preview = useTemplatePreview({
       template: mockHomeNetworkTemplate,
       initialValues: generateMockVariables(),
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResult,
@@ -167,7 +167,7 @@ export const ComplexTemplate: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockGamingOptimizedTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResult,
@@ -195,7 +195,7 @@ export const AdvancedTemplate: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockIotIsolationTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResult,
@@ -223,7 +223,7 @@ export const ApplyingState: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockBasicSecurityTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         return {
           ...mockPreviewResult,
           template: mockBasicSecurityTemplate,
@@ -251,7 +251,7 @@ export const MobileView: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockHomeNetworkTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResult,
@@ -284,7 +284,7 @@ export const DesktopView: Story = {
   render: () => {
     const preview = useTemplatePreview({
       template: mockHomeNetworkTemplate,
-      onGeneratePreview: async (variables: TemplateVariableValues) => {
+      onGeneratePreview: async (_variables: TemplateVariableValues) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
           ...mockPreviewResult,

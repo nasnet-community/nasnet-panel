@@ -15,6 +15,23 @@ const IPV4_REGEX =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
+ * MAC address validation regex
+ * Matches: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX format
+ */
+const MAC_ADDRESS_REGEX = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+
+/**
+ * Network CIDR notation validation regex
+ */
+const NETWORK_CIDR_REGEX = /^(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+
+/**
+ * Server name validation regex
+ * Allows letters, numbers, hyphens, and underscores
+ */
+const SERVER_NAME_REGEX = /^[a-zA-Z0-9-_]+$/;
+
+/**
  * IPv4 address schema
  */
 export const ipv4Schema = z
@@ -93,10 +110,10 @@ export const dhcpWizardSchema = interfaceStepSchema
         .min(1, 'Server name is required')
         .max(64, 'Server name too long')
         .regex(
-          /^[a-zA-Z0-9-_]+$/,
+          SERVER_NAME_REGEX,
           'Server name can only contain letters, numbers, hyphens, and underscores'
         ),
-      network: z.string().regex(/^(?:\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/, {
+      network: z.string().regex(NETWORK_CIDR_REGEX, {
         message: 'Invalid network CIDR notation',
       }),
     })
@@ -111,7 +128,7 @@ export const staticBindingSchema = z.object({
   macAddress: z
     .string()
     .regex(
-      /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/,
+      MAC_ADDRESS_REGEX,
       'Invalid MAC address format (use XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)'
     ),
   ipAddress: ipv4Schema,

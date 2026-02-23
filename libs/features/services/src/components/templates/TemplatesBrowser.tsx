@@ -1,42 +1,54 @@
 /**
  * TemplatesBrowser Component
  *
- * Main wrapper that routes to platform-specific presenters.
- * Implements Headless + Platform Presenters pattern.
+ * @description Wrapper component that automatically selects platform-specific presenters for browsing service templates.
+ *
+ * Implements Headless + Platform Presenters pattern:
+ * - Mobile (<640px): Vertical list with bottom sheet filters and 44px touch targets
+ * - Tablet (640-1024px): Vertical list with bottom sheet filters
+ * - Desktop (>1024px): 2-column grid with left sidebar filters and hover states
+ *
+ * @example
+ * ```tsx
+ * <TemplatesBrowser
+ *   routerId="router-1"
+ *   onInstall={(template) => {
+ *     console.log('Installing:', template.name);
+ *     navigateToInstallWizard(template.id);
+ *   }}
+ *   onViewDetails={(template) => {
+ *     navigateToTemplateDetail(template.id);
+ *   }}
+ * />
+ * ```
  */
 
-import { memo } from 'react';
+import React from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 
-import { TemplatesBrowserMobile } from './TemplatesBrowserMobile';
 import { TemplatesBrowserDesktop } from './TemplatesBrowserDesktop';
+import { TemplatesBrowserMobile } from './TemplatesBrowserMobile';
 
 import type { TemplatesBrowserProps } from './types';
 
 /**
- * TemplatesBrowser - Browse and filter service templates
- *
- * Automatically selects the appropriate presenter based on platform:
- * - Mobile/Tablet (<1024px): Vertical list with bottom sheet filters
- * - Desktop (≥1024px): 2-column grid with sidebar filters
+ * Auto-detecting wrapper component that routes to platform-specific presenters
  */
 function TemplatesBrowserComponent(props: TemplatesBrowserProps) {
   const platform = usePlatform();
 
-  switch (platform) {
-    case 'mobile':
-      return <TemplatesBrowserMobile {...props} />;
-    case 'tablet':
-      return <TemplatesBrowserMobile {...props} />;
-    case 'desktop':
-      return <TemplatesBrowserDesktop {...props} />;
-    default:
-      return <TemplatesBrowserDesktop {...props} />;
+  // Mobile and Tablet share the same presenter (vertical list with bottom sheet filters)
+  if (platform === 'mobile' || platform === 'tablet') {
+    return <TemplatesBrowserMobile {...props} />;
   }
+
+  // Desktop has dedicated 2-column grid layout with sidebar
+  return <TemplatesBrowserDesktop {...props} />;
 }
 
-// Wrap with memo for performance
-export const TemplatesBrowser = memo(TemplatesBrowserComponent);
-
-// Set display name for React DevTools
+/**
+ * TemplatesBrowser - Browse and filter service templates with platform-specific UI
+ */
+export const TemplatesBrowser = React.memo(TemplatesBrowserComponent);
 TemplatesBrowser.displayName = 'TemplatesBrowser';

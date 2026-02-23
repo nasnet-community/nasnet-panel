@@ -37,11 +37,14 @@ const errorMetrics = [
 // ============================================================================
 
 const meta: Meta<typeof StatusCard> = {
-  title: 'Patterns/PageStructure/StatusCard',
+  title: 'Patterns/Common/StatusCard',
   component: StatusCard,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+    viewport: {
+      defaultViewport: 'desktop',
+    },
     docs: {
       description: {
         component: `
@@ -257,6 +260,63 @@ export const AllStates: Story = {
     docs: {
       description: {
         story: 'All four status states side-by-side for visual comparison.',
+      },
+    },
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    status: 'healthy',
+    message: 'Network Healthy',
+    subtitle: 'All systems operational',
+    metrics: networkMetrics,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Mobile viewport showing card responsive layout.',
+      },
+    },
+  },
+};
+
+export const Tablet: Story = {
+  args: {
+    status: 'warning',
+    message: 'Degraded Performance',
+    subtitle: 'Some interfaces need attention',
+    metrics: degradedMetrics,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'tablet',
+    },
+    docs: {
+      description: {
+        story: 'Tablet viewport.',
+      },
+    },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    status: 'healthy',
+    message: 'Network Healthy',
+    subtitle: 'All systems operational',
+    metrics: networkMetrics,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'desktop',
+    },
+    docs: {
+      description: {
+        story: 'Desktop viewport with full metrics display.',
       },
     },
   },

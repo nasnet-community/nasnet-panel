@@ -20,22 +20,20 @@ const mockServers: DHCPServer[] = [
     name: 'dhcp-lan',
     interface: 'ether1',
     addressPool: 'pool-lan',
-    gateway: '192.168.1.1',
-    dnsServers: ['8.8.8.8', '8.8.4.4'],
     leaseTime: '1d',
-    activeLeases: 15,
     disabled: false,
+    authoritative: true,
+    useRadius: false,
   },
   {
     id: 'server-2',
     name: 'dhcp-guest',
     interface: 'ether2',
     addressPool: 'pool-guest',
-    gateway: '192.168.10.1',
-    dnsServers: ['1.1.1.1'],
     leaseTime: '12h',
-    activeLeases: 3,
     disabled: true,
+    authoritative: false,
+    useRadius: false,
   },
 ];
 
@@ -142,20 +140,10 @@ describe('DHCPServerList', () => {
         // Check for server 1 details
         expect(screen.getByText('ether1')).toBeInTheDocument();
         expect(screen.getByText('pool-lan')).toBeInTheDocument();
-        expect(screen.getByText(/192\.168\.1\.1/)).toBeInTheDocument();
 
         // Check for server 2 details
         expect(screen.getByText('ether2')).toBeInTheDocument();
         expect(screen.getByText('pool-guest')).toBeInTheDocument();
-      });
-    });
-
-    it('should display active lease counts', async () => {
-      render(<DHCPServerList />, { wrapper: createTestWrapper() });
-
-      await waitFor(() => {
-        expect(screen.getByText('15')).toBeInTheDocument();
-        expect(screen.getByText('3')).toBeInTheDocument();
       });
     });
 

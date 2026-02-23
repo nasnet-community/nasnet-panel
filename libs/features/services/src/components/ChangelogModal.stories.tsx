@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { ChangelogModal } from './ChangelogModal';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ChangelogModal> = {
   title: 'Features/Services/ChangelogModal',

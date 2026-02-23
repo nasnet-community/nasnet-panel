@@ -162,7 +162,7 @@ describe('TemplateVariableSchema', () => {
       name: 'LAN_INTERFACE',
       label: 'LAN Interface',
       type: 'INTERFACE' as const,
-      required: true,
+      isRequired: true,
       description: 'The interface connected to your local network',
       options: ['bridge1', 'ether2'],
     };
@@ -176,7 +176,7 @@ describe('TemplateVariableSchema', () => {
       name: 'lan-interface', // Should be uppercase
       label: 'LAN Interface',
       type: 'INTERFACE' as const,
-      required: true,
+      isRequired: true,
     };
 
     const result = TemplateVariableSchema.safeParse(variable);
@@ -198,7 +198,7 @@ describe('TemplateVariableSchema', () => {
       name: 'LAN_INTERFACE',
       label: 'LAN Interface',
       type: 'INTERFACE' as const,
-      required: true,
+      isRequired: true,
       // description and options are optional
     };
 
@@ -251,7 +251,7 @@ describe('FirewallTemplateSchema', () => {
         name: 'LAN_INTERFACE',
         label: 'LAN Interface',
         type: 'INTERFACE',
-        required: true,
+        isRequired: true,
       },
     ],
     rules: [
@@ -341,7 +341,7 @@ describe('createVariableValueSchema', () => {
       name: 'LAN_INTERFACE',
       label: 'LAN Interface',
       type: 'INTERFACE',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -355,7 +355,7 @@ describe('createVariableValueSchema', () => {
       name: 'LAN_INTERFACE',
       label: 'LAN Interface',
       type: 'INTERFACE',
-      required: true,
+      isRequired: true,
       options: ['bridge1', 'ether2'],
     };
 
@@ -370,7 +370,7 @@ describe('createVariableValueSchema', () => {
       name: 'LAN_SUBNET',
       label: 'LAN Subnet',
       type: 'SUBNET',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -383,7 +383,7 @@ describe('createVariableValueSchema', () => {
       name: 'SERVER_IP',
       label: 'Server IP',
       type: 'IP',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -396,7 +396,7 @@ describe('createVariableValueSchema', () => {
       name: 'SSH_PORT',
       label: 'SSH Port',
       type: 'PORT',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -411,7 +411,7 @@ describe('createVariableValueSchema', () => {
       name: 'PORT_RANGE',
       label: 'Port Range',
       type: 'PORT_RANGE',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -424,7 +424,7 @@ describe('createVariableValueSchema', () => {
       name: 'VLAN_ID',
       label: 'VLAN ID',
       type: 'VLAN_ID',
-      required: true,
+      isRequired: true,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -439,7 +439,7 @@ describe('createVariableValueSchema', () => {
       name: 'OPTIONAL_VAR',
       label: 'Optional Variable',
       type: 'STRING',
-      required: false,
+      isRequired: false,
     };
 
     const schema = createVariableValueSchema(variable);
@@ -461,19 +461,19 @@ describe('createTemplateVariablesSchema', () => {
         name: 'LAN_INTERFACE',
         label: 'LAN Interface',
         type: 'INTERFACE',
-        required: true,
+        isRequired: true,
       },
       {
         name: 'LAN_SUBNET',
         label: 'LAN Subnet',
         type: 'SUBNET',
-        required: true,
+        isRequired: true,
       },
       {
         name: 'OPTIONAL_VAR',
         label: 'Optional Variable',
         type: 'STRING',
-        required: false,
+        isRequired: false,
       },
     ],
     rules: [
@@ -534,13 +534,13 @@ describe('validateTemplateVariables', () => {
         name: 'LAN_INTERFACE',
         label: 'LAN Interface',
         type: 'INTERFACE',
-        required: true,
+        isRequired: true,
       },
       {
         name: 'SSH_PORT',
         label: 'SSH Port',
         type: 'PORT',
-        required: true,
+        isRequired: true,
       },
     ],
     rules: [

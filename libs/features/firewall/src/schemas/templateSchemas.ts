@@ -48,29 +48,41 @@ import type { TemplateVariable, FirewallTemplate } from '@nasnet/core/types';
 // ============================================
 
 /**
- * IPv4 address pattern (e.g., 192.168.1.1)
+ * IPv4 address validation pattern
+ * @description Matches valid IPv4 addresses (e.g., 192.168.1.1)
  */
-export const ipv4Pattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+export const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
- * CIDR notation pattern (e.g., 192.168.1.0/24)
+ * CIDR notation validation pattern
+ * @description Matches valid CIDR notation (e.g., 192.168.1.0/24)
  */
-export const cidrPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+export const CIDR_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
- * Port range pattern (e.g., 8000-9000)
+ * Port range validation pattern
+ * @description Matches port ranges (e.g., 8000-9000)
  */
-export const portRangePattern = /^(\d{1,5})-(\d{1,5})$/;
+export const PORT_RANGE_PATTERN = /^(\d{1,5})-(\d{1,5})$/;
 
 /**
- * Interface name pattern (e.g., ether1, bridge1, vlan10)
+ * Interface name validation pattern
+ * @description Matches valid interface names (e.g., ether1, bridge1, vlan10)
  */
-export const interfacePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+export const INTERFACE_PATTERN = /^[a-zA-Z][a-zA-Z0-9-]*$/;
 
 /**
- * Semver version pattern (e.g., 1.0.0, 2.3.1-beta)
+ * Semver version validation pattern
+ * @description Matches semantic version strings (e.g., 1.0.0, 2.3.1-beta)
  */
-export const semverPattern = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
+export const SEMVER_PATTERN = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
+
+// Backward compatibility aliases
+export const ipv4Pattern = IPV4_PATTERN;
+export const cidrPattern = CIDR_PATTERN;
+export const portRangePattern = PORT_RANGE_PATTERN;
+export const interfacePattern = INTERFACE_PATTERN;
+export const semverPattern = SEMVER_PATTERN;
 
 // ============================================
 // VALIDATION FUNCTIONS
@@ -78,20 +90,29 @@ export const semverPattern = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
 
 /**
  * Validates IPv4 address
+ * @description Checks if a string is a valid IPv4 address
+ * @param val - The string to validate
+ * @returns True if valid IPv4 format
  */
 export function validateIPv4(val: string): boolean {
-  return ipv4Pattern.test(val);
+  return IPV4_PATTERN.test(val);
 }
 
 /**
  * Validates CIDR notation
+ * @description Checks if a string is valid CIDR notation
+ * @param val - The string to validate
+ * @returns True if valid CIDR format
  */
 export function validateCIDR(val: string): boolean {
-  return cidrPattern.test(val);
+  return CIDR_PATTERN.test(val);
 }
 
 /**
- * Validates port number (1-65535)
+ * Validates port number
+ * @description Checks if a value is a valid port number (1-65535)
+ * @param val - The port number to validate
+ * @returns True if valid port range
  */
 export function validatePort(val: string | number): boolean {
   const port = typeof val === 'string' ? parseInt(val, 10) : val;
@@ -99,10 +120,13 @@ export function validatePort(val: string | number): boolean {
 }
 
 /**
- * Validates port range format and ensures start < end
+ * Validates port range format
+ * @description Checks if a string is a valid port range with start < end
+ * @param val - The port range string to validate (e.g., "8000-9000")
+ * @returns True if valid port range format
  */
 export function validatePortRange(val: string): boolean {
-  const match = val.match(portRangePattern);
+  const match = val.match(PORT_RANGE_PATTERN);
   if (!match) return false;
 
   const start = parseInt(match[1], 10);
@@ -112,7 +136,10 @@ export function validatePortRange(val: string): boolean {
 }
 
 /**
- * Validates VLAN ID (1-4094)
+ * Validates VLAN ID
+ * @description Checks if a value is a valid VLAN ID (1-4094)
+ * @param val - The VLAN ID to validate
+ * @returns True if valid VLAN range
  */
 export function validateVlanId(val: string | number): boolean {
   const vlanId = typeof val === 'string' ? parseInt(val, 10) : val;
@@ -121,16 +148,22 @@ export function validateVlanId(val: string | number): boolean {
 
 /**
  * Validates interface name
+ * @description Checks if a string is a valid interface name (max 32 chars)
+ * @param val - The interface name to validate
+ * @returns True if valid interface name format
  */
 export function validateInterface(val: string): boolean {
-  return interfacePattern.test(val) && val.length <= 32;
+  return INTERFACE_PATTERN.test(val) && val.length <= 32;
 }
 
 /**
- * Validates semver version
+ * Validates semantic version
+ * @description Checks if a string is a valid semver version
+ * @param val - The version string to validate
+ * @returns True if valid semver format
  */
 export function validateSemver(val: string): boolean {
-  return semverPattern.test(val);
+  return SEMVER_PATTERN.test(val);
 }
 
 // ============================================
@@ -210,7 +243,7 @@ export function createVariableValueSchema(variable: TemplateVariable): z.ZodType
   }
 
   // Handle required vs optional
-  if (!variable.required && ((variable.type as string) !== 'NUMBER' && (variable.type as string) !== 'BOOLEAN')) {
+  if (!variable.isRequired && ((variable.type as string) !== 'NUMBER' && (variable.type as string) !== 'BOOLEAN')) {
     return schema.optional();
   }
 

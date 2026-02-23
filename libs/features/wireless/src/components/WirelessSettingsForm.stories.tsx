@@ -7,9 +7,11 @@
  * mock data and action handlers so no providers are needed.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { WirelessSettingsForm } from './WirelessSettingsForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof WirelessSettingsForm> = {
   title: 'Features/Wireless/WirelessSettingsForm',

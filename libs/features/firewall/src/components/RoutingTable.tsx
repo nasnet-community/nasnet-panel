@@ -1,10 +1,19 @@
 /**
  * Routing Table Component
- * Displays routing table entries in a sortable, read-only table
- * Epic 0.6, Story 0.6.3
+ * @description Displays router's routing table entries with sorting
+ *
+ * Features:
+ * - Sortable columns (destination, gateway, interface, distance, type, active)
+ * - Active routes highlighted (bold + green background)
+ * - Dynamic routes marked with badge
+ * - Route type badges (unicast, blackhole, unreachable, prohibit)
+ * - Default route (0.0.0.0/0 or ::/0) marked with border
+ * - Technical IP/gateway data in font-mono
+ * - Disabled routes styling (opacity + line-through)
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import { useRoutes } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
@@ -17,54 +26,62 @@ import {
 } from '@nasnet/ui/primitives';
 import type { RouteEntry } from '@nasnet/core/types';
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+const DEFAULT_ROUTE_PATTERNS = ['0.0.0.0/0', '::/0'];
+
 /**
- * Route type badge component
+ * Renders a badge for route type with semantic colors
+ * @description Maps route types to semantic color variants
  */
-function RouteTypeBadge({ type, dynamic }: { type: string; dynamic: boolean }) {
-  const typeColors: Record<string, string> = {
-    unicast: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    blackhole: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    unreachable: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-    prohibit: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+const RouteTypeBadge = ({ type, dynamic }: { type: string; dynamic: boolean }) => {
+  const TYPE_VARIANT_MAP: Record<string, 'success' | 'destructive' | 'warning'> = {
+    unicast: 'success',
+    blackhole: 'destructive',
+    unreachable: 'warning',
+    prohibit: 'warning',
   };
 
-  const colorClass = typeColors[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const variant = TYPE_VARIANT_MAP[type] || 'success';
 
   return (
     <div className="flex gap-1 items-center">
-      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md ${colorClass}`}>
+      <span className={cn(
+        'inline-flex items-center px-2 py-1 text-xs font-medium rounded-md',
+        variant === 'success' && 'bg-success/20 text-success',
+        variant === 'destructive' && 'bg-destructive/20 text-destructive',
+        variant === 'warning' && 'bg-warning/20 text-warning'
+      )}>
         {type}
       </span>
       {dynamic && (
-        <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+        <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-info/20 text-info">
           dynamic
         </span>
       )}
     </div>
   );
-}
+};
+
+RouteTypeBadge.displayName = 'RouteTypeBadge';
 
 export interface RoutingTableProps {
+  /** Optional className for styling */
   className?: string;
 }
 
 /**
  * RoutingTable Component
+ * @description Displays router's routing table with sortable columns
  *
- * Features:
- * - Displays all routing table entries
- * - Active routes highlighted (bold text)
- * - Dynamic routes marked with badge
- * - Route type badges (unicast, blackhole, unreachable, prohibit)
- * - Visual distinction for disabled routes (muted)
- * - Default route (0.0.0.0/0) prominently displayed
- * - Auto-refresh with 5-minute cache
- * - Sortable by any column
- *
- * @param props - Component props
- * @returns Routing table component
+ * @example
+ * ```tsx
+ * <RoutingTable />
+ * ```
  */
-export function RoutingTable({ className }: RoutingTableProps) {
+export const RoutingTable = ({ className }: RoutingTableProps) => {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { routes, loading: isLoading, error } = useRoutes(routerIp);
   const [sortColumn, setSortColumn] = useState<keyof RouteEntry>('destination');
@@ -99,90 +116,129 @@ export function RoutingTable({ className }: RoutingTableProps) {
     });
   }, [routes, sortColumn, sortDirection]);
 
-  // Handle column header click for sorting
-  const handleSort = (column: keyof RouteEntry) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
+  const handleSort = useCallback((column: keyof RouteEntry) => {
+    setSortColumn((prevColumn) => {
+      if (prevColumn === column) {
+        setSortDirection((prevDir) => prevDir === 'asc' ? 'desc' : 'asc');
+        return column;
+      }
       setSortDirection('asc');
-    }
-  };
+      return column;
+    });
+  }, []);
 
-  // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 ${className || ''}`}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        </div>
+      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+        <div className="h-10 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        Error loading routes: {error.message}
+      <div className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}>
+        <p className="font-medium">Error loading routes</p>
+        <p className="text-sm mt-1">{error.message}</p>
       </div>
     );
   }
 
-  // Empty state
   if (!routes || routes.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
-        No routes found
+      <div className={cn('p-8 text-center space-y-2', className)}>
+        <p className="font-semibold text-foreground">No routes found</p>
+        <p className="text-sm text-muted-foreground">The routing table is empty</p>
       </div>
     );
   }
 
-  // Check if this is the default route
   const isDefaultRoute = (destination: string) => {
-    return destination === '0.0.0.0/0' || destination === '::/0';
+    return DEFAULT_ROUTE_PATTERNS.includes(destination);
   };
 
   return (
-    <div className={className}>
+    <div className={cn(className)}>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('destination')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('destination');
+                }
+              }}
             >
               Destination {sortColumn === 'destination' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('gateway')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('gateway');
+                }
+              }}
             >
               Gateway {sortColumn === 'gateway' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('interface')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('interface');
+                }
+              }}
             >
               Interface {sortColumn === 'interface' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('distance')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('distance');
+                }
+              }}
             >
               Distance {sortColumn === 'distance' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('routeType')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('routeType');
+                }
+              }}
             >
               Type {sortColumn === 'routeType' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+              className="cursor-pointer hover:text-foreground transition-colors"
               onClick={() => handleSort('active')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSort('active');
+                }
+              }}
             >
               Active {sortColumn === 'active' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
@@ -192,22 +248,22 @@ export function RoutingTable({ className }: RoutingTableProps) {
           {sortedRoutes.map((route) => (
             <TableRow
               key={route.id}
-              className={`
-                ${route.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''}
-                ${route.active ? 'bg-green-50 dark:bg-green-950' : ''}
-                ${isDefaultRoute(route.destination) ? 'border-l-4 border-l-blue-500' : ''}
-              `}
+              className={cn(
+                route.disabled && 'opacity-50',
+                route.active && 'bg-success/5',
+                isDefaultRoute(route.destination) && 'border-l-4 border-l-info'
+              )}
             >
-              <TableCell className={`font-mono ${route.active ? 'font-bold' : ''}`}>
+              <TableCell className={cn('font-mono', route.active && 'font-bold')}>
                 {route.destination}
                 {isDefaultRoute(route.destination) && (
-                  <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(default)</span>
+                  <span className="ml-2 text-xs text-info">(default)</span>
                 )}
               </TableCell>
-              <TableCell className={route.disabled ? 'line-through' : ''}>
+              <TableCell className={cn('font-mono', route.disabled && 'line-through')}>
                 {route.gateway || '-'}
               </TableCell>
-              <TableCell className={route.disabled ? 'line-through' : ''}>
+              <TableCell className={cn(route.disabled && 'line-through')}>
                 {route.interface || '-'}
               </TableCell>
               <TableCell className="text-center">{route.distance}</TableCell>
@@ -216,9 +272,9 @@ export function RoutingTable({ className }: RoutingTableProps) {
               </TableCell>
               <TableCell className="text-center">
                 {route.active ? (
-                  <span className="text-green-600 dark:text-green-400 font-medium">●</span>
+                  <span className="text-success font-medium" aria-label="Route is active">●</span>
                 ) : (
-                  <span className="text-slate-300 dark:text-slate-600">○</span>
+                  <span className="text-muted" aria-label="Route is inactive">○</span>
                 )}
               </TableCell>
             </TableRow>
@@ -227,4 +283,6 @@ export function RoutingTable({ className }: RoutingTableProps) {
       </Table>
     </div>
   );
-}
+};
+
+RoutingTable.displayName = 'RoutingTable';

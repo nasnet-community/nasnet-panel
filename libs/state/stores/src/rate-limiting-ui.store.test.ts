@@ -75,7 +75,7 @@ describe('useRateLimitingUIStore', () => {
       timeWindow: 'per-minute',
       action: 'drop',
       comment: 'Test rule',
-      disabled: false,
+      isDisabled: false,
     };
 
     it('should initialize with editor closed', () => {
@@ -406,7 +406,7 @@ describe('useRateLimitingUIStore', () => {
         connectionLimit: 50,
         timeWindow: 'per-second',
         action: 'tarpit',
-        disabled: false,
+        isDisabled: false,
       };
 
       // Set various state values
@@ -505,7 +505,7 @@ describe('useRateLimitingUIStore', () => {
         connectionLimit: 100,
         timeWindow: 'per-minute',
         action: 'drop',
-        disabled: false,
+        isDisabled: false,
       };
 
       // First render: set some non-persisted values
@@ -604,7 +604,7 @@ describe('useRateLimitingUIStore', () => {
         connectionLimit: 50,
         timeWindow: 'per-second',
         action: 'drop',
-        disabled: false,
+        isDisabled: false,
       };
 
       act(() => {

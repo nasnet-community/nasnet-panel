@@ -65,7 +65,7 @@ function createTestItem(overrides?: Partial<ChangeSetItem>): ChangeSetItem {
     id: 'test-item',
     name: 'Test Item',
     resourceType: 'test.resource',
-    resourceCategory: 'NETWORKING',
+    resourceCategory: 'NETWORK',
     operation: 'CREATE',
     configuration: { name: 'test' },
     dependencies: [],
@@ -75,6 +75,8 @@ function createTestItem(overrides?: Partial<ChangeSetItem>): ChangeSetItem {
     applyStartedAt: null,
     applyCompletedAt: null,
     confirmedState: null,
+    resourceUuid: null,
+    previousState: null,
     ...overrides,
   };
 }
@@ -98,7 +100,7 @@ function createFailedValidation(): ChangeSetValidationResult {
         itemId: 'item-1',
         field: 'name',
         message: 'Name is required',
-        severity: 'ERROR',
+        severity: 'error',
         code: 'REQUIRED',
       },
     ],
@@ -135,7 +137,7 @@ describe('createChangeSetMachine', () => {
     it('should start in idle state', () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       expect(actor.getSnapshot().value).toBe('idle');
@@ -146,7 +148,7 @@ describe('createChangeSetMachine', () => {
     it('should have empty initial context', () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       const context = actor.getSnapshot().context;
@@ -164,7 +166,7 @@ describe('createChangeSetMachine', () => {
     it('should load change set and stay in idle', () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       const changeSet = createTestChangeSet();
@@ -183,7 +185,7 @@ describe('createChangeSetMachine', () => {
     it('should transition to validating on START_VALIDATION', async () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
       actor.start();
 
       const changeSet = createTestChangeSet();
@@ -200,7 +202,7 @@ describe('createChangeSetMachine', () => {
       const validateFn = vi.fn().mockResolvedValue(createSuccessValidation());
       const config = createMachineConfig({ validateChangeSet: validateFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -221,7 +223,7 @@ describe('createChangeSetMachine', () => {
       const validateFn = vi.fn().mockResolvedValue(createFailedValidation());
       const config = createMachineConfig({ validateChangeSet: validateFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -243,7 +245,7 @@ describe('createChangeSetMachine', () => {
       const onValidationComplete = vi.fn();
       const config = createMachineConfig({ onValidationComplete });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -262,7 +264,7 @@ describe('createChangeSetMachine', () => {
     it('should transition to applying on APPLY from ready state', async () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -289,7 +291,7 @@ describe('createChangeSetMachine', () => {
       const onComplete = vi.fn();
       const config = createMachineConfig({ applyItem: applyFn, onComplete });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       // Create change set with single item for simpler test
       const changeSet = createTestChangeSet({
@@ -324,7 +326,7 @@ describe('createChangeSetMachine', () => {
       });
       const config = createMachineConfig({ applyItem: applyFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet({
         items: [createTestItem({ id: 'item-1' })],
@@ -357,7 +359,7 @@ describe('createChangeSetMachine', () => {
       const applyFn = vi.fn().mockRejectedValue(new Error('Network error'));
       const config = createMachineConfig({ applyItem: applyFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet({
         items: [createTestItem({ id: 'item-1' })],
@@ -392,7 +394,7 @@ describe('createChangeSetMachine', () => {
 
       const config = createMachineConfig({ applyItem: applyFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet({
         items: [
@@ -434,7 +436,7 @@ describe('createChangeSetMachine', () => {
         onRolledBack,
       });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet({
         items: [createTestItem({ id: 'item-1' })],
@@ -468,7 +470,7 @@ describe('createChangeSetMachine', () => {
       );
       const config = createMachineConfig({ validateChangeSet: validateFn });
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -486,7 +488,7 @@ describe('createChangeSetMachine', () => {
     it('should transition to cancelled from ready', async () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();
@@ -509,7 +511,7 @@ describe('createChangeSetMachine', () => {
     it('should reset to idle state', async () => {
       const config = createMachineConfig();
       const machine = createChangeSetMachine(config);
-      const actor = createActor(machine);
+      const actor = createActor(machine, {});
 
       const changeSet = createTestChangeSet();
       actor.start();

@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
+import type { DHCPLease } from '@nasnet/core/types';
 import { useLeasePage } from './useLeasePage';
 import { mockLeases, mockServers } from '../__mocks__/lease-data';
 
 // Mock dependencies
 vi.mock('@nasnet/api-client/queries', () => ({
   useDHCPLeases: vi.fn(),
+  useDHCPServers: vi.fn(),
 }));
 
 vi.mock('@nasnet/state/stores', () => ({
@@ -20,7 +22,7 @@ vi.mock('./useNewLeaseDetection', () => ({
   useNewLeaseDetection: vi.fn(),
 }));
 
-import { useDHCPLeases } from '@nasnet/api-client/queries';
+import { useDHCPLeases, useDHCPServers } from '@nasnet/api-client/queries';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { useBulkOperations } from './useBulkOperations';
 import { useNewLeaseDetection } from './useNewLeaseDetection';
@@ -33,20 +35,21 @@ describe('useLeasePage', () => {
     setLeaseStatusFilter: vi.fn(),
     leaseServerFilter: 'all',
     setLeaseServerFilter: vi.fn(),
+    selectedLeases: [] as string[],
+    toggleLeaseSelection: vi.fn(),
+    clearLeaseSelection: vi.fn(),
+    selectAllLeases: vi.fn(),
   };
 
   const mockBulkOps = {
-    selectedLeases: new Set<string>(),
-    toggleSelection: vi.fn(),
-    toggleAll: vi.fn(),
-    clearSelection: vi.fn(),
     makeAllStatic: vi.fn(),
     deleteMultiple: vi.fn(),
+    isMakingStatic: false,
+    isDeleting: false,
   };
 
   const mockNewLeases = {
-    newLeases: new Set<string>(),
-    markAsSeen: vi.fn(),
+    newLeaseIds: new Set<string>(),
   };
 
   beforeEach(() => {
@@ -57,7 +60,11 @@ describe('useLeasePage', () => {
     (useDHCPLeases as any).mockReturnValue({
       data: mockLeases,
       isLoading: false,
-      isError: false,
+      error: null,
+    });
+    (useDHCPServers as any).mockReturnValue({
+      data: mockServers,
+      isLoading: false,
       error: null,
     });
   });
@@ -68,25 +75,24 @@ describe('useLeasePage', () => {
 
   describe('Data fetching', () => {
     it('should fetch leases successfully', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(result.current.leases).toEqual(mockLeases);
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isError).toBe(false);
+      expect(result.current.isLoadingLeases).toBe(false);
+      expect(result.current.leasesError).toBe(null);
     });
 
     it('should handle loading state', () => {
       (useDHCPLeases as any).mockReturnValue({
         data: undefined,
         isLoading: true,
-        isError: false,
         error: null,
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(result.current.leases).toEqual([]);
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isLoadingLeases).toBe(true);
     });
 
     it('should handle error state', () => {
@@ -94,14 +100,13 @@ describe('useLeasePage', () => {
       (useDHCPLeases as any).mockReturnValue({
         data: undefined,
         isLoading: false,
-        isError: true,
         error: mockError,
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(result.current.leases).toEqual([]);
-      expect(result.current.isError).toBe(true);
+      expect(result.current.leasesError).toBe(mockError);
     });
   });
 
@@ -112,10 +117,10 @@ describe('useLeasePage', () => {
         leaseSearch: '192.168.1.100',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toHaveLength(1);
-      expect(result.current.filteredLeases[0].address).toBe('192.168.1.100');
+      expect(result.current.leases).toHaveLength(1);
+      expect(result.current.leases[0].address).toBe('192.168.1.100');
     });
 
     it('should filter by MAC address', () => {
@@ -124,10 +129,10 @@ describe('useLeasePage', () => {
         leaseSearch: '00:11:22:33:44:55',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toHaveLength(1);
-      expect(result.current.filteredLeases[0].macAddress).toBe('00:11:22:33:44:55');
+      expect(result.current.leases).toHaveLength(1);
+      expect(result.current.leases[0].macAddress).toBe('00:11:22:33:44:55');
     });
 
     it('should filter by hostname (case-insensitive)', () => {
@@ -136,10 +141,10 @@ describe('useLeasePage', () => {
         leaseSearch: 'LAPTOP',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toHaveLength(1);
-      expect(result.current.filteredLeases[0].hostname).toBe('laptop-work');
+      expect(result.current.leases).toHaveLength(1);
+      expect(result.current.leases[0].hostname).toBe('laptop-work');
     });
 
     it('should filter by partial hostname match', () => {
@@ -148,20 +153,20 @@ describe('useLeasePage', () => {
         leaseSearch: 'device',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases.length).toBeGreaterThan(0);
+      expect(result.current.leases.length).toBeGreaterThan(0);
       expect(
-        result.current.filteredLeases.every(
-          (lease) => lease.hostname?.toLowerCase().includes('device')
+        result.current.leases.every(
+          (lease: DHCPLease) => lease.hostname?.toLowerCase().includes('device')
         )
       ).toBe(true);
     });
 
     it('should return all leases when search is empty', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toEqual(mockLeases);
+      expect(result.current.leases).toEqual(mockLeases);
     });
   });
 
@@ -172,10 +177,10 @@ describe('useLeasePage', () => {
         leaseStatusFilter: 'bound',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(
-        result.current.filteredLeases.every((lease) => lease.status === 'bound')
+        result.current.leases.every((lease: DHCPLease) => lease.status === 'bound')
       ).toBe(true);
     });
 
@@ -185,10 +190,10 @@ describe('useLeasePage', () => {
         leaseStatusFilter: 'waiting',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toHaveLength(1);
-      expect(result.current.filteredLeases[0].status).toBe('waiting');
+      expect(result.current.leases).toHaveLength(1);
+      expect(result.current.leases[0].status).toBe('waiting');
     });
 
     it('should filter by static (non-dynamic) leases', () => {
@@ -197,17 +202,17 @@ describe('useLeasePage', () => {
         leaseStatusFilter: 'static',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(
-        result.current.filteredLeases.every((lease) => !lease.dynamic)
+        result.current.leases.every((lease: DHCPLease) => !lease.dynamic)
       ).toBe(true);
     });
 
     it('should return all leases when filter is "all"', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toEqual(mockLeases);
+      expect(result.current.leases).toEqual(mockLeases);
     });
   });
 
@@ -218,17 +223,17 @@ describe('useLeasePage', () => {
         leaseServerFilter: 'LAN DHCP',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(
-        result.current.filteredLeases.every((lease) => lease.server === 'LAN DHCP')
+        result.current.leases.every((lease: DHCPLease) => lease.server === 'LAN DHCP')
       ).toBe(true);
     });
 
     it('should return all leases when server filter is "all"', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toEqual(mockLeases);
+      expect(result.current.leases).toEqual(mockLeases);
     });
   });
 
@@ -241,11 +246,11 @@ describe('useLeasePage', () => {
         leaseServerFilter: 'LAN DHCP',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       expect(
-        result.current.filteredLeases.every(
-          (lease) =>
+        result.current.leases.every(
+          (lease: DHCPLease) =>
             lease.address.includes('192.168.1') &&
             lease.status === 'bound' &&
             lease.server === 'LAN DHCP'
@@ -261,9 +266,9 @@ describe('useLeasePage', () => {
         leaseServerFilter: 'Nonexistent Server',
       });
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(result.current.filteredLeases).toHaveLength(0);
+      expect(result.current.leases).toHaveLength(0);
     });
   });
 
@@ -280,10 +285,10 @@ describe('useLeasePage', () => {
         download: '',
       } as any);
 
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       act(() => {
-        result.current.exportToCSV();
+        result.current.handleExport();
       });
 
       expect(mockCreateElement).toHaveBeenCalledWith('a');
@@ -293,7 +298,7 @@ describe('useLeasePage', () => {
 
   describe('Store integration', () => {
     it('should call setLeaseSearch when search changes', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       act(() => {
         mockStoreState.setLeaseSearch('test');
@@ -303,7 +308,7 @@ describe('useLeasePage', () => {
     });
 
     it('should call setLeaseStatusFilter when status filter changes', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       act(() => {
         mockStoreState.setLeaseStatusFilter('bound');
@@ -313,7 +318,7 @@ describe('useLeasePage', () => {
     });
 
     it('should call setLeaseServerFilter when server filter changes', () => {
-      const { result } = renderHook(() => useLeasePage());
+      const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
       act(() => {
         mockStoreState.setLeaseServerFilter('LAN DHCP');

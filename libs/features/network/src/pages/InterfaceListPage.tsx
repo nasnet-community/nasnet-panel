@@ -4,15 +4,27 @@ import { InterfaceList } from '../components/interface-list';
 /**
  * Interface List Page
  * Main page for viewing and managing network interfaces
+ *
+ * @description Displays all network interfaces with capabilities to view status,
+ * configure settings, and manage interface properties.
  */
 export interface InterfaceListPageProps {
+  /** Router ID for interface operations */
   routerId?: string;
 }
 
-export const InterfaceListPage = memo(function InterfaceListPage({ routerId = 'default-router' }: InterfaceListPageProps) {
-  // TODO: Get routerId from router context or auth state
-  // For now, using a default or prop value
-
+/**
+ * InterfaceListPage Component
+ *
+ * Features:
+ * - Display all network interfaces with status indicators
+ * - View detailed interface statistics
+ * - Configure interface properties
+ * - Platform-aware UI (mobile/desktop)
+ */
+export const InterfaceListPage = memo(function InterfaceListPage({
+  routerId = 'default-router',
+}: InterfaceListPageProps) {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">

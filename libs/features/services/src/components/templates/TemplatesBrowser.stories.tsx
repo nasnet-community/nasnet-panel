@@ -12,20 +12,21 @@
  */
 
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { Plus, Filter } from 'lucide-react';
 
+import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
 import {
   Button,
   Card,
   CardContent,
   Skeleton,
 } from '@nasnet/ui/primitives';
-import { ServiceTemplateCard } from '@nasnet/ui/patterns';
-import { EmptyState } from '@nasnet/ui/patterns';
 
 import { TemplateFilters } from './TemplateFilters';
+
 import type { TemplateBrowserFilters } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Mock data
@@ -118,6 +119,7 @@ function toCardTemplate(t: MockTemplate) {
     id: t.id,
     name: t.name,
     description: t.description,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     category: t.category.toLowerCase() as any,
     scope: (t.isBuiltIn ? 'built-in' : 'custom') as 'built-in' | 'custom',
     icon: t.isBuiltIn ? '📦' : '⚙️',

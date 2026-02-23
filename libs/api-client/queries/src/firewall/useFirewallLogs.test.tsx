@@ -113,6 +113,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogs(ROUTER_ID), {
@@ -157,6 +158,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogs(ROUTER_ID), {
@@ -174,6 +176,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: false,
         error: 'Connection timeout',
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogs(ROUTER_ID), {
@@ -190,6 +193,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: [],
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogs(ROUTER_ID), {
@@ -217,6 +221,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: [],
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(
@@ -259,6 +264,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { chain: 'input' };
@@ -277,6 +283,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { action: 'drop' };
@@ -295,6 +302,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { srcIp: '192.168.1.*' };
@@ -316,6 +324,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { dstIp: '10.0.0.*' };
@@ -334,6 +343,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { port: '443' };
@@ -352,6 +362,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { port: '50-100' };
@@ -370,6 +381,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { prefix: 'DROPPED-WAN' };
@@ -398,6 +410,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: manyLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = { limit: 50 };
@@ -416,6 +429,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogs,
+        timestamp: Date.now(),
       });
 
       const filters: FirewallLogFilters = {
@@ -465,6 +479,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockLogsForStats,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogStats(ROUTER_ID), {
@@ -495,6 +510,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: [],
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogStats(ROUTER_ID), {
@@ -524,6 +540,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: manyIpLogs,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogStats(ROUTER_ID), {
@@ -550,6 +567,7 @@ describe('useFirewallLogs', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: manyPortLogs,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFirewallLogStats(ROUTER_ID), {

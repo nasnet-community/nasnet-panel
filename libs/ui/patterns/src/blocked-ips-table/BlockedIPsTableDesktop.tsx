@@ -7,9 +7,12 @@
 
 import * as React from 'react';
 
-import { Filter, Shield } from 'lucide-react';
+import { memo } from 'react';
 
+import { Filter, Shield } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
+  Icon,
   Button,
   cn,
   Input,
@@ -88,7 +91,7 @@ function formatRelativeTime(date?: Date): string {
  * - Bulk actions: Whitelist Selected, Remove Selected
  * - Compact, data-dense layout for desktop
  */
-export function BlockedIPsTableDesktop({
+export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
   blockedIPsTable,
   onWhitelist,
   onRemove,
@@ -582,6 +585,6 @@ export function BlockedIPsTableDesktop({
       </Dialog>
     </div>
   );
-}
+});
 
 BlockedIPsTableDesktop.displayName = 'BlockedIPsTableDesktop';

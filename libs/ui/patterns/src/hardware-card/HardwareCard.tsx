@@ -5,6 +5,8 @@
  * @see NAS-4.23 - Refactored to use useClipboard hook
  */
 
+import React, { useCallback } from 'react';
+
 import { Copy, Check } from 'lucide-react';
 
 import type { RouterboardInfo } from '@nasnet/core/types';
@@ -81,12 +83,16 @@ function DetailRow({ label, value }: { label: string; value: string }) {
  * Serial number row with copy-to-clipboard button
  * Refactored to use useClipboard hook (NAS-4.23)
  */
-function SerialNumberRow({ serialNumber }: { serialNumber: string }) {
+const SerialNumberRow = React.memo(function SerialNumberRow({
+  serialNumber,
+}: {
+  serialNumber: string;
+}) {
   const { copy, copied } = useClipboard();
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     copy(serialNumber);
-  };
+  }, [copy, serialNumber]);
 
   return (
     <div className="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700">
@@ -109,7 +115,9 @@ function SerialNumberRow({ serialNumber }: { serialNumber: string }) {
       </div>
     </div>
   );
-}
+});
+
+SerialNumberRow.displayName = 'SerialNumberRow';
 
 /**
  * Hardware Card Component
@@ -127,7 +135,11 @@ function SerialNumberRow({ serialNumber }: { serialNumber: string }) {
  * }
  * ```
  */
-export function HardwareCard({ data, isLoading = false, error = null }: HardwareCardProps) {
+export const HardwareCard = React.memo(function HardwareCard({
+  data,
+  isLoading = false,
+  error = null,
+}: HardwareCardProps) {
   // Show skeleton while loading
   if (isLoading) {
     return <SkeletonState />;
@@ -159,4 +171,6 @@ export function HardwareCard({ data, isLoading = false, error = null }: Hardware
       </CardContent>
     </Card>
   );
-}
+});
+
+HardwareCard.displayName = 'HardwareCard';

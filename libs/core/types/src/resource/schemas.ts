@@ -3,6 +3,8 @@
  *
  * Validation schemas for resource types.
  * Reference: ADR-012 - Universal State v2
+ *
+ * @module @nasnet/core/types/resource
  */
 
 import { z } from 'zod';
@@ -11,6 +13,10 @@ import { z } from 'zod';
 // Enums
 // =============================================================================
 
+/**
+ * Resource category enumeration schema.
+ * Defines the top-level categorization of resources.
+ */
 export const ResourceCategorySchema = z.enum([
   'NETWORK',
   'VPN',
@@ -20,6 +26,11 @@ export const ResourceCategorySchema = z.enum([
   'PLUGIN',
 ]);
 
+/**
+ * Resource lifecycle state enumeration schema.
+ * Defines the state progression of a resource through creation, validation,
+ * application, and decommissioning.
+ */
 export const ResourceLifecycleStateSchema = z.enum([
   'DRAFT',
   'VALIDATING',
@@ -32,6 +43,10 @@ export const ResourceLifecycleStateSchema = z.enum([
   'ARCHIVED',
 ]);
 
+/**
+ * Resource layer enumeration schema.
+ * Identifies the 8 layers of the Universal State v2 model.
+ */
 export const ResourceLayerSchema = z.enum([
   'CONFIGURATION',
   'VALIDATION',
@@ -43,6 +58,10 @@ export const ResourceLayerSchema = z.enum([
   'PLATFORM',
 ]);
 
+/**
+ * Validation stage enumeration schema.
+ * Defines the progression of validation checks through multiple stages.
+ */
 export const ValidationStageSchema = z.enum([
   'SCHEMA',
   'SEMANTIC',
@@ -54,8 +73,16 @@ export const ValidationStageSchema = z.enum([
   'COMPLETE',
 ]);
 
+/**
+ * Validation severity enumeration schema.
+ * Indicates the severity level of validation issues.
+ */
 export const ValidationSeveritySchema = z.enum(['ERROR', 'WARNING', 'INFO']);
 
+/**
+ * Conflict type enumeration schema.
+ * Identifies the type of conflict detected during validation.
+ */
 export const ConflictTypeSchema = z.enum([
   'PORT',
   'IP_ADDRESS',
@@ -65,8 +92,16 @@ export const ConflictTypeSchema = z.enum([
   'CONFIGURATION',
 ]);
 
+/**
+ * Drift action enumeration schema.
+ * Defines the actions available to handle detected drift.
+ */
 export const DriftActionSchema = z.enum(['REAPPLY', 'ACCEPT', 'REVIEW']);
 
+/**
+ * Runtime health enumeration schema.
+ * Indicates the health status of a resource at runtime.
+ */
 export const RuntimeHealthSchema = z.enum([
   'HEALTHY',
   'WARNING',
@@ -75,8 +110,16 @@ export const RuntimeHealthSchema = z.enum([
   'UNKNOWN',
 ]);
 
+/**
+ * Change type enumeration schema.
+ * Identifies the type of change made to a resource.
+ */
 export const ChangeTypeSchema = z.enum(['CREATE', 'UPDATE', 'DELETE']);
 
+/**
+ * Router platform enumeration schema.
+ * Identifies the target router platform for a resource.
+ */
 export const RouterPlatformSchema = z.enum([
   'MIKROTIK',
   'OPENWRT',
@@ -84,6 +127,10 @@ export const RouterPlatformSchema = z.enum([
   'GENERIC',
 ]);
 
+/**
+ * Capability level enumeration schema.
+ * Indicates the level of capability support for a feature.
+ */
 export const CapabilityLevelSchema = z.enum([
   'NONE',
   'BASIC',
@@ -91,6 +138,10 @@ export const CapabilityLevelSchema = z.enum([
   'FULL',
 ]);
 
+/**
+ * Resource relationship type enumeration schema.
+ * Defines the types of relationships that can exist between resources.
+ */
 export const ResourceRelationshipTypeSchema = z.enum([
   'DEPENDS_ON',
   'ROUTES_VIA',
@@ -103,6 +154,10 @@ export const ResourceRelationshipTypeSchema = z.enum([
 // Layer 2: Validation
 // =============================================================================
 
+/**
+ * Validation issue schema.
+ * Represents a single validation error, warning, or info message.
+ */
 export const ValidationIssueSchema = z.object({
   code: z.string().min(1),
   message: z.string().min(1),
@@ -112,6 +167,10 @@ export const ValidationIssueSchema = z.object({
   docsUrl: z.string().url().nullable().optional(),
 });
 
+/**
+ * Resource conflict schema.
+ * Represents a conflict detected between resources during validation.
+ */
 export const ResourceConflictSchema = z.object({
   type: ConflictTypeSchema,
   conflictingResourceUuid: z.string().min(1),
@@ -119,6 +178,10 @@ export const ResourceConflictSchema = z.object({
   resolution: z.string().nullable().optional(),
 });
 
+/**
+ * Dependency status schema.
+ * Tracks the status of a resource dependency.
+ */
 export const DependencyStatusSchema = z.object({
   resourceUuid: z.string().min(1),
   resourceType: z.string().min(1),
@@ -127,6 +190,10 @@ export const DependencyStatusSchema = z.object({
   reason: z.string().min(1),
 });
 
+/**
+ * Validation result schema.
+ * Complete validation outcome for a resource.
+ */
 export const ValidationResultSchema = z.object({
   canApply: z.boolean(),
   stage: ValidationStageSchema,
@@ -142,18 +209,30 @@ export const ValidationResultSchema = z.object({
 // Layer 3: Deployment
 // =============================================================================
 
+/**
+ * Drift field schema.
+ * Represents a single field that has drifted from expected configuration.
+ */
 export const DriftFieldSchema = z.object({
   path: z.string().min(1),
   expected: z.unknown(),
   actual: z.unknown(),
 });
 
+/**
+ * Drift information schema.
+ * Comprehensive drift detection information for a deployed resource.
+ */
 export const DriftInfoSchema = z.object({
   detectedAt: z.string().datetime(),
   driftedFields: z.array(DriftFieldSchema),
   suggestedAction: DriftActionSchema,
 });
 
+/**
+ * Deployment state schema.
+ * Tracks the deployment status and sync state of a resource.
+ */
 export const DeploymentStateSchema = z.object({
   routerResourceId: z.string().nullable().optional(),
   appliedAt: z.string().datetime(),
@@ -169,6 +248,10 @@ export const DeploymentStateSchema = z.object({
 // Layer 4: Runtime
 // =============================================================================
 
+/**
+ * Runtime metrics schema.
+ * Performance and operational metrics for a running resource.
+ */
 export const RuntimeMetricsSchema = z.object({
   bytesIn: z.number().nonnegative().nullable().optional(),
   bytesOut: z.number().nonnegative().nullable().optional(),
@@ -181,6 +264,10 @@ export const RuntimeMetricsSchema = z.object({
   custom: z.unknown().optional(),
 });
 
+/**
+ * Runtime state schema.
+ * Complete runtime state of an active resource.
+ */
 export const RuntimeStateSchema = z.object({
   isRunning: z.boolean(),
   health: RuntimeHealthSchema,
@@ -196,6 +283,10 @@ export const RuntimeStateSchema = z.object({
 // Layer 5: Telemetry
 // =============================================================================
 
+/**
+ * Bandwidth data point schema.
+ * A single measurement of bandwidth usage.
+ */
 export const BandwidthDataPointSchema = z.object({
   timestamp: z.string().datetime(),
   bytesIn: z.number().nonnegative(),
@@ -203,12 +294,20 @@ export const BandwidthDataPointSchema = z.object({
   periodSeconds: z.number().int().positive(),
 });
 
+/**
+ * Uptime data point schema.
+ * A single measurement of resource availability.
+ */
 export const UptimeDataPointSchema = z.object({
   timestamp: z.string().datetime(),
   isUp: z.boolean(),
   periodSeconds: z.number().int().positive(),
 });
 
+/**
+ * Hourly statistics schema.
+ * Aggregated statistics for an hour of resource operation.
+ */
 export const HourlyStatsSchema = z.object({
   hour: z.string().datetime(),
   totalBytesIn: z.number().nonnegative(),
@@ -217,6 +316,10 @@ export const HourlyStatsSchema = z.object({
   errorCount: z.number().int().nonnegative(),
 });
 
+/**
+ * Daily statistics schema.
+ * Aggregated statistics for a day of resource operation.
+ */
 export const DailyStatsSchema = z.object({
   date: z.string().datetime(),
   totalBytesIn: z.number().nonnegative(),
@@ -227,6 +330,10 @@ export const DailyStatsSchema = z.object({
   peakThroughputOut: z.number().nonnegative(),
 });
 
+/**
+ * Telemetry data schema.
+ * Historical telemetry and performance metrics for a resource.
+ */
 export const TelemetryDataSchema = z.object({
   bandwidthHistory: z.array(BandwidthDataPointSchema).nullable().optional(),
   uptimeHistory: z.array(UptimeDataPointSchema).nullable().optional(),
@@ -241,6 +348,10 @@ export const TelemetryDataSchema = z.object({
 // Layer 6: Metadata
 // =============================================================================
 
+/**
+ * Change log entry schema.
+ * Records a single change to a resource.
+ */
 export const ChangeLogEntrySchema = z.object({
   timestamp: z.string().datetime(),
   user: z.string().min(1),
@@ -249,6 +360,10 @@ export const ChangeLogEntrySchema = z.object({
   summary: z.string().nullable().optional(),
 });
 
+/**
+ * Resource metadata schema.
+ * Metadata about a resource including creation, modification, and tagging.
+ */
 export const ResourceMetadataSchema = z.object({
   createdAt: z.string().datetime(),
   createdBy: z.string().min(1),
@@ -268,6 +383,10 @@ export const ResourceMetadataSchema = z.object({
 // Layer 7: Relationships
 // =============================================================================
 
+/**
+ * Resource reference schema.
+ * Lightweight reference to another resource.
+ */
 export const ResourceReferenceSchema = z.object({
   uuid: z.string().min(1),
   id: z.string().min(1),
@@ -276,6 +395,10 @@ export const ResourceReferenceSchema = z.object({
   state: ResourceLifecycleStateSchema,
 });
 
+/**
+ * Resource relationships schema.
+ * All relationships for a resource including dependencies and hierarchy.
+ */
 export const ResourceRelationshipsSchema = z.object({
   dependsOn: z.array(ResourceReferenceSchema),
   dependents: z.array(ResourceReferenceSchema),
@@ -290,6 +413,10 @@ export const ResourceRelationshipsSchema = z.object({
 // Layer 8: Platform
 // =============================================================================
 
+/**
+ * Platform capabilities schema.
+ * Defines supported capabilities on a specific router platform.
+ */
 export const PlatformCapabilitiesSchema = z.object({
   isSupported: z.boolean(),
   level: CapabilityLevelSchema,
@@ -298,6 +425,10 @@ export const PlatformCapabilitiesSchema = z.object({
   details: z.unknown().optional(),
 });
 
+/**
+ * Platform limitation schema.
+ * Describes a limitation of a resource on a specific platform.
+ */
 export const PlatformLimitationSchema = z.object({
   code: z.string().min(1),
   description: z.string().min(1),
@@ -305,6 +436,10 @@ export const PlatformLimitationSchema = z.object({
   workaround: z.string().nullable().optional(),
 });
 
+/**
+ * Platform feature schema.
+ * Describes an optional feature available on a platform.
+ */
 export const PlatformFeatureSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -312,6 +447,10 @@ export const PlatformFeatureSchema = z.object({
   description: z.string().nullable().optional(),
 });
 
+/**
+ * Platform information schema.
+ * Complete platform information and capabilities for a resource.
+ */
 export const PlatformInfoSchema = z.object({
   current: RouterPlatformSchema,
   capabilities: PlatformCapabilitiesSchema,
@@ -324,6 +463,10 @@ export const PlatformInfoSchema = z.object({
 // Base Resource Schema
 // =============================================================================
 
+/**
+ * Complete resource schema.
+ * Includes all 8 layers of Universal State v2.
+ */
 export const ResourceSchema = z.object({
   uuid: z.string().min(1),
   id: z.string().min(1),
@@ -343,6 +486,10 @@ export const ResourceSchema = z.object({
 // Mutation Input Schemas
 // =============================================================================
 
+/**
+ * Resource relationships input schema.
+ * Relationships specification for creating or updating a resource.
+ */
 export const ResourceRelationshipsInputSchema = z.object({
   dependsOn: z.array(z.string().min(1)).optional(),
   routesVia: z.string().min(1).optional(),
@@ -350,6 +497,10 @@ export const ResourceRelationshipsInputSchema = z.object({
   custom: z.unknown().optional(),
 });
 
+/**
+ * Create resource input schema.
+ * Input validation for resource creation mutations.
+ */
 export const CreateResourceInputSchema = z.object({
   routerId: z.string().min(1),
   type: z.string().min(1),
@@ -360,6 +511,10 @@ export const CreateResourceInputSchema = z.object({
   description: z.string().optional(),
 });
 
+/**
+ * Update resource input schema.
+ * Input validation for resource update mutations.
+ */
 export const UpdateResourceInputSchema = z.object({
   configuration: z.unknown().optional(),
   relationships: ResourceRelationshipsInputSchema.optional(),
@@ -371,19 +526,33 @@ export const UpdateResourceInputSchema = z.object({
 // Type Exports (inferred from schemas)
 // =============================================================================
 
+/**
+ * Inferred TypeScript type for complete Resource.
+ * @example
+ * const resource: ResourceSchemaType = { ... };
+ */
 export type ResourceSchemaType = z.infer<typeof ResourceSchema>;
+/** Inferred TypeScript type for ValidationResult. */
 export type ValidationResultSchemaType = z.infer<typeof ValidationResultSchema>;
+/** Inferred TypeScript type for DeploymentState. */
 export type DeploymentStateSchemaType = z.infer<typeof DeploymentStateSchema>;
+/** Inferred TypeScript type for RuntimeState. */
 export type RuntimeStateSchemaType = z.infer<typeof RuntimeStateSchema>;
+/** Inferred TypeScript type for TelemetryData. */
 export type TelemetryDataSchemaType = z.infer<typeof TelemetryDataSchema>;
+/** Inferred TypeScript type for ResourceMetadata. */
 export type ResourceMetadataSchemaType = z.infer<typeof ResourceMetadataSchema>;
+/** Inferred TypeScript type for ResourceRelationships. */
 export type ResourceRelationshipsSchemaType = z.infer<
   typeof ResourceRelationshipsSchema
 >;
+/** Inferred TypeScript type for PlatformInfo. */
 export type PlatformInfoSchemaType = z.infer<typeof PlatformInfoSchema>;
+/** Inferred TypeScript type for CreateResourceInput. */
 export type CreateResourceInputSchemaType = z.infer<
   typeof CreateResourceInputSchema
 >;
+/** Inferred TypeScript type for UpdateResourceInput. */
 export type UpdateResourceInputSchemaType = z.infer<
   typeof UpdateResourceInputSchema
 >;

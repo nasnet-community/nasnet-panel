@@ -1,10 +1,15 @@
 /**
  * Last Updated Component
  * Displays when data was last refreshed with relative time
+ *
+ * @module @nasnet/ui/patterns/last-updated
  */
+
+import * as React from 'react';
 
 import { Clock } from 'lucide-react';
 
+import { cn } from '@nasnet/ui/primitives';
 import { useRelativeTime } from '@nasnet/core/utils';
 
 export interface LastUpdatedProps {
@@ -35,7 +40,10 @@ export interface LastUpdatedProps {
  * }
  * ```
  */
-export function LastUpdated({ timestamp, className = '' }: LastUpdatedProps) {
+export const LastUpdated = React.memo(function LastUpdated({
+  timestamp,
+  className = '',
+}: LastUpdatedProps) {
   const date = timestamp ? new Date(timestamp) : null;
   const relativeTime = useRelativeTime(date);
 
@@ -44,9 +52,18 @@ export function LastUpdated({ timestamp, className = '' }: LastUpdatedProps) {
   }
 
   return (
-    <div className={`flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 transition-colors ${className}`}>
+    <div
+      className={cn(
+        'flex items-center gap-2 text-xs',
+        'text-muted-foreground',
+        'transition-colors',
+        className
+      )}
+    >
       <Clock className="h-3.5 w-3.5" />
       <span className="font-medium">{relativeTime}</span>
     </div>
   );
-}
+});
+
+LastUpdated.displayName = 'LastUpdated';

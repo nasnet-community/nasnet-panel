@@ -11,7 +11,7 @@
  * @see Story 4.2: shadcn/ui Design System for Card component usage
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { Card } from '@nasnet/ui/primitives';
 

@@ -8,9 +8,11 @@
  * optional comment, and duplicate hostname detection.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { DnsStaticEntryForm } from './DnsStaticEntryForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ─── Shared existing entries for duplicate detection ───────────────────────
 
@@ -52,7 +54,7 @@ const meta = {
         'ID of the entry being edited — excluded from duplicate check',
       control: 'text',
     },
-    loading: {
+    isLoading: {
       description: 'Disables all fields and buttons during async save',
       control: 'boolean',
     },
@@ -73,7 +75,7 @@ const meta = {
 } satisfies Meta<typeof DnsStaticEntryForm>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof DnsStaticEntryForm>;
 
 // ─── Stories ──────────────────────────────────────────────────────────────
 
@@ -144,7 +146,7 @@ export const Loading: Story = {
       ttl: 3600,
       comment: 'Front door camera',
     },
-    loading: true,
+    isLoading: true,
   },
   parameters: {
     docs: {

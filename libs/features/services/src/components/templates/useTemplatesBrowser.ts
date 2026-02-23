@@ -1,7 +1,8 @@
 /**
  * useTemplatesBrowser Hook
  *
- * Headless hook for templates browser with filtering and sorting.
+ * @description Headless hook for templates browser with filtering and sorting.
+ * Manages filter state, fetches templates, and applies client-side filtering and sorting.
  */
 
 import { useState, useMemo, useCallback } from 'react';
@@ -70,6 +71,9 @@ function sortTemplates(
  *
  * Manages filter state, fetches templates, and applies client-side
  * filtering and sorting.
+ *
+ * @param routerId - The router ID to fetch templates for
+ * @returns Hook state with templates, filters, and update functions
  *
  * @example
  * ```tsx

@@ -2,13 +2,25 @@
  * ReviewStep Component
  *
  * Second step of template installation wizard.
- * Review configuration and estimated resources before installation.
+ * Displays configuration and resource estimates for review before installation.
+ *
+ * @example
+ * ```tsx
+ * <ReviewStep
+ *   template={template}
+ *   variables={variables}
+ * />
+ * ```
+ *
+ * @see docs/design/ux-design/6-component-library.md#wizard-steps
  */
 
-import { memo } from 'react';
-import { Info, Server, Cpu } from 'lucide-react';
+import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Server, Cpu, Info } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Icon } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
 
 /**
@@ -19,6 +31,8 @@ export interface ReviewStepProps {
   template: ServiceTemplate;
   /** Variable values to review */
   variables: Record<string, unknown>;
+  /** Optional CSS class name */
+  className?: string;
 }
 
 /**
@@ -30,13 +44,24 @@ export interface ReviewStepProps {
  * - Resource estimates
  * - Prerequisites check
  */
-function ReviewStepComponent({ template, variables }: ReviewStepProps) {
+function ReviewStepComponent({ template, variables, className }: ReviewStepProps) {
+  const { t } = useTranslation('services');
+
+  // Memoize service info to prevent unnecessary recalculations
+  const serviceCount = useMemo(() => template.services.length, [template.services]);
+  const variableCount = useMemo(
+    () => Object.keys(variables).length,
+    [variables]
+  );
+
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', className)}>
       <div>
-        <h2 className="text-lg font-semibold">Review Configuration</h2>
+        <h2 className="text-lg font-semibold">
+          {t('wizard.reviewConfiguration', 'Review Configuration')}
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Review your configuration before installation
+          {t('wizard.reviewConfigurationDesc', 'Review your configuration before installation')}
         </p>
       </div>
 
@@ -44,8 +69,8 @@ function ReviewStepComponent({ template, variables }: ReviewStepProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Server className="h-4 w-4" aria-hidden="true" />
-            Services ({template.services.length})
+            <Icon icon={Server} className="h-4 w-4" aria-hidden="true" />
+            {t('wizard.services', 'Services')} ({serviceCount})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -73,10 +98,10 @@ function ReviewStepComponent({ template, variables }: ReviewStepProps) {
       </Card>
 
       {/* Configuration Variables */}
-      {Object.keys(variables).length > 0 && (
+      {variableCount > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Configuration</CardTitle>
+            <CardTitle className="text-base">{t('common.configuration', 'Configuration')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -110,33 +135,33 @@ function ReviewStepComponent({ template, variables }: ReviewStepProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Cpu className="h-4 w-4" aria-hidden="true" />
-              Estimated Resources
+              <Icon icon={Cpu} className="h-4 w-4" aria-hidden="true" />
+              {t('wizard.estimatedResources', 'Estimated Resources')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Memory</p>
-                <p className="font-medium">
+                <p className="text-sm text-muted-foreground">{t('common.memory', 'Memory')}</p>
+                <p className="font-medium font-mono">
                   {template.estimatedResources.totalMemoryMB} MB
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Disk Space</p>
-                <p className="font-medium">
+                <p className="text-sm text-muted-foreground">{t('common.diskSpace', 'Disk Space')}</p>
+                <p className="font-medium font-mono">
                   {template.estimatedResources.diskSpaceMB} MB
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Network Ports</p>
-                <p className="font-medium">
+                <p className="text-sm text-muted-foreground">{t('common.networkPorts', 'Network Ports')}</p>
+                <p className="font-medium font-mono">
                   {template.estimatedResources.networkPorts}
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">VLANs</p>
-                <p className="font-medium">
+                <p className="text-sm text-muted-foreground">{t('common.vlans', 'VLANs')}</p>
+                <p className="font-medium font-mono">
                   {template.estimatedResources.vlansRequired}
                 </p>
               </div>
@@ -147,11 +172,11 @@ function ReviewStepComponent({ template, variables }: ReviewStepProps) {
 
       {/* Prerequisites Warning */}
       {template.prerequisites && template.prerequisites.length > 0 && (
-        <Card className="border-warning" role="alert">
+        <Card className="border-warning" role="alert" aria-label="Prerequisites">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-warning">
-              <Info className="h-4 w-4" aria-hidden="true" />
-              Prerequisites
+              <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
+              {t('common.prerequisites', 'Prerequisites')}
             </CardTitle>
           </CardHeader>
           <CardContent>

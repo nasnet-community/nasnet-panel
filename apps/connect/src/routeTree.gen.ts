@@ -45,6 +45,7 @@ import { Route as RouterIdWifiInterfaceNameRouteImport } from './routes/router/$
 import { Route as RouterIdVpnServersRouteImport } from './routes/router/$id/vpn/servers'
 import { Route as RouterIdVpnClientsRouteImport } from './routes/router/$id/vpn/clients'
 import { Route as RouterIdServicesTemplatesRouteImport } from './routes/router/$id/services/templates'
+import { Route as RouterIdServicesInstanceIdRouteImport } from './routes/router/$id/services/$instanceId'
 import { Route as RouterIdFirewallTemplatesRouteImport } from './routes/router/$id/firewall/templates'
 import { Route as RouterIdFirewallServicePortsRouteImport } from './routes/router/$id/firewall/service-ports'
 import { Route as RouterIdFirewallRawRouteImport } from './routes/router/$id/firewall/raw'
@@ -238,6 +239,12 @@ const RouterIdServicesTemplatesRoute =
     path: '/services/templates',
     getParentRoute: () => RouterIdRouteRoute,
   } as any)
+const RouterIdServicesInstanceIdRoute =
+  RouterIdServicesInstanceIdRouteImport.update({
+    id: '/services/$instanceId',
+    path: '/services/$instanceId',
+    getParentRoute: () => RouterIdRouteRoute,
+  } as any)
 const RouterIdFirewallTemplatesRoute =
   RouterIdFirewallTemplatesRouteImport.update({
     id: '/templates',
@@ -329,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/$instanceId': typeof RouterIdServicesInstanceIdRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -375,6 +383,7 @@ export interface FileRoutesByTo {
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/$instanceId': typeof RouterIdServicesInstanceIdRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -423,6 +432,7 @@ export interface FileRoutesById {
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/$instanceId': typeof RouterIdServicesInstanceIdRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/$instanceId'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -518,6 +529,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/$instanceId'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -565,6 +577,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/$instanceId'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -840,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterIdServicesTemplatesRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
+    '/router/$id/services/$instanceId': {
+      id: '/router/$id/services/$instanceId'
+      path: '/services/$instanceId'
+      fullPath: '/router/$id/services/$instanceId'
+      preLoaderRoute: typeof RouterIdServicesInstanceIdRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
     '/router/$id/firewall/templates': {
       id: '/router/$id/firewall/templates'
       path: '/templates'
@@ -1005,6 +1025,7 @@ interface RouterIdRouteRouteChildren {
   RouterIdRoutingRoute: typeof RouterIdRoutingRoute
   RouterIdVlansRoute: typeof RouterIdVlansRoute
   RouterIdIndexRoute: typeof RouterIdIndexRoute
+  RouterIdServicesInstanceIdRoute: typeof RouterIdServicesInstanceIdRoute
   RouterIdServicesTemplatesRoute: typeof RouterIdServicesTemplatesRoute
   RouterIdVpnClientsRoute: typeof RouterIdVpnClientsRoute
   RouterIdVpnServersRoute: typeof RouterIdVpnServersRoute
@@ -1024,6 +1045,7 @@ const RouterIdRouteRouteChildren: RouterIdRouteRouteChildren = {
   RouterIdRoutingRoute: RouterIdRoutingRoute,
   RouterIdVlansRoute: RouterIdVlansRoute,
   RouterIdIndexRoute: RouterIdIndexRoute,
+  RouterIdServicesInstanceIdRoute: RouterIdServicesInstanceIdRoute,
   RouterIdServicesTemplatesRoute: RouterIdServicesTemplatesRoute,
   RouterIdVpnClientsRoute: RouterIdVpnClientsRoute,
   RouterIdVpnServersRoute: RouterIdVpnServersRoute,

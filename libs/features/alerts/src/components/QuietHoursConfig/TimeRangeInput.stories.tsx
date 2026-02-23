@@ -6,9 +6,11 @@
  * and edge-case time values.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { TimeRangeInput } from './TimeRangeInput';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

@@ -34,6 +34,7 @@ function BatchConfirmDialogWrapper({
   interfaces,
 }: {
   action: BatchInterfaceAction;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interfaces: any[];
 }) {
   const [open, setOpen] = useState(true);
@@ -184,7 +185,7 @@ export const CountdownDemo: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ _canvasElement }) => {
     // The countdown will automatically start when the dialog opens
     // This demonstrates the safety feature
   },

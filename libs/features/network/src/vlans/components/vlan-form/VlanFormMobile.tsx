@@ -4,6 +4,7 @@
  * Mobile layout for VLAN configuration form with touch-friendly controls.
  */
 
+import { memo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import {
   Input,
@@ -19,28 +20,32 @@ import {
   SheetTitle,
   SheetFooter,
 } from '@nasnet/ui/primitives';
-import { InterfaceSelector } from '@nasnet/ui/patterns';
+import { InterfaceSelector, Icon } from '@nasnet/ui/patterns';
 import { AlertTriangle, Info, Loader2 } from 'lucide-react';
 import type { VlanFormValues } from '../../schemas';
 
+/**
+ * VlanFormMobile Props
+ * @interface VlanFormMobileProps
+ */
 export interface VlanFormMobileProps {
   form: UseFormReturn<VlanFormValues>;
   routerId: string;
   onSubmit: () => void;
   onCancel: () => void;
-  loading: boolean;
+  isLoading: boolean;
   mode: 'create' | 'edit';
   warnings: string[];
   checkingDuplicate: boolean;
   isDuplicateVlanId: boolean;
 }
 
-export function VlanFormMobile({
+function VlanFormMobileContent({
   form,
   routerId,
   onSubmit,
   onCancel,
-  loading,
+  isLoading,
   mode,
   warnings,
   checkingDuplicate,
@@ -102,7 +107,7 @@ export function VlanFormMobile({
                   min={1}
                   max={4094}
                   placeholder="10"
-                  className="h-11"
+                  className="h-11 font-mono"
                   {...register('vlanId', { valueAsNumber: true })}
                   aria-invalid={errors.vlanId ? 'true' : 'false'}
                   aria-describedby={
@@ -111,7 +116,7 @@ export function VlanFormMobile({
                 />
                 {checkingDuplicate && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
                   </div>
                 )}
               </div>
@@ -166,7 +171,7 @@ export function VlanFormMobile({
                 min={68}
                 max={65535}
                 placeholder="1500 (default)"
-                className="h-11"
+                className="h-11 font-mono"
                 {...register('mtu', {
                   valueAsNumber: true,
                   setValueAs: (v) => (v === '' || isNaN(v) ? null : v),
@@ -227,8 +232,8 @@ export function VlanFormMobile({
 
             {/* Warnings */}
             {warnings.length > 0 && (
-              <Alert variant="warning">
-                <AlertTriangle className="h-4 w-4" />
+              <Alert variant="warning" role="alert" aria-live="polite">
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
                   <ul className="list-disc list-inside space-y-1">
                     {warnings.map((warning, index) => (
@@ -243,8 +248,8 @@ export function VlanFormMobile({
 
             {/* Info about VLAN creation */}
             {mode === 'create' && (
-              <Alert>
-                <Info className="h-4 w-4" />
+              <Alert role="status" aria-live="polite">
+                <Info className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription className="text-sm">
                   Creating a VLAN interface adds an 802.1Q VLAN tag to traffic. Configure bridge ports to use this VLAN.
                 </AlertDescription>
@@ -258,17 +263,17 @@ export function VlanFormMobile({
               type="button"
               variant="outline"
               onClick={onCancel}
-              disabled={loading}
+              disabled={isLoading}
               className="flex-1 h-11"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={loading || isDuplicateVlanId || checkingDuplicate}
+              disabled={isLoading || isDuplicateVlanId || checkingDuplicate}
               className="flex-1 h-11"
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
               {mode === 'create' ? 'Create' : 'Save'}
             </Button>
           </SheetFooter>
@@ -277,3 +282,6 @@ export function VlanFormMobile({
     </Sheet>
   );
 }
+
+export const VlanFormMobile = memo(VlanFormMobileContent);
+VlanFormMobile.displayName = 'VlanFormMobile';

@@ -1,6 +1,7 @@
 /**
  * Template Export Utility
  *
+ * @description
  * Export firewall templates to JSON or YAML format with download helpers.
  * Handles sanitization, formatting, and browser download.
  *
@@ -10,6 +11,33 @@
 import yaml from 'js-yaml';
 import type { FirewallTemplate } from '../schemas/templateSchemas';
 import { sanitizeTemplateForExport } from './template-validator';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+/**
+ * Default file name for bulk template exports
+ */
+const DEFAULT_BULK_EXPORT_FILE_NAME = 'firewall-templates';
+
+/**
+ * URL cleanup timeout in milliseconds
+ */
+const URL_CLEANUP_TIMEOUT_MS = 100;
+
+/**
+ * File size thresholds for formatting
+ */
+const FILE_SIZE_THRESHOLDS = {
+  KILOBYTE: 1024,
+  MEGABYTE: 1024 * 1024,
+} as const;
+
+/**
+ * Clipboard fallback element cleanup timeout
+ */
+const CLIPBOARD_CLEANUP_TIMEOUT_MS = 0;
 
 // ============================================
 // TYPE DEFINITIONS
@@ -158,7 +186,7 @@ export function exportTemplates(
   options: ExportOptions = {}
 ): ExportResult {
   const { prettify = true, indent = 2, sanitize = true } = options;
-  const fileName = options.fileName || 'firewall-templates';
+  const fileName = options.fileName || DEFAULT_BULK_EXPORT_FILE_NAME;
 
   const data = sanitize ? templates.map(sanitizeTemplateForExport) : templates;
 
@@ -250,7 +278,7 @@ function downloadBlob(content: string, fileName: string, mimeType: string): void
   // Clean up the URL object
   setTimeout(() => {
     URL.revokeObjectURL(url);
-  }, 100);
+  }, URL_CLEANUP_TIMEOUT_MS);
 }
 
 /**
@@ -285,7 +313,9 @@ export async function copyTemplateToClipboard(
     document.body.appendChild(textarea);
     textarea.select();
     document.execCommand('copy');
-    document.body.removeChild(textarea);
+    setTimeout(() => {
+      document.body.removeChild(textarea);
+    }, CLIPBOARD_CLEANUP_TIMEOUT_MS);
   }
 }
 
@@ -298,12 +328,12 @@ export async function copyTemplateToClipboard(
 export function getExportSize(content: string): string {
   const bytes = new Blob([content]).size;
 
-  if (bytes < 1024) {
+  if (bytes < FILE_SIZE_THRESHOLDS.KILOBYTE) {
     return `${bytes} B`;
-  } else if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
+  } else if (bytes < FILE_SIZE_THRESHOLDS.MEGABYTE) {
+    return `${(bytes / FILE_SIZE_THRESHOLDS.KILOBYTE).toFixed(1)} KB`;
   } else {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(bytes / FILE_SIZE_THRESHOLDS.MEGABYTE).toFixed(1)} MB`;
   }
 }
 

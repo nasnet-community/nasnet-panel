@@ -6,23 +6,33 @@
  *
  * Layer 3 Domain Component
  *
+ * @description Displays IP addresses in badge or text format with optional context menu for
+ * adding to address lists. Supports both desktop (right-click) and mobile (long-press) interactions.
+ * Accessible with keyboard support (Shift+F10 for context menu trigger).
+ *
  * @module @nasnet/features/firewall/components
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, memo } from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
-import { Badge } from '@nasnet/ui/primitives';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
+import { Badge, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { AddToAddressListContextMenu } from './AddToAddressListContextMenu';
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+const LONG_PRESS_THRESHOLD_MS = 500;
 
 // ============================================
 // TYPES
 // ============================================
 
 export interface IPAddressDisplayProps {
-  /** The IP address to display */
+  /** The IP address to display (e.g., "192.168.1.100") */
   ipAddress: string;
   /** Optional label to show before the IP */
   label?: string;
@@ -55,7 +65,7 @@ export interface IPAddressDisplayProps {
  * />
  * ```
  */
-export function IPAddressDisplay({
+function IPAddressDisplayInner({
   ipAddress,
   label,
   variant = 'badge',
@@ -82,7 +92,7 @@ export function IPAddressDisplay({
       if ('vibrate' in navigator) {
         navigator.vibrate(50);
       }
-    }, 500); // 500ms long-press threshold
+    }, LONG_PRESS_THRESHOLD_MS);
 
     setLongPressTimer(timer);
   }, [platform, showContextMenu]);
@@ -106,26 +116,26 @@ export function IPAddressDisplay({
   // RENDER CONTENT
   // ============================================
 
-  const renderIPContent = () => {
+  const renderIPContent = useCallback(() => {
     if (variant === 'badge') {
       return (
         <Badge
           variant="outline"
-          className={`font-mono text-xs ${className || ''}`}
+          className={cn('font-mono text-xs', className)}
         >
           {label && <span className="mr-1 font-sans">{label}:</span>}
-          {ipAddress}
+          <span className="font-mono">{ipAddress}</span>
         </Badge>
       );
     }
 
     return (
-      <span className={`font-mono text-sm ${className || ''}`}>
+      <span className={cn('font-mono text-sm', className)}>
         {label && <span className="mr-1 font-sans">{label}:</span>}
-        {ipAddress}
+        <span className="font-mono">{ipAddress}</span>
       </span>
     );
-  };
+  }, [variant, ipAddress, label, className]);
 
   // ============================================
   // RENDER
@@ -195,14 +205,14 @@ export function IPAddressDisplay({
             <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
               <span className="text-sm text-muted-foreground">IP Address:</span>
               <Badge variant="outline" className="font-mono">
-                {ipAddress}
+                <span className="font-mono">{ipAddress}</span>
               </Badge>
             </div>
 
             <div className="space-y-1">
               <p className="text-sm font-medium">Select list:</p>
               {existingLists.length > 0 ? (
-                <div className="space-y-1">
+                <div className="space-y-1" role="listbox">
                   {existingLists.map((list) => (
                     <button
                       key={list}
@@ -213,13 +223,15 @@ export function IPAddressDisplay({
                         }
                       }}
                       className="w-full text-left px-4 py-3 rounded-md border border-border hover:bg-accent transition-colors active:scale-95"
+                      role="option"
+                      aria-selected={false}
                     >
                       <span className="font-mono font-medium">{list}</span>
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground p-4 text-center">
+                <p className="text-sm text-muted-foreground p-4 text-center" aria-live="polite">
                   No address lists available. Create one first.
                 </p>
               )}
@@ -230,3 +242,7 @@ export function IPAddressDisplay({
     </>
   );
 }
+
+IPAddressDisplayInner.displayName = 'IPAddressDisplay';
+
+export const IPAddressDisplay = memo(IPAddressDisplayInner);

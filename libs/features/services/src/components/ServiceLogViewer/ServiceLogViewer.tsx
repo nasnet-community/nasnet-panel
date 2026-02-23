@@ -4,6 +4,7 @@
  * Auto-detecting wrapper that selects the appropriate platform presenter.
  * Implements the Headless + Platform Presenters pattern from ADR-018.
  *
+ * @description Displays service logs with real-time streaming, filtering, and search
  * @see NAS-8.12: Service Logs & Diagnostics
  *
  * @example

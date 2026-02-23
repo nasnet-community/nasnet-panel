@@ -7,11 +7,10 @@
  * @module @nasnet/ui/patterns/mangle-flow-diagram
  */
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { MangleFlowDiagram } from './MangleFlowDiagram';
 
-import type { MangleFlowDiagramProps } from './MangleFlowDiagram';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -100,7 +99,7 @@ const meta = {
   argTypes: {
     selectedChain: {
       control: 'select',
-      options: [null, 'prerouting', 'input', 'forward', 'output', 'postrouting'],
+      options: ['prerouting', 'input', 'forward', 'output', 'postrouting'],
       description: 'Currently selected chain for filtering',
     },
     traceMode: {
@@ -138,7 +137,7 @@ export const Empty: Story = {
       output: 0,
       postrouting: 0,
     },
-    selectedChain: null,
+    selectedChain: null as any,
   },
   parameters: {
     docs: {
@@ -164,7 +163,7 @@ export const WithRules: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
   },
   parameters: {
     docs: {
@@ -218,7 +217,7 @@ export const TraceModeForwarded: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
     traceMode: true,
     highlightedChains: ['prerouting', 'forward', 'postrouting'],
   },
@@ -248,7 +247,7 @@ export const TraceModeLocalInput: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
     traceMode: true,
     highlightedChains: ['prerouting', 'input'],
   },
@@ -278,7 +277,7 @@ export const TraceModeLocalOutput: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
     traceMode: true,
     highlightedChains: ['output', 'postrouting'],
   },
@@ -326,7 +325,10 @@ export const MobileLayout: Story = {
         ...originalModule,
         usePlatform: () => 'mobile',
       };
-      require.cache[require.resolve('@nasnet/ui/layouts')].exports = mockedModule;
+      const cacheEntry = require.cache[require.resolve('@nasnet/ui/layouts')];
+      if (cacheEntry) {
+        cacheEntry.exports = mockedModule;
+      }
 
       return <Story />;
     },
@@ -348,7 +350,7 @@ export const DesktopLayout: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
   },
   parameters: {
     viewport: {
@@ -377,7 +379,7 @@ export const HeavyTraffic: Story = {
       output: 3,      // Minimal local output rules
       postrouting: 18, // NAT and post-routing marks
     },
-    selectedChain: null,
+    selectedChain: null as any,
   },
   parameters: {
     docs: {
@@ -403,7 +405,7 @@ export const CompactMode: Story = {
       output: 5,
       postrouting: 6,
     },
-    selectedChain: null,
+    selectedChain: null as any,
     compact: true,
   },
   parameters: {

@@ -8,6 +8,7 @@
     "composite": false,
     "jsx": "react-jsx",
     "tsBuildInfoFile": "../../../dist/out-tsc/ui-patterns.tsbuildinfo",
+    "rootDir": "../..",
     "baseUrl": ".",
     "paths": {
       "@nasnet/ui/*": ["../*/src"],

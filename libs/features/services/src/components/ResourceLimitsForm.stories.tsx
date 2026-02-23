@@ -8,11 +8,11 @@
 import { MockedProvider } from '@apollo/client/testing';
 
 import { SET_RESOURCE_LIMITS } from '@nasnet/api-client/queries';
+import type { ResourceLimits } from '@nasnet/api-client/queries';
 
 import { ResourceLimitsForm } from './ResourceLimitsForm';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ResourceLimits } from '@nasnet/api-client/queries';
 
 // ===== Mock Data =====
 

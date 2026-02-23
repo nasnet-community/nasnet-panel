@@ -11,10 +11,11 @@
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-12-implement-port-knocking.md
  */
 
+import React from 'react';
 import { LockIcon, CheckCircle2Icon, ArrowRightIcon, ClockIcon } from 'lucide-react';
 
 import type { KnockPort, PortKnockSequence } from '@nasnet/core/types';
-import { Badge , cn } from '@nasnet/ui/primitives';
+import { Badge, cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -173,7 +174,7 @@ function FinalStage({ port, protocol, accessTimeout, compact }: FinalStageProps)
  * Port Knock Sequence Visualizer
  * Shows visual flow of knock sequence progression
  */
-export function PortKnockVisualizer({
+function PortKnockVisualizerComponent({
   knockPorts,
   protectedPort,
   protectedProtocol,
@@ -235,4 +236,5 @@ export function PortKnockVisualizer({
   );
 }
 
+export const PortKnockVisualizer = React.memo(PortKnockVisualizerComponent);
 PortKnockVisualizer.displayName = 'PortKnockVisualizer';

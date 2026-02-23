@@ -4,11 +4,12 @@
  * Storybook stories for the MetricDisplay pattern component.
  */
 
-import { Cpu, HardDrive, Wifi, Activity, Thermometer, Zap } from 'lucide-react';
+import { Cpu, HardDrive, Wifi, Activity, Thermometer, Zap, TrendingUp } from 'lucide-react';
 
 import { MetricDisplay } from './MetricDisplay';
 import { MetricDisplayDesktop } from './MetricDisplay.Desktop';
 import { MetricDisplayMobile } from './MetricDisplay.Mobile';
+import { MetricDisplayTablet } from './MetricDisplay.Tablet';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -39,27 +40,32 @@ const meta: Meta<typeof MetricDisplay> = {
       control: 'text',
     },
     trend: {
-      description: 'Trend direction',
+      description: 'Trend direction (up/down/stable)',
       control: 'select',
       options: ['up', 'down', 'stable', undefined],
     },
     trendValue: {
-      description: 'Trend value text',
+      description: 'Trend value text (e.g., +5%, -10 MB)',
       control: 'text',
     },
     variant: {
-      description: 'Semantic color variant',
+      description: 'Semantic color variant (default/success/warning/error/info)',
       control: 'select',
       options: ['default', 'success', 'warning', 'error', 'info'],
     },
     size: {
-      description: 'Size variant',
+      description: 'Size variant (sm/md/lg)',
       control: 'select',
       options: ['sm', 'md', 'lg'],
     },
     isLoading: {
       description: 'Loading state',
       control: 'boolean',
+    },
+    presenter: {
+      description: 'Manual platform presenter override (mobile/tablet/desktop)',
+      control: 'select',
+      options: [undefined, 'mobile', 'tablet', 'desktop'],
     },
   },
 };

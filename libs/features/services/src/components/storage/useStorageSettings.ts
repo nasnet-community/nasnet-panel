@@ -1,20 +1,25 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+
 import {
-  useStorageInfo,
-  useStorageUsage,
   useStorageConfig,
+  useStorageInfo,
   useStorageMutations,
+  useStorageUsage,
 } from '@nasnet/api-client/queries';
 import type {
+  StorageConfig,
   StorageInfo,
   StorageUsage,
-  StorageConfig,
 } from '@nasnet/api-client/queries';
 
 /**
  * Headless hook for storage settings business logic.
  * Manages external storage configuration, usage monitoring, and user actions.
+ *
+ * @description Provides computed state for storage detection, usage percentages, and
+ * action handlers for storage configuration lifecycle. All state is computed using
+ * useMemo for stable references. Returns 30+ properties organized by category.
  *
  * @example
  * ```tsx
@@ -23,7 +28,7 @@ import type {
  *     isStorageDetected,
  *     isStorageDisconnected,
  *     handleEnableStorage,
- *     mounts,
+ *     externalMounts,
  *   } = useStorageSettings();
  *
  *   if (!isStorageDetected) {
@@ -31,7 +36,7 @@ import type {
  *   }
  *
  *   return (
- *     <button onClick={() => handleEnableStorage(mounts[0].path)}>
+ *     <button onClick={() => handleEnableStorage(externalMounts[0].path)}>
  *       Enable Storage
  *     </button>
  *   );
@@ -128,13 +133,19 @@ export function useStorageSettings() {
 
   /**
    * Storage space warning levels
+   * - 80-90%: Warning (amber)
+   * - 90-95%: Critical (orange)
+   * - 95+%: Full (red)
    */
   const isSpaceWarning = usagePercent >= 80 && usagePercent < 90;
   const isSpaceCritical = usagePercent >= 90 && usagePercent < 95;
   const isSpaceFull = usagePercent >= 95;
 
   /**
-   * Flash space warning levels
+   * Flash storage space warning levels
+   * - 80-90%: Warning (amber)
+   * - 90-95%: Critical (orange)
+   * - 95+%: Full (red)
    */
   const isFlashSpaceWarning = flashUsagePercent >= 80 && flashUsagePercent < 90;
   const isFlashSpaceCritical = flashUsagePercent >= 90 && flashUsagePercent < 95;

@@ -5,7 +5,7 @@
  * Uses React Hook Form + Zod validation with optimistic updates.
  */
 
-import * as React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,12 +13,12 @@ import { Loader2, Save } from 'lucide-react';
 
 import { useSetResourceLimits, type ResourceLimits } from '@nasnet/api-client/queries';
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
   Input,
   Label,
 } from '@nasnet/ui/primitives';
@@ -67,12 +67,17 @@ export interface ResourceLimitsFormProps {
 /**
  * ResourceLimitsForm component
  *
+ * @description Form for editing service instance resource limits with real-time validation.
+ * Uses React Hook Form + Zod for client-side validation and mutation status tracking.
+ * Displays success/error states with helpful messaging. Memory values shown in monospace font.
+ *
  * Features:
  * - React Hook Form with Zod validation
- * - Optimistic UI updates
- * - Success/error toast notifications
- * - Loading states
- * - Helpful validation error messages
+ * - Real-time error messages (blur validation)
+ * - Loading states with spinner
+ * - Success/error messaging
+ * - Reset form functionality
+ * - Current limits display with applied status
  */
 export function ResourceLimitsForm({
   routerId,
@@ -82,56 +87,71 @@ export function ResourceLimitsForm({
   onError,
 }: ResourceLimitsFormProps) {
   const [setLimits, { loading, error }] = useSetResourceLimits();
-  const [successMessage, setSuccessMessage] = React.useState<string | null>(
-    null
-  );
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Initialize form with current limits
-  const form = useForm<ResourceLimitsFormData>({
-    resolver: zodResolver(resourceLimitsSchema),
-    defaultValues: {
+  /**
+   * Form instance with Zod validation
+   * Memoized default values prevent unnecessary form resets
+   */
+  const defaultValues = useMemo(
+    () => ({
       memoryMB: currentLimits?.memoryMB ?? 64,
       cpuWeight: currentLimits?.cpuPercent ?? null,
-    },
+    }),
+    [currentLimits?.memoryMB, currentLimits?.cpuPercent]
+  );
+
+  const form = useForm<ResourceLimitsFormData>({
+    resolver: zodResolver(resourceLimitsSchema),
+    defaultValues,
   });
 
-  // Handle form submission
-  const handleSubmit = async (values: ResourceLimitsFormData) => {
-    setSuccessMessage(null);
+  /**
+   * Handle form submission with optimistic UI feedback
+   * Stable reference via useCallback to prevent unnecessary memoized component re-renders
+   */
+  const handleSubmit = useCallback(
+    async (values: ResourceLimitsFormData) => {
+      setSuccessMessage(null);
 
-    try {
-      const result = await setLimits({
-        variables: {
-          input: {
-            routerID: routerId,
-            instanceID: instanceId,
-            memoryMB: values.memoryMB,
-            cpuWeight: values.cpuWeight ?? undefined,
+      try {
+        const result = await setLimits({
+          variables: {
+            input: {
+              routerID: routerId,
+              instanceID: instanceId,
+              memoryMB: values.memoryMB,
+              cpuWeight: values.cpuWeight ?? undefined,
+            },
           },
-        },
-      });
+        });
 
-      if (result.data?.setResourceLimits.success) {
-        setSuccessMessage('Resource limits updated successfully');
-        onSuccess?.();
-      } else {
-        const errors = result.data?.setResourceLimits.errors ?? [];
-        const errorMessage =
-          errors[0]?.message ?? 'Failed to update resource limits';
-        throw new Error(errorMessage);
+        if (result.data?.setResourceLimits.success) {
+          setSuccessMessage('Resource limits updated successfully');
+          onSuccess?.();
+        } else {
+          const errors = result.data?.setResourceLimits.errors ?? [];
+          const errorMessage =
+            errors[0]?.message ?? 'Failed to update resource limits';
+          throw new Error(errorMessage);
+        }
+      } catch (err) {
+        const errorObj = err instanceof Error ? err : new Error(String(err));
+        onError?.(errorObj);
+        form.setError('root', {
+          type: 'manual',
+          message: errorObj.message,
+        });
       }
-    } catch (err) {
-      const errorObj = err instanceof Error ? err : new Error(String(err));
-      onError?.(errorObj);
-      form.setError('root', {
-        type: 'manual',
-        message: errorObj.message,
-      });
-    }
-  };
+    },
+    [routerId, instanceId, setLimits, onSuccess, onError, form]
+  );
 
-  // Reset form when current limits change
-  React.useEffect(() => {
+  /**
+   * Reset form when current limits change
+   * Allows form to reflect latest server state
+   */
+  useEffect(() => {
     if (currentLimits) {
       form.reset({
         memoryMB: currentLimits.memoryMB,
@@ -230,10 +250,10 @@ export function ResourceLimitsForm({
           {/* Success message */}
           {successMessage && (
             <div
-              className="p-3 rounded-md bg-green-50 border border-green-200 dark:bg-green-950 dark:border-green-800"
+              className="p-3 rounded-md bg-success/10 border border-success/20"
               role="status"
             >
-              <p className="text-sm text-green-800 dark:text-green-200">
+              <p className="text-sm text-success font-medium">
                 {successMessage}
               </p>
             </div>
@@ -273,27 +293,27 @@ export function ResourceLimitsForm({
             <div className="pt-3 border-t">
               <p className="text-xs text-muted-foreground">
                 Current limits:{' '}
-                <span className="font-medium">
+                <span className="font-medium font-mono">
                   {currentLimits.memoryMB} MB RAM
                 </span>
                 {currentLimits.cpuPercent && (
                   <>
                     {' '}
-                    &bull;{' '}
-                    <span className="font-medium">
+                    &bullet;{' '}
+                    <span className="font-medium font-mono">
                       CPU weight {currentLimits.cpuPercent}
                     </span>
                   </>
                 )}
                 {currentLimits.applied ? (
-                  <span className="text-green-600 dark:text-green-400">
+                  <span className="text-success font-medium">
                     {' '}
-                    &bull; Applied
+                    &bullet; Applied
                   </span>
                 ) : (
-                  <span className="text-yellow-600 dark:text-yellow-400">
+                  <span className="text-warning font-medium">
                     {' '}
-                    &bull; Not applied (cgroups unavailable)
+                    &bullet; Not applied (cgroups unavailable)
                   </span>
                 )}
               </p>

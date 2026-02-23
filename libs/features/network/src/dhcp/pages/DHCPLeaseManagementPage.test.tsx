@@ -47,7 +47,7 @@ describe('DHCPLeaseManagementPage', () => {
     it('should render Desktop view when platform is desktop', () => {
       (usePlatform as any).mockReturnValue('desktop');
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
       expect(screen.queryByTestId('mobile-view')).not.toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('DHCPLeaseManagementPage', () => {
     it('should render Desktop view when platform is tablet', () => {
       (usePlatform as any).mockReturnValue('tablet');
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
       expect(screen.queryByTestId('mobile-view')).not.toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('DHCPLeaseManagementPage', () => {
     it('should render Mobile view when platform is mobile', () => {
       (usePlatform as any).mockReturnValue('mobile');
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
       expect(screen.queryByTestId('desktop-view')).not.toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('DHCPLeaseManagementPage', () => {
       };
       (useLeasePage as any).mockReturnValue(customData);
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(useLeasePage).toHaveBeenCalled();
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('DHCPLeaseManagementPage', () => {
       };
       (useLeasePage as any).mockReturnValue(customData);
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(useLeasePage).toHaveBeenCalled();
       expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
@@ -110,13 +110,13 @@ describe('DHCPLeaseManagementPage', () => {
     it('should switch from Desktop to Mobile when platform changes', () => {
       (usePlatform as any).mockReturnValue('desktop');
 
-      const { rerender } = render(<DHCPLeaseManagementPage />);
+      const { rerender } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
 
       // Simulate platform change
       (usePlatform as any).mockReturnValue('mobile');
-      rerender(<DHCPLeaseManagementPage />);
+      rerender(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
       expect(screen.queryByTestId('desktop-view')).not.toBeInTheDocument();
@@ -125,13 +125,13 @@ describe('DHCPLeaseManagementPage', () => {
     it('should switch from Mobile to Desktop when platform changes', () => {
       (usePlatform as any).mockReturnValue('mobile');
 
-      const { rerender } = render(<DHCPLeaseManagementPage />);
+      const { rerender } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
 
       // Simulate platform change
       (usePlatform as any).mockReturnValue('desktop');
-      rerender(<DHCPLeaseManagementPage />);
+      rerender(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
       expect(screen.queryByTestId('mobile-view')).not.toBeInTheDocument();
@@ -146,7 +146,7 @@ describe('DHCPLeaseManagementPage', () => {
         isError: true,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('desktop-view')).toBeInTheDocument();
     });
@@ -158,7 +158,7 @@ describe('DHCPLeaseManagementPage', () => {
         isLoading: true,
       });
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
     });
@@ -168,13 +168,13 @@ describe('DHCPLeaseManagementPage', () => {
     it('should call useLeasePage hook', () => {
       (usePlatform as any).mockReturnValue('desktop');
 
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(useLeasePage).toHaveBeenCalledTimes(1);
     });
 
     it('should call usePlatform hook', () => {
-      render(<DHCPLeaseManagementPage />);
+      render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(usePlatform).toHaveBeenCalledTimes(1);
     });
@@ -182,12 +182,12 @@ describe('DHCPLeaseManagementPage', () => {
     it('should maintain hook calls across re-renders', () => {
       (usePlatform as any).mockReturnValue('desktop');
 
-      const { rerender } = render(<DHCPLeaseManagementPage />);
+      const { rerender } = render(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(useLeasePage).toHaveBeenCalledTimes(1);
       expect(usePlatform).toHaveBeenCalledTimes(1);
 
-      rerender(<DHCPLeaseManagementPage />);
+      rerender(<DHCPLeaseManagementPage routerId="test-router-1" />);
 
       expect(useLeasePage).toHaveBeenCalledTimes(2);
       expect(usePlatform).toHaveBeenCalledTimes(2);

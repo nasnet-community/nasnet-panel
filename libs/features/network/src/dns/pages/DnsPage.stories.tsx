@@ -12,10 +12,12 @@
  * `DnsPage.integration.test.tsx` which uses MSW + MockedProvider.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { Alert, AlertTitle, AlertDescription, Button } from '@nasnet/ui/primitives';
 import { AlertTriangle } from 'lucide-react';
+
+import { Skeleton , Alert, AlertTitle, AlertDescription, Button } from '@nasnet/ui/primitives';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 // ---------------------------------------------------------------------------
 // Lightweight stand-ins used to represent each visual state of DnsPage

@@ -1,14 +1,17 @@
 /**
  * StorageUsageBar Component
- * Visual progress bar with color-coded thresholds for storage usage
+ * @description Visual progress bar with color-coded thresholds for storage usage.
+ * Displays current usage percentage, formatted capacity values, and status indicators.
  *
- * Features:
+ * @features
  * - Color-coded thresholds: Green (<80%), Amber (80-89%), Red (90%+)
- * - BigInt formatting for values >2GB
- * - Smooth transitions
- * - Accessible with ARIA attributes
+ * - BigInt formatting for precise large values
+ * - Smooth CSS transitions for updates
+ * - Full keyboard and screen reader support
+ * - Responsive spacing and typography
  *
  * @see NAS-8.20: External Storage Management
+ * @see Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md - section 4 (Typography)
  */
 
 import * as React from 'react';
@@ -16,25 +19,25 @@ import { useMemo } from 'react';
 import { cn } from '@nasnet/ui/utils';
 
 /**
- * StorageUsageBar props
+ * StorageUsageBar component props
  */
 export interface StorageUsageBarProps {
-  /** Usage percentage (0-100) */
+  /** Usage percentage (0-100). Values outside range are clamped. */
   usagePercent: number;
 
-  /** Total bytes (serialized uint64) */
+  /** Total capacity in bytes (serialized uint64 as string) */
   totalBytes: string;
 
-  /** Used bytes (serialized uint64) */
+  /** Used capacity in bytes (serialized uint64 as string) */
   usedBytes: string;
 
-  /** Optional free bytes (if not provided, calculated from total - used) */
+  /** Optional free bytes (if not provided, calculated as total - used) */
   freeBytes?: string;
 
-  /** Whether to show warning styling even if below threshold */
+  /** Show warning styling (red) even if percentage below 90% threshold */
   showWarning?: boolean;
 
-  /** Optional className for styling */
+  /** Optional CSS class name for custom styling */
   className?: string;
 }
 
@@ -61,9 +64,11 @@ function formatBytes(bytes: string): string {
 
 /**
  * StorageUsageBar component
- * Displays storage usage with color-coded progress bar
+ * @description Displays storage usage with color-coded progress bar and capacity details
+ * @param {StorageUsageBarProps} props - Component props
+ * @returns {React.ReactNode} Rendered storage usage indicator
  */
-export function StorageUsageBar({
+function StorageUsageBarComponent({
   usagePercent,
   totalBytes,
   usedBytes,
@@ -116,17 +121,17 @@ export function StorageUsageBar({
 
   return (
     <div className={cn('space-y-2', className)}>
-      {/* Usage Summary */}
+      {/* Usage Summary: Used amount and percentage (technical data in monospace) */}
       <div className="flex justify-between items-center text-sm">
         <span className="text-muted-foreground">
           {formattedUsed} used
         </span>
-        <span className={cn('font-medium', textColorClass)}>
+        <span className={cn('font-medium font-mono', textColorClass)}>
           {clampedPercent.toFixed(1)}%
         </span>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar: Smooth visual indicator of usage level */}
       <div
         className="h-2 w-full rounded-full bg-muted overflow-hidden"
         role="progressbar"
@@ -144,11 +149,17 @@ export function StorageUsageBar({
         />
       </div>
 
-      {/* Capacity Details */}
-      <div className="flex justify-between items-center text-xs text-muted-foreground">
+      {/* Capacity Details: Free and total capacity (technical data in monospace) */}
+      <div className="flex justify-between items-center text-xs text-muted-foreground font-mono">
         <span>{formattedFree} free</span>
         <span>{formattedTotal} total</span>
       </div>
     </div>
   );
 }
+
+/**
+ * Exported StorageUsageBar with React.memo() optimization
+ */
+export const StorageUsageBar = React.memo(StorageUsageBarComponent);
+StorageUsageBar.displayName = 'StorageUsageBar';

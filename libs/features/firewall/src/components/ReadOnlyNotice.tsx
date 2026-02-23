@@ -1,42 +1,57 @@
 /**
  * Read-Only Notice Component
- * Displays informational banner explaining firewall editing is disabled in Phase 0
+ * @description Displays informational banner explaining firewall editing is disabled in Phase 0
  * Epic 0.6, Story 0.6.4
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { Info, X } from 'lucide-react';
+import { Icon } from '@nasnet/ui/primitives/icon';
+import { cn } from '@nasnet/ui/utils';
 
 export interface ReadOnlyNoticeProps {
+  /** Optional CSS class names to apply to container */
   className?: string;
 }
 
 /**
  * ReadOnlyNotice Component
- *
- * Displays at the top of the Firewall tab with:
- * - Info/warning style (blue/amber)
+ * @description Displays at the top of the Firewall tab with:
+ * - Info style (blue semantic token)
  * - Clear explanation of WHY editing is disabled
  * - Reference to Phase 1 safety pipeline
  * - Dismissible with localStorage persistence
  *
+ * @example
+ * ```tsx
+ * <ReadOnlyNotice className="mb-4" />
+ * ```
+ *
  * @param props - Component props
- * @returns Read-only notice banner
+ * @returns Read-only notice banner or null if dismissed
  */
-export function ReadOnlyNotice({ className }: ReadOnlyNoticeProps) {
-  const STORAGE_KEY = 'nasnet:firewall:notice-dismissed';
+export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOnlyNoticeProps) {
+  const STORAGE_KEY_NOTICE_DISMISSED = 'nasnet:firewall:notice-dismissed';
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Load dismissed state from localStorage
   useEffect(() => {
-    const dismissed = localStorage.getItem(STORAGE_KEY) === 'true';
+    const dismissed = localStorage.getItem(STORAGE_KEY_NOTICE_DISMISSED) === 'true';
     setIsDismissed(dismissed);
   }, []);
 
-  // Handle dismiss
-  const handleDismiss = () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
+  // Handle dismiss with useCallback for stable reference
+  const handleDismiss = useCallback(() => {
+    localStorage.setItem(STORAGE_KEY_NOTICE_DISMISSED, 'true');
     setIsDismissed(true);
-  };
+  }, []);
+
+  // Memoize the benefits list for stability
+  const benefitsList = useMemo(() => [
+    'Pre-apply validation to catch errors',
+    'Configuration preview before applying',
+    'Automatic rollback if connectivity is lost',
+  ], []);
 
   if (isDismissed) {
     return null;
@@ -44,32 +59,27 @@ export function ReadOnlyNotice({ className }: ReadOnlyNoticeProps) {
 
   return (
     <div
-      className={`relative rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950 ${className || ''}`}
+      className={cn(
+        'relative rounded-lg border border-info/30 bg-info/5 p-4',
+        className
+      )}
       role="alert"
+      aria-label="Firewall read-only mode notice"
     >
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <svg
-          className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
+        <Icon
+          icon={Info}
+          size={20}
+          className="text-info flex-shrink-0 mt-0.5"
+        />
 
         {/* Content */}
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-            🔒 Viewing Mode Only
+          <h3 className="text-sm font-semibold text-foreground">
+            Viewing Mode Only
           </h3>
-          <div className="mt-2 text-sm text-blue-800 dark:text-blue-200">
+          <div className="mt-2 text-sm text-muted-foreground">
             <p>
               Firewall configuration editing is not available in Phase 0 to ensure network safety.
             </p>
@@ -78,9 +88,9 @@ export function ReadOnlyNotice({ className }: ReadOnlyNoticeProps) {
               firewall changes with:
             </p>
             <ul className="mt-2 ml-4 list-disc space-y-1">
-              <li>Pre-apply validation to catch errors</li>
-              <li>Configuration preview before applying</li>
-              <li>Automatic rollback if connectivity is lost</li>
+              {benefitsList.map((benefit, index) => (
+                <li key={index}>{benefit}</li>
+              ))}
             </ul>
             <p className="mt-2 text-xs">
               For now, you can view your current configuration. If you need to make changes, use
@@ -92,25 +102,17 @@ export function ReadOnlyNotice({ className }: ReadOnlyNoticeProps) {
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 flex-shrink-0"
-          aria-label="Dismiss notice"
+          className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
+          aria-label="Dismiss read-only notice"
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <Icon
+            icon={X}
+            size={20}
+          />
         </button>
       </div>
     </div>
   );
-}
+});
+
+ReadOnlyNotice.displayName = 'ReadOnlyNotice';

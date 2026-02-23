@@ -7,9 +7,12 @@
  *
  * Provides a browseable gallery of alert rule templates with filtering by category,
  * search, and template application functionality.
+ *
+ * @description Manages GraphQL queries for alert templates and mutation for applying them.
+ * Transforms API responses to TemplateGallery format. Auto-responsive via TemplateGallery.
  */
 
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTemplateGallery, TemplateGallery } from '@nasnet/ui/patterns';
 import { useToast } from '@nasnet/ui/primitives';
 
@@ -20,14 +23,17 @@ import { ALERT_TEMPLATE_CATEGORIES, type AlertTemplateCategoryMeta } from '../..
 // Props Interface
 // =============================================================================
 
+/**
+ * Props for AlertTemplateBrowser component
+ */
 export interface AlertTemplateBrowserProps {
-  /** Callback when a rule is successfully created from template */
+  /** Callback when a rule is successfully created from template (receives rule ID) */
   onRuleCreated?: (ruleId: string) => void;
 
-  /** Optional initial category filter */
+  /** Optional initial category filter (e.g., 'network', 'security') */
   initialCategory?: string;
 
-  /** Container className */
+  /** Optional CSS class name for container */
   className?: string;
 }
 
@@ -51,8 +57,15 @@ export interface AlertTemplateBrowserProps {
  * - Provides alert-specific data and configuration
  * - Handles alert rule creation via GraphQL mutation
  * - Automatically responsive (Mobile/Desktop) via TemplateGallery
+ *
+ * @description Uses useAlertRuleTemplates query to fetch templates from backend.
+ * Transforms AlertRuleTemplate to generic template format. Handles mutation errors
+ * with toast notifications. Memoizes template transformations with useMemo.
+ *
+ * @param props Component props
+ * @returns React element (responsive via TemplateGallery)
  */
-export function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
+export const AlertTemplateBrowser = React.memo(function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
   const { onRuleCreated, initialCategory, className } = props;
 
   const { toast } = useToast();
@@ -119,7 +132,13 @@ export function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
     },
   });
 
-  // Handle template application
+  /**
+   * Handle template application by collecting variables and calling mutation
+   *
+   * @description Uses default variable values from template definition.
+   * A future enhancement would open a dialog to collect custom variable values.
+   * Stable callback using useCallback to avoid recreating on every render.
+   */
   const handleApplyTemplate = useCallback(
     async (template: any) => {
       const alertTemplate = template._original as AlertRuleTemplate;
@@ -175,4 +194,6 @@ export function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
       className={className}
     />
   );
-}
+});
+
+AlertTemplateBrowser.displayName = 'AlertTemplateBrowser';

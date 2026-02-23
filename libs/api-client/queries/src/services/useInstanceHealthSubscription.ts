@@ -1,5 +1,4 @@
-import { useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useSubscription, gql } from '@apollo/client';
 import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 
 /**

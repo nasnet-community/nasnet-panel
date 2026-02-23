@@ -11,6 +11,7 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
+import { memo } from 'react';
 import * as React from 'react';
 
 import { Calculator, ChevronDown } from 'lucide-react';
@@ -37,7 +38,7 @@ import type { SubnetInputPresenterProps } from './subnet-input.types';
  * Mobile presenter for SubnetInput
  * Stacked layout with bottom sheet for calculations
  */
-export function SubnetInputMobile({
+export const SubnetInputMobile = memo(function SubnetInputMobile({
   state,
   label,
   helpText,
@@ -207,6 +208,6 @@ export function SubnetInputMobile({
       )}
     </div>
   );
-}
+});
 
 SubnetInputMobile.displayName = 'SubnetInputMobile';

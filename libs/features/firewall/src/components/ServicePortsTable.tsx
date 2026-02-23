@@ -15,12 +15,16 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
-import { useMediaQuery } from '@nasnet/ui/primitives';
+import { useMemo } from 'react';
+import { usePlatform } from '@nasnet/ui/patterns';
 import { ServicePortsTableDesktop } from './ServicePortsTableDesktop';
 import { ServicePortsTableMobile } from './ServicePortsTableMobile';
 
 export interface ServicePortsTableProps {
+  /** Optional CSS class for styling */
   className?: string;
+  /** Manual platform override ('mobile' | 'tablet' | 'desktop') */
+  presenter?: 'mobile' | 'tablet' | 'desktop';
 }
 
 /**
@@ -30,16 +34,35 @@ export interface ServicePortsTableProps {
  * - Desktop: Dense table with search/filter/sort
  * - Mobile: Card-based layout with touch-friendly controls
  *
- * @param props - Component props
+ * Implements the Headless + Platform Presenters pattern.
+ *
+ * @example
+ * ```tsx
+ * <ServicePortsTable className="p-4" />
+ * <ServicePortsTable presenter="mobile" /> // Manual override
+ * ```
+ *
+ * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
+ * @param props - Component props including optional presenter override
  * @returns Platform-appropriate service ports table
  */
-export function ServicePortsTable({ className }: ServicePortsTableProps) {
-  // Platform detection: <640px = Mobile, >=640px = Desktop
-  const isMobile = useMediaQuery('(max-width: 640px)');
+export const ServicePortsTable: React.FC<ServicePortsTableProps> = ({
+  className,
+  presenter,
+}: ServicePortsTableProps) => {
+  // Auto-detect platform if not manually overridden
+  const detectedPlatform = usePlatform();
+  const platform = presenter || detectedPlatform;
 
-  return isMobile ? (
-    <ServicePortsTableMobile className={className} />
-  ) : (
-    <ServicePortsTableDesktop className={className} />
-  );
-}
+  const memoizedComponent = useMemo(() => {
+    return platform === 'mobile' ? (
+      <ServicePortsTableMobile className={className} />
+    ) : (
+      <ServicePortsTableDesktop className={className} />
+    );
+  }, [platform, className]);
+
+  return memoizedComponent;
+};
+
+ServicePortsTable.displayName = 'ServicePortsTable';

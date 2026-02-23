@@ -221,6 +221,9 @@ export const Loading: Story = {
 
 // Story 6: CPU Breakdown Modal (AC 5.2.4)
 export const CPUBreakdownInteractive: Story = {
+  args: {
+    deviceId: 'test-device',
+  },
   render: () => {
     const [open, setOpen] = useState(true);
 
@@ -250,69 +253,4 @@ export const CPUBreakdownInteractive: Story = {
 };
 
 // Individual Gauge Stories
-const gaugeMeta = {
-  title: 'Dashboard/CircularGauge',
-  component: CircularGauge,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
-} satisfies Meta<typeof CircularGauge>;
-
-export const GaugeHealthy: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 45,
-    label: 'CPU',
-    sublabel: '4 cores',
-    thresholds: { warning: 70, critical: 90 },
-    size: 'md',
-  },
-};
-
-export const GaugeWarning: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 75,
-    label: 'Memory',
-    sublabel: '192 MB / 256 MB',
-    thresholds: { warning: 70, critical: 90 },
-    size: 'md',
-  },
-};
-
-export const GaugeCritical: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 95,
-    label: 'Storage',
-    sublabel: '15 MB / 16 MB',
-    thresholds: { warning: 70, critical: 90 },
-    size: 'md',
-  },
-};
-
-export const GaugeSmall: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 50,
-    label: 'CPU',
-    sublabel: '4 cores',
-    size: 'sm',
-  },
-};
-
-export const GaugeLarge: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 50,
-    label: 'CPU',
-    sublabel: '4 cores',
-    size: 'lg',
-  },
-};
-
-export const GaugeClickable: StoryObj<typeof CircularGauge> = {
-  args: {
-    value: 50,
-    label: 'CPU',
-    sublabel: 'Click me',
-    size: 'md',
-    onClick: () => alert('Gauge clicked!'),
-  },
-};
+// Note: Gauge stories are secondary, primary stories are for ResourceGauges component above

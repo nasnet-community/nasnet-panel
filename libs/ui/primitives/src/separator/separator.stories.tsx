@@ -29,6 +29,10 @@ const meta: Meta<typeof Separator> = {
       description:
         'When true, the separator is purely visual and hidden from assistive technologies.',
     },
+    className: {
+      control: 'text',
+      description: 'Optional CSS class names for custom styling.',
+    },
   },
 };
 
@@ -113,9 +117,32 @@ export const InCard: Story = {
 export const WithLabel: Story = {
   render: () => (
     <div className="w-80 flex items-center gap-4">
-      <Separator className="flex-1" />
+      <Separator className="flex-1" decorative={false} />
       <span className="text-xs text-muted-foreground whitespace-nowrap">Advanced Options</span>
-      <Separator className="flex-1" />
+      <Separator className="flex-1" decorative={false} />
+    </div>
+  ),
+};
+
+export const NonDecorativeSeparator: Story = {
+  args: {
+    orientation: 'horizontal',
+    decorative: false,
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-80">
+        <Story />
+      </div>
+    ),
+  ],
+  render: (args) => (
+    <div className="w-80">
+      <h3 className="text-sm font-semibold text-foreground mb-2">Section 1</h3>
+      <p className="text-sm text-muted-foreground mb-4">Content for the first section</p>
+      <Separator {...args} />
+      <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">Section 2</h3>
+      <p className="text-sm text-muted-foreground">Content for the second section</p>
     </div>
   ),
 };

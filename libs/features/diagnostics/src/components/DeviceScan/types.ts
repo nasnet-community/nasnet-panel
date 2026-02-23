@@ -3,18 +3,28 @@
 // =============================================================================
 // Shared type definitions for the Device Scan feature
 
+/**
+ * Current status of a device scan operation
+ * @enum {string}
+ */
 export type ScanStatus = 'idle' | 'scanning' | 'completed' | 'cancelled' | 'error';
 
+/**
+ * Configuration options for a device scan
+ *
+ * Defines the scope and behavior of network scanning operations including
+ * target subnet, network interface, and performance parameters.
+ */
 export interface ScanConfig {
   /**
-   * Interface to scan (optional, auto-detect if not set)
-   * @example "bridge1"
+   * Network interface to scan on (optional, auto-detect if not set)
+   * Examples: "bridge1", "ether1", "wlan0"
    */
   interface?: string;
 
   /**
-   * Subnet to scan in CIDR notation
-   * @example "192.168.88.0/24"
+   * Target subnet in CIDR notation
+   * Examples: "192.168.88.0/24", "10.0.0.0/16"
    */
   subnet: string;
 
@@ -25,49 +35,65 @@ export interface ScanConfig {
   timeout?: number;
 
   /**
-   * Number of parallel pings
+   * Number of parallel ping operations
    * @default 10
    */
   concurrency?: number;
 }
 
+/**
+ * A device discovered on the network
+ *
+ * Represents a networked device with its network identifiers, location,
+ * and response characteristics. Technical identifiers (IP, MAC) use
+ * monospace font rendering for accuracy.
+ */
 export interface DiscoveredDevice {
-  /** IP address */
+  /** IPv4 address (technical data, monospace rendering) */
   ip: string;
 
-  /** MAC address */
+  /** MAC address in standard format (technical data, monospace rendering) */
   mac: string;
 
-  /** Vendor name from OUI lookup (frontend-side) */
+  /** Vendor name from OUI lookup (performed on frontend) */
   vendor: string | null;
 
-  /** Hostname from neighbor or reverse DNS */
+  /** Hostname from ARP/neighbor table or reverse DNS lookup */
   hostname: string | null;
 
-  /** Interface where device was discovered */
+  /** Network interface where device was discovered */
   interface: string;
 
-  /** Response time in milliseconds */
+  /** Response time in milliseconds for the ping/probe */
   responseTime: number;
 
-  /** ISO timestamp of first discovery */
+  /** ISO 8601 timestamp of first discovery during scan */
   firstSeen: string;
 
-  /** Correlated DHCP lease information */
+  /** Associated DHCP lease information if device obtained IP via DHCP */
   dhcpLease?: {
+    /** ISO 8601 timestamp when lease expires */
     expires: string;
+    /** IP address of DHCP server that issued lease */
     server: string;
+    /** Current lease status (active, expired, etc.) */
     status: string;
   };
 }
 
+/**
+ * Scan progress statistics
+ *
+ * Real-time metrics about an ongoing or completed device scan operation.
+ * Updated via GraphQL subscription as scan progresses.
+ */
 export interface ScanStats {
-  /** Number of IPs scanned so far */
+  /** Number of IP addresses scanned so far */
   scannedCount: number;
 
-  /** Total number of IPs to scan */
+  /** Total number of IP addresses to scan in configured subnet */
   totalCount: number;
 
-  /** Elapsed time in milliseconds */
+  /** Elapsed time in milliseconds since scan started */
   elapsedTime: number;
 }

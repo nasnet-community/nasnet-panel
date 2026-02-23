@@ -12,12 +12,11 @@
  * @module features/network/dhcp/components/lease-table
  */
 
-import * as React from 'react';
-import { Copy, Lock, Trash2, Network, Clock, Info } from 'lucide-react';
-
+import { memo, useState, useCallback } from 'react';
+import { Lock, Trash2, Copy, Clock, Globe, Info } from 'lucide-react';
 import type { DHCPLease } from '@nasnet/core/types';
 import { formatMACAddress, formatExpirationTime } from '@nasnet/core/utils';
-import { Button, Card } from '@nasnet/ui/primitives';
+import { Button, Card, Icon } from '@nasnet/ui/primitives';
 import { StatusBadge } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 
@@ -58,18 +57,18 @@ export interface LeaseDetailPanelProps {
  * />
  * ```
  */
-export function LeaseDetailPanel({
+function LeaseDetailPanelComponent({
   lease,
   onMakeStatic,
   onDelete,
   className,
 }: LeaseDetailPanelProps) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   /**
    * Copy MAC address to clipboard
    */
-  const handleCopyMac = async () => {
+  const handleCopyMac = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(lease.macAddress);
       setCopied(true);
@@ -77,7 +76,7 @@ export function LeaseDetailPanel({
     } catch (err) {
       console.error('Failed to copy MAC address:', err);
     }
-  };
+  }, [lease.macAddress]);
 
   return (
     <Card className={cn('p-4', className)}>
@@ -85,7 +84,7 @@ export function LeaseDetailPanel({
         {/* Device Information Section */}
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Network className="h-4 w-4" />
+            <Icon icon={Globe} className="h-4 w-4" aria-hidden="true" />
             Device Information
           </div>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
@@ -99,7 +98,7 @@ export function LeaseDetailPanel({
                 className="h-6 w-6 p-0"
                 aria-label="Copy MAC address"
               >
-                <Copy className="h-3 w-3" />
+                <Icon icon={Copy} className="h-3 w-3" aria-hidden="true" />
               </Button>
               {copied && (
                 <span className="text-xs text-success">Copied!</span>
@@ -121,7 +120,7 @@ export function LeaseDetailPanel({
         {/* Assignment Details Section */}
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Info className="h-4 w-4" />
+            <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
             Assignment Details
           </div>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
@@ -149,7 +148,7 @@ export function LeaseDetailPanel({
         {/* Timing Information Section */}
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Clock className="h-4 w-4" />
+            <Icon icon={Clock} className="h-4 w-4" aria-hidden="true" />
             Timing Information
           </div>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
@@ -177,7 +176,7 @@ export function LeaseDetailPanel({
                 className="gap-2"
                 aria-label="Make this lease static"
               >
-                <Lock className="h-3 w-3" />
+                <Icon icon={Lock} className="h-3 w-3" aria-hidden="true" />
                 Make Static
               </Button>
             )}
@@ -189,7 +188,7 @@ export function LeaseDetailPanel({
                 className="gap-2"
                 aria-label="Delete this lease"
               >
-                <Trash2 className="h-3 w-3" />
+                <Icon icon={Trash2} className="h-3 w-3" aria-hidden="true" />
                 Delete
               </Button>
             )}
@@ -199,3 +198,7 @@ export function LeaseDetailPanel({
     </Card>
   );
 }
+
+// Export with memo wrapper and displayName
+export const LeaseDetailPanel = memo(LeaseDetailPanelComponent);
+LeaseDetailPanel.displayName = 'LeaseDetailPanel';

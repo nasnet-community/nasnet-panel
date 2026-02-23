@@ -1,10 +1,34 @@
 /**
  * BogonFilterDialogDesktop - Desktop Platform Presenter
  *
- * Dialog with checkbox grid and interface selector.
- * Optimized for keyboard navigation and dense layout.
+ * Dialog-based presentation optimized for desktop viewports (>1024px).
+ * Features dense checkbox grid layout, all details visible, keyboard navigation support.
+ *
+ * Platform-Specific Optimizations:
+ * - Floating Dialog with max-width constraint
+ * - 2-column checkbox grid for efficient space usage
+ * - All category descriptions and recommendations visible
+ * - Full interface selector dropdown
+ * - Supports tab navigation and Enter/Space activation
+ * - Hover states for better discoverability
+ *
+ * @component
+ * @internal Used by BogonFilterDialog platform detection wrapper
+ *
+ * @example
+ * ```tsx
+ * <BogonFilterDialogDesktop
+ *   routerId="router-1"
+ *   open={true}
+ *   onClose={() => {}}
+ *   onSuccess={(count) => console.log(`Created ${count} rules`)}
+ *   availableInterfaces={['ether1-wan', 'pppoe-out1']}
+ * />
+ * ```
  *
  * @module @nasnet/ui/patterns/bogon-filter-dialog
+ * @see [BogonFilterDialog](./BogonFilterDialog.tsx) - Auto-detecting wrapper
+ * @see [useBogonFilterDialog](./use-bogon-filter-dialog.ts) - Headless logic hook
  */
 
 import { memo, useState } from 'react';
@@ -20,7 +44,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-
   Button,
   Card,
   Select,
@@ -31,22 +54,27 @@ import {
   Checkbox,
   Alert,
   AlertDescription,
-  Progress} from '@nasnet/ui/primitives';
+  Progress,
+} from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { useBogonFilterDialog } from './use-bogon-filter-dialog';
 
 import type { BogonFilterDialogProps } from './bogon-filter-dialog.types';
 
-
 /**
  * Desktop presenter for bogon filter dialog.
  *
- * Features:
- * - Dialog with checkbox grid layout
- * - Interface selector dropdown
- * - Category descriptions and security recommendations
- * - Warning for private address selection
- * - Progress indicator during rule creation
+ * Renders a floating Dialog with:
+ * - 2-column checkbox grid for category selection
+ * - Dropdown interface selector
+ * - Per-category descriptions and security recommendations
+ * - Warning alert for private address blocking
+ * - Progress indicator during batch rule creation
+ * - Accessible keyboard navigation (Tab, Enter, Space)
+ *
+ * @param props - Standard bogon filter dialog props
+ * @returns Rendered desktop presentation
  */
 export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
   routerId,
@@ -163,11 +191,12 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
               {dialog.allCategories.map((category) => (
                 <Card
                   key={category}
-                  className={`p-4 cursor-pointer transition-colors ${
+                  className={cn(
+                    'p-4 cursor-pointer transition-colors',
                     dialog.isCategorySelected(category)
                       ? 'border-primary bg-primary/5'
                       : 'hover:border-primary/50'
-                  }`}
+                  )}
                   onClick={() => !isGenerating && dialog.toggleCategory(category)}
                 >
                   <div className="flex items-start gap-3">

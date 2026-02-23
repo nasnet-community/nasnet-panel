@@ -15,7 +15,7 @@
  * @module @nasnet/features/firewall/pages
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Tabs,
@@ -40,22 +40,30 @@ import { useCustomServices } from '../hooks';
 // ============================================================================
 
 interface EmptyStateProps {
+  /** Empty state type (currently only 'groups') */
   type: 'groups';
+  /** Callback when user clicks primary action */
   onAction: () => void;
 }
 
+/**
+ * EmptyState - Displayed when service groups list is empty
+ *
+ * @param props - Empty state configuration
+ * @returns Empty state UI with action button
+ */
 function EmptyState({ type, onAction }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   return (
     <Card className="border-dashed">
       <CardHeader className="text-center">
-        <CardTitle>{t(`servicePorts.emptyStates.noGroups`)}</CardTitle>
-        <CardDescription>{t(`servicePorts.emptyStates.noGroupsDescription`)}</CardDescription>
+        <CardTitle>{t('servicePorts.emptyStates.noGroups')}</CardTitle>
+        <CardDescription>{t('servicePorts.emptyStates.noGroupsDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
         <Button onClick={onAction}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('servicePorts.createGroup')}
         </Button>
       </CardContent>
@@ -92,13 +100,17 @@ export function ServicePortsPage() {
   // Handlers
   // ============================================================================
 
-  const handleAddService = () => {
+  const handleAddService = useCallback(() => {
     setAddServiceOpen(true);
-  };
+  }, []);
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = useCallback(() => {
     setAddGroupOpen(true);
-  };
+  }, []);
+
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+  }, []);
 
   // ============================================================================
   // Render
@@ -113,7 +125,7 @@ export function ServicePortsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         {/* Tab Header with Action Button */}
         <div className="flex items-center justify-between mb-4">
           <TabsList>
@@ -124,12 +136,12 @@ export function ServicePortsPage() {
           {/* Action Button - changes based on active tab */}
           {activeTab === 'services' ? (
             <Button onClick={handleAddService}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('servicePorts.addService')}
             </Button>
           ) : (
             <Button onClick={handleCreateGroup}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('servicePorts.createGroup')}
             </Button>
           )}
@@ -149,10 +161,15 @@ export function ServicePortsPage() {
               <CardContent className="pt-6">
                 <div className="text-center py-12 space-y-2">
                   <p className="text-muted-foreground">
-                    Service Groups table coming soon (not in current scope)
+                    {t('servicePorts.groupsTableComingSoon', {
+                      defaultValue: 'Service Groups table coming soon (not in current scope)',
+                    })}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {serviceGroups.length} group{serviceGroups.length !== 1 ? 's' : ''} defined
+                    {t('servicePorts.groupsCount', {
+                      defaultValue: '{{count}} group defined',
+                      count: serviceGroups.length,
+                    })}
                   </p>
                 </div>
               </CardContent>

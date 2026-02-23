@@ -16,7 +16,7 @@
  */
 
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import {
   HardDrive,
   AlertTriangle,
@@ -40,7 +40,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
+
 import { StorageUsageBar } from './StorageUsageBar';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -87,6 +90,7 @@ function MockConfigCard({
             <HardDrive className="h-5 w-5" aria-hidden="true" />
             <CardTitle>Storage Configuration</CardTitle>
           </div>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <Badge variant={badgeVariant as any}>{badgeLabel}</Badge>
         </div>
         <CardDescription>

@@ -13,7 +13,14 @@ import type { ResourceCategory, ResourceReference } from './resource';
 // =============================================================================
 
 /**
- * Validation pipeline stages
+ * Stages of the validation pipeline executed before a resource can be applied.
+ *
+ * The validation pipeline executes multiple stages in sequence to ensure configuration
+ * validity before being applied to the router. Each stage checks different aspects:
+ * schema correctness, business rules, dependencies, conflicts, etc.
+ *
+ * @constant
+ * @see ValidationResult for pipeline results
  */
 export const ValidationStage = {
   /** Schema validation (Zod/GraphQL) */
@@ -34,11 +41,19 @@ export const ValidationStage = {
   COMPLETE: 'COMPLETE',
 } as const;
 
+/** Inferred type for validation stages */
 export type ValidationStage =
   (typeof ValidationStage)[keyof typeof ValidationStage];
 
 /**
- * Validation issue severity
+ * Severity levels for validation issues.
+ *
+ * Determines whether a validation issue blocks resource application
+ * or is informational/advisory.
+ *
+ * @constant
+ * @see ValidationIssue for issue details
+ * @see ValidationResult.errors vs warnings
  */
 export const ValidationSeverity = {
   /** Blocks apply, must be fixed */
@@ -49,29 +64,42 @@ export const ValidationSeverity = {
   INFO: 'INFO',
 } as const;
 
+/** Inferred type for validation severity */
 export type ValidationSeverity =
   (typeof ValidationSeverity)[keyof typeof ValidationSeverity];
 
 /**
- * A validation issue (error or warning)
+ * Single validation issue (error or warning) from the validation pipeline.
+ *
+ * Contains detailed information about what went wrong, where, and suggestions
+ * for fixing it. Severity determines if it blocks application.
+ *
+ * @see ValidationResult for the complete validation result
+ * @see ValidationSeverity for severity levels
  */
 export interface ValidationIssue {
   /** Error code for programmatic handling */
-  code: string;
+  readonly code: string;
   /** Human-readable message */
-  message: string;
-  /** Field path that caused the issue */
-  field?: string | null;
-  /** Severity level */
-  severity: ValidationSeverity;
-  /** Suggested fix */
-  suggestedFix?: string | null;
+  readonly message: string;
+  /** Field path that caused the issue (e.g., "config.ipAddress") */
+  readonly field?: string | null;
+  /** Severity level determining if it blocks application */
+  readonly severity: ValidationSeverity;
+  /** Suggested fix or workaround */
+  readonly suggestedFix?: string | null;
   /** Link to documentation */
-  docsUrl?: string | null;
+  readonly docsUrl?: string | null;
 }
 
 /**
- * Types of resource conflicts
+ * Types of conflicts that can occur between resources.
+ *
+ * Used to classify conflicts detected during validation, helping users
+ * understand the nature of the problem and potential solutions.
+ *
+ * @constant
+ * @see ResourceConflict for conflict details
  */
 export const ConflictType = {
   /** Port number conflict */
@@ -88,58 +116,87 @@ export const ConflictType = {
   CONFIGURATION: 'CONFIGURATION',
 } as const;
 
+/** Inferred type for conflict types */
 export type ConflictType = (typeof ConflictType)[keyof typeof ConflictType];
 
 /**
- * Conflict with another resource
+ * Conflict detected between this resource and another during validation.
+ *
+ * Indicates a collision or incompatibility that prevents both resources
+ * from being applied simultaneously. Resolution options are provided.
+ *
+ * @see ConflictType for conflict classification
+ * @see ValidationResult.conflicts for validation results
  */
 export interface ResourceConflict {
   /** Type of conflict */
-  type: ConflictType;
+  readonly type: ConflictType;
   /** Conflicting resource UUID */
-  conflictingResourceUuid: string;
+  readonly conflictingResourceUuid: string;
   /** Description of the conflict */
-  description: string;
+  readonly description: string;
   /** Suggested resolution */
-  resolution?: string | null;
+  readonly resolution?: string | null;
 }
 
 /**
- * Status of a required dependency
+ * Status of a resource dependency checked during validation.
+ *
+ * Reports whether a required dependency exists, is active, and in what state.
+ * Helps users understand why application might fail if dependencies are not met.
+ *
+ * @see ValidationResult.requiredDependencies for full validation results
+ * @see ResourceLifecycleState for lifecycle states
  */
 export interface DependencyStatus {
   /** Dependency resource UUID */
-  resourceUuid: string;
+  readonly resourceUuid: string;
   /** Dependency resource type */
-  resourceType: string;
-  /** Whether the dependency is active */
-  isActive: boolean;
+  readonly resourceType: string;
+  /** Whether the dependency is active and usable */
+  readonly isActive: boolean;
   /** Current state of the dependency */
-  state: ResourceLifecycleState;
+  readonly state: ResourceLifecycleState;
   /** Why this dependency is required */
-  reason: string;
+  readonly reason: string;
 }
 
 /**
- * Layer 2: Validation result from 7-stage backend validation pipeline
+ * Complete validation result from the 7-stage backend validation pipeline.
+ *
+ * Layer 2 of the 8-layer resource model. Contains all validation issues,
+ * conflicts, dependency status, and whether the resource is safe to apply.
+ *
+ * The validation pipeline checks:
+ * 1. Schema conformance (Zod/GraphQL)
+ * 2. Semantic validity (business rules)
+ * 3. Dependency availability
+ * 4. Conflicts with existing resources
+ * 5. Platform capabilities
+ * 6. Resource quotas
+ * 7. Pre-flight simulation
+ *
+ * @see ValidationStage for pipeline stages
+ * @see ValidationIssue for individual issues
+ * @see ValidationSeverity for error vs warning distinction
  */
 export interface ValidationResult {
-  /** Whether the resource can be applied */
-  canApply: boolean;
-  /** Current validation stage */
-  stage: ValidationStage;
-  /** Validation errors (blocking) */
-  errors: ValidationIssue[];
-  /** Validation warnings (non-blocking) */
-  warnings: ValidationIssue[];
+  /** Whether the resource can be applied (no blocking errors) */
+  readonly canApply: boolean;
+  /** Current validation stage in the pipeline */
+  readonly stage: ValidationStage;
+  /** Validation errors (blocking, must be fixed) */
+  readonly errors: readonly ValidationIssue[];
+  /** Validation warnings (non-blocking, informational) */
+  readonly warnings: readonly ValidationIssue[];
   /** Resource conflicts detected */
-  conflicts: ResourceConflict[];
-  /** Required dependencies that must be active */
-  requiredDependencies: DependencyStatus[];
-  /** When validation was performed */
-  validatedAt: string;
+  readonly conflicts: readonly ResourceConflict[];
+  /** Required dependencies and their status */
+  readonly requiredDependencies: readonly DependencyStatus[];
+  /** When validation was performed (ISO 8601 timestamp) */
+  readonly validatedAt: string;
   /** Duration of validation in milliseconds */
-  validationDurationMs: number;
+  readonly validationDurationMs: number;
 }
 
 // =============================================================================
@@ -147,7 +204,13 @@ export interface ValidationResult {
 // =============================================================================
 
 /**
- * Actions to resolve drift
+ * Actions to resolve configuration drift.
+ *
+ * When deployment state diverges from configuration, users can choose how to
+ * reconcile: push configuration to router, accept router's version, or review manually.
+ *
+ * @constant
+ * @see DriftInfo for drift detection details
  */
 export const DriftAction = {
   /** Re-apply configuration to router */
@@ -158,52 +221,72 @@ export const DriftAction = {
   REVIEW: 'REVIEW',
 } as const;
 
+/** Inferred type for drift actions */
 export type DriftAction = (typeof DriftAction)[keyof typeof DriftAction];
 
 /**
- * A field that has drifted from configuration
+ * Single field that has drifted between configuration and deployment.
+ *
+ * Represents a difference detected during drift reconciliation. Can occur when
+ * router modifies fields, external systems change state, or network issues occur.
+ *
+ * @see DriftInfo for the collection of drifted fields
  */
 export interface DriftField {
-  /** Field path */
-  path: string;
+  /** Field path (dot-notation, e.g., "config.ipAddress") */
+  readonly path: string;
   /** Expected value (from configuration) */
-  expected: unknown;
+  readonly expected: unknown;
   /** Actual value (from router) */
-  actual: unknown;
+  readonly actual: unknown;
 }
 
 /**
- * Information about configuration drift
+ * Configuration drift information detected during synchronization.
+ *
+ * Indicates that the configuration and deployment state have diverged.
+ * Provides details on what drifted and recommends resolution action.
+ *
+ * @see DriftAction for resolution options
+ * @see DriftField for individual field drifts
+ * @see DeploymentState.drift for inclusion in deployment
  */
 export interface DriftInfo {
-  /** When drift was detected */
-  detectedAt: string;
+  /** When drift was detected (ISO 8601 timestamp) */
+  readonly detectedAt: string;
   /** Fields that have drifted */
-  driftedFields: DriftField[];
+  readonly driftedFields: readonly DriftField[];
   /** Suggested action to resolve drift */
-  suggestedAction: DriftAction;
+  readonly suggestedAction: DriftAction;
 }
 
 /**
- * Layer 3: What's actually on router after Apply-Confirm
+ * Deployment state of a resource on the router.
+ *
+ * Layer 3 of the 8-layer resource model. Contains what's actually on the router
+ * after an Apply-Confirm operation, including router-generated fields, version info,
+ * and drift information if the deployment has diverged from configuration.
+ *
+ * @see Resource.deployment for inclusion in resource interface
+ * @see DriftInfo for drift detection
  */
 export interface DeploymentState {
-  /** Router-generated resource ID */
-  routerResourceId?: string | null;
-  /** When the resource was applied */
-  appliedAt: string;
+  /** Router-generated resource ID (may differ from configuration ID) */
+  readonly routerResourceId?: string | null;
+  /** When the resource was applied (ISO 8601 timestamp) */
+  readonly appliedAt: string;
   /** User who applied the resource */
-  appliedBy?: string | null;
-  /** Version number on router */
-  routerVersion?: number | null;
-  /** Router-generated fields */
-  generatedFields?: unknown;
+  readonly appliedBy?: string | null;
+  /** Version number on router (for optimistic locking) */
+  readonly routerVersion?: number | null;
+  /** Router-generated fields (vendor-specific properties) */
+  readonly generatedFields?: unknown;
   /** Whether deployment matches configuration */
-  isInSync: boolean;
+  readonly isInSync: boolean;
   /** Detected drift from configuration */
-  drift?: DriftInfo | null;
-  /** Apply operation ID for audit trail */
-  applyOperationId?: string | null;
+  readonly drift?: DriftInfo | null;
+  /** Apply operation ID for audit trail and rollback */
+  readonly applyOperationId?: string | null;
 }
 
 // =============================================================================
@@ -211,7 +294,13 @@ export interface DeploymentState {
 // =============================================================================
 
 /**
- * Runtime health status
+ * Runtime health status of an active resource.
+ *
+ * Indicates the operational health of a resource running on the router,
+ * from fully healthy to critically failed states.
+ *
+ * @constant
+ * @see RuntimeState.health for inclusion in runtime state
  */
 export const RuntimeHealth = {
   /** Resource is healthy and operating normally */
@@ -228,52 +317,66 @@ export const RuntimeHealth = {
   UNKNOWN: 'UNKNOWN',
 } as const;
 
+/** Inferred type for runtime health status */
 export type RuntimeHealth = (typeof RuntimeHealth)[keyof typeof RuntimeHealth];
 
 /**
- * Resource-specific runtime metrics
+ * Runtime metrics and operational statistics for a resource.
+ *
+ * Contains network traffic, error statistics, and performance metrics collected
+ * from the resource during normal operation. Resource-type-specific metrics
+ * can be added via the custom field.
+ *
+ * @see RuntimeState.metrics for inclusion in runtime state
  */
 export interface RuntimeMetrics {
   /** Bytes received */
-  bytesIn?: number | null;
+  readonly bytesIn?: number | null;
   /** Bytes transmitted */
-  bytesOut?: number | null;
+  readonly bytesOut?: number | null;
   /** Packets received */
-  packetsIn?: number | null;
+  readonly packetsIn?: number | null;
   /** Packets transmitted */
-  packetsOut?: number | null;
+  readonly packetsOut?: number | null;
   /** Error count */
-  errors?: number | null;
+  readonly errors?: number | null;
   /** Drops count */
-  drops?: number | null;
+  readonly drops?: number | null;
   /** Current throughput in (bytes/sec) */
-  throughputIn?: number | null;
+  readonly throughputIn?: number | null;
   /** Current throughput out (bytes/sec) */
-  throughputOut?: number | null;
-  /** Resource-specific custom metrics */
-  custom?: unknown;
+  readonly throughputOut?: number | null;
+  /** Resource-specific custom metrics (vendor/type-specific) */
+  readonly custom?: unknown;
 }
 
 /**
- * Layer 4: Live operational state polled/streamed from router
+ * Live operational state of a resource polled/streamed from the router.
+ *
+ * Layer 4 of the 8-layer resource model. Contains real-time operational data
+ * updated via polling or WebSocket streams. Read-only and continuously updated.
+ *
+ * @see Resource.runtime for inclusion in resource interface
+ * @see RuntimeHealth for health status values
+ * @see RuntimeMetrics for detailed metrics
  */
 export interface RuntimeState {
   /** Whether the resource is currently running/active */
-  isRunning: boolean;
+  readonly isRunning: boolean;
   /** Health status of the resource */
-  health: RuntimeHealth;
+  readonly health: RuntimeHealth;
   /** Error message if resource is unhealthy */
-  errorMessage?: string | null;
-  /** Resource-specific runtime metrics */
-  metrics?: RuntimeMetrics | null;
-  /** Last time runtime was updated */
-  lastUpdated: string;
-  /** Time since last successful operation */
-  lastSuccessfulOperation?: string | null;
-  /** Current peers/connections */
-  activeConnections?: number | null;
-  /** Resource uptime */
-  uptime?: string | null;
+  readonly errorMessage?: string | null;
+  /** Resource-specific operational metrics */
+  readonly metrics?: RuntimeMetrics | null;
+  /** Last time runtime was updated (ISO 8601 timestamp) */
+  readonly lastUpdated: string;
+  /** Time since last successful operation (ISO 8601 timestamp) */
+  readonly lastSuccessfulOperation?: string | null;
+  /** Current peer/connection count (varies by resource type) */
+  readonly activeConnections?: number | null;
+  /** Resource uptime duration (ISO 8601 duration) */
+  readonly uptime?: string | null;
 }
 
 // =============================================================================
@@ -281,85 +384,101 @@ export interface RuntimeState {
 // =============================================================================
 
 /**
- * A bandwidth data point
+ * Bandwidth measurement for a time period in telemetry data.
+ *
+ * @see TelemetryData.bandwidthHistory for usage in telemetry
  */
 export interface BandwidthDataPoint {
-  /** Timestamp */
-  timestamp: string;
+  /** Measurement timestamp (ISO 8601) */
+  readonly timestamp: string;
   /** Bytes in during this period */
-  bytesIn: number;
+  readonly bytesIn: number;
   /** Bytes out during this period */
-  bytesOut: number;
+  readonly bytesOut: number;
   /** Period duration in seconds */
-  periodSeconds: number;
+  readonly periodSeconds: number;
 }
 
 /**
- * An uptime data point
+ * Uptime measurement for a time period in telemetry data.
+ *
+ * @see TelemetryData.uptimeHistory for usage in telemetry
  */
 export interface UptimeDataPoint {
-  /** Timestamp */
-  timestamp: string;
+  /** Measurement timestamp (ISO 8601) */
+  readonly timestamp: string;
   /** Whether resource was up during this period */
-  isUp: boolean;
+  readonly isUp: boolean;
   /** Period duration in seconds */
-  periodSeconds: number;
+  readonly periodSeconds: number;
 }
 
 /**
- * Hourly statistics
+ * Hourly aggregated statistics for telemetry data.
+ *
+ * @see TelemetryData.hourlyStats for usage in telemetry
  */
 export interface HourlyStats {
-  /** Hour start timestamp */
-  hour: string;
-  /** Total bytes in */
-  totalBytesIn: number;
-  /** Total bytes out */
-  totalBytesOut: number;
+  /** Hour start timestamp (ISO 8601) */
+  readonly hour: string;
+  /** Total bytes in during this hour */
+  readonly totalBytesIn: number;
+  /** Total bytes out during this hour */
+  readonly totalBytesOut: number;
   /** Uptime percentage (0-100) */
-  uptimePercent: number;
-  /** Error count */
-  errorCount: number;
+  readonly uptimePercent: number;
+  /** Error count during this hour */
+  readonly errorCount: number;
 }
 
 /**
- * Daily statistics
+ * Daily aggregated statistics for telemetry data.
+ *
+ * @see TelemetryData.dailyStats for usage in telemetry
  */
 export interface DailyStats {
-  /** Date (UTC) */
-  date: string;
-  /** Total bytes in */
-  totalBytesIn: number;
-  /** Total bytes out */
-  totalBytesOut: number;
+  /** Date (UTC, ISO 8601) */
+  readonly date: string;
+  /** Total bytes in during this day */
+  readonly totalBytesIn: number;
+  /** Total bytes out during this day */
+  readonly totalBytesOut: number;
   /** Uptime percentage (0-100) */
-  uptimePercent: number;
-  /** Error count */
-  errorCount: number;
-  /** Peak throughput in (bytes/sec) */
-  peakThroughputIn: number;
-  /** Peak throughput out (bytes/sec) */
-  peakThroughputOut: number;
+  readonly uptimePercent: number;
+  /** Error count during this day */
+  readonly errorCount: number;
+  /** Peak throughput in (bytes/sec) during this day */
+  readonly peakThroughputIn: number;
+  /** Peak throughput out (bytes/sec) during this day */
+  readonly peakThroughputOut: number;
 }
 
 /**
- * Layer 5: Time-series metrics and historical data
+ * Historical time-series metrics and aggregated statistics.
+ *
+ * Layer 5 of the 8-layer resource model. Contains bandwidth, uptime, and
+ * aggregated statistics from the resource's operational history. Read-only,
+ * automatically collected by the telemetry pipeline.
+ *
+ * @see Resource.telemetry for inclusion in resource interface
+ * @see BandwidthDataPoint, UptimeDataPoint for raw data
+ * @see HourlyStats, DailyStats for aggregates
  */
 export interface TelemetryData {
-  /** Bandwidth history (last 24h) */
-  bandwidthHistory?: BandwidthDataPoint[] | null;
-  /** Uptime history */
-  uptimeHistory?: UptimeDataPoint[] | null;
-  /** Hourly statistics */
-  hourlyStats?: HourlyStats[] | null;
-  /** Daily statistics */
-  dailyStats?: DailyStats[] | null;
-  /** First data point timestamp */
-  dataStartedAt?: string | null;
-  /** Last data point timestamp */
-  lastUpdatedAt?: string | null;
-  /** Data retention period */
-  retentionDays: number;
+  /** Bandwidth history (last 24h of raw data points) */
+  readonly bandwidthHistory?: readonly BandwidthDataPoint[] | null;
+  /** Uptime history (last 24h of raw data points) */
+  readonly uptimeHistory?: readonly UptimeDataPoint[] | null;
+  /** Hourly aggregated statistics */
+  readonly hourlyStats?: readonly HourlyStats[] | null;
+  /** Daily aggregated statistics */
+  readonly dailyStats?: readonly DailyStats[] | null;
+  /** First data point timestamp (ISO 8601) */
+  readonly dataStartedAt?: string | null;
+  /** Last data point timestamp (ISO 8601) */
+  readonly lastUpdatedAt?: string | null;
+  /** Data retention period in days */
+  readonly retentionDays: number;
 }
 
 // =============================================================================
@@ -367,7 +486,11 @@ export interface TelemetryData {
 // =============================================================================
 
 /**
- * Change types for audit log
+ * Types of changes tracked in the resource audit log.
+ *
+ * @constant
+ * @see ChangeLogEntry for log entries
+ * @see ResourceMetadata.recentChanges for audit trail
  */
 export const ChangeType = {
   CREATE: 'CREATE',
@@ -375,52 +498,67 @@ export const ChangeType = {
   DELETE: 'DELETE',
 } as const;
 
+/** Inferred type for change types */
 export type ChangeType = (typeof ChangeType)[keyof typeof ChangeType];
 
 /**
- * An entry in the change log
+ * Single entry in a resource's audit log.
+ *
+ * Tracks who changed what and when, part of the metadata
+ * for audit trail and historical analysis.
+ *
+ * @see ResourceMetadata.recentChanges for inclusion
+ * @see ChangeType for operation types
  */
 export interface ChangeLogEntry {
-  /** Change timestamp */
-  timestamp: string;
+  /** Change timestamp (ISO 8601) */
+  readonly timestamp: string;
   /** User who made the change */
-  user: string;
-  /** Type of change */
-  changeType: ChangeType;
-  /** Changed fields */
-  changedFields: string[];
+  readonly user: string;
+  /** Type of change (create/update/delete) */
+  readonly changeType: ChangeType;
+  /** Fields that were changed (dotted paths) */
+  readonly changedFields: readonly string[];
   /** Brief description of the change */
-  summary?: string | null;
+  readonly summary?: string | null;
 }
 
 /**
- * Layer 6: Resource lifecycle info, tags, ownership
+ * Resource lifecycle metadata and operational information.
+ *
+ * Layer 6 of the 8-layer resource model. Contains creation/update timestamps,
+ * lifecycle state, version for optimistic locking, tags, descriptions, and
+ * audit trail. System-managed but with user-customizable fields (tags, description, notes).
+ *
+ * @see Resource.metadata for inclusion in resource interface
+ * @see ResourceLifecycleState for state values
+ * @see ChangeLogEntry for audit trail entries
  */
 export interface ResourceMetadata {
-  /** Resource creation timestamp */
-  createdAt: string;
+  /** Resource creation timestamp (ISO 8601) */
+  readonly createdAt: string;
   /** User who created the resource */
-  createdBy: string;
-  /** Last update timestamp */
-  updatedAt: string;
+  readonly createdBy: string;
+  /** Last update timestamp (ISO 8601) */
+  readonly updatedAt: string;
   /** User who last updated the resource */
-  updatedBy?: string | null;
-  /** Current lifecycle state */
-  state: ResourceLifecycleState;
-  /** Optimistic locking version */
-  version: number;
-  /** User-defined tags for organization */
-  tags: string[];
-  /** Resource description */
-  description?: string | null;
+  readonly updatedBy?: string | null;
+  /** Current lifecycle state (draft, valid, active, etc.) */
+  readonly state: ResourceLifecycleState;
+  /** Version number for optimistic concurrency control */
+  readonly version: number;
+  /** User-defined tags for organization and filtering */
+  readonly tags: readonly string[];
+  /** User-provided description */
+  readonly description?: string | null;
   /** Whether resource is marked as favorite */
-  isFavorite: boolean;
-  /** Whether resource is pinned */
-  isPinned: boolean;
+  readonly isFavorite: boolean;
+  /** Whether resource is pinned to dashboard */
+  readonly isPinned: boolean;
   /** Custom user notes */
-  notes?: string | null;
+  readonly notes?: string | null;
   /** Audit trail of recent changes */
-  recentChanges?: ChangeLogEntry[] | null;
+  readonly recentChanges?: readonly ChangeLogEntry[] | null;
 }
 
 // =============================================================================
@@ -428,23 +566,35 @@ export interface ResourceMetadata {
 // =============================================================================
 
 /**
- * Layer 7: Dependencies and relationships between resources
+ * Dependencies and relationships with other resources.
+ *
+ * Layer 7 of the 8-layer resource model. Contains information about:
+ * - Direct dependencies (resources this depends on)
+ * - Dependents (resources depending on this one)
+ * - Routing paths (traffic routing via this resource)
+ * - Hierarchy (parent-child relationships)
+ * - Custom relationships (domain-specific)
+ *
+ * Used for dependency analysis, impact calculation, and cascading operations.
+ *
+ * @see Resource.relationships for inclusion in resource interface
+ * @see ResourceReference for reference structure
  */
 export interface ResourceRelationships {
   /** Resources this resource depends on */
-  dependsOn: ResourceReference[];
+  readonly dependsOn: readonly ResourceReference[];
   /** Resources that depend on this resource */
-  dependents: ResourceReference[];
+  readonly dependents: readonly ResourceReference[];
   /** Resource this routes traffic via */
-  routesVia?: ResourceReference | null;
+  readonly routesVia?: ResourceReference | null;
   /** Resources that route traffic via this resource */
-  routedBy: ResourceReference[];
-  /** Parent resource */
-  parent?: ResourceReference | null;
-  /** Child resources */
-  children: ResourceReference[];
-  /** Custom relationships */
-  custom?: unknown;
+  readonly routedBy: readonly ResourceReference[];
+  /** Parent resource in hierarchy */
+  readonly parent?: ResourceReference | null;
+  /** Child resources in hierarchy */
+  readonly children: readonly ResourceReference[];
+  /** Custom relationships (domain/vendor-specific) */
+  readonly custom?: unknown;
 }
 
 // =============================================================================
@@ -452,7 +602,10 @@ export interface ResourceRelationships {
 // =============================================================================
 
 /**
- * Router platforms
+ * Supported router platforms for the Universal State model.
+ *
+ * @constant
+ * @see PlatformInfo for platform capabilities
  */
 export const RouterPlatform = {
   MIKROTIK: 'MIKROTIK',
@@ -461,11 +614,18 @@ export const RouterPlatform = {
   GENERIC: 'GENERIC',
 } as const;
 
+/** Inferred type for router platforms */
 export type RouterPlatform =
   (typeof RouterPlatform)[keyof typeof RouterPlatform];
 
 /**
- * Capability levels
+ * Capability levels for resource support on different platforms.
+ *
+ * Indicates the degree of support available for a resource type on
+ * a specific router platform.
+ *
+ * @constant
+ * @see PlatformCapabilities for capability details
  */
 export const CapabilityLevel = {
   /** Feature not supported */
@@ -478,65 +638,90 @@ export const CapabilityLevel = {
   FULL: 'FULL',
 } as const;
 
+/** Inferred type for capability levels */
 export type CapabilityLevel =
   (typeof CapabilityLevel)[keyof typeof CapabilityLevel];
 
 /**
- * Platform capabilities for a resource type
+ * Platform-specific capabilities and requirements for a resource type.
+ *
+ * Indicates whether and how a resource type is supported on a specific platform,
+ * including version requirements and package dependencies.
+ *
+ * @see PlatformInfo for platform details
+ * @see CapabilityLevel for support levels
  */
 export interface PlatformCapabilities {
-  /** Whether this resource type is supported */
-  isSupported: boolean;
-  /** Capability level */
-  level: CapabilityLevel;
+  /** Whether this resource type is supported on this platform */
+  readonly isSupported: boolean;
+  /** Capability level (none/basic/advanced/full) */
+  readonly level: CapabilityLevel;
   /** Minimum platform version required */
-  minVersion?: string | null;
-  /** Required packages */
-  requiredPackages?: string[] | null;
-  /** Capability-specific details */
-  details?: unknown;
+  readonly minVersion?: string | null;
+  /** Required packages or modules */
+  readonly requiredPackages?: readonly string[] | null;
+  /** Capability-specific details (platform/resource-specific) */
+  readonly details?: unknown;
 }
 
 /**
- * A platform-specific limitation
+ * Platform-specific limitation or constraint on a resource.
+ *
+ * Describes restrictions or limitations that apply to this resource type
+ * on the current platform, with suggested workarounds if available.
+ *
+ * @see PlatformInfo.limitations for inclusion
  */
 export interface PlatformLimitation {
-  /** Limitation identifier */
-  code: string;
+  /** Limitation identifier code */
+  readonly code: string;
   /** Human-readable description */
-  description: string;
-  /** Affected fields */
-  affectedFields?: string[] | null;
-  /** Workaround if available */
-  workaround?: string | null;
+  readonly description: string;
+  /** Fields affected by this limitation (dotted paths) */
+  readonly affectedFields?: readonly string[] | null;
+  /** Suggested workaround if available */
+  readonly workaround?: string | null;
 }
 
 /**
- * A platform-specific feature
+ * Platform-specific optional feature available for this resource.
+ *
+ * Represents an optional enhancement or feature that can be enabled/disabled
+ * on the platform for this resource type.
+ *
+ * @see PlatformInfo.features for inclusion
  */
 export interface PlatformFeature {
   /** Feature identifier */
-  id: string;
+  readonly id: string;
   /** Feature name */
-  name: string;
-  /** Whether feature is enabled */
-  enabled: boolean;
+  readonly name: string;
+  /** Whether feature is currently enabled */
+  readonly enabled: boolean;
   /** Feature description */
-  description?: string | null;
+  readonly description?: string | null;
 }
 
 /**
- * Layer 8: Platform-specific capabilities and field mappings
+ * Platform capabilities and constraints for a resource.
+ *
+ * Layer 8 of the 8-layer resource model. Contains platform adapter information:
+ * what capabilities are available, field mappings, limitations, and optional features.
+ * Router-specific behavior is captured here.
+ *
+ * @see Resource.platform for inclusion in resource interface
+ * @see RouterPlatform for supported platforms
+ * @see PlatformCapabilities for capability details
  */
 export interface PlatformInfo {
-  /** Current platform */
-  current: RouterPlatform;
+  /** Current router platform */
+  readonly current: RouterPlatform;
   /** Platform-specific capabilities for this resource type */
-  capabilities: PlatformCapabilities;
-  /** Field mappings between GraphQL and platform-native names */
-  fieldMappings?: unknown;
+  readonly capabilities: PlatformCapabilities;
+  /** Field mappings between GraphQL schema and platform-native field names */
+  readonly fieldMappings?: unknown;
   /** Platform-specific limitations or constraints */
-  limitations?: PlatformLimitation[] | null;
-  /** Platform-specific features available */
-  features?: PlatformFeature[] | null;
+  readonly limitations?: readonly PlatformLimitation[] | null;
+  /** Platform-specific optional features available */
+  readonly features?: readonly PlatformFeature[] | null;
 }

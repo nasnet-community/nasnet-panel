@@ -12,6 +12,7 @@ import (
 	"backend/generated/ent/routingchain"
 
 	"backend/internal/events"
+	"backend/internal/features"
 
 	"github.com/rs/zerolog/log"
 )
@@ -34,16 +35,18 @@ type ChainLatencyResult struct {
 
 // ChainLatencyMeasurer measures latency for routing chains by probing each hop.
 type ChainLatencyMeasurer struct {
-	store     *ent.Client
-	eventBus  events.EventBus
-	publisher *events.Publisher
+	store           *ent.Client
+	eventBus        events.EventBus
+	publisher       *events.Publisher
+	featureRegistry *features.FeatureRegistry
 }
 
 // NewChainLatencyMeasurer creates a new latency measurer.
-func NewChainLatencyMeasurer(store *ent.Client, eventBus events.EventBus) *ChainLatencyMeasurer {
+func NewChainLatencyMeasurer(store *ent.Client, eventBus events.EventBus, registry *features.FeatureRegistry) *ChainLatencyMeasurer {
 	m := &ChainLatencyMeasurer{
-		store:    store,
-		eventBus: eventBus,
+		store:           store,
+		eventBus:        eventBus,
+		featureRegistry: registry,
 	}
 
 	if eventBus != nil {
@@ -51,6 +54,51 @@ func NewChainLatencyMeasurer(store *ent.Client, eventBus events.EventBus) *Chain
 	}
 
 	return m
+}
+
+// resolveServicePorts resolves the actual service ports from the manifest.
+// Falls back to common proxy ports if the manifest is unavailable.
+func (m *ChainLatencyMeasurer) resolveServicePorts(ctx context.Context, iface *ent.VirtualInterface) []int {
+	fallbackPorts := []int{1080, 9050, 8080, 3128}
+
+	if m.featureRegistry == nil {
+		return fallbackPorts
+	}
+
+	// Get service instance via VirtualInterface.InstanceID
+	instanceID := iface.InstanceID
+	if instanceID == "" {
+		return fallbackPorts
+	}
+
+	// Get the service instance to find the feature ID
+	instance, err := m.store.ServiceInstance.Get(ctx, instanceID)
+	if err != nil {
+		log.Debug().Err(err).Str("instance_id", instanceID).Msg("Failed to lookup service instance for port resolution")
+		return fallbackPorts
+	}
+
+	// Lookup manifest for the feature
+	manifest, err := m.featureRegistry.GetManifest(instance.FeatureID)
+	if err != nil {
+		log.Debug().Err(err).Str("feature_id", instance.FeatureID).Msg("Failed to lookup manifest for port resolution")
+		return fallbackPorts
+	}
+
+	// Extract ports from manifest
+	if len(manifest.Ports) > 0 {
+		ports := make([]int, 0, len(manifest.Ports))
+		for _, pm := range manifest.Ports {
+			if pm.ContainerPort > 0 {
+				ports = append(ports, pm.ContainerPort)
+			}
+		}
+		if len(ports) > 0 {
+			return ports
+		}
+	}
+
+	return fallbackPorts
 }
 
 // MeasureChainLatencies measures the latency of all hops in a chain.
@@ -152,11 +200,8 @@ func (m *ChainLatencyMeasurer) measureHopLatency(
 		}
 	}
 
-	// TODO: Get the actual service port from the manifest
-	// For now, we'll try common proxy ports or use a default port
-	// When Story 8.6 (Health Monitoring) is implemented, this should query
-	// the service instance manifest to get the correct port
-	ports := []int{1080, 9050, 8080, 3128} // Common SOCKS/HTTP proxy ports
+	// Resolve service ports from the feature manifest, falling back to common proxy ports
+	ports := m.resolveServicePorts(ctx, iface)
 
 	// Try TCP connect to each port with timeout
 	timeout := 3 * time.Second

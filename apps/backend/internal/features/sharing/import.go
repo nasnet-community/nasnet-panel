@@ -43,6 +43,7 @@ const (
 
 // ImportOptions configures import behavior
 type ImportOptions struct {
+	RouterID            string
 	UserID              string
 	ConflictResolution  ConflictResolutionStrategy
 	RedactedFieldValues map[string]interface{} // User-provided values for redacted fields

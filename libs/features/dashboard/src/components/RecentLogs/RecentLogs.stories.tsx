@@ -5,6 +5,7 @@
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fn } from 'storybook/test';
 
 import type { LogEntry } from '@nasnet/core/types';
 
@@ -132,20 +133,22 @@ export const Default: Story = {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: mockLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 5,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -157,20 +160,22 @@ export const FilteredFirewall: Story = {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: firewallLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 3,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: ['firewall'],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -182,20 +187,22 @@ export const AllErrors: Story = {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: errorLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 3,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -207,20 +214,22 @@ export const EmptyState: Story = {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: [],
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 0,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: ['firewall'],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -232,45 +241,49 @@ export const Loading: Story = {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: [],
       loading: true,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 0,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
 /**
  * Error state with retry button
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     deviceId: '192.168.88.1',
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: [],
       loading: false,
       error: new Error('Failed to connect to router'),
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 0,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -287,20 +300,22 @@ export const Mobile: Story = {
     },
   },
   beforeEach: () => {
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: mockLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 5,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -315,25 +330,29 @@ export const HighVolume: Story = {
     const manyLogs: LogEntry[] = Array.from({ length: 10 }, (_, i) => ({
       id: `log-${i}`,
       timestamp: new Date(Date.now() - i * 10000),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       topic: ['system', 'firewall', 'dhcp', 'wireless'][i % 4] as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       severity: ['info', 'warning', 'error'][i % 3] as any,
       message: `Log entry ${i}: Various system events and notifications`,
     }));
 
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: manyLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 50,
       hasMore: true,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };
 
@@ -353,28 +372,30 @@ export const ReducedMotion: Story = {
   },
   beforeEach: () => {
     // Simulate prefers-reduced-motion CSS media query
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
+    window.matchMedia = fn().mockImplementation((query: string) => ({
       matches: query === '(prefers-reduced-motion: reduce)',
       media: query,
       onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
+      addEventListener: fn(),
+      removeEventListener: fn(),
+      dispatchEvent: fn(),
+    })) as any;
 
-    vi.mocked(logStreamHook.useLogStream).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logStreamHook.useLogStream as any) = fn().mockReturnValue({
       logs: mockLogs,
       loading: false,
       error: null,
-      refetch: vi.fn(),
+      refetch: fn(),
       totalCount: 5,
       hasMore: false,
     });
-    vi.mocked(logFilterStore.useLogFilterPreferencesStore).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logFilterStore.useLogFilterPreferencesStore as any) = fn().mockReturnValue({
       selectedTopics: [],
-      setSelectedTopics: vi.fn(),
-      toggleTopic: vi.fn(),
-      clearFilters: vi.fn(),
-    } as any);
+      setSelectedTopics: fn(),
+      toggleTopic: fn(),
+      clearFilters: fn(),
+    });
   },
 };

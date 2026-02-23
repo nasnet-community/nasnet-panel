@@ -50,9 +50,18 @@ export function mergeSchemas<
 /**
  * Picks specific fields from a Zod object schema.
  *
+ * @template T - Zod raw shape type
+ * @template K - Keys to pick from T
  * @param schema - Zod object schema
  * @param keys - Fields to pick
  * @returns Schema with only picked fields
+ *
+ * @example
+ * ```typescript
+ * const schema = z.object({ name: z.string(), email: z.string(), age: z.number() });
+ * const picked = pickFields(schema, ['name', 'email']);
+ * // Schema with only name and email fields
+ * ```
  */
 export function pickFields<
   T extends ZodRawShape,
@@ -69,9 +78,18 @@ export function pickFields<
 /**
  * Omits specific fields from a Zod object schema.
  *
+ * @template T - Zod raw shape type
+ * @template K - Keys to omit from T
  * @param schema - Zod object schema
  * @param keys - Fields to omit
  * @returns Schema without omitted fields
+ *
+ * @example
+ * ```typescript
+ * const schema = z.object({ name: z.string(), email: z.string(), password: z.string() });
+ * const publicSchema = omitFields(schema, ['password']);
+ * // Schema with only name and email fields
+ * ```
  */
 export function omitFields<
   T extends ZodRawShape,
@@ -163,11 +181,24 @@ export function booleanFromString(): z.ZodEffects<z.ZodString, boolean, string> 
 
 /**
  * Creates a conditional schema that validates based on a condition.
+ * Note: The condition function is provided for semantic clarity but runtime enforcement
+ * requires additional validation using Zod's superRefine or refine methods.
  *
- * @param condition - Function that returns true if the field is required
+ * @template T - First schema type
+ * @template U - Second schema type
+ * @param condition - Function that returns true if requiredSchema should apply (informational)
  * @param requiredSchema - Schema to use when condition is true
  * @param optionalSchema - Schema to use when condition is false
- * @returns Union schema
+ * @returns Union schema accepting either schema
+ *
+ * @example
+ * ```typescript
+ * const schema = conditionalSchema(
+ *   () => true,
+ *   z.string().min(1),
+ *   z.string().optional()
+ * );
+ * ```
  */
 export function conditionalSchema<T extends ZodSchema, U extends ZodSchema>(
   condition: () => boolean,

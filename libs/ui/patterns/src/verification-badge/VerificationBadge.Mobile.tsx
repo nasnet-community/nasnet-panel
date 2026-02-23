@@ -52,30 +52,37 @@ const SIZE_CONFIG = {
  * - Full-width re-verify button
  * - Copy hash functionality
  */
-export function VerificationBadgeMobile({
-  state,
-  size,
-  showLabel: _showLabel, // Ignored on mobile - we show in sheet instead
-  className,
-  id,
-}: VerificationBadgePresenterProps) {
+const VerificationBadgeMobileComponent = React.forwardRef<
+  HTMLButtonElement,
+  VerificationBadgePresenterProps
+>(
+  (
+    {
+      state,
+      size,
+      showLabel: _showLabel, // Ignored on mobile - we show in sheet instead
+      className,
+      id,
+    },
+    ref
+  ) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
 
   // Handle re-verification - close sheet after action
-  const handleReverify = async () => {
+  const handleReverify = React.useCallback(async () => {
     await state.handleReverify();
     setIsOpen(false);
-  };
+  }, [state]);
 
   // Copy hash to clipboard
-  const handleCopyHash = async () => {
+  const handleCopyHash = React.useCallback(async () => {
     if (state.fullHash) {
       await navigator.clipboard.writeText(state.fullHash);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
+  }, [state.fullHash]);
 
   const Icon = STATUS_ICONS[state.iconName];
   const sizeClasses = SIZE_CONFIG[size];
@@ -84,6 +91,7 @@ export function VerificationBadgeMobile({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <button
+          ref={ref}
           type="button"
           id={id}
           className={cn(
@@ -198,4 +206,8 @@ export function VerificationBadgeMobile({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+VerificationBadgeMobileComponent.displayName = 'VerificationBadgeMobile';
+
+export const VerificationBadgeMobile = React.memo(VerificationBadgeMobileComponent);

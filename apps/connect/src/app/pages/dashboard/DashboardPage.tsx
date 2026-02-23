@@ -6,6 +6,7 @@
 
 import { useNavigate } from '@tanstack/react-router';
 import { Wifi, Network, Shield, Settings, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
@@ -25,6 +26,7 @@ import {
  * Displays system information and resource monitoring for connected router
  */
 export function DashboardPage() {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
@@ -87,12 +89,12 @@ export function DashboardPage() {
   const networkStatus = getNetworkStatus();
   const statusMessage =
     networkStatus === 'healthy'
-      ? 'All Systems Online'
+      ? t('routerHealth.allOnline')
       : networkStatus === 'warning'
-      ? 'Attention Needed'
+      ? t('routerHealth.attentionNeeded')
       : networkStatus === 'error'
-      ? 'System Issues Detected'
-      : 'Loading...';
+      ? t('routerHealth.issuesDetected')
+      : t('common.loading');
 
   // Get device count (placeholder - would come from actual API)
   const deviceCount = 12; // TODO: Get from actual connected devices API
@@ -102,9 +104,9 @@ export function DashboardPage() {
 
   // Status card metrics
   const statusMetrics = [
-    { value: deviceCount, label: 'Devices' },
-    { value: resourceData?.cpuLoad ? Math.round(100 - resourceData.cpuLoad) : '--', label: 'Available', unit: '%' },
-    { value: uptimeFormatted, label: 'Uptime' },
+    { value: deviceCount, label: t('quickActions.devices') },
+    { value: resourceData?.cpuLoad ? Math.round(100 - resourceData.cpuLoad) : '--', label: t('quickActions.available'), unit: '%' },
+    { value: uptimeFormatted, label: t('quickActions.uptime') },
   ];
 
   // VPN status (placeholder - would integrate with actual VPN state)
@@ -119,7 +121,7 @@ export function DashboardPage() {
       <StatusCard
         status={networkStatus}
         message={statusMessage}
-        subtitle="Status"
+        subtitle={t('overview.status')}
         metrics={statusMetrics}
       />
 
@@ -136,31 +138,31 @@ export function DashboardPage() {
 
       {/* Quick Actions Grid */}
       <div>
-        <p className="text-sm font-medium text-muted-foreground mb-3">Quick Actions</p>
+        <p className="text-sm font-medium text-muted-foreground mb-3">{t('quickActions.title')}</p>
         <div className="grid grid-cols-5 gap-4">
           <QuickActionButton
             icon={Wifi}
-            label="WiFi"
+            label={t('quickActions.wifi')}
             onClick={() => navigate({ to: '/wifi' })}
           />
           <QuickActionButton
             icon={Network}
-            label="Network"
+            label={t('quickActions.network')}
             onClick={() => navigate({ to: '/network' })}
           />
           <QuickActionButton
             icon={Shield}
-            label="Firewall"
+            label={t('quickActions.firewall')}
             onClick={() => navigate({ to: '/firewall' as '/' })}
           />
           <QuickActionButton
             icon={Settings}
-            label="Settings"
+            label={t('quickActions.settings')}
             onClick={() => navigate({ to: '/settings' as '/' })}
           />
           <QuickActionButton
             icon={AlertCircle}
-            label="Troubleshoot"
+            label={t('quickActions.troubleshoot')}
             onClick={() => navigate({ to: '/dashboard/troubleshoot', search: { routerId: routerIp, autoStart: false } })}
           />
         </div>
@@ -169,7 +171,7 @@ export function DashboardPage() {
       {/* Resource Monitoring Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">Resource Monitor</h2>
+          <h2 className="text-lg font-semibold text-foreground">{t('resources.title')}</h2>
           <LastUpdated timestamp={dataUpdatedAt} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -211,7 +213,7 @@ export function DashboardPage() {
 
       {/* Hardware Details Section */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Hardware</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('overview.hardware')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <HardwareCard
             data={hardwareData}
@@ -223,3 +225,4 @@ export function DashboardPage() {
     </div>
   );
 }
+DashboardPage.displayName = 'DashboardPage';

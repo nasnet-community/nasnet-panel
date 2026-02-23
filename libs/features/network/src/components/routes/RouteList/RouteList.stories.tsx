@@ -5,7 +5,7 @@
  * Demonstrates the RouteList component in various states and platform configurations.
  */
 
-import { action } from '@storybook/addon-actions';
+import { fn } from 'storybook/test';
 
 import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
 
@@ -162,13 +162,13 @@ const baseProps = {
   filters: defaultFilters,
   sortOptions: defaultSortOptions,
   availableTables,
-  onFiltersChange: action('onFiltersChange'),
-  onSortChange: action('onSortChange'),
-  onRefresh: action('onRefresh'),
-  onEdit: action('onEdit'),
-  onDelete: action('onDelete'),
-  onToggleDisabled: action('onToggleDisabled'),
-};
+  onFiltersChange: fn(),
+  onSortChange: fn(),
+  onRefresh: fn(),
+  onEdit: fn(),
+  onDelete: fn(),
+  onToggleDisabled: fn(),
+} as const;
 
 // Desktop Stories
 const metaDesktop: Meta<typeof RouteListDesktop> = {
@@ -220,7 +220,6 @@ export const Empty: StoryDesktop = {
   args: {
     ...baseProps,
     routes: [],
-    allRoutes: [],
   },
 };
 
@@ -305,8 +304,6 @@ const metaMobile: Meta<typeof RouteListMobile> = {
   tags: ['autodocs'],
 };
 
-export { metaMobile };
-
 type StoryMobile = StoryObj<typeof RouteListMobile>;
 
 /**
@@ -335,7 +332,6 @@ export const MobileEmpty: StoryMobile = {
   args: {
     ...baseProps,
     routes: [],
-    allRoutes: [],
   },
 };
 

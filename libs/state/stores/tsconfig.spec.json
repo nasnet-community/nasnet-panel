@@ -2,8 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
-    "module": "commonjs",
-    "types": ["vitest/globals", "node"]
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "node", "@testing-library/jest-dom"],
+    "composite": false,
+    "declaration": true
   },
-  "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
 }

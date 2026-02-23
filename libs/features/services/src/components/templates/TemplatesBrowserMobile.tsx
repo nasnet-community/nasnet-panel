@@ -1,13 +1,25 @@
 /**
  * TemplatesBrowserMobile Component
  *
- * Mobile/Tablet presenter for templates browser.
- * Vertical list with bottom sheet filters and 44px touch targets.
+ * @description Mobile/Tablet presenter for the templates browser with vertical list layout.
+ *
+ * Features:
+ * - Vertical list of service template cards
+ * - Bottom sheet filter panel (opens on tap)
+ * - 44px minimum touch targets for mobile users
+ * - 8px spacing between touch targets
+ * - Loading, error, and empty states with skeleton loaders
+ * - Pull-to-refresh ready (future enhancement)
+ * - Screen reader support and WCAG AAA accessibility
+ *
+ * Platform: Mobile (<640px) and Tablet (640-1024px)
  */
 
-import { memo, useState } from 'react';
+import React, { useState, useCallback } from 'react';
+
 import { Filter, Plus } from 'lucide-react';
 
+import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
 import {
   Button,
   Sheet,
@@ -17,24 +29,13 @@ import {
   SheetTrigger,
   Skeleton,
 } from '@nasnet/ui/primitives';
-import { ServiceTemplateCard } from '@nasnet/ui/patterns';
-import { EmptyState } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 
-import { useTemplatesBrowser } from './useTemplatesBrowser';
 import { TemplateFilters } from './TemplateFilters';
+import { useTemplatesBrowser } from './useTemplatesBrowser';
 
 import type { TemplatesBrowserProps } from './types';
 
-/**
- * Mobile presenter for TemplatesBrowser
- *
- * Features:
- * - Vertical list layout
- * - Bottom sheet for filters
- * - 44px touch targets
- * - Pull-to-refresh (future)
- */
 function TemplatesBrowserMobileComponent({
   routerId,
   onInstall,
@@ -54,23 +55,37 @@ function TemplatesBrowserMobileComponent({
 
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
+  // Memoized callbacks for event handling
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleResetFilters = useCallback(() => {
+    resetFilters();
+    setFilterSheetOpen(false);
+  }, [resetFilters]);
+
+  const handleFilterSheetOpenChange = useCallback((open: boolean) => {
+    setFilterSheetOpen(open);
+  }, []);
+
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header with filter button */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-background sticky top-0 z-10">
         <h1 className="text-lg font-semibold">Service Templates</h1>
-        <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+        <Sheet open={filterSheetOpen} onOpenChange={handleFilterSheetOpenChange}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="default"
-              className="min-h-[44px] min-w-[44px]"
-              aria-label="Open filters"
+              className="min-h-[44px] min-w-[44px] px-3"
+              aria-label={hasActiveFilters ? 'Open filters (filters active)' : 'Open filters'}
             >
-              <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
-              Filters
+              <Filter className="h-4 w-4" aria-hidden="true" />
+              <span className="ml-2 hidden sm:inline">Filters</span>
               {hasActiveFilters && (
-                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground" aria-label="1 filter active">
                   !
                 </span>
               )}
@@ -101,7 +116,7 @@ function TemplatesBrowserMobileComponent({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => refetch()}
+              onClick={handleRetry}
               className="mt-3 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Retry
@@ -133,7 +148,7 @@ function TemplatesBrowserMobileComponent({
             action={
               hasActiveFilters ? {
                 label: 'Reset Filters',
-                onClick: resetFilters,
+                onClick: handleResetFilters,
                 variant: 'outline' as const,
               } : undefined
             }
@@ -187,5 +202,8 @@ function TemplatesBrowserMobileComponent({
   );
 }
 
-export const TemplatesBrowserMobile = memo(TemplatesBrowserMobileComponent);
+/**
+ * TemplatesBrowserMobile - Mobile/Tablet presenter for templates browser
+ */
+export const TemplatesBrowserMobile = React.memo(TemplatesBrowserMobileComponent);
 TemplatesBrowserMobile.displayName = 'TemplatesBrowserMobile';

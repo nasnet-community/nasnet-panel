@@ -12,8 +12,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Input } from '@nasnet/ui/primitives';
-
 import { FormSubmitButton } from './FormSubmitButton';
 
 import type { Meta, StoryObj } from '@storybook/react';

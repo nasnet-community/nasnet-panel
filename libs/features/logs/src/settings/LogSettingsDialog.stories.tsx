@@ -11,13 +11,17 @@
  * project's established pattern (see RecentLogs.stories.tsx).
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import { vi } from 'vitest';
+
+import * as apiQueriesModule from '@nasnet/api-client/queries';
+import * as connectionStoreModule from '@nasnet/state/stores';
 
 import { LogSettingsDialog } from './LogSettingsDialog';
 
+import type { Meta, StoryObj } from '@storybook/react';
+
+
 // Hook modules imported so vi.mocked() can intercept them
-import * as connectionStoreModule from '@nasnet/state/stores';
-import * as apiQueriesModule from '@nasnet/api-client/queries';
 
 // ---------------------------------------------------------------------------
 // Inline mock data
@@ -107,33 +111,42 @@ function setupMocks({
 
   // Query hooks
   vi.mocked(apiQueriesModule.useLoggingRules).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: rules as any,
     isLoading: rulesLoading,
     error: rulesError,
     refetch: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   vi.mocked(apiQueriesModule.useLoggingActions).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: actions as any,
     isLoading: actionsLoading,
     error: actionsError,
     refetch: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   // Mutation hooks
   vi.mocked(apiQueriesModule.useCreateLoggingRule).mockReturnValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noopMutation() as any
   );
   vi.mocked(apiQueriesModule.useUpdateLoggingRule).mockReturnValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noopMutation() as any
   );
   vi.mocked(apiQueriesModule.useDeleteLoggingRule).mockReturnValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noopMutation() as any
   );
   vi.mocked(apiQueriesModule.useToggleLoggingRule).mockReturnValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noopMutation() as any
   );
   vi.mocked(apiQueriesModule.useUpdateLoggingAction).mockReturnValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noopMutation() as any
   );
 }
@@ -182,6 +195,9 @@ export const Default: Story = {
  * Opened with a custom trigger button instead of the default gear icon.
  */
 export const CustomTrigger: Story = {
+  beforeEach: () => {
+    setupMocks();
+  },
   args: {
     trigger: (
       <button
@@ -199,9 +215,6 @@ export const CustomTrigger: Story = {
         Configure Logging
       </button>
     ),
-  },
-  beforeEach: () => {
-    setupMocks();
   },
 };
 

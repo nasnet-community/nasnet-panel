@@ -115,7 +115,7 @@ export const Collapsible: Story = {
           onToggle={() => setCollapsed((c) => !c)}
         />
         {!collapsed && (
-          <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm text-slate-600 dark:text-slate-300">
+          <div className="mt-2 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
             Section content is visible when expanded.
           </div>
         )}
@@ -149,5 +149,27 @@ export const CollapsedState: Story = {
     docs: {
       description: { story: 'Static collapsed view — chevron points right.' },
     },
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    title: 'Wireless Interfaces',
+    count: 3,
+    icon: <Wifi className="w-4 h-4" />,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  args: {
+    title: 'Wireless Interfaces',
+    count: 3,
+    icon: <Wifi className="w-4 h-4" />,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
   },
 };

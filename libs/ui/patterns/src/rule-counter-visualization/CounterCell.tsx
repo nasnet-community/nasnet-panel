@@ -9,6 +9,8 @@
  * - Mobile: Vertical stacked layout with 44px touch targets (no rate)
  */
 
+import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { CounterCellDesktop } from './CounterCellDesktop';
@@ -56,7 +58,7 @@ export interface CounterCellProps {
  * />
  * ```
  */
-export function CounterCell(props: CounterCellProps) {
+export const CounterCell = memo(function CounterCell(props: CounterCellProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -64,7 +66,9 @@ export function CounterCell(props: CounterCellProps) {
   ) : (
     <CounterCellDesktop {...props} />
   );
-}
+});
+
+CounterCell.displayName = 'CounterCell';
 
 // Re-export presenters for direct usage
 export { CounterCellDesktop, CounterCellMobile };

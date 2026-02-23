@@ -37,9 +37,8 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 	// Block size in bytes
 	blockSize := uint64(stat.Bsize)
 
-	// Total, free, and available blocks
+	// Total and available blocks (Bavail accounts for reserved blocks)
 	totalBlocks := stat.Blocks
-	freeBlocks := stat.Bfree
 	availableBlocks := stat.Bavail
 
 	// Convert to MB (1 MB = 1024 * 1024 bytes)
@@ -54,7 +53,7 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 	}
 
 	// Determine filesystem type (simplified mapping)
-	fsType := getFSType(stat.Type)
+	fsType := getFSType(int64(stat.Type))
 
 	mp := &MountPoint{
 		Path:      path,
@@ -82,10 +81,9 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 // Reference: https://man7.org/linux/man-pages/man2/statfs.2.html
 func getFSType(fsType int64) string {
 	// Common filesystem type magic numbers
+	// Note: ext2/ext3/ext4 share the same magic number 0xEF53
 	const (
-		EXT2_SUPER_MAGIC  = 0xEF53
-		EXT3_SUPER_MAGIC  = 0xEF53
-		EXT4_SUPER_MAGIC  = 0xEF53
+		EXT_SUPER_MAGIC   = 0xEF53
 		TMPFS_MAGIC       = 0x01021994
 		SQUASHFS_MAGIC    = 0x73717368
 		VFAT_SUPER_MAGIC  = 0x4d44
@@ -96,7 +94,7 @@ func getFSType(fsType int64) string {
 	)
 
 	switch fsType {
-	case EXT2_SUPER_MAGIC, EXT3_SUPER_MAGIC, EXT4_SUPER_MAGIC:
+	case EXT_SUPER_MAGIC:
 		return "ext4"
 	case TMPFS_MAGIC:
 		return "tmpfs"

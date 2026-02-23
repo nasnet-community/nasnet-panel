@@ -4,9 +4,12 @@
  *
  * Card-based layout optimized for touch interaction.
  * 44px minimum touch targets, simplified UI.
+ *
+ * @description Mobile presenter for IP address list with card-based layout,
+ * full-width touch targets (44px minimum), and streamlined action buttons.
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -19,7 +22,7 @@ import { AlertCircle, Edit, RefreshCw, Trash } from 'lucide-react';
 
 import type { IPAddressData, IPAddressListProps } from './types';
 
-export function IPAddressListMobile({
+function IPAddressListMobileComponent({
   ipAddresses,
   loading = false,
   error,
@@ -156,7 +159,7 @@ interface IPAddressCardProps {
   onToggleDisabled?: (ipAddress: IPAddressData) => void;
 }
 
-function IPAddressCard({
+function IPAddressCardComponent({
   ipAddress,
   onEdit,
   onDelete,
@@ -169,7 +172,7 @@ function IPAddressCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <code className="text-base font-mono font-semibold">
+            <code className="text-base font-mono font-semibold block">
               {ipAddress.address}
             </code>
             <div className="mt-1 flex flex-wrap gap-2">
@@ -203,7 +206,7 @@ function IPAddressCard({
         {ipAddress.network && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Network:</span>
-            <code className="text-sm">{ipAddress.network}</code>
+            <code className="text-sm font-mono">{ipAddress.network}</code>
           </div>
         )}
 
@@ -211,7 +214,7 @@ function IPAddressCard({
         {ipAddress.broadcast && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Broadcast:</span>
-            <code className="text-sm">{ipAddress.broadcast}</code>
+            <code className="text-sm font-mono">{ipAddress.broadcast}</code>
           </div>
         )}
 
@@ -258,3 +261,9 @@ function IPAddressCard({
     </Card>
   );
 }
+
+const IPAddressCard = memo(IPAddressCardComponent);
+IPAddressCard.displayName = 'IPAddressCard';
+
+export const IPAddressListMobile = memo(IPAddressListMobileComponent);
+IPAddressListMobile.displayName = 'IPAddressListMobile';

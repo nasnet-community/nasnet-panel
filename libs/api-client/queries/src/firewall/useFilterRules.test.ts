@@ -15,6 +15,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
+import * as React from 'react';
 import {
   useFilterRules,
   useCreateFilterRule,
@@ -43,9 +44,8 @@ function createWrapper() {
     },
   });
 
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return ({ children }: { children: ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
 describe('useFilterRules', () => {
@@ -83,6 +83,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -114,6 +115,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(
@@ -133,6 +135,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: [],
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -148,6 +151,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: false,
         error: 'Connection timeout',
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -206,6 +210,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -241,6 +246,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -262,6 +268,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -290,6 +297,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -313,6 +321,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: mockApiResponse,
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useFilterRules(ROUTER_ID), {
@@ -332,6 +341,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: { '.id': '*NEW' },
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useCreateFilterRule(ROUTER_ID), {
@@ -368,6 +378,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useCreateFilterRule(ROUTER_ID), {
@@ -406,6 +417,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: false,
         error: 'Invalid rule configuration',
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useCreateFilterRule(ROUTER_ID), {
@@ -424,11 +436,11 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
-      const wrapper = ({ children }: { children: ReactNode }) => (
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      );
+      const wrapper = ({ children }: { children: ReactNode }) =>
+        React.createElement(QueryClientProvider, { client: queryClient }, children);
 
       const { result } = renderHook(() => useCreateFilterRule(ROUTER_ID), { wrapper });
 
@@ -447,6 +459,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useUpdateFilterRule(ROUTER_ID), {
@@ -478,6 +491,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: false,
         error: 'Rule not found',
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useUpdateFilterRule(ROUTER_ID), {
@@ -495,6 +509,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useDeleteFilterRule(ROUTER_ID), {
@@ -517,6 +532,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: false,
         error: 'Cannot delete rule',
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useDeleteFilterRule(ROUTER_ID), {
@@ -532,6 +548,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useMoveFilterRule(ROUTER_ID), {
@@ -557,6 +574,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useMoveFilterRule(ROUTER_ID), {
@@ -578,6 +596,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useToggleFilterRule(ROUTER_ID), {
@@ -603,6 +622,7 @@ describe('useFilterRules', () => {
       mockMakeRouterOSRequest.mockResolvedValueOnce({
         success: true,
         data: {},
+        timestamp: Date.now(),
       });
 
       const { result } = renderHook(() => useToggleFilterRule(ROUTER_ID), {

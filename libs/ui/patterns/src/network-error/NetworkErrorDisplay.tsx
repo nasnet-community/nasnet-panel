@@ -158,7 +158,7 @@ const troubleshootingTips = [
  * />
  * ```
  */
-export function NetworkErrorDisplay({
+function NetworkErrorDisplayComponent({
   type = 'unknown',
   title,
   description,
@@ -178,12 +178,21 @@ export function NetworkErrorDisplay({
   const [showDetails, setShowDetails] = React.useState(false);
   const { isOnline } = useNetworkStatus();
 
-  const config = getNetworkErrorConfig(type);
-  const displayTitle = title || config.title;
-  const displayDescription = description || config.description;
+  const config = React.useMemo(() => getNetworkErrorConfig(type), [type]);
+  const displayTitle = React.useMemo(() => title || config.title, [title, config.title]);
+  const displayDescription = React.useMemo(() => description || config.description, [description, config.description]);
 
   // If we came back online while showing the error, show success state
   const showOnlineSuccess = type === 'offline' && isOnline;
+
+  // Memoized handlers
+  const handleRetry = React.useCallback(() => {
+    onRetry?.();
+  }, [onRetry]);
+
+  const handleOpenSettings = React.useCallback(() => {
+    onOpenSettings?.();
+  }, [onOpenSettings]);
 
   // Compact variant
   if (variant === 'compact') {
@@ -225,7 +234,7 @@ export function NetworkErrorDisplay({
           <Button
             size="sm"
             variant="outline"
-            onClick={onRetry}
+            onClick={handleRetry}
             disabled={isRetrying}
             aria-label={isRetrying ? 'Retrying connection' : 'Retry connection'}
           >
@@ -307,7 +316,7 @@ export function NetworkErrorDisplay({
                   <Button
                     size="sm"
                     variant="default"
-                    onClick={onRetry}
+                    onClick={handleRetry}
                     disabled={isRetrying}
                     aria-label={isRetrying ? 'Retrying connection' : 'Retry connection now'}
                   >
@@ -326,7 +335,7 @@ export function NetworkErrorDisplay({
                 )}
 
                 {onOpenSettings && (
-                  <Button size="sm" variant="outline" onClick={onOpenSettings}>
+                  <Button size="sm" variant="outline" onClick={handleOpenSettings}>
                     <Settings className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
                     Network Settings
                   </Button>
@@ -398,3 +407,10 @@ export function NetworkErrorDisplay({
     </Card>
   );
 }
+
+NetworkErrorDisplayComponent.displayName = 'NetworkErrorDisplay';
+
+/**
+ * Memoized NetworkErrorDisplay component
+ */
+export const NetworkErrorDisplay = React.memo(NetworkErrorDisplayComponent);

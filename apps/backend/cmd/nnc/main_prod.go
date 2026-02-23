@@ -178,6 +178,14 @@ func run() {
 		webhookSvc:           prodSvcs.integration.WebhookService,
 		sharingSvc:           prodSvcs.integration.SharingService,
 		configSvc:            prodSvcs.integration.ConfigService,
+		killSwitchManager:    prodSvcs.vif.KillSwitchManager,
+		resourceLimiter:      prodSvcs.orchestrator.ResourceLimiter,
+		// TODO: wire chainRouter, pbrEngine, routingMatrixSvc, chainLatencyMeasurer
+		// once a routing bootstrap component is added to prodServices.
+		chainRouter:          nil,
+		pbrEngine:            nil,
+		routingMatrixSvc:     nil,
+		chainLatencyMeasurer: nil,
 		logger:               sugar,
 	})
 

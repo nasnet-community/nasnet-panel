@@ -165,3 +165,46 @@ export const ColorVariants: Story = {
     </div>
   ),
 };
+
+export const Mobile: Story = {
+  args: {
+    size: 'md',
+    label: 'Loading...',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Tablet: Story = {
+  args: {
+    size: 'md',
+    label: 'Loading...',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'tablet' },
+  },
+};
+
+export const Error: Story = {
+  render: () => (
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex items-center gap-3 text-error">
+        <Spinner size="lg" className="text-error" label="Error attempting operation..." />
+        <div>
+          <p className="text-sm font-medium text-foreground">Operation Failed</p>
+          <p className="text-xs text-muted-foreground">Retrying...</p>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <div className="flex flex-col items-center justify-center gap-4 h-40">
+      <Spinner size="lg" label="Loading content..." />
+      <p className="text-sm text-muted-foreground">No data available yet</p>
+    </div>
+  ),
+};

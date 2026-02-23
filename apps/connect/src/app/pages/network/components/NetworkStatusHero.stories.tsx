@@ -151,3 +151,17 @@ export const Loading: Story = {
     },
   },
 };
+
+export const Mobile: Story = {
+  ...AllInterfacesActive,
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Desktop: Story = {
+  ...AllInterfacesActive,
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+};

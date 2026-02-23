@@ -28,7 +28,14 @@ export interface UseLogCacheReturn {
 }
 
 /**
- * Hook for managing log cache operations
+ * @description Hook for managing log cache operations, including offline caching,
+ * statistics tracking, and cache lifecycle management. Monitors online/offline status
+ * and automatically cleans up expired entries.
+ * @example
+ * const { cachedLogs, storeLogs, clearCache } = useLogCache({
+ *   routerIp: '192.168.1.1',
+ *   enabled: true,
+ * });
  */
 export function useLogCache({
   routerIp,
@@ -116,15 +123,18 @@ export function useLogCache({
     }
   }, [cache]);
 
-  return {
-    cachedLogs,
-    isLoading,
-    isOffline,
-    cacheStats,
-    storeLogs,
-    clearCache,
-    refreshCache,
-  };
+  return React.useMemo(
+    () => ({
+      cachedLogs,
+      isLoading,
+      isOffline,
+      cacheStats,
+      storeLogs,
+      clearCache,
+      refreshCache,
+    }),
+    [cachedLogs, isLoading, isOffline, cacheStats, storeLogs, clearCache, refreshCache]
+  );
 }
 
 

@@ -1,11 +1,12 @@
 /**
  * Wireless Interface Detail Component
- * Displays detailed configuration for a single wireless interface
+ * @description Displays comprehensive wireless interface configuration including radio settings,
+ * security profile, signal strength, and regional settings with edit capabilities.
  * Implements FR0-15: View wireless interface configuration details
  * Implements FR0-16: View security profile settings
  */
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import { Card, Button, Badge, cn } from '@nasnet/ui/primitives';
 import {
   Copy,
@@ -56,7 +57,7 @@ export const WirelessInterfaceDetail = forwardRef<
   /**
    * Copy MAC address to clipboard
    */
-  const handleCopyMac = async () => {
+  const handleCopyMac = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(iface.macAddress);
       setCopied(true);
@@ -64,7 +65,7 @@ export const WirelessInterfaceDetail = forwardRef<
     } catch (error) {
       console.error('Failed to copy MAC address:', error);
     }
-  };
+  }, [iface.macAddress]);
 
   return (
     <div ref={ref} className={cn('space-y-4', className)}>
@@ -96,7 +97,7 @@ export const WirelessInterfaceDetail = forwardRef<
               aria-label="Edit settings"
               className="gap-2"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Edit Settings</span>
               <span className="sm:hidden">Edit</span>
             </Button>
@@ -119,8 +120,8 @@ export const WirelessInterfaceDetail = forwardRef<
       {/* Radio Settings Section */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Radio className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+          <Radio className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
+          <h3 className="text-sm font-semibold text-foreground">
             Radio Settings
           </h3>
         </div>
@@ -136,8 +137,8 @@ export const WirelessInterfaceDetail = forwardRef<
       {/* Security Section */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+          <Shield className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
+          <h3 className="text-sm font-semibold text-foreground">
             Security
           </h3>
         </div>
@@ -155,8 +156,8 @@ export const WirelessInterfaceDetail = forwardRef<
       {isStation && iface.signalStrength !== undefined && (
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Signal className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+            <Signal className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
+            <h3 className="text-sm font-semibold text-foreground">
               Connection
             </h3>
           </div>
@@ -209,13 +210,14 @@ export const WirelessInterfaceDetail = forwardRef<
               MAC Address
             </span>
             <div className="flex items-center gap-2">
-              <code className="text-sm font-mono text-slate-900 dark:text-slate-50">
+              <code className="text-sm font-mono text-foreground">
                 {iface.macAddress}
               </code>
               <button
                 onClick={handleCopyMac}
                 className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label="Copy MAC address"
+                aria-label="Copy MAC address to clipboard"
+                type="button"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -249,13 +251,9 @@ WirelessInterfaceDetail.displayName = 'WirelessInterfaceDetail';
 /**
  * Detail row component for consistent key-value display
  */
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-slate-600 dark:text-slate-400">{label}</span>
-      <span className="text-sm font-medium text-slate-900 dark:text-slate-50">
-        {value}
-      </span>
-    </div>
-  );
-}
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-sm text-muted-foreground">{label}</span>
+    <span className="text-sm font-medium text-foreground font-mono">{value}</span>
+  </div>
+);

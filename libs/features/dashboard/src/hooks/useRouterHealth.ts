@@ -8,8 +8,7 @@
  * @see Story 4.4: Apollo Client Setup
  */
 
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 // TODO (Task 4): Import generated types from GraphQL codegen
 // import { GetRouterHealthSummaryQuery, GetRouterHealthSummaryQueryVariables } from '@nasnet/api-client/generated';
@@ -50,6 +49,9 @@ export interface UseRouterHealthOptions {
 
 /**
  * Fetch router health data with Apollo Client
+ *
+ * @description Fetches router health data with cache-and-network strategy.
+ * Returns cached data immediately (if available) and fetches fresh data in background.
  *
  * Fetch policy: cache-and-network
  * - Returns cached data immediately (if available)

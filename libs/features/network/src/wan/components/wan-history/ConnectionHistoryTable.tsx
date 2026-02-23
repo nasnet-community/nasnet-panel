@@ -1,15 +1,17 @@
 /**
  * Connection History Table Component
  *
- * Display connection events with filtering and pagination.
+ * Display WAN connection events with filtering, pagination, and platform-responsive layout.
+ * Supports searching by IP/interface/reason and filtering by event type.
+ *
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 6: Connection History)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { EmptyState } from '@nasnet/ui/patterns';
-import { Button } from '@nasnet/ui/primitives';
-import { Input } from '@nasnet/ui/primitives';
 import {
+  Button,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -25,6 +27,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { usePlatform } from '@nasnet/ui/layouts';
+import { cn } from '@nasnet/ui/utils';
 import {
   ConnectionEventCard,
   ConnectionEventCardCompact,
@@ -32,22 +35,30 @@ import {
 import type { ConnectionEventData } from '../../types/wan.types';
 
 export interface ConnectionHistoryTableProps {
+  /** Array of connection events to display */
   events: ConnectionEventData[];
+  /** Loading state indicator */
   loading?: boolean;
+  /** Error state with message */
   error?: Error | null;
+  /** Callback when refresh button is clicked */
   onRefresh?: () => void;
+  /** Number of events per page (default: 20) */
   pageSize?: number;
+  /** Additional CSS classes */
+  className?: string;
 }
 
 /**
  * Connection History Table - Filterable, paginated event timeline
  */
-export function ConnectionHistoryTable({
+function ConnectionHistoryTableComponent({
   events,
   loading = false,
   error = null,
   onRefresh,
   pageSize = 20,
+  className,
 }: ConnectionHistoryTableProps) {
   const platform = usePlatform();
   const isMobile = platform === 'mobile';
@@ -59,6 +70,7 @@ export function ConnectionHistoryTable({
 
   /**
    * Filter events by type and search query
+   * Filters by event type and searches across IP, interface, and reason fields
    */
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
@@ -97,17 +109,20 @@ export function ConnectionHistoryTable({
   const totalPages = Math.ceil(filteredEvents.length / pageSize);
 
   /**
-   * Reset page when filters change
+   * Reset page when filter type changes
    */
-  const handleFilterChange = (value: string) => {
+  const handleFilterChange = useCallback((value: string) => {
     setFilterType(value);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleSearchChange = (value: string) => {
+  /**
+   * Reset page when search query changes
+   */
+  const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
-  };
+  }, []);
 
   /**
    * Get unique event types for filter dropdown
@@ -118,13 +133,38 @@ export function ConnectionHistoryTable({
   }, [events]);
 
   /**
+   * Handle clearing filters
+   */
+  const handleClearFilters = useCallback(() => {
+    setFilterType('all');
+    setSearchQuery('');
+  }, []);
+
+  /**
+   * Handle pagination
+   */
+  const handlePreviousPage = useCallback(
+    () => setCurrentPage((p) => Math.max(1, p - 1)),
+    []
+  );
+
+  const handleNextPage = useCallback(
+    () => setCurrentPage((p) => Math.min(totalPages, p + 1)),
+    [totalPages]
+  );
+
+  /**
    * Loading state
+   * Shows spinner and message while fetching initial data
    */
   if (loading && events.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className={cn('flex items-center justify-center py-12', className)}>
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+          <RefreshCw
+            className="h-8 w-8 animate-spin text-muted-foreground"
+            aria-hidden="true"
+          />
           <p className="text-sm text-muted-foreground">
             Loading connection history...
           </p>
@@ -135,25 +175,32 @@ export function ConnectionHistoryTable({
 
   /**
    * Error state
+   * Professional error message with retry option
    */
   if (error && events.length === 0) {
     return (
-      <div className="rounded-lg border border-error/20 bg-error/5 p-6">
+      <div className={cn('rounded-lg border border-destructive/20 bg-destructive/5 p-6', className)}>
         <div className="flex items-start gap-3">
-          <History className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+          <History
+            className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5"
+            aria-hidden="true"
+          />
           <div className="flex-1">
-            <h3 className="font-semibold text-error">
+            <h3 className="font-semibold text-destructive">
               Failed to load connection history
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {error.message || 'An unexpected error occurred. Please try again.'}
+            </p>
             {onRefresh && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onRefresh}
                 className="mt-3"
+                aria-label="Retry loading connection history"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
                 Retry
               </Button>
             )}
@@ -165,23 +212,28 @@ export function ConnectionHistoryTable({
 
   /**
    * Empty state
+   * Helpful guidance when no events exist yet
    */
   if (events.length === 0) {
     return (
-      <EmptyState
-        icon={History}
-        title="No Connection History"
-        description="Connection events will appear here as WAN interfaces connect, disconnect, or change status."
-      />
+      <div className={className}>
+        <EmptyState
+          icon={History}
+          title="No Connection History"
+          description="Connection events will appear here as WAN interfaces connect, disconnect, or change status."
+        />
+      </div>
     );
   }
 
   /**
    * Empty filter results
+   * Shows filters and helpful guidance to adjust criteria
    */
   if (filteredEvents.length === 0) {
+
     return (
-      <div className="space-y-4">
+      <div className={cn('space-y-4', className)}>
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
@@ -189,11 +241,12 @@ export function ConnectionHistoryTable({
               placeholder="Search by IP, interface, or reason..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
+              aria-label="Search connection events"
             />
           </div>
           <Select value={filterType} onValueChange={handleFilterChange}>
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <Filter className="h-4 w-4 mr-2" />
+            <SelectTrigger className="w-full sm:w-[200px]" aria-label="Filter by event type">
+              <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>
@@ -214,10 +267,7 @@ export function ConnectionHistoryTable({
           description="Try adjusting your filters or search query."
           action={{
             label: 'Clear Filters',
-            onClick: () => {
-              setFilterType('all');
-              setSearchQuery('');
-            },
+            onClick: handleClearFilters,
             variant: 'outline',
           }}
         />
@@ -227,9 +277,10 @@ export function ConnectionHistoryTable({
 
   /**
    * History timeline
+   * Full results with filters, pagination, and platform-responsive layout
    */
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       {/* Header with filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
@@ -237,12 +288,13 @@ export function ConnectionHistoryTable({
             placeholder="Search by IP, interface, or reason..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
+            aria-label="Search connection events"
           />
         </div>
         <div className="flex gap-2">
           <Select value={filterType} onValueChange={handleFilterChange}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <Filter className="h-4 w-4 mr-2" />
+            <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by event type">
+              <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
@@ -260,9 +312,11 @@ export function ConnectionHistoryTable({
               size="icon"
               onClick={onRefresh}
               disabled={loading}
+              aria-label="Refresh connection history"
             >
               <RefreshCw
-                className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+                className={cn('h-4 w-4', loading && 'animate-spin')}
+                aria-hidden="true"
               />
             </Button>
           )}
@@ -277,12 +331,16 @@ export function ConnectionHistoryTable({
       </div>
 
       {/* Event timeline */}
-      <div className={isMobile ? 'space-y-3' : ''}>
+      <div className={isMobile ? 'space-y-3' : ''} role="list">
         {paginatedEvents.map((event) =>
           isMobile ? (
-            <ConnectionEventCardCompact key={event.id} event={event} />
+            <div key={event.id} role="listitem">
+              <ConnectionEventCardCompact event={event} />
+            </div>
           ) : (
-            <ConnectionEventCard key={event.id} event={event} />
+            <div key={event.id} role="listitem">
+              <ConnectionEventCard event={event} />
+            </div>
           )
         )}
       </div>
@@ -297,20 +355,22 @@ export function ConnectionHistoryTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={handlePreviousPage}
               disabled={currentPage === 1}
+              aria-label="Previous page"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               <span className="ml-1 hidden sm:inline">Previous</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={handleNextPage}
               disabled={currentPage === totalPages}
+              aria-label="Next page"
             >
               <span className="mr-1 hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -318,3 +378,8 @@ export function ConnectionHistoryTable({
     </div>
   );
 }
+
+export const ConnectionHistoryTable = Object.assign(
+  ConnectionHistoryTableComponent,
+  { displayName: 'ConnectionHistoryTable' }
+) as typeof ConnectionHistoryTableComponent & { displayName: string };

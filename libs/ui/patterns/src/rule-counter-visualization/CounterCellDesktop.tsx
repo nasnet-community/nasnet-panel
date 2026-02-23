@@ -5,7 +5,7 @@
  * ADR-018: Headless + Platform Presenters
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { motion } from 'framer-motion';
 import { Activity, TrendingUp } from 'lucide-react';
@@ -24,7 +24,7 @@ import type { CounterCellProps } from './CounterCell';
  * - Dense layout optimized for data tables
  * - Animated counters (respects prefers-reduced-motion)
  */
-export function CounterCellDesktop({
+export const CounterCellDesktop = memo(function CounterCellDesktop({
   packets,
   bytes,
   percentOfMax,
@@ -128,4 +128,6 @@ export function CounterCellDesktop({
       )}
     </div>
   );
-}
+});
+
+CounterCellDesktop.displayName = 'CounterCellDesktop';

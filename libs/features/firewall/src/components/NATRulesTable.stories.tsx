@@ -7,10 +7,11 @@
  * @module @nasnet/features/firewall
  */
 
-import { fn } from '@storybook/test';
-import type { Meta, StoryObj } from '@storybook/react';
-import type { NATRule } from '@nasnet/core/types';
+import { fn } from 'storybook/test';
+
 import { NATRulesTable } from './NATRulesTable';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * NATRulesTable - NAT rules management table

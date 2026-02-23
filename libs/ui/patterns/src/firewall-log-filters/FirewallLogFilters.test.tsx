@@ -440,7 +440,7 @@ describe('FirewallLogFilters', () => {
       await user.click(dropCheckbox);
 
       // Update filters and rerender
-      const updatedFilters = { ...defaultFilters, actions: ['drop'] };
+      const updatedFilters = { ...defaultFilters, actions: ['drop'] as readonly ('accept' | 'unknown' | 'drop' | 'reject')[] };
       rerender(
         <FirewallLogFiltersDesktop
           filters={updatedFilters}

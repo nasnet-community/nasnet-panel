@@ -5,9 +5,10 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 7: LTE Support)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@nasnet/ui/utils';
 import {
   Form,
   FormControl,
@@ -16,8 +17,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@nasnet/ui/primitives';
-import {
   Input,
   Button,
   Select,
@@ -49,7 +48,7 @@ import {
 } from 'lucide-react';
 import {
   lteModemSchema,
-  lteModemDefaultValues,
+  LTE_MODEM_DEFAULT_VALUES,
   APN_PRESETS,
   LTE_NETWORK_MODES,
   getSignalStrength,
@@ -86,12 +85,18 @@ export interface LteModemFormProps {
    * Callback when configuration is cancelled
    */
   onCancel?: () => void;
+
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 
 /**
  * Signal Strength Indicator Component
+ * @description Displays LTE signal strength with visual indicators and dBm value
  */
-function SignalStrengthIndicator({
+const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
   rssi,
   quality,
 }: {
@@ -139,16 +144,16 @@ function SignalStrengthIndicator({
       </div>
 
       {/* Visual signal bars */}
-      <div className="flex items-end gap-1 h-8">
+      <div className="flex items-end gap-1 h-8" aria-hidden="true">
         {[1, 2, 3, 4, 5].map((bar) => {
-          const threshold = -120 + bar * 10; // -120, -110, -100, -90, -80
+          const SIGNAL_THRESHOLD_BASE = -120;
+          const SIGNAL_THRESHOLD_STEP = 10;
+          const threshold = SIGNAL_THRESHOLD_BASE + bar * SIGNAL_THRESHOLD_STEP;
           const isActive = rssi >= threshold;
           return (
             <div
               key={bar}
-              className={`w-2 rounded-sm transition-colors ${
-                isActive ? `bg-${strength.color}` : 'bg-muted'
-              }`}
+              className={cn('w-2 rounded-sm transition-colors', isActive ? `bg-${strength.color}` : 'bg-muted')}
               style={{ height: `${bar * 20}%` }}
             />
           );
@@ -156,18 +161,22 @@ function SignalStrengthIndicator({
       </div>
     </div>
   );
-}
+});
+
+SignalStrengthIndicator.displayName = 'SignalStrengthIndicator';
 
 /**
  * LTE Modem Configuration Form
+ * @description Form for configuring LTE/4G modem WAN interfaces with APN and authentication settings
  */
-export function LteModemForm({
+export const LteModemForm = memo(function LteModemForm({
   routerId,
   initialData,
   signalStrength,
   signalQuality,
   onSuccess,
   onCancel,
+  className,
 }: LteModemFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showPin, setShowPin] = useState(false);
@@ -180,7 +189,7 @@ export function LteModemForm({
   const form = useForm<LteModemFormValues>({
     resolver: zodResolver(lteModemSchema) as any,
     defaultValues: {
-      ...lteModemDefaultValues,
+      ...LTE_MODEM_DEFAULT_VALUES,
       ...initialData,
     },
   });
@@ -190,19 +199,19 @@ export function LteModemForm({
   /**
    * Handle APN preset selection
    */
-  const handlePresetChange = (presetName: string) => {
+  const handlePresetChange = useCallback((presetName: string) => {
     setSelectedPreset(presetName);
     if (presetName !== 'Custom') {
       const preset = APN_PRESETS[presetName as keyof typeof APN_PRESETS];
       form.setValue('apn', preset.apn);
       form.setValue('authProtocol', preset.authProtocol);
     }
-  };
+  }, [form]);
 
   /**
    * Handle form submission
    */
-  const onSubmit = (async (data: LteModemFormValues) => {
+  const onSubmit = useCallback((async (data: LteModemFormValues) => {
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
@@ -225,7 +234,7 @@ export function LteModemForm({
     } finally {
       setIsSubmitting(false);
     }
-  }) as any;
+  }) as any, [onSuccess]);
 
   /**
    * Success state
@@ -245,7 +254,7 @@ export function LteModemForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('space-y-6', className)}>
         {/* Signal Strength Display */}
         {signalStrength !== undefined && (
           <FormSection
@@ -291,11 +300,11 @@ export function LteModemForm({
           {/* Preset Selector */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label htmlFor="carrier-preset" className="text-sm font-medium mb-2 block">
                 Carrier Preset
               </label>
               <Select value={selectedPreset} onValueChange={handlePresetChange}>
-                <SelectTrigger>
+                <SelectTrigger id="carrier-preset">
                   <SelectValue placeholder="Select carrier preset" />
                 </SelectTrigger>
                 <SelectContent>
@@ -593,7 +602,7 @@ export function LteModemForm({
 
         {/* Error Display */}
         {error && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" role="alert" aria-live="assertive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -607,16 +616,23 @@ export function LteModemForm({
               variant="outline"
               onClick={onCancel}
               disabled={isSubmitting}
+              aria-label="Cancel LTE modem configuration"
             >
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
             Configure LTE Modem
           </Button>
         </div>
       </form>
     </Form>
   );
-}
+});
+
+LteModemForm.displayName = 'LteModemForm';

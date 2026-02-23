@@ -10,7 +10,14 @@
 // =============================================================================
 
 /**
- * Resource lifecycle states for state machine
+ * Resource lifecycle states for the state machine.
+ *
+ * Represents all possible states a resource can be in, from creation
+ * through validation, deployment, operation, deprecation, and archival.
+ *
+ * @constant
+ * @see ResourceLifecycleEvent for triggering transitions
+ * @see LIFECYCLE_TRANSITIONS for valid state transitions
  */
 export const ResourceLifecycleState = {
   /** Initial creation, not yet validated */
@@ -33,6 +40,7 @@ export const ResourceLifecycleState = {
   ARCHIVED: 'ARCHIVED',
 } as const;
 
+/** Inferred type for resource lifecycle states */
 export type ResourceLifecycleState =
   (typeof ResourceLifecycleState)[keyof typeof ResourceLifecycleState];
 
@@ -41,7 +49,14 @@ export type ResourceLifecycleState =
 // =============================================================================
 
 /**
- * Events that trigger lifecycle state transitions
+ * Events that trigger resource lifecycle state transitions.
+ *
+ * Events are dispatched in response to user actions, validation results,
+ * operational changes, or system events.
+ *
+ * @constant
+ * @see ResourceLifecycleState for target states
+ * @see LIFECYCLE_TRANSITIONS for valid transitions
  */
 export const ResourceLifecycleEvent = {
   /** Start validation process */
@@ -66,6 +81,7 @@ export const ResourceLifecycleEvent = {
   ARCHIVE: 'ARCHIVE',
 } as const;
 
+/** Inferred type for resource lifecycle events */
 export type ResourceLifecycleEvent =
   (typeof ResourceLifecycleEvent)[keyof typeof ResourceLifecycleEvent];
 
@@ -74,7 +90,14 @@ export type ResourceLifecycleEvent =
 // =============================================================================
 
 /**
- * Valid state transitions map
+ * State transition table defining valid lifecycle state transitions.
+ *
+ * Maps each state to the events that can be triggered from that state
+ * and their target states. Enforces the state machine invariants.
+ *
+ * @constant
+ * @see isValidTransition for validation helper
+ * @see getNextState for transition lookup
  */
 export const LIFECYCLE_TRANSITIONS: Record<
   ResourceLifecycleState,
@@ -116,7 +139,21 @@ export const LIFECYCLE_TRANSITIONS: Record<
 };
 
 /**
- * Check if a transition is valid
+ * Check if a state transition is valid.
+ *
+ * @param currentState Current lifecycle state
+ * @param event Event to trigger
+ * @returns true if the event is allowed from the current state
+ *
+ * @example
+ * ```ts
+ * if (isValidTransition(state, ResourceLifecycleEvent.APPLY)) {
+ *   // Safe to apply resource
+ * }
+ * ```
+ *
+ * @see LIFECYCLE_TRANSITIONS for the transition table
+ * @see getNextState to get the target state
  */
 export function isValidTransition(
   currentState: ResourceLifecycleState,
@@ -127,7 +164,20 @@ export function isValidTransition(
 }
 
 /**
- * Get the target state for a transition
+ * Get the target state for a state transition.
+ *
+ * @param currentState Current lifecycle state
+ * @param event Event to trigger
+ * @returns Target state if the transition is valid, null otherwise
+ *
+ * @example
+ * ```ts
+ * const nextState = getNextState(ResourceLifecycleState.DRAFT, ResourceLifecycleEvent.VALIDATE);
+ * // nextState === ResourceLifecycleState.VALIDATING
+ * ```
+ *
+ * @see LIFECYCLE_TRANSITIONS for the transition table
+ * @see isValidTransition to check before calling
  */
 export function getNextState(
   currentState: ResourceLifecycleState,
@@ -138,7 +188,18 @@ export function getNextState(
 }
 
 /**
- * Get all valid events from a state
+ * Get all valid events that can be triggered from a state.
+ *
+ * @param state Lifecycle state
+ * @returns Array of valid events from this state
+ *
+ * @example
+ * ```ts
+ * const validEvents = getValidEvents(ResourceLifecycleState.VALID);
+ * // [ResourceLifecycleEvent.APPLY, ResourceLifecycleEvent.EDIT]
+ * ```
+ *
+ * @see LIFECYCLE_TRANSITIONS for the transition table
  */
 export function getValidEvents(
   state: ResourceLifecycleState
@@ -152,17 +213,27 @@ export function getValidEvents(
 // =============================================================================
 
 /**
- * States where the resource is considered "active" on the router
+ * States where the resource is considered "active" on the router.
+ *
+ * Used to determine if a resource is operational and consuming resources.
+ *
+ * @constant
+ * @see isActiveOnRouter for usage
  */
-export const ACTIVE_STATES: ResourceLifecycleState[] = [
+export const ACTIVE_STATES: readonly ResourceLifecycleState[] = [
   ResourceLifecycleState.ACTIVE,
   ResourceLifecycleState.DEGRADED,
 ];
 
 /**
- * States where the resource can be edited
+ * States where the resource can be edited by the user.
+ *
+ * Used to control when a resource's configuration can be modified.
+ *
+ * @constant
+ * @see isEditable for usage
  */
-export const EDITABLE_STATES: ResourceLifecycleState[] = [
+export const EDITABLE_STATES: readonly ResourceLifecycleState[] = [
   ResourceLifecycleState.DRAFT,
   ResourceLifecycleState.VALID,
   ResourceLifecycleState.ACTIVE,
@@ -170,58 +241,133 @@ export const EDITABLE_STATES: ResourceLifecycleState[] = [
 ];
 
 /**
- * States where the resource is in a "pending" operation
+ * States where the resource is in a "pending" operation.
+ *
+ * Used to show loading indicators and prevent concurrent operations.
+ *
+ * @constant
+ * @see isPending for usage
  */
-export const PENDING_STATES: ResourceLifecycleState[] = [
+export const PENDING_STATES: readonly ResourceLifecycleState[] = [
   ResourceLifecycleState.VALIDATING,
   ResourceLifecycleState.APPLYING,
 ];
 
 /**
- * States where the resource has issues
+ * States where the resource has issues or errors.
+ *
+ * Used to highlight problematic resources in UI and require user attention.
+ *
+ * @constant
+ * @see hasErrors for usage
  */
-export const ERROR_STATES: ResourceLifecycleState[] = [
+export const ERROR_STATES: readonly ResourceLifecycleState[] = [
   ResourceLifecycleState.ERROR,
   ResourceLifecycleState.DEGRADED,
 ];
 
 /**
- * Terminal states (no more transitions possible or only to archived)
+ * Terminal states with no further transitions possible.
+ *
+ * Used to prevent operations on archived resources.
+ *
+ * @constant
+ * @see isTerminal for usage
  */
-export const TERMINAL_STATES: ResourceLifecycleState[] = [
+export const TERMINAL_STATES: readonly ResourceLifecycleState[] = [
   ResourceLifecycleState.ARCHIVED,
 ];
 
 /**
- * Check if resource is active on router
+ * Check if resource is active and operational on the router.
+ *
+ * @param state Lifecycle state
+ * @returns true if the resource is active or degraded (consuming resources)
+ *
+ * @example
+ * ```ts
+ * if (isActiveOnRouter(state)) {
+ *   showStopButton();
+ * }
+ * ```
+ *
+ * @see ACTIVE_STATES for included states
  */
 export function isActiveOnRouter(state: ResourceLifecycleState): boolean {
   return ACTIVE_STATES.includes(state);
 }
 
 /**
- * Check if resource can be edited
+ * Check if resource configuration can be edited.
+ *
+ * @param state Lifecycle state
+ * @returns true if the resource can be edited
+ *
+ * @example
+ * ```ts
+ * if (isEditable(state)) {
+ *   enableEditButton();
+ * }
+ * ```
+ *
+ * @see EDITABLE_STATES for included states
  */
 export function isEditable(state: ResourceLifecycleState): boolean {
   return EDITABLE_STATES.includes(state);
 }
 
 /**
- * Check if resource is in a pending operation
+ * Check if resource is in a pending operation.
+ *
+ * @param state Lifecycle state
+ * @returns true if the resource is validating or applying
+ *
+ * @example
+ * ```ts
+ * if (isPending(state)) {
+ *   showLoadingSpinner();
+ * }
+ * ```
+ *
+ * @see PENDING_STATES for included states
  */
 export function isPending(state: ResourceLifecycleState): boolean {
   return PENDING_STATES.includes(state);
 }
 
 /**
- * Check if resource has errors
+ * Check if resource has issues or errors.
+ *
+ * @param state Lifecycle state
+ * @returns true if the resource is in an error or degraded state
+ *
+ * @example
+ * ```ts
+ * if (hasErrors(state)) {
+ *   highlightInRed();
+ * }
+ * ```
+ *
+ * @see ERROR_STATES for included states
  */
 export function hasErrors(state: ResourceLifecycleState): boolean {
   return ERROR_STATES.includes(state);
 }
 
 /**
- * Check if resource is in a terminal state
+ * Check if resource is in a terminal state.
+ *
+ * @param state Lifecycle state
+ * @returns true if the resource cannot transition to other states
+ *
+ * @example
+ * ```ts
+ * if (isTerminal(state)) {
+ *   disableAllActions();
+ * }
+ * ```
+ *
+ * @see TERMINAL_STATES for included states
  */
 export function isTerminal(state: ResourceLifecycleState): boolean {
   return TERMINAL_STATES.includes(state);
@@ -232,23 +378,39 @@ export function isTerminal(state: ResourceLifecycleState): boolean {
 // =============================================================================
 
 /**
- * State display info for UI
+ * Display information for rendering a lifecycle state in the UI.
+ *
+ * Provides localized label, description, color, and icon hints
+ * for consistent state visualization across the application.
+ *
+ * @see getStateDisplayInfo for populating this interface
  */
 export interface StateDisplayInfo {
   /** Display label */
-  label: string;
-  /** Description */
-  description: string;
-  /** Color for status indicators */
-  color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
+  readonly label: string;
+  /** Description of the state */
+  readonly description: string;
+  /** Color for status indicators (semantic colors) */
+  readonly color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
   /** Icon name hint */
-  icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'archive';
-  /** Whether to show a spinner */
-  showSpinner: boolean;
+  readonly icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'archive';
+  /** Whether to show a spinner animation */
+  readonly showSpinner: boolean;
 }
 
 /**
- * Get display info for a lifecycle state
+ * Get UI display information for a lifecycle state.
+ *
+ * @param state Lifecycle state
+ * @returns Display information (label, color, icon, spinner flag)
+ *
+ * @example
+ * ```ts
+ * const displayInfo = getStateDisplayInfo(ResourceLifecycleState.VALIDATING);
+ * return <Badge color={displayInfo.color}>{displayInfo.label}</Badge>;
+ * ```
+ *
+ * @see StateDisplayInfo for the returned interface
  */
 export function getStateDisplayInfo(
   state: ResourceLifecycleState

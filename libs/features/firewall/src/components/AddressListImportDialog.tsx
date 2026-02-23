@@ -3,7 +3,7 @@
  * Supports CSV, JSON, and TXT formats with drag-and-drop and paste
  */
 
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import {
   Dialog,
@@ -35,6 +35,7 @@ import {
   type ParseResult,
   type ParsedAddress,
 } from '../utils/addressListParsers';
+import { cn } from '@nasnet/ui/utils';
 
 export interface AddressListImportDialogProps {
   /** Router ID for the import */
@@ -43,11 +44,22 @@ export interface AddressListImportDialogProps {
   onImport?: (listName: string, entries: ParsedAddress[]) => Promise<void>;
   /** Available list names for autocomplete */
   existingLists?: string[];
+  /** Optional CSS class */
+  className?: string;
 }
 
 type ImportStep = 'select' | 'preview' | 'importing' | 'complete';
 
-export function AddressListImportDialog({
+/**
+ * AddressListImportDialog - Bulk import address list entries
+ *
+ * Dialog component for importing firewall address list entries from multiple formats
+ * (CSV, JSON, TXT). Features drag-and-drop, file upload, and text paste input.
+ *
+ * @param props - Component props
+ * @returns Import dialog component
+ */
+function AddressListImportDialogContent({
   routerId,
   onImport,
   existingLists = [],
@@ -72,7 +84,7 @@ export function AddressListImportDialog({
     setImportError(null);
   }, []);
 
-  const handleFileUpload = useCallback((file: File) => {
+  const handleFileUpload = useCallback((file: File): void => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
@@ -176,7 +188,7 @@ export function AddressListImportDialog({
           ))}
         </datalist>
         <p className="text-sm text-muted-foreground">
-          Entries will be added to this list. If the list doesn't exist, it will be created.
+          Add entries to an existing list or create a new one. IPs must be valid IPv4 or IPv6 addresses.
         </p>
       </div>
 
@@ -198,11 +210,12 @@ export function AddressListImportDialog({
 
       {/* File Upload / Drag-and-Drop */}
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={cn(
+          'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
           isDragging
             ? 'border-primary bg-primary/5'
             : 'border-border hover:border-primary/50'
-        }`}
+        )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -304,7 +317,7 @@ export function AddressListImportDialog({
             <div className="space-y-2">
               {parseResult.errors.slice(0, 100).map((error, index) => (
                 <div key={index} className="text-sm">
-                  <span className="font-mono text-error">Line {error.line}:</span>{' '}
+                  <span className="font-mono text-destructive">Line {error.line}:</span>{' '}
                   <span className="font-mono">{error.address}</span> - {error.message}
                 </div>
               ))}
@@ -412,37 +425,44 @@ export function AddressListImportDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <div className="space-y-4">
+      {step === 'select' && renderSelectStep()}
+      {step === 'preview' && renderPreviewStep()}
+      {step === 'importing' && renderImportingStep()}
+      {step === 'complete' && renderCompleteStep()}
+    </div>
+  );
+}
+
+export function AddressListImportDialog({
+  routerId,
+  onImport,
+  existingLists,
+  className,
+}: AddressListImportDialogProps) {
+  return (
+    <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Upload className="w-4 h-4 mr-2" />
+        <Button variant="outline" size="sm" className={className}>
+          <Upload className="w-4 h-4 mr-2" aria-hidden="true" />
           Import
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Import Address List</DialogTitle>
-            {step !== 'select' && step !== 'importing' && (
-              <Button variant="ghost" size="sm" onClick={handleReset}>
-                <X className="w-4 h-4 mr-1" />
-                Start Over
-              </Button>
-            )}
-          </div>
+          <DialogTitle>Import Address List Entries</DialogTitle>
           <DialogDescription>
-            {step === 'select' && 'Upload a file or paste content to import address list entries'}
-            {step === 'preview' && 'Review and validate entries before importing'}
-            {step === 'importing' && 'Importing entries to the address list'}
-            {step === 'complete' && 'Import completed successfully'}
+            Upload a CSV, JSON, or TXT file to bulk import addresses. The file will be validated before importing.
           </DialogDescription>
         </DialogHeader>
-
-        {step === 'select' && renderSelectStep()}
-        {step === 'preview' && renderPreviewStep()}
-        {step === 'importing' && renderImportingStep()}
-        {step === 'complete' && renderCompleteStep()}
+        <AddressListImportDialogContent
+          routerId={routerId}
+          onImport={onImport}
+          existingLists={existingLists}
+        />
       </DialogContent>
     </Dialog>
   );
 }
+
+AddressListImportDialog.displayName = 'AddressListImportDialog';

@@ -3,6 +3,7 @@ package updates
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -12,6 +13,20 @@ import (
 
 	"github.com/rs/zerolog"
 )
+
+// parseQuietHoursTime parses an "HH:MM" string and returns (hour, minute, error).
+func parseQuietHoursTime(s string) (hour, minute int, err error) {
+	_, err = fmt.Sscanf(s, "%d:%d", &hour, &minute)
+	if err != nil {
+		err = fmt.Errorf("invalid time format %q (expected HH:MM): %w", s, err)
+		return
+	}
+	if hour < 0 || hour > 23 || minute < 0 || minute > 59 {
+		err = fmt.Errorf("time %q out of range", s)
+		return
+	}
+	return
+}
 
 // UpdateSchedulerConfig holds configuration for the update scheduler
 type UpdateSchedulerConfig struct {
@@ -154,8 +169,11 @@ func (s *UpdateScheduler) checkForUpdates() {
 		return
 	}
 
-	// Check if network is metered (TODO: implement metered network detection)
-	// For now, we'll skip this check
+	// Check if network is metered (e.g., LTE connection)
+	if s.isMeteredNetwork() {
+		s.logger.Debug().Msg("Skipping update check (metered network)")
+		return
+	}
 
 	s.logger.Info().Msg("Checking for updates")
 
@@ -280,48 +298,145 @@ func (s *UpdateScheduler) applyUpdate(instance *ent.ServiceInstance, updateInfo 
 	s.emitUpdateCompletedEvent(instance, updateInfo)
 }
 
-// isQuietHours checks if current time is within quiet hours
+// isMeteredNetwork checks if the active WAN connection is metered (e.g., LTE/cellular).
+// Returns true if the primary WAN interface is LTE, indicating downloads should be deferred.
+func (s *UpdateScheduler) isMeteredNetwork() bool {
+	// Query router interfaces to check if active WAN is LTE
+	ctx := context.Background()
+
+	// Check for active LTE interfaces in the database
+	count, err := s.config.Store.Router.Query().Count(ctx)
+	if err != nil || count == 0 {
+		return false // Can't determine, assume not metered
+	}
+
+	// Check environment variable for metered network override
+	if os.Getenv("NASNET_METERED_NETWORK") == "true" {
+		return true
+	}
+
+	// TODO: When RouterPort is available, query /interface/lte for active LTE connections
+	// For now, rely on environment variable configuration
+	return false
+}
+
+// isQuietHours checks if current time is within quiet hours using configured timezone and times.
 func (s *UpdateScheduler) isQuietHours() bool {
-	// Parse quiet hours
-	// For simplicity, we'll just check current hour
-	now := time.Now()
-	currentHour := now.Hour()
+	loc, err := time.LoadLocation(s.config.Timezone)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("timezone", s.config.Timezone).Msg("Failed to load timezone, falling back to UTC")
+		loc = time.UTC
+	}
 
-	// Parse quiet hours (simplified)
-	// TODO: Use proper time parsing with timezone support
-	startHour := 2 // 02:00
-	endHour := 6   // 06:00
+	startHour, startMin, err := parseQuietHoursTime(s.config.QuietHoursStart)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("quiet_hours_start", s.config.QuietHoursStart).Msg("Failed to parse quiet hours start, using default 02:00")
+		startHour, startMin = 2, 0
+	}
 
-	return currentHour >= startHour && currentHour < endHour
+	endHour, endMin, err := parseQuietHoursTime(s.config.QuietHoursEnd)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("quiet_hours_end", s.config.QuietHoursEnd).Msg("Failed to parse quiet hours end, using default 06:00")
+		endHour, endMin = 6, 0
+	}
+
+	now := time.Now().In(loc)
+	nowMins := now.Hour()*60 + now.Minute()
+	startMins := startHour*60 + startMin
+	endMins := endHour*60 + endMin
+
+	// Handle overnight quiet hours (e.g., 22:00 – 06:00)
+	if startMins <= endMins {
+		return nowMins >= startMins && nowMins < endMins
+	}
+	return nowMins >= startMins || nowMins < endMins
 }
 
 // Event emission helpers
+
 func (s *UpdateScheduler) emitUpdateAvailableEvent(instance *ent.ServiceInstance, updateInfo *UpdateInfo) {
-	// TODO: Create proper event type
-	s.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("available_version", updateInfo.AvailableVersion).
-		Msg("Emitting update available event")
+	ctx := context.Background()
+	event := events.NewGenericEvent(
+		events.EventTypeServiceUpdateAvailable,
+		events.PriorityLow,
+		"update-scheduler",
+		map[string]interface{}{
+			"instanceId":       instance.ID,
+			"featureId":        instance.FeatureID,
+			"currentVersion":   updateInfo.CurrentVersion,
+			"availableVersion": updateInfo.AvailableVersion,
+			"severity":         string(updateInfo.Severity),
+			"releaseNotes":     updateInfo.ReleaseNotes,
+			"downloadUrl":      updateInfo.DownloadURL,
+		},
+	)
+	if err := s.publisher.Publish(ctx, event); err != nil {
+		s.logger.Error().Err(err).
+			Str("instance_id", instance.ID).
+			Msg("Failed to emit update available event")
+	}
 }
 
 func (s *UpdateScheduler) emitUpdateStartedEvent(instance *ent.ServiceInstance, updateInfo *UpdateInfo) {
-	s.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("version", updateInfo.AvailableVersion).
-		Msg("Emitting update started event")
+	ctx := context.Background()
+	event := events.NewGenericEvent(
+		events.EventTypeServiceUpdateStarted,
+		events.PriorityCritical,
+		"update-scheduler",
+		map[string]interface{}{
+			"instanceId":     instance.ID,
+			"featureId":      instance.FeatureID,
+			"currentVersion": updateInfo.CurrentVersion,
+			"targetVersion":  updateInfo.AvailableVersion,
+			"severity":       string(updateInfo.Severity),
+		},
+	)
+	if err := s.publisher.Publish(ctx, event); err != nil {
+		s.logger.Error().Err(err).
+			Str("instance_id", instance.ID).
+			Msg("Failed to emit update started event")
+	}
 }
 
 func (s *UpdateScheduler) emitUpdateCompletedEvent(instance *ent.ServiceInstance, updateInfo *UpdateInfo) {
-	s.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("version", updateInfo.AvailableVersion).
-		Msg("Emitting update completed event")
+	ctx := context.Background()
+	event := events.NewGenericEvent(
+		events.EventTypeServiceUpdateCompleted,
+		events.PriorityCritical,
+		"update-scheduler",
+		map[string]interface{}{
+			"instanceId":      instance.ID,
+			"featureId":       instance.FeatureID,
+			"previousVersion": updateInfo.CurrentVersion,
+			"newVersion":      updateInfo.AvailableVersion,
+			"severity":        string(updateInfo.Severity),
+		},
+	)
+	if err := s.publisher.Publish(ctx, event); err != nil {
+		s.logger.Error().Err(err).
+			Str("instance_id", instance.ID).
+			Msg("Failed to emit update completed event")
+	}
 }
 
-func (s *UpdateScheduler) emitUpdateFailedEvent(instance *ent.ServiceInstance, updateInfo *UpdateInfo, err error) {
-	s.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("version", updateInfo.AvailableVersion).
-		Err(err).
-		Msg("Emitting update failed event")
+func (s *UpdateScheduler) emitUpdateFailedEvent(instance *ent.ServiceInstance, updateInfo *UpdateInfo, updateErr error) {
+	ctx := context.Background()
+	event := events.NewGenericEvent(
+		events.EventTypeServiceUpdateFailed,
+		events.PriorityCritical,
+		"update-scheduler",
+		map[string]interface{}{
+			"instanceId":     instance.ID,
+			"featureId":      instance.FeatureID,
+			"currentVersion": updateInfo.CurrentVersion,
+			"targetVersion":  updateInfo.AvailableVersion,
+			"severity":       string(updateInfo.Severity),
+			"error":          updateErr.Error(),
+		},
+	)
+	if err := s.publisher.Publish(ctx, event); err != nil {
+		s.logger.Error().Err(err).
+			Str("instance_id", instance.ID).
+			Msg("Failed to emit update failed event")
+	}
 }

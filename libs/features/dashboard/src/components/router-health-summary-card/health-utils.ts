@@ -145,6 +145,9 @@ export function getHealthTextClass(status: HealthStatus): string {
 /**
  * Format uptime seconds to human-readable string
  *
+ * @description Converts seconds to human-readable format with days, hours, or minutes.
+ * Uses font-variant-numeric: tabular-nums for proper alignment in data columns.
+ *
  * Format rules:
  * - >1 day: "Xd Yh" (e.g., "14d 6h")
  * - >1 hour: "Xh Ym" (e.g., "6h 30m")
@@ -181,6 +184,8 @@ export function formatUptime(seconds: number): string {
 /**
  * Calculate cache age in minutes
  *
+ * @description Computes time elapsed since last update in minutes (rounded down).
+ *
  * @param lastUpdate - Timestamp of last data update
  * @returns Age in minutes (rounded down)
  */
@@ -192,6 +197,8 @@ export function getCacheAgeMinutes(lastUpdate: Date): number {
 
 /**
  * Determine if cached data is stale
+ *
+ * @description Categorizes cache age into staleness levels for UI feedback.
  *
  * Staleness thresholds:
  * - fresh: <1 minute
@@ -210,6 +217,7 @@ export function getCacheStatus(ageMinutes: number): 'fresh' | 'warning' | 'criti
 /**
  * Check if data is too stale for mutations
  *
+ * @description Determines if mutations should be disabled based on cache age.
  * Mutations (configuration changes) should be disabled if cache is >5 minutes old
  * to prevent applying changes based on outdated router state.
  *

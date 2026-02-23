@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { CredentialDialog } from './CredentialDialog';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof CredentialDialog> = {
   title: 'Features/RouterDiscovery/CredentialDialog',

@@ -37,7 +37,7 @@ import {
   mockBasicSecurityTemplate,
   mockCustomTemplate,
   generateMockVariables,
-} from '../../../ui/patterns/src/__test-utils__/firewall-templates/template-fixtures';
+} from './template-fixtures';
 
 // Mock GraphQL client
 // TODO: Update mock based on actual GraphQL implementation (Apollo vs TanStack Query)

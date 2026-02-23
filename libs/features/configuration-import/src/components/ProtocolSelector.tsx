@@ -4,8 +4,9 @@
  * Disabled options are grayed out based on IP services status
  */
 
-import { memo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 import { Plug, Terminal, MonitorDot, Check, AlertCircle } from 'lucide-react';
 import type { ExecutionProtocol } from '@nasnet/api-client/queries';
 
@@ -53,6 +54,11 @@ export interface ProtocolSelectorProps {
    * Whether services are still loading
    */
   isLoading?: boolean;
+
+  /**
+   * Optional className for styling
+   */
+  className?: string;
 }
 
 /**
@@ -107,8 +113,10 @@ export const ProtocolSelector = memo(function ProtocolSelector({
   telnetEnabled,
   disabled = false,
   isLoading = false,
+  className,
 }: ProtocolSelectorProps) {
-  const protocols: ProtocolOption[] = [
+  // Memoize protocols array
+  const protocols: ProtocolOption[] = useMemo(() => [
     {
       id: 'api',
       ...PROTOCOL_INFO.api,
@@ -128,14 +136,26 @@ export const ProtocolSelector = memo(function ProtocolSelector({
       icon: PROTOCOL_ICONS.telnet,
       enabled: telnetEnabled,
     },
-  ];
+  ], [apiEnabled, sshEnabled, telnetEnabled]);
 
-  // Count enabled protocols
-  const enabledCount = protocols.filter((p) => p.enabled).length;
-  const hasNoEnabledProtocols = enabledCount === 0 && !isLoading;
+  // Memoize enabled count
+  const enabledCount = useMemo(
+    () => protocols.filter((p) => p.enabled).length,
+    [protocols]
+  );
+  const hasNoEnabledProtocols = useMemo(
+    () => enabledCount === 0 && !isLoading,
+    [enabledCount, isLoading]
+  );
+
+  // Memoize onChange handler
+  const handleProtocolChange = useCallback(
+    (protocol: ExecutionProtocol) => onChange(protocol),
+    [onChange]
+  );
 
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div>
         <h3 className="text-sm font-medium text-foreground">
@@ -157,7 +177,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
             <motion.button
               key={protocol.id}
               type="button"
-              onClick={() => !isDisabled && onChange(protocol.id)}
+              onClick={() => !isDisabled && handleProtocolChange(protocol.id)}
               disabled={isDisabled}
               aria-label={`${protocol.name}: ${protocol.description}${isSelected ? ' (selected)' : ''}${!protocol.enabled ? ' (unavailable)' : ''}`}
               aria-pressed={isSelected}
@@ -281,4 +301,6 @@ export const ProtocolSelector = memo(function ProtocolSelector({
     </div>
   );
 });
+
+ProtocolSelector.displayName = 'ProtocolSelector';
 

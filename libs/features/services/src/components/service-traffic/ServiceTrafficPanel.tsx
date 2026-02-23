@@ -28,6 +28,9 @@ import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
  * - Traffic quota monitoring with progress bars
  * - Quota configuration interface
  *
+ * @description Auto-detecting wrapper that renders platform-optimized presenter
+ * for service traffic monitoring and quota management.
+ *
  * @example
  * ```tsx
  * <ServiceTrafficPanel

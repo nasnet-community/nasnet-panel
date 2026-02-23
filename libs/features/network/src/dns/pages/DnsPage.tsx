@@ -6,7 +6,7 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useParams } from '@tanstack/react-router';
 import {
   Card,
@@ -20,7 +20,9 @@ import {
   Button,
   Dialog,
   DialogContent,
+  Icon,
 } from '@nasnet/ui/primitives';
+import { AlertTriangle } from 'lucide-react';
 import { PageHeader } from '@nasnet/ui/patterns';
 import {
   useUpdateDNSSettings,
@@ -33,7 +35,6 @@ import { DnsSettingsForm } from '../components/dns-settings-form';
 import { DnsStaticEntriesList } from '../components/dns-static-entries-list';
 import { DnsStaticEntryForm } from '../components/dns-static-entry-form';
 import { useDnsPage } from '../hooks';
-import { AlertTriangle } from 'lucide-react';
 import type { DNSStaticEntry } from '@nasnet/core/types';
 import type { DNSSettingsFormValues, DNSStaticEntryFormValues } from '../schemas';
 
@@ -52,6 +53,8 @@ import type { DNSSettingsFormValues, DNSStaticEntryFormValues } from '../schemas
  * - Drag-and-drop server reordering
  * - Duplicate detection
  * - Security warnings
+ *
+ * @description Complete DNS management page with server and static entry management
  */
 export const DnsPage = memo(function DnsPage() {
   // Get router ID from URL params
@@ -75,7 +78,7 @@ export const DnsPage = memo(function DnsPage() {
   /**
    * Handle DNS server reordering
    */
-  const handleReorderServers = async (reorderedServers: any[]) => {
+  const handleReorderServers = useCallback(async (reorderedServers: any[]) => {
     if (!settings) return;
 
     // Extract only static servers (exclude dynamic)
@@ -97,12 +100,12 @@ export const DnsPage = memo(function DnsPage() {
     } catch (err) {
       console.error('Failed to reorder DNS servers:', err);
     }
-  };
+  }, [settings, deviceId, updateSettings]);
 
   /**
    * Handle removing a static DNS server
    */
-  const handleRemoveServer = async (serverId: string) => {
+  const handleRemoveServer = useCallback(async (serverId: string) => {
     if (!settings) return;
 
     const updatedServers = settings.staticServers.filter((s) => s !== serverId);
@@ -121,19 +124,19 @@ export const DnsPage = memo(function DnsPage() {
     } catch (err) {
       console.error('Failed to remove DNS server:', err);
     }
-  };
+  }, [settings, deviceId, updateSettings]);
 
   /**
    * Handle adding a new static DNS server
    */
-  const handleAddServer = () => {
+  const handleAddServer = useCallback(() => {
     setShowAddServerDialog(true);
-  };
+  }, []);
 
   /**
    * Handle DNS settings form submission
    */
-  const handleSettingsSubmit = async (values: DNSSettingsFormValues) => {
+  const handleSettingsSubmit = useCallback(async (values: DNSSettingsFormValues) => {
     try {
       await updateSettings({
         variables: {
@@ -148,28 +151,28 @@ export const DnsPage = memo(function DnsPage() {
     } catch (err) {
       console.error('Failed to update DNS settings:', err);
     }
-  };
+  }, [deviceId, updateSettings]);
 
   /**
    * Handle adding a new static DNS entry
    */
-  const handleAddEntry = () => {
+  const handleAddEntry = useCallback(() => {
     setEditingEntry(null);
     setShowEntryDialog(true);
-  };
+  }, []);
 
   /**
    * Handle editing an existing static DNS entry
    */
-  const handleEditEntry = (entry: DNSStaticEntry) => {
+  const handleEditEntry = useCallback((entry: DNSStaticEntry) => {
     setEditingEntry(entry);
     setShowEntryDialog(true);
-  };
+  }, []);
 
   /**
    * Handle static DNS entry form submission
    */
-  const handleEntrySubmit = async (values: DNSStaticEntryFormValues) => {
+  const handleEntrySubmit = useCallback(async (values: DNSStaticEntryFormValues) => {
     try {
       if (editingEntry) {
         // Update existing entry
@@ -195,12 +198,12 @@ export const DnsPage = memo(function DnsPage() {
     } catch (err) {
       console.error('Failed to save DNS entry:', err);
     }
-  };
+  }, [editingEntry, deviceId, updateEntry, createEntry]);
 
   /**
    * Handle deleting a static DNS entry
    */
-  const handleDeleteEntry = async (entryId: string) => {
+  const handleDeleteEntry = useCallback(async (entryId: string) => {
     try {
       await deleteEntry({
         variables: {
@@ -211,7 +214,7 @@ export const DnsPage = memo(function DnsPage() {
     } catch (err) {
       console.error('Failed to delete DNS entry:', err);
     }
-  };
+  }, [deviceId, deleteEntry]);
 
   // Loading state
   if (isLoading) {
@@ -229,7 +232,7 @@ export const DnsPage = memo(function DnsPage() {
     return (
       <div className="p-4">
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <Icon icon={AlertTriangle} className="h-4 w-4" />
           <AlertTitle>Failed to load DNS configuration</AlertTitle>
           <AlertDescription>
             {error?.message || 'Unable to fetch DNS settings'}
@@ -330,3 +333,5 @@ export const DnsPage = memo(function DnsPage() {
     </div>
   );
 });
+
+DnsPage.displayName = 'DnsPage';

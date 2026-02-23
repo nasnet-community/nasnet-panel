@@ -5,10 +5,12 @@
  * hours notification suppression component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
+
 import { QuietHoursConfig } from './QuietHoursConfig';
+
 import type { DayOfWeek } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

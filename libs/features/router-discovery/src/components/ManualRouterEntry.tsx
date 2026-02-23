@@ -3,8 +3,9 @@
  * Allows users to manually add routers by IP address (Story 0-1-2)
  */
 
-import { useState, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
+import { cn } from '@nasnet/ui/primitives';
 
 export interface ManualRouterEntryProps {
   /**
@@ -16,12 +17,17 @@ export interface ManualRouterEntryProps {
    * Callback when user cancels entry
    */
   onCancel?: () => void;
+
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 
 /**
  * ManualRouterEntry Component
  *
- * Provides a form for manually adding routers when auto-discovery
+ * @description Provides a form for manually adding routers when auto-discovery
  * is not available or doesn't find the router.
  *
  * Features:
@@ -38,7 +44,7 @@ export interface ManualRouterEntryProps {
  * />
  * ```
  */
-export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps) {
+export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onCancel, className }: ManualRouterEntryProps) {
   const [ipAddress, setIpAddress] = useState('');
   const [routerName, setRouterName] = useState('');
   const [errors, setErrors] = useState<{
@@ -48,28 +54,28 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
   /**
    * Validates IPv4 address format
    */
-  const validateIpAddress = (ip: string): boolean => {
+  const validateIpAddress = useCallback((ip: string): boolean => {
     const ipv4Regex =
       /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     return ipv4Regex.test(ip);
-  };
+  }, []);
 
   /**
    * Handles IP address input change with validation
    */
-  const handleIpChange = (value: string) => {
+  const handleIpChange = useCallback((value: string) => {
     setIpAddress(value);
 
     // Clear error when user starts typing
     if (errors.ipAddress) {
       setErrors({});
     }
-  };
+  }, [errors.ipAddress]);
 
   /**
    * Handles form submission
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate IP address
@@ -96,23 +102,23 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
     setIpAddress('');
     setRouterName('');
     setErrors({});
-  };
+  }, [ipAddress, routerName, validateIpAddress, onSubmit]);
 
   /**
    * Handles cancel action
    */
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setIpAddress('');
     setRouterName('');
     setErrors({});
     onCancel?.();
-  };
+  }, [onCancel]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card border border-border rounded-lg shadow-sm"
+      className={cn('bg-card border border-border rounded-lg shadow-sm', className)}
     >
       <div className="p-6">
         <div className="mb-4">
@@ -123,6 +129,11 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
             Enter the IP address of your MikroTik router
           </p>
         </div>
+
+        {/* Help paragraph */}
+        <p className="text-xs text-muted-foreground mb-4">
+          💡 Tip: Default MikroTik IP addresses are typically 192.168.88.1, 192.168.1.1, or 10.0.0.1
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4" aria-label="Add router manually">
           {/* IP Address Input */}
@@ -142,11 +153,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               aria-required="true"
               aria-invalid={!!errors.ipAddress}
               aria-describedby={errors.ipAddress ? 'ipAddress-error' : 'ipAddress-hint'}
-              className={`w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                errors.ipAddress
-                  ? 'border-destructive'
-                  : 'border-border'
-              }`}
+              className={cn('w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', errors.ipAddress ? 'border-destructive' : 'border-border')}
               autoFocus
             />
             {errors.ipAddress && (
@@ -181,7 +188,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               onChange={(e) => setRouterName(e.target.value)}
               placeholder="My Router"
               aria-describedby="routerName-hint"
-              className="w-full min-h-[44px] px-3 py-2 border border-border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={cn('w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'border-border')}
             />
             <p id="routerName-hint" className="mt-1 text-xs text-muted-foreground">
               Give your router a friendly name for easy identification
@@ -193,7 +200,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
             <button
               type="submit"
               aria-label="Add router"
-              className="flex-1 min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium"
+              className={cn('flex-1 min-h-[44px] px-4 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               Add Router
             </button>
@@ -202,7 +209,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
                 type="button"
                 onClick={handleCancel}
                 aria-label="Cancel adding router"
-                className="min-h-[44px] px-4 py-2 bg-muted text-foreground rounded-md hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium"
+                className={cn('min-h-[44px] px-4 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-muted text-foreground hover:bg-muted/80')}
               >
                 Cancel
               </button>
@@ -223,7 +230,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               type="button"
               onClick={() => setIpAddress(preset)}
               aria-label={`Use IP address ${preset}`}
-              className="min-h-[44px] px-3 py-1 text-xs font-mono bg-card border border-border rounded-md hover:border-primary hover:bg-primary/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={cn('min-h-[44px] px-3 py-1 text-xs font-mono border rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'bg-card border-border hover:border-primary hover:bg-primary/5')}
             >
               {preset}
             </button>
@@ -233,3 +240,5 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
     </motion.div>
   );
 });
+
+ManualRouterEntry.displayName = 'ManualRouterEntry';

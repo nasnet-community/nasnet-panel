@@ -48,7 +48,8 @@ func InitializeTrafficManagement(
 	log.Printf("Device traffic tracker initialized (mangle counter correlation)")
 
 	// 4. Quota Enforcer - traffic quota enforcement with event warnings
-	quotaEnforcer := traffic.NewQuotaEnforcer(systemDB, eventBus)
+	// Pass routerPort so THROTTLE action can create queue-tree entries on the router.
+	quotaEnforcer := traffic.NewQuotaEnforcer(systemDB, eventBus, routerPort)
 	log.Printf("Quota enforcer initialized (80%%, 90%%, 100%% thresholds)")
 
 	return &TrafficComponents{

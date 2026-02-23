@@ -106,190 +106,192 @@ export interface LogEntryProps extends React.HTMLAttributes<HTMLDivElement> {
  * />
  * ```
  */
-export const LogEntry = React.forwardRef<HTMLDivElement, LogEntryProps>(
-  (
-    {
-      entry,
-      showDate = false,
-      isBookmarked = false,
-      onToggleBookmark,
-      searchTerm,
-      compact = false,
-      className,
-      ...props
-    },
-    ref
-  ) => {
-    const { timestamp, topic, severity, message } = entry;
-    const [copied, setCopied] = React.useState(false);
+export const LogEntry = React.memo(
+  React.forwardRef<HTMLDivElement, LogEntryProps>(
+    (
+      {
+        entry,
+        showDate = false,
+        isBookmarked = false,
+        onToggleBookmark,
+        searchTerm,
+        compact = false,
+        className,
+        ...props
+      },
+      ref
+    ) => {
+      const { timestamp, topic, severity, message } = entry;
+      const [copied, setCopied] = React.useState(false);
 
-    const handleCopy = async (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const text = `[${new Date(timestamp).toISOString()}] [${topic}] [${severity}] ${message}`;
-      try {
-        await navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        console.error('Failed to copy');
-      }
-    };
+      const handleCopy = React.useCallback(async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const text = `[${new Date(timestamp).toISOString()}] [${topic}] [${severity}] ${message}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch {
+          console.error('Failed to copy');
+        }
+      }, [timestamp, topic, severity, message]);
 
-    const handleBookmark = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onToggleBookmark?.(entry);
-    };
+      const handleBookmark = React.useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        onToggleBookmark?.(entry);
+      }, [entry, onToggleBookmark]);
 
-    // Highlight search term in message
-    const renderMessage = () => {
-      if (!searchTerm?.trim()) {
-        return message;
-      }
+      // Highlight search term in message
+      const renderMessage = React.useMemo(() => {
+        if (!searchTerm?.trim()) {
+          return message;
+        }
 
-      const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(${escapedTerm})`, 'gi');
-      const parts = message.split(regex);
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedTerm})`, 'gi');
+        const parts = message.split(regex);
 
-      return parts.map((part, index) =>
-        regex.test(part) ? (
-          <mark
-            key={index}
-            className="bg-primary-200 dark:bg-primary-700 rounded px-0.5"
+        return parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark
+              key={index}
+              className="bg-primary-200 dark:bg-primary-700 rounded px-0.5"
+            >
+              {part}
+            </mark>
+          ) : (
+            <span key={index}>{part}</span>
+          )
+        );
+      }, [searchTerm, message]);
+
+      // Compact layout for mobile
+      if (compact) {
+        return (
+          <div
+            ref={ref}
+            className={cn(
+              'group flex flex-col gap-1.5 py-2 px-3 text-sm border-b border-slate-200 dark:border-slate-700',
+              'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
+              className
+            )}
+            {...props}
           >
-            {part}
-          </mark>
-        ) : (
-          <span key={index}>{part}</span>
-        )
-      );
-    };
+            {/* Top row: time + severity */}
+            <div className="flex items-center gap-2">
+              <time
+                className="text-slate-500 dark:text-slate-400 font-mono text-xs"
+                dateTime={new Date(timestamp).toISOString()}
+              >
+                {formatTimestamp(timestamp, showDate)}
+              </time>
+              <SeverityBadge severity={severity} />
+              <span className={cn(topicBadgeVariants({ topic }), 'text-[10px] px-1.5 py-0')}>
+                {formatTopicLabel(topic)}
+              </span>
 
-    // Compact layout for mobile
-    if (compact) {
+              {/* Actions */}
+              <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {onToggleBookmark && (
+                  <button
+                    onClick={handleBookmark}
+                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                    aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                  >
+                    <Pin
+                      className={cn(
+                        'h-3 w-3',
+                        isBookmarked ? 'fill-primary-500 text-primary-500' : 'text-muted-foreground'
+                      )}
+                    />
+                  </button>
+                )}
+                <button
+                  onClick={handleCopy}
+                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                  aria-label="Copy log entry"
+                >
+                  {copied ? (
+                    <Check className="h-3 w-3 text-success" />
+                  ) : (
+                    <Copy className="h-3 w-3 text-muted-foreground" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Message */}
+            <p className="text-slate-900 dark:text-slate-50 text-xs break-words line-clamp-2">
+              {renderMessage}
+            </p>
+          </div>
+        );
+      }
+
+      // Desktop layout
       return (
         <div
           ref={ref}
           className={cn(
-            'group flex flex-col gap-1.5 py-2 px-3 text-sm border-b border-slate-200 dark:border-slate-700',
+            'group flex items-start gap-3 py-3 px-4 text-sm border-b border-slate-200 dark:border-slate-700',
             'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
             className
           )}
           {...props}
         >
-          {/* Top row: time + severity */}
-          <div className="flex items-center gap-2">
-            <time
-              className="text-slate-500 dark:text-slate-400 font-mono text-xs"
-              dateTime={new Date(timestamp).toISOString()}
-            >
-              {formatTimestamp(timestamp, showDate)}
-            </time>
-            <SeverityBadge severity={severity} />
-            <span className={cn(topicBadgeVariants({ topic }), 'text-[10px] px-1.5 py-0')}>
-              {formatTopicLabel(topic)}
-            </span>
+          {/* Timestamp */}
+          <time
+            className="text-slate-500 dark:text-slate-400 font-mono text-xs whitespace-nowrap shrink-0 w-20 md:w-28 font-medium"
+            dateTime={new Date(timestamp).toISOString()}
+          >
+            {formatTimestamp(timestamp, showDate)}
+          </time>
 
-            {/* Actions */}
-            <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onToggleBookmark && (
-                <button
-                  onClick={handleBookmark}
-                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
-                  aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
-                >
-                  <Pin
-                    className={cn(
-                      'h-3 w-3',
-                      isBookmarked ? 'fill-primary-500 text-primary-500' : 'text-muted-foreground'
-                    )}
-                  />
-                </button>
-              )}
-              <button
-                onClick={handleCopy}
-                className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
-                aria-label="Copy log entry"
-              >
-                {copied ? (
-                  <Check className="h-3 w-3 text-success" />
-                ) : (
-                  <Copy className="h-3 w-3 text-muted-foreground" />
-                )}
-              </button>
-            </div>
-          </div>
+          {/* Topic Badge - hidden on small screens */}
+          <span className={cn(topicBadgeVariants({ topic }), 'shrink-0 hidden sm:inline-flex')}>
+            {formatTopicLabel(topic)}
+          </span>
+
+          {/* Severity Badge */}
+          <SeverityBadge severity={severity} />
 
           {/* Message */}
-          <p className="text-slate-900 dark:text-slate-50 text-xs break-words line-clamp-2">
-            {renderMessage()}
+          <p className="flex-1 text-slate-900 dark:text-slate-50 break-words leading-relaxed min-w-0">
+            {renderMessage}
           </p>
+
+          {/* Actions - shown on hover */}
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            {onToggleBookmark && (
+              <button
+                onClick={handleBookmark}
+                className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+              >
+                <Pin
+                  className={cn(
+                    'h-4 w-4',
+                    isBookmarked ? 'fill-primary-500 text-primary-500' : 'text-muted-foreground'
+                  )}
+                />
+              </button>
+            )}
+            <button
+              onClick={handleCopy}
+              className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              aria-label="Copy log entry"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-success" />
+              ) : (
+                <Copy className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+          </div>
         </div>
       );
     }
-
-    // Desktop layout
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'group flex items-start gap-3 py-3 px-4 text-sm border-b border-slate-200 dark:border-slate-700',
-          'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
-          className
-        )}
-        {...props}
-      >
-        {/* Timestamp */}
-        <time
-          className="text-slate-500 dark:text-slate-400 font-mono text-xs whitespace-nowrap shrink-0 w-20 md:w-28 font-medium"
-          dateTime={new Date(timestamp).toISOString()}
-        >
-          {formatTimestamp(timestamp, showDate)}
-        </time>
-
-        {/* Topic Badge - hidden on small screens */}
-        <span className={cn(topicBadgeVariants({ topic }), 'shrink-0 hidden sm:inline-flex')}>
-          {formatTopicLabel(topic)}
-        </span>
-
-        {/* Severity Badge */}
-        <SeverityBadge severity={severity} />
-
-        {/* Message */}
-        <p className="flex-1 text-slate-900 dark:text-slate-50 break-words leading-relaxed min-w-0">
-          {renderMessage()}
-        </p>
-
-        {/* Actions - shown on hover */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          {onToggleBookmark && (
-            <button
-              onClick={handleBookmark}
-              className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
-            >
-              <Pin
-                className={cn(
-                  'h-4 w-4',
-                  isBookmarked ? 'fill-primary-500 text-primary-500' : 'text-muted-foreground'
-                )}
-              />
-            </button>
-          )}
-          <button
-            onClick={handleCopy}
-            className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            aria-label="Copy log entry"
-          >
-            {copied ? (
-              <Check className="h-4 w-4 text-success" />
-            ) : (
-              <Copy className="h-4 w-4 text-muted-foreground" />
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  )
 );
 
 LogEntry.displayName = 'LogEntry';

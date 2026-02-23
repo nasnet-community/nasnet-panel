@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
+import type { MockedResponse } from '@apollo/client/testing';
 import type { ReactNode } from 'react';
 import type {
   ServiceTemplate,
@@ -29,7 +30,6 @@ import {
 
 // Mock template data
 const mockTemplate: ServiceTemplate = {
-  __typename: 'ServiceTemplate',
   id: 'template-1',
   name: 'Privacy Stack',
   description: 'Complete privacy setup with Tor and Xray',
@@ -66,7 +66,7 @@ const mockCustomTemplate: ServiceTemplate = {
 function createWrapper(mocks: unknown[]) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider mocks={mocks as readonly MockedResponse[]} addTypename={true}>
         {children}
       </MockedProvider>
     );
@@ -169,7 +169,6 @@ describe('useServiceTemplates', () => {
 describe('useInstallTemplate', () => {
   it('installs template successfully', async () => {
     const mockResult: TemplateInstallResult = {
-      __typename: 'TemplateInstallResult',
       success: true,
       instanceIDs: ['instance-1', 'instance-2'],
       serviceMapping: {

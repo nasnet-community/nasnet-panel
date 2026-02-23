@@ -205,13 +205,6 @@ export function createRetryHandler<T>(
  */
 export async function clearAllCache(): Promise<void> {
   try {
-    // Clear Apollo cache (dynamic import to avoid circular dependency)
-    // eslint-disable-next-line @nx/enforce-module-boundaries
-    const { apolloClient } = await import('@nasnet/api-client/core');
-    if (apolloClient) {
-      await apolloClient.clearStore();
-    }
-
     // Clear localStorage cache keys (but not auth)
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {

@@ -1,3 +1,4 @@
+/// <reference types="@testing-library/jest-dom" />
 /**
  * StorageSettings Component Tests
  * Comprehensive React Testing Library tests for external storage management UI

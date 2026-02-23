@@ -57,9 +57,9 @@ export function useRateLimitRulesTable(props: RateLimitRulesTableProps) {
 
     // Filter by enabled/disabled status
     if (statusFilter === 'enabled') {
-      filtered = filtered.filter((rule) => !rule.disabled);
+      filtered = filtered.filter((rule) => !rule.isDisabled);
     } else if (statusFilter === 'disabled') {
-      filtered = filtered.filter((rule) => rule.disabled);
+      filtered = filtered.filter((rule) => rule.isDisabled);
     }
 
     // Sort by order (no manual ordering field in RateLimitRule, using ID)
@@ -95,7 +95,7 @@ export function useRateLimitRulesTable(props: RateLimitRulesTableProps) {
     if (!rule.id) return;
     toggleRateLimitRule.mutate({
       ruleId: rule.id,
-      disabled: !rule.disabled,
+      disabled: !rule.isDisabled,
     });
   };
 

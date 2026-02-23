@@ -226,7 +226,7 @@ export const MultipleActions: Story = {
       {
         label: 'Report Issue',
         onClick: () => console.log('Report Issue'),
-        variant: 'outline',
+        variant: 'default',
       },
       {
         label: 'Try Again',

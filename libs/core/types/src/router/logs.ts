@@ -7,6 +7,13 @@
 
 /**
  * Log topic/facility categories from RouterOS
+ *
+ * @remarks
+ * Represents system-level categories for log organization
+ * (system, firewall, wireless, dhcp, dns, ppp, vpn, interface, route, script, critical, info, warning, error)
+ *
+ * @example
+ * const topic: LogTopic = 'firewall';
  */
 export type LogTopic =
   | 'system'
@@ -26,6 +33,12 @@ export type LogTopic =
 
 /**
  * Log severity levels
+ *
+ * @remarks
+ * Ordered by severity: debug (lowest) → critical (highest)
+ *
+ * @example
+ * const severity: LogSeverity = 'error';
  */
 export type LogSeverity = 'debug' | 'info' | 'warning' | 'error' | 'critical';
 

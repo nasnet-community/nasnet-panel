@@ -1,3 +1,19 @@
+/**
+ * Accessibility Tests (WCAG AAA)
+ *
+ * Comprehensive accessibility testing for all primitive components using axe-core.
+ * Tests verify compliance with WCAG AAA standards including:
+ * - Contrast ratios (7:1 normal text, 4.5:1 large text)
+ * - Keyboard navigation
+ * - ARIA labels and attributes
+ * - Color not sole indicator of state
+ * - Semantic HTML structure
+ *
+ * @see {@link ./a11y-utils.ts} For reusable test utilities
+ * @see {@link ../../DESIGN_TOKENS.md} For semantic color tokens
+ * @see {@link ../../../Docs/architecture/index.md} For accessibility architecture
+ */
+
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { axe } from 'vitest-axe';

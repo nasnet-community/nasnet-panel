@@ -8,15 +8,14 @@
 import * as React from 'react';
 
 import {
+  Clock,
   Loader2,
   CheckCircle,
   XCircle,
-  Clock,
-  AlertTriangle,
   RotateCcw,
+  AlertTriangle,
   X,
 } from 'lucide-react';
-
 import type {
   ChangeSet,
   ChangeSetItem,
@@ -27,7 +26,7 @@ import {
   getChangeSetStatusDisplayInfo,
   isChangeSetProcessing,
 } from '@nasnet/core/types';
-import { cn, Progress, Button } from '@nasnet/ui/primitives';
+import { cn, Progress, Button, Icon } from '@nasnet/ui/primitives';
 
 
 // =============================================================================
@@ -76,23 +75,25 @@ const ItemStatusIcon = React.memo(function ItemStatusIcon({
 }) {
   switch (status) {
     case 'PENDING':
-      return <Clock className={cn('text-muted-foreground', className)} />;
+      return <Icon icon={Clock} className={cn('text-muted-foreground', className)} />;
     case 'APPLYING':
-      return <Loader2 className={cn('text-warning animate-spin', className)} />;
+      return <Icon icon={Loader2} className={cn('text-warning animate-spin', className)} />;
     case 'APPLIED':
-      return <CheckCircle className={cn('text-success', className)} />;
+      return <Icon icon={CheckCircle} className={cn('text-success', className)} />;
     case 'FAILED':
-      return <XCircle className={cn('text-error', className)} />;
+      return <Icon icon={XCircle} className={cn('text-error', className)} />;
     case 'ROLLED_BACK':
-      return <RotateCcw className={cn('text-muted-foreground', className)} />;
+      return <Icon icon={RotateCcw} className={cn('text-muted-foreground', className)} />;
     case 'ROLLBACK_FAILED':
-      return <AlertTriangle className={cn('text-error', className)} />;
+      return <Icon icon={AlertTriangle} className={cn('text-error', className)} />;
     case 'SKIPPED':
-      return <Clock className={cn('text-muted-foreground opacity-50', className)} />;
+      return <Icon icon={Clock} className={cn('text-muted-foreground opacity-50', className)} />;
     default:
-      return <Clock className={cn('text-muted-foreground', className)} />;
+      return <Icon icon={Clock} className={cn('text-muted-foreground', className)} />;
   }
 });
+
+ItemStatusIcon.displayName = 'ItemStatusIcon';
 
 /**
  * Format time remaining
@@ -202,12 +203,12 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         {/* Header with status */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {isProcessing && <Loader2 className="h-5 w-5 animate-spin text-primary" role="status" aria-label="Applying changes" />}
-            {status === 'COMPLETED' && <CheckCircle className="h-5 w-5 text-success" />}
+            {isProcessing && <Icon icon={Loader2} className="h-5 w-5 animate-spin text-primary" role="status" aria-label="Applying changes" />}
+            {status === 'COMPLETED' && <Icon icon={CheckCircle} className="h-5 w-5 text-success" />}
             {(status === 'FAILED' || status === 'PARTIAL_FAILURE') && (
-              <XCircle className="h-5 w-5 text-error" />
+              <Icon icon={XCircle} className="h-5 w-5 text-error" />
             )}
-            {status === 'ROLLED_BACK' && <RotateCcw className="h-5 w-5 text-muted-foreground" />}
+            {status === 'ROLLED_BACK' && <Icon icon={RotateCcw} className="h-5 w-5 text-muted-foreground" />}
             <h3 className="font-semibold text-foreground">{displayInfo.label}</h3>
           </div>
           <span className="text-sm text-muted-foreground">
@@ -237,7 +238,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         {currentItem && isProcessing && (
           <div className="mb-4 p-3 rounded bg-muted/50">
             <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-warning" />
+              <Icon icon={Loader2} className="h-4 w-4 animate-spin text-warning" />
               <span className="text-sm font-medium">{currentItem.name}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -254,7 +255,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
             className="mb-4 p-3 rounded bg-error/10 border border-error/20"
           >
             <div className="flex items-start gap-2">
-              <XCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+              <Icon icon={XCircle} className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-error">
                   {error.message}
@@ -282,7 +283,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
             className="mb-4 p-3 rounded bg-success/10 border border-success/20"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-success" />
+              <Icon icon={CheckCircle} className="h-5 w-5 text-success" />
               <p className="text-sm font-medium text-success">
                 All {totalCount} changes applied successfully
               </p>
@@ -294,7 +295,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         {status === 'ROLLED_BACK' && (
           <div className="mb-4 p-3 rounded bg-muted border">
             <div className="flex items-center gap-2">
-              <RotateCcw className="h-5 w-5 text-muted-foreground" />
+              <Icon icon={RotateCcw} className="h-5 w-5 text-muted-foreground" />
               <p className="text-sm font-medium text-muted-foreground">
                 All applied changes have been rolled back
               </p>
@@ -309,8 +310,8 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
               Items
             </h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {items
-                .sort((a, b) => a.applyOrder - b.applyOrder)
+              {[...items]
+                .sort((a: ChangeSetItem, b: ChangeSetItem) => a.applyOrder - b.applyOrder)
                 .map((item) => (
                   <div
                     key={item.id}
@@ -338,7 +339,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           {/* Cancel button during processing */}
           {isProcessing && onCancel && (
             <Button variant="outline" size="sm" onClick={onCancel} aria-label="Cancel applying changes">
-              <X className="h-4 w-4 mr-1" />
+              <Icon icon={X} className="h-4 w-4 mr-1" />
               Cancel
             </Button>
           )}
@@ -346,7 +347,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           {/* Retry button after failure */}
           {status === 'FAILED' && onRetry && (
             <Button variant="default" size="sm" onClick={onRetry} aria-label="Retry applying changes">
-              <RotateCcw className="h-4 w-4 mr-1" />
+              <Icon icon={RotateCcw} className="h-4 w-4 mr-1" />
               Retry
             </Button>
           )}
@@ -354,7 +355,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           {/* Force rollback button */}
           {status === 'FAILED' && onForceRollback && (
             <Button variant="outline" size="sm" onClick={onForceRollback} aria-label="Force rollback of all changes">
-              <RotateCcw className="h-4 w-4 mr-1" />
+              <Icon icon={RotateCcw} className="h-4 w-4 mr-1" />
               Force Rollback
             </Button>
           )}

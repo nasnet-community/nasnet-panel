@@ -5,6 +5,9 @@
  * Auto-detecting wrapper that selects the appropriate platform presenter.
  * Implements the Headless + Platform Presenters pattern from ADR-018.
  *
+ * @description Platform-aware component that renders IP address list with
+ * automatic mobile (card-based) or desktop (table) layout selection.
+ *
  * @example
  * ```tsx
  * <IPAddressList

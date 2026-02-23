@@ -6,8 +6,9 @@
 import React from 'react';
 
 import { Shield, ShieldOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@nasnet/ui/utils';
 
 interface VPNStatusCardProps {
   isConnected?: boolean;
@@ -22,6 +23,7 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
   serverLocation,
   isLoading,
 }: VPNStatusCardProps) {
+  const { t } = useTranslation('vpn');
   if (isLoading) {
     return (
       <div className="bg-card rounded-xl p-4 animate-pulse" role="status" aria-label="Loading VPN status">
@@ -45,7 +47,7 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
       className={cn(
         'rounded-xl p-4 border transition-all duration-300',
         isConnected
-          ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/30'
+          ? 'bg-gradient-to-r from-success/10 to-info/10 border-success/30'
           : 'bg-card border-border'
       )}
     >
@@ -54,24 +56,24 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
           <div
             className={cn(
               'w-8 h-8 rounded-lg flex items-center justify-center',
-              isConnected ? 'bg-emerald-500/20' : 'bg-muted'
+              isConnected ? 'bg-success/20' : 'bg-muted'
             )}
           >
             {isConnected ? (
-              <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+              <Shield className="w-4 h-4 text-success" aria-hidden="true" />
             ) : (
               <ShieldOff className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
             )}
           </div>
           <div>
             <p className={cn('font-medium', isConnected ? 'text-foreground' : 'text-muted-foreground')}>
-              {isConnected ? 'VPN Protected' : 'VPN Disconnected'}
+              {isConnected ? t('status.protected') : t('status.disconnected')}
             </p>
             {isConnected && serverLocation ? (
-              <p className="text-emerald-400 text-sm">{connectionName} • {serverLocation}</p>
+              <p className="text-success text-sm">{connectionName} • {serverLocation}</p>
             ) : (
               <p className="text-muted-foreground text-sm">
-                {isConnected ? connectionName : 'Not connected'}
+                {isConnected ? connectionName : t('status.notConnected')}
               </p>
             )}
           </div>
@@ -82,11 +84,11 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
             'px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             isConnected
               ? 'bg-muted text-foreground hover:bg-muted/80'
-              : 'bg-emerald-500 text-foreground hover:bg-emerald-400'
+              : 'bg-success text-foreground hover:bg-success/90'
           )}
-          aria-label={isConnected ? 'Manage VPN connection' : 'Connect to VPN'}
+          aria-label={isConnected ? t('clients.manage') : t('clients.connect')}
         >
-          {isConnected ? 'Manage' : 'Connect'}
+          {isConnected ? t('clients.manage') : t('clients.connect')}
         </button>
       </div>
     </div>

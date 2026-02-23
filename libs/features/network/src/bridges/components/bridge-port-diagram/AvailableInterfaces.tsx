@@ -1,34 +1,47 @@
+import { memo, useCallback, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { Badge } from '@nasnet/ui/primitives';
+import { Badge, Icon } from '@nasnet/ui/primitives';
 import { GripVertical } from 'lucide-react';
 import type { Interface } from '@nasnet/api-client/generated';
 
 export interface AvailableInterfacesProps {
   interfaces: Interface[];
   loading: boolean;
+  className?: string;
 }
 
 /**
  * Available Interfaces Component - Shows draggable interfaces that can be added to bridge
+ *
+ * @description Draggable interface list for bridge port assignment with loading and empty states
  */
-export function AvailableInterfaces({ interfaces, loading }: AvailableInterfacesProps) {
+export const AvailableInterfaces = memo(function AvailableInterfaces({
+  interfaces,
+  loading,
+  className,
+}: AvailableInterfacesProps) {
+  // Memoize skeleton loaders
+  const skeletonLoaders = useMemo(
+    () =>
+      [1, 2, 3].map((i) => (
+        <div key={i} className="h-12 rounded-md bg-muted animate-pulse" />
+      )),
+    []
+  );
+
   if (loading) {
     return (
-      <div className="rounded-lg border bg-card p-4">
+      <div className={className || 'rounded-lg border bg-card p-4'}>
         <h3 className="text-sm font-medium mb-3">Available Interfaces</h3>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 rounded-md bg-muted animate-pulse" />
-          ))}
-        </div>
+        <div className="space-y-2">{skeletonLoaders}</div>
       </div>
     );
   }
 
   if (interfaces.length === 0) {
     return (
-      <div className="rounded-lg border bg-card p-4">
+      <div className={className || 'rounded-lg border bg-card p-4'}>
         <h3 className="text-sm font-medium mb-3">Available Interfaces</h3>
         <p className="text-sm text-muted-foreground">
           No interfaces available. All interfaces are already assigned to bridges.
@@ -38,7 +51,7 @@ export function AvailableInterfaces({ interfaces, loading }: AvailableInterfaces
   }
 
   return (
-    <div className="rounded-lg border bg-card p-4">
+    <div className={className || 'rounded-lg border bg-card p-4'}>
       <h3 className="text-sm font-medium mb-3">Available Interfaces</h3>
       <p className="text-xs text-muted-foreground mb-3">
         Drag an interface to the bridge to add it as a port
@@ -50,13 +63,13 @@ export function AvailableInterfaces({ interfaces, loading }: AvailableInterfaces
       </div>
     </div>
   );
-}
+});
 
 interface DraggableInterfaceProps {
   interface: Interface;
 }
 
-function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
+const DraggableInterface = memo(function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: iface.id,
     data: {
@@ -70,8 +83,8 @@ function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Get interface type badge variant
-  const getTypeBadgeVariant = (type: string): 'default' | 'secondary' | 'outline' => {
+  // Memoized interface type badge variant determiner
+  const getTypeBadgeVariant = useCallback((type: string): 'default' | 'secondary' | 'outline' => {
     switch (type.toLowerCase()) {
       case 'ether':
         return 'default';
@@ -80,7 +93,7 @@ function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
       default:
         return 'outline';
     }
-  };
+  }, []);
 
   return (
     <div
@@ -93,7 +106,7 @@ function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
       aria-label={`Draggable interface ${iface.name}`}
     >
       {/* Drag Handle */}
-      <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+      <Icon icon={GripVertical} className="h-4 w-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
 
       {/* Interface Icon */}
       <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 text-primary flex-shrink-0">
@@ -124,4 +137,8 @@ function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
       </div>
     </div>
   );
-}
+});
+
+DraggableInterface.displayName = 'DraggableInterface';
+
+AvailableInterfaces.displayName = 'AvailableInterfaces';

@@ -92,34 +92,57 @@ export interface UseTemplateBrowserOptions {
 
 /**
  * Hook return value
+ * @description Provides all state and actions for managing alert template browser.
+ * Includes filtered/sorted templates, filter controls, sort controls, selection state,
+ * and metadata counters for UI rendering.
  */
 export interface UseTemplateBrowserReturn {
-  // Filtered and sorted data
+  /** Filtered and sorted templates based on current filter/sort state */
   filteredTemplates: AlertRuleTemplate[];
+
+  /** Total number of templates (unfiltered) */
   totalCount: number;
+
+  /** Number of templates after applying filters */
   filteredCount: number;
 
-  // Filter state
+  /** Current filter criteria object */
   filter: TemplateFilter;
+
+  /** Update filter with partial object merge */
   setFilter: (filter: Partial<TemplateFilter>) => void;
+
+  /** Clear all filters to defaults */
   clearFilter: () => void;
+
+  /** Whether any filter is currently active */
   hasActiveFilter: boolean;
 
-  // Sort state
+  /** Current sort configuration (field + direction) */
   sort: TemplateSort;
+
+  /** Set sort field (toggles direction if same field selected) */
   setSort: (field: TemplateSortField) => void;
+
+  /** Toggle sort direction (asc <-> desc) */
   toggleSortDirection: () => void;
 
-  // Selection state
+  /** Current template selection state */
   selection: TemplateSelection;
+
+  /** Select a template or null to deselect */
   selectTemplate: (template: AlertRuleTemplate | null) => void;
+
+  /** Clear current selection */
   clearSelection: () => void;
 
-  // Actions
+  /** Apply selected template (triggers onApply callback) */
   applyTemplate: (template: AlertRuleTemplate) => void;
 
-  // Computed metadata
+  /** Count of templates per category */
   categoryCount: Record<string, number>;
+
+  /** Count of templates per severity level */
   severityCount: Record<string, number>;
 }
 
@@ -216,12 +239,13 @@ function sortTemplates(
         aVal = a.name;
         bVal = b.name;
         break;
-      case 'severity':
+      case 'severity': {
         // Order: CRITICAL > WARNING > INFO
-        const severityOrder = { CRITICAL: 3, WARNING: 2, INFO: 1 };
+        const severityOrder: Record<string, number> = { CRITICAL: 3, WARNING: 2, INFO: 1 };
         aVal = severityOrder[a.severity];
         bVal = severityOrder[b.severity];
         break;
+      }
       case 'category':
         aVal = a.category;
         bVal = b.category;
@@ -291,11 +315,12 @@ function calculateSeverityCounts(templates: AlertRuleTemplate[]): Record<string,
 /**
  * Headless hook for alert template browser logic
  *
- * Provides filtering, sorting, searching, and selection for alert rule templates.
+ * @description Provides filtering, sorting, searching, and selection for alert rule templates.
  * Platform-agnostic business logic without any rendering concerns.
+ * All state is memoized to prevent unnecessary re-renders of consuming components.
  *
- * @param options - Configuration options
- * @returns Template browser state and actions
+ * @param options - Configuration options (templates, initial filters, callbacks)
+ * @returns Template browser state and actions for UI rendering
  *
  * @example
  * ```tsx
@@ -305,6 +330,17 @@ function calculateSeverityCounts(templates: AlertRuleTemplate[]): Record<string,
  *   onSelect: (template) => console.log('Selected:', template.name),
  *   onApply: (template) => applyTemplateMutation(template),
  * });
+ *
+ * // Use in presenter component
+ * return (
+ *   <div>
+ *     <SearchInput onChange={(search) => browser.setFilter({ search })} />
+ *     <TemplateList
+ *       templates={browser.filteredTemplates}
+ *       onSelect={browser.selectTemplate}
+ *     />
+ *   </div>
+ * );
  * ```
  */
 export function useTemplateBrowser(

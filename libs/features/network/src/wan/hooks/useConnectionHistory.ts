@@ -5,8 +5,7 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 6: Connection History)
  */
 
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import type { ConnectionEventData } from '../types/wan.types';
 
 // GraphQL query for connection history
@@ -54,9 +53,12 @@ export interface ConnectionHistoryResult {
 /**
  * Hook to fetch WAN connection history
  *
+ * Fetches paginated WAN connection events with caching and polling support.
+ * Automatically polls every 30 seconds for new events in cache-and-network mode.
+ *
  * @example
  * ```tsx
- * const { data, loading, error, refetch } = useConnectionHistory({
+ * const { events, total, loading, error, loadMore, hasMore } = useConnectionHistory({
  *   routerId: 'router-123',
  *   limit: 50,
  * });
@@ -87,8 +89,9 @@ export function useConnectionHistory({
 
   /**
    * Load more events (pagination)
+   * @description Fetches additional events from the next page
    */
-  const loadMore = async () => {
+  const handleLoadMore = async () => {
     if (!data) return;
 
     await fetchMore({
@@ -124,13 +127,18 @@ export function useConnectionHistory({
     loading,
     error,
     refetch,
-    loadMore,
+    loadMore: handleLoadMore,
     hasMore: Boolean(hasMore),
   };
 }
 
+useConnectionHistory.displayName = 'useConnectionHistory';
+
 /**
- * Mock data generator for development
+ * Generate mock connection history for Storybook/testing
+ * @description Creates realistic mock connection events with varied timestamps
+ * @param count Number of events to generate (default: 20)
+ * @returns Array of mock connection events
  */
 export function generateMockConnectionHistory(
   count: number = 20

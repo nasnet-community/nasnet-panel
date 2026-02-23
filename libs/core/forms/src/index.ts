@@ -26,6 +26,7 @@ export type {
 
 export { useFormResourceSync } from './useFormResourceSync';
 export type {
+  UseFormResourceSyncOptions,
   FormResourceState,
   FormResourceActions,
   UseFormResourceSyncReturn,
@@ -191,7 +192,6 @@ export type {
   ValidationPipelineResult,
   UseAsyncValidationOptions,
   AsyncValidationResult,
-  UseFormResourceSyncOptions,
 } from './types';
 
 // Re-export commonly used React Hook Form utilities

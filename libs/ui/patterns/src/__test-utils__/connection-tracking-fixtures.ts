@@ -9,12 +9,53 @@
  * NOTE: Using official types from @nasnet/core/types (backend layer complete)
  */
 
-import type {
-  Connection,
-  ConnectionTrackingSettings,
-  ConnectionFilters,
-  ConnectionTrackingState,
-} from '@nasnet/core/types';
+// Type definitions for connection tracking
+// These types would come from GraphQL generated types in a production setup
+
+export type ConnectionState = 'established' | 'new' | 'related' | 'invalid';
+export type ConnectionTrackingState = ConnectionState;
+
+export interface Connection {
+  id: string;
+  protocol: 'tcp' | 'udp' | 'icmp';
+  srcAddress: string;
+  srcPort?: number;
+  dstAddress: string;
+  dstPort?: number;
+  replyDstAddress?: string;
+  replyDstPort?: number;
+  state: ConnectionState;
+  timeout: string;
+  packets: number;
+  bytes: number;
+  assured: boolean;
+  confirmed: boolean;
+}
+
+export interface ConnectionTrackingSettings {
+  enabled: boolean;
+  maxEntries: number;
+  genericTimeout: number;
+  tcpEstablishedTimeout: number;
+  tcpTimeWaitTimeout: number;
+  tcpCloseTimeout: number;
+  tcpSynSentTimeout: number;
+  tcpSynReceivedTimeout: number;
+  tcpFinWaitTimeout: number;
+  tcpCloseWaitTimeout: number;
+  tcpLastAckTimeout: number;
+  udpTimeout: number;
+  udpStreamTimeout: number;
+  icmpTimeout: number;
+  looseTracking: boolean;
+}
+
+export interface ConnectionFilters {
+  ipAddress?: string;
+  port?: number;
+  protocol?: string;
+  state?: ConnectionTrackingState;
+}
 
 // =============================================================================
 // Mock Connection Data
@@ -73,7 +114,7 @@ export const mockIcmpConnection: Connection = {
 };
 
 /**
- * TIME-WAIT state connection
+ * RELATED state connection (related to existing connection)
  */
 export const mockTimeWaitConnection: Connection = {
   id: 'conn-4',
@@ -82,7 +123,7 @@ export const mockTimeWaitConnection: Connection = {
   srcPort: 49152,
   dstAddress: '198.51.100.50',
   dstPort: 80,
-  state: 'time-wait',
+  state: 'related',
   timeout: '10s',
   packets: 500,
   bytes: 102400,
@@ -91,7 +132,7 @@ export const mockTimeWaitConnection: Connection = {
 };
 
 /**
- * SYN-SENT state connection (new connection attempt)
+ * NEW state connection (new connection attempt)
  */
 export const mockSynSentConnection: Connection = {
   id: 'conn-5',
@@ -100,7 +141,7 @@ export const mockSynSentConnection: Connection = {
   srcPort: 60000,
   dstAddress: '203.0.113.100',
   dstPort: 22,
-  state: 'syn-sent',
+  state: 'new',
   timeout: '5s',
   packets: 1,
   bytes: 64,
@@ -144,7 +185,7 @@ export const mockConnections: Connection[] = [
  * Generate large connection list for performance testing
  */
 export function generateMockConnections(count: number): Connection[] {
-  const states: ConnectionState[] = ['established', 'time-wait', 'syn-sent', 'fin-wait'];
+  const states: ConnectionState[] = ['established', 'new', 'related', 'invalid'];
   const protocols = ['tcp', 'udp', 'icmp'];
 
   return Array.from({ length: count }, (_, i) => ({

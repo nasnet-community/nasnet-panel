@@ -1,7 +1,7 @@
 
 import { ProtocolIcon, ProtocolIconBadge } from './ProtocolIcon';
 
-import type { ProtocolIconProps, ProtocolIconBadgeProps } from './ProtocolIcon';
+import type { ProtocolIconBadgeProps } from './ProtocolIcon';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -128,7 +128,7 @@ function ProtocolIconBadgeDemo(props: ProtocolIconBadgeProps) {
   return <ProtocolIconBadge {...props} />;
 }
 
-const badgeMeta: Meta<typeof ProtocolIconBadgeDemo> = {
+const _badgeMeta: Meta<typeof ProtocolIconBadgeDemo> = {
   title: 'Patterns/ProtocolIcon/Badge',
   component: ProtocolIconBadgeDemo,
   tags: ['autodocs'],

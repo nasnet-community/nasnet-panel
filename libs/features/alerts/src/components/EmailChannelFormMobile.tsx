@@ -6,11 +6,14 @@
  *
  * @module @nasnet/features/alerts/components
  * @see NAS-18.3: Email notification configuration
+ * @description Renders a mobile-optimized email channel configuration form with
+ * collapsible sections, 44px minimum touch targets, and full-screen actions.
  */
 
 import { Controller } from 'react-hook-form';
 import { X, AlertCircle, CheckCircle2, Mail, Server, Shield, Eye, EyeOff, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
 import type { UseEmailChannelFormReturn } from '../hooks/useEmailChannelForm';
 
@@ -21,13 +24,22 @@ import type { UseEmailChannelFormReturn } from '../hooks/useEmailChannelForm';
 export interface EmailChannelFormMobileProps {
   /** Headless hook instance */
   emailForm: UseEmailChannelFormReturn;
+  /** Optional CSS class name for wrapper */
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProps) {
+/**
+ * Mobile presenter for email channel configuration.
+ * Optimized for touch with 44px minimum targets and collapsible sections.
+ */
+export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
+  emailForm,
+  className,
+}: EmailChannelFormMobileProps) {
   const {
     form,
     recipients,
@@ -51,7 +63,7 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Handle recipient input (Enter or comma)
-  const handleRecipientKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleRecipientKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       if (recipientInput.trim()) {
@@ -61,23 +73,23 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
         }
       }
     }
-  };
+  }, [recipientInput, addRecipient]);
 
-  const handleAddRecipient = () => {
+  const handleAddRecipient = useCallback(() => {
     if (recipientInput.trim()) {
       const added = addRecipient(recipientInput);
       if (added) {
         setRecipientInput('');
       }
     }
-  };
+  }, [recipientInput, addRecipient]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pb-24">
+    <form onSubmit={handleSubmit} className={cn('space-y-4 pb-24', className)}>
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
-          <Mail className="h-5 w-5 text-muted-foreground" />
+          <Mail className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Email Notifications</Label>
             <p className="text-sm text-muted-foreground">Send alerts via email</p>
@@ -91,7 +103,8 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-6 w-6 rounded border-gray-300"
+              className="h-6 w-6 rounded border-border"
+              aria-label="Enable email notifications"
             />
           )}
         />
@@ -328,16 +341,17 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-6 w-6 rounded border-gray-300"
+                    className="h-6 w-6 rounded border-border"
+                    aria-label="Use TLS/SSL encryption"
                   />
                 )}
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-warning bg-warning/10 p-4">
               <div>
-                <Label className="font-medium text-amber-600">Skip Certificate Check</Label>
-                <p className="text-sm text-amber-700">Use with self-signed certs only</p>
+                <Label className="font-medium text-warning">Skip Certificate Check</Label>
+                <p className="text-sm text-warning/80">Use with self-signed certs only</p>
               </div>
               <Controller
                 control={control}
@@ -347,15 +361,16 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-6 w-6 rounded border-amber-400"
+                    className="h-6 w-6 rounded border-border"
+                    aria-label="Skip certificate verification"
                   />
                 )}
               />
             </div>
 
-            <Alert variant="default" className="border-amber-300 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-sm text-amber-700">
+            <Alert variant="default" className="border-warning bg-warning/10">
+              <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
+              <AlertDescription className="text-sm text-warning/90">
                 Skipping certificate verification reduces security.
               </AlertDescription>
             </Alert>
@@ -395,4 +410,6 @@ export function EmailChannelFormMobile({ emailForm }: EmailChannelFormMobileProp
       </div>
     </form>
   );
-}
+});
+
+EmailChannelFormMobile.displayName = 'EmailChannelFormMobile';

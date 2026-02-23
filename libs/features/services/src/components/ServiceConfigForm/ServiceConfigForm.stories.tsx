@@ -11,13 +11,15 @@
  */
 
 import React from 'react';
+
+import { fn } from 'storybook/test';
 import { useForm } from 'react-hook-form';
-import type { UseFormReturn } from 'react-hook-form';
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 
 import { ServiceConfigForm } from './ServiceConfigForm';
+
 import type { UseServiceConfigFormReturn } from '../../hooks/useServiceConfigForm';
+import type { Meta, StoryObj } from '@storybook/react';
+import type { UseFormReturn } from 'react-hook-form';
 
 // ---------------------------------------------------------------------------
 // Mock ConfigSchemaField + ConfigSchema types (mirrors generated GQL types)
@@ -43,6 +45,7 @@ interface MockField {
   min?: number;
   max?: number;
   options?: Array<{ label: string; value: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
 }
 
@@ -93,6 +96,7 @@ function useMockFormState(
 
   // Real RHF instance so field rendering actually works
   // eslint-disable-next-line react-hooks/rules-of-hooks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form: UseFormReturn<any> = useForm({ defaultValues, mode: 'onBlur' });
 
   const schema = noSchema
@@ -100,12 +104,15 @@ function useMockFormState(
     : {
         serviceType: 'mock-service',
         version: '1.0.0',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fields: fields as any,
       };
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     schema: schema as any,
     form,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     visibleFields: fields as any[],
     handleSubmit: onSubmit,
     isSubmitting,

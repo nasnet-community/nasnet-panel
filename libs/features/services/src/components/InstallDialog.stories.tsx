@@ -1,5 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 /**
  * InstallDialog stories
@@ -15,6 +14,8 @@ import { fn } from '@storybook/test';
  */
 
 import { InstallDialog } from './InstallDialog';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof InstallDialog> = {
   title: 'Features/Services/InstallDialog',

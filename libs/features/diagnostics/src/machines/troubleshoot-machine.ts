@@ -8,6 +8,7 @@ import type {
 } from '../types/troubleshoot.types';
 import { getFix } from '../constants/fix-registry';
 
+/** Initial diagnostic steps, all pending until execution */
 const INITIAL_STEPS: DiagnosticStep[] = [
   { id: 'wan', name: 'WAN Interface', description: 'Check physical connection', status: 'pending' },
   { id: 'gateway', name: 'Gateway', description: 'Ping default gateway', status: 'pending' },
@@ -17,8 +18,30 @@ const INITIAL_STEPS: DiagnosticStep[] = [
 ];
 
 /**
- * Factory function to create machine with routerId
- * Each wizard instance gets its own machine
+ * Factory function to create a troubleshoot machine instance with a specific routerId.
+ * Each wizard instance gets its own isolated machine state.
+ *
+ * State flow:
+ * - idle: Waiting to start
+ * - initializing: Detecting network configuration (WAN interface, gateway)
+ * - runningDiagnostic:
+ *   - executingStep: Running a diagnostic test
+ *   - stepComplete: Evaluating step result
+ *   - awaitingFixDecision: Waiting for user to apply or skip fix
+ *   - applyingFix: Executing fix command
+ *   - verifyingFix: Re-running diagnostic to verify fix
+ *   - nextStep: Moving to next diagnostic
+ * - completed: All diagnostics finished
+ *
+ * Events:
+ * - START: Begin diagnostics
+ * - APPLY_FIX: Apply the suggested fix
+ * - SKIP_FIX: Skip fix and continue
+ * - RESTART: Reset to idle
+ * - CANCEL: Cancel from any state
+ *
+ * @param routerId The router UUID to run diagnostics against
+ * @returns XState machine configured for troubleshooting
  */
 export function createTroubleshootMachine(routerId: string) {
   return createMachine({

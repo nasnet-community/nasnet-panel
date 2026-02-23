@@ -7,10 +7,10 @@
  */
 
 import { MockedProvider } from '@apollo/client/testing';
-import { fn } from '@storybook/test';
+import { expect, fn } from 'storybook/test';
 
 import { ImportTemplateDialog } from './ImportTemplateDialog';
-import { IMPORT_ALERT_RULE_TEMPLATE } from '../../hooks/useAlertRuleTemplates';
+import { IMPORT_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -144,7 +144,7 @@ const validTemplateJSON = JSON.stringify(
   2
 );
 
-const invalidTemplateJSON = `{
+const _invalidTemplateJSON = `{
   "name": "Invalid Template",
   "description": "Missing required fields",
   "category": "INVALID_CATEGORY",

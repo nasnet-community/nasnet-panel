@@ -13,6 +13,7 @@ import {
   GET_VLAN_POOL_STATUS,
 } from './vlan.graphql';
 import type { ReactNode } from 'react';
+import * as React from 'react';
 
 describe('useCleanupOrphanedVLANs', () => {
   const mocks = [
@@ -61,11 +62,8 @@ describe('useCleanupOrphanedVLANs', () => {
     },
   ];
 
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      {children}
-    </MockedProvider>
-  );
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
   it('should execute cleanup mutation and return count', async () => {
     const { result } = renderHook(() => useCleanupOrphanedVLANs(), {
@@ -105,11 +103,8 @@ describe('useCleanupOrphanedVLANs', () => {
       },
     ];
 
-    const zeroWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={zeroMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const zeroWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: zeroMocks, addTypename: false }, children);
 
     const { result } = renderHook(() => useCleanupOrphanedVLANs(), {
       wrapper: zeroWrapper,
@@ -136,11 +131,8 @@ describe('useCleanupOrphanedVLANs', () => {
       },
     ];
 
-    const errorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={errorMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const errorWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: errorMocks, addTypename: false }, children);
 
     const { result } = renderHook(() => useCleanupOrphanedVLANs(), {
       wrapper: errorWrapper,
@@ -176,11 +168,8 @@ describe('useCleanupOrphanedVLANs', () => {
       },
     ];
 
-    const nullWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={nullMocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+    const nullWrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(MockedProvider, { mocks: nullMocks, addTypename: false }, children);
 
     const { result } = renderHook(() => useCleanupOrphanedVLANs(), {
       wrapper: nullWrapper,

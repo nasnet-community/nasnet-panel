@@ -107,14 +107,15 @@ export function useNetworkStatus() {
  * />
  * ```
  */
-export const OfflineIndicator = memo(function OfflineIndicator({
-  position = 'top',
-  dismissible = false,
-  offlineMessage = "You're offline. Some features may be unavailable.",
-  onlineMessage = "You're back online!",
-  onlineDuration = 3000,
-  className,
-}: OfflineIndicatorProps) {
+export const OfflineIndicator = memo(
+  function OfflineIndicator({
+    position = 'top',
+    dismissible = false,
+    offlineMessage = "You're offline. Some features may be unavailable.",
+    onlineMessage = "You're back online!",
+    onlineDuration = 3000,
+    className,
+  }: OfflineIndicatorProps) {
   const { isOnline, wasOffline, setWasOffline } = useNetworkStatus();
   const [showOnlineMessage, setShowOnlineMessage] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -207,6 +208,8 @@ export const OfflineIndicator = memo(function OfflineIndicator({
   );
 });
 
+OfflineIndicator.displayName = 'OfflineIndicator';
+
 // ===== Compact Variant =====
 
 export interface OfflineIndicatorCompactProps {
@@ -221,27 +224,31 @@ export interface OfflineIndicatorCompactProps {
  *
  * Shows a small icon when offline, suitable for headers/nav bars.
  */
-export const OfflineIndicatorCompact = memo(function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactProps) {
-  const { isOnline } = useNetworkStatus();
+export const OfflineIndicatorCompact = memo(
+  function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactProps) {
+    const { isOnline } = useNetworkStatus();
 
-  if (isOnline) {
-    return null;
+    if (isOnline) {
+      return null;
+    }
+
+    return (
+      <div
+        className={cn(
+          'inline-flex items-center gap-1 px-2 py-1 rounded',
+          'bg-semantic-error/10 text-semantic-error',
+          'text-xs font-medium',
+          className
+        )}
+        role="status"
+        aria-label="You are currently offline"
+      >
+        <WifiOff className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Offline</span>
+      </div>
+    );
   }
+);
 
-  return (
-    <div
-      className={cn(
-        'inline-flex items-center gap-1 px-2 py-1 rounded',
-        'bg-semantic-error/10 text-semantic-error',
-        'text-xs font-medium',
-        className
-      )}
-      role="status"
-      aria-label="You are currently offline"
-    >
-      <WifiOff className="h-3.5 w-3.5" />
-      <span className="hidden sm:inline">Offline</span>
-    </div>
-  );
-});
+OfflineIndicatorCompact.displayName = 'OfflineIndicatorCompact';
 

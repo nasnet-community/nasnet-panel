@@ -15,6 +15,7 @@
  */
 
 import { useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useServiceAlertSubscription,
@@ -132,6 +133,7 @@ export function useServiceAlertToasts(
   props: UseServiceAlertToastsProps = {}
 ) {
   const { routerId, enabled = true, onToastShown, onNavigateToService } = props;
+  const { t } = useTranslation();
 
   const { addNotification } = useNotificationStore();
 
@@ -189,7 +191,7 @@ export function useServiceAlertToasts(
         action:
           alert.severity === 'CRITICAL' && onNavigateToService
             ? {
-                label: 'View Service',
+                label: t('services.alerts.viewService'),
                 onClick: () => {
                   // Navigate to service detail page via callback
                   // Extract instanceId from alert.data or use deviceId
@@ -208,7 +210,7 @@ export function useServiceAlertToasts(
         onToastShown(alert.id, alert.severity);
       }
     },
-    [addNotification, onNavigateToService, onToastShown]
+    [addNotification, onNavigateToService, onToastShown, t]
   );
 
   // Effect: Handle alert events

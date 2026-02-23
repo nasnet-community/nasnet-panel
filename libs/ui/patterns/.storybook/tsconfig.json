@@ -1,0 +1,48 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "composite": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false
+  },
+  "include": [
+    "../src/**/*.ts",
+    "../src/**/*.tsx",
+    "../../primitives/src/**/*.ts",
+    "../../primitives/src/**/*.tsx",
+    "../../layouts/src/**/*.ts",
+    "../../layouts/src/**/*.tsx",
+    "../../tokens/src/**/*.ts",
+    "../../tokens/src/**/*.tsx",
+    "../../../core/types/src/**/*.ts",
+    "../../../core/types/src/**/*.tsx",
+    "../../../core/utils/src/**/*.ts",
+    "../../../core/utils/src/**/*.tsx",
+    "../../../core/constants/src/**/*.ts",
+    "../../../core/constants/src/**/*.tsx",
+    "../../../core/forms/src/**/*.ts",
+    "../../../core/forms/src/**/*.tsx",
+    "../../../core/i18n/src/**/*.ts",
+    "../../../core/i18n/src/**/*.tsx",
+    "../../../api-client/core/src/**/*.ts",
+    "../../../api-client/core/src/**/*.tsx",
+    "../../../api-client/generated/**/*.ts",
+    "../../../api-client/generated/**/*.tsx",
+    "../../../api-client/queries/src/**/*.ts",
+    "../../../api-client/queries/src/**/*.tsx",
+    "../../../state/stores/src/**/*.ts",
+    "../../../state/stores/src/**/*.tsx",
+    "../../../features/*/src/**/*.ts",
+    "../../../features/*/src/**/*.tsx",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "../src/**/*.test.ts",
+    "../src/**/*.test.tsx",
+    "../src/**/*.spec.ts",
+    "../src/**/*.spec.tsx"
+  ]
+}

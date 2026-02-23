@@ -14,8 +14,9 @@
  * Per Task 6.1 / NAS-18 — NotificationSettingsPage feature implementation.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { NotificationSettingsPage } from './NotificationSettingsPage';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // Meta

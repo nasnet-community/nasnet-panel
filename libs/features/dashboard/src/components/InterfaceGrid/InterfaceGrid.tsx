@@ -1,16 +1,28 @@
 /**
  * InterfaceGrid Component
  *
- * Displays a responsive grid of interface status cards.
- * Uses Headless + Platform Presenters pattern (ADR-018).
+ * Displays a responsive grid of network interface status cards.
+ * Uses Headless + Platform Presenters pattern (ADR-018) with auto-detection wrapper.
  *
  * Features:
- * - Real-time interface status updates
- * - Responsive grid layout (4-col desktop, 3-col tablet, 2-col mobile)
+ * - Real-time interface status updates via GraphQL subscriptions
+ * - Responsive grid layout: 4-col desktop, 3-col tablet, 2-col mobile
  * - Show all / Show less toggle for >8 interfaces
- * - Loading, error, and empty states
- * - Interface detail sheet/dialog
- * - WCAG AAA accessible
+ * - Loading skeleton, error, and empty states
+ * - Interface detail sheet for viewing/managing individual interfaces
+ * - WCAG AAA accessible with keyboard navigation support
+ *
+ * @example
+ * ```tsx
+ * // Auto-detect platform (mobile/tablet/desktop)
+ * <InterfaceGrid deviceId="router-123" />
+ *
+ * // With custom className
+ * <InterfaceGrid deviceId="router-123" className="mt-4" />
+ * ```
+ *
+ * @see libs/ui/patterns/platform-presenter-guide.md for platform presenter pattern
+ * @see ADR-018 in architecture docs for Headless + Presenter design
  */
 
 import { memo } from 'react';
@@ -22,23 +34,30 @@ import type { InterfaceGridProps } from './types';
 
 /**
  * Interface grid component with platform-specific layout.
- * Auto-detects platform and renders appropriate presenter.
+ * Auto-detects platform using `usePlatform()` and renders appropriate presenter.
+ *
+ * @param props - Component props
+ * @param props.deviceId - Router device UUID
+ * @param props.className - Optional custom CSS classes (merged with platform defaults)
+ * @returns Platform-specific presenter component (Mobile/Tablet/Desktop)
  *
  * @example
- * <InterfaceGrid deviceId="router-123" />
+ * <InterfaceGrid deviceId="uuid-123" />
  */
-export const InterfaceGrid = memo(function InterfaceGrid(props: InterfaceGridProps) {
-  const platform = usePlatform();
+export const InterfaceGrid = memo(
+  function InterfaceGrid(props: InterfaceGridProps) {
+    const platform = usePlatform();
 
-  switch (platform) {
-    case 'mobile':
-      return <InterfaceGridMobile {...props} />;
-    case 'tablet':
-      return <InterfaceGridTablet {...props} />;
-    default:
-      return <InterfaceGridDesktop {...props} />;
-  }
-});
+    switch (platform) {
+      case 'mobile':
+        return <InterfaceGridMobile {...props} />;
+      case 'tablet':
+        return <InterfaceGridTablet {...props} />;
+      default:
+        return <InterfaceGridDesktop {...props} />;
+    }
+  },
+);
 
 InterfaceGrid.displayName = 'InterfaceGrid';
 

@@ -115,7 +115,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('SMTP host is required');
+        expect(result.error.issues[0].message).toContain('SMTP server hostname');
       }
     });
   });
@@ -137,7 +137,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Port must be at least 1');
+        expect(result.error.issues[0].message).toContain('Port must be between 1 and 65535');
       }
     });
 
@@ -147,7 +147,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Port must be at most 65535');
+        expect(result.error.issues[0].message).toContain('Port must be between 1 and 65535');
       }
     });
 
@@ -166,7 +166,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Username is required');
+        expect(result.error.issues[0].message).toContain('SMTP username');
       }
     });
 
@@ -176,7 +176,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Password is required');
+        expect(result.error.issues[0].message).toContain('SMTP password');
       }
     });
 
@@ -230,7 +230,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('From address is required');
+        expect(result.error.issues[0].message).toContain('sender email address');
       }
     });
   });
@@ -259,7 +259,7 @@ describe('emailConfigSchema', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain(
-          'At least one recipient is required'
+          'Add at least one recipient'
         );
       }
     });
@@ -274,7 +274,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Maximum 10 recipients allowed');
+        expect(result.error.issues[0].message).toContain('Maximum 10 recipient');
       }
     });
 
@@ -287,7 +287,7 @@ describe('emailConfigSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Invalid email address');
+        expect(result.error.issues[0].message).toContain('valid email');
       }
     });
   });

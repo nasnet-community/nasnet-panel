@@ -3,18 +3,22 @@
  * NAS-6.5: Static Route Management
  *
  * Main page for viewing and managing static routes.
+ *
+ * @description Allows administrators to view, create, edit, and delete static routes.
+ * Provides safety confirmations for destructive operations and validates route configuration.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import {
   Button,
   Dialog,
   DialogContent,
   Sheet,
   SheetContent,
+  Icon,
 } from '@nasnet/ui/primitives';
-import { usePlatform } from '@nasnet/ui/layouts';
 import { Plus } from 'lucide-react';
+import { usePlatform } from '@nasnet/ui/layouts';
 import type { Route } from '@nasnet/api-client/generated';
 import {
   useCreateRoute,
@@ -43,7 +47,7 @@ export interface RoutesPageProps {
  * - Gateway reachability checking
  * - Platform-aware UI (mobile/desktop)
  */
-export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
+export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
   const platform = usePlatform();
 
   // Form state
@@ -157,7 +161,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
   }, [routeToDelete, routerId, deleteRoute, routeListHook]);
 
   // Mock interfaces for form (TODO: fetch from API)
-  const mockInterfaces = [
+  const MOCK_INTERFACES = [
     { id: '1', name: 'ether1', type: 'ether' },
     { id: '2', name: 'ether2', type: 'ether' },
     { id: '3', name: 'bridge1', type: 'bridge' },
@@ -174,8 +178,12 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
             Manage static routes to direct traffic to specific networks
           </p>
         </div>
-        <Button onClick={handleAddRoute} className="min-h-[44px]">
-          <Plus className="mr-2 h-4 w-4" />
+        <Button
+          onClick={handleAddRoute}
+          className="min-h-[44px]"
+          aria-label="Add new static route"
+        >
+          <Icon icon={Plus} className="mr-2 h-4 w-4" />
           Add Route
         </Button>
       </div>
@@ -190,7 +198,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
             <RouteForm
               mode={formMode}
               routerId={routerId}
-              interfaces={mockInterfaces}
+              interfaces={MOCK_INTERFACES}
               availableTables={routeListHook.availableTables}
               initialValues={
                 selectedRoute
@@ -217,7 +225,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
             <RouteForm
               mode={formMode}
               routerId={routerId}
-              interfaces={mockInterfaces}
+              interfaces={MOCK_INTERFACES}
               availableTables={routeListHook.availableTables}
               initialValues={
                 selectedRoute
@@ -252,4 +260,4 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
       )}
     </div>
   );
-}
+});

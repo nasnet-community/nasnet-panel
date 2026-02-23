@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Theme State Store
  * Manages theme mode (light/dark/system) with localStorage persistence
@@ -179,7 +181,7 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
     ),
     {
       name: 'theme-store',
-      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
+      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

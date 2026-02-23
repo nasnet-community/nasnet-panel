@@ -11,8 +11,13 @@ import { DeviceType } from '@nasnet/core/types';
 /**
  * Hostname pattern matching for device type detection
  * Ordered by specificity (most specific patterns first)
+ *
+ * Each entry is a tuple of [pattern, deviceType] where the pattern
+ * is tested against device hostnames to infer device category.
+ *
+ * @internal
  */
-const HOSTNAME_PATTERNS: [RegExp, DeviceType][] = [
+const HOSTNAME_PATTERNS: Array<[RegExp, DeviceType]> = [
   // Smartphones
   [/iphone/i, DeviceType.SMARTPHONE],
   [/android|galaxy|pixel|oneplus|huawei|xiaomi|redmi|oppo|vivo/i, DeviceType.SMARTPHONE],
@@ -51,8 +56,13 @@ const HOSTNAME_PATTERNS: [RegExp, DeviceType][] = [
 /**
  * Vendor hints for device type classification
  * Used as fallback when hostname doesn't match patterns
+ *
+ * Maps vendor names to device types for devices that can't be identified
+ * by hostname alone. Used as the second priority in detection algorithm.
+ *
+ * @internal
  */
-const VENDOR_HINTS: Record<string, DeviceType> = {
+const VENDOR_HINTS = {
   // Smartphones (most common)
   'Apple': DeviceType.SMARTPHONE,
   'Samsung Electronics': DeviceType.SMARTPHONE,
@@ -119,7 +129,9 @@ export function detectDeviceType(
 ): DeviceType {
   // 1. Try hostname pattern match (most reliable)
   if (hostname) {
-    for (const [pattern, type] of HOSTNAME_PATTERNS) {
+    for (const entry of HOSTNAME_PATTERNS) {
+      const pattern = entry[0];
+      const type = entry[1];
       if (pattern.test(hostname)) {
         return type;
       }
@@ -141,9 +153,21 @@ export function detectDeviceType(
 
 /**
  * Map device types to Lucide React icon names
- * Icons must be imported from lucide-react package
+ *
+ * Provides a lookup table for icon names from lucide-react that correspond
+ * to each device type. Use these names with the Lucide icon component.
+ *
+ * @example
+ * ```ts
+ * import { DEVICE_TYPE_ICONS } from '@nasnet/core/utils/device';
+ * import { LucideIcon } from 'lucide-react';
+ *
+ * const iconName = DEVICE_TYPE_ICONS[DeviceType.SMARTPHONE]; // 'Smartphone'
+ * ```
+ *
+ * @readonly
  */
-export const DEVICE_TYPE_ICONS: Record<DeviceType, string> = {
+export const DEVICE_TYPE_ICONS = {
   [DeviceType.SMARTPHONE]: 'Smartphone',
   [DeviceType.TABLET]: 'Tablet',
   [DeviceType.LAPTOP]: 'Laptop',
@@ -158,9 +182,20 @@ export const DEVICE_TYPE_ICONS: Record<DeviceType, string> = {
 
 /**
  * Human-readable labels for device types
- * Used in UI tooltips and labels
+ *
+ * Provides localization-ready labels for each device type, suitable for
+ * display in UI tooltips, labels, and status indicators.
+ *
+ * @example
+ * ```ts
+ * import { DEVICE_TYPE_LABELS } from '@nasnet/core/utils/device';
+ *
+ * const label = DEVICE_TYPE_LABELS[DeviceType.LAPTOP]; // 'Laptop'
+ * ```
+ *
+ * @readonly
  */
-export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
+export const DEVICE_TYPE_LABELS = {
   [DeviceType.SMARTPHONE]: 'Smartphone',
   [DeviceType.TABLET]: 'Tablet',
   [DeviceType.LAPTOP]: 'Laptop',

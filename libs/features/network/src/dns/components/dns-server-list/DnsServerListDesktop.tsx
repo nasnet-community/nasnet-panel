@@ -26,14 +26,14 @@ export function DnsServerListDesktop({
   onReorder,
   onRemove,
   onAdd,
-  loading = false,
+  isLoading = false,
 }: DnsServerListProps) {
   return (
     <div className="space-y-4">
       {/* DNS Servers List with Drag-and-Drop */}
       {servers.length > 0 ? (
         <SortableListWithActions
-          items={servers.map((s: DnsServer) => ({ ...s, disabled: s.isDynamic || loading }))}
+          items={servers.map((s: DnsServer) => ({ ...s, disabled: s.isDynamic || isLoading }))}
           onReorder={({ items }: any) => onReorder(items)}
           renderItem={(server: DnsServer) => (
             <div className="flex items-center gap-3 p-3 bg-card rounded-input border border-input">
@@ -53,7 +53,7 @@ export function DnsServerListDesktop({
                   size="icon"
                   variant="ghost"
                   onClick={() => onRemove(server.id)}
-                  disabled={loading}
+                  disabled={isLoading}
                   aria-label={`Remove DNS server ${server.address}`}
                   className="flex-shrink-0"
                 >
@@ -80,7 +80,7 @@ export function DnsServerListDesktop({
         onClick={onAdd}
         variant="outline"
         className="w-full"
-        disabled={loading}
+        disabled={isLoading}
         aria-label="Add a new DNS server"
       >
         <Plus className="h-4 w-4 mr-2" />

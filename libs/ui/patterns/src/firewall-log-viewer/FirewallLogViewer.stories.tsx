@@ -20,19 +20,21 @@ const createMockLog = (
   timestamp: Date,
   srcIp: string,
   dstIp: string,
-  protocol: 'tcp' | 'udp' | 'icmp',
+  protocol: 'TCP' | 'UDP' | 'ICMP',
   prefix?: string
 ): FirewallLogEntry => ({
   id,
   timestamp,
+  topic: 'firewall',
+  severity: 'info',
   message: `${action} ${protocol} from ${srcIp} to ${dstIp}`,
   parsed: {
     action,
     chain: action === 'accept' ? 'input' : 'forward',
     srcIp,
-    srcPort: protocol !== 'icmp' ? Math.floor(Math.random() * 60000) + 1024 : undefined,
+    srcPort: protocol !== 'ICMP' ? Math.floor(Math.random() * 60000) + 1024 : undefined,
     dstIp,
-    dstPort: protocol !== 'icmp' ? Math.floor(Math.random() * 60000) + 1024 : undefined,
+    dstPort: protocol !== 'ICMP' ? Math.floor(Math.random() * 60000) + 1024 : undefined,
     protocol,
     prefix,
     interfaceIn: 'ether1',
@@ -44,7 +46,7 @@ const createMockLog = (
 const generateSampleLogs = (count: number): FirewallLogEntry[] => {
   const now = new Date();
   const actions: Array<'accept' | 'drop' | 'reject'> = ['accept', 'drop', 'reject'];
-  const protocols: Array<'tcp' | 'udp' | 'icmp'> = ['tcp', 'udp', 'icmp'];
+  const protocols: Array<'TCP' | 'UDP' | 'ICMP'> = ['TCP', 'UDP', 'ICMP'];
   const prefixes = ['BLOCKED', 'ALLOWED', 'SUSPICIOUS', undefined];
 
   return Array.from({ length: count }, (_, i) => {
@@ -173,7 +175,7 @@ export const Loading: Story = {
  * Error state when log fetch fails.
  * Shows error message with retry option.
  */
-export const Error: Story = {
+export const ErrorState: Story = {
   args: {
     routerId: 'router-1',
   },

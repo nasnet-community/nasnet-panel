@@ -84,10 +84,18 @@ function StepAnnouncer({
 /**
  * Horizontal Stepper component for tablet header navigation
  *
+ * Features:
+ * - Responsive sticky header
+ * - Progress bar with gradient fill
+ * - Step indicators with status
+ * - Navigation buttons and menu
+ * - Full keyboard navigation support
+ * - Accessibility live region for step announcements
+ *
  * @param props - HStepper props
  * @returns HStepper element
  */
-export function HStepper({
+function HStepperComponent({
   stepper,
   className,
   sticky = true,
@@ -259,5 +267,12 @@ export function HStepper({
     </>
   );
 }
+
+HStepperComponent.displayName = 'HStepper';
+
+/**
+ * Memoized HStepper to prevent unnecessary re-renders
+ */
+export const HStepper = React.memo(HStepperComponent);
 
 HStepper.displayName = 'HStepper';

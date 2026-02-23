@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-
 import {
   Select,
   SelectContent,
@@ -20,12 +19,22 @@ const meta: Meta<typeof Select> = {
   component: Select,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     docs: {
       description: {
         component:
-          'A select component built on Radix UI Select primitive. Provides a dropdown menu for selecting a single value.',
+          'A dropdown select component built on Radix UI. Provides a single-selection dropdown menu with keyboard navigation, grouping support, and accessible ARIA attributes. Works with SelectTrigger, SelectContent, SelectItem, and related sub-components. Fully keyboard navigable with Escape to close, Arrow keys to navigate, and Enter to select.',
       },
+    },
+  },
+  argTypes: {
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the select and all items',
+    },
+    defaultValue: {
+      control: 'text',
+      description: 'The selected value by default',
     },
   },
 };
@@ -185,6 +194,169 @@ export const Scrollable: Story = {
             {country}
           </SelectItem>
         ))}
+      </SelectContent>
+    </Select>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const trigger = canvas.querySelector('[role="combobox"]') as HTMLElement;
+    if (trigger) {
+      trigger.click();
+    }
+  },
+};
+
+export const Mobile: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+        <SelectItem value="banana">Banana</SelectItem>
+        <SelectItem value="blueberry">Blueberry</SelectItem>
+        <SelectItem value="grapes">Grapes</SelectItem>
+        <SelectItem value="pineapple">Pineapple</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const trigger = canvas.querySelector('[role="combobox"]') as HTMLElement;
+    if (trigger) {
+      trigger.click();
+    }
+  },
+};
+
+export const Tablet: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-[280px]">
+        <SelectValue placeholder="Select a timezone" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>North America</SelectLabel>
+          <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
+          <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
+          <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
+          <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Europe & Africa</SelectLabel>
+          <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
+          <SelectItem value="cet">Central European Time (CET)</SelectItem>
+          <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  ),
+  parameters: {
+    viewport: { defaultViewport: 'ipad' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const trigger = canvas.querySelector('[role="combobox"]') as HTMLElement;
+    if (trigger) {
+      trigger.click();
+    }
+  },
+};
+
+export const Desktop: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-[300px]">
+        <SelectValue placeholder="Select a timezone" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>North America</SelectLabel>
+          <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
+          <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
+          <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
+          <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Europe & Africa</SelectLabel>
+          <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
+          <SelectItem value="cet">Central European Time (CET)</SelectItem>
+          <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Asia</SelectLabel>
+          <SelectItem value="ist">India Standard Time (IST)</SelectItem>
+          <SelectItem value="cst_china">China Standard Time (CST)</SelectItem>
+          <SelectItem value="jst">Japan Standard Time (JST)</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  ),
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement;
+    const trigger = canvas.querySelector('[role="combobox"]') as HTMLElement;
+    if (trigger) {
+      trigger.click();
+    }
+  },
+};
+
+export const KeyboardNavigation: Story = {
+  render: () => (
+    <div className="space-y-2">
+      <p className="text-sm text-muted-foreground">
+        Try keyboard navigation:
+      </p>
+      <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
+        <li>Click to open dropdown</li>
+        <li>Arrow Up/Down to navigate items</li>
+        <li>Enter to select</li>
+        <li>Escape to close</li>
+      </ul>
+      <Select>
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder="Open and navigate" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+          <SelectItem value="blueberry">Blueberry</SelectItem>
+          <SelectItem value="grapes">Grapes</SelectItem>
+          <SelectItem value="pineapple">Pineapple</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  ),
+};
+
+export const LongContent: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-[250px]">
+        <SelectValue placeholder="Select with long text" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="opt1">
+          Very Long Option Text That Extends Beyond Normal Width
+        </SelectItem>
+        <SelectItem value="opt2">
+          Another Exceptionally Long Option Name That Should Not Wrap
+        </SelectItem>
+        <SelectItem value="opt3">Short</SelectItem>
+        <SelectItem value="opt4">
+          This is an extremely long option name that demonstrates text truncation behavior
+        </SelectItem>
       </SelectContent>
     </Select>
   ),

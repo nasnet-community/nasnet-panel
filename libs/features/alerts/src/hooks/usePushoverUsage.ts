@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useCallback } from 'react';
+import { useQuery, gql, type ApolloError } from '@apollo/client';
 
 /**
  * GraphQL query for Pushover API usage statistics
@@ -25,7 +25,7 @@ export interface PushoverUsageData {
 export interface UsePushoverUsageResult {
   usage: PushoverUsageData | undefined;
   loading: boolean;
-  error: Error | undefined;
+  error: ApolloError | undefined;
   percentUsed: number;
   isNearLimit: boolean;
   isExceeded: boolean;
@@ -34,6 +34,10 @@ export interface UsePushoverUsageResult {
 
 /**
  * Hook for fetching and monitoring Pushover API usage statistics.
+ *
+ * @description Fetches current usage data (used, remaining, limit, resetAt)
+ * with computed metrics (percentUsed, isNearLimit, isExceeded) and automatic
+ * refresh via cache-and-network policy with 5-minute polling interval.
  *
  * Provides:
  * - Current usage data (used, remaining, limit, resetAt)
@@ -78,15 +82,18 @@ export function usePushoverUsage(): UsePushoverUsageResult {
   // Flag if usage is completely exhausted
   const isExceeded = usage?.remaining === 0;
 
+  // Memoize refetch callback for stable reference
+  const stableRefetch = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return {
     usage,
     loading,
-    error: error as Error | undefined,
+    error,
     percentUsed,
     isNearLimit,
     isExceeded,
-    refetch: () => {
-      refetch();
-    },
+    refetch: stableRefetch,
   };
 }

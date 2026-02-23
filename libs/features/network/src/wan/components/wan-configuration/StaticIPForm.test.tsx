@@ -64,7 +64,7 @@ vi.mock('@nasnet/api-client/queries', () => ({
 describe('StaticIPForm', () => {
   const mockProps: StaticIPFormProps = {
     routerId: 'router-123',
-    onSuccess: vi.fn(),
+    onSubmit: vi.fn(),
     onCancel: vi.fn(),
   };
 
@@ -410,10 +410,10 @@ describe('StaticIPForm', () => {
   });
 
   describe('form submission', () => {
-    it('should call onSuccess after successful configuration', async () => {
+    it('should call onSubmit after successful configuration', async () => {
       const user = userEvent.setup();
-      const onSuccess = vi.fn();
-      render(<StaticIPForm {...mockProps} onSuccess={onSuccess} />);
+      const onSubmit = vi.fn();
+      render(<StaticIPForm {...mockProps} onSubmit={onSubmit} />);
 
       // Fill form
       const interfaceSelector = screen.getByTestId('interface-selector');
@@ -430,7 +430,7 @@ describe('StaticIPForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalled();
+        expect(onSubmit).toHaveBeenCalled();
       });
     });
 

@@ -6,13 +6,21 @@
  *
  * @module @nasnet/features/alerts/components
  * @see NAS-18.3: Email notification configuration
+ * @description Renders a desktop-optimized email channel configuration form with
+ * two-column grid layout, port presets, recipient chip management, and TLS settings.
  */
 
 import { Controller } from 'react-hook-form';
 import { X, AlertCircle, CheckCircle2, Mail, Server, Shield, Eye, EyeOff, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
+import { useState, useCallback, useMemo, memo } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
+  Button,
+  Input,
+  Label,
+  Badge,
+  Alert,
+  AlertDescription,
   Select,
   SelectContent,
   SelectItem,
@@ -29,13 +37,22 @@ import type { UseEmailChannelFormReturn } from '../hooks/useEmailChannelForm';
 export interface EmailChannelFormDesktopProps {
   /** Headless hook instance */
   emailForm: UseEmailChannelFormReturn;
+  /** Optional CSS class name for wrapper */
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopProps) {
+/**
+ * Desktop presenter for email channel configuration.
+ * Optimized for pro users with dense two-column layout.
+ */
+export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
+  emailForm,
+  className,
+}: EmailChannelFormDesktopProps) {
   const {
     form,
     recipients,
@@ -58,7 +75,7 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Handle recipient input (Enter or comma)
-  const handleRecipientKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleRecipientKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       if (recipientInput.trim()) {
@@ -68,19 +85,19 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
         }
       }
     }
-  };
+  }, [recipientInput, addRecipient]);
 
-  const handleAddRecipient = () => {
+  const handleAddRecipient = useCallback(() => {
     if (recipientInput.trim()) {
       const added = addRecipient(recipientInput);
       if (added) {
         setRecipientInput('');
       }
     }
-  };
+  }, [recipientInput, addRecipient]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className={cn('space-y-6', className)}>
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
@@ -100,7 +117,8 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-5 w-5 rounded border-gray-300"
+              className="h-5 w-5 rounded border-border"
+              aria-label="Enable email notifications"
             />
           )}
         />
@@ -352,19 +370,20 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-5 w-5 rounded border-gray-300"
+                    className="h-5 w-5 rounded border-border"
+                    aria-label="Use TLS/SSL encryption"
                   />
                 )}
               />
             </div>
 
             {/* Skip Certificate Verification */}
-            <div className="flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-warning bg-warning/10 p-4">
               <div>
-                <Label className="font-medium text-amber-600">
+                <Label className="font-medium text-warning">
                   Skip Certificate Verification
                 </Label>
-                <p className="text-sm text-amber-700">
+                <p className="text-sm text-warning/80">
                   Bypass TLS certificate validation (use with caution)
                 </p>
               </div>
@@ -376,15 +395,16 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-5 w-5 rounded border-amber-400"
+                    className="h-5 w-5 rounded border-border"
+                    aria-label="Skip certificate verification"
                   />
                 )}
               />
             </div>
 
-            <Alert variant="default" className="border-amber-300 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700">
+            <Alert variant="default" className="border-warning bg-warning/10">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertDescription className="text-warning/90">
                 Skipping certificate verification reduces security. Only use for
                 self-signed certificates in trusted environments.
               </AlertDescription>
@@ -422,4 +442,6 @@ export function EmailChannelFormDesktop({ emailForm }: EmailChannelFormDesktopPr
       </div>
     </form>
   );
-}
+});
+
+EmailChannelFormDesktop.displayName = 'EmailChannelFormDesktop';

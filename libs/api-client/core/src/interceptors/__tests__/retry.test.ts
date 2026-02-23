@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AxiosError } from 'axios';
 import { retryInterceptor } from '../retry';
 
@@ -27,7 +27,7 @@ describe('Retry Interceptor', () => {
   describe('retry logic', () => {
     it('should retry on 5xx errors', async () => {
       const error = createAxiosError(500);
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       // First call should start retry
       const promise = retryInterceptor(error);
@@ -123,7 +123,7 @@ describe('Retry Interceptor', () => {
   describe('exponential backoff', () => {
     it('should wait 2 seconds on first retry', async () => {
       const error = createAxiosError(500);
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       const promise = retryInterceptor(error);
       await vi.advanceTimersByTimeAsync(2000);
@@ -143,7 +143,7 @@ describe('Retry Interceptor', () => {
     it('should wait 4 seconds on second retry', async () => {
       const error = createAxiosError(500);
       (error.config as any).retryCount = 1;
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       const promise = retryInterceptor(error);
       await vi.advanceTimersByTimeAsync(4000);
@@ -163,7 +163,7 @@ describe('Retry Interceptor', () => {
     it('should wait 8 seconds on third retry', async () => {
       const error = createAxiosError(500);
       (error.config as any).retryCount = 2;
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       const promise = retryInterceptor(error);
       await vi.advanceTimersByTimeAsync(8000);
@@ -184,7 +184,7 @@ describe('Retry Interceptor', () => {
   describe('retry logging', () => {
     it('should log retry attempts', async () => {
       const error = createAxiosError(500);
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       const promise = retryInterceptor(error);
       await vi.runAllTimersAsync();
@@ -199,7 +199,7 @@ describe('Retry Interceptor', () => {
 
     it('should include request details in log', async () => {
       const error = createAxiosError(500);
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       const promise = retryInterceptor(error);
       await vi.runAllTimersAsync();

@@ -34,8 +34,25 @@ export const defaultNamespaces = ['common', 'validation', 'errors'] as const;
 
 // Feature namespaces - loaded on-demand when components use them
 // wizard: Setup wizard shell, navigation, steps (choose, wan, lan, extra, show)
-// network: Network input components (IP, subnet, MAC, port, interface)
-export const featureNamespaces = ['wizard', 'network'] as const;
+// network: Network interfaces, ARP, DHCP, DNS, routes, traffic, VLANs
+// dashboard: Dashboard widgets, bandwidth charts, resource gauges, logs
+// vpn: VPN servers, clients, protocols, status
+// wifi: Wireless interfaces, clients, security, settings
+// firewall: Filter rules, NAT, mangle, raw, address lists, connections
+// services: Feature marketplace, service management, templates, storage
+// diagnostics: Ping, traceroute, DNS lookup, device scan, troubleshoot wizard
+// router: Router discovery, router panel, overview, health
+export const featureNamespaces = [
+  'wizard',
+  'network',
+  'dashboard',
+  'vpn',
+  'wifi',
+  'firewall',
+  'services',
+  'diagnostics',
+  'router',
+] as const;
 
 // All available namespaces
 export const allNamespaces = [...defaultNamespaces, ...featureNamespaces] as const;
@@ -51,6 +68,16 @@ export type FeatureNamespace = (typeof featureNamespaces)[number];
 
 /**
  * Check if a language is RTL
+ *
+ * @param lang - Language code to check (e.g., 'en', 'fa')
+ * @returns true if the language is right-to-left, false otherwise
+ *
+ * @example
+ * ```ts
+ * if (isRTLLanguage('fa')) {
+ *   document.documentElement.dir = 'rtl';
+ * }
+ * ```
  */
 export function isRTLLanguage(lang: string): boolean {
   return rtlLanguages.includes(lang as SupportedLanguage);
@@ -58,6 +85,14 @@ export function isRTLLanguage(lang: string): boolean {
 
 /**
  * Get the text direction for a language
+ *
+ * @param lang - Language code (e.g., 'en', 'fa')
+ * @returns Text direction: 'ltr' (left-to-right) or 'rtl' (right-to-left)
+ *
+ * @example
+ * ```ts
+ * const direction = getLanguageDirection('fa'); // 'rtl'
+ * ```
  */
 export function getLanguageDirection(lang: string): 'ltr' | 'rtl' {
   return isRTLLanguage(lang) ? 'rtl' : 'ltr';
@@ -107,12 +142,12 @@ i18n
     },
 
     // Development settings
-    debug: import.meta.env?.DEV ?? false,
+    debug: Boolean((import.meta as unknown as { env: { DEV: boolean } }).env.DEV),
 
     // Missing key handling
-    saveMissing: import.meta.env?.DEV ?? false,
+    saveMissing: Boolean((import.meta as unknown as { env: { DEV: boolean } }).env.DEV),
     missingKeyHandler: (lngs, ns, key, _fallbackValue) => {
-      if (import.meta.env?.DEV) {
+      if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) {
         console.warn(`[i18n] Missing translation: ${ns}:${key} (lang: ${lngs.join(', ')})`);
       }
     },

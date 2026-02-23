@@ -48,7 +48,7 @@ import type { HelpSheetProps } from './help.types';
  * />
  * ```
  */
-export function HelpSheet({ content, open, onOpenChange }: HelpSheetProps) {
+export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenChange }: HelpSheetProps) {
   const hasExamples = content.examples && content.examples.length > 0;
   const hasLink = content.link && content.link.trim() !== '';
 
@@ -141,4 +141,6 @@ export function HelpSheet({ content, open, onOpenChange }: HelpSheetProps) {
       </SheetContent>
     </Sheet>
   );
-}
+});
+
+HelpSheet.displayName = 'HelpSheet';

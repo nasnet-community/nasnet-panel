@@ -1,0 +1,21 @@
+import { ResourceLifecycleBadge } from './ResourceLifecycleBadge';
+import type { Meta, StoryObj } from '@storybook/react';
+declare const meta: Meta<typeof ResourceLifecycleBadge>;
+export default meta;
+type Story = StoryObj<typeof ResourceLifecycleBadge>;
+export declare const Default: Story;
+export declare const Draft: Story;
+export declare const Validating: Story;
+export declare const Valid: Story;
+export declare const Applying: Story;
+export declare const Active: Story;
+export declare const Degraded: Story;
+export declare const Error: Story;
+export declare const Deprecated: Story;
+export declare const Archived: Story;
+export declare const Sizes: Story;
+export declare const AllStates: Story;
+export declare const NoIcon: Story;
+export declare const CustomLabel: Story;
+export declare const InContext: Story;
+//# sourceMappingURL=ResourceLifecycleBadge.stories.d.ts.map

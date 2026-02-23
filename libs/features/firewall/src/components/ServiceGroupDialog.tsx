@@ -16,7 +16,7 @@
  * @module @nasnet/features/firewall/components
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback, memo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -75,8 +75,14 @@ export interface ServiceGroupDialogProps {
 
 /**
  * ServiceGroupDialog - Dialog for creating/editing service groups
+ *
+ * Allows users to create or edit service groups by selecting multiple services
+ * and grouping them for quick selection in firewall rules.
+ *
+ * @param props - Component props
+ * @returns Dialog component for service group management
  */
-export function ServiceGroupDialog({
+export const ServiceGroupDialog = memo(function ServiceGroupDialog({
   open,
   onOpenChange,
   editGroup,
@@ -154,17 +160,17 @@ export function ServiceGroupDialog({
   }, [selectedPorts]);
 
   // Handle service selection toggle
-  const toggleService = (port: number) => {
+  const handleToggleService = useCallback((port: number) => {
     const currentPorts = form.getValues('ports');
     const newPorts = currentPorts.includes(port)
       ? currentPorts.filter((p) => p !== port)
       : [...currentPorts, port];
 
     form.setValue('ports', newPorts, { shouldValidate: true });
-  };
+  }, [form]);
 
   // Handle form submission
-  const onSubmit = async (data: ServiceGroupInput) => {
+  const handleSubmit = useCallback(async (data: ServiceGroupInput) => {
     try {
       if (editGroup) {
         await updateGroup(editGroup.id, data);
@@ -186,7 +192,7 @@ export function ServiceGroupDialog({
             : t('servicePorts.validation.groupNameExists'),
       });
     }
-  };
+  }, [editGroup, updateGroup, createGroup, onOpenChange, form, t]);
 
   // Form errors
   const nameError = form.formState.errors.name?.message;
@@ -204,13 +210,18 @@ export function ServiceGroupDialog({
           </DialogTitle>
           <DialogDescription>
             {editGroup
-              ? 'Modify the service group configuration'
-              : 'Group multiple services together for quick selection in firewall rules'}
+              ? t('servicePorts.editGroupDescription', {
+                  defaultValue: 'Modify the service group configuration',
+                })
+              : t('servicePorts.createGroupDescription', {
+                  defaultValue:
+                    'Group multiple services together for quick selection in firewall rules',
+                })}
           </DialogDescription>
         </DialogHeader>
 
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleSubmit)}
           className="flex-1 flex flex-col overflow-hidden"
         >
           <ScrollArea className="flex-1 pr-4">
@@ -279,7 +290,7 @@ export function ServiceGroupDialog({
               {/* Services Multi-Select */}
               <div className="space-y-2">
                 <Label htmlFor="services-picker">
-                  Select Services
+                  {t('servicePorts.fields.services')}
                   <span className="text-destructive ml-0.5">*</span>
                 </Label>
                 <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
@@ -302,7 +313,7 @@ export function ServiceGroupDialog({
                           ? t('servicePorts.placeholders.selectServices')
                           : `${selectedPorts.length} service${selectedPorts.length !== 1 ? 's' : ''} selected`}
                       </span>
-                      <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
                     </Button>
                   </PopoverTrigger>
 
@@ -313,13 +324,15 @@ export function ServiceGroupDialog({
                     {/* Search Header */}
                     <div className="p-3 border-b">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         <Input
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder={t('servicePorts.placeholders.searchServices')}
                           className="pl-9 h-9"
-                          aria-label="Search services"
+                          aria-label={t('servicePorts.labels.searchServices', {
+                            defaultValue: 'Search services',
+                          })}
                         />
                         {searchQuery && (
                           <Button
@@ -327,9 +340,11 @@ export function ServiceGroupDialog({
                             size="sm"
                             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
                             onClick={() => setSearchQuery('')}
-                            aria-label="Clear search"
+                            aria-label={t('servicePorts.labels.clearSearch', {
+                              defaultValue: 'Clear search',
+                            })}
                           >
-                            <X className="h-3.5 w-3.5" />
+                            <X className="h-3.5 w-3.5" aria-hidden="true" />
                           </Button>
                         )}
                       </div>
@@ -356,24 +371,27 @@ export function ServiceGroupDialog({
                                 'flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-accent',
                                 isSelected && 'bg-accent/50'
                               )}
-                              onClick={() => toggleService(service.port)}
+                              onClick={() => handleToggleService(service.port)}
                               role="option"
                               aria-selected={isSelected}
                             >
                               <Checkbox
                                 checked={isSelected}
-                                onCheckedChange={() => toggleService(service.port)}
-                                aria-label={`Select ${service.service}`}
+                                onCheckedChange={() => handleToggleService(service.port)}
+                                aria-label={t('servicePorts.labels.selectService', {
+                                  defaultValue: 'Select {{service}}',
+                                  service: service.service,
+                                })}
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="font-medium text-sm truncate">
                                     {service.service}
                                   </span>
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs font-mono">
                                     {service.port}
                                   </Badge>
-                                  {service.builtIn && (
+                                  {service.isBuiltIn && (
                                     <Badge variant="secondary" className="text-xs">
                                       Built-in
                                     </Badge>
@@ -394,10 +412,15 @@ export function ServiceGroupDialog({
                     {/* Footer */}
                     {filteredServices.length > 0 && (
                       <div className="px-3 py-2 border-t text-xs text-muted-foreground">
-                        {filteredServices.length} service
-                        {filteredServices.length !== 1 ? 's' : ''} available
+                        {t('servicePorts.labels.servicesAvailable', {
+                          defaultValue: '{{count}} service available',
+                          count: filteredServices.length,
+                        })}
                         {selectedPorts.length > 0 && (
-                          <span> · {selectedPorts.length} selected</span>
+                          <span> · {t('servicePorts.labels.servicesSelected', {
+                            defaultValue: '{{count}} selected',
+                            count: selectedPorts.length,
+                          })}</span>
                         )}
                       </div>
                     )}
@@ -424,19 +447,22 @@ export function ServiceGroupDialog({
                         variant="secondary"
                         className="gap-1.5 pl-2 pr-1"
                       >
-                        <span className="text-xs">
+                        <span className="text-xs font-mono">
                           {service.service} ({service.port})
                         </span>
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleService(service.port);
+                            handleToggleService(service.port);
                           }}
                           className="rounded-full p-0.5 hover:bg-muted"
-                          aria-label={`Remove ${service.service}`}
+                          aria-label={t('servicePorts.labels.removeService', {
+                            defaultValue: 'Remove {{service}}',
+                            service: service.service,
+                          })}
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-3 w-3" aria-hidden="true" />
                         </button>
                       </Badge>
                     ))}
@@ -447,19 +473,25 @@ export function ServiceGroupDialog({
               {/* Preview Section */}
               {selectedPorts.length > 0 && (
                 <Alert>
-                  <Info className="h-4 w-4" />
+                  <Info className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">Preview:</span>
+                      <span className="font-medium">
+                        {t('servicePorts.labels.preview', { defaultValue: 'Preview:' })}
+                      </span>
                       <Badge variant="outline">
-                        {selectedPorts.length} port{selectedPorts.length !== 1 ? 's' : ''}
+                        {selectedPorts.length} port
+                        {selectedPorts.length !== 1 ? 's' : ''}
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground break-all">
+                    <div className="text-sm text-muted-foreground break-all font-mono">
                       {previewPortList}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Protocol: {selectedProtocol.toUpperCase()}
+                      {t('servicePorts.labels.protocol', {
+                        defaultValue: 'Protocol:',
+                      })}{' '}
+                      {selectedProtocol.toUpperCase()}
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -507,6 +539,6 @@ export function ServiceGroupDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
 
-export default ServiceGroupDialog;
+ServiceGroupDialog.displayName = 'ServiceGroupDialog';

@@ -82,6 +82,13 @@ export type RateLimit = z.infer<typeof RateLimitSchema>;
  * Examples: 192.168.1.1, 10.0.0.0/8, 172.16.0.0/12
  */
 const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+
+/**
+ * Validate IPv4 address with optional CIDR notation
+ * @param value - IP address string to validate
+ * @returns true if valid, false otherwise
+ * @internal
+ */
 const isValidIPv4 = (value: string): boolean => {
   if (!ipv4Regex.test(value)) return false;
 
@@ -108,6 +115,13 @@ const isValidIPv4 = (value: string): boolean => {
  * Examples: 80, 443, 8000-9000
  */
 const portRegex = /^(\d{1,5})(-\d{1,5})?$/;
+
+/**
+ * Validate port number or port range
+ * @param value - Port string to validate (single port or range)
+ * @returns true if valid, false otherwise
+ * @internal
+ */
 const isValidPort = (value: string): boolean => {
   if (!portRegex.test(value)) return false;
 

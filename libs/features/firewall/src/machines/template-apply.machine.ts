@@ -1,19 +1,31 @@
 /**
  * Template Apply Machine
  *
- * XState machine for firewall template application with safety flow:
- * idle → previewing → confirming → applying → success/error
+ * @description XState machine for safe firewall template application with multi-step
+ * approval flow, conflict detection, impact analysis, and rollback capability.
+ * Implements the Safety Pipeline pattern with variable validation, preview, optional
+ * high-risk confirmation, apply, and 10-second undo window.
  *
- * Safety Features:
- * - Validates variables before preview
- * - Detects rule conflicts
- * - Analyzes impact before apply
- * - Requires confirmation for high-risk operations
- * - Automatic rollback on failure
- * - Manual rollback capability
+ * State flow:
+ * ```
+ * idle → configuring → previewing → reviewing → [confirming] → applying → success → [rollingBack] → [rolledBack]
+ *                                                ↓                           ↓
+ *                                            error ←────────────────────────→ error
+ * ```
+ *
+ * @example
+ * ```ts
+ * const machine = createTemplateApplyMachine({
+ *   previewTemplate: async (params) => previewAPI(params),
+ *   applyTemplate: async (params) => applyAPI(params),
+ *   executeRollback: async (params) => rollbackAPI(params),
+ * });
+ * const actor = createActor(machine).start();
+ * actor.send({ type: 'SELECT_TEMPLATE', template, routerId });
+ * ```
  *
  * @see NAS-7.6: Firewall Templates Feature
- * @see libs/state/machines/src/configPipelineMachine.ts for pattern reference
+ * @see Docs/architecture/novel-pattern-designs.md - Safety Pipeline pattern
  */
 
 import { setup, assign, fromPromise } from 'xstate';
@@ -137,38 +149,49 @@ export interface TemplateApplyConfig {
 }
 
 // ============================================
-// FACTORY FUNCTION
+// MACHINE FACTORY
 // ============================================
 
+/** Machine ID constant for debugging */
+const DEFAULT_MACHINE_ID = 'templateApply';
+
+/** High-risk operation thresholds */
+const HIGH_RISK_THRESHOLDS = {
+  MAX_LOW_RISK_RULES: 10,
+  MAX_LOW_RISK_CHAINS: 3,
+} as const;
+
+/** Rollback timer duration in milliseconds (10 seconds) */
+const ROLLBACK_TIMER_DURATION = 10000;
+
 /**
- * Create a template apply machine
+ * Create a template apply machine with configurable handlers
  *
- * @param config - Machine configuration
- * @returns XState machine for template application
+ * @param config - Machine configuration with API handlers and callbacks
+ * @returns Configured XState machine ready for actor initialization
  *
  * @example
  * ```ts
  * const machine = createTemplateApplyMachine({
+ *   id: 'firewall-template-apply',
  *   previewTemplate: async ({ routerId, template, variables }) => {
- *     const result = await previewTemplateAPI(routerId, template.id, variables);
- *     return result;
+ *     return previewTemplateAPI(routerId, template.id, variables);
  *   },
  *   applyTemplate: async ({ routerId, template, variables }) => {
- *     const result = await applyTemplateAPI(routerId, template.id, variables);
- *     return result;
+ *     return applyTemplateAPI(routerId, template.id, variables);
  *   },
  *   executeRollback: async ({ routerId, rollbackId }) => {
  *     await rollbackTemplateAPI(routerId, rollbackId);
  *   },
  *   onSuccess: () => {
- *     showSuccess('Template applied successfully');
+ *     toast.success('Template applied successfully');
  *   },
  * });
  * ```
  */
 export function createTemplateApplyMachine(config: TemplateApplyConfig) {
   const {
-    id = 'templateApply',
+    id = DEFAULT_MACHINE_ID,
     previewTemplate,
     applyTemplate,
     executeRollback,
@@ -230,8 +253,12 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
       },
 
       /**
-       * Check if operation is high risk
-       * High risk if: many rules (>10), many affected chains (>3), or conflicts exist
+       * Check if operation is high risk based on impact analysis
+       * High risk criteria:
+       * - Adding more than 10 rules
+       * - Affecting more than 3 firewall chains
+       * - Any rule conflicts detected
+       * - Any warnings from impact analysis
        */
       isHighRisk: ({ context }) => {
         if (!context.previewResult) return false;
@@ -239,8 +266,8 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
         const { impactAnalysis, conflicts } = context.previewResult;
 
         return (
-          impactAnalysis.newRulesCount > 10 ||
-          impactAnalysis.affectedChains.length > 3 ||
+          impactAnalysis.newRulesCount > HIGH_RISK_THRESHOLDS.MAX_LOW_RISK_RULES ||
+          impactAnalysis.affectedChains.length > HIGH_RISK_THRESHOLDS.MAX_LOW_RISK_CHAINS ||
           conflicts.length > 0 ||
           impactAnalysis.warnings.length > 0
         );
@@ -256,9 +283,9 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
           'output' in event &&
           typeof event.output === 'object' &&
           event.output !== null &&
-          'success' in event.output
+          'isSuccessful' in event.output
         ) {
-          return (event.output as FirewallTemplateResult).success === true;
+          return (event.output as FirewallTemplateResult).isSuccessful === true;
         }
         return false;
       },
@@ -273,9 +300,9 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
           'output' in event &&
           typeof event.output === 'object' &&
           event.output !== null &&
-          'success' in event.output
+          'isSuccessful' in event.output
         ) {
-          return (event.output as FirewallTemplateResult).success === false;
+          return (event.output as FirewallTemplateResult).isSuccessful === false;
         }
         return false;
       },
@@ -393,7 +420,7 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
       }),
 
       /**
-       * Start rollback timer (10 seconds for auto-rollback)
+       * Start rollback timer countdown (allows 10-second undo window)
        */
       startRollbackTimer: assign({
         applyStartedAt: () => Date.now(),
@@ -611,11 +638,11 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
 }
 
 // ============================================
-// HELPER TYPES
+// HELPER TYPES & UTILITIES
 // ============================================
 
 /**
- * Type helper for extracting state from template apply machine
+ * Valid states for the template apply machine
  */
 export type TemplateApplyState =
   | 'idle'
@@ -630,41 +657,68 @@ export type TemplateApplyState =
   | 'error';
 
 /**
- * Check if machine is in a final state
+ * State descriptions for UI display
+ */
+const STATE_DESCRIPTIONS: Record<TemplateApplyState, string> = {
+  idle: 'Select a template',
+  configuring: 'Configure template variables',
+  previewing: 'Generating preview...',
+  reviewing: 'Review changes',
+  confirming: 'Confirm high-risk operation',
+  applying: 'Applying template...',
+  success: 'Template applied successfully',
+  rollingBack: 'Rolling back changes...',
+  rolledBack: 'Changes rolled back',
+  error: 'Error occurred',
+} as const;
+
+/**
+ * Final states where machine should not accept new user input
+ */
+const FINAL_STATES: Set<TemplateApplyState> = new Set(['success', 'rolledBack']);
+
+/**
+ * Cancellable states where user can abandon the flow
+ */
+const CANCELLABLE_STATES: Set<TemplateApplyState> = new Set([
+  'configuring',
+  'reviewing',
+  'confirming',
+]);
+
+/**
+ * Processing states with async operations in progress
+ */
+const PROCESSING_STATES: Set<TemplateApplyState> = new Set([
+  'previewing',
+  'applying',
+  'rollingBack',
+]);
+
+/**
+ * Check if machine is in a final state (no more transitions possible)
  */
 export function isTemplateFinal(state: TemplateApplyState): boolean {
-  return state === 'success' || state === 'rolledBack';
+  return FINAL_STATES.has(state);
 }
 
 /**
- * Check if machine can be cancelled
+ * Check if machine is in a cancellable state
  */
 export function isTemplateCancellable(state: TemplateApplyState): boolean {
-  return ['configuring', 'reviewing', 'confirming'].includes(state);
+  return CANCELLABLE_STATES.has(state);
 }
 
 /**
  * Check if machine is processing (async operation in progress)
  */
 export function isTemplateProcessing(state: TemplateApplyState): boolean {
-  return ['previewing', 'applying', 'rollingBack'].includes(state);
+  return PROCESSING_STATES.has(state);
 }
 
 /**
- * Get human-readable description of machine state
+ * Get human-readable description of machine state for UI display
  */
 export function getTemplateStateDescription(state: TemplateApplyState): string {
-  const descriptions: Record<TemplateApplyState, string> = {
-    idle: 'Select a template',
-    configuring: 'Configure template variables',
-    previewing: 'Generating preview...',
-    reviewing: 'Review changes',
-    confirming: 'Confirm high-risk operation',
-    applying: 'Applying template...',
-    success: 'Template applied successfully',
-    rollingBack: 'Rolling back changes...',
-    rolledBack: 'Changes rolled back',
-    error: 'Error occurred',
-  };
-  return descriptions[state];
+  return STATE_DESCRIPTIONS[state] || 'Unknown state';
 }

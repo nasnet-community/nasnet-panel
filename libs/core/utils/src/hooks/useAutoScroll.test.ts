@@ -29,7 +29,7 @@ describe('useAutoScroll', () => {
     });
 
     // Mock scrollTo method
-    scrollContainer.scrollTo = vi.fn();
+    scrollContainer.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
   });
 
   describe('Initial State', () => {
