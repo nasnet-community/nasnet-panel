@@ -94,3 +94,7 @@ Docs/schemas
 Docs/sprint-artifacts
 Docs/test-design-system
 Docs/bmm-workflow-status.yaml
+apps/backend/data/system.db
+apps/backend/data/system.db-shm
+*.rsc
+apps/backend/data/system.db-wal

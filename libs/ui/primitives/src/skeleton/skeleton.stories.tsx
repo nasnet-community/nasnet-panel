@@ -8,7 +8,7 @@ import {
   SkeletonTable,
   SkeletonChart,
   SkeletonAvatar,
-} from './Skeleton';
+} from './skeleton';
 
 const meta: Meta<typeof Skeleton> = {
   title: 'Primitives/Skeleton',
@@ -30,7 +30,7 @@ type Story = StoryObj<typeof Skeleton>;
 
 export const Default: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 w-[300px]">
+    <div className="flex w-[300px] flex-col gap-4">
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-4 w-1/2" />
@@ -40,13 +40,13 @@ export const Default: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-8 w-[400px]">
+    <div className="flex w-[400px] flex-col gap-8">
       {/* Basic Skeleton */}
       <div>
-        <h3 className="text-sm font-medium mb-2">Basic Skeleton</h3>
-        <div className="flex gap-4 items-center">
+        <h3 className="mb-2 text-sm font-medium">Basic Skeleton</h3>
+        <div className="flex items-center gap-4">
           <Skeleton className="h-12 w-12 rounded-full" />
-          <div className="space-y-2 flex-1">
+          <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </div>
@@ -55,14 +55,14 @@ export const AllVariants: Story = {
 
       {/* SkeletonText */}
       <div>
-        <h3 className="text-sm font-medium mb-2">SkeletonText</h3>
+        <h3 className="mb-2 text-sm font-medium">SkeletonText</h3>
         <SkeletonText lines={4} lastLineWidth="50%" />
       </div>
 
       {/* SkeletonAvatar */}
       <div>
-        <h3 className="text-sm font-medium mb-2">SkeletonAvatar (sizes)</h3>
-        <div className="flex gap-4 items-center">
+        <h3 className="mb-2 text-sm font-medium">SkeletonAvatar (sizes)</h3>
+        <div className="flex items-center gap-4">
           <SkeletonAvatar size="sm" />
           <SkeletonAvatar size="md" />
           <SkeletonAvatar size="lg" />
@@ -72,8 +72,8 @@ export const AllVariants: Story = {
 
       {/* SkeletonAvatar shapes */}
       <div>
-        <h3 className="text-sm font-medium mb-2">SkeletonAvatar (shapes)</h3>
-        <div className="flex gap-4 items-center">
+        <h3 className="mb-2 text-sm font-medium">SkeletonAvatar (shapes)</h3>
+        <div className="flex items-center gap-4">
           <SkeletonAvatar size="lg" shape="circle" />
           <SkeletonAvatar size="lg" shape="square" />
         </div>
@@ -84,17 +84,17 @@ export const AllVariants: Story = {
 
 export const TextVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 w-[400px]">
+    <div className="flex w-[400px] flex-col gap-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Default (3 lines)</h3>
+        <h3 className="mb-2 text-sm font-medium">Default (3 lines)</h3>
         <SkeletonText />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">5 lines, 40% last line</h3>
+        <h3 className="mb-2 text-sm font-medium">5 lines, 40% last line</h3>
         <SkeletonText lines={5} lastLineWidth="40%" />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Custom line height</h3>
+        <h3 className="mb-2 text-sm font-medium">Custom line height</h3>
         <SkeletonText lines={3} lineHeight={24} gap={12} />
       </div>
     </div>
@@ -103,17 +103,17 @@ export const TextVariants: Story = {
 
 export const CardVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 w-[400px]">
+    <div className="flex w-[400px] flex-col gap-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Card with title only</h3>
+        <h3 className="mb-2 text-sm font-medium">Card with title only</h3>
         <SkeletonCard showTitle />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Full card</h3>
+        <h3 className="mb-2 text-sm font-medium">Full card</h3>
         <SkeletonCard showTitle showDescription showFooter />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Custom content height</h3>
+        <h3 className="mb-2 text-sm font-medium">Custom content height</h3>
         <SkeletonCard showTitle contentHeight={200} />
       </div>
     </div>
@@ -123,7 +123,7 @@ export const CardVariants: Story = {
 export const TableVariant: Story = {
   render: () => (
     <div className="w-[500px]">
-      <h3 className="text-sm font-medium mb-2">Table skeleton</h3>
+      <h3 className="mb-2 text-sm font-medium">Table skeleton</h3>
       <SkeletonTable rows={5} columns={4} showHeader />
     </div>
   ),
@@ -131,13 +131,15 @@ export const TableVariant: Story = {
 
 export const ChartVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 w-[400px]">
+    <div className="flex w-[400px] flex-col gap-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Basic chart</h3>
+        <h3 className="mb-2 text-sm font-medium">Basic chart</h3>
         <SkeletonChart height={200} />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Chart with title and legend</h3>
+        <h3 className="mb-2 text-sm font-medium">
+          Chart with title and legend
+        </h3>
         <SkeletonChart showTitle showLegend height={250} />
       </div>
     </div>
@@ -146,8 +148,8 @@ export const ChartVariants: Story = {
 
 export const NoAnimation: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 w-[300px]">
-      <h3 className="text-sm font-medium mb-2">Static (no animation)</h3>
+    <div className="flex w-[300px] flex-col gap-4">
+      <h3 className="mb-2 text-sm font-medium">Static (no animation)</h3>
       <Skeleton className="h-4 w-full" animate={false} />
       <Skeleton className="h-4 w-3/4" animate={false} />
       <SkeletonText lines={3} animate={false} />
@@ -177,13 +179,13 @@ export const RouterDashboardExample: Story = {
 
       {/* Traffic chart */}
       <div>
-        <Skeleton className="h-5 w-32 mb-2" />
+        <Skeleton className="mb-2 h-5 w-32" />
         <SkeletonChart height={200} showLegend />
       </div>
 
       {/* Devices table */}
       <div>
-        <Skeleton className="h-5 w-40 mb-2" />
+        <Skeleton className="mb-2 h-5 w-40" />
         <SkeletonTable rows={5} columns={4} />
       </div>
     </div>

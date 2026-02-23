@@ -135,19 +135,38 @@ export type {
 } from './connection-indicator';
 
 // ConnectionQualityBadge - Latency and quality indicator (NAS-4.9)
-export { ConnectionQualityBadge, useConnectionQuality } from './connection-quality-badge';
-export type { ConnectionQualityBadgeProps, QualityLevel } from './connection-quality-badge';
+export {
+  ConnectionQualityBadge,
+  useConnectionQuality,
+} from './connection-quality-badge';
+export type {
+  ConnectionQualityBadgeProps,
+  QualityLevel,
+} from './connection-quality-badge';
 
 // ReconnectingOverlay - Full-screen reconnection overlay (NAS-4.9)
-export { ReconnectingOverlay, useReconnectingState } from './reconnecting-overlay';
+export {
+  ReconnectingOverlay,
+  useReconnectingState,
+} from './reconnecting-overlay';
 export type { ReconnectingOverlayProps } from './reconnecting-overlay';
 
 // OfflineIndicator - Network offline banner (NAS-4.9)
-export { OfflineIndicator, OfflineIndicatorCompact, useNetworkStatus } from './offline-indicator';
-export type { OfflineIndicatorProps, OfflineIndicatorCompactProps } from './offline-indicator';
+export {
+  OfflineIndicator,
+  OfflineIndicatorCompact,
+  useNetworkStatus,
+} from './offline-indicator';
+export type {
+  OfflineIndicatorProps,
+  OfflineIndicatorCompactProps,
+} from './offline-indicator';
 
 // SessionExpiringDialog - Session expiry warning modal (NAS-4.9)
-export { SessionExpiringDialog, useSessionExpiring } from './session-expiring-dialog';
+export {
+  SessionExpiringDialog,
+  useSessionExpiring,
+} from './session-expiring-dialog';
 export type { SessionExpiringDialogProps } from './session-expiring-dialog';
 
 // AuthProvider - Authentication context provider (NAS-4.9)
@@ -198,7 +217,11 @@ export type { LogDetailPanelProps } from './log-detail-panel';
 
 // LogGroup - Log correlation/grouping (Epic 0.8)
 export { LogGroup, LogGroupList } from './log-group';
-export type { LogGroupData, LogGroupProps, LogGroupListProps } from './log-group';
+export type {
+  LogGroupData,
+  LogGroupProps,
+  LogGroupListProps,
+} from './log-group';
 
 // LeaseTable - DHCP lease table with sorting and filtering (Epic 0.5)
 export { LeaseTable } from './lease-table';
@@ -210,7 +233,11 @@ export type { BackButtonProps } from './back-button';
 
 // StatusCard - Hero dashboard component showing overall network health
 export { StatusCard } from './status-card';
-export type { StatusCardProps, StatusMetric, NetworkStatus } from './status-card';
+export type {
+  StatusCardProps,
+  StatusMetric,
+  NetworkStatus,
+} from './status-card';
 
 // QuickActionButton - Grid buttons for common actions
 export { QuickActionButton } from './quick-action-button';
@@ -218,7 +245,11 @@ export type { QuickActionButtonProps } from './quick-action-button';
 
 // VPNCardEnhanced - Quick VPN toggle with status display
 export { VPNCardEnhanced } from './vpn-card-enhanced';
-export type { VPNCardEnhancedProps, VPNProfile, VPNStatus } from './vpn-card-enhanced';
+export type {
+  VPNCardEnhancedProps,
+  VPNProfile,
+  VPNStatus,
+} from './vpn-card-enhanced';
 
 // SafetyFeedback - Displays feedback for safety pipeline operations
 export * from './safety-feedback';
@@ -228,23 +259,26 @@ export * from './empty-state';
 
 // PluginCard - Advanced plugin display with status, stats, and logs
 export { PluginCard } from './plugin-card';
-export type { 
-  PluginCardProps, 
-  Plugin, 
-  PluginStatus, 
-  PluginStats, 
-  PluginLog 
+export type {
+  PluginCardProps,
+  Plugin,
+  PluginStatus,
+  PluginStats,
+  PluginLog,
 } from './plugin-card';
 
 // VPN Dashboard Components
-export { 
-  ProtocolIcon, 
+export {
+  ProtocolIcon,
   ProtocolIconBadge,
   getProtocolLabel,
   getProtocolColorClass,
   getProtocolBgClass,
 } from './protocol-icon';
-export type { ProtocolIconProps, ProtocolIconBadgeProps } from './protocol-icon';
+export type {
+  ProtocolIconProps,
+  ProtocolIconBadgeProps,
+} from './protocol-icon';
 
 export { VPNProtocolStatsCard } from './vpn-protocol-stats-card';
 export type { VPNProtocolStatsCardProps } from './vpn-protocol-stats-card';
@@ -278,18 +312,28 @@ export type { TrafficChartProps, TrafficDataPoint } from './traffic-chart';
 
 // VPNClientsSummary - VPN client summary with expandable list
 export { VPNClientsSummary } from './vpn-clients-summary';
-export type { VPNClientsSummaryProps, ConnectedVPNClient } from './vpn-clients-summary';
+export type {
+  VPNClientsSummaryProps,
+  ConnectedVPNClient,
+} from './vpn-clients-summary';
 
 // StatusPills - Horizontal scrollable status indicators
 export { StatusPills } from './status-pills';
-export type { StatusPillsProps, StatusPill, StatusPillVariant } from './status-pills';
+export type {
+  StatusPillsProps,
+  StatusPill,
+  StatusPillVariant,
+} from './status-pills';
 
 // ============================================================================
 // Universal State v2 Resource Components
 // ============================================================================
 
 // ResourceLifecycleBadge - Lifecycle state badge with icons
-export { ResourceLifecycleBadge, lifecycleBadgeVariants } from './resource-lifecycle-badge';
+export {
+  ResourceLifecycleBadge,
+  lifecycleBadgeVariants,
+} from './resource-lifecycle-badge';
 export type { ResourceLifecycleBadgeProps } from './resource-lifecycle-badge';
 
 // ResourceHealthIndicator - Runtime health status indicator
@@ -312,7 +356,10 @@ export {
   ResourceLoaded,
   ResourceState,
 } from './resource-provider';
-export type { ResourceContextValue, ResourceProviderProps } from './resource-provider';
+export type {
+  ResourceContextValue,
+  ResourceProviderProps,
+} from './resource-provider';
 
 // ============================================================================
 // Performance Optimization Utilities
@@ -460,10 +507,7 @@ export * from './skip-links';
 export * from './live-region';
 
 // Focus Management - Focus restoration for modals/dialogs
-export {
-  useFocusRestore,
-  useFocusManagement,
-} from './hooks/use-focus-restore';
+export { useFocusRestore, useFocusManagement } from './hooks/use-focus-restore';
 export type {
   UseFocusRestoreReturn,
   UseFocusRestoreOptions,
@@ -686,7 +730,7 @@ export {
   RouterStatus,
   RouterStatusDesktop,
   RouterStatusMobile,
-  StatusIndicator,
+  StatusIndicator as RouterStatusIndicator,
   STATUS_TEXT_COLORS,
   STATUS_BG_COLORS,
   useRouterStatus,
@@ -703,8 +747,8 @@ export type {
   UseRouterStatusReturn,
   UseRouterStatusConfig,
   RouterStatusPresenterProps,
-  StatusIndicatorProps,
-  StatusIndicatorSize,
+  StatusIndicatorProps as RouterStatusIndicatorProps,
+  StatusIndicatorSize as RouterStatusIndicatorSize,
   RouterStatusEvent,
   SubscriptionRouter,
   UseRouterStatusSubscriptionReturn,

@@ -53,6 +53,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g npm@latest
 
+# if you are in iran use proxies
+#ENV HTTP_PROXY=socks5://127.0.0.1:1080
+#ENV HTTPS_PROXY=socks5://127.0.0.1:1080
+#ENV NO_PROXY=localhost,127.0.0.1
+
 # Install Go 1.24
 ARG GO_VERSION=1.24.3
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | tar -C /usr/local -xzf - \
@@ -85,6 +90,10 @@ RUN mkdir -p /home/vscode/.npm-global \
     && chown -R vscode:vscode /home/vscode \
     && chown -R vscode:vscode /go
 
+# Ensure workspace directories exist and are writable
+RUN mkdir -p /workspaces/nasnet-panel/node_modules \
+    && chown -R vscode:vscode /workspaces
+    
 # Configure npm global for vscode user
 USER vscode
 ENV NPM_CONFIG_PREFIX=/home/vscode/.npm-global

@@ -39,30 +39,38 @@
 <td width="50%">
 
 ### 📊 Real-time Dashboard
+
 Live system metrics, CPU/memory usage, traffic monitoring, and interface status at a glance.
 
 ### 🌐 Network Management
+
 Complete interface configuration, ARP tables, IP addressing, routing, and DHCP management.
 
 ### 🔐 VPN Control Center
+
 Full management of IPsec, L2TP, PPTP, WireGuard, OpenVPN, and SSTP tunnels with client monitoring.
 
 ### 📡 Wireless Management
+
 WiFi interface control, security profiles, connected clients, and signal monitoring.
 
 </td>
 <td width="50%">
 
 ### 🛡️ Firewall Configuration
+
 Filter rules, NAT configuration, mangle rules, and connection tracking with visual rule editor.
 
 ### 🔍 Router Discovery
+
 Network scanning to auto-detect MikroTik devices across subnets with service identification.
 
 ### ⚡ Batch Operations
+
 Execute bulk commands with progress tracking, dry-run mode, and automatic rollback on failure.
 
 ### 🔌 Multi-Protocol Support
+
 Connect via REST API, RouterOS API (8728/8729), SSH, or Telnet with automatic fallback.
 
 </td>
@@ -99,6 +107,7 @@ The DevContainer automatically:
 - Starts in under 60 seconds with pre-built image
 
 Once inside the container:
+set VITE_PROXY_URL=http://localhost:8080
 
 ```bash
 npm run dev:all    # Start frontend (5173) + backend (8080)
@@ -176,15 +185,15 @@ This is an **Nx monorepo** with strict library boundaries enforced via ESLint.
 
 ### Library Dependency Rules (per ADR-003)
 
-| Layer | Can Import From |
-|-------|-----------------|
-| `apps/` | features, ui, core, api-client, state, shared |
-| `features/` | ui, core, api-client, state, shared (NOT other features) |
-| `ui/` | core, shared |
-| `api-client/` | core, shared |
-| `state/` | core, api-client, shared |
-| `core/` | shared only |
-| `shared/` | nothing (base layer) |
+| Layer         | Can Import From                                          |
+| ------------- | -------------------------------------------------------- |
+| `apps/`       | features, ui, core, api-client, state, shared            |
+| `features/`   | ui, core, api-client, state, shared (NOT other features) |
+| `ui/`         | core, shared                                             |
+| `api-client/` | core, shared                                             |
+| `state/`      | core, api-client, shared                                 |
+| `core/`       | shared only                                              |
+| `shared/`     | nothing (base layer)                                     |
 
 <details>
 <summary><b>Click to expand full directory structure</b></summary>
@@ -235,13 +244,13 @@ nasnet/
 
 ### Import Aliases
 
-| Alias | Maps To |
-|-------|---------|
-| `@nasnet/core/*` | `libs/core/*/src` |
-| `@nasnet/ui/*` | `libs/ui/*/src` |
-| `@nasnet/features/*` | `libs/features/*/src` |
+| Alias                  | Maps To                 |
+| ---------------------- | ----------------------- |
+| `@nasnet/core/*`       | `libs/core/*/src`       |
+| `@nasnet/ui/*`         | `libs/ui/*/src`         |
+| `@nasnet/features/*`   | `libs/features/*/src`   |
 | `@nasnet/api-client/*` | `libs/api-client/*/src` |
-| `@nasnet/state/*` | `libs/state/*/src` |
+| `@nasnet/state/*`      | `libs/state/*/src`      |
 
 ### Code Generators
 
@@ -285,7 +294,7 @@ docker compose up -d
 ### Docker Compose
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   nasnet:
     image: stargazer5361/nnc:latest
@@ -319,7 +328,8 @@ Deploy NasNetConnect directly on your MikroTik router using RouterOS containers.
 ```routeros
 /system/device-mode/update container=yes
 ```
-*Confirm on device (reset button or cold reboot on x86)*
+
+_Confirm on device (reset button or cold reboot on x86)_
 
 ### Step 2: Setup Container Networking
 
@@ -377,15 +387,15 @@ Access NasNetConnect at `http://192.168.50.2` (or your configured veth address).
 
 ROSProxy provides a REST API for all router management operations.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Server health, memory, uptime |
-| `/api/router/proxy` | POST | Proxy requests to RouterOS |
-| `/api/scan` | POST | Start subnet scan |
-| `/api/scan/auto` | POST | Auto-scan gateway addresses |
-| `/api/scan/status` | GET | Get scan progress/results |
-| `/api/batch/jobs` | POST | Create batch command job |
-| `/api/batch/jobs/{id}` | GET | Get job status |
+| Endpoint               | Method | Description                   |
+| ---------------------- | ------ | ----------------------------- |
+| `/health`              | GET    | Server health, memory, uptime |
+| `/api/router/proxy`    | POST   | Proxy requests to RouterOS    |
+| `/api/scan`            | POST   | Start subnet scan             |
+| `/api/scan/auto`       | POST   | Auto-scan gateway addresses   |
+| `/api/scan/status`     | GET    | Get scan progress/results     |
+| `/api/batch/jobs`      | POST   | Create batch command job      |
+| `/api/batch/jobs/{id}` | GET    | Get job status                |
 
 <details>
 <summary><b>Example: Proxy Request to Router</b></summary>
@@ -435,16 +445,16 @@ curl -X POST http://localhost:8080/api/batch/jobs \
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start frontend dev server (Vite) |
-| `npm run dev:with-backend` | Start frontend + backend |
-| `npm run build` | Build production bundle |
-| `npm run ci` | Run all CI checks (lint, test, build, typecheck) |
-| `npm run lint` | Lint all projects |
-| `npm run typecheck` | TypeScript type checking |
-| `npm run docker:local` | Build Docker image locally |
-| `npm run docker:export` | Export Docker image as tarball |
+| Script                     | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| `npm run dev`              | Start frontend dev server (Vite)                 |
+| `npm run dev:with-backend` | Start frontend + backend                         |
+| `npm run build`            | Build production bundle                          |
+| `npm run ci`               | Run all CI checks (lint, test, build, typecheck) |
+| `npm run lint`             | Lint all projects                                |
+| `npm run typecheck`        | TypeScript type checking                         |
+| `npm run docker:local`     | Build Docker image locally                       |
+| `npm run docker:export`    | Export Docker image as tarball                   |
 
 ### Environment Configuration
 
@@ -476,25 +486,30 @@ npx nx e2e connect-e2e
 <div align="center">
 
 ### Frontend
+
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
 ### Backend
+
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
 
 ### State Management
+
 [![React Query](https://img.shields.io/badge/React_Query-5.x-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com/query)
 [![Zustand](https://img.shields.io/badge/Zustand-4.x-000000?style=for-the-badge)](https://zustand-demo.pmnd.rs/)
 [![XState](https://img.shields.io/badge/XState-5.x-2C3E50?style=for-the-badge)](https://xstate.js.org/)
 
 ### Infrastructure
+
 [![Nx](https://img.shields.io/badge/Nx-22.x-143055?style=for-the-badge&logo=nx&logoColor=white)](https://nx.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Arch-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
 ### Testing
+
 [![Vitest](https://img.shields.io/badge/Vitest-1.x-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 
