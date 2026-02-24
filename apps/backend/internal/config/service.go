@@ -13,7 +13,7 @@ import (
 	"backend/internal/network"
 	"backend/internal/storage"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // Service orchestrates the validate → generate → write → publish flow
@@ -25,7 +25,7 @@ type Service struct {
 	portRegistry  *network.PortRegistry
 	vlanAllocator *network.VLANAllocator
 	publisher     *events.Publisher
-	logger        zerolog.Logger
+	logger        *zap.Logger
 }
 
 // Config holds dependencies for Service (constructor injection).
@@ -36,7 +36,7 @@ type Config struct {
 	PathResolver  storage.PathResolverPort
 	PortRegistry  *network.PortRegistry
 	VLANAllocator *network.VLANAllocator
-	Logger        zerolog.Logger
+	Logger        *zap.Logger
 }
 
 // NewService creates a new Service with dependency injection.
@@ -144,10 +144,9 @@ func (s *Service) ApplyConfig(ctx context.Context, instanceID string, config map
 		return fmt.Errorf("failed to fetch instance: %w", err)
 	}
 
-	s.logger.Info().
-		Str("instance_id", instanceID).
-		Str("service_type", instance.FeatureID).
-		Msg("Applying configuration")
+	s.logger.Info("Applying configuration",
+		zap.String("instance_id", instanceID),
+		zap.String("service_type", instance.FeatureID))
 
 	// 2. Get generator from registry
 	generator, err := s.registry.Get(instance.FeatureID)
@@ -173,26 +172,23 @@ func (s *Service) ApplyConfig(ctx context.Context, instanceID string, config map
 		SetConfig(config).
 		Save(ctx)
 	if err != nil {
-		s.logger.Error().
-			Err(err).
-			Str("instance_id", instanceID).
-			Msg("Failed to persist config to database (file written successfully)")
+		s.logger.Error("Failed to persist config to database (file written successfully)",
+			zap.Error(err),
+			zap.String("instance_id", instanceID))
 		return fmt.Errorf("failed to persist config to database: %w", err)
 	}
 
 	// 6. Publish ConfigApplied event (non-fatal)
 	if publishErr := s.publisher.PublishConfigApplied(ctx, instanceID, instance.RouterID, 1, []string{configFileName}); publishErr != nil {
-		s.logger.Warn().
-			Err(publishErr).
-			Str("instance_id", instanceID).
-			Msg("Failed to publish ConfigApplied event")
+		s.logger.Warn("Failed to publish ConfigApplied event",
+			zap.Error(publishErr),
+			zap.String("instance_id", instanceID))
 	}
 
-	s.logger.Info().
-		Str("instance_id", instanceID).
-		Str("service_type", instance.FeatureID).
-		Str("config_path", finalConfigPath).
-		Msg("Configuration applied successfully")
+	s.logger.Info("Configuration applied successfully",
+		zap.String("instance_id", instanceID),
+		zap.String("service_type", instance.FeatureID),
+		zap.String("config_path", finalConfigPath))
 
 	return nil
 }
@@ -204,10 +200,9 @@ func (s *Service) validateAndGenerate(ctx context.Context, instance *ent.Service
 		return nil, fmt.Errorf("failed to get bind IP: %w", err)
 	}
 
-	s.logger.Debug().
-		Str("instance_id", instanceID).
-		Str("bind_ip", bindIP).
-		Msg("Resolved bind IP")
+	s.logger.Debug("Resolved bind IP",
+		zap.String("instance_id", instanceID),
+		zap.String("bind_ip", bindIP))
 
 	if validateErr := generator.Validate(config, bindIP); validateErr != nil {
 		return nil, fmt.Errorf("validation failed: %w", validateErr)
@@ -239,9 +234,9 @@ func (s *Service) writeConfigFile(instance *ent.ServiceInstance, configFileName 
 	backupPath := finalConfigPath + ".backup"
 	if _, statErr := os.Stat(finalConfigPath); statErr == nil {
 		if backupErr := os.Rename(finalConfigPath, backupPath); backupErr != nil {
-			s.logger.Warn().Err(backupErr).Str("config_path", finalConfigPath).Msg("Failed to backup existing config")
+			s.logger.Warn("Failed to backup existing config", zap.Error(backupErr), zap.String("config_path", finalConfigPath))
 		} else {
-			s.logger.Debug().Str("backup_path", backupPath).Msg("Created config backup")
+			s.logger.Debug("Created config backup", zap.String("backup_path", backupPath))
 		}
 	}
 
@@ -257,7 +252,7 @@ func (s *Service) writeConfigFile(instance *ent.ServiceInstance, configFileName 
 		return "", fmt.Errorf("atomic rename failed: %w", err)
 	}
 
-	s.logger.Info().Str("config_path", finalConfigPath).Int("size_bytes", len(content)).Msg("Config file written successfully")
+	s.logger.Info("Config file written successfully", zap.String("config_path", finalConfigPath), zap.Int("size_bytes", len(content)))
 	return finalConfigPath, nil
 }
 
@@ -265,7 +260,7 @@ func (s *Service) writeConfigFile(instance *ent.ServiceInstance, configFileName 
 func (s *Service) restoreBackup(backupPath, configPath string) {
 	if _, statErr := os.Stat(backupPath); statErr == nil {
 		if restoreErr := os.Rename(backupPath, configPath); restoreErr != nil {
-			s.logger.Error().Err(restoreErr).Msg("Failed to restore config from backup")
+			s.logger.Error("Failed to restore config from backup", zap.Error(restoreErr))
 		}
 	}
 }
@@ -274,18 +269,21 @@ func (s *Service) restoreBackup(backupPath, configPath string) {
 func (s *Service) getBindIP(_ context.Context, instance *ent.ServiceInstance) (string, error) {
 	// If instance already has a bind_ip set, use it
 	if instance.BindIP != "" {
+		if err := ValidateBindIP(instance.BindIP); err != nil {
+			return "", fmt.Errorf("instance %s has invalid bind IP %s: %w", instance.ID, instance.BindIP, err)
+		}
 		return instance.BindIP, nil
 	}
 
 	// If VLAN allocator is not configured, return error
 	if s.vlanAllocator == nil {
-		return "", fmt.Errorf("no bind IP configured and VLAN allocator not available")
+		return "", fmt.Errorf("bind IP not configured for instance %s and VLAN allocator not available", instance.ID)
 	}
 
 	// TODO: Get bind IP from VLAN allocation
 	// This requires querying the VLAN allocation for this instance
 	// For now, we require bind_ip to be set on the instance
-	return "", fmt.Errorf("bind IP not configured for instance %s", instance.ID)
+	return "", fmt.Errorf("bind IP must be configured for instance %s (VLAN allocation not yet implemented)", instance.ID)
 }
 
 // GetConfigFilePath returns the full path to the config file for a service instance.

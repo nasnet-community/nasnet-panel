@@ -20,7 +20,19 @@ func (s *SyntaxStage) Name() string { return "syntax" }
 func (s *SyntaxStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
-	if input.Operation == "delete" {
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     2,
+			StageName: "syntax",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
+	if input.Operation == operationDelete {
 		return result
 	}
 

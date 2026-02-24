@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"backend/internal/router"
 )
@@ -484,6 +485,123 @@ func TestParseAddressListEntry(t *testing.T) {
 				t.Errorf("expected Address %s, got %s", tt.expected.Address, result.Address)
 			}
 		})
+	}
+}
+
+// Test BulkCreateAddressListEntries with rollback on failure
+func TestBulkCreateAddressListEntriesWithRollback(t *testing.T) {
+	service := NewAddressListService()
+
+	entries := []BulkAddressInput{
+		{Address: "192.168.1.1", Comment: stringPtr("Valid 1")},
+		{Address: "invalid", Comment: stringPtr("Will fail")}, // This will fail
+		{Address: "192.168.1.3", Comment: stringPtr("Valid 3")},
+	}
+
+	callCount := 0
+	mockPort := &MockRouterPort{
+		executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
+			callCount++
+
+			// Simulate failure for "invalid" address
+			if args, ok := cmd.Args["address"]; ok && args == "invalid" {
+				return nil, fmt.Errorf("invalid address format")
+			}
+
+			// Return success for valid addresses
+			return &router.CommandResult{
+				ID:        fmt.Sprintf("*%d", callCount),
+				RawOutput: fmt.Sprintf(".id=*%d list=test address=%s dynamic=false disabled=false", callCount, cmd.Args["address"]),
+			}, nil
+		},
+	}
+
+	result, err := service.BulkCreateAddressListEntries(context.Background(), mockPort, "test", entries)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify continue-on-error behavior
+	if result.SuccessCount != 2 {
+		t.Errorf("expected 2 successes, got %d", result.SuccessCount)
+	}
+
+	if result.FailedCount != 1 {
+		t.Errorf("expected 1 failure, got %d", result.FailedCount)
+	}
+
+	// Verify operation continued after failure
+	if result.SuccessCount+result.FailedCount != 3 {
+		t.Errorf("expected 3 total attempts, got %d", result.SuccessCount+result.FailedCount)
+	}
+}
+
+// Test RollbackStore operations
+func TestRollbackStore(t *testing.T) {
+	store := NewRollbackStore()
+	defer store.Close()
+
+	state := &RollbackState{
+		ID:       "rollback-1",
+		RouterID: "router-1",
+		ExpiresAt: time.Now().Add(5 * time.Minute),
+	}
+
+	// Test Save
+	err := store.Save("rollback-1", state)
+	if err != nil {
+		t.Fatalf("failed to save rollback state: %v", err)
+	}
+
+	// Test Get
+	retrieved, err := store.Get("rollback-1")
+	if err != nil {
+		t.Fatalf("failed to get rollback state: %v", err)
+	}
+
+	if retrieved.ID != state.ID {
+		t.Errorf("expected ID %s, got %s", state.ID, retrieved.ID)
+	}
+
+	// Test Get non-existent
+	_, err = store.Get("rollback-999")
+	if err == nil {
+		t.Errorf("expected error for non-existent rollback state")
+	}
+
+	// Test Delete
+	store.Delete("rollback-1")
+	_, err = store.Get("rollback-1")
+	if err == nil {
+		t.Errorf("expected error after delete")
+	}
+}
+
+// Test RollbackStore expiration
+func TestRollbackStoreExpiration(t *testing.T) {
+	store := NewRollbackStore()
+	defer store.Close()
+
+	// Create an expired state
+	expiredState := &RollbackState{
+		ID:        "expired-1",
+		RouterID:  "router-1",
+		ExpiresAt: time.Now().Add(-1 * time.Second), // Already expired
+	}
+
+	err := store.Save("expired-1", expiredState)
+	if err != nil {
+		t.Fatalf("failed to save expired state: %v", err)
+	}
+
+	// Try to retrieve expired state
+	_, err = store.Get("expired-1")
+	if err == nil {
+		t.Errorf("expected error for expired rollback state")
+	}
+
+	if err.Error() != "rollback state expired" {
+		t.Errorf("expected expiration error, got: %v", err)
 	}
 }
 

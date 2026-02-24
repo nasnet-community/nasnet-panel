@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/internal/features"
 	"backend/internal/orchestrator/types"
 
@@ -24,10 +26,10 @@ func (hc *HealthChecker) publishHealthEvent(state *InstanceHealthState, previous
 	)
 
 	if err := hc.eventPublisher.PublishFeatureHealthChanged(hc.ctx, event); err != nil {
-		hc.logger.Error().
-			Err(err).
-			Str("instance_id", state.InstanceID).
-			Msg("Failed to publish health event")
+		hc.logger.Error("Failed to publish health event",
+			zap.Error(err),
+			zap.String("instance_id", state.InstanceID),
+		)
 	}
 }
 
@@ -41,14 +43,14 @@ func (hc *HealthChecker) requestRestart(state *InstanceHealthState) {
 		InstanceID: state.InstanceID,
 		Reason:     reason,
 	}:
-		hc.logger.Info().
-			Str("instance_id", state.InstanceID).
-			Str("reason", reason).
-			Msg("Requested instance restart due to health check failure")
+		hc.logger.Info("Requested instance restart due to health check failure",
+			zap.String("instance_id", state.InstanceID),
+			zap.String("reason", reason),
+		)
 	default:
-		hc.logger.Warn().
-			Str("instance_id", state.InstanceID).
-			Msg("Failed to send restart request - channel full")
+		hc.logger.Warn("Failed to send restart request - channel full",
+			zap.String("instance_id", state.InstanceID),
+		)
 	}
 }
 
@@ -95,13 +97,13 @@ func (hc *HealthChecker) AddInstance(
 	hc.instances[instanceID] = state
 	hc.mu.Unlock()
 
-	hc.logger.Info().
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Dur("check_interval", checkInterval).
-		Int("failure_threshold", failureThreshold).
-		Bool("auto_restart", autoRestart).
-		Msg("Added instance to health monitoring")
+	hc.logger.Info("Added instance to health monitoring",
+		zap.String("instance_id", instanceID),
+		zap.String("feature_id", featureID),
+		zap.Duration("check_interval", checkInterval),
+		zap.Int("failure_threshold", failureThreshold),
+		zap.Bool("auto_restart", autoRestart),
+	)
 }
 
 // RemoveInstance removes a service instance from health monitoring
@@ -110,9 +112,9 @@ func (hc *HealthChecker) RemoveInstance(instanceID string) {
 	delete(hc.instances, instanceID)
 	hc.mu.Unlock()
 
-	hc.logger.Info().
-		Str("instance_id", instanceID).
-		Msg("Removed instance from health monitoring")
+	hc.logger.Info("Removed instance from health monitoring",
+		zap.String("instance_id", instanceID),
+	)
 }
 
 // GetInstanceHealth returns the current health state of an instance
@@ -171,11 +173,11 @@ func (hc *HealthChecker) UpdateConfig(instanceID string, checkInterval time.Dura
 	state.FailureThreshold = failureThreshold
 	state.mu.Unlock()
 
-	hc.logger.Info().
-		Str("instance_id", instanceID).
-		Dur("check_interval", checkInterval).
-		Int("failure_threshold", failureThreshold).
-		Msg("Updated health check configuration")
+	hc.logger.Info("Updated health check configuration",
+		zap.String("instance_id", instanceID),
+		zap.Duration("check_interval", checkInterval),
+		zap.Int("failure_threshold", failureThreshold),
+	)
 
 	return nil
 }

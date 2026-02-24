@@ -2,9 +2,35 @@
 
 package storage
 
+import (
+	"path/filepath"
+
+	"go.uber.org/zap"
+)
+
 // probeMountPoint is a mock implementation for non-Linux development environments.
 // Returns fake mount data for testing on Windows/macOS.
+// It still validates paths to ensure test code follows correct patterns.
 func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
+	// Validate path is absolute (consistent with Linux implementation)
+	if !filepath.IsAbs(path) {
+		return nil, &StorageError{
+			Code:    ErrCodeInvalidPath,
+			Message: "mount point path must be absolute",
+			Path:    path,
+		}
+	}
+
+	// Validate path doesn't contain suspicious patterns like ../
+	cleanPath := filepath.Clean(path)
+	if cleanPath != path {
+		return nil, &StorageError{
+			Code:    ErrCodeInvalidPath,
+			Message: "mount point path contains suspicious patterns",
+			Path:    path,
+		}
+	}
+
 	// Mock data for development
 	// Simulate different mount points with varying states
 
@@ -59,14 +85,14 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 		}
 	}
 
-	d.logger.Debug().
-		Str("path", path).
-		Bool("is_mounted", mp.IsMounted).
-		Uint64("total_mb", mp.TotalMB).
-		Uint64("free_mb", mp.FreeMB).
-		Float64("used_pct", mp.UsedPct).
-		Str("fs_type", mp.FSType).
-		Msg("probed mount point (mock)")
+	d.logger.Debug("probed mount point (mock)",
+		zap.String("path", path),
+		zap.Bool("is_mounted", mp.IsMounted),
+		zap.Uint64("total_mb", mp.TotalMB),
+		zap.Uint64("free_mb", mp.FreeMB),
+		zap.Float64("used_pct", mp.UsedPct),
+		zap.String("fs_type", mp.FSType),
+	)
 
 	return mp, nil
 }

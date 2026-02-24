@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 
-	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -23,7 +22,6 @@ func initMonitoringAndTraffic(
 	eventBus events.EventBus,
 	routerPort *router.MockAdapter,
 	sugar *zap.SugaredLogger,
-	logger zerolog.Logger,
 	vifComponents *bootstrap.VIFComponents,
 ) (*bootstrap.MonitoringComponents, *bootstrap.TrafficComponents, *bootstrap.SchedulingComponents, error) {
 	// Initialize Monitoring Services (telemetry, stats poller)
@@ -31,6 +29,7 @@ func initMonitoringAndTraffic(
 		systemDB,
 		eventBus,
 		routerPort,
+		sugar,
 	)
 	if err != nil {
 		return nil, nil, nil, err
@@ -42,7 +41,7 @@ func initMonitoringAndTraffic(
 		systemDB,
 		eventBus,
 		routerPort,
-		sugar,
+		sugar.Desugar(),
 	)
 	if err != nil {
 		return nil, nil, nil, err
@@ -53,7 +52,7 @@ func initMonitoringAndTraffic(
 		systemDB,
 		eventBus,
 		vifComponents.KillSwitchManager,
-		logger,
+		sugar,
 	)
 	if err != nil {
 		return nil, nil, nil, err

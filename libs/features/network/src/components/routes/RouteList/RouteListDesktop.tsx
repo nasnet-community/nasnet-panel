@@ -127,7 +127,7 @@ function RouteListDesktopComponent({
         key: 'destination',
         header: 'Destination',
         cell: (route) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <code className="text-sm font-mono">{route.destination}</code>
             {route.destination === '0.0.0.0/0' && (
               <Badge variant="default" className="text-xs">
@@ -172,7 +172,7 @@ function RouteListDesktopComponent({
         key: 'status',
         header: 'Status',
         cell: (route) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <StatusDot className={route.active ? 'bg-success' : 'bg-muted'} />
             <span className="text-sm">
               {route.disabled ? 'Disabled' : route.active ? 'Active' : 'Inactive'}
@@ -246,7 +246,7 @@ function RouteListDesktopComponent({
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="mb-4 flex flex-wrap gap-4">
+        <div className="mb-component-md flex flex-wrap gap-component-md">
           <Input
             placeholder="Search destination, gateway, or comment..."
             value={filters.searchText || ''}
@@ -314,7 +314,7 @@ function RouteListDesktopComponent({
 
         {/* Error message */}
         {error && (
-          <div role="alert" className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <div role="alert" className="mb-component-md flex items-center gap-component-sm rounded-lg border border-error/50 bg-error/10 p-component-sm text-sm text-error">
             <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <p>{error}</p>
           </div>
@@ -330,7 +330,7 @@ function RouteListDesktopComponent({
         />
 
         {/* Footer info */}
-        <div className="mt-4 text-sm text-muted-foreground">
+        <div className="mt-component-md text-sm text-muted-foreground">
           Showing {filteredRoutes.length} of {routes.length} route
           {routes.length !== 1 ? 's' : ''}
         </div>

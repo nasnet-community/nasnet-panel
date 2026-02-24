@@ -7,16 +7,17 @@ import (
 	"backend/generated/ent"
 
 	"backend/internal/events"
+
+	"go.uber.org/zap"
 )
 
 // activateRouting activates a device routing assignment
 func (se *ScheduleEvaluator) activateRouting(ctx context.Context, routing *ent.DeviceRouting, schedule *ent.RoutingSchedule) {
-	se.logger.Info().
-		Str("routing_id", routing.ID).
-		Str("schedule_id", schedule.ID).
-		Str("device_mac", routing.MACAddress).
-		Str("instance_id", routing.InstanceID).
-		Msg("Activating device routing")
+	se.logger.Info("Activating device routing",
+		zap.String("routing_id", routing.ID),
+		zap.String("schedule_id", schedule.ID),
+		zap.String("device_mac", routing.MACAddress),
+		zap.String("instance_id", routing.InstanceID))
 
 	// Update DeviceRouting.active = true
 	_, err := se.config.EntClient.DeviceRouting.
@@ -25,10 +26,9 @@ func (se *ScheduleEvaluator) activateRouting(ctx context.Context, routing *ent.D
 		Save(ctx)
 
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("routing_id", routing.ID).
-			Msg("Failed to activate device routing")
+		se.logger.Error("Failed to activate device routing",
+			zap.Error(err),
+			zap.String("routing_id", routing.ID))
 		return
 	}
 
@@ -40,58 +40,51 @@ func (se *ScheduleEvaluator) activateRouting(ctx context.Context, routing *ent.D
 		Save(ctx)
 
 	if err != nil {
-		se.logger.Warn().
-			Err(err).
-			Str("schedule_id", schedule.ID).
-			Msg("Failed to update schedule last_activated timestamp")
+		se.logger.Warn("Failed to update schedule last_activated timestamp",
+			zap.Error(err),
+			zap.String("schedule_id", schedule.ID))
 		// Non-fatal, continue
 	}
 
 	// Resume routing via KillSwitchCoordinator
 	affectedDevices, err := se.config.KillSwitchCoord.ResumeRouting(ctx, routing.InstanceID)
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("instance_id", routing.InstanceID).
-			Msg("Failed to resume routing via kill switch")
+		se.logger.Error("Failed to resume routing via kill switch",
+			zap.Error(err),
+			zap.String("instance_id", routing.InstanceID))
 		// Non-fatal, routing is still marked active
 	} else {
-		se.logger.Debug().
-			Str("instance_id", routing.InstanceID).
-			Int("affected_devices", affectedDevices).
-			Msg("Resumed routing via kill switch")
+		se.logger.Debug("Resumed routing via kill switch",
+			zap.String("instance_id", routing.InstanceID),
+			zap.Int("affected_devices", affectedDevices))
 	}
 
 	// Emit RoutingActivatedEvent
 	se.emitRoutingActivatedEvent(routing, schedule)
 
-	se.logger.Info().
-		Str("routing_id", routing.ID).
-		Msg("Successfully activated device routing")
+	se.logger.Info("Successfully activated device routing",
+		zap.String("routing_id", routing.ID))
 }
 
 // deactivateRouting deactivates a device routing assignment
 func (se *ScheduleEvaluator) deactivateRouting(ctx context.Context, routing *ent.DeviceRouting, schedules []*ent.RoutingSchedule) {
-	se.logger.Info().
-		Str("routing_id", routing.ID).
-		Str("device_mac", routing.MACAddress).
-		Str("instance_id", routing.InstanceID).
-		Msg("Deactivating device routing")
+	se.logger.Info("Deactivating device routing",
+		zap.String("routing_id", routing.ID),
+		zap.String("device_mac", routing.MACAddress),
+		zap.String("instance_id", routing.InstanceID))
 
 	// Suspend routing via KillSwitchCoordinator BEFORE updating database
 	// This prevents traffic leaks during the transition
 	affectedDevices, err := se.config.KillSwitchCoord.SuspendRouting(ctx, routing.InstanceID)
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("instance_id", routing.InstanceID).
-			Msg("Failed to suspend routing via kill switch")
+		se.logger.Error("Failed to suspend routing via kill switch",
+			zap.Error(err),
+			zap.String("instance_id", routing.InstanceID))
 		// Continue anyway to mark routing inactive
 	} else {
-		se.logger.Debug().
-			Str("instance_id", routing.InstanceID).
-			Int("affected_devices", affectedDevices).
-			Msg("Suspended routing via kill switch")
+		se.logger.Debug("Suspended routing via kill switch",
+			zap.String("instance_id", routing.InstanceID),
+			zap.Int("affected_devices", affectedDevices))
 	}
 
 	// Update DeviceRouting.active = false
@@ -101,10 +94,9 @@ func (se *ScheduleEvaluator) deactivateRouting(ctx context.Context, routing *ent
 		Save(ctx)
 
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("routing_id", routing.ID).
-			Msg("Failed to deactivate device routing")
+		se.logger.Error("Failed to deactivate device routing",
+			zap.Error(err),
+			zap.String("routing_id", routing.ID))
 		return
 	}
 
@@ -117,10 +109,9 @@ func (se *ScheduleEvaluator) deactivateRouting(ctx context.Context, routing *ent
 			Save(ctx)
 
 		if err != nil {
-			se.logger.Warn().
-				Err(err).
-				Str("schedule_id", schedule.ID).
-				Msg("Failed to update schedule last_deactivated timestamp")
+			se.logger.Warn("Failed to update schedule last_deactivated timestamp",
+				zap.Error(err),
+				zap.String("schedule_id", schedule.ID))
 			// Non-fatal, continue
 		}
 	}
@@ -128,9 +119,8 @@ func (se *ScheduleEvaluator) deactivateRouting(ctx context.Context, routing *ent
 	// Emit RoutingDeactivatedEvent
 	se.emitRoutingDeactivatedEvent(routing, schedules)
 
-	se.logger.Info().
-		Str("routing_id", routing.ID).
-		Msg("Successfully deactivated device routing")
+	se.logger.Info("Successfully deactivated device routing",
+		zap.String("routing_id", routing.ID))
 }
 
 // emitRoutingActivatedEvent emits an event when routing is activated
@@ -144,16 +134,14 @@ func (se *ScheduleEvaluator) emitRoutingActivatedEvent(routing *ent.DeviceRoutin
 	)
 
 	if err := se.publisher.Publish(se.ctx, event); err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("routing_id", routing.ID).
-			Str("schedule_id", schedule.ID).
-			Msg("Failed to publish ScheduleActivatedEvent")
+		se.logger.Error("Failed to publish ScheduleActivatedEvent",
+			zap.Error(err),
+			zap.String("routing_id", routing.ID),
+			zap.String("schedule_id", schedule.ID))
 	} else {
-		se.logger.Debug().
-			Str("routing_id", routing.ID).
-			Str("schedule_id", schedule.ID).
-			Msg("Emitted ScheduleActivatedEvent")
+		se.logger.Debug("Emitted ScheduleActivatedEvent",
+			zap.String("routing_id", routing.ID),
+			zap.String("schedule_id", schedule.ID))
 	}
 }
 
@@ -174,16 +162,14 @@ func (se *ScheduleEvaluator) emitRoutingDeactivatedEvent(routing *ent.DeviceRout
 	)
 
 	if err := se.publisher.Publish(se.ctx, event); err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("routing_id", routing.ID).
-			Int("schedule_count", len(schedules)).
-			Msg("Failed to publish ScheduleDeactivatedEvent")
+		se.logger.Error("Failed to publish ScheduleDeactivatedEvent",
+			zap.Error(err),
+			zap.String("routing_id", routing.ID),
+			zap.Int("schedule_count", len(schedules)))
 	} else {
-		se.logger.Debug().
-			Str("routing_id", routing.ID).
-			Int("schedule_count", len(schedules)).
-			Msg("Emitted ScheduleDeactivatedEvent")
+		se.logger.Debug("Emitted ScheduleDeactivatedEvent",
+			zap.String("routing_id", routing.ID),
+			zap.Int("schedule_count", len(schedules)))
 	}
 }
 

@@ -405,3 +405,106 @@ func TestVersionAwareTranslatorWithCustomService(t *testing.T) {
 	vat.version = &RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
 	assert.True(t, vat.IsFeatureSupported("rest_api", false))
 }
+
+// TestVersionAwareTranslator_V6_vs_V7_PathDifferences validates that v6 and v7 routers
+// use different API path formats (space-separated vs slash-separated).
+func TestVersionAwareTranslator_V6_vs_V7_PathDifferences(t *testing.T) {
+	vat := NewVersionAwareTranslator(Config{})
+
+	tests := []struct {
+		name         string
+		version      *RouterOSVersion
+		resource     string
+		expectedPath string
+		description  string
+	}{
+		{
+			name:         "v6 ip address path (space-separated)",
+			version:      &RouterOSVersion{Major: 6, Minor: 49, Patch: 10},
+			resource:     "ip.address",
+			expectedPath: "/ip address",
+			description:  "RouterOS 6.x uses space-separated paths",
+		},
+		{
+			name:         "v7 ip address path (slash-separated)",
+			version:      &RouterOSVersion{Major: 7, Minor: 13, Patch: 2},
+			resource:     "ip.address",
+			expectedPath: "/ip/address",
+			description:  "RouterOS 7.x uses slash-separated paths",
+		},
+		{
+			name:         "v6 firewall filter path (space-separated)",
+			version:      &RouterOSVersion{Major: 6, Minor: 49, Patch: 10},
+			resource:     "ip.firewall.filter",
+			expectedPath: "/ip firewall filter",
+			description:  "RouterOS 6.x firewall paths are space-separated",
+		},
+		{
+			name:         "v7 firewall filter path (slash-separated)",
+			version:      &RouterOSVersion{Major: 7, Minor: 13, Patch: 2},
+			resource:     "ip.firewall.filter",
+			expectedPath: "/ip/firewall/filter",
+			description:  "RouterOS 7.x firewall paths are slash-separated",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vat.version = tt.version
+			result := vat.TranslatePath(tt.resource)
+			assert.Equal(t, tt.expectedPath, result, tt.description)
+		})
+	}
+}
+
+// TestVersionAwareTranslator_GracefulDegradation validates that the translator
+// gracefully handles missing version or compatibility service.
+func TestVersionAwareTranslator_GracefulDegradation(t *testing.T) {
+	tests := []struct {
+		name      string
+		version   *RouterOSVersion
+		compatSvc compatibility.Service
+		operation string
+		expected  bool // for feature support
+	}{
+		{
+			name:      "missing version assumes supported",
+			version:   nil,
+			compatSvc: compatibility.NewService(),
+			operation: "feature_check",
+			expected:  true,
+		},
+		{
+			name:      "missing compatibility service assumes supported",
+			version:   &RouterOSVersion{Major: 7, Minor: 13, Patch: 2},
+			compatSvc: nil,
+			operation: "feature_check",
+			expected:  true,
+		},
+		{
+			name:      "both missing assumes supported",
+			version:   nil,
+			compatSvc: nil,
+			operation: "feature_check",
+			expected:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var vat *VersionAwareTranslator
+			if tt.compatSvc == nil {
+				vat = &VersionAwareTranslator{
+					Translator: NewTranslator(Config{}),
+					compatSvc:  nil,
+				}
+			} else {
+				vat = NewVersionAwareTranslatorWithService(Config{}, tt.compatSvc)
+			}
+			vat.version = tt.version
+
+			result := vat.IsFeatureSupported("rest_api", false)
+			assert.Equal(t, tt.expected, result, "should gracefully handle missing dependencies")
+		})
+	}
+}

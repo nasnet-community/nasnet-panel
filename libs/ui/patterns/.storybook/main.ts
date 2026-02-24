@@ -45,6 +45,7 @@ const config: StorybookConfig = {
           '@nasnet/ui/patterns': join(__dirname, '../src'),
           // Dependencies
           '@nasnet/ui/primitives': join(__dirname, '../../primitives/src'),
+          '@nasnet/ui/utils': join(__dirname, '../../primitives/src/lib/utils'),
           '@nasnet/ui/layouts': join(__dirname, '../../layouts/src'),
           '@nasnet/core/types': join(__dirname, '../../../core/types/src'),
           '@nasnet/core/utils': join(__dirname, '../../../core/utils/src'),
@@ -65,7 +66,7 @@ const config: StorybookConfig = {
           '@nasnet/features/configuration-import': join(__dirname, '../../../features/configuration-import/src'),
           '@nasnet/features/router-discovery': join(__dirname, '../../../features/router-discovery/src'),
           '@nasnet/features/logs': join(__dirname, '../../../features/logs/src'),
-          '@/': join(__dirname, '../../../../apps/connect/src/'),
+          '@': join(__dirname, '../../../../apps/connect/src'),
         },
       },
     };

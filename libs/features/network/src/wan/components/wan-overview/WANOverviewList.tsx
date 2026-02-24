@@ -92,8 +92,8 @@ const WANOverviewListComponent = ({
    */
   if (error && wans.length === 0) {
     return (
-      <div className="rounded-lg border border-error/20 bg-error/5 p-6">
-        <div className="flex items-start gap-3">
+      <div className="rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 p-component-lg">
+        <div className="flex items-start gap-component-md">
           <Globe className="h-5 w-5 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1">
             <h3 className="font-semibold text-error">Failed to load WAN interfaces</h3>
@@ -103,7 +103,7 @@ const WANOverviewListComponent = ({
                 variant="outline"
                 size="sm"
                 onClick={onRefresh}
-                className="mt-3"
+                className="mt-component-md"
               >
                 <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
                 Retry
@@ -141,10 +141,10 @@ const WANOverviewListComponent = ({
    * WAN list with responsive grid
    */
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Header with refresh button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-md">
           <h2 className="text-lg font-semibold">
             WAN Interfaces ({wans.length})
           </h2>
@@ -153,7 +153,7 @@ const WANOverviewListComponent = ({
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-component-md">
           {onRefresh && (
             <Button
               variant="ghost"
@@ -161,13 +161,14 @@ const WANOverviewListComponent = ({
               onClick={onRefresh}
               disabled={loading}
               aria-label="Refresh WAN interfaces"
+              className="min-h-[44px]"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               <span className="ml-2 hidden sm:inline">Refresh</span>
             </Button>
           )}
           {onAddWAN && (
-            <Button size="sm" onClick={onAddWAN} aria-label="Add new WAN connection">
+            <Button size="sm" onClick={onAddWAN} aria-label="Add new WAN connection" className="min-h-[44px]">
               <Plus className="h-4 w-4" aria-hidden="true" />
               <span className="ml-2 hidden sm:inline">Add WAN</span>
             </Button>
@@ -177,8 +178,8 @@ const WANOverviewListComponent = ({
 
       {/* Error banner (if error but have cached data) */}
       {error && wans.length > 0 && (
-        <div className="rounded-lg border border-warning/20 bg-warning/5 p-4">
-          <div className="flex items-start gap-3">
+        <div className="rounded-[var(--semantic-radius-card)] border border-warning/20 bg-warning/5 p-component-md">
+          <div className="flex items-start gap-component-md">
             <RefreshCw className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1 text-sm">
               <p className="font-medium text-warning">
@@ -195,7 +196,7 @@ const WANOverviewListComponent = ({
       {/* Responsive grid */}
       <div
         className={cn(
-          isMobile ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+          isMobile ? 'space-y-component-md' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md'
         )}
       >
         {sortedWANs.map((wan) =>
@@ -218,8 +219,8 @@ const WANOverviewListComponent = ({
       </div>
 
       {/* Statistics footer */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between text-xs text-muted-foreground pt-component-lg border-t border-border">
+        <div className="flex items-center gap-component-lg">
           <span>
             Connected:{' '}
             <strong className="text-success">

@@ -119,12 +119,12 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="border-b bg-background px-4 py-3">
-        <h1 className="text-lg font-semibold">DHCP Leases</h1>
+      <div className="border-b border-border bg-card px-page-mobile py-component-sm">
+        <h1 className="font-display text-lg font-semibold">DHCP Leases</h1>
       </div>
 
       {/* Search Bar */}
-      <div className="border-b px-4 py-3">
+      <div className="border-b border-border px-page-mobile py-component-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
@@ -132,24 +132,24 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
             placeholder="Search IP, MAC, or hostname..."
             value={leaseSearch}
             onChange={handleSearchChange}
-            className="pl-9"
+            className="pl-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Search DHCP leases"
           />
         </div>
       </div>
 
       {/* Filter Chips - Horizontal Scroll */}
-      <div className="border-b px-4 py-3">
-        <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="border-b border-border px-page-mobile py-component-sm">
+        <div className="flex gap-component-sm overflow-x-auto pb-1">
           {/* Status Filter */}
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 gap-component-sm">
             {(['all', 'bound', 'waiting', 'static'] as const).map((status) => (
               <Button
                 key={status}
                 variant={leaseStatusFilter === status ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => handleStatusFilterChange(status)}
-                className="min-w-[80px]"
+                className="min-w-[80px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
               </Button>
@@ -160,12 +160,12 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
           {servers.length > 1 && (
             <>
               <div className="w-px shrink-0 bg-border" />
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 gap-component-sm">
                 <Button
                   variant={leaseServerFilter === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => handleServerFilterChange('all')}
-                  className="min-w-[80px]"
+                  className="min-w-[80px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   All Servers
                 </Button>
@@ -175,7 +175,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
                     variant={leaseServerFilter === server ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => handleServerFilterChange(server)}
-                    className="min-w-[80px]"
+                    className="min-w-[80px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {server}
                   </Button>
@@ -188,8 +188,8 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
 
       {/* Error State */}
       {isError && (
-        <div className="mx-4 mt-4 rounded-md border border-destructive bg-destructive/10 p-4" role="alert">
-          <p className="text-sm font-medium text-destructive">
+        <div className="mx-page-mobile mt-component-md rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md" role="alert">
+          <p className="text-sm font-medium text-error">
             Failed to load DHCP leases
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -200,7 +200,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
 
       {/* Lease Cards - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <div className="space-y-2 p-4">
+        <div className="space-y-component-sm p-page-mobile">
           {/* Loading Skeleton */}
           {isLoading && (
             <>
@@ -223,7 +223,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
 
           {/* Empty State */}
           {!isLoading && !isError && leases.length === 0 && (
-            <div className="flex min-h-[200px] items-center justify-center rounded-md border border-dashed p-8">
+            <div className="flex min-h-[200px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed border-border p-component-lg">
               <div className="text-center">
                 <p className="text-sm font-medium">No DHCP leases found</p>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -241,7 +241,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
           <Button
             onClick={exportToCSV}
             size="lg"
-            className="h-14 w-14 rounded-full shadow-lg"
+            className="h-14 w-14 min-h-[44px] rounded-full shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Export leases to CSV"
           >
             <Download className="h-5 w-5" aria-hidden="true" />

@@ -1,17 +1,13 @@
 package bootstrap
 
 import (
-	"log"
-
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
-
+	"backend/internal/events"
 	"backend/internal/orchestrator/dependencies"
 	"backend/internal/orchestrator/lifecycle"
 	"backend/internal/templates"
-
-	"backend/internal/events"
 )
 
 // TemplateComponents holds all initialized template system components.
@@ -35,10 +31,10 @@ func InitializeTemplateSystem(
 	eventBus events.EventBus,
 	instanceManager *lifecycle.InstanceManager,
 	dependencyManager *dependencies.DependencyManager,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 ) (*TemplateComponents, error) {
 
-	log.Printf("Initializing service template system...")
+	logger.Info("Initializing service template system")
 
 	// 1. Template Service - loads built-in templates and manages custom templates
 	serviceTemplateService, err := templates.NewTemplateService(templates.TemplateServiceConfig{
@@ -50,13 +46,13 @@ func InitializeTemplateSystem(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Service template service initialized")
+	logger.Info("Service template service initialized")
 
 	// 2. Template Validator - validates template structure and dependencies
 	templateValidator := templates.NewTemplateValidator(templates.TemplateValidatorConfig{
 		Logger: logger,
 	})
-	log.Printf("Template validator initialized")
+	logger.Info("Template validator initialized")
 
 	// 3. Template Installer - orchestrates template installation with dependency ordering
 	templateInstaller, err := templates.NewTemplateInstaller(templates.TemplateInstallerConfig{
@@ -69,7 +65,7 @@ func InitializeTemplateSystem(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Template installer initialized")
+	logger.Info("Template installer initialized")
 
 	// 4. Template Exporter - exports running instances as reusable templates
 	templateExporter, err := templates.NewTemplateExporter(templates.TemplateExporterConfig{
@@ -79,7 +75,7 @@ func InitializeTemplateSystem(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Template exporter initialized")
+	logger.Info("Template exporter initialized")
 
 	// 5. Template Importer - imports and validates custom templates
 	templateImporter, err := templates.NewTemplateImporter(templates.TemplateImporterConfig{
@@ -90,8 +86,8 @@ func InitializeTemplateSystem(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Template importer initialized")
-	log.Printf("Service template system initialized successfully")
+	logger.Info("Template importer initialized")
+	logger.Info("Service template system initialized successfully")
 
 	return &TemplateComponents{
 		TemplateService:   serviceTemplateService,

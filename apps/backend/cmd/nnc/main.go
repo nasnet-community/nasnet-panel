@@ -5,7 +5,6 @@ package main
 
 import (
 	"flag"
-	"log"
 )
 
 func main() {
@@ -17,6 +16,5 @@ func main() {
 		return
 	}
 
-	log.Printf("Starting NasNetConnect server (version: %s)", ServerVersion)
 	run()
 }

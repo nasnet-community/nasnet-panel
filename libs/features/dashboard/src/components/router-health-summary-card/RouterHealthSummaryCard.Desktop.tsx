@@ -270,8 +270,8 @@ RouterHealthSummaryCardDesktopSkeleton.displayName = 'RouterHealthSummaryCardDes
  * @description Returns semantic color class based on CPU usage threshold
  */
 function getCpuTextClass(usage: number): string {
-  if (usage >= 90) return 'text-semantic-error';
-  if (usage >= 70) return 'text-semantic-warning';
+  if (usage >= 90) return 'text-error';
+  if (usage >= 70) return 'text-warning';
   return 'text-foreground';
 }
 
@@ -280,9 +280,9 @@ function getCpuTextClass(usage: number): string {
  * @description Returns semantic color class based on CPU usage threshold
  */
 function getCpuBgClass(usage: number): string {
-  if (usage >= 90) return 'bg-semantic-error';
-  if (usage >= 70) return 'bg-semantic-warning';
-  return 'bg-semantic-success';
+  if (usage >= 90) return 'bg-error';
+  if (usage >= 70) return 'bg-warning';
+  return 'bg-success';
 }
 
 /**
@@ -290,8 +290,8 @@ function getCpuBgClass(usage: number): string {
  * @description Returns semantic color class based on memory usage threshold
  */
 function getMemoryTextClass(usage: number): string {
-  if (usage >= 95) return 'text-semantic-error';
-  if (usage >= 80) return 'text-semantic-warning';
+  if (usage >= 95) return 'text-error';
+  if (usage >= 80) return 'text-warning';
   return 'text-foreground';
 }
 
@@ -300,9 +300,9 @@ function getMemoryTextClass(usage: number): string {
  * @description Returns semantic color class based on memory usage threshold
  */
 function getMemoryBgClass(usage: number): string {
-  if (usage >= 95) return 'bg-semantic-error';
-  if (usage >= 80) return 'bg-semantic-warning';
-  return 'bg-semantic-success';
+  if (usage >= 95) return 'bg-error';
+  if (usage >= 80) return 'bg-warning';
+  return 'bg-success';
 }
 
 /**
@@ -310,8 +310,8 @@ function getMemoryBgClass(usage: number): string {
  * @description Returns semantic color class based on temperature threshold
  */
 function getTempTextClass(temp: number): string {
-  if (temp >= 75) return 'text-semantic-error';
-  if (temp >= 60) return 'text-semantic-warning';
+  if (temp >= 75) return 'text-error';
+  if (temp >= 60) return 'text-warning';
   return 'text-foreground';
 }
 

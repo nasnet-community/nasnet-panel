@@ -127,15 +127,15 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg">
         {/* Enabled toggle */}
         <FormField
           control={form.control}
           name="enabled"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <FormItem className="flex flex-row items-center justify-between rounded-card-sm border border-border p-component-md">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Enable Interface</FormLabel>
+                <FormLabel className="text-base font-display">Enable Interface</FormLabel>
                 <FormDescription>
                   Enable or disable this network interface
                 </FormDescription>
@@ -205,7 +205,7 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
         />
 
         {/* Form actions */}
-        <div className="flex gap-3 justify-end pt-4">
+        <div className="flex gap-component-sm justify-end pt-4">
           {onCancel && (
             <Button
               type="button"

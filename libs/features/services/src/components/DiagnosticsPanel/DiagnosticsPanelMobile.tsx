@@ -84,30 +84,30 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 
     return (
       <AccordionItem key={result.id} value={`test-${index}`}>
-        <AccordionTrigger className="min-h-[44px] hover:no-underline">
-          <div className="flex items-center gap-3 flex-1 text-left">
+        <AccordionTrigger className="min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <div className="flex items-center gap-component-md flex-1 text-left">
             <Icon icon={statusIcon as LucideIcon} className={cn('h-5 w-5 shrink-0', getStatusColor(result.status))} aria-hidden="true" />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{result.testName}</div>
               <p className="text-sm text-muted-foreground truncate">{result.message}</p>
             </div>
-            <span className="text-xs text-muted-foreground shrink-0">
+            <span className="text-xs text-muted-foreground shrink-0 font-mono">
               {formatDuration(result.durationMs)}
             </span>
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <div className="space-y-3 p-3 bg-muted/50 rounded-md">
+          <div className="space-y-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-button)]">
             {result.details && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Details:</strong>
-                <p className="mt-1 whitespace-pre-wrap">{result.details}</p>
+                <p className="mt-component-sm whitespace-pre-wrap font-mono">{result.details}</p>
               </div>
             )}
             {result.errorMessage && (
               <div className="text-sm">
-                <strong className="text-destructive">Error:</strong>
-                <p className="mt-1 text-destructive whitespace-pre-wrap">
+                <strong className="text-error">Error:</strong>
+                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono">
                   {result.errorMessage}
                 </p>
               </div>
@@ -115,7 +115,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
             {result.metadata && Object.keys(result.metadata).length > 0 && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Metadata:</strong>
-                <pre className="mt-1 text-xs overflow-x-auto">
+                <pre className="mt-component-sm text-xs overflow-x-auto font-mono">
                   {JSON.stringify(result.metadata, null, 2)}
                 </pre>
               </div>
@@ -131,10 +131,10 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 
     return (
       <AccordionItem key={run.runGroupID} value={`run-${runIndex}`}>
-        <AccordionTrigger className="min-h-[44px] hover:no-underline">
-          <div className="flex items-center justify-between flex-1 gap-3">
+        <AccordionTrigger className="min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <div className="flex items-center justify-between flex-1 gap-component-md">
             <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{timestamp}</div>
+              <div className="font-medium truncate font-mono">{timestamp}</div>
               <div className="text-sm text-muted-foreground">
                 {run.passedCount}✓ {run.failedCount}✗ {run.warningCount}⚠
               </div>
@@ -148,7 +148,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <Accordion type="single" collapsible className="border-t" {...{} as any}>
+          <Accordion type="single" collapsible className="border-t border-border" {...{} as any}>
             {run.results.map((result, index) => renderTestResult(result, index))}
           </Accordion>
         </AccordionContent>
@@ -164,10 +164,10 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         </CardTitle>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-component-sm mt-component-md">
           <Button
             variant="outline"
-            className="flex-1 h-11"
+            className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={refreshHistory}
             disabled={isLoadingHistory}
           >
@@ -176,7 +176,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
           </Button>
           <Button
             variant="default"
-            className="flex-1 h-11"
+            className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={runDiagnostics}
             disabled={isRunning}
           >
@@ -186,7 +186,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-component-md">
         {/* Startup failure alert */}
         {latestRun && hasLatestFailures && (
           <Alert variant="destructive">
@@ -212,12 +212,12 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 
         {/* Progress during test execution */}
         {isRunning && (
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground truncate">
+              <span className="text-muted-foreground truncate font-mono">
                 {currentTest || 'Initializing...'}
               </span>
-              <span className="font-medium shrink-0 ml-2">
+              <span className="font-medium shrink-0 ml-component-md font-mono">
                 {completedTests}/{totalTests}
               </span>
             </div>
@@ -227,21 +227,21 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 
         {/* Loading state */}
         {isLoadingHistory && !history && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             Loading diagnostic history...
           </div>
         )}
 
         {/* Empty state */}
         {!isLoadingHistory && !history?.length && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             No history available. Tap "Run Tests" to start.
           </div>
         )}
 
         {/* Diagnostic history */}
         {history && history.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-component-md">
             <h3 className="text-sm font-medium text-muted-foreground">History</h3>
             <Accordion
               type="single"

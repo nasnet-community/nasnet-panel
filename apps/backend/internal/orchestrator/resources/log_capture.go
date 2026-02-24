@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -56,13 +56,13 @@ type LogFilterFunc func(entry LogEntry) bool
 
 // LogCaptureConfig holds configuration for log capture
 type LogCaptureConfig struct {
-	InstanceID       string         // Service instance ID
-	ServiceName      string         // Service name (e.g., "tor", "singbox")
-	LogDir           string         // Directory to store logs
-	MaxFileSize      int64          // Max file size before rotation (default: 10MB)
-	SubscriberBuffer int            // Buffer size for subscriber channels (default: 100)
-	Logger           zerolog.Logger // Logger for internal logging
-	Parser           LogParserFunc  // Custom log parser (optional)
+	InstanceID       string        // Service instance ID
+	ServiceName      string        // Service name (e.g., "tor", "singbox")
+	LogDir           string        // Directory to store logs
+	MaxFileSize      int64         // Max file size before rotation (default: 10MB)
+	SubscriberBuffer int           // Buffer size for subscriber channels (default: 100)
+	Logger           *zap.Logger   // Logger for internal logging
+	Parser           LogParserFunc // Custom log parser (optional)
 }
 
 // LogParserFunc is a function that parses a log line into a LogEntry
@@ -82,7 +82,7 @@ type LogCapture struct {
 	subscribers map[string]*LogSubscriber
 	closed      bool
 
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // NewLogCapture creates a new LogCapture instance
@@ -120,6 +120,10 @@ func NewLogCapture(cfg LogCaptureConfig) (*LogCapture, error) {
 		parser:      parser,
 		subscribers: make(map[string]*LogSubscriber),
 		logger:      cfg.Logger,
+	}
+
+	if lc.logger == nil {
+		lc.logger = zap.NewNop()
 	}
 
 	// Open initial log file
@@ -175,7 +179,7 @@ func (lc *LogCapture) Write(p []byte) (n int, err error) {
 	// Check if rotation is needed
 	if lc.currentSize+int64(len(p)) > lc.maxFileSize {
 		if rotateErr := lc.rotateLogFileUnsafe(); rotateErr != nil {
-			lc.logger.Error().Err(rotateErr).Msg("failed to rotate log file")
+			lc.logger.Error("failed to rotate log file", zap.Error(rotateErr))
 			// Continue writing to the current file even if rotation fails
 		}
 	}
@@ -212,7 +216,7 @@ func (lc *LogCapture) rotateLogFileUnsafe() error {
 	// Remove old backup if exists
 	backupPath := lc.getBackupLogPath()
 	if errRemove := os.Remove(backupPath); errRemove != nil && !os.IsNotExist(errRemove) {
-		lc.logger.Warn().Err(errRemove).Msg("failed to remove old backup log")
+		lc.logger.Warn("failed to remove old backup log", zap.Error(errRemove))
 	}
 
 	// Rename current log to backup
@@ -221,10 +225,9 @@ func (lc *LogCapture) rotateLogFileUnsafe() error {
 		return fmt.Errorf("failed to rename log file: %w", errRename)
 	}
 
-	lc.logger.Info().
-		Str("instance_id", lc.instanceID).
-		Str("service", lc.serviceName).
-		Msg("rotated log file")
+	lc.logger.Info("rotated log file",
+		zap.String("instance_id", lc.instanceID),
+		zap.String("service", lc.serviceName))
 
 	// Reset size and open new file
 	lc.currentSize = 0
@@ -256,9 +259,8 @@ func (lc *LogCapture) broadcastLogUnsafe(line string) {
 			case sub.Channel <- entry:
 			default:
 				// Buffer full, skip this entry
-				lc.logger.Debug().
-					Str("subscriber_id", sub.ID).
-					Msg("subscriber buffer full, skipping log entry")
+				lc.logger.Debug("subscriber buffer full, skipping log entry",
+					zap.String("subscriber_id", sub.ID))
 			}
 		}
 	}
@@ -289,10 +291,9 @@ func (lc *LogCapture) Subscribe(id string, bufferSize int, filter LogFilterFunc)
 
 	lc.subscribers[id] = sub
 
-	lc.logger.Debug().
-		Str("subscriber_id", id).
-		Str("instance_id", lc.instanceID).
-		Msg("subscriber added")
+	lc.logger.Debug("subscriber added",
+		zap.String("subscriber_id", id),
+		zap.String("instance_id", lc.instanceID))
 
 	return sub, nil
 }
@@ -306,10 +307,9 @@ func (lc *LogCapture) Unsubscribe(id string) {
 		close(sub.Channel)
 		delete(lc.subscribers, id)
 
-		lc.logger.Debug().
-			Str("subscriber_id", id).
-			Str("instance_id", lc.instanceID).
-			Msg("subscriber removed")
+		lc.logger.Debug("subscriber removed",
+			zap.String("subscriber_id", id),
+			zap.String("instance_id", lc.instanceID))
 	}
 }
 
@@ -399,10 +399,9 @@ func (lc *LogCapture) Close() error {
 		}
 	}
 
-	lc.logger.Info().
-		Str("instance_id", lc.instanceID).
-		Str("service", lc.serviceName).
-		Msg("log capture closed")
+	lc.logger.Info("log capture closed",
+		zap.String("instance_id", lc.instanceID),
+		zap.String("service", lc.serviceName))
 
 	return nil
 }

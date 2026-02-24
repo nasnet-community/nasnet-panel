@@ -135,7 +135,7 @@ export declare function syncThemeToDOM(): () => void;
  * Selector for resolved theme only
  * Use for components that only need the resolved theme
  */
-export declare const selectResolvedTheme: (state: ThemeState) => "dark" | "light";
+export declare const selectResolvedTheme: (state: ThemeState) => "light" | "dark";
 /**
  * Selector for theme mode
  * Use for components that need to know the user's preference

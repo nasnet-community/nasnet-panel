@@ -103,7 +103,7 @@ export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ e
             <div
               key={device.id}
               className={cn(
-                'flex items-center justify-between p-2 rounded-lg',
+                'flex items-center justify-between p-2 rounded-card-sm',
                 'bg-muted hover:bg-muted/80 transition-colors'
               )}
             >
@@ -124,7 +124,7 @@ export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ e
       </div>
 
       {entries.length > 5 && (
-        <button className="w-full mt-3 flex items-center justify-center gap-1 text-xs text-primary hover:text-primary/90 font-medium py-2 transition-colors">
+        <button className="w-full mt-3 flex items-center justify-center gap-1 text-xs text-primary hover:text-primary/90 font-medium py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {t('connectedDevices.viewAll', { count: entries.length })}
           <ChevronRight className="w-3 h-3" />
         </button>

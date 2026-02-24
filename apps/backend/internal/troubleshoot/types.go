@@ -3,7 +3,16 @@
 package troubleshoot
 
 import (
+	"errors"
 	"time"
+)
+
+// Error definitions
+var (
+	ErrStepNotFound        = errors.New("diagnostic step not found")
+	ErrFixNotFound         = errors.New("fix not found for issue")
+	ErrUnknownStepType     = errors.New("unknown diagnostic step type")
+	ErrNilDiagnosticResult = errors.New("diagnostic check returned nil result")
 )
 
 // StepType represents the type of diagnostic step.

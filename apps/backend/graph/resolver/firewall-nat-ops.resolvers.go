@@ -7,46 +7,159 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
+	"net"
 )
 
 // CreateNatRule is the resolver for the createNatRule field.
-func (r *mutationResolver) CreateNatRule(_ context.Context, routerID string, input model.CreateNatRuleInput) (*model.NatRule, error) {
-	panic(fmt.Errorf("not implemented: CreateNatRule - createNatRule"))
+func (r *mutationResolver) CreateNatRule(ctx context.Context, routerID string, input model.CreateNatRuleInput) (*model.NatRule, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if input.Chain == "" {
+		return nil, errors.NewValidationError("input", nil, "chain is required")
+	}
+
+	// Validation: chain-specific required fields
+	switch input.Chain {
+	case model.NatChainDstnat:
+		// DNAT requires: dstAddress, dstPort
+		if dstAddr, ok := input.DstAddress.ValueOK(); !ok || dstAddr == nil || *dstAddr == "" {
+			return nil, errors.NewValidationError("input", nil, "dstAddress is required for DNAT rules")
+		} else if net.ParseIP(*dstAddr) == nil {
+			return nil, errors.NewValidationError("input", nil, "dstAddress must be a valid IP address")
+		}
+	case model.NatChainSrcnat:
+		// SNAT requires: srcAddress
+		if srcAddr, ok := input.SrcAddress.ValueOK(); !ok || srcAddr == nil || *srcAddr == "" {
+			return nil, errors.NewValidationError("input", nil, "srcAddress is required for SNAT rules")
+		} else if net.ParseIP(*srcAddr) == nil {
+			return nil, errors.NewValidationError("input", nil, "srcAddress must be a valid IP address")
+		}
+	default:
+		// Other chains (postrouting, prerouting) are valid but need no extra fields
+	}
+
+	// TODO: Implement CreateNatRule - add NAT rule to router
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateNatRule - createNatRule", "graphql"))
 }
 
 // UpdateNatRule is the resolver for the updateNatRule field.
-func (r *mutationResolver) UpdateNatRule(_ context.Context, routerID string, id string, input model.CreateNatRuleInput) (*model.NatRule, error) {
-	panic(fmt.Errorf("not implemented: UpdateNatRule - updateNatRule"))
+func (r *mutationResolver) UpdateNatRule(ctx context.Context, routerID string, id string, input model.CreateNatRuleInput) (*model.NatRule, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+	if input.Chain == "" {
+		return nil, errors.NewValidationError("input", nil, "chain is required")
+	}
+
+	// TODO: Implement UpdateNatRule - modify existing NAT rule
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateNatRule - updateNatRule", "graphql"))
 }
 
 // DeleteNatRule is the resolver for the deleteNatRule field.
-func (r *mutationResolver) DeleteNatRule(_ context.Context, routerID string, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteNatRule - deleteNatRule"))
+func (r *mutationResolver) DeleteNatRule(ctx context.Context, routerID string, id string) (bool, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return false, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return false, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement DeleteNatRule - remove NAT rule from router
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteNatRule - deleteNatRule", "graphql"))
 }
 
 // CreatePortForward is the resolver for the createPortForward field.
-func (r *mutationResolver) CreatePortForward(_ context.Context, routerID string, input model.PortForwardInput) (*model.PortForward, error) {
-	panic(fmt.Errorf("not implemented: CreatePortForward - createPortForward"))
+func (r *mutationResolver) CreatePortForward(ctx context.Context, routerID string, input model.PortForwardInput) (*model.PortForward, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if input.ExternalPort < 1 || input.ExternalPort > 65535 {
+		return nil, errors.NewValidationError("input", nil, "externalPort must be between 1 and 65535")
+	}
+	if portPtr, ok := input.InternalPort.ValueOK(); ok && portPtr != nil {
+		if *portPtr < 1 || *portPtr > 65535 {
+			return nil, errors.NewValidationError("input", nil, "internalPort must be between 1 and 65535")
+		}
+	}
+	if input.InternalIP == "" {
+		return nil, errors.NewValidationError("input", nil, "internalIP is required")
+	}
+	if net.ParseIP(input.InternalIP) == nil {
+		return nil, errors.NewValidationError("input", nil, "internalIP must be a valid IP address")
+	}
+	if input.Protocol == "" {
+		return nil, errors.NewValidationError("input", nil, "protocol is required")
+	}
+
+	// TODO: Implement CreatePortForward - create port forward rule
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreatePortForward - createPortForward", "graphql"))
 }
 
 // DeletePortForward is the resolver for the deletePortForward field.
-func (r *mutationResolver) DeletePortForward(_ context.Context, routerID string, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeletePortForward - deletePortForward"))
+func (r *mutationResolver) DeletePortForward(ctx context.Context, routerID string, id string) (bool, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return false, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return false, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement DeletePortForward - remove port forward rule
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeletePortForward - deletePortForward", "graphql"))
 }
 
 // CreateMasqueradeRule is the resolver for the createMasqueradeRule field.
-func (r *mutationResolver) CreateMasqueradeRule(_ context.Context, routerID string, outInterface string, srcAddress *string, comment *string) (*model.NatRule, error) {
-	panic(fmt.Errorf("not implemented: CreateMasqueradeRule - createMasqueradeRule"))
+func (r *mutationResolver) CreateMasqueradeRule(ctx context.Context, routerID string, outInterface string, srcAddress *string, comment *string) (*model.NatRule, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if outInterface == "" {
+		return nil, errors.NewValidationError("input", nil, "outInterface is required")
+	}
+
+	// Validation: optional srcAddress if provided
+	if srcAddress != nil && *srcAddress != "" {
+		if net.ParseIP(*srcAddress) == nil {
+			return nil, errors.NewValidationError("input", nil, "srcAddress must be a valid IP address")
+		}
+	}
+
+	// TODO: Implement CreateMasqueradeRule - create masquerade NAT rule
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateMasqueradeRule - createMasqueradeRule", "graphql"))
 }
 
 // NatRules is the resolver for the natRules field.
-func (r *queryResolver) NatRules(_ context.Context, routerID string, chain *model.NatChain) ([]*model.NatRule, error) {
-	panic(fmt.Errorf("not implemented: NatRules - natRules"))
+func (r *queryResolver) NatRules(ctx context.Context, routerID string, chain *model.NatChain) ([]*model.NatRule, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// chain is optional for filtering all rules
+
+	// TODO: Implement NatRules - query NAT rules from router
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: NatRules - natRules", "graphql"))
 }
 
 // PortForwards is the resolver for the portForwards field.
-func (r *queryResolver) PortForwards(_ context.Context, routerID string) ([]*model.PortForward, error) {
-	panic(fmt.Errorf("not implemented: PortForwards - portForwards"))
+func (r *queryResolver) PortForwards(ctx context.Context, routerID string) ([]*model.PortForward, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// TODO: Implement PortForwards - query port forward rules from router
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PortForwards - portForwards", "graphql"))
 }

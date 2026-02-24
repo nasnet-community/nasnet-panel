@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"backend/internal/network"
+	"backend/internal/repository"
 
 	"backend/generated/ent"
 	"backend/generated/ent/predicate"
@@ -70,9 +71,12 @@ func (q *entVLANAllocationQuery) All(ctx context.Context) ([]network.VLANAllocat
 		return nil, err
 	}
 
-	result := make([]network.VLANAllocationEntity, len(allocations))
-	for i, alloc := range allocations {
-		result[i] = &entVLANAllocationEntity{allocation: alloc}
+	result := make([]network.VLANAllocationEntity, 0, len(allocations))
+	for _, alloc := range allocations {
+		if alloc == nil {
+			continue
+		}
+		result = append(result, &entVLANAllocationEntity{allocation: alloc})
 	}
 	return result, nil
 }
@@ -134,6 +138,12 @@ func (c *entVLANAllocationCreate) SetStatus(status string) network.VLANAllocatio
 }
 
 func (c *entVLANAllocationCreate) Save(ctx context.Context) (network.VLANAllocationEntity, error) {
+	// VLAN ID range validation (valid VLAN IDs: 1-4094)
+	vlanID, ok := c.create.Mutation().VlanID()
+	if ok && (vlanID < 1 || vlanID > 4094) {
+		return nil, repository.InvalidInputWithValue("VLANAllocation", "vlanID", vlanID, "must be between 1 and 4094")
+	}
+
 	alloc, err := c.create.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -163,8 +173,25 @@ func (u *entVLANAllocationUpdate) SetStatus(status string) network.VLANAllocatio
 }
 
 func (u *entVLANAllocationUpdate) SetValue(values map[string]interface{}) network.VLANAllocationUpdate {
-	// This is a placeholder - ent doesn't have a SetValue method
-	// In production, you'd implement field-by-field updates
+	// Field-by-field update based on provided map values
+	if routerID, ok := values["router_id"].(string); ok {
+		u.update = u.update.SetRouterID(routerID)
+	}
+	if vlanID, ok := values["vlan_id"].(int); ok {
+		u.update = u.update.SetVlanID(vlanID)
+	}
+	if instanceID, ok := values["instance_id"].(string); ok {
+		u.update = u.update.SetInstanceID(instanceID)
+	}
+	if serviceType, ok := values["service_type"].(string); ok {
+		u.update = u.update.SetServiceType(serviceType)
+	}
+	if subnet, ok := values["subnet"].(string); ok {
+		u.update = u.update.SetSubnet(subnet)
+	}
+	if status, ok := values["status"].(string); ok {
+		u.update = u.update.SetStatus(vlanallocation.Status(status))
+	}
 	return u
 }
 

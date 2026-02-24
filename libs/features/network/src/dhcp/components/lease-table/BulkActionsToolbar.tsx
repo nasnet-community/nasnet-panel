@@ -100,21 +100,21 @@ function BulkActionsToolbarComponent({
     <>
       <div
         className={cn(
-          'flex items-center justify-between rounded-lg border border-primary/50 bg-primary/5 p-3',
+          'flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-primary/50 bg-primary/5 p-component-sm',
           className
         )}
         role="toolbar"
         aria-label="Bulk actions toolbar"
       >
         {/* Selection count */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <span className="text-sm font-medium text-foreground">
             {selectedCount} {selectedCount === 1 ? 'lease' : 'leases'} selected
           </span>
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <Button
             variant="outline"
             size="sm"

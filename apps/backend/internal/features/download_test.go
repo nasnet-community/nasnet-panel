@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -367,4 +368,117 @@ func TestServiceInstallProgressEvent_Payload(t *testing.T) {
 func calculateTestChecksum(content []byte) string {
 	hash := sha256.Sum256(content)
 	return hex.EncodeToString(hash[:])
+}
+
+func TestDownloadManager_ResumableDownload(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	testContent := make([]byte, 5000) // 5KB
+	for i := range testContent {
+		testContent[i] = byte(i % 256)
+	}
+	expectedChecksum := calculateTestChecksum(testContent)
+
+	// Track request count to simulate resume
+	requestCount := 0
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		rangeHeader := r.Header.Get("Range")
+
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(testContent)))
+		w.Header().Set("Accept-Ranges", "bytes")
+
+		if rangeHeader != "" {
+			// Parse range header and respond with partial content
+			var start int64 = 0
+			fmt.Sscanf(rangeHeader, "bytes=%d-", &start)
+			if start > 0 && start < int64(len(testContent)) {
+				w.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, len(testContent)-1, len(testContent)))
+				w.WriteHeader(http.StatusPartialContent)
+				w.Write(testContent[start:])
+				return
+			}
+		}
+
+		// Full download
+		w.WriteHeader(http.StatusOK)
+		w.Write(testContent)
+	}))
+	defer server.Close()
+
+	eventBus, _ := events.NewEventBus(events.EventBusOptions{
+		BufferSize: 100,
+	})
+	defer eventBus.Close()
+
+	dm := NewDownloadManager(eventBus, tmpDir)
+
+	ctx := context.Background()
+	err := dm.Download(ctx, "resume-test", server.URL, expectedChecksum)
+	if err != nil {
+		t.Fatalf("Download failed: %v", err)
+	}
+
+	// Verify file exists and has correct content
+	finalFile := filepath.Join(tmpDir, "resume-test", "bin", "resume-test")
+	content, err := os.ReadFile(finalFile)
+	if err != nil {
+		t.Fatalf("Failed to read downloaded file: %v", err)
+	}
+
+	if string(content) != string(testContent) {
+		t.Errorf("Downloaded content doesn't match")
+	}
+}
+
+func TestDownloadManager_DuplicateDownloadsBlocked(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	testContent := []byte("Test content for concurrency")
+	expectedChecksum := calculateTestChecksum(testContent)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Simulate slow download to ensure concurrent attempt can be made
+		time.Sleep(200 * time.Millisecond)
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(testContent)))
+		w.WriteHeader(http.StatusOK)
+		w.Write(testContent)
+	}))
+	defer server.Close()
+
+	eventBus, _ := events.NewEventBus(events.EventBusOptions{
+		BufferSize: 100,
+	})
+	defer eventBus.Close()
+
+	dm := NewDownloadManager(eventBus, tmpDir)
+
+	// Start first download
+	ctx := context.Background()
+	errChan := make(chan error, 1)
+
+	go func() {
+		err := dm.Download(ctx, "dup-test", server.URL, expectedChecksum)
+		errChan <- err
+	}()
+
+	// Small delay to ensure first download starts
+	time.Sleep(50 * time.Millisecond)
+
+	// Try duplicate - should fail immediately
+	err := dm.Download(ctx, "dup-test", server.URL, expectedChecksum)
+	if err == nil {
+		t.Fatal("Expected error for concurrent download of same feature, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "already in progress") {
+		t.Errorf("Expected 'already in progress' error, got: %v", err)
+	}
+
+	// Wait for first to complete
+	firstErr := <-errChan
+	if firstErr != nil {
+		t.Errorf("First download failed: %v", firstErr)
+	}
 }

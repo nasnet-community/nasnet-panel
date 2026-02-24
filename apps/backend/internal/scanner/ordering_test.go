@@ -62,6 +62,39 @@ func TestOrderIPsForScan_SingleIP(t *testing.T) {
 	assert.Equal(t, "192.168.1.1", result[0])
 }
 
+func TestOrderIPsForScan_DeterministicOrdering(t *testing.T) {
+	// Test that same input always produces identical output (deterministic)
+	ips := []string{
+		"192.168.1.77",
+		"192.168.1.50",
+		"192.168.1.10",
+		"192.168.1.254",
+		"192.168.1.1",
+		"192.168.1.100",
+		"192.168.1.200",
+		"192.168.1.42",
+		"192.168.1.88",
+	}
+
+	// Call OrderIPsForScan multiple times with same input
+	result1 := OrderIPsForScan(ips)
+	result2 := OrderIPsForScan(ips)
+	result3 := OrderIPsForScan(ips)
+
+	// All results should be identical
+	require.Equal(t, result1, result2, "second call should match first")
+	require.Equal(t, result2, result3, "third call should match second")
+	require.Len(t, result1, len(ips))
+
+	// Verify expected order: .1 > .254 > .10 > .100 > .200 > .50 > round numbers > rest
+	assert.Equal(t, "192.168.1.1", result1[0])
+	assert.Equal(t, "192.168.1.254", result1[1])
+	assert.Equal(t, "192.168.1.10", result1[2])
+	assert.Equal(t, "192.168.1.100", result1[3])
+	assert.Equal(t, "192.168.1.200", result1[4])
+	assert.Equal(t, "192.168.1.50", result1[5])
+}
+
 func TestParseIPRange_CIDR24(t *testing.T) {
 	ips, err := ParseIPRange("192.168.88.0/24")
 	require.NoError(t, err)

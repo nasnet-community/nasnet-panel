@@ -88,7 +88,7 @@ export const AppHeader = React.memo(function AppHeader() {
     : t('app.name');
 
   return (
-    <div className="flex h-full items-center justify-between px-4 py-3">
+    <div className="flex h-full items-center justify-between px-component-md py-3">
       {/* Left: Brand + Status */}
       <div className="flex items-center gap-3">
         {/* Logo */}

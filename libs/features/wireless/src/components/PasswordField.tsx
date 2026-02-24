@@ -72,7 +72,7 @@ function PasswordFieldComponent({
         <button
           onClick={handleToggleVisibility}
           type="button"
-          className="p-1 rounded hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="h-11 w-11 flex items-center justify-center rounded hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={isVisible ? 'Hide password' : 'Show password'}
           aria-pressed={isVisible}
         >
@@ -88,7 +88,7 @@ function PasswordFieldComponent({
           <button
             onClick={handleCopy}
             type="button"
-            className="p-1 rounded hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="h-11 w-11 flex items-center justify-center rounded hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Copy password"
           >
             <Icon

@@ -66,6 +66,11 @@ func (r *FeatureRegistry) loadManifests() error {
 			return fmt.Errorf("invalid manifest in file %s: %w", entry.Name(), err)
 		}
 
+		// Prevent duplicate feature ID registration
+		if _, exists := r.manifests[manifest.ID]; exists {
+			return fmt.Errorf("duplicate manifest ID: %s (from file %s)", manifest.ID, entry.Name())
+		}
+
 		r.manifests[manifest.ID] = &manifest
 	}
 

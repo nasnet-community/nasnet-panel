@@ -1,0 +1,239 @@
+# =============================================================================
+# Provisioning Payload Types
+# =============================================================================
+# Response types for provisioning mutations.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# Basic Payloads
+# -----
+
+"""
+Payload for provisioning session mutations
+"""
+type ProvisioningSessionPayload {
+  """
+  The provisioning session (null if operation failed)
+  """
+  session: ProvisioningSession
+
+  """
+  Mutation errors
+  """
+  errors: [MutationError!]
+}
+
+"""
+Payload for provisioning session validation
+"""
+type ValidateProvisioningSessionPayload {
+  """
+  The provisioning session
+  """
+  session: ProvisioningSession!
+
+  """
+  Validation results for each resource
+  """
+  validationResults: [ResourceValidationResult!]!
+
+  """
+  Overall validation passed
+  """
+  isValid: Boolean!
+
+  """
+  Mutation errors
+  """
+  errors: [MutationError!]
+}
+
+"""
+Payload for applying a provisioning session to router
+"""
+type ApplyProvisioningSessionPayload {
+  """
+  The provisioning session after apply
+  """
+  session: ProvisioningSession!
+
+  """
+  List of resources that were successfully applied
+  """
+  appliedResources: [Resource!]!
+
+  """
+  Changeset ID that was created and applied
+  """
+  changesetId: ID!
+
+  """
+  Configuration preview that was applied (RouterOS commands)
+  """
+  preview: ConfigPreview
+
+  """
+  Mutation errors
+  """
+  errors: [MutationError!]
+}
+
+"""
+Payload for discarding a provisioning session
+"""
+type DiscardProvisioningSessionPayload {
+  """
+  Whether discard succeeded
+  """
+  success: Boolean!
+
+  """
+  ID of discarded session
+  """
+  sessionId: ID!
+
+  """
+  Mutation errors
+  """
+  errors: [MutationError!]
+}
+
+# -----
+# Progress Events
+# -----
+
+"""
+Progress event for provisioning operations (validation, apply, etc.)
+Emitted via subscription during long-running operations.
+"""
+type ProvisioningProgressEvent {
+  """
+  Session ID this event is for
+  """
+  sessionId: ID!
+
+  """
+  Current phase name (e.g., "validating_resources", "applying_config", "verifying_deployment")
+  """
+  phase: String!
+
+  """
+  Current step number (0-indexed)
+  """
+  step: Int!
+
+  """
+  Total number of steps in this phase
+  """
+  totalSteps: Int!
+
+  """
+  Human-readable progress message
+  """
+  message: String!
+
+  """
+  Overall operation status
+  """
+  status: ProvisioningApplyStatus!
+
+  """
+  Resource being processed (if applicable)
+  """
+  resourceId: ID
+
+  """
+  Type of resource being processed
+  """
+  resourceType: String
+
+  """
+  Percentage complete (0-100)
+  """
+  percentComplete: Int!
+
+  """
+  Timestamp of this event
+  """
+  timestamp: DateTime!
+}
+
+# -----
+# Validation Results
+# -----
+
+"""
+Validation result for a single resource in provisioning session
+"""
+type ResourceValidationResult {
+  """
+  Resource ID
+  """
+  resourceId: ID!
+
+  """
+  Resource type
+  """
+  resourceType: String!
+
+  """
+  Whether resource passed validation
+  """
+  isValid: Boolean!
+
+  """
+  Validation errors (if any)
+  """
+  errors: [String!]
+
+  """
+  Validation warnings (non-blocking)
+  """
+  warnings: [String!]
+
+  """
+  Additional validation metadata
+  """
+  metadata: JSON
+}
+
+# -----
+# Connection Types for Pagination
+# -----
+
+"""
+Connection type for paginated provisioning sessions
+"""
+type ProvisioningSessionConnection {
+  """
+  Edges contain provisioning session nodes
+  """
+  edges: [ProvisioningSessionEdge!]!
+
+  """
+  Page information for pagination
+  """
+  pageInfo: PageInfo!
+
+  """
+  Total count of provisioning sessions
+  """
+  totalCount: Int!
+}
+
+"""
+Edge in provisioning session connection
+"""
+type ProvisioningSessionEdge {
+  """
+  Cursor for pagination
+  """
+  cursor: String!
+
+  """
+  Provisioning session node
+  """
+  node: ProvisioningSession!
+}

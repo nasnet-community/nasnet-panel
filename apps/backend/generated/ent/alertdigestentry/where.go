@@ -3,9 +3,8 @@
 package alertdigestentry
 
 import (
-	"time"
-
 	"backend/generated/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"

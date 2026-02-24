@@ -39,7 +39,7 @@ export const VPNTab = React.memo(function VPNTab() {
   const isFetching = isFetchingWG;
 
   return (
-    <div className="p-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6">
       <div className="max-w-6xl mx-auto">
         {/* Page header */}
         <div className="mb-8 flex items-start justify-between">
@@ -76,10 +76,10 @@ export const VPNTab = React.memo(function VPNTab() {
 
         {/* Error state */}
         {isError && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6">
+          <div className="bg-error/10 border border-error/30 rounded-lg p-6">
             <div className="flex items-center gap-3">
               <svg
-                className="w-6 h-6 text-destructive"
+                className="w-6 h-6 text-error"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -92,10 +92,10 @@ export const VPNTab = React.memo(function VPNTab() {
                 />
               </svg>
               <div>
-                <h3 className="text-lg font-semibold text-destructive">
+                <h3 className="text-lg font-semibold text-error">
                   {t('errors.loadFailed')}
                 </h3>
-                <p className="text-destructive/80 mt-1">
+                <p className="text-error/80 mt-1">
                   {t('errors.loadFailedDescription')}
                 </p>
               </div>

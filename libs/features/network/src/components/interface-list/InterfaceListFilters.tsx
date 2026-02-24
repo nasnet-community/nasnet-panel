@@ -20,7 +20,7 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
   };
 
   return (
-    <div className="flex gap-2 items-center flex-wrap" role="search" aria-label="Filter interfaces">
+    <div className="flex gap-component-sm items-center flex-wrap" role="search" aria-label="Filter interfaces">
       {/* Type filter */}
       <Select
         value={filters.type ?? 'all'}
@@ -31,7 +31,7 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
           })
         }
       >
-        <SelectTrigger className="w-40 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface type">
+        <SelectTrigger className="w-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface type">
           <SelectValue placeholder="All Types" />
         </SelectTrigger>
         <SelectContent>
@@ -56,7 +56,7 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
           })
         }
       >
-        <SelectTrigger className="w-40 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface status">
+        <SelectTrigger className="w-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface status">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
         <SelectContent>

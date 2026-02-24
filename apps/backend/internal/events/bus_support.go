@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill/message"
+	"go.uber.org/zap"
 )
 
 // eventFactory is a function that creates a new empty event for unmarshaling.
@@ -64,7 +64,6 @@ func ParseEvent(msg *message.Message) (Event, error) {
 
 	factory, ok := eventFactories[eventType]
 	if !ok {
-		log.Printf("[EVENTS] Unknown event type: %s", eventType)
 		var e BaseEvent
 		if err := json.Unmarshal(msg.Payload, &e); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal BaseEvent: %w", err)
@@ -158,6 +157,14 @@ func (eb *eventBus) processPriorityQueues() {
 
 // flushPriorityQueue publishes all events in a priority queue.
 func (eb *eventBus) flushPriorityQueue(priority Priority) {
+	defer func() {
+		if r := recover(); r != nil {
+			eb.zapLogger.Error("panic in flushPriorityQueue",
+				zap.String("priority", priority.String()),
+				zap.Any("panic", r))
+		}
+	}()
+
 	eb.closeMu.RLock()
 	if eb.closed {
 		eb.closeMu.RUnlock()
@@ -170,7 +177,9 @@ func (eb *eventBus) flushPriorityQueue(priority Priority) {
 
 	for _, event := range events {
 		if err := eb.publishDirect(ctx, event); err != nil {
-			eb.logger.Error("failed to publish batched event", err, nil)
+			eb.zapLogger.Error("failed to publish batched event",
+				zap.String("eventType", event.GetType()),
+				zap.Error(err))
 		}
 	}
 }

@@ -3,13 +3,13 @@ package router
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"backend/internal/events"
 
 	"github.com/sony/gobreaker"
+	"go.uber.org/zap"
 )
 
 // DefaultFallbackOrder defines the protocol fallback sequence.
@@ -70,7 +70,7 @@ type FallbackChain struct {
 	previousStatus events.RouterStatus
 
 	// Logging
-	logPrefix string
+	logger *zap.Logger
 }
 
 // NewFallbackChain creates a new protocol fallback chain.
@@ -86,13 +86,15 @@ func NewFallbackChainWithSettings(
 	cbSettings CircuitBreakerSettings,
 ) *FallbackChain {
 
+	logger := zap.L().With(zap.String("component", "FallbackChain"), zap.String("host", config.Host))
+
 	fc := &FallbackChain{
 		config:              config,
 		fallbackOrder:       fallbackOrder,
 		breakers:            make(map[Protocol]*gobreaker.CircuitBreaker),
 		factory:             factory,
 		healthCheckInterval: 30 * time.Second,
-		logPrefix:           fmt.Sprintf("[FallbackChain:%s]", config.Host),
+		logger:              logger,
 		previousStatus:      events.RouterStatusUnknown,
 	}
 
@@ -132,7 +134,7 @@ func (fc *FallbackChain) publishStatusChange(ctx context.Context, newStatus even
 	defer cancel()
 
 	if err := fc.eventPublisher.Publish(publishCtx, event); err != nil {
-		log.Printf("%s Failed to publish status event: %v", fc.logPrefix, err)
+		fc.logger.Error("failed to publish status event", zap.Error(err), zap.String("event_type", "RouterStatusChanged"))
 	}
 
 	fc.previousStatus = newStatus
@@ -151,7 +153,7 @@ func (fc *FallbackChain) createCircuitBreaker(proto Protocol, settings CircuitBr
 			return counts.ConsecutiveFailures >= settings.MaxFailures
 		},
 		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-			log.Printf("%s Circuit breaker %s: %s -> %s", fc.logPrefix, proto.String(), from.String(), to.String())
+			fc.logger.Info("circuit breaker state change", zap.String("protocol", proto.String()), zap.String("from_state", from.String()), zap.String("to_state", to.String()))
 		},
 	})
 }
@@ -167,13 +169,13 @@ func (fc *FallbackChain) Connect(ctx context.Context) error {
 	var lastErr error
 
 	for _, proto := range fc.fallbackOrder {
-		log.Printf("%s Trying protocol: %s", fc.logPrefix, proto.String())
+		fc.logger.Debug("attempting protocol connection", zap.String("protocol", proto.String()))
 
 		cb := fc.breakers[proto]
 
 		// Check circuit breaker state
 		if cb.State() == gobreaker.StateOpen {
-			log.Printf("%s Circuit breaker OPEN for %s, skipping", fc.logPrefix, proto.String())
+			fc.logger.Debug("circuit breaker open, skipping protocol", zap.String("protocol", proto.String()))
 			continue
 		}
 
@@ -183,14 +185,14 @@ func (fc *FallbackChain) Connect(ctx context.Context) error {
 		})
 
 		if err == nil {
-			log.Printf("%s Connected successfully using %s", fc.logPrefix, proto.String())
+			fc.logger.Info("connection successful", zap.String("protocol", proto.String()))
 			fc.currentProto = proto
 			// Publish connected event (AC8: within 100ms)
 			fc.publishStatusChange(ctx, events.RouterStatusConnected, proto.String(), "")
 			return nil
 		}
 
-		log.Printf("%s Failed to connect with %s: %v", fc.logPrefix, proto.String(), err)
+		fc.logger.Debug("connection failed", zap.String("protocol", proto.String()), zap.Error(err))
 		lastErr = err
 	}
 
@@ -277,7 +279,7 @@ func (fc *FallbackChain) ExecuteCommand(ctx context.Context, cmd Command) (*Comm
 	if err != nil {
 		// If circuit breaker opened, try reconnecting with fallback
 		if cb.State() == gobreaker.StateOpen {
-			log.Printf("%s Circuit breaker opened for %s, attempting reconnect", fc.logPrefix, proto.String())
+			fc.logger.Warn("circuit breaker opened, attempting reconnect", zap.String("protocol", proto.String()))
 			go fc.attemptReconnect(context.Background()) //nolint:contextcheck // background reconnect intentional
 		}
 		return nil, err
@@ -318,7 +320,7 @@ func (fc *FallbackChain) attemptReconnect(ctx context.Context) {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 
-	log.Printf("%s Attempting reconnection", fc.logPrefix)
+	fc.logger.Info("attempting reconnection")
 
 	// Publish reconnecting status
 	fc.publishStatusChange(ctx, events.RouterStatusReconnecting, "", "")
@@ -342,7 +344,7 @@ func (fc *FallbackChain) attemptReconnect(ctx context.Context) {
 		})
 
 		if err == nil {
-			log.Printf("%s Reconnected using %s", fc.logPrefix, proto.String())
+			fc.logger.Info("reconnected successfully", zap.String("protocol", proto.String()))
 			fc.currentProto = proto
 			// Publish connected event
 			fc.publishStatusChange(ctx, events.RouterStatusConnected, proto.String(), "")
@@ -350,7 +352,7 @@ func (fc *FallbackChain) attemptReconnect(ctx context.Context) {
 		}
 	}
 
-	log.Printf("%s Reconnection failed, all protocols exhausted", fc.logPrefix)
+	fc.logger.Error("reconnection failed", zap.String("reason", "all protocols exhausted"))
 	fc.publishStatusChange(ctx, events.RouterStatusError, "", "all protocols exhausted")
 }
 
@@ -395,13 +397,13 @@ func (fc *FallbackChain) performHealthCheck(ctx context.Context) {
 			Limit: 1,
 		})
 		if err != nil {
-			log.Printf("%s Health check failed: %v", fc.logPrefix, err)
+			fc.logger.Debug("health check failed", zap.Error(err))
 		}
 		return
 	}
 
 	// Not connected, try to reconnect
-	log.Printf("%s Health check: not connected, attempting reconnect", fc.logPrefix)
+	fc.logger.Debug("health check: not connected, attempting reconnect")
 	fc.attemptReconnect(ctx)
 }
 

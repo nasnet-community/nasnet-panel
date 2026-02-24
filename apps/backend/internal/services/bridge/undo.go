@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	"backend/internal/utils"
 )
 
 // UndoStore manages operation undo state with 10-second TTL.
@@ -33,7 +33,7 @@ func (s *UndoStore) Add(operationType, resourceType string, previousState interf
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	operationID := uuid.New().String()
+	operationID := utils.GenerateID()
 
 	previousStateJSON, err := json.Marshal(previousState)
 	if err != nil {

@@ -3,6 +3,7 @@ package templates
 import (
 	"context"
 	"fmt"
+	"html"
 	"regexp"
 	"strings"
 	"text/template"
@@ -44,6 +45,10 @@ func NewService(cfg ServiceConfig) *Service {
 
 // RenderAlert renders an alert notification using the appropriate template.
 func (s *Service) RenderAlert(ctx context.Context, alert *ent.Alert, channel string) (subject, body string, err error) {
+	if alert == nil {
+		return "", "", fmt.Errorf("alert cannot be nil")
+	}
+
 	subjectTmpl, bodyTmpl, err := s.getTemplate(ctx, alert.EventType, channel)
 	if err != nil {
 		s.log.Warnw("failed to get template, using fallback",
@@ -57,7 +62,12 @@ func (s *Service) RenderAlert(ctx context.Context, alert *ent.Alert, channel str
 
 	data := BuildTemplateData(alert)
 
-	subject, body, err = s.renderTemplate(subjectTmpl, bodyTmpl, data)
+	// For email channel, escape HTML in template variables to prevent injection
+	if channel == channelEmail {
+		s.escapeHTMLInData(&data)
+	}
+
+	subject, body, err = s.renderTemplate(subjectTmpl, bodyTmpl, data, channel)
 	if err != nil {
 		s.log.Warnw("template rendering failed, using fallback",
 			"alert_id", alert.ID,
@@ -75,7 +85,12 @@ func (s *Service) RenderAlert(ctx context.Context, alert *ent.Alert, channel str
 func (s *Service) PreviewTemplate(ctx context.Context, eventType, channel, subjectTmpl, bodyTmpl string) (subject, body string, err error) {
 	data := BuildSampleTemplateData(eventType)
 
-	subject, body, err = s.renderTemplate(subjectTmpl, bodyTmpl, data)
+	// For email channel, escape HTML in template variables to prevent injection
+	if channel == channelEmail {
+		s.escapeHTMLInData(&data)
+	}
+
+	subject, body, err = s.renderTemplate(subjectTmpl, bodyTmpl, data, channel)
 	if err != nil {
 		return "", "", fmt.Errorf("preview rendering failed: %w", err)
 	}
@@ -202,16 +217,7 @@ func channelHasSubject(channel string) bool {
 	}
 }
 
-func (s *Service) renderTemplate(subjectTmpl, bodyTmpl string, data TemplateData) (subject, body string, err error) {
-	cachedTmpl := s.cache.Get("", "", subjectTmpl, bodyTmpl)
-	if cachedTmpl != nil {
-		var buf strings.Builder
-		execErr := cachedTmpl.Execute(&buf, data)
-		if execErr != nil {
-			return "", "", fmt.Errorf("template execution error: %w", execErr)
-		}
-	}
-
+func (s *Service) renderTemplate(subjectTmpl, bodyTmpl string, data TemplateData, channel string) (subject, body string, err error) { //nolint:unparam // channel reserved for channel-specific template rendering
 	if subjectTmpl != "" {
 		subjectTmplObj, parseErr := template.New("subject").
 			Funcs(s.funcMap).
@@ -227,6 +233,10 @@ func (s *Service) renderTemplate(subjectTmpl, bodyTmpl string, data TemplateData
 			return "", "", fmt.Errorf("subject template execution error: %w", execErr)
 		}
 		subject = strings.TrimSpace(subjectBuf.String())
+	}
+
+	if bodyTmpl == "" {
+		return "", "", fmt.Errorf("body template cannot be empty")
 	}
 
 	bodyTmplObj, parseErr := template.New("body").
@@ -248,6 +258,10 @@ func (s *Service) renderTemplate(subjectTmpl, bodyTmpl string, data TemplateData
 }
 
 func (s *Service) fallbackMessage(alert *ent.Alert) (subject, body string, err error) {
+	if alert == nil {
+		return "", "", fmt.Errorf("alert cannot be nil for fallback")
+	}
+
 	subject = fmt.Sprintf("[%s] %s", alert.Severity, alert.Title)
 	body = fmt.Sprintf("%s\n\n%s", alert.Title, alert.Message)
 
@@ -258,10 +272,40 @@ func (s *Service) fallbackMessage(alert *ent.Alert) (subject, body string, err e
 	return subject, body, nil
 }
 
+// escapeHTMLInData recursively escapes HTML characters in string fields of TemplateData.
+// This prevents template injection attacks when rendering email templates.
+func (s *Service) escapeHTMLInData(data *TemplateData) {
+	if data == nil {
+		return
+	}
+
+	// Escape top-level string fields
+	data.Title = html.EscapeString(data.Title)
+	data.Message = html.EscapeString(data.Message)
+	data.DeviceName = html.EscapeString(data.DeviceName)
+	data.DeviceIP = html.EscapeString(data.DeviceIP)
+	data.RuleName = html.EscapeString(data.RuleName)
+	data.RuleID = html.EscapeString(data.RuleID)
+
+	// Escape suggested actions
+	for i := range data.SuggestedActions {
+		data.SuggestedActions[i] = html.EscapeString(data.SuggestedActions[i])
+	}
+
+	// Escape string values in EventData map
+	if data.EventData != nil {
+		for key, value := range data.EventData {
+			if strValue, ok := value.(string); ok {
+				data.EventData[key] = html.EscapeString(strValue)
+			}
+		}
+	}
+}
+
 // StripHTMLTags removes HTML tags from a string (for plaintext email fallback).
-func StripHTMLTags(html string) string {
+func StripHTMLTags(htmlStr string) string {
 	re := regexp.MustCompile(`<[^>]*>`)
-	text := re.ReplaceAllString(html, "")
+	text := re.ReplaceAllString(htmlStr, "")
 	text = regexp.MustCompile(`\s+`).ReplaceAllString(text, " ")
 	text = strings.TrimSpace(text)
 	return text

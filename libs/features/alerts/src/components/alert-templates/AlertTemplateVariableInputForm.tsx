@@ -229,7 +229,7 @@ const VariableInput = React.memo(function VariableInput({
         placeholder={placeholder}
         min={variable.min}
         max={variable.max}
-        className={error ? 'border-destructive' : ''}
+        className={error ? 'border-error' : ''}
         aria-invalid={!!error}
         aria-describedby={error ? `${variable.name}-error` : undefined}
       />
@@ -360,7 +360,7 @@ export const AlertTemplateVariableInputForm = React.memo(
                   />
 
                   {fieldState.error && (
-                    <p id={`${variable.name}-error`} className="text-sm font-medium text-destructive">
+                    <p id={`${variable.name}-error`} className="text-sm font-medium text-error">
                       {fieldState.error.message}
                     </p>
                   )}

@@ -103,15 +103,18 @@ const (
 
 // --- bridge package aliases ---
 
-type ServiceAlertBridge = bridge.ServiceAlertBridge
-type ServiceAlertRateLimiter = bridge.ServiceAlertRateLimiter
-type ServiceRateLimiterOption = bridge.ServiceRateLimiterOption
+type ServiceAlertBridge = bridge.Bridge
+type ServiceAlertRateLimiter = bridge.RateLimiter
+type ServiceRateLimiterOption = bridge.Option
 type HandleEventFunc = bridge.HandleEventFunc
 
-var NewServiceAlertRateLimiter = bridge.NewServiceAlertRateLimiter
-var WithServiceClock = bridge.WithServiceClock
-var WithServiceMaxAlerts = bridge.WithServiceMaxAlerts
-var WithServiceWindowSeconds = bridge.WithServiceWindowSeconds
+var NewServiceAlertRateLimiter = bridge.NewRateLimiter
+var NewRateLimiter = bridge.NewRateLimiter
+var WithServiceClock = bridge.WithClock
+var WithServiceMaxAlerts = bridge.WithMaxAlerts
+var WithMaxAlerts = bridge.WithMaxAlerts
+var WithServiceWindowSeconds = bridge.WithWindowSeconds
+var WithWindowSeconds = bridge.WithWindowSeconds
 
 type AlertRuleTemplateService = alerttpl.Service
 
@@ -246,7 +249,7 @@ func NewDigestScheduler(cfg DigestSchedulerConfig) *digest.Scheduler {
 type ServiceAlertBridgeConfig struct {
 	DB               *ent.Client
 	EventBus         events.EventBus
-	RateLimiter      *bridge.ServiceAlertRateLimiter
+	RateLimiter      *bridge.RateLimiter
 	QuietHoursQueue  *QuietHoursQueueManager
 	ManifestRegistry *features.FeatureRegistry
 	AlertEngine      *Engine
@@ -255,16 +258,16 @@ type ServiceAlertBridgeConfig struct {
 
 // NewServiceAlertBridge creates a new service alert bridge, adapting
 // *Engine to the bridge.HandleEventFunc callback.
-func NewServiceAlertBridge(cfg ServiceAlertBridgeConfig) *bridge.ServiceAlertBridge {
+func NewServiceAlertBridge(cfg ServiceAlertBridgeConfig) *bridge.Bridge {
 	var handleFn bridge.HandleEventFunc
 	if cfg.AlertEngine != nil {
 		e := cfg.AlertEngine
 		handleFn = func(ctx context.Context, event events.Event) error {
-			return e.handleEvent(ctx, event)
+			return e.HandleEvent(ctx, event)
 		}
 	}
 
-	return bridge.NewServiceAlertBridge(&bridge.Config{
+	return bridge.NewBridge(&bridge.Config{
 		DB:               cfg.DB,
 		EventBus:         cfg.EventBus,
 		RateLimiter:      cfg.RateLimiter,

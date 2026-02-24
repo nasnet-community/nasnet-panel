@@ -72,7 +72,7 @@ func TestServiceAlertBridge_Start(t *testing.T) {
 	defer db.Close()
 
 	mockBus := newMockEventBus()
-	rateLimiter := NewServiceAlertRateLimiter()
+	rateLimiter := NewRateLimiter()
 	defer rateLimiter.Close()
 
 	quietHoursQueue := NewQuietHoursQueueManager()
@@ -118,7 +118,7 @@ func TestServiceAlertBridge_HandleServiceCrashed(t *testing.T) {
 	defer db.Close()
 
 	mockBus := newMockEventBus()
-	rateLimiter := NewServiceAlertRateLimiter()
+	rateLimiter := NewRateLimiter()
 	defer rateLimiter.Close()
 
 	quietHoursQueue := NewQuietHoursQueueManager()
@@ -177,9 +177,9 @@ func TestServiceAlertBridge_RateLimiting(t *testing.T) {
 	mockBus := newMockEventBus()
 
 	// Create rate limiter with low threshold for testing
-	rateLimiter := NewServiceAlertRateLimiter(
-		WithServiceMaxAlerts(2),      // Max 2 alerts per window
-		WithServiceWindowSeconds(60), // 60 second window
+	rateLimiter := NewRateLimiter(
+		WithMaxAlerts(2),      // Max 2 alerts per window
+		WithWindowSeconds(60), // 60 second window
 	)
 	defer rateLimiter.Close()
 
@@ -243,7 +243,7 @@ func TestServiceAlertBridge_DefaultRulesCreation(t *testing.T) {
 	defer db.Close()
 
 	mockBus := newMockEventBus()
-	rateLimiter := NewServiceAlertRateLimiter()
+	rateLimiter := NewRateLimiter()
 	defer rateLimiter.Close()
 
 	quietHoursQueue := NewQuietHoursQueueManager()

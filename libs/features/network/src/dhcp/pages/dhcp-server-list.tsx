@@ -129,7 +129,7 @@ export function DHCPServerList() {
       id: 'network',
       header: 'Network',
       cell: ({ row }: { row: any }) => (
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           <div className="text-sm">
             <span className="text-muted-foreground">GW:</span>{' '}
             <code className="font-mono">{row.original.gateway || 'N/A'}</code>
@@ -174,6 +174,7 @@ export function DHCPServerList() {
               variant="ghost"
               size="icon"
               aria-label={`Actions for ${row.original.name} server`}
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
@@ -202,7 +203,7 @@ export function DHCPServerList() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleDelete(row.original.id)}
-              className="text-destructive"
+              className="text-error"
               disabled={deletingId === row.original.id}
             >
               <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -255,7 +256,7 @@ export function DHCPServerList() {
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">DHCP Servers</h1>
+            <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
             <p className="text-muted-foreground mt-2">
               Manage DHCP servers for automatic IP address assignment.
             </p>
@@ -278,12 +279,15 @@ export function DHCPServerList() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">DHCP Servers</h1>
+          <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
           <p className="text-muted-foreground mt-2">
             Manage DHCP servers for automatic IP address assignment.
           </p>
         </div>
-        <Button onClick={handleCreateNew}>
+        <Button
+          onClick={handleCreateNew}
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           Create DHCP Server
         </Button>

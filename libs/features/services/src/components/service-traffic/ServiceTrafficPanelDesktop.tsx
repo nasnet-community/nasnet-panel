@@ -105,7 +105,7 @@ function StatsCounter({ value, label, unit = 'bytes', className }: StatsCounterP
   })();
 
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
+    <div className={cn('flex flex-col gap-component-sm', className)}>
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <span className="text-2xl font-mono font-semibold tabular-nums">
         {formattedValue}
@@ -157,7 +157,7 @@ function ServiceTrafficPanelDesktopComponent({
           <CardDescription>Loading traffic statistics...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-component-md">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-20" />
             ))}
@@ -221,13 +221,13 @@ function ServiceTrafficPanelDesktopComponent({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-component-lg">
         {/* Traffic Counters Section */}
         <div>
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Total Traffic
           </h3>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-component-md">
             <StatsCounter
               value={stats.totalUploadBytes.toString()}
               label="Total Upload"
@@ -257,9 +257,9 @@ function ServiceTrafficPanelDesktopComponent({
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Current Rates
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-component-md">
               {uploadRate !== null && (
-                <div className="flex items-center gap-3 rounded-md border bg-card p-4">
+                <div className="flex items-center gap-component-sm rounded-md border bg-card p-component-md">
                   <Icon icon={TrendingUp} className="h-6 w-6 text-info" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Upload Rate</p>
@@ -270,7 +270,7 @@ function ServiceTrafficPanelDesktopComponent({
                 </div>
               )}
               {downloadRate !== null && (
-                <div className="flex items-center gap-3 rounded-md border bg-card p-4">
+                <div className="flex items-center gap-component-sm rounded-md border bg-card p-component-md">
                   <Icon icon={TrendingDown} className="h-6 w-6 text-success" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Download Rate</p>
@@ -296,9 +296,9 @@ function ServiceTrafficPanelDesktopComponent({
                 Configure
               </Button>
             </div>
-            <div className="space-y-3 rounded-md border bg-card p-4">
+            <div className="space-y-component-sm rounded-md border bg-card p-component-md">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <Badge variant={quotaExceeded ? 'error' : quotaWarning ? 'warning' : 'default'}>
                     {stats.quota.period}
                   </Badge>
@@ -333,11 +333,11 @@ function ServiceTrafficPanelDesktopComponent({
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Top Devices ({stats.deviceBreakdown.length})
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               {stats.deviceBreakdown.slice(0, 5).map((device) => (
                 <div
                   key={device.deviceID}
-                  className="flex items-center justify-between rounded-md border bg-card p-3"
+                  className="flex items-center justify-between rounded-md border bg-card p-component-sm"
                 >
                   <div className="flex-1">
                     <p className="text-sm font-medium">

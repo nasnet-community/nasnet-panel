@@ -197,14 +197,24 @@ func (c *Connection) SetPreferredProtocol(protocol Protocol) {
 
 // Pool manages multiple router connections.
 type Pool struct {
-	connections map[string]*Connection
-	mu          sync.RWMutex
+	connections    map[string]*Connection
+	mu             sync.RWMutex
+	maxConnections int
 }
 
-// NewPool creates a new connection pool.
+// NewPool creates a new connection pool with no connection limit.
 func NewPool() *Pool {
 	return &Pool{
-		connections: make(map[string]*Connection),
+		connections:    make(map[string]*Connection),
+		maxConnections: 0, // 0 = unlimited
+	}
+}
+
+// NewPoolWithLimit creates a new connection pool with a maximum connection limit.
+func NewPoolWithLimit(maxConnections int) *Pool {
+	return &Pool{
+		connections:    make(map[string]*Connection),
+		maxConnections: maxConnections,
 	}
 }
 
@@ -216,12 +226,18 @@ func (p *Pool) Get(routerID string) *Connection {
 }
 
 // GetOrCreate returns the connection for a router, creating one if it doesn't exist.
+// Returns nil if max connections limit is reached.
 func (p *Pool) GetOrCreate(routerID string, config Config, cb *CircuitBreaker) *Connection {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	if conn, ok := p.connections[routerID]; ok {
 		return conn
+	}
+
+	// Check max connections limit (0 = unlimited)
+	if p.maxConnections > 0 && len(p.connections) >= p.maxConnections {
+		return nil
 	}
 
 	conn := NewConnection(routerID, config, cb)
@@ -284,15 +300,17 @@ func (p *Pool) CountByState(state State) int {
 // CloseAll closes all connections in the pool.
 func (p *Pool) CloseAll(ctx context.Context) error {
 	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	var lastErr error
+	// Get snapshot of connections and cancel funcs before unlocking
+	connSnapshot := make([]*Connection, 0, len(p.connections))
 	for _, conn := range p.connections {
-		if conn.Client != nil {
-			if err := conn.Client.Disconnect(); err != nil {
-				lastErr = err
-			}
-		}
+		connSnapshot = append(connSnapshot, conn)
+	}
+	p.connections = make(map[string]*Connection)
+	p.mu.Unlock()
+
+	// Close connections outside the lock to avoid deadlock
+	var lastErr error
+	for _, conn := range connSnapshot {
 		// Cancel any goroutines
 		if conn.reconnectCancel != nil {
 			conn.reconnectCancel()
@@ -300,9 +318,13 @@ func (p *Pool) CloseAll(ctx context.Context) error {
 		if conn.healthCancel != nil {
 			conn.healthCancel()
 		}
+		// Disconnect client
+		if conn.Client != nil {
+			if err := conn.Client.Disconnect(); err != nil {
+				lastErr = err
+			}
+		}
 	}
-
-	p.connections = make(map[string]*Connection)
 	return lastErr
 }
 

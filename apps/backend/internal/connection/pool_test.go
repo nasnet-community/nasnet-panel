@@ -3,6 +3,7 @@ package connection
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -352,4 +353,58 @@ func TestConnection_CircuitBreakerRateLimiting(t *testing.T) {
 	// When circuit is open, should not allow reconnection
 	canAttempt, _ := conn.CanAttemptReconnect()
 	assert.False(t, canAttempt)
+}
+
+func TestPool_MaxConnections(t *testing.T) {
+	pool := NewPoolWithLimit(2)
+	config := Config{
+		Host:     "192.168.88.1",
+		Port:     8728,
+		Username: "admin",
+	}
+
+	cbConfig := DefaultCircuitBreakerConfig()
+
+	// Add first connection - should succeed
+	cb1 := NewCircuitBreaker("router-1", cbConfig)
+	conn1 := pool.GetOrCreate("router-1", config, cb1)
+	assert.NotNil(t, conn1)
+	assert.Equal(t, 1, pool.Count())
+
+	// Add second connection - should succeed
+	cb2 := NewCircuitBreaker("router-2", cbConfig)
+	conn2 := pool.GetOrCreate("router-2", config, cb2)
+	assert.NotNil(t, conn2)
+	assert.Equal(t, 2, pool.Count())
+
+	// Add third connection - should fail (limit reached)
+	cb3 := NewCircuitBreaker("router-3", cbConfig)
+	conn3 := pool.GetOrCreate("router-3", config, cb3)
+	assert.Nil(t, conn3)
+	assert.Equal(t, 2, pool.Count())
+
+	// Getting existing connections should still work
+	found := pool.Get("router-1")
+	assert.NotNil(t, found)
+}
+
+func TestPool_NoLimit(t *testing.T) {
+	pool := NewPool() // Unlimited connections
+	config := Config{
+		Host:     "192.168.88.1",
+		Port:     8728,
+		Username: "admin",
+	}
+
+	cbConfig := DefaultCircuitBreakerConfig()
+
+	// Add many connections
+	for i := 1; i <= 10; i++ {
+		routerID := fmt.Sprintf("router-%d", i)
+		cb := NewCircuitBreaker(routerID, cbConfig)
+		conn := pool.GetOrCreate(routerID, config, cb)
+		assert.NotNil(t, conn, "connection %d should be created", i)
+	}
+
+	assert.Equal(t, 10, pool.Count())
 }

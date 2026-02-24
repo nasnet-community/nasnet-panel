@@ -22,3 +22,23 @@ func mapSeverityToModel(severity string) model.UpdateSeverity {
 		return model.UpdateSeverityMinor
 	}
 }
+
+// severityMeetsThreshold checks if an update's severity meets or exceeds the minimum threshold.
+// Severity order: CRITICAL > MAJOR > MINOR > PATCH
+func severityMeetsThreshold(updateSeverity, minSeverity model.UpdateSeverity) bool {
+	severityRank := map[model.UpdateSeverity]int{
+		model.UpdateSeverityCritical: 4,
+		model.UpdateSeverityMajor:    3,
+		model.UpdateSeverityMinor:    2,
+		model.UpdateSeverityPatch:    1,
+	}
+
+	updateRank, updateExists := severityRank[updateSeverity]
+	minRank, minExists := severityRank[minSeverity]
+
+	if !updateExists || !minExists {
+		return false
+	}
+
+	return updateRank >= minRank
+}

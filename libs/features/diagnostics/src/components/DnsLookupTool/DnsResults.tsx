@@ -42,14 +42,14 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Query Metadata Header */}
-      <div className="flex flex-wrap items-center gap-3 pb-3 border-b">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-component-sm pb-component-sm border-border border-b">
+        <div className="flex items-center gap-component-sm">
           <span className="text-sm text-muted-foreground">Server:</span>
           <span className="text-sm font-mono">{result.server}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <span className="text-sm text-muted-foreground">Query Time:</span>
           <span className={cn('text-sm font-mono', getQueryTimeColor(result.queryTime))}>
             {result.queryTime}ms
@@ -70,10 +70,10 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
         <Table aria-label="DNS lookup results">
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Type</TableHead>
-              <TableHead scope="col">Name</TableHead>
-              <TableHead scope="col">Value</TableHead>
-              <TableHead scope="col">TTL</TableHead>
+              <TableHead scope="col" className="font-mono font-display">Type</TableHead>
+              <TableHead scope="col" className="font-mono font-display">Name</TableHead>
+              <TableHead scope="col" className="font-mono font-display">Value</TableHead>
+              <TableHead scope="col" className="font-mono font-display">TTL</TableHead>
               <TableHead scope="col" className="w-12">
                 {/* Copy button column */}
               </TableHead>
@@ -108,7 +108,7 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
       )}
 
       {/* Record Count */}
-      <div className="text-sm text-muted-foreground text-right">
+      <div className="text-sm text-muted-foreground text-right font-mono">
         {sortedRecords.length} {sortedRecords.length === 1 ? 'record' : 'records'} found
       </div>
     </div>

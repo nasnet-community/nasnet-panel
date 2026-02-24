@@ -77,15 +77,15 @@ export function PppoePreviewStep({
   }, [interfaceData, credentialsData, optionsData]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <FormSection
         title="Review Configuration"
         description="Please review your PPPoE configuration before applying"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           {/* Interface Summary */}
-          <div className="rounded-lg border bg-muted/50 p-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+            <div className="flex items-center gap-component-sm mb-3">
               <Network
                 className="h-4 w-4 text-primary"
                 aria-hidden="true"
@@ -101,8 +101,8 @@ export function PppoePreviewStep({
           </div>
 
           {/* Credentials Summary */}
-          <div className="rounded-lg border bg-muted/50 p-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+            <div className="flex items-center gap-component-sm mb-3">
               <User
                 className="h-4 w-4 text-primary"
                 aria-hidden="true"
@@ -126,8 +126,8 @@ export function PppoePreviewStep({
           </div>
 
           {/* Options Summary */}
-          <div className="rounded-lg border bg-muted/50 p-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+            <div className="flex items-center gap-component-sm mb-3">
               <Settings
                 className="h-4 w-4 text-primary"
                 aria-hidden="true"
@@ -171,15 +171,15 @@ export function PppoePreviewStep({
         title="RouterOS Commands"
         description="The following commands will be executed on the router"
       >
-        <div className="rounded-lg border bg-muted p-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="rounded-[var(--semantic-radius-card)] border bg-muted p-component-md">
+          <div className="flex items-center gap-component-sm mb-3">
             <Code
               className="h-4 w-4 text-primary"
               aria-hidden="true"
             />
             <h4 className="font-medium text-sm">Command Preview</h4>
           </div>
-          <pre className="text-xs font-mono overflow-x-auto bg-background p-3 rounded border">
+          <pre className="text-xs font-mono overflow-x-auto bg-background p-component-sm rounded-[var(--semantic-radius-card)] border">
             {commandPreview}
           </pre>
           <p className="text-xs text-muted-foreground mt-2">

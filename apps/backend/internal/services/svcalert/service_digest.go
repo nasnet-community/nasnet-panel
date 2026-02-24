@@ -7,10 +7,12 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/alertdigestentry"
+
+	"go.uber.org/zap"
 )
 
 // GetDigestQueueCount returns the number of alerts in the digest queue for a channel.
-func (s *AlertService) GetDigestQueueCount(ctx context.Context, channelID string) (int, error) {
+func (s *Service) GetDigestQueueCount(ctx context.Context, channelID string) (int, error) {
 	count, err := s.db.AlertDigestEntry.Query().
 		Where(
 			alertdigestentry.ChannelID(channelID),
@@ -18,14 +20,14 @@ func (s *AlertService) GetDigestQueueCount(ctx context.Context, channelID string
 		).
 		Count(ctx)
 	if err != nil {
-		s.log.Error("failed to count digest queue", "error", err, "channel_id", channelID)
+		s.log.Error("failed to count digest queue", zap.Error(err), zap.String("channel_id", channelID))
 		return 0, fmt.Errorf("failed to count digest queue: %w", err)
 	}
 	return count, nil
 }
 
 // GetDigestHistory retrieves digest delivery history for a channel.
-func (s *AlertService) GetDigestHistory(ctx context.Context, channelID string, limit int) ([]DigestSummary, error) {
+func (s *Service) GetDigestHistory(ctx context.Context, channelID string, limit int) ([]DigestSummary, error) {
 	if limit <= 0 {
 		limit = 10
 	}
@@ -40,7 +42,7 @@ func (s *AlertService) GetDigestHistory(ctx context.Context, channelID string, l
 		Limit(limit * 10).
 		All(ctx)
 	if err != nil {
-		s.log.Error("failed to query digest history", "error", err, "channel_id", channelID)
+		s.log.Error("failed to query digest history", zap.Error(err), zap.String("channel_id", channelID))
 		return nil, fmt.Errorf("failed to query digest history: %w", err)
 	}
 
@@ -86,19 +88,19 @@ func (s *AlertService) GetDigestHistory(ctx context.Context, channelID string, l
 }
 
 // TriggerDigestNow forces immediate digest delivery for a channel.
-func (s *AlertService) TriggerDigestNow(ctx context.Context, channelID string) (*DigestSummary, error) {
+func (s *Service) TriggerDigestNow(ctx context.Context, channelID string) (*DigestSummary, error) {
 	if s.digestService == nil {
 		return nil, fmt.Errorf("digest service not available")
 	}
 
 	if err := s.digestService.DeliverDigest(ctx, channelID); err != nil {
-		s.log.Error("failed to trigger digest delivery", "error", err, "channel_id", channelID)
+		s.log.Error("failed to trigger digest delivery", zap.Error(err), zap.String("channel_id", channelID))
 		return nil, fmt.Errorf("failed to trigger digest delivery: %w", err)
 	}
 
 	history, err := s.GetDigestHistory(ctx, channelID, 1)
 	if err != nil {
-		s.log.Warn("failed to get digest history after trigger", "error", err, "channel_id", channelID)
+		s.log.Warn("failed to get digest history after trigger", zap.Error(err), zap.String("channel_id", channelID))
 		return &DigestSummary{
 			ID:          fmt.Sprintf("digest-%d", time.Now().Unix()),
 			ChannelID:   channelID,

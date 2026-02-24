@@ -8,83 +8,264 @@ package resolver
 import (
 	"backend/graph"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // Node is the resolver for the node field.
 func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error) {
-	panic(fmt.Errorf("not implemented: Node - node"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "id is required")
+	}
+
+	// TODO: Implement Node - fetch node by ID
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Node - node", "graphql")
 }
 
 // Health is the resolver for the health field.
 func (r *queryResolver) Health(ctx context.Context) (*model.HealthStatus, error) {
-	panic(fmt.Errorf("not implemented: Health - health"))
+	// No authorization required for health check (may be used by load balancers)
+	// TODO: Implement Health - return health status
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Health - health", "graphql")
 }
 
 // Version is the resolver for the version field.
 func (r *queryResolver) Version(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: Version - version"))
+	// No authorization required for version query
+	// TODO: Implement Version - return application version
+	return "", errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Version - version", "graphql")
 }
 
 // Device is the resolver for the device field.
 func (r *queryResolver) Device(ctx context.Context, id string) (*model.Device, error) {
-	panic(fmt.Errorf("not implemented: Device - device"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "id is required")
+	}
+
+	// TODO: Implement Device - fetch device by ID
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Device - device", "graphql")
 }
 
 // Router is the resolver for the router field.
 func (r *queryResolver) Router(ctx context.Context, id string) (*model.Router, error) {
-	panic(fmt.Errorf("not implemented: Router - router"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "id is required")
+	}
+
+	// TODO: Implement Router - fetch router by ID
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Router - router", "graphql")
 }
 
 // Routers is the resolver for the routers field.
 func (r *queryResolver) Routers(ctx context.Context, status *model.ConnectionStatus, pagination *model.PaginationInput) (*model.RouterConnection, error) {
-	panic(fmt.Errorf("not implemented: Routers - routers"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// TODO: Implement Routers - fetch all routers with optional filtering
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Routers - routers", "graphql")
 }
 
 // Interface is the resolver for the interface field.
 func (r *queryResolver) Interface(ctx context.Context, routerID string, id string) (*model.Interface, error) {
-	panic(fmt.Errorf("not implemented: Interface - interface"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "id is required")
+	}
+
+	// TODO: Implement Interface - fetch interface by ID
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Interface - interface", "graphql")
 }
 
 // Interfaces is the resolver for the interfaces field.
 func (r *queryResolver) Interfaces(ctx context.Context, routerID string, typeArg *model.InterfaceType, pagination *model.PaginationInput) (*model.InterfaceConnection, error) {
-	panic(fmt.Errorf("not implemented: Interfaces - interfaces"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+
+	// TODO: Implement Interfaces - fetch all interfaces with optional filtering
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Interfaces - interfaces", "graphql")
 }
 
 // RouterCapabilities is the resolver for the routerCapabilities field.
 func (r *queryResolver) RouterCapabilities(ctx context.Context, routerID string) (*model.RouterCapabilities, error) {
-	panic(fmt.Errorf("not implemented: RouterCapabilities - routerCapabilities"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement RouterCapabilities - fetch router capabilities
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: RouterCapabilities - routerCapabilities", "graphql")
 }
 
 // IsFeatureSupported is the resolver for the isFeatureSupported field.
 func (r *queryResolver) IsFeatureSupported(ctx context.Context, routerID string, featureID string) (*model.FeatureSupport, error) {
-	panic(fmt.Errorf("not implemented: IsFeatureSupported - isFeatureSupported"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+	if featureID == "" {
+		return nil, errors.NewValidationError("featureID", featureID, "featureID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement IsFeatureSupported - check if feature is supported
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: IsFeatureSupported - isFeatureSupported", "graphql")
 }
 
 // SupportedFeatures is the resolver for the supportedFeatures field.
 func (r *queryResolver) SupportedFeatures(ctx context.Context, routerID string) ([]*model.FeatureSupport, error) {
-	panic(fmt.Errorf("not implemented: SupportedFeatures - supportedFeatures"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement SupportedFeatures - fetch supported features for router
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: SupportedFeatures - supportedFeatures", "graphql")
 }
 
 // UnsupportedFeatures is the resolver for the unsupportedFeatures field.
 func (r *queryResolver) UnsupportedFeatures(ctx context.Context, routerID string) ([]*model.FeatureSupport, error) {
-	panic(fmt.Errorf("not implemented: UnsupportedFeatures - unsupportedFeatures"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement UnsupportedFeatures - fetch unsupported features for router
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UnsupportedFeatures - unsupportedFeatures", "graphql")
 }
 
 // CompatibilityMatrix is the resolver for the compatibilityMatrix field.
 func (r *queryResolver) CompatibilityMatrix(ctx context.Context) ([]*model.FeatureCompatibilityInfo, error) {
-	panic(fmt.Errorf("not implemented: CompatibilityMatrix - compatibilityMatrix"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement CompatibilityMatrix - fetch feature compatibility matrix
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CompatibilityMatrix - compatibilityMatrix", "graphql")
 }
 
 // UpgradeRecommendation is the resolver for the upgradeRecommendation field.
 func (r *queryResolver) UpgradeRecommendation(ctx context.Context, routerID string, featureID string) (*model.UpgradeRecommendation, error) {
-	panic(fmt.Errorf("not implemented: UpgradeRecommendation - upgradeRecommendation"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+	if featureID == "" {
+		return nil, errors.NewValidationError("featureID", featureID, "featureID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement UpgradeRecommendation - get upgrade recommendation
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpgradeRecommendation - upgradeRecommendation", "graphql")
 }
 
 // UpgradeRecommendations is the resolver for the upgradeRecommendations field.
 func (r *queryResolver) UpgradeRecommendations(ctx context.Context, routerID string) ([]*model.UpgradeRecommendation, error) {
-	panic(fmt.Errorf("not implemented: UpgradeRecommendations - upgradeRecommendations"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("authentication", "", "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "routerID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "capability service not configured", "graphql")
+	}
+
+	// TODO: Implement UpgradeRecommendations - get all upgrade recommendations
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpgradeRecommendations - upgradeRecommendations", "graphql")
 }
 
 // Query returns graph.QueryResolver implementation.

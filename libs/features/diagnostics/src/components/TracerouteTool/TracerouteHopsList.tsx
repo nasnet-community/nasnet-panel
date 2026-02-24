@@ -88,7 +88,7 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
           <div
             key={hop.hopNumber}
             className={cn(
-              'flex items-start gap-3 p-3 rounded-lg border bg-card transition-colors',
+              'flex items-start gap-component-md p-component-sm rounded-lg border bg-card transition-colors',
               'hover:bg-accent/50'
             )}
             role="listitem"
@@ -130,8 +130,8 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
               </div>
 
               {/* Latency and probes */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-component-lg text-sm">
+                <div className="flex items-center gap-component-sm">
                   <Clock className={cn('h-3 w-3', latencyColorClass)} aria-hidden="true" />
                   <span className={cn('font-mono font-medium', latencyColorClass)}>
                     {formatLatency(hop.avgLatencyMs)}
@@ -139,7 +139,7 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
                 </div>
 
                 {/* Individual probe latencies */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-component-sm text-xs text-muted-foreground font-mono">
                   {hop.probes.map((probe, idx) => (
                     <span
                       key={`${hop.hopNumber}-probe-${probe.probeNumber}`}
@@ -158,7 +158,7 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
 
                 {/* Packet loss indicator */}
                 {hop.packetLoss > 0 && (
-                  <span className="text-xs text-destructive font-medium">
+                  <span className="text-xs text-error font-medium">
                     {hop.packetLoss.toFixed(0)}% loss
                   </span>
                 )}

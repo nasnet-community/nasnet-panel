@@ -2,11 +2,22 @@ package oui
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
+
+var logger *zap.Logger
+
+//nolint:gochecknoinits // OUI data must be loaded at package init
+func init() {
+	var err error
+	logger, err = zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+}
 
 // VendorResponse represents the API response for vendor lookup
 type VendorResponse struct {
@@ -66,7 +77,7 @@ func HandleVendorLookup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		// Cannot change status code at this point, just log the error
-		log.Printf("ERROR: Failed to encode vendor lookup response: %v", err)
+		logger.Error("Failed to encode vendor lookup response", zap.Error(err))
 	}
 }
 
@@ -118,7 +129,7 @@ func HandleBatchVendorLookup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		// Cannot change status code at this point, just log the error
-		log.Printf("ERROR: Failed to encode batch vendor lookup response: %v", err)
+		logger.Error("Failed to encode batch vendor lookup response", zap.Error(err))
 	}
 }
 
@@ -141,7 +152,7 @@ func HandleOUIStats(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		// Cannot change status code at this point, just log the error
-		log.Printf("ERROR: Failed to encode OUI stats response: %v", err)
+		logger.Error("Failed to encode OUI stats response", zap.Error(err))
 	}
 }
 

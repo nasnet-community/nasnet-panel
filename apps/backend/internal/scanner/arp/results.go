@@ -49,7 +49,7 @@ func updateProgress(
 			"arp-scanner",
 		)
 		if err := service.eventBus.Publish(ctx, event); err != nil {
-			service.log.Error("failed to publish progress event")
+			service.log.Error("failed to publish progress event", zap.Error(err))
 		}
 	}
 }
@@ -82,7 +82,7 @@ func markSessionCompleted(
 			"arp-scanner",
 		)
 		if err := service.eventBus.Publish(ctx, event); err != nil {
-			service.log.Error("failed to publish completed event")
+			service.log.Error("failed to publish completed event", zap.Error(err))
 		}
 	}
 
@@ -115,7 +115,7 @@ func markSessionFailed(
 			"arp-scanner",
 		)
 		if err := service.eventBus.Publish(ctx, event); err != nil {
-			service.log.Error("failed to publish failed event")
+			service.log.Error("failed to publish failed event", zap.Error(err))
 		}
 	}
 

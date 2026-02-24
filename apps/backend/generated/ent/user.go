@@ -3,11 +3,10 @@
 package ent
 
 import (
+	"backend/generated/ent/user"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

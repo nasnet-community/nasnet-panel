@@ -3,22 +3,23 @@
 package ent
 
 import (
-	"context"
-	"database/sql/driver"
-	"fmt"
-	"math"
-
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
 	"backend/generated/ent/predicate"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/router"
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/vlanallocation"
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -29,18 +30,20 @@ import (
 // RouterQuery is the builder for querying Router entities.
 type RouterQuery struct {
 	config
-	ctx                    *QueryContext
-	order                  []router.OrderOption
-	inters                 []Interceptor
-	predicates             []predicate.Router
-	withSecrets            *RouterSecretQuery
-	withPortKnockSequences *PortKnockSequenceQuery
-	withServiceInstances   *ServiceInstanceQuery
-	withPortAllocations    *PortAllocationQuery
-	withVlanAllocations    *VLANAllocationQuery
-	withDeviceRoutings     *DeviceRoutingQuery
-	withRoutingChains      *RoutingChainQuery
-	withServiceTemplates   *ServiceTemplateQuery
+	ctx                      *QueryContext
+	order                    []router.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.Router
+	withSecrets              *RouterSecretQuery
+	withPortKnockSequences   *PortKnockSequenceQuery
+	withServiceInstances     *ServiceInstanceQuery
+	withPortAllocations      *PortAllocationQuery
+	withVlanAllocations      *VLANAllocationQuery
+	withDeviceRoutings       *DeviceRoutingQuery
+	withRoutingChains        *RoutingChainQuery
+	withServiceTemplates     *ServiceTemplateQuery
+	withProvisioningSessions *ProvisioningSessionQuery
+	withSubnetAllocations    *SubnetAllocationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -277,6 +280,56 @@ func (_q *RouterQuery) QueryServiceTemplates() *ServiceTemplateQuery {
 	return query
 }
 
+// QueryProvisioningSessions chains the current query on the "provisioning_sessions" edge.
+func (_q *RouterQuery) QueryProvisioningSessions() *ProvisioningSessionQuery {
+	query := (&ProvisioningSessionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, selector),
+			sqlgraph.To(provisioningsession.Table, provisioningsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.ProvisioningSessionsTable, router.ProvisioningSessionsColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.ProvisioningSession
+		step.Edge.Schema = schemaConfig.ProvisioningSession
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySubnetAllocations chains the current query on the "subnet_allocations" edge.
+func (_q *RouterQuery) QuerySubnetAllocations() *SubnetAllocationQuery {
+	query := (&SubnetAllocationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, selector),
+			sqlgraph.To(subnetallocation.Table, subnetallocation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.SubnetAllocationsTable, router.SubnetAllocationsColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.SubnetAllocation
+		step.Edge.Schema = schemaConfig.SubnetAllocation
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Router entity from the query.
 // Returns a *NotFoundError when no Router was found.
 func (_q *RouterQuery) First(ctx context.Context) (*Router, error) {
@@ -464,19 +517,21 @@ func (_q *RouterQuery) Clone() *RouterQuery {
 		return nil
 	}
 	return &RouterQuery{
-		config:                 _q.config,
-		ctx:                    _q.ctx.Clone(),
-		order:                  append([]router.OrderOption{}, _q.order...),
-		inters:                 append([]Interceptor{}, _q.inters...),
-		predicates:             append([]predicate.Router{}, _q.predicates...),
-		withSecrets:            _q.withSecrets.Clone(),
-		withPortKnockSequences: _q.withPortKnockSequences.Clone(),
-		withServiceInstances:   _q.withServiceInstances.Clone(),
-		withPortAllocations:    _q.withPortAllocations.Clone(),
-		withVlanAllocations:    _q.withVlanAllocations.Clone(),
-		withDeviceRoutings:     _q.withDeviceRoutings.Clone(),
-		withRoutingChains:      _q.withRoutingChains.Clone(),
-		withServiceTemplates:   _q.withServiceTemplates.Clone(),
+		config:                   _q.config,
+		ctx:                      _q.ctx.Clone(),
+		order:                    append([]router.OrderOption{}, _q.order...),
+		inters:                   append([]Interceptor{}, _q.inters...),
+		predicates:               append([]predicate.Router{}, _q.predicates...),
+		withSecrets:              _q.withSecrets.Clone(),
+		withPortKnockSequences:   _q.withPortKnockSequences.Clone(),
+		withServiceInstances:     _q.withServiceInstances.Clone(),
+		withPortAllocations:      _q.withPortAllocations.Clone(),
+		withVlanAllocations:      _q.withVlanAllocations.Clone(),
+		withDeviceRoutings:       _q.withDeviceRoutings.Clone(),
+		withRoutingChains:        _q.withRoutingChains.Clone(),
+		withServiceTemplates:     _q.withServiceTemplates.Clone(),
+		withProvisioningSessions: _q.withProvisioningSessions.Clone(),
+		withSubnetAllocations:    _q.withSubnetAllocations.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -571,6 +626,28 @@ func (_q *RouterQuery) WithServiceTemplates(opts ...func(*ServiceTemplateQuery))
 	return _q
 }
 
+// WithProvisioningSessions tells the query-builder to eager-load the nodes that are connected to
+// the "provisioning_sessions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RouterQuery) WithProvisioningSessions(opts ...func(*ProvisioningSessionQuery)) *RouterQuery {
+	query := (&ProvisioningSessionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProvisioningSessions = query
+	return _q
+}
+
+// WithSubnetAllocations tells the query-builder to eager-load the nodes that are connected to
+// the "subnet_allocations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RouterQuery) WithSubnetAllocations(opts ...func(*SubnetAllocationQuery)) *RouterQuery {
+	query := (&SubnetAllocationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSubnetAllocations = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -649,7 +726,7 @@ func (_q *RouterQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Route
 	var (
 		nodes       = []*Router{}
 		_spec       = _q.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [10]bool{
 			_q.withSecrets != nil,
 			_q.withPortKnockSequences != nil,
 			_q.withServiceInstances != nil,
@@ -658,6 +735,8 @@ func (_q *RouterQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Route
 			_q.withDeviceRoutings != nil,
 			_q.withRoutingChains != nil,
 			_q.withServiceTemplates != nil,
+			_q.withProvisioningSessions != nil,
+			_q.withSubnetAllocations != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -734,6 +813,22 @@ func (_q *RouterQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Route
 		if err := _q.loadServiceTemplates(ctx, query, nodes,
 			func(n *Router) { n.Edges.ServiceTemplates = []*ServiceTemplate{} },
 			func(n *Router, e *ServiceTemplate) { n.Edges.ServiceTemplates = append(n.Edges.ServiceTemplates, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withProvisioningSessions; query != nil {
+		if err := _q.loadProvisioningSessions(ctx, query, nodes,
+			func(n *Router) { n.Edges.ProvisioningSessions = []*ProvisioningSession{} },
+			func(n *Router, e *ProvisioningSession) {
+				n.Edges.ProvisioningSessions = append(n.Edges.ProvisioningSessions, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSubnetAllocations; query != nil {
+		if err := _q.loadSubnetAllocations(ctx, query, nodes,
+			func(n *Router) { n.Edges.SubnetAllocations = []*SubnetAllocation{} },
+			func(n *Router, e *SubnetAllocation) { n.Edges.SubnetAllocations = append(n.Edges.SubnetAllocations, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -962,6 +1057,66 @@ func (_q *RouterQuery) loadServiceTemplates(ctx context.Context, query *ServiceT
 	}
 	query.Where(predicate.ServiceTemplate(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(router.ServiceTemplatesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RouterID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "router_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RouterQuery) loadProvisioningSessions(ctx context.Context, query *ProvisioningSessionQuery, nodes []*Router, init func(*Router), assign func(*Router, *ProvisioningSession)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Router)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(provisioningsession.FieldRouterID)
+	}
+	query.Where(predicate.ProvisioningSession(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(router.ProvisioningSessionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RouterID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "router_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RouterQuery) loadSubnetAllocations(ctx context.Context, query *SubnetAllocationQuery, nodes []*Router, init func(*Router), assign func(*Router, *SubnetAllocation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Router)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(subnetallocation.FieldRouterID)
+	}
+	query.Where(predicate.SubnetAllocation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(router.SubnetAllocationsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

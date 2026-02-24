@@ -17,7 +17,7 @@ import (
 	"backend/internal/network"
 	"backend/internal/storage"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // InstanceManagerConfig holds configuration for the instance manager
@@ -37,14 +37,14 @@ type InstanceManagerConfig struct {
 	ResourceLimiter    *resources.ResourceLimiter      // Optional - cgroup memory limits and monitoring (NAS-8.4)
 	ResourceManager    *resources.ResourceManager      // Optional - system resource detection and pre-flight checks (NAS-8.15)
 	ResourcePoller     *resources.ResourcePoller       // Optional - resource usage monitoring and warning emission (NAS-8.15)
-	Logger             zerolog.Logger
+	Logger             *zap.Logger
 }
 
 // InstanceManager orchestrates service instance lifecycle
 type InstanceManager struct {
 	mu                sync.RWMutex
 	config            InstanceManagerConfig
-	logger            zerolog.Logger
+	logger            *zap.Logger
 	publisher         *events.Publisher // Event publisher for this instance manager
 	bridgeOrch        BridgeOrchestrator
 	isolationVerifier *isolation.IsolationVerifier
@@ -119,7 +119,7 @@ func NewInstanceManager(cfg InstanceManagerConfig) (*InstanceManager, error) {
 	// Reconcile virtual interfaces (clean up orphans)
 	if im.bridgeOrch != nil {
 		if err := im.bridgeOrch.ReconcileOnStartup(context.Background()); err != nil {
-			im.logger.Warn().Err(err).Msg("VIF reconciliation failed")
+			im.logger.Warn("VIF reconciliation failed", zap.Error(err))
 		}
 	}
 
@@ -167,7 +167,7 @@ func (im *InstanceManager) Supervisor() *supervisor.ProcessSupervisor {
 
 // Stop gracefully shuts down the instance manager and health checker
 func (im *InstanceManager) Stop() {
-	im.logger.Info().Msg("Stopping instance manager")
+	im.logger.Info("Stopping instance manager")
 
 	// Stop health checker
 	if im.healthChecker != nil {
@@ -182,5 +182,5 @@ func (im *InstanceManager) Stop() {
 	// Wait for restart handler to finish
 	im.restartWg.Wait()
 
-	im.logger.Info().Msg("Instance manager stopped")
+	im.logger.Info("Instance manager stopped")
 }

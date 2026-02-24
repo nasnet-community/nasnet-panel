@@ -94,7 +94,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
             <CardDescription>Loading statistics...</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-16" />
               ))}
@@ -134,21 +134,21 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
   return (
     <div className={className}>
       <Card role="region" aria-label={`${interfaceName} statistics`}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-component-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="flex items-center gap-2 text-lg">
+              <CardTitle className="flex items-center gap-component-sm text-lg">
                 <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
                 <span className="truncate">{interfaceName}</span>
               </CardTitle>
-              <CardDescription className="mt-1 text-sm">
+              <CardDescription className="mt-component-sm text-sm">
                 Real-time statistics
               </CardDescription>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-component-lg">
           {/* Error Warning Banner */}
           {hasErrors && (
             <Alert variant="destructive">
@@ -161,15 +161,15 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
 
           {/* Bandwidth Rates - Prominent Display */}
           {rates && (
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               <h3 className="text-sm font-semibold text-muted-foreground">
                 Current Bandwidth
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-component-sm">
                 <Card className="border-chart-1/20 bg-chart-1/10">
-                  <CardContent className="p-4">
+                  <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-component-sm">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-1/20" aria-hidden="true">
                           <ArrowUp className="h-5 w-5 text-chart-1" />
                         </div>
@@ -185,9 +185,9 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                 </Card>
 
                 <Card className="border-chart-2/20 bg-chart-2/10">
-                  <CardContent className="p-4">
+                  <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-component-sm">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-2/20" aria-hidden="true">
                           <ArrowDown className="h-5 w-5 text-chart-2" />
                         </div>
@@ -206,11 +206,11 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           )}
 
           {/* Traffic Counters */}
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             <h3 className="text-sm font-semibold text-muted-foreground">
               Traffic Counters
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-component-sm">
               <StatsCounter value={stats.txBytes} label="TX Bytes" unit="bytes" />
               <StatsCounter value={stats.rxBytes} label="RX Bytes" unit="bytes" />
               <StatsCounter value={stats.txPackets} label="TX Packets" unit="packets" />
@@ -219,11 +219,11 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           </div>
 
           {/* Error Statistics */}
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             <h3 className="text-sm font-semibold text-muted-foreground">
               Errors & Drops
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-component-sm">
               <StatsCounter value={String(stats.txErrors)} label="TX Errors" unit="count" />
               <StatsCounter value={String(stats.rxErrors)} label="RX Errors" unit="count" />
               <StatsCounter value={String(stats.txDrops)} label="TX Drops" unit="count" />

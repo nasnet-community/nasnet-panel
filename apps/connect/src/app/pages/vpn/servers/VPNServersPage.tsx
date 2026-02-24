@@ -138,7 +138,7 @@ export function VPNServersPage() {
             defaultExpanded={activeTab === 'wireguard' || activeTab === 'all'}
           >
             {wireguardServers.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {wireguardServers.map((server) => (
                   <VPNServerCard
                     key={server.id}
@@ -172,7 +172,7 @@ export function VPNServersPage() {
             defaultExpanded={activeTab === 'openvpn' || activeTab === 'all'}
           >
             {openvpnServers.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {openvpnServers.map((server) => (
                   <VPNServerCard
                     key={server.id}
@@ -284,7 +284,7 @@ export function VPNServersPage() {
             defaultExpanded={activeTab === 'ikev2' || activeTab === 'all'}
           >
             {ipsecServerPeers.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {ipsecServerPeers.map((peer) => (
                   <VPNServerCard
                     key={peer.id}
@@ -314,11 +314,11 @@ export function VPNServersPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 py-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-component-md">
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
@@ -329,12 +329,13 @@ export function VPNServersPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Button
               variant="outline"
               size="sm"
               onClick={refetchAll}
               disabled={isLoading || isFetching}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
@@ -355,7 +356,7 @@ export function VPNServersPage() {
         {!isLoading && (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}>
             {/* Protocol Tabs */}
-            <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
+            <TabsList className="w-full flex-wrap h-auto gap-component-sm bg-transparent p-0 mb-component-lg">
               <TabsTrigger
                 value="all"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -410,7 +411,7 @@ interface EmptyStateProps {
 function EmptyState({ protocol, onAdd }: EmptyStateProps) {
   const { t } = useTranslation('vpn');
   return (
-    <div className="text-center py-8 bg-muted/30 rounded-xl">
+    <div className="text-center py-component-lg bg-muted/30 rounded-card-sm">
       <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
         {t('servers.noServersConfigured', { protocol: getProtocolLabel(protocol) })}
@@ -418,7 +419,7 @@ function EmptyState({ protocol, onAdd }: EmptyStateProps) {
       <p className="text-sm text-muted-foreground mb-4">
         {t('servers.getStartedAddFirst', { protocol: getProtocolLabel(protocol) })}
       </p>
-      <Button onClick={onAdd}>
+      <Button onClick={onAdd} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]">
         <Plus className="h-4 w-4 mr-2" />
         {t('servers.addServer', { protocol: getProtocolLabel(protocol) })}
       </Button>

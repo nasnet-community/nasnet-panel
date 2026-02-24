@@ -64,7 +64,7 @@ function FirewallDetailTabsContent({
               value="filter"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Filter className="w-4 h-4" aria-hidden="true" />
@@ -75,7 +75,7 @@ function FirewallDetailTabsContent({
               value="nat"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <ArrowLeftRight className="w-4 h-4" aria-hidden="true" />
@@ -86,7 +86,7 @@ function FirewallDetailTabsContent({
               value="routing"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Route className="w-4 h-4" aria-hidden="true" />
@@ -97,7 +97,7 @@ function FirewallDetailTabsContent({
               value="mangle"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Tag className="w-4 h-4" aria-hidden="true" />
@@ -108,7 +108,7 @@ function FirewallDetailTabsContent({
               value="raw"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Layers className="w-4 h-4" aria-hidden="true" />
@@ -119,7 +119,7 @@ function FirewallDetailTabsContent({
               value="rateLimiting"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Shield className="w-4 h-4" aria-hidden="true" />
@@ -130,7 +130,7 @@ function FirewallDetailTabsContent({
               value="addressLists"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <List className="w-4 h-4" aria-hidden="true" />
@@ -141,7 +141,7 @@ function FirewallDetailTabsContent({
               value="connections"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <Activity className="w-4 h-4" aria-hidden="true" />
@@ -152,7 +152,7 @@ function FirewallDetailTabsContent({
               value="templates"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <FileStack className="w-4 h-4" aria-hidden="true" />
@@ -163,7 +163,7 @@ function FirewallDetailTabsContent({
               value="logs"
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-md',
-                'data-[state=active]:bg-background dark:data-[state=active]:bg-slate-900'
+                'data-[state=active]:bg-background'
               )}
             >
               <ScrollText className="w-4 h-4" aria-hidden="true" />

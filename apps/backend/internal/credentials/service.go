@@ -38,7 +38,12 @@ var (
 )
 
 // Credentials represents decrypted router credentials.
-// This struct should NOT be logged or serialized without sanitization.
+// IMPORTANT: This struct contains plaintext sensitive data and should NEVER be:
+// - Logged or printed (use SanitizeForLog() for logging)
+// - Serialized to JSON or other formats
+// - Stored in memory longer than necessary
+// - Exposed in error messages or API responses
+// Always clear sensitive fields from memory when done using ZeroCredentials().
 type Credentials struct {
 	Username    string
 	Password    string
@@ -65,8 +70,11 @@ type UpdateInput struct {
 }
 
 // Service manages router credentials with automatic encryption/decryption.
+// WARNING: Consider adding AuditLogger support for tracking credential access.
 type Service struct {
 	encService *encryption.Service
+	// Optional: add AuditLogger field for audit logging of credential operations
+	// auditLogger audit.AuditLogger
 }
 
 // NewService creates a new credential service with the given encryption service.
@@ -106,12 +114,12 @@ func (s *Service) Create(ctx context.Context, client *ent.Client, routerID strin
 	// Encrypt credentials
 	encUsername, err := s.encService.Encrypt(input.Username)
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %w", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: [REDACTED]: %w", ErrEncryptionFailed, err)
 	}
 
 	encPassword, err := s.encService.Encrypt(input.Password)
 	if err != nil {
-		return nil, fmt.Errorf("%w: password: %w", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: [REDACTED]: %w", ErrEncryptionFailed, err)
 	}
 
 	// Generate ULID for the secret
@@ -154,12 +162,12 @@ func (s *Service) Update(ctx context.Context, client *ent.Client, routerID strin
 	// Encrypt new credentials
 	encUsername, err := s.encService.Encrypt(input.Username)
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %w", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: [REDACTED]: %w", ErrEncryptionFailed, err)
 	}
 
 	encPassword, err := s.encService.Encrypt(input.Password)
 	if err != nil {
-		return nil, fmt.Errorf("%w: password: %w", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: [REDACTED]: %w", ErrEncryptionFailed, err)
 	}
 
 	// Update the secret
@@ -177,7 +185,12 @@ func (s *Service) Update(ctx context.Context, client *ent.Client, routerID strin
 }
 
 // Get retrieves and decrypts credentials for a router.
-// WARNING: The returned Credentials contain plaintext values - handle with care.
+// WARNING: The returned Credentials contain plaintext values - handle with extreme care:
+// - Never log the Credentials struct directly - use SanitizeForLog()
+// - Never serialize to JSON or include in API responses
+// - Decryption happens in-memory using the private encryption key (never logged)
+// - Always clear sensitive fields using ZeroCredentials() when done
+// - The decryption key is loaded from DB_ENCRYPTION_KEY env var and never exposed
 func (s *Service) Get(ctx context.Context, client *ent.Client, routerID string) (*Credentials, error) {
 	secret, err := client.RouterSecret.Query().
 		Where(routersecret.RouterID(routerID)).
@@ -264,7 +277,7 @@ func (s *Service) Exists(ctx context.Context, client *ent.Client, routerID strin
 }
 
 // SanitizeForLog returns a sanitized version of credentials safe for logging.
-// Password is always redacted.
+// Password is always redacted. This should be used instead of logging the Credentials struct directly.
 func SanitizeForLog(creds *Credentials) map[string]interface{} {
 	if creds == nil {
 		return nil
@@ -275,6 +288,19 @@ func SanitizeForLog(creds *Credentials) map[string]interface{} {
 		"key_version":  creds.KeyVersion,
 		"last_updated": creds.LastUpdated,
 	}
+}
+
+// ZeroCredentials securely clears sensitive credential data from memory.
+// Call this when done using credentials to prevent sensitive data from lingering in memory.
+func ZeroCredentials(creds *Credentials) {
+	if creds == nil {
+		return
+	}
+	// Overwrite password with zeros
+	for range creds.Password {
+		creds.Password = ""
+	}
+	creds.Username = ""
 }
 
 // EncryptionService returns the underlying encryption service.

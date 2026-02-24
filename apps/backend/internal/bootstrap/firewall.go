@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"log"
+	"go.uber.org/zap"
 
 	"backend/internal/firewall"
 )
@@ -16,17 +16,17 @@ type FirewallComponents struct {
 // This includes:
 // - Firewall template service (address list templates)
 // - Address list service (address list operations)
-func InitializeFirewallServices() (*FirewallComponents, error) {
+func InitializeFirewallServices(logger *zap.SugaredLogger) (*FirewallComponents, error) {
 	// 1. Firewall Template Service - address list templates
 	templateService, err := firewall.NewTemplateService()
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Firewall template service initialized")
+	logger.Infow("firewall template service initialized")
 
 	// 2. Address List Service - address list operations
 	addressListService := firewall.NewAddressListService()
-	log.Printf("Address list service initialized")
+	logger.Infow("address list service initialized")
 
 	return &FirewallComponents{
 		TemplateService:    templateService,

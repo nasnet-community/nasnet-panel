@@ -2,9 +2,10 @@ package netif
 
 import (
 	"context"
-	"log"
 
 	"backend/internal/router"
+
+	"go.uber.org/zap"
 )
 
 // enrichWithIPs fetches IP addresses and assigns them to interfaces.
@@ -16,7 +17,7 @@ func (s *InterfaceService) enrichWithIPs(ctx context.Context, _routerID string, 
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		log.Printf("warning: failed to fetch IP addresses: %v", err)
+		s.logger.Warn("failed to fetch IP addresses", zap.Error(err))
 		return
 	}
 
@@ -51,8 +52,8 @@ func (s *InterfaceService) enrichWithIPs(ctx context.Context, _routerID string, 
 }
 
 // enrichWithTraffic fetches current traffic rates for interfaces.
-func (s *InterfaceService) enrichWithTraffic(ctx context.Context, routerID string, interfaces []*InterfaceData) {
-	log.Printf("debug: traffic rate monitoring not yet implemented, using byte counters")
+func (s *InterfaceService) enrichWithTraffic(_ context.Context, _ string, _ []*InterfaceData) {
+	s.logger.Debug("traffic rate monitoring not yet implemented, using byte counters")
 }
 
 // enrichWithLinkPartners fetches LLDP neighbor information.
@@ -64,7 +65,7 @@ func (s *InterfaceService) enrichWithLinkPartners(ctx context.Context, _routerID
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		log.Printf("debug: LLDP neighbors not available: %v", err)
+		s.logger.Debug("LLDP neighbors not available", zap.Error(err))
 		return
 	}
 

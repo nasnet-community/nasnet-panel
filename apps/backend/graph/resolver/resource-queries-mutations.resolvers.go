@@ -7,66 +7,66 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CreateResource is the resolver for the createResource field.
-func (r *mutationResolver) CreateResource(_ context.Context, input model.CreateResourceInput) (*model.CreateResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: CreateResource - createResource"))
+func (r *mutationResolver) CreateResource(ctx context.Context, input model.CreateResourceInput) (*model.CreateResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "CreateResource - createResource", "graphql"))
 }
 
 // UpdateResource is the resolver for the updateResource field.
-func (r *mutationResolver) UpdateResource(_ context.Context, id string, routerID string, input model.UpdateResourceInput) (*model.UpdateResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateResource - updateResource"))
+func (r *mutationResolver) UpdateResource(ctx context.Context, id string, routerID string, input model.UpdateResourceInput) (*model.UpdateResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "UpdateResource - updateResource", "graphql"))
 }
 
 // ValidateResource is the resolver for the validateResource field.
-func (r *mutationResolver) ValidateResource(_ context.Context, id string, routerID string) (*model.ValidateResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: ValidateResource - validateResource"))
+func (r *mutationResolver) ValidateResource(ctx context.Context, id string, routerID string) (*model.ValidateResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ValidateResource - validateResource", "graphql"))
 }
 
 // ApplyResource is the resolver for the applyResource field.
-func (r *mutationResolver) ApplyResource(_ context.Context, id string, routerID string) (*model.ApplyResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: ApplyResource - applyResource"))
+func (r *mutationResolver) ApplyResource(ctx context.Context, id string, routerID string) (*model.ApplyResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ApplyResource - applyResource", "graphql"))
 }
 
 // DeprecateResource is the resolver for the deprecateResource field.
-func (r *mutationResolver) DeprecateResource(_ context.Context, id string, routerID string) (*model.DeprecateResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: DeprecateResource - deprecateResource"))
+func (r *mutationResolver) DeprecateResource(ctx context.Context, id string, routerID string) (*model.DeprecateResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "DeprecateResource - deprecateResource", "graphql"))
 }
 
 // ArchiveResource is the resolver for the archiveResource field.
-func (r *mutationResolver) ArchiveResource(_ context.Context, id string, routerID string) (*model.ArchiveResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: ArchiveResource - archiveResource"))
+func (r *mutationResolver) ArchiveResource(ctx context.Context, id string, routerID string) (*model.ArchiveResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ArchiveResource - archiveResource", "graphql"))
 }
 
 // DeleteResource is the resolver for the deleteResource field.
-func (r *mutationResolver) DeleteResource(_ context.Context, id string, routerID string) (*model.DeleteResourcePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteResource - deleteResource"))
+func (r *mutationResolver) DeleteResource(ctx context.Context, id string, routerID string) (*model.DeleteResourcePayload, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "DeleteResource - deleteResource", "graphql"))
 }
 
 // Resource is the resolver for the resource field.
-func (r *queryResolver) Resource(_ context.Context, id string, routerID string, layers []model.ResourceLayer) (model.Resource, error) {
-	panic(fmt.Errorf("not implemented: Resource - resource"))
+func (r *queryResolver) Resource(ctx context.Context, id string, routerID string, layers []model.ResourceLayer) (model.Resource, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "Resource - resource", "graphql"))
 }
 
 // Resources is the resolver for the resources field.
-func (r *queryResolver) Resources(_ context.Context, routerID string, category *model.ResourceCategory, typeArg *string, state *model.ResourceLifecycleState, pagination *model.PaginationInput) (*model.ResourceConnection, error) {
-	panic(fmt.Errorf("not implemented: Resources - resources"))
+func (r *queryResolver) Resources(ctx context.Context, routerID string, category *model.ResourceCategory, typeArg *string, state *model.ResourceLifecycleState, pagination *model.PaginationInput) (*model.ResourceConnection, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "Resources - resources", "graphql"))
 }
 
 // CompositeResource is the resolver for the compositeResource field.
-func (r *queryResolver) CompositeResource(_ context.Context, id string, routerID string) (*model.CompositeResource, error) {
-	panic(fmt.Errorf("not implemented: CompositeResource - compositeResource"))
+func (r *queryResolver) CompositeResource(ctx context.Context, id string, routerID string) (*model.CompositeResource, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "CompositeResource - compositeResource", "graphql"))
 }
 
 // ResourceRuntime is the resolver for the resourceRuntime field.
-func (r *subscriptionResolver) ResourceRuntime(_ context.Context, id string, routerID string) (<-chan *model.ResourceRuntimeEvent, error) {
-	panic(fmt.Errorf("not implemented: ResourceRuntime - resourceRuntime"))
+func (r *subscriptionResolver) ResourceRuntime(ctx context.Context, id string, routerID string) (<-chan *model.ResourceRuntimeEvent, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ResourceRuntime - resourceRuntime", "graphql"))
 }
 
 // ResourceStateChanged is the resolver for the resourceStateChanged field.
-func (r *subscriptionResolver) ResourceStateChanged(_ context.Context, id *string, routerID string) (<-chan *model.ResourceStateEvent, error) {
-	panic(fmt.Errorf("not implemented: ResourceStateChanged - resourceStateChanged"))
+func (r *subscriptionResolver) ResourceStateChanged(ctx context.Context, id *string, routerID string) (<-chan *model.ResourceStateEvent, error) {
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ResourceStateChanged - resourceStateChanged", "graphql"))
 }

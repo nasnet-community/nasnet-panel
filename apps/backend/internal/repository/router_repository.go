@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"backend/generated/ent"
@@ -15,6 +14,7 @@ import (
 	"backend/internal/events"
 
 	oklogulid "github.com/oklog/ulid/v2"
+	"go.uber.org/zap"
 )
 
 // routerRepository implements RouterRepository.
@@ -23,6 +23,7 @@ type routerRepository struct {
 	dbManager    *database.Manager
 	eventBus     events.EventBus
 	cleanupQueue *CleanupQueue
+	logger       *zap.Logger
 }
 
 // RouterRepositoryConfig holds configuration for RouterRepository.
@@ -31,15 +32,20 @@ type RouterRepositoryConfig struct {
 	DBManager    *database.Manager
 	EventBus     events.EventBus
 	CleanupQueue *CleanupQueue
+	Logger       *zap.Logger
 }
 
 // NewRouterRepository creates a new RouterRepository.
 func NewRouterRepository(cfg RouterRepositoryConfig) RouterRepository {
+	if cfg.Logger == nil {
+		cfg.Logger = zap.NewNop()
+	}
 	return &routerRepository{
 		systemDB:     cfg.SystemDB,
 		dbManager:    cfg.DBManager,
 		eventBus:     cfg.EventBus,
 		cleanupQueue: cfg.CleanupQueue,
+		logger:       cfg.Logger,
 	}
 }
 
@@ -176,7 +182,7 @@ func (r *routerRepository) CreateWithSecrets(ctx context.Context, input CreateRo
 	if r.eventBus != nil {
 		event := events.NewRouterConnectedEvent(result.ID, "", "", "repository")
 		if err := r.eventBus.Publish(ctx, event); err != nil {
-			log.Printf("[repository] Failed to publish router created event: %v", err)
+			r.logger.Error("Failed to publish router created event", zap.Error(err))
 		}
 	}
 
@@ -232,7 +238,7 @@ func (r *routerRepository) UpdateStatus(ctx context.Context, id oklogulid.ULID, 
 			"repository",
 		)
 		if err := r.eventBus.Publish(ctx, event); err != nil {
-			log.Printf("[repository] Failed to publish status change event: %v", err)
+			r.logger.Error("Failed to publish status change event", zap.Error(err))
 		}
 	}
 
@@ -355,7 +361,7 @@ func (r *routerRepository) Delete(ctx context.Context, id oklogulid.ULID) error 
 	if r.eventBus != nil {
 		event := events.NewRouterDisconnectedEvent(id.String(), "deleted", "repository")
 		if err := r.eventBus.Publish(ctx, event); err != nil {
-			log.Printf("[repository] Failed to publish router deleted event: %v", err)
+			r.logger.Error("Failed to publish router deleted event", zap.Error(err))
 		}
 	}
 

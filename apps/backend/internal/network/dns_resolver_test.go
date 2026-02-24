@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"testing"
 	"time"
@@ -15,6 +16,7 @@ func TestNewDNSResolver(t *testing.T) {
 		resolver := NewDNSResolver(DNSResolverConfig{})
 		assert.NotNil(t, resolver)
 		assert.Equal(t, 5*time.Minute, resolver.ttl)
+		assert.Equal(t, 5*time.Second, resolver.queryTimeout)
 	})
 
 	t.Run("custom TTL", func(t *testing.T) {
@@ -22,6 +24,13 @@ func TestNewDNSResolver(t *testing.T) {
 			TTL: 10 * time.Minute,
 		})
 		assert.Equal(t, 10*time.Minute, resolver.ttl)
+	})
+
+	t.Run("custom QueryTimeout", func(t *testing.T) {
+		resolver := NewDNSResolver(DNSResolverConfig{
+			QueryTimeout: 10 * time.Second,
+		})
+		assert.Equal(t, 10*time.Second, resolver.queryTimeout)
 	})
 }
 
@@ -271,6 +280,7 @@ func TestDNSError(t *testing.T) {
 	err := &DNSError{
 		Hostname: "test.local",
 		Cause:    net.UnknownNetworkError("test error"),
+		Type:     DNSErrorTypeUnknown,
 	}
 
 	assert.Contains(t, err.Error(), "test.local")
@@ -278,4 +288,225 @@ func TestDNSError(t *testing.T) {
 
 	unwrapped := err.Unwrap()
 	assert.NotNil(t, unwrapped)
+}
+
+func TestDNSError_ErrorTypes(t *testing.T) {
+	tests := []struct {
+		name        string
+		errorType   DNSErrorType
+		expectedStr string
+	}{
+		{
+			name:        "NXDOMAIN",
+			errorType:   DNSErrorTypeNXDomain,
+			expectedStr: "NXDOMAIN",
+		},
+		{
+			name:        "timeout",
+			errorType:   DNSErrorTypeTimeout,
+			expectedStr: "timeout",
+		},
+		{
+			name:        "SERVFAIL",
+			errorType:   DNSErrorTypeServerFailure,
+			expectedStr: "SERVFAIL",
+		},
+		{
+			name:        "no answer",
+			errorType:   DNSErrorTypeNoAnswer,
+			expectedStr: "no answer",
+		},
+		{
+			name:        "canceled",
+			errorType:   DNSErrorTypeCanceled,
+			expectedStr: "canceled",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := &DNSError{
+				Hostname: "test.local",
+				Cause:    fmt.Errorf("test error"),
+				Type:     tt.errorType,
+			}
+			assert.Contains(t, err.Error(), tt.expectedStr)
+		})
+	}
+}
+
+func TestNewDNSError_Classification(t *testing.T) {
+	t.Run("context canceled", func(t *testing.T) {
+		err := newDNSError("test.local", context.Canceled)
+		assert.Equal(t, DNSErrorTypeCanceled, err.Type)
+	})
+
+	t.Run("context deadline exceeded", func(t *testing.T) {
+		err := newDNSError("test.local", context.DeadlineExceeded)
+		assert.Equal(t, DNSErrorTypeTimeout, err.Type)
+	})
+
+	t.Run("no such host", func(t *testing.T) {
+		err := newDNSError("nonexistent.local", fmt.Errorf("no such host"))
+		assert.Equal(t, DNSErrorTypeNXDomain, err.Type)
+	})
+
+	t.Run("unknown error", func(t *testing.T) {
+		err := newDNSError("test.local", fmt.Errorf("unknown error"))
+		assert.Equal(t, DNSErrorTypeUnknown, err.Type)
+	})
+}
+
+func TestDNSResolver_ContextCancellation(t *testing.T) {
+	resolver := NewDNSResolver(DNSResolverConfig{})
+
+	t.Run("cancelled context", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		result, err := resolver.Resolve(ctx, "example.com")
+		assert.Nil(t, result)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cancelled")
+	})
+
+	t.Run("cancelled context with IP passthrough", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		result, err := resolver.Resolve(ctx, "192.168.1.1")
+		assert.Nil(t, result)
+		assert.Error(t, err)
+	})
+}
+
+func TestDNSResolver_QueryTimeout(t *testing.T) {
+	t.Run("context with deadline is respected", func(t *testing.T) {
+		// Create a resolver with long default timeout
+		resolver := NewDNSResolver(DNSResolverConfig{
+			QueryTimeout: 30 * time.Second,
+		})
+
+		// Use context with very short deadline
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
+		defer cancel()
+
+		// Even with short deadline, should not use resolver's default timeout
+		// The context deadline takes precedence
+		result, err := resolver.Resolve(ctx, "localhost")
+
+		// Either succeeds (if localhost resolves fast) or times out
+		if err != nil {
+			assert.Contains(t, err.Error(), "DNS resolution")
+		} else {
+			assert.NotNil(t, result)
+		}
+	})
+
+	t.Run("default timeout is applied when context has no deadline", func(t *testing.T) {
+		resolver := NewDNSResolver(DNSResolverConfig{
+			QueryTimeout: 5 * time.Second,
+		})
+
+		ctx := context.Background()
+		startTime := time.Now()
+
+		// IP passthrough should not use timeout
+		result, err := resolver.Resolve(ctx, "192.168.1.1")
+		elapsed := time.Since(startTime)
+
+		require.NoError(t, err)
+		assert.NotNil(t, result)
+		// IP passthrough should be instant
+		assert.Less(t, elapsed, 1*time.Second)
+	})
+}
+
+func TestDNSResolver_ResolveToString_NilIP(t *testing.T) {
+	resolver := NewDNSResolver(DNSResolverConfig{})
+	ctx := context.Background()
+
+	// Manually inject a cache entry with nil IP (edge case)
+	resolver.mu.Lock()
+	resolver.cache["edge-case.local"] = &cacheEntry{
+		ips:       []net.IP{},
+		expiresAt: time.Now().Add(time.Hour),
+	}
+	resolver.mu.Unlock()
+
+	result, err := resolver.ResolveToString(ctx, "edge-case.local")
+	assert.Error(t, err)
+	assert.Empty(t, result)
+	assert.Contains(t, err.Error(), "no IP address resolved")
+}
+
+// mockResolver is a test helper that mocks DNS resolution.
+type mockResolver struct {
+	results map[string][]net.IP
+	errors  map[string]error
+}
+
+func (m *mockResolver) LookupIP(ctx context.Context, network, host string) ([]net.IP, error) {
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	if err, ok := m.errors[host]; ok {
+		return nil, err
+	}
+	if ips, ok := m.results[host]; ok {
+		return ips, nil
+	}
+	return nil, fmt.Errorf("no such host")
+}
+
+func TestDNSResolver_MockResolver_Success(t *testing.T) {
+	_ = &mockResolver{
+		results: map[string][]net.IP{
+			"router.local": {net.ParseIP("192.168.1.1")},
+		},
+	}
+
+	resolver := NewDNSResolver(DNSResolverConfig{
+		Resolver: &net.Resolver{
+			PreferGo: true,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				// This is a simplified mock; actual mock would intercept DNS packets
+				return nil, fmt.Errorf("mock resolver")
+			},
+		},
+	})
+
+	// Manually set the mock in cache for this test
+	resolver.mu.Lock()
+	resolver.cache["router.local"] = &cacheEntry{
+		ips:       []net.IP{net.ParseIP("192.168.1.1")},
+		expiresAt: time.Now().Add(time.Hour),
+	}
+	resolver.mu.Unlock()
+
+	ctx := context.Background()
+	result, err := resolver.Resolve(ctx, "router.local")
+	require.NoError(t, err)
+	assert.True(t, result.FromCache)
+	assert.Equal(t, "192.168.1.1", result.PreferredIP.String())
+}
+
+func TestDNSResolver_MockResolver_Failure(t *testing.T) {
+	resolver := NewDNSResolver(DNSResolverConfig{})
+
+	// Manually inject error into cache
+	resolver.mu.Lock()
+	resolver.cache["nonexistent.local"] = &cacheEntry{
+		err:       fmt.Errorf("no such host"),
+		expiresAt: time.Now().Add(time.Hour),
+	}
+	resolver.mu.Unlock()
+
+	ctx := context.Background()
+	result, err := resolver.Resolve(ctx, "nonexistent.local")
+	assert.Nil(t, result)
+	assert.Error(t, err)
 }

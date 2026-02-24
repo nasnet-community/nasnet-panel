@@ -135,7 +135,7 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs text-slate-500">#{rule.order}</span>
+              <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
               <Badge variant="secondary" className="text-xs">
                 {rule.chain}
               </Badge>
@@ -172,7 +172,7 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 italic mb-3">
+          <div className="text-sm text-muted-foreground italic mb-3">
             {rule.comment}
           </div>
         )}
@@ -356,7 +356,7 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
 
   if (error) {
     return (
-      <div className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}>
+      <div className={cn('p-component-md text-error rounded-[var(--semantic-radius-card)] bg-error/10', className)}>
         <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
         <p className="text-sm mt-1">{error.message}</p>
       </div>
@@ -422,7 +422,7 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
-            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>

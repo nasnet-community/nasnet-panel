@@ -101,16 +101,16 @@ function VlanTopologyDesktopContent({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Statistics Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-component-sm">
               <Network className="h-5 w-5" aria-hidden="true" />
               VLAN Topology
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <Button variant="outline" size="sm" onClick={handleExpandAll}>
                 Expand All
               </Button>
@@ -121,24 +121,24 @@ function VlanTopologyDesktopContent({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
-            <div className="space-y-1">
+          <div className="grid grid-cols-4 gap-component-md">
+            <div className="space-y-component-xs">
               <p className="text-sm text-muted-foreground">Total VLANs</p>
               <p className="text-2xl font-bold font-mono">{stats.totalVlans}</p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm text-muted-foreground">Running</p>
               <p className="text-2xl font-bold font-mono text-success">
                 {stats.runningVlans}
               </p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm text-muted-foreground">Disabled</p>
               <p className="text-2xl font-bold font-mono text-muted-foreground">
                 {stats.disabledVlans}
               </p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm text-muted-foreground">Parent Interfaces</p>
               <p className="text-2xl font-bold font-mono">{stats.parentInterfaces}</p>
             </div>
@@ -148,19 +148,19 @@ function VlanTopologyDesktopContent({
 
       {/* Topology Tree */}
       <Card>
-        <CardContent className="p-6">
-          <div className="space-y-2">
+        <CardContent className="p-component-lg">
+          <div className="space-y-component-sm">
             {topology.map((iface) => {
               const isExpanded = expandedInterfaces.has(iface.id);
 
               return (
-                <div key={iface.id} className="border rounded-lg">
+                <div key={iface.id} className="border border-border rounded-[var(--semantic-radius-card)]">
                   {/* Parent Interface Header */}
                   <button
                     onClick={() => handleToggleInterface(iface.id)}
                     aria-expanded={isExpanded}
                     aria-controls={`vlan-list-${iface.id}`}
-                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
+                    className="w-full flex items-center gap-component-sm p-component-md hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {isExpanded ? (
                       <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
@@ -169,7 +169,7 @@ function VlanTopologyDesktopContent({
                     )}
 
                     <div className="flex-1 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-component-sm">
                         <Network className="h-5 w-5" aria-hidden="true" />
                         <div className="text-left">
                           <p className="font-medium">{iface.name}</p>
@@ -187,16 +187,16 @@ function VlanTopologyDesktopContent({
 
                   {/* VLANs List */}
                   {isExpanded && iface.vlans.length > 0 && (
-                    <div id={`vlan-list-${iface.id}`} className="border-t bg-muted/20">
-                      <div className="p-4 pl-16 space-y-2">
+                    <div id={`vlan-list-${iface.id}`} className="border-t border-border bg-muted/20">
+                      <div className="p-component-md pl-16 space-y-component-sm">
                         {iface.vlans.map((vlan) => (
                           <button
                             key={vlan.id}
                             onClick={() => handleVlanSelect(vlan.id)}
-                            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-background border hover:border-primary/50 transition-all text-left"
+                            className="w-full flex items-center gap-component-sm p-component-sm rounded-[var(--semantic-radius-card)] hover:bg-background border border-border hover:border-primary/50 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <div className="flex-1 flex items-center justify-between">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-component-sm">
                                 <Badge
                                   variant="outline"
                                   className="font-mono min-w-[60px] justify-center"
@@ -213,7 +213,7 @@ function VlanTopologyDesktopContent({
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-component-xs">
                                 {vlan.mtu && (
                                   <Badge variant="outline" className="font-mono">
                                     MTU {vlan.mtu}

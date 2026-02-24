@@ -11,7 +11,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -49,15 +49,15 @@ type MonitoredInstance struct {
 
 	// Circular buffer for trend detection (last trendSampleCount memory samples in MB)
 	memorySamples [trendSampleCount]uint64
-	sampleIndex   int  // Next write position in the circular buffer
-	sampleCount   int  // How many samples have been written (capped at trendSampleCount)
+	sampleIndex   int // Next write position in the circular buffer
+	sampleCount   int // How many samples have been written (capped at trendSampleCount)
 }
 
 // ResourcePollerConfig configures the ResourcePoller
 type ResourcePollerConfig struct {
 	ResourceLimiter *ResourceLimiter
 	EventBus        events.EventBus
-	Logger          zerolog.Logger
+	Logger          *zap.Logger
 }
 
 // ResourcePoller monitors resource usage for service instances and emits warnings
@@ -66,7 +66,7 @@ type ResourcePoller struct {
 	config    ResourcePollerConfig
 	publisher *events.Publisher
 	instances map[string]*MonitoredInstance // instanceID -> MonitoredInstance
-	logger    zerolog.Logger
+	logger    *zap.Logger
 	ctx       context.Context
 	cancel    context.CancelFunc
 	wg        sync.WaitGroup
@@ -90,6 +90,10 @@ func NewResourcePoller(config ResourcePollerConfig) (*ResourcePoller, error) {
 		logger:    config.Logger,
 	}
 
+	if rp.logger == nil {
+		rp.logger = zap.NewNop()
+	}
+
 	return rp, nil
 }
 
@@ -108,7 +112,7 @@ func (rp *ResourcePoller) Start(ctx context.Context) error {
 	rp.wg.Add(1)
 	go rp.pollerLoop()
 
-	rp.logger.Info().Msg("Resource poller started")
+	rp.logger.Info("Resource poller started")
 	return nil
 }
 
@@ -128,7 +132,7 @@ func (rp *ResourcePoller) Stop() error {
 	// Wait for poller loop to finish
 	rp.wg.Wait()
 
-	rp.logger.Info().Msg("Resource poller stopped")
+	rp.logger.Info("Resource poller stopped")
 	return nil
 }
 
@@ -155,12 +159,11 @@ func (rp *ResourcePoller) AddInstance(instanceID, featureID, instanceName string
 		InWarningState: false,
 	}
 
-	rp.logger.Info().
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Int("pid", pid).
-		Int("memory_limit_mb", memoryLimitMB).
-		Msg("Added instance to resource monitoring")
+	rp.logger.Info("Added instance to resource monitoring",
+		zap.String("instance_id", instanceID),
+		zap.String("feature_id", featureID),
+		zap.Int("pid", pid),
+		zap.Int("memory_limit_mb", memoryLimitMB))
 
 	return nil
 }
@@ -172,9 +175,8 @@ func (rp *ResourcePoller) RemoveInstance(instanceID string) {
 
 	if _, exists := rp.instances[instanceID]; exists {
 		delete(rp.instances, instanceID)
-		rp.logger.Info().
-			Str("instance_id", instanceID).
-			Msg("Removed instance from resource monitoring")
+		rp.logger.Info("Removed instance from resource monitoring",
+			zap.String("instance_id", instanceID))
 	}
 }
 
@@ -185,15 +187,14 @@ func (rp *ResourcePoller) pollerLoop() {
 	ticker := time.NewTicker(PollingIntervalSeconds * time.Second)
 	defer ticker.Stop()
 
-	rp.logger.Info().
-		Int("interval_seconds", PollingIntervalSeconds).
-		Float64("warning_threshold_percent", WarningThresholdPercent).
-		Msg("Resource poller loop started")
+	rp.logger.Info("Resource poller loop started",
+		zap.Int("interval_seconds", PollingIntervalSeconds),
+		zap.Float64("warning_threshold_percent", WarningThresholdPercent))
 
 	for {
 		select {
 		case <-rp.ctx.Done():
-			rp.logger.Info().Msg("Resource poller loop stopped")
+			rp.logger.Info("Resource poller loop stopped")
 			return
 
 		case <-ticker.C:
@@ -224,19 +225,17 @@ func (rp *ResourcePoller) pollInstance(inst *MonitoredInstance) {
 	if err != nil {
 		// Check if process no longer exists (ENOENT)
 		if os.IsNotExist(err) {
-			rp.logger.Warn().
-				Str("instance_id", inst.InstanceID).
-				Int("pid", inst.PID).
-				Msg("Process no longer exists, removing from monitoring")
+			rp.logger.Warn("Process no longer exists, removing from monitoring",
+				zap.String("instance_id", inst.InstanceID),
+				zap.Int("pid", inst.PID))
 			rp.RemoveInstance(inst.InstanceID)
 			return
 		}
 
-		rp.logger.Error().
-			Err(err).
-			Str("instance_id", inst.InstanceID).
-			Int("pid", inst.PID).
-			Msg("Failed to get resource usage")
+		rp.logger.Error("Failed to get resource usage",
+			zap.Error(err),
+			zap.String("instance_id", inst.InstanceID),
+			zap.Int("pid", inst.PID))
 		return
 	}
 
@@ -247,13 +246,12 @@ func (rp *ResourcePoller) pollInstance(inst *MonitoredInstance) {
 	// regardless of whether a warning is emitted this cycle.
 	rp.recordSample(inst, usage.MemoryMB)
 
-	rp.logger.Debug().
-		Str("instance_id", inst.InstanceID).
-		Uint64("memory_mb", usage.MemoryMB).
-		Int("limit_mb", inst.MemoryLimitMB).
-		Float64("usage_percent", usagePercent).
-		Bool("in_warning_state", inst.InWarningState).
-		Msg("Polled instance resource usage")
+	rp.logger.Debug("Polled instance resource usage",
+		zap.String("instance_id", inst.InstanceID),
+		zap.Uint64("memory_mb", usage.MemoryMB),
+		zap.Int("limit_mb", inst.MemoryLimitMB),
+		zap.Float64("usage_percent", usagePercent),
+		zap.Bool("in_warning_state", inst.InWarningState))
 
 	// Check if we should emit a warning
 	rp.checkAndEmitWarning(inst, usage, usagePercent)
@@ -273,21 +271,19 @@ func (rp *ResourcePoller) checkAndEmitWarning(inst *MonitoredInstance, usage *Re
 		shouldWarn = true
 		inst.InWarningState = true
 
-		rp.logger.Warn().
-			Str("instance_id", inst.InstanceID).
-			Float64("usage_percent", usagePercent).
-			Float64("threshold_percent", WarningThresholdPercent).
-			Msg("Instance crossed warning threshold")
+		rp.logger.Warn("Instance crossed warning threshold",
+			zap.String("instance_id", inst.InstanceID),
+			zap.Float64("usage_percent", usagePercent),
+			zap.Float64("threshold_percent", WarningThresholdPercent))
 
 	} else if inst.InWarningState && usagePercent < WarningClearThresholdPercent {
 		// Exiting warning state (dropping below 70% threshold)
 		inst.InWarningState = false
 
-		rp.logger.Info().
-			Str("instance_id", inst.InstanceID).
-			Float64("usage_percent", usagePercent).
-			Float64("clear_threshold_percent", WarningClearThresholdPercent).
-			Msg("Instance dropped below warning clear threshold")
+		rp.logger.Info("Instance dropped below warning clear threshold",
+			zap.String("instance_id", inst.InstanceID),
+			zap.Float64("usage_percent", usagePercent),
+			zap.Float64("clear_threshold_percent", WarningClearThresholdPercent))
 
 	} else if inst.InWarningState {
 		// Already in warning state, check cooldown
@@ -296,11 +292,10 @@ func (rp *ResourcePoller) checkAndEmitWarning(inst *MonitoredInstance, usage *Re
 
 		if timeSinceLastWarning >= cooldownDuration {
 			shouldWarn = true
-			rp.logger.Info().
-				Str("instance_id", inst.InstanceID).
-				Float64("usage_percent", usagePercent).
-				Dur("time_since_last_warning", timeSinceLastWarning).
-				Msg("Cooldown expired, re-emitting warning")
+			rp.logger.Info("Cooldown expired, re-emitting warning",
+				zap.String("instance_id", inst.InstanceID),
+				zap.Float64("usage_percent", usagePercent),
+				zap.Duration("time_since_last_warning", timeSinceLastWarning))
 		}
 	}
 
@@ -322,7 +317,7 @@ func (rp *ResourcePoller) emitResourceWarning(inst *MonitoredInstance, usage *Re
 		fmt.Sprintf("%d MB", inst.MemoryLimitMB), // LimitValue
 		usage.Time.Format(time.RFC3339),          // DetectedAt
 		fmt.Sprintf("Consider stopping or reducing memory limit for %s", inst.InstanceName), // RecommendedAction
-		"",                                   // CgroupPath
+		"",                                    // CgroupPath
 		rp.computeTrend(inst, usage.MemoryMB), // TrendDirection
 		"resource-poller",
 		int(WarningThresholdPercent), // ThresholdPercent
@@ -330,16 +325,14 @@ func (rp *ResourcePoller) emitResourceWarning(inst *MonitoredInstance, usage *Re
 	)
 
 	if err := rp.publisher.Publish(rp.ctx, event); err != nil {
-		rp.logger.Error().
-			Err(err).
-			Str("instance_id", inst.InstanceID).
-			Msg("Failed to publish ResourceWarningEvent")
+		rp.logger.Error("Failed to publish ResourceWarningEvent",
+			zap.Error(err),
+			zap.String("instance_id", inst.InstanceID))
 	} else {
-		rp.logger.Warn().
-			Str("instance_id", inst.InstanceID).
-			Str("feature_id", inst.FeatureID).
-			Float64("usage_percent", usagePercent).
-			Msg("Emitted ResourceWarningEvent")
+		rp.logger.Warn("Emitted ResourceWarningEvent",
+			zap.String("instance_id", inst.InstanceID),
+			zap.String("feature_id", inst.FeatureID),
+			zap.Float64("usage_percent", usagePercent))
 	}
 }
 

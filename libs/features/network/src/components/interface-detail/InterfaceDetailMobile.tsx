@@ -83,7 +83,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
         {/* Content */}
         <div className="overflow-y-auto flex-1 p-4">
           {loading && (
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-40 w-full" />
               <Skeleton className="h-40 w-full" />
@@ -102,7 +102,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
           {!loading && !error && iface && !editMode && (
             <div className="space-y-6">
               {/* Status badges */}
-              <div className="flex gap-2">
+              <div className="flex gap-component-sm">
                 <Badge variant={iface.enabled ? 'default' : 'outline'}>
                   {iface.enabled ? 'Enabled' : 'Disabled'}
                 </Badge>
@@ -127,7 +127,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
               {/* Status section */}
               <div>
                 <h3 className="font-semibold mb-3">Status</h3>
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <MobileInfoRow label="Running" value={iface.running ? 'Yes' : 'No'} />
                   {iface.macAddress && (
                     <MobileInfoRow label="MAC Address" value={iface.macAddress} mono />
@@ -146,15 +146,15 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
               {/* Traffic section */}
               <div>
                 <h3 className="font-semibold mb-3">Traffic</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-component-md">
+                  <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
                     <h4 className="text-xs text-muted-foreground mb-1">TX Rate</h4>
                     <p className="text-xl font-bold">{formatRate(iface.txRate || 0)}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Total: {formatBytes(iface.txBytes || 0)}
                     </p>
                   </div>
-                  <div className="border rounded-lg p-4">
+                  <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
                     <h4 className="text-xs text-muted-foreground mb-1">RX Rate</h4>
                     <p className="text-xl font-bold">{formatRate(iface.rxRate || 0)}</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -169,12 +169,12 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
               {/* Configuration section */}
               <div>
                 <h3 className="font-semibold mb-3">Configuration</h3>
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <MobileInfoRow label="MTU" value={iface.mtu || 'Default'} />
                   {iface.ip && iface.ip.length > 0 && (
                     <div className="flex justify-between py-2">
                       <span className="text-sm text-muted-foreground">IP Addresses</span>
-                      <div className="text-sm text-right font-mono space-y-1">
+                      <div className="text-sm text-right font-mono space-y-component-sm">
                         {iface.ip.map((addr: string) => (
                           <div key={addr} className="break-all">{addr}</div>
                         ))}
@@ -189,7 +189,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
                   <Separator />
                   <div>
                     <h3 className="font-semibold mb-3">Used By</h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-component-sm">
                       {iface.usedBy.map((usage: string) => (
                         <Badge key={usage} variant="outline">
                           {usage}

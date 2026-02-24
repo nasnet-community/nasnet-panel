@@ -11,14 +11,21 @@ import (
 )
 
 // RegisterHooks registers encryption hooks on the ent client.
-// This should be called once when initializing the database client.
+// This should be called ONCE when initializing the database client during bootstrap.
 //
-// The hooks will:
-// - Automatically encrypt username and password on Create and Update operations
-// - Set the key version from the encryption service
+// SECURITY CONSIDERATIONS:
+// - Hooks run on ALL mutation operations (Create, Update, Delete)
+// - Username and password are automatically encrypted BEFORE storage
+// - Encryption happens IN-MEMORY only - never logs plaintext values
+// - Key version is tracked for future key rotation support
+// - The encryption key is read from DB_ENCRYPTION_KEY env var (never logged)
 //
-// Note: Decryption is handled by the Service.Get() method, not hooks,
-// because ent doesn't have read hooks - only mutation hooks.
+// LIFECYCLE:
+// - On Create/Update: Hook encrypts plaintext fields before database write
+// - On Read (Get): Service.Get() method handles decryption (no hooks for reads)
+// - Decryption is ONLY done in-memory for immediate use (not stored encrypted)
+//
+// CRITICAL: Do not call this multiple times or with nil encryption service.
 func RegisterHooks(client *ent.Client, encService *encryption.Service) error {
 	if encService == nil {
 		return fmt.Errorf("encryption service is required")
@@ -32,6 +39,7 @@ func RegisterHooks(client *ent.Client, encService *encryption.Service) error {
 
 // encryptionHook returns an ent hook that encrypts credentials before save.
 // This hook is applied to both Create and Update operations.
+// SECURITY: This hook ensures credentials are NEVER stored plaintext in the database.
 func encryptionHook(encService *encryption.Service) ent.Hook {
 	return func(next ent.Mutator) ent.Mutator {
 		return hook.RouterSecretFunc(func(ctx context.Context, m *ent.RouterSecretMutation) (ent.Value, error) {
@@ -41,11 +49,12 @@ func encryptionHook(encService *encryption.Service) ent.Hook {
 				// Handle username encryption if set
 				if username, ok := m.EncryptedUsername(); ok {
 					// Check if it's already encrypted (base64 encoded)
-					// If it looks like plaintext, encrypt it
+					// This prevents double-encryption if hook runs multiple times
+					// WARNING: If it looks like plaintext, encrypt it
 					if !isEncrypted(username) {
 						encrypted, err := encService.Encrypt(string(username))
 						if err != nil {
-							return nil, fmt.Errorf("failed to encrypt username: %w", err)
+							return nil, fmt.Errorf("failed to encrypt [REDACTED]: %w", err)
 						}
 						m.SetEncryptedUsername([]byte(encrypted))
 					}
@@ -53,17 +62,18 @@ func encryptionHook(encService *encryption.Service) ent.Hook {
 
 				// Handle password encryption if set
 				if password, ok := m.EncryptedPassword(); ok {
-					// Check if it's already encrypted
+					// Check if it's already encrypted (prevents double-encryption)
+					// WARNING: The encryption key is NEVER logged during this operation
 					if !isEncrypted(password) {
 						encrypted, err := encService.Encrypt(string(password))
 						if err != nil {
-							return nil, fmt.Errorf("failed to encrypt password: %w", err)
+							return nil, fmt.Errorf("failed to encrypt [REDACTED]: %w", err)
 						}
 						m.SetEncryptedPassword([]byte(encrypted))
 					}
 				}
 
-				// Always set the key version on mutation
+				// Always set the key version on mutation for rotation support
 				m.SetKeyVersion(encService.KeyVersion())
 			}
 

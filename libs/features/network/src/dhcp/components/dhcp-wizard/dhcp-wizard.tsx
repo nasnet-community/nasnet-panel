@@ -162,9 +162,9 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
   }, [navigate]);
 
   return (
-    <div className={cn('container mx-auto py-6', className)}>
+    <div className={cn('container mx-auto py-6 px-page-mobile md:px-page-tablet lg:px-page-desktop', className)}>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Create DHCP Server</h1>
+        <h1 className="text-3xl font-bold font-display">Create DHCP Server</h1>
         <p className="text-muted-foreground mt-2">
           Configure a new DHCP server to automatically assign IP addresses to devices on your network.
         </p>

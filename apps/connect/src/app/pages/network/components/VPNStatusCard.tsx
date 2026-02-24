@@ -26,10 +26,10 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
   const { t } = useTranslation('vpn');
   if (isLoading) {
     return (
-      <div className="bg-card rounded-xl p-4 animate-pulse" role="status" aria-label="Loading VPN status">
+      <div className="bg-card rounded-card-sm p-4 animate-pulse" role="status" aria-label="Loading VPN status">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-muted rounded-lg" />
+            <div className="w-8 h-8 bg-muted rounded-card-sm" />
             <div className="space-y-1">
               <div className="h-4 bg-muted rounded w-24" />
               <div className="h-3 bg-muted rounded w-16" />
@@ -45,7 +45,7 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
   return (
     <div
       className={cn(
-        'rounded-xl p-4 border transition-all duration-300',
+        'rounded-card-sm p-4 border transition-all duration-300',
         isConnected
           ? 'bg-gradient-to-r from-success/10 to-info/10 border-success/30'
           : 'bg-card border-border'
@@ -55,7 +55,7 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              'w-8 h-8 rounded-lg flex items-center justify-center',
+              'w-8 h-8 rounded-card-sm flex items-center justify-center',
               isConnected ? 'bg-success/20' : 'bg-muted'
             )}
           >
@@ -81,7 +81,7 @@ export const VPNStatusCard = React.memo(function VPNStatusCard({
 
         <button
           className={cn(
-            'px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'px-4 py-2 rounded-card-sm text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             isConnected
               ? 'bg-muted text-foreground hover:bg-muted/80'
               : 'bg-success text-foreground hover:bg-success/90'

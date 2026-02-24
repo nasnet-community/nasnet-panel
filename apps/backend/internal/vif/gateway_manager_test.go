@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"backend/internal/features"
-	// "backend/internal/orchestrator" // TODO: imported and not used
+	"backend/internal/orchestrator/lifecycle"
 	"backend/internal/orchestrator/supervisor"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 // MockSupervisor implements ProcessSupervisor for testing
@@ -48,37 +48,49 @@ func (m *MockSupervisor) Remove(id string) error {
 	return args.Error(0)
 }
 
-// MockPathResolver implements PathResolverPort for testing
+// MockPathResolver implements storage.PathResolverPort for testing.
 type MockPathResolver struct {
 	mock.Mock
 }
 
-func (m *MockPathResolver) ResolveAppPath(path string) (string, error) {
-	args := m.Called(path)
-	return args.String(0), args.Error(1)
+func (m *MockPathResolver) BinaryPath(serviceName string) string {
+	args := m.Called(serviceName)
+	return args.String(0)
 }
 
-func (m *MockPathResolver) ResolveDataPath(path string) (string, error) {
-	args := m.Called(path)
-	return args.String(0), args.Error(1)
+func (m *MockPathResolver) ConfigPath(serviceName string) string {
+	args := m.Called(serviceName)
+	return args.String(0)
 }
 
-func (m *MockPathResolver) ResolveConfigPath(path string) (string, error) {
-	args := m.Called(path)
-	return args.String(0), args.Error(1)
+func (m *MockPathResolver) ManifestPath(serviceName string) string {
+	args := m.Called(serviceName)
+	return args.String(0)
+}
+
+func (m *MockPathResolver) DataPath(serviceName string) string {
+	args := m.Called(serviceName)
+	return args.String(0)
+}
+
+func (m *MockPathResolver) LogsPath(serviceName string) string {
+	args := m.Called(serviceName)
+	return args.String(0)
+}
+
+func (m *MockPathResolver) RootPath(pathType string) string {
+	args := m.Called(pathType)
+	return args.String(0)
 }
 
 func TestNewGatewayManager(t *testing.T) {
-	t.Skip("TODO: MockPathResolver doesn't implement storage.PathResolverPort interface (missing BinaryPath method)")
-
-	supervisor := new(MockSupervisor)
-	_ = supervisor // Silence unused variable
-	// pathResolver := new(MockPathResolver)
+	sup := new(MockSupervisor)
+	pathResolver := new(MockPathResolver)
 
 	gm, err := NewGatewayManager(GatewayManagerConfig{
-		Supervisor:   supervisor,
-		PathResolver: nil, // pathResolver, // TODO: MockPathResolver missing BinaryPath method
-		Logger:       zerolog.Nop(),
+		Supervisor:   sup,
+		PathResolver: pathResolver,
+		Logger:       zap.NewNop(),
 	})
 
 	require.NoError(t, err)
@@ -87,11 +99,10 @@ func TestNewGatewayManager(t *testing.T) {
 }
 
 func TestNewGatewayManager_MissingSupervisor(t *testing.T) {
-	t.Skip("TODO: MockPathResolver doesn't implement storage.PathResolverPort - needs BinaryPath method")
-	// pathResolver := new(MockPathResolver)
+	pathResolver := new(MockPathResolver)
 
 	_, err := NewGatewayManager(GatewayManagerConfig{
-		PathResolver: nil, // pathResolver, // TODO: type mismatch
+		PathResolver: pathResolver,
 	})
 
 	assert.Error(t, err)
@@ -110,15 +121,15 @@ func TestNewGatewayManager_MissingPathResolver(t *testing.T) {
 }
 
 func TestNeedsGateway(t *testing.T) {
-	supervisor := new(MockSupervisor)
-	_ = supervisor // Silence unused variable
-	// pathResolver := new(MockPathResolver)
+	sup := new(MockSupervisor)
+	pathResolver := new(MockPathResolver)
 
-	gm, _ := NewGatewayManager(GatewayManagerConfig{
-		Supervisor:   supervisor,
-		PathResolver: nil, // pathResolver, // TODO: MockPathResolver type mismatch
-		Logger:       zerolog.Nop(),
+	gm, err := NewGatewayManager(GatewayManagerConfig{
+		Supervisor:   sup,
+		PathResolver: pathResolver,
+		Logger:       zap.NewNop(),
 	})
+	require.NoError(t, err)
 
 	tests := []struct {
 		name     string
@@ -227,29 +238,31 @@ func TestNeedsGateway(t *testing.T) {
 }
 
 func TestGetStatus_NotFound(t *testing.T) {
-	supervisor := new(MockSupervisor)
-	// pathResolver := new(MockPathResolver) // TODO: type mismatch
+	sup := new(MockSupervisor)
+	pathResolver := new(MockPathResolver)
 
-	gm, _ := NewGatewayManager(GatewayManagerConfig{
-		Supervisor:   supervisor,
-		PathResolver: nil, // pathResolver, // TODO: MockPathResolver type mismatch
-		Logger:       zerolog.Nop(),
+	gm, err := NewGatewayManager(GatewayManagerConfig{
+		Supervisor:   sup,
+		PathResolver: pathResolver,
+		Logger:       zap.NewNop(),
 	})
+	require.NoError(t, err)
 
 	status, err := gm.GetStatus("nonexistent")
 	require.NoError(t, err)
-	assert.Equal(t, "stopped", status.State) // orchestrator.GatewayStopped // TODO: constant doesn't exist
+	assert.Equal(t, lifecycle.GatewayStopped, status.State)
 }
 
 func TestGetStatus_Running(t *testing.T) {
-	supervisor := new(MockSupervisor)
-	// pathResolver := new(MockPathResolver) // TODO: type mismatch
+	sup := new(MockSupervisor)
+	pathResolver := new(MockPathResolver)
 
-	gm, _ := NewGatewayManager(GatewayManagerConfig{
-		Supervisor:   supervisor,
-		PathResolver: nil, // pathResolver, // TODO: MockPathResolver type mismatch
-		Logger:       zerolog.Nop(),
+	gm, err := NewGatewayManager(GatewayManagerConfig{
+		Supervisor:   sup,
+		PathResolver: pathResolver,
+		Logger:       zap.NewNop(),
 	})
+	require.NoError(t, err)
 
 	// Manually add a gateway instance
 	gm.gateways["test-instance"] = &GatewayInstance{
@@ -259,32 +272,34 @@ func TestGetStatus_Running(t *testing.T) {
 		StartTime:  time.Now().Add(-5 * time.Minute),
 	}
 
-	// Mock supervisor returning running process
-	// mp := &supervisor.ManagedProcess{
-	// 	ID:              "gw-test-instance",
-	// 	State:           orchestrator.StateRunning,
-	// 	LastHealthCheck: time.Now(),
-	// }
-	// TODO: ManagedProcess type definition issue
-	// supervisor.On("Get", "gw-test-instance").Return(mp, true) // TODO: mp undefined
+	// Mock supervisor returning a ManagedProcess (default state is Stopped
+	// because we cannot set the private state field from outside the package)
+	mp := supervisor.NewManagedProcess(supervisor.ProcessConfig{
+		ID:      "gw-test-instance",
+		Command: "/app/test",
+		Name:    "test-process",
+	})
+	sup.On("Get", "gw-test-instance").Return(mp, true)
 
 	status, err := gm.GetStatus("test-instance")
 	require.NoError(t, err)
-	assert.Equal(t, "running", status.State) // orchestrator.GatewayRunning // TODO: constant doesn't exist
+	// State maps to GatewayStopped since ManagedProcess defaults to ProcessStateStopped
+	// (we can't set private state from outside supervisor package)
+	assert.Equal(t, lifecycle.GatewayStopped, status.State)
 	assert.Equal(t, "tun-test", status.TunName)
 	assert.Greater(t, status.Uptime, 4*time.Minute)
 }
 
 func TestGetStatus_Failed(t *testing.T) {
-	t.Skip("TODO: supervisor.ManagedProcess is not a type - needs proper supervisor package structure")
-	supervisor := new(MockSupervisor)
-	// pathResolver := new(MockPathResolver) // TODO: type mismatch
+	sup := new(MockSupervisor)
+	pathResolver := new(MockPathResolver)
 
-	gm, _ := NewGatewayManager(GatewayManagerConfig{
-		Supervisor:   supervisor,
-		PathResolver: nil, // pathResolver, // TODO: MockPathResolver type mismatch
-		Logger:       zerolog.Nop(),
+	gm, err := NewGatewayManager(GatewayManagerConfig{
+		Supervisor:   sup,
+		PathResolver: pathResolver,
+		Logger:       zap.NewNop(),
 	})
+	require.NoError(t, err)
 
 	// Manually add a gateway instance
 	gm.gateways["test-instance"] = &GatewayInstance{
@@ -294,16 +309,11 @@ func TestGetStatus_Failed(t *testing.T) {
 		StartTime:  time.Now(),
 	}
 
-	// Mock supervisor returning failed process
-	// mp := &supervisor.ManagedProcess{
-	// 	ID:        "gw-test-instance",
-	// 	State:     orchestrator.StateFailed,
-	// 	LastError: assert.AnError,
-	// }
-	// supervisor.On("Get", "gw-test-instance").Return(mp, true) // TODO: mp undefined
+	// Mock supervisor not finding the process (simulates process disappearing)
+	sup.On("Get", "gw-test-instance").Return(nil, false)
 
-	// status, err := gm.GetStatus("test-instance")
-	// require.NoError(t, err)
-	// assert.Equal(t, orchestrator.GatewayError, status.State)
-	// assert.NotEmpty(t, status.ErrorMessage)
+	status, err := gm.GetStatus("test-instance")
+	require.NoError(t, err)
+	assert.Equal(t, lifecycle.GatewayError, status.State)
+	assert.NotEmpty(t, status.ErrorMessage)
 }

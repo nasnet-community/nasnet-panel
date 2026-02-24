@@ -3,12 +3,15 @@ package server
 import (
 	"io"
 	"io/fs"
-	"log"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
+
+	"backend/internal/logger"
 )
 
 const (
@@ -21,30 +24,39 @@ const (
 // Pre-compressed .gz variants are served transparently for JS/CSS assets.
 func NewFrontendHandler(fsys fs.FS) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		path := strings.TrimPrefix(c.Request().URL.Path, "/")
-		if path == "" {
-			path = indexHTML
+		requestPath := strings.TrimPrefix(c.Request().URL.Path, "/")
+		if requestPath == "" {
+			requestPath = indexHTML
+		}
+
+		// Prevent directory traversal attacks
+		normalizedPath := path.Clean(requestPath)
+		if normalizedPath != requestPath {
+			return echo.ErrNotFound
+		}
+		if strings.Contains(normalizedPath, "..") || normalizedPath == "." {
+			return echo.ErrNotFound
 		}
 
 		// Skip API and GraphQL routes
-		if strings.HasPrefix(path, "api/") || strings.HasPrefix(path, "graphql") || path == "health" {
+		if strings.HasPrefix(normalizedPath, "api/") || strings.HasPrefix(normalizedPath, "graphql") || normalizedPath == "health" {
 			return echo.ErrNotFound
 		}
 
 		// Try serving pre-compressed .gz variant for JS/CSS files
-		if acceptsGzip(c, path) {
-			if err := serveGzipped(c, fsys, path); err == nil {
+		if acceptsGzip(c, normalizedPath) {
+			if err := serveGzipped(c, fsys, normalizedPath); err == nil {
 				return nil
 			}
 		}
 
 		// Try serving the file directly
-		if err := serveFile(c, fsys, path); err == nil {
+		if err := serveFile(c, fsys, normalizedPath); err == nil {
 			return nil
 		}
 
 		// Fallback to index.html for SPA routing
-		if path == indexHTML {
+		if normalizedPath == indexHTML {
 			return c.String(http.StatusNotFound, fileNotFoundMsg)
 		}
 
@@ -119,7 +131,7 @@ func sendFileContent(c echo.Context, file fs.File, path, contentType string) err
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		log.Printf("Error reading embedded file %s: %v", path, err)
+		logger.Error("Error reading embedded file", zap.String("path", path), zap.Error(err))
 		return c.String(http.StatusInternalServerError, "Error reading file")
 	}
 

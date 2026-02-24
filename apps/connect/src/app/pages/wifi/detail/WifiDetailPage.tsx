@@ -44,20 +44,20 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="px-6 py-6">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop">
         <div className="max-w-3xl mx-auto">
           {/* Header skeleton */}
-          <div className="mb-8">
-            <Skeleton className="h-10 w-32 mb-4" />
-            <Skeleton className="h-8 w-48 mb-2" />
+          <div className="mb-component-lg">
+            <Skeleton className="h-10 w-32 mb-component-md" />
+            <Skeleton className="h-8 w-48 mb-component-sm" />
             <Skeleton className="h-5 w-64" />
           </div>
 
           {/* Detail cards skeleton */}
-          <div className="space-y-4">
-            <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
-            <Skeleton className="h-32 w-full rounded-2xl md:rounded-3xl" />
-            <Skeleton className="h-32 w-full rounded-2xl md:rounded-3xl" />
+          <div className="gap-component-md">
+            <Skeleton className="h-48 w-full rounded-[var(--semantic-radius-card)]" />
+            <Skeleton className="h-32 w-full rounded-[var(--semantic-radius-card)]" />
+            <Skeleton className="h-32 w-full rounded-[var(--semantic-radius-card)]" />
           </div>
         </div>
       </div>
@@ -67,18 +67,18 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   // Error state
   if (error || !interfaceData) {
     return (
-      <div className="px-6 py-6">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors focus-ring rounded-lg"
+            className="flex items-center gap-component-sm text-sm text-muted-foreground hover:text-foreground mb-component-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
           >
             <ArrowLeft className="h-4 w-4" />
             {t('button.backToWiFi', { ns: 'common' })}
           </button>
 
-          <div className="bg-error/10 border border-error rounded-2xl md:rounded-3xl p-6 text-center">
-            <h2 className="text-lg font-semibold text-error mb-2">
+          <div className="bg-error/10 border border-error rounded-[var(--semantic-radius-card)] p-component-lg text-center">
+            <h2 className="text-lg font-semibold text-error mb-component-sm">
               {t('status.failedToLoadInterface')}
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -92,12 +92,12 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
 
   // Success state
   return (
-    <div className="px-6 py-6">
+    <div className="px-page-tablet py-page-tablet">
       <div className="max-w-3xl mx-auto">
         {/* Back button */}
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors focus-ring rounded-lg"
+          className="flex items-center gap-component-sm text-sm text-muted-foreground hover:text-foreground mb-component-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
           aria-label={t('button.backToWiFi', { ns: 'common' })}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -105,8 +105,8 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
         </button>
 
         {/* Page header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">
+        <div className="mb-component-lg">
+          <h1 className="text-2xl font-display font-semibold text-foreground mb-component-sm">
             {interfaceData.ssid || t('status.wirelessInterface')}
           </h1>
           <p className="text-sm text-muted-foreground">

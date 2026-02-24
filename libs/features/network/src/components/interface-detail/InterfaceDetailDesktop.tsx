@@ -57,7 +57,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent side="right" className="w-[600px] overflow-y-auto">
         {loading && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <Skeleton className="h-8 w-48" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-64 w-full" />
@@ -78,7 +78,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
             <SheetHeader>
               <div className="flex items-center justify-between">
                 <SheetTitle>{iface.name}</SheetTitle>
-                <div className="flex gap-2">
+                <div className="flex gap-component-sm">
                   <Badge variant={iface.enabled ? 'default' : 'outline'}>
                     {iface.enabled ? 'Enabled' : 'Disabled'}
                   </Badge>
@@ -115,15 +115,15 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="status" className="space-y-4 mt-4">
+                <TabsContent value="status" className="space-y-component-md mt-4">
                   <InterfaceStatusSection interface={iface} />
                 </TabsContent>
 
-                <TabsContent value="traffic" className="space-y-4 mt-4">
+                <TabsContent value="traffic" className="space-y-component-md mt-4">
                   <InterfaceTrafficSection interface={iface} />
                 </TabsContent>
 
-                <TabsContent value="config" className="space-y-4 mt-4">
+                <TabsContent value="config" className="space-y-component-md mt-4">
                   {editMode ? (
                     <InterfaceEditForm
                       routerId={routerId}
@@ -164,8 +164,8 @@ const InterfaceStatusSection = memo(function InterfaceStatusSection({
   interface: any;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-component-md">
+      <div className="grid grid-cols-2 gap-component-md">
         <StatusItem label="Enabled" value={iface.enabled ? 'Yes' : 'No'} />
         <StatusItem label="Running" value={iface.running ? 'Yes' : 'No'} />
         <StatusItem label="Status" value={iface.status} />
@@ -180,9 +180,9 @@ const InterfaceStatusSection = memo(function InterfaceStatusSection({
       </div>
 
       {iface.usedBy && iface.usedBy.length > 0 && (
-        <div className="border rounded-lg p-4">
+        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="font-medium mb-2">Used By</h4>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-component-sm">
             {iface.usedBy.map((usage: string) => (
               <Badge key={usage} variant="outline">
                 {usage}
@@ -221,16 +221,16 @@ const InterfaceTrafficSection = memo(function InterfaceTrafficSection({
   }, [formatBytes]);
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="border rounded-lg p-4">
+    <div className="space-y-component-md">
+      <div className="grid grid-cols-2 gap-component-md">
+        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="text-sm text-muted-foreground mb-1">TX Rate</h4>
           <p className="text-2xl font-bold">{formatRate(iface.txRate || 0)}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Total: {formatBytes(iface.txBytes || 0)}
           </p>
         </div>
-        <div className="border rounded-lg p-4">
+        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="text-sm text-muted-foreground mb-1">RX Rate</h4>
           <p className="text-2xl font-bold">{formatRate(iface.rxRate || 0)}</p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -240,7 +240,7 @@ const InterfaceTrafficSection = memo(function InterfaceTrafficSection({
       </div>
 
       {/* TODO: Add traffic chart visualization */}
-      <div className="border rounded-lg p-8 text-center text-muted-foreground">
+      <div className="border border-border rounded-[var(--semantic-radius-card)] p-8 text-center text-muted-foreground">
         Traffic chart will be implemented here
       </div>
     </div>
@@ -263,14 +263,14 @@ const InterfaceConfigSection = memo(function InterfaceConfigSection({
   onEdit: () => void;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-component-md">
+      <div className="grid grid-cols-2 gap-component-md">
         <StatusItem label="MTU" value={iface.mtu || 'Default'} />
         <StatusItem label="Comment" value={iface.comment || 'None'} />
       </div>
 
       {iface.ip && iface.ip.length > 0 && (
-        <div className="border rounded-lg p-4">
+        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="font-medium mb-2">IP Addresses</h4>
           <div className="space-y-1">
             {iface.ip.map((addr: string) => (
@@ -309,7 +309,7 @@ const StatusItem = memo(function StatusItem({
   className?: string;
 }) {
   return (
-    <div className={cn('border rounded-lg p-3', className)}>
+    <div className={cn('border border-border rounded-[var(--semantic-radius-card)] p-component-sm', className)}>
       <h4 className="text-xs text-muted-foreground mb-1">{label}</h4>
       <p className="text-sm font-medium break-all">{value}</p>
     </div>

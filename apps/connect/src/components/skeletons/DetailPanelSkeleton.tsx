@@ -64,13 +64,13 @@ export function DetailPanelSkeleton({
     >
       {/* Header */}
       {showHeader && (
-        <div className="flex items-start gap-4 pb-4 border-b">
+        <div className="flex items-start gap-4 pb-4 border-b border-border">
           <SkeletonAvatar size="lg" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-32" />
             {/* Status badge */}
-            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-pill" />
           </div>
         </div>
       )}
@@ -86,8 +86,7 @@ export function DetailPanelSkeleton({
             <Skeleton className="h-4 w-24" />
             {/* Value - varying widths */}
             <Skeleton
-              className="h-4"
-              style={{ width: `${60 + Math.random() * 80}px` }}
+              className="h-4 w-48"
             />
           </div>
         ))}
@@ -104,7 +103,7 @@ export function DetailPanelSkeleton({
 
       {/* Related Items */}
       {showRelated && (
-        <div className="space-y-3 pt-4 border-t">
+        <div className="space-y-3 pt-4 border-t border-border">
           <Skeleton className="h-5 w-32" />
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (

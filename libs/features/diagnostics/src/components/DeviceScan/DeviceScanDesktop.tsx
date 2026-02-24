@@ -120,17 +120,17 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
   );
 
   return (
-    <Card className={cn('p-6 space-y-6', className)}>
+    <Card className={cn('p-component-lg space-y-component-lg', className)}>
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Device Scan</h2>
+        <h2 className="text-xl font-semibold font-display">Device Scan</h2>
         <p className="text-sm text-muted-foreground">
           Discover all devices on your network using ARP scanning
         </p>
       </div>
 
       {/* Controls */}
-      <div className="flex items-end gap-4">
+      <div className="flex items-end gap-component-md">
         <div className="flex-1 max-w-xs">
           <InterfaceSelector
             routerId={routerId || ''}
@@ -148,12 +148,13 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
             label="Subnet to scan"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           {isScanning ? (
             <Button
               variant="destructive"
               onClick={stopScan}
               aria-label="Stop the currently running device scan"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Stop Scan
             </Button>
@@ -162,6 +163,7 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
               onClick={handleStartScan}
               disabled={!routerId}
               aria-label="Start ARP device scan on the selected subnet"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Start Scan
             </Button>
@@ -171,6 +173,7 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
               variant="outline"
               onClick={reset}
               aria-label="Reset and start a new device scan"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               New Scan
             </Button>
@@ -180,7 +183,7 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
 
       {/* Progress Indicator */}
       {isScanning && (
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Progress
             value={progress}
             className="h-2"
@@ -199,18 +202,18 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
       {/* Error State */}
       {error && (
         <div
-          className="rounded-md bg-destructive/10 p-4 text-destructive border border-destructive/30"
+          className="rounded-md bg-error/10 p-component-md text-error border border-error/30"
           role="alert"
           aria-live="assertive"
         >
           <p className="font-medium">Scan failed</p>
-          <p className="text-sm mt-1">{error}</p>
+          <p className="text-sm mt-component-sm">{error}</p>
         </div>
       )}
 
       {/* Results with Inline Detail Panel */}
       {devices.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-component-md">
           <div className="col-span-2">
             <DeviceDiscoveryTable
               devices={devices}
@@ -226,7 +229,7 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
                 routerId={routerId}
               />
             ) : (
-              <Card className="p-4 text-center text-muted-foreground border-dashed">
+              <Card className="p-component-md text-center text-muted-foreground border-dashed">
                 <p>Select a device from the table to view details</p>
               </Card>
             )}
@@ -241,9 +244,9 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
 
       {/* Empty State */}
       {isComplete && devices.length === 0 && (
-        <Card className="p-8 text-center border-dashed">
+        <Card className="p-component-lg text-center border-dashed">
           <p className="text-muted-foreground font-medium">No devices found on this subnet</p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-component-sm">
             Try a different subnet or check your network connection
           </p>
         </Card>

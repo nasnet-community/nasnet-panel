@@ -8,7 +8,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -55,15 +54,18 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo {
 	if version, ok := data["version"].(string); ok {
 		result.Version = version
 		// Check version format (like "7.8" or "6.49.8")
-		if matched, err := regexp.MatchString(`^\d+\.\d+`, version); err == nil && matched {
+		if isValidVersionFormat(version) {
 			confidence += 20
 		}
 		if strings.Contains(strings.ToLower(version), "routers") {
 			confidence += 30
 		}
-	} else if versionString, ok := data["version-string"].(string); ok {
-		result.Version = versionString
-		confidence += 15
+	}
+	if result.Version == "" {
+		if versionString, ok := data["version-string"].(string); ok {
+			result.Version = versionString
+			confidence += 15
+		}
 	}
 
 	// Extract architecture (check both v6 and v7+ field names)
@@ -72,10 +74,13 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo {
 		if containsAnyIgnoreCase(arch, "arm", "x86", "mips", "tile") {
 			confidence += 15
 		}
-	} else if archName, ok := data["architecture-name"].(string); ok {
-		result.Architecture = archName
-		if containsAnyIgnoreCase(archName, "arm", "x86", "mips", "tile") {
-			confidence += 15
+	}
+	if result.Architecture == "" {
+		if archName, ok := data["architecture-name"].(string); ok {
+			result.Architecture = archName
+			if containsAnyIgnoreCase(archName, "arm", "x86", "mips", "tile") {
+				confidence += 15
+			}
 		}
 	}
 
@@ -102,10 +107,7 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo {
 
 // CheckRouterOSAPI attempts to verify if a device is running RouterOS by querying the REST API.
 func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Duration) *RouterOSInfo {
-	protocol := "http"
-	if port == 443 {
-		protocol = "https"
-	}
+	protocol := getProtocolForPort(port)
 
 	url := fmt.Sprintf("%s://%s:%d/rest/system/resource", protocol, ip, port)
 
@@ -137,50 +139,62 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 		return nil
 	}
 
-	// For 200 responses, validate the content
-	if resp.StatusCode == http.StatusOK {
+	switch resp.StatusCode {
+	case http.StatusOK:
 		validation := ValidateRouterOSResponse(body)
 		if validation.IsValid {
 			return &validation
 		}
 		return nil // Response was 200 but not RouterOS
+	case http.StatusUnauthorized:
+		return handleUnauthorizedResponse(resp, body)
+	default:
+		return nil // Any other status means not RouterOS
 	}
+}
 
-	// For 401 responses, this likely indicates RouterOS with authentication required
-	if resp.StatusCode == http.StatusUnauthorized { //nolint:nestif // multiple condition checks
-		// Check for RouterOS-specific headers or content
-		contentType := resp.Header.Get("Content-Type")
+// handleUnauthorizedResponse processes 401 responses to detect RouterOS.
+func handleUnauthorizedResponse(resp *http.Response, body []byte) *RouterOSInfo {
+	// Check for RouterOS-specific headers or content
+	contentType := resp.Header.Get("Content-Type")
 
-		// RouterOS typically returns JSON error messages for 401 on REST API
-		if strings.Contains(strings.ToLower(contentType), "application/json") {
-			// Additional validation: check if response body looks like RouterOS error
-			bodyLower := strings.ToLower(string(body))
-			if strings.Contains(bodyLower, "unauthorized") || strings.Contains(bodyLower, "error") {
-				return &RouterOSInfo{
-					IsValid:    true,
-					Confidence: 35, // Moderate confidence for auth-required detection
-				}
-			}
-		}
-
-		// Fallback: if WWW-Authenticate header is present and contains "basic"
-		wwwAuth := resp.Header.Get("WWW-Authenticate")
-		if strings.Contains(strings.ToLower(wwwAuth), "basic") {
+	// RouterOS typically returns JSON error messages for 401 on REST API
+	if strings.Contains(strings.ToLower(contentType), "application/json") {
+		// Additional validation: check if response body looks like RouterOS error
+		bodyLower := strings.ToLower(string(body))
+		if strings.Contains(bodyLower, "unauthorized") || strings.Contains(bodyLower, "error") {
 			return &RouterOSInfo{
 				IsValid:    true,
-				Confidence: 30, // Lower confidence for auth-only detection
+				Confidence: 35, // Moderate confidence for auth-required detection
 			}
-		}
-
-		// Even without WWW-Authenticate, 401 on /rest/system/resource is strong indication of RouterOS
-		// Very few other devices use this specific REST API path
-		return &RouterOSInfo{
-			IsValid:    true,
-			Confidence: 25, // Lower confidence but still valid
 		}
 	}
 
-	return nil // Any other status means not RouterOS
+	// Fallback: if WWW-Authenticate header is present and contains "basic"
+	wwwAuth := resp.Header.Get("WWW-Authenticate")
+	if strings.Contains(strings.ToLower(wwwAuth), "basic") {
+		return &RouterOSInfo{
+			IsValid:    true,
+			Confidence: 30, // Lower confidence for auth-only detection
+		}
+	}
+
+	// Even without WWW-Authenticate, 401 on /rest/system/resource is strong indication of RouterOS
+	// Very few other devices use this specific REST API path
+	return &RouterOSInfo{
+		IsValid:    true,
+		Confidence: 25, // Lower confidence but still valid
+	}
+}
+
+// getProtocolForPort returns the protocol (http or https) based on the port number.
+func getProtocolForPort(port int) string {
+	switch port {
+	case 443:
+		return "https"
+	default:
+		return "http"
+	}
 }
 
 // IsPortOpen checks if a specific port is open on an IP address.
@@ -245,4 +259,38 @@ func containsAnyIgnoreCase(s string, substrs ...string) bool {
 		}
 	}
 	return false
+}
+
+// isValidVersionFormat checks if a version string matches the expected format (e.g., "7.8", "6.49.8").
+func isValidVersionFormat(version string) bool {
+	if len(version) < 3 { // Minimum: "1.0"
+		return false
+	}
+
+	dotCount := 0
+	hasDigitBeforeDot := false
+
+	for i, ch := range version {
+		switch {
+		case ch == '.':
+			dotCount++
+			if !hasDigitBeforeDot {
+				return false // No digit before dot
+			}
+			if i == len(version)-1 {
+				return false // Dot at end
+			}
+			hasDigitBeforeDot = false
+		case ch >= '0' && ch <= '9':
+			hasDigitBeforeDot = true
+		default:
+			// Non-digit, non-dot character after first part is OK (e.g., "7.12rc1")
+			if i > 0 && dotCount > 0 {
+				break
+			}
+			return false // Non-digit before first dot
+		}
+	}
+
+	return dotCount > 0 && hasDigitBeforeDot
 }

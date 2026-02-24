@@ -93,21 +93,21 @@ export declare const ServicePortDefinitionSchema: z.ZodObject<{
     updatedAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     category: "system" | "custom" | "network" | "web" | "secure" | "database" | "messaging" | "mail" | "containers" | "mikrotik";
+    protocol: "tcp" | "udp" | "both";
     port: number;
-    protocol: "both" | "tcp" | "udp";
     service: string;
     isBuiltIn: boolean;
-    description?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
+    description?: string | undefined;
 }, {
     category: "system" | "custom" | "network" | "web" | "secure" | "database" | "messaging" | "mail" | "containers" | "mikrotik";
+    protocol: "tcp" | "udp" | "both";
     port: number;
-    protocol: "both" | "tcp" | "udp";
     service: string;
-    description?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
+    description?: string | undefined;
     isBuiltIn?: boolean | undefined;
 }>;
 export type ServicePortDefinition = z.infer<typeof ServicePortDefinitionSchema>;
@@ -127,13 +127,13 @@ export declare const CustomServicePortInputSchema: z.ZodObject<{
     /** Optional description */
     description: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    protocol: "tcp" | "udp" | "both";
     port: number;
-    protocol: "both" | "tcp" | "udp";
     service: string;
     description?: string | undefined;
 }, {
+    protocol: "tcp" | "udp" | "both";
     port: number;
-    protocol: "both" | "tcp" | "udp";
     service: string;
     description?: string | undefined;
 }>;
@@ -160,19 +160,19 @@ export declare const ServiceGroupSchema: z.ZodObject<{
     /** Timestamp when group was last updated (ISO 8601) */
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id: string;
-    name: string;
-    protocol: "both" | "tcp" | "udp";
     updatedAt: string;
     createdAt: string;
+    id: string;
+    name: string;
+    protocol: "tcp" | "udp" | "both";
     ports: readonly number[];
     description?: string | undefined;
 }, {
-    id: string;
-    name: string;
-    protocol: "both" | "tcp" | "udp";
     updatedAt: string;
     createdAt: string;
+    id: string;
+    name: string;
+    protocol: "tcp" | "udp" | "both";
     ports: readonly number[];
     description?: string | undefined;
 }>;
@@ -198,14 +198,14 @@ export declare const ServiceGroupInputSchema: z.ZodObject<Omit<{
     createdAt: z.ZodString;
     /** Timestamp when group was last updated (ISO 8601) */
     updatedAt: z.ZodString;
-}, "id" | "updatedAt" | "createdAt">, "strip", z.ZodTypeAny, {
+}, "updatedAt" | "createdAt" | "id">, "strip", z.ZodTypeAny, {
     name: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: "tcp" | "udp" | "both";
     ports: readonly number[];
     description?: string | undefined;
 }, {
     name: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: "tcp" | "udp" | "both";
     ports: readonly number[];
     description?: string | undefined;
 }>;

@@ -118,31 +118,31 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-card border border-border rounded-lg shadow-sm', className)}
+      className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-sm', className)}
     >
-      <div className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-foreground">
+      <div className="p-component-lg">
+        <div className="mb-component-md">
+          <h3 className="text-lg font-display font-semibold text-foreground">
             Add Router Manually
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-component-sm text-sm text-muted-foreground">
             Enter the IP address of your MikroTik router
           </p>
         </div>
 
         {/* Help paragraph */}
-        <p className="text-xs text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-component-md">
           💡 Tip: Default MikroTik IP addresses are typically 192.168.88.1, 192.168.1.1, or 10.0.0.1
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4" aria-label="Add router manually">
+        <form onSubmit={handleSubmit} className="space-y-component-md" aria-label="Add router manually">
           {/* IP Address Input */}
           <div>
             <label
               htmlFor="ipAddress"
-              className="block text-sm font-medium text-foreground mb-1"
+              className="block text-sm font-medium text-foreground mb-component-sm"
             >
-              IP Address <span className="text-destructive">*</span>
+              IP Address <span className="text-error">*</span>
             </label>
             <input
               id="ipAddress"
@@ -153,7 +153,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               aria-required="true"
               aria-invalid={!!errors.ipAddress}
               aria-describedby={errors.ipAddress ? 'ipAddress-error' : 'ipAddress-hint'}
-              className={cn('w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', errors.ipAddress ? 'border-destructive' : 'border-border')}
+              className={cn('w-full min-h-[44px] px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm bg-card text-foreground font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', errors.ipAddress ? 'border-error' : 'border-border')}
               autoFocus
             />
             {errors.ipAddress && (
@@ -161,13 +161,13 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
                 id="ipAddress-error"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-1 text-sm text-destructive"
+                className="mt-component-sm text-sm text-error"
                 role="alert"
               >
                 {errors.ipAddress}
               </motion.p>
             )}
-            <p id="ipAddress-hint" className="mt-1 text-xs text-muted-foreground">
+            <p id="ipAddress-hint" className="mt-component-sm text-xs text-muted-foreground">
               Enter IPv4 address (e.g., 192.168.88.1)
             </p>
           </div>
@@ -176,7 +176,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
           <div>
             <label
               htmlFor="routerName"
-              className="block text-sm font-medium text-foreground mb-1"
+              className="block text-sm font-medium text-foreground mb-component-sm"
             >
               Router Name{' '}
               <span className="text-muted-foreground">(optional)</span>
@@ -188,19 +188,19 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               onChange={(e) => setRouterName(e.target.value)}
               placeholder="My Router"
               aria-describedby="routerName-hint"
-              className={cn('w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'border-border')}
+              className={cn('w-full min-h-[44px] px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm bg-card text-foreground font-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'border-border')}
             />
-            <p id="routerName-hint" className="mt-1 text-xs text-muted-foreground">
+            <p id="routerName-hint" className="mt-component-sm text-xs text-muted-foreground">
               Give your router a friendly name for easy identification
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-component-md pt-component-sm">
             <button
               type="submit"
               aria-label="Add router"
-              className={cn('flex-1 min-h-[44px] px-4 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn('flex-1 min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               Add Router
             </button>
@@ -209,7 +209,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
                 type="button"
                 onClick={handleCancel}
                 aria-label="Cancel adding router"
-                className={cn('min-h-[44px] px-4 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-muted text-foreground hover:bg-muted/80')}
+                className={cn('min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-muted text-foreground hover:bg-muted/80')}
               >
                 Cancel
               </button>
@@ -219,18 +219,18 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
       </div>
 
       {/* Common IP Presets */}
-      <div className="px-6 py-4 bg-muted/50 border-t border-border rounded-b-lg">
-        <p className="text-xs font-medium text-muted-foreground mb-2">
+      <div className="px-component-lg py-component-md bg-muted/50 border-t border-border rounded-b-[var(--semantic-radius-card)]">
+        <p className="text-xs font-medium text-muted-foreground mb-component-sm">
           Common MikroTik IPs:
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-component-sm">
           {['192.168.88.1', '192.168.1.1', '10.0.0.1'].map((preset) => (
             <button
               key={preset}
               type="button"
               onClick={() => setIpAddress(preset)}
               aria-label={`Use IP address ${preset}`}
-              className={cn('min-h-[44px] px-3 py-1 text-xs font-mono border rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'bg-card border-border hover:border-primary hover:bg-primary/5')}
+              className={cn('min-h-[44px] px-component-sm py-component-sm text-xs font-mono border rounded-[var(--semantic-radius-button)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'bg-card border-border hover:border-primary hover:bg-primary/5')}
             >
               {preset}
             </button>

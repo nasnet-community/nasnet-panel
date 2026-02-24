@@ -69,9 +69,9 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
     if (!iface) return null;
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         {/* Interface header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-component-sm">
           <InterfaceTypeIcon type={iface.type} className="h-8 w-8" />
           <div>
             <p className="font-semibold text-lg">{iface.name}</p>
@@ -82,7 +82,7 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
         </div>
 
         {/* Details grid - MAC and IP use font-mono for technical data (WCAG AAA) */}
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <dl className="grid grid-cols-2 gap-x-component-md gap-y-component-sm text-sm">
           <dt className="text-muted-foreground">MAC Address</dt>
           <dd className="font-mono text-xs break-all">{iface.mac || 'N/A'}</dd>
 
@@ -129,9 +129,9 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
         <Link
           to="/network/interfaces/$interfaceId"
           params={{ interfaceId: iface.id }}
-          className="inline-flex items-center gap-2 text-primary hover:underline mt-4"
+          className="inline-flex items-center gap-component-sm text-primary hover:underline mt-component-md"
         >
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-component-sm">
             View in Network
             <ExternalLink className="h-4 w-4" />
           </Button>

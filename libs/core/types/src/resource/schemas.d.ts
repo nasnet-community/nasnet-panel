@@ -104,13 +104,13 @@ export declare const ResourceConflictSchema: z.ZodObject<{
     description: z.ZodString;
     resolution: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
     description: string;
+    type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
     conflictingResourceUuid: string;
     resolution?: string | null | undefined;
 }, {
-    type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
     description: string;
+    type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
     conflictingResourceUuid: string;
     resolution?: string | null | undefined;
 }>;
@@ -194,13 +194,13 @@ export declare const ValidationResultSchema: z.ZodObject<{
         description: z.ZodString;
         resolution: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     }, "strip", z.ZodTypeAny, {
-        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         description: string;
+        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         conflictingResourceUuid: string;
         resolution?: string | null | undefined;
     }, {
-        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         description: string;
+        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         conflictingResourceUuid: string;
         resolution?: string | null | undefined;
     }>, "many">;
@@ -226,6 +226,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
     validatedAt: z.ZodString;
     validationDurationMs: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
+    canApply: boolean;
+    stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
     errors: {
         code: string;
         message: string;
@@ -234,8 +236,6 @@ export declare const ValidationResultSchema: z.ZodObject<{
         suggestedFix?: string | null | undefined;
         docsUrl?: string | null | undefined;
     }[];
-    canApply: boolean;
-    stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
     warnings: {
         code: string;
         message: string;
@@ -245,8 +245,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         docsUrl?: string | null | undefined;
     }[];
     conflicts: {
-        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         description: string;
+        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         conflictingResourceUuid: string;
         resolution?: string | null | undefined;
     }[];
@@ -260,6 +260,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
     validatedAt: string;
     validationDurationMs: number;
 }, {
+    canApply: boolean;
+    stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
     errors: {
         code: string;
         message: string;
@@ -268,8 +270,6 @@ export declare const ValidationResultSchema: z.ZodObject<{
         suggestedFix?: string | null | undefined;
         docsUrl?: string | null | undefined;
     }[];
-    canApply: boolean;
-    stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
     warnings: {
         code: string;
         message: string;
@@ -279,8 +279,8 @@ export declare const ValidationResultSchema: z.ZodObject<{
         docsUrl?: string | null | undefined;
     }[];
     conflicts: {
-        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         description: string;
+        type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
         conflictingResourceUuid: string;
         resolution?: string | null | undefined;
     }[];
@@ -510,7 +510,6 @@ export declare const RuntimeStateSchema: z.ZodObject<{
     isRunning: boolean;
     health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
     lastUpdated: string;
-    uptime?: string | null | undefined;
     errorMessage?: string | null | undefined;
     metrics?: {
         errors?: number | null | undefined;
@@ -525,11 +524,11 @@ export declare const RuntimeStateSchema: z.ZodObject<{
     } | null | undefined;
     lastSuccessfulOperation?: string | null | undefined;
     activeConnections?: number | null | undefined;
+    uptime?: string | null | undefined;
 }, {
     isRunning: boolean;
     health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
     lastUpdated: string;
-    uptime?: string | null | undefined;
     errorMessage?: string | null | undefined;
     metrics?: {
         errors?: number | null | undefined;
@@ -544,6 +543,7 @@ export declare const RuntimeStateSchema: z.ZodObject<{
     } | null | undefined;
     lastSuccessfulOperation?: string | null | undefined;
     activeConnections?: number | null | undefined;
+    uptime?: string | null | undefined;
 }>;
 /**
  * Bandwidth data point schema.
@@ -555,14 +555,14 @@ export declare const BandwidthDataPointSchema: z.ZodObject<{
     bytesOut: z.ZodNumber;
     periodSeconds: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    timestamp: string;
     bytesIn: number;
     bytesOut: number;
+    timestamp: string;
     periodSeconds: number;
 }, {
-    timestamp: string;
     bytesIn: number;
     bytesOut: number;
+    timestamp: string;
     periodSeconds: number;
 }>;
 /**
@@ -645,14 +645,14 @@ export declare const TelemetryDataSchema: z.ZodObject<{
         bytesOut: z.ZodNumber;
         periodSeconds: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        timestamp: string;
         bytesIn: number;
         bytesOut: number;
+        timestamp: string;
         periodSeconds: number;
     }, {
-        timestamp: string;
         bytesIn: number;
         bytesOut: number;
+        timestamp: string;
         periodSeconds: number;
     }>, "many">>>;
     uptimeHistory: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
@@ -718,9 +718,9 @@ export declare const TelemetryDataSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     retentionDays: number;
     bandwidthHistory?: {
-        timestamp: string;
         bytesIn: number;
         bytesOut: number;
+        timestamp: string;
         periodSeconds: number;
     }[] | null | undefined;
     uptimeHistory?: {
@@ -749,9 +749,9 @@ export declare const TelemetryDataSchema: z.ZodObject<{
 }, {
     retentionDays: number;
     bandwidthHistory?: {
-        timestamp: string;
         bytesIn: number;
         bytesOut: number;
+        timestamp: string;
         periodSeconds: number;
     }[] | null | undefined;
     uptimeHistory?: {
@@ -789,14 +789,14 @@ export declare const ChangeLogEntrySchema: z.ZodObject<{
     changedFields: z.ZodArray<z.ZodString, "many">;
     summary: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    user: string;
     timestamp: string;
+    user: string;
     changeType: "CREATE" | "UPDATE" | "DELETE";
     changedFields: string[];
     summary?: string | null | undefined;
 }, {
-    user: string;
     timestamp: string;
+    user: string;
     changeType: "CREATE" | "UPDATE" | "DELETE";
     changedFields: string[];
     summary?: string | null | undefined;
@@ -824,52 +824,52 @@ export declare const ResourceMetadataSchema: z.ZodObject<{
         changedFields: z.ZodArray<z.ZodString, "many">;
         summary: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     }, "strip", z.ZodTypeAny, {
-        user: string;
         timestamp: string;
+        user: string;
         changeType: "CREATE" | "UPDATE" | "DELETE";
         changedFields: string[];
         summary?: string | null | undefined;
     }, {
-        user: string;
         timestamp: string;
+        user: string;
         changeType: "CREATE" | "UPDATE" | "DELETE";
         changedFields: string[];
         summary?: string | null | undefined;
     }>, "many">>>;
 }, "strip", z.ZodTypeAny, {
-    version: number;
     state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
     tags: string[];
     updatedAt: string;
     isFavorite: boolean;
     createdAt: string;
     createdBy: string;
+    version: number;
     isPinned: boolean;
-    description?: string | null | undefined;
     updatedBy?: string | null | undefined;
+    description?: string | null | undefined;
     notes?: string | null | undefined;
     recentChanges?: {
-        user: string;
         timestamp: string;
+        user: string;
         changeType: "CREATE" | "UPDATE" | "DELETE";
         changedFields: string[];
         summary?: string | null | undefined;
     }[] | null | undefined;
 }, {
-    version: number;
     state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
     tags: string[];
     updatedAt: string;
     isFavorite: boolean;
     createdAt: string;
     createdBy: string;
+    version: number;
     isPinned: boolean;
-    description?: string | null | undefined;
     updatedBy?: string | null | undefined;
+    description?: string | null | undefined;
     notes?: string | null | undefined;
     recentChanges?: {
-        user: string;
         timestamp: string;
+        user: string;
         changeType: "CREATE" | "UPDATE" | "DELETE";
         changedFields: string[];
         summary?: string | null | undefined;
@@ -886,17 +886,17 @@ export declare const ResourceReferenceSchema: z.ZodObject<{
     category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
     state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
 }, "strip", z.ZodTypeAny, {
+    state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+    uuid: string;
     id: string;
     type: string;
-    state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-    uuid: string;
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
 }, {
+    state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+    uuid: string;
     id: string;
     type: string;
-    state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-    uuid: string;
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
 }>;
 /**
  * Resource relationships schema.
@@ -910,17 +910,17 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>, "many">;
     dependents: z.ZodArray<z.ZodObject<{
         uuid: z.ZodString;
@@ -929,17 +929,17 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>, "many">;
     routesVia: z.ZodOptional<z.ZodNullable<z.ZodObject<{
         uuid: z.ZodString;
@@ -948,17 +948,17 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>>>;
     routedBy: z.ZodArray<z.ZodObject<{
         uuid: z.ZodString;
@@ -967,17 +967,17 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>, "many">;
     parent: z.ZodOptional<z.ZodNullable<z.ZodObject<{
         uuid: z.ZodString;
@@ -986,17 +986,17 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>>>;
     children: z.ZodArray<z.ZodObject<{
         uuid: z.ZodString;
@@ -1005,106 +1005,106 @@ export declare const ResourceRelationshipsSchema: z.ZodObject<{
         category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
         state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
     }, "strip", z.ZodTypeAny, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }, {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }>, "many">;
     custom: z.ZodOptional<z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     children: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     dependsOn: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     dependents: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     routedBy: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     custom?: unknown;
     routesVia?: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     } | null | undefined;
     parent?: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     } | null | undefined;
 }, {
     children: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     dependsOn: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     dependents: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     routedBy: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     }[];
     custom?: unknown;
     routesVia?: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     } | null | undefined;
     parent?: {
+        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+        uuid: string;
         id: string;
         type: string;
-        state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-        category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-        uuid: string;
+        category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     } | null | undefined;
 }>;
 /**
@@ -1120,15 +1120,15 @@ export declare const PlatformCapabilitiesSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     isSupported: boolean;
     level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-    details?: unknown;
     minVersion?: string | null | undefined;
     requiredPackages?: string[] | null | undefined;
+    details?: unknown;
 }, {
     isSupported: boolean;
     level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-    details?: unknown;
     minVersion?: string | null | undefined;
     requiredPackages?: string[] | null | undefined;
+    details?: unknown;
 }>;
 /**
  * Platform limitation schema.
@@ -1140,13 +1140,13 @@ export declare const PlatformLimitationSchema: z.ZodObject<{
     affectedFields: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodString, "many">>>;
     workaround: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    code: string;
     description: string;
+    code: string;
     affectedFields?: string[] | null | undefined;
     workaround?: string | null | undefined;
 }, {
-    code: string;
     description: string;
+    code: string;
     affectedFields?: string[] | null | undefined;
     workaround?: string | null | undefined;
 }>;
@@ -1185,15 +1185,15 @@ export declare const PlatformInfoSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         isSupported: boolean;
         level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-        details?: unknown;
         minVersion?: string | null | undefined;
         requiredPackages?: string[] | null | undefined;
+        details?: unknown;
     }, {
         isSupported: boolean;
         level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-        details?: unknown;
         minVersion?: string | null | undefined;
         requiredPackages?: string[] | null | undefined;
+        details?: unknown;
     }>;
     fieldMappings: z.ZodOptional<z.ZodUnknown>;
     limitations: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
@@ -1202,13 +1202,13 @@ export declare const PlatformInfoSchema: z.ZodObject<{
         affectedFields: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodString, "many">>>;
         workaround: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     }, "strip", z.ZodTypeAny, {
-        code: string;
         description: string;
+        code: string;
         affectedFields?: string[] | null | undefined;
         workaround?: string | null | undefined;
     }, {
-        code: string;
         description: string;
+        code: string;
         affectedFields?: string[] | null | undefined;
         workaround?: string | null | undefined;
     }>, "many">>>;
@@ -1233,14 +1233,14 @@ export declare const PlatformInfoSchema: z.ZodObject<{
     capabilities: {
         isSupported: boolean;
         level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-        details?: unknown;
         minVersion?: string | null | undefined;
         requiredPackages?: string[] | null | undefined;
+        details?: unknown;
     };
     fieldMappings?: unknown;
     limitations?: {
-        code: string;
         description: string;
+        code: string;
         affectedFields?: string[] | null | undefined;
         workaround?: string | null | undefined;
     }[] | null | undefined;
@@ -1255,14 +1255,14 @@ export declare const PlatformInfoSchema: z.ZodObject<{
     capabilities: {
         isSupported: boolean;
         level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-        details?: unknown;
         minVersion?: string | null | undefined;
         requiredPackages?: string[] | null | undefined;
+        details?: unknown;
     };
     fieldMappings?: unknown;
     limitations?: {
-        code: string;
         description: string;
+        code: string;
         affectedFields?: string[] | null | undefined;
         workaround?: string | null | undefined;
     }[] | null | undefined;
@@ -1336,13 +1336,13 @@ export declare const ResourceSchema: z.ZodObject<{
             description: z.ZodString;
             resolution: z.ZodOptional<z.ZodNullable<z.ZodString>>;
         }, "strip", z.ZodTypeAny, {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }, {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }>, "many">;
@@ -1368,6 +1368,8 @@ export declare const ResourceSchema: z.ZodObject<{
         validatedAt: z.ZodString;
         validationDurationMs: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
+        canApply: boolean;
+        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         errors: {
             code: string;
             message: string;
@@ -1376,8 +1378,6 @@ export declare const ResourceSchema: z.ZodObject<{
             suggestedFix?: string | null | undefined;
             docsUrl?: string | null | undefined;
         }[];
-        canApply: boolean;
-        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         warnings: {
             code: string;
             message: string;
@@ -1387,8 +1387,8 @@ export declare const ResourceSchema: z.ZodObject<{
             docsUrl?: string | null | undefined;
         }[];
         conflicts: {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }[];
@@ -1402,6 +1402,8 @@ export declare const ResourceSchema: z.ZodObject<{
         validatedAt: string;
         validationDurationMs: number;
     }, {
+        canApply: boolean;
+        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         errors: {
             code: string;
             message: string;
@@ -1410,8 +1412,6 @@ export declare const ResourceSchema: z.ZodObject<{
             suggestedFix?: string | null | undefined;
             docsUrl?: string | null | undefined;
         }[];
-        canApply: boolean;
-        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         warnings: {
             code: string;
             message: string;
@@ -1421,8 +1421,8 @@ export declare const ResourceSchema: z.ZodObject<{
             docsUrl?: string | null | undefined;
         }[];
         conflicts: {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }[];
@@ -1555,7 +1555,6 @@ export declare const ResourceSchema: z.ZodObject<{
         isRunning: boolean;
         health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
         lastUpdated: string;
-        uptime?: string | null | undefined;
         errorMessage?: string | null | undefined;
         metrics?: {
             errors?: number | null | undefined;
@@ -1570,11 +1569,11 @@ export declare const ResourceSchema: z.ZodObject<{
         } | null | undefined;
         lastSuccessfulOperation?: string | null | undefined;
         activeConnections?: number | null | undefined;
+        uptime?: string | null | undefined;
     }, {
         isRunning: boolean;
         health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
         lastUpdated: string;
-        uptime?: string | null | undefined;
         errorMessage?: string | null | undefined;
         metrics?: {
             errors?: number | null | undefined;
@@ -1589,6 +1588,7 @@ export declare const ResourceSchema: z.ZodObject<{
         } | null | undefined;
         lastSuccessfulOperation?: string | null | undefined;
         activeConnections?: number | null | undefined;
+        uptime?: string | null | undefined;
     }>>>;
     telemetry: z.ZodOptional<z.ZodNullable<z.ZodObject<{
         bandwidthHistory: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
@@ -1597,14 +1597,14 @@ export declare const ResourceSchema: z.ZodObject<{
             bytesOut: z.ZodNumber;
             periodSeconds: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }, {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }>, "many">>>;
         uptimeHistory: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
@@ -1670,9 +1670,9 @@ export declare const ResourceSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         retentionDays: number;
         bandwidthHistory?: {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }[] | null | undefined;
         uptimeHistory?: {
@@ -1701,9 +1701,9 @@ export declare const ResourceSchema: z.ZodObject<{
     }, {
         retentionDays: number;
         bandwidthHistory?: {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }[] | null | undefined;
         uptimeHistory?: {
@@ -1749,52 +1749,52 @@ export declare const ResourceSchema: z.ZodObject<{
             changedFields: z.ZodArray<z.ZodString, "many">;
             summary: z.ZodOptional<z.ZodNullable<z.ZodString>>;
         }, "strip", z.ZodTypeAny, {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
         }, {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
         }>, "many">>>;
     }, "strip", z.ZodTypeAny, {
-        version: number;
         state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
         tags: string[];
         updatedAt: string;
         isFavorite: boolean;
         createdAt: string;
         createdBy: string;
+        version: number;
         isPinned: boolean;
-        description?: string | null | undefined;
         updatedBy?: string | null | undefined;
+        description?: string | null | undefined;
         notes?: string | null | undefined;
         recentChanges?: {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
         }[] | null | undefined;
     }, {
-        version: number;
         state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
         tags: string[];
         updatedAt: string;
         isFavorite: boolean;
         createdAt: string;
         createdBy: string;
+        version: number;
         isPinned: boolean;
-        description?: string | null | undefined;
         updatedBy?: string | null | undefined;
+        description?: string | null | undefined;
         notes?: string | null | undefined;
         recentChanges?: {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
@@ -1808,17 +1808,17 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>, "many">;
         dependents: z.ZodArray<z.ZodObject<{
             uuid: z.ZodString;
@@ -1827,17 +1827,17 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>, "many">;
         routesVia: z.ZodOptional<z.ZodNullable<z.ZodObject<{
             uuid: z.ZodString;
@@ -1846,17 +1846,17 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>>>;
         routedBy: z.ZodArray<z.ZodObject<{
             uuid: z.ZodString;
@@ -1865,17 +1865,17 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>, "many">;
         parent: z.ZodOptional<z.ZodNullable<z.ZodObject<{
             uuid: z.ZodString;
@@ -1884,17 +1884,17 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>>>;
         children: z.ZodArray<z.ZodObject<{
             uuid: z.ZodString;
@@ -1903,106 +1903,106 @@ export declare const ResourceSchema: z.ZodObject<{
             category: z.ZodEnum<["NETWORK", "VPN", "INFRASTRUCTURE", "APPLICATION", "FEATURE", "PLUGIN"]>;
             state: z.ZodEnum<["DRAFT", "VALIDATING", "VALID", "APPLYING", "ACTIVE", "DEGRADED", "ERROR", "DEPRECATED", "ARCHIVED"]>;
         }, "strip", z.ZodTypeAny, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }, {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }>, "many">;
         custom: z.ZodOptional<z.ZodUnknown>;
     }, "strip", z.ZodTypeAny, {
         children: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         dependsOn: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         dependents: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         routedBy: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         custom?: unknown;
         routesVia?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         } | null | undefined;
         parent?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         } | null | undefined;
     }, {
         children: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         dependsOn: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         dependents: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         routedBy: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         }[];
         custom?: unknown;
         routesVia?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         } | null | undefined;
         parent?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
             id: string;
             type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
         } | null | undefined;
     }>>>;
     platform: z.ZodOptional<z.ZodNullable<z.ZodObject<{
@@ -2016,15 +2016,15 @@ export declare const ResourceSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         }, {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         }>;
         fieldMappings: z.ZodOptional<z.ZodUnknown>;
         limitations: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
@@ -2033,13 +2033,13 @@ export declare const ResourceSchema: z.ZodObject<{
             affectedFields: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodString, "many">>>;
             workaround: z.ZodOptional<z.ZodNullable<z.ZodString>>;
         }, "strip", z.ZodTypeAny, {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }, {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }>, "many">>>;
@@ -2064,14 +2064,14 @@ export declare const ResourceSchema: z.ZodObject<{
         capabilities: {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         };
         fieldMappings?: unknown;
         limitations?: {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }[] | null | undefined;
@@ -2086,14 +2086,14 @@ export declare const ResourceSchema: z.ZodObject<{
         capabilities: {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         };
         fieldMappings?: unknown;
         limitations?: {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }[] | null | undefined;
@@ -2105,31 +2105,79 @@ export declare const ResourceSchema: z.ZodObject<{
         }[] | null | undefined;
     }>>>;
 }, "strip", z.ZodTypeAny, {
+    uuid: string;
     id: string;
     type: string;
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     metadata: {
-        version: number;
         state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
         tags: string[];
         updatedAt: string;
         isFavorite: boolean;
         createdAt: string;
         createdBy: string;
+        version: number;
         isPinned: boolean;
-        description?: string | null | undefined;
         updatedBy?: string | null | undefined;
+        description?: string | null | undefined;
         notes?: string | null | undefined;
         recentChanges?: {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
         }[] | null | undefined;
     };
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-    uuid: string;
+    relationships?: {
+        children: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        dependsOn: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        dependents: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        routedBy: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        custom?: unknown;
+        routesVia?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        } | null | undefined;
+        parent?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        } | null | undefined;
+    } | null | undefined;
+    configuration?: unknown;
     validation?: {
+        canApply: boolean;
+        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         errors: {
             code: string;
             message: string;
@@ -2138,8 +2186,6 @@ export declare const ResourceSchema: z.ZodObject<{
             suggestedFix?: string | null | undefined;
             docsUrl?: string | null | undefined;
         }[];
-        canApply: boolean;
-        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         warnings: {
             code: string;
             message: string;
@@ -2149,8 +2195,8 @@ export declare const ResourceSchema: z.ZodObject<{
             docsUrl?: string | null | undefined;
         }[];
         conflicts: {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }[];
@@ -2164,52 +2210,6 @@ export declare const ResourceSchema: z.ZodObject<{
         validatedAt: string;
         validationDurationMs: number;
     } | null | undefined;
-    relationships?: {
-        children: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        dependsOn: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        dependents: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        routedBy: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        custom?: unknown;
-        routesVia?: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        } | null | undefined;
-        parent?: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        } | null | undefined;
-    } | null | undefined;
-    configuration?: unknown;
     deployment?: {
         appliedAt: string;
         isInSync: boolean;
@@ -2232,7 +2232,6 @@ export declare const ResourceSchema: z.ZodObject<{
         isRunning: boolean;
         health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
         lastUpdated: string;
-        uptime?: string | null | undefined;
         errorMessage?: string | null | undefined;
         metrics?: {
             errors?: number | null | undefined;
@@ -2247,13 +2246,14 @@ export declare const ResourceSchema: z.ZodObject<{
         } | null | undefined;
         lastSuccessfulOperation?: string | null | undefined;
         activeConnections?: number | null | undefined;
+        uptime?: string | null | undefined;
     } | null | undefined;
     telemetry?: {
         retentionDays: number;
         bandwidthHistory?: {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }[] | null | undefined;
         uptimeHistory?: {
@@ -2285,14 +2285,14 @@ export declare const ResourceSchema: z.ZodObject<{
         capabilities: {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         };
         fieldMappings?: unknown;
         limitations?: {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }[] | null | undefined;
@@ -2304,31 +2304,79 @@ export declare const ResourceSchema: z.ZodObject<{
         }[] | null | undefined;
     } | null | undefined;
 }, {
+    uuid: string;
     id: string;
     type: string;
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     metadata: {
-        version: number;
         state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
         tags: string[];
         updatedAt: string;
         isFavorite: boolean;
         createdAt: string;
         createdBy: string;
+        version: number;
         isPinned: boolean;
-        description?: string | null | undefined;
         updatedBy?: string | null | undefined;
+        description?: string | null | undefined;
         notes?: string | null | undefined;
         recentChanges?: {
-            user: string;
             timestamp: string;
+            user: string;
             changeType: "CREATE" | "UPDATE" | "DELETE";
             changedFields: string[];
             summary?: string | null | undefined;
         }[] | null | undefined;
     };
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-    uuid: string;
+    relationships?: {
+        children: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        dependsOn: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        dependents: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        routedBy: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        }[];
+        custom?: unknown;
+        routesVia?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        } | null | undefined;
+        parent?: {
+            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
+            uuid: string;
+            id: string;
+            type: string;
+            category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+        } | null | undefined;
+    } | null | undefined;
+    configuration?: unknown;
     validation?: {
+        canApply: boolean;
+        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         errors: {
             code: string;
             message: string;
@@ -2337,8 +2385,6 @@ export declare const ResourceSchema: z.ZodObject<{
             suggestedFix?: string | null | undefined;
             docsUrl?: string | null | undefined;
         }[];
-        canApply: boolean;
-        stage: "SCHEMA" | "SEMANTIC" | "DEPENDENCY" | "CONFLICT" | "PLATFORM" | "QUOTA" | "SIMULATION" | "COMPLETE";
         warnings: {
             code: string;
             message: string;
@@ -2348,8 +2394,8 @@ export declare const ResourceSchema: z.ZodObject<{
             docsUrl?: string | null | undefined;
         }[];
         conflicts: {
-            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             description: string;
+            type: "PORT" | "IP_ADDRESS" | "ROUTE" | "INTERFACE" | "NAME" | "CONFIGURATION";
             conflictingResourceUuid: string;
             resolution?: string | null | undefined;
         }[];
@@ -2363,52 +2409,6 @@ export declare const ResourceSchema: z.ZodObject<{
         validatedAt: string;
         validationDurationMs: number;
     } | null | undefined;
-    relationships?: {
-        children: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        dependsOn: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        dependents: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        routedBy: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        }[];
-        custom?: unknown;
-        routesVia?: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        } | null | undefined;
-        parent?: {
-            id: string;
-            type: string;
-            state: "DRAFT" | "VALIDATING" | "VALID" | "APPLYING" | "ACTIVE" | "DEGRADED" | "ERROR" | "DEPRECATED" | "ARCHIVED";
-            category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
-            uuid: string;
-        } | null | undefined;
-    } | null | undefined;
-    configuration?: unknown;
     deployment?: {
         appliedAt: string;
         isInSync: boolean;
@@ -2431,7 +2431,6 @@ export declare const ResourceSchema: z.ZodObject<{
         isRunning: boolean;
         health: "DEGRADED" | "WARNING" | "HEALTHY" | "FAILED" | "UNKNOWN";
         lastUpdated: string;
-        uptime?: string | null | undefined;
         errorMessage?: string | null | undefined;
         metrics?: {
             errors?: number | null | undefined;
@@ -2446,13 +2445,14 @@ export declare const ResourceSchema: z.ZodObject<{
         } | null | undefined;
         lastSuccessfulOperation?: string | null | undefined;
         activeConnections?: number | null | undefined;
+        uptime?: string | null | undefined;
     } | null | undefined;
     telemetry?: {
         retentionDays: number;
         bandwidthHistory?: {
-            timestamp: string;
             bytesIn: number;
             bytesOut: number;
+            timestamp: string;
             periodSeconds: number;
         }[] | null | undefined;
         uptimeHistory?: {
@@ -2484,14 +2484,14 @@ export declare const ResourceSchema: z.ZodObject<{
         capabilities: {
             isSupported: boolean;
             level: "NONE" | "BASIC" | "ADVANCED" | "FULL";
-            details?: unknown;
             minVersion?: string | null | undefined;
             requiredPackages?: string[] | null | undefined;
+            details?: unknown;
         };
         fieldMappings?: unknown;
         limitations?: {
-            code: string;
             description: string;
+            code: string;
             affectedFields?: string[] | null | undefined;
             workaround?: string | null | undefined;
         }[] | null | undefined;
@@ -2552,10 +2552,10 @@ export declare const CreateResourceInputSchema: z.ZodObject<{
     description: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     type: string;
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     routerId: string;
-    description?: string | undefined;
     tags?: string[] | undefined;
+    description?: string | undefined;
     relationships?: {
         custom?: unknown;
         dependsOn?: string[] | undefined;
@@ -2565,10 +2565,10 @@ export declare const CreateResourceInputSchema: z.ZodObject<{
     configuration?: unknown;
 }, {
     type: string;
-    category: "VPN" | "NETWORK" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
+    category: "NETWORK" | "VPN" | "INFRASTRUCTURE" | "APPLICATION" | "FEATURE" | "PLUGIN";
     routerId: string;
-    description?: string | undefined;
     tags?: string[] | undefined;
+    description?: string | undefined;
     relationships?: {
         custom?: unknown;
         dependsOn?: string[] | undefined;
@@ -2602,8 +2602,8 @@ export declare const UpdateResourceInputSchema: z.ZodObject<{
     tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     description: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    description?: string | undefined;
     tags?: string[] | undefined;
+    description?: string | undefined;
     relationships?: {
         custom?: unknown;
         dependsOn?: string[] | undefined;
@@ -2612,8 +2612,8 @@ export declare const UpdateResourceInputSchema: z.ZodObject<{
     } | undefined;
     configuration?: unknown;
 }, {
-    description?: string | undefined;
     tags?: string[] | undefined;
+    description?: string | undefined;
     relationships?: {
         custom?: unknown;
         dependsOn?: string[] | undefined;

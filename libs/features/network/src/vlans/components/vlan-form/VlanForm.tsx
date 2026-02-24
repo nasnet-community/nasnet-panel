@@ -87,7 +87,7 @@ export function VlanForm({
   const watchedVlanId = form.watch('vlanId');
   const watchedInterface = form.watch('interface');
 
-  // Debounced duplicate VLAN ID check (300ms)
+  // Debounced duplicate VLAN ID check
   useEffect(() => {
     if (!watchedVlanId || !watchedInterface) {
       setCheckDuplicateEnabled(false);

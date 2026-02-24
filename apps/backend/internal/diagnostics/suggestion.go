@@ -288,7 +288,38 @@ func ClassifyError(err error) ErrorCategory {
 // matchesAny returns true if s contains any of the given substrings (case-insensitive).
 func matchesAny(s string, substrings []string) bool {
 	for _, sub := range substrings {
-		if contains(s, sub) {
+		if containsCI(s, sub) {
+			return true
+		}
+	}
+	return false
+}
+
+// containsCI checks if s contains substr (case-insensitive).
+// This is a local copy to avoid depending on port_scanner package helpers.
+func containsCI(s, substr string) bool {
+	sLower := toLower(s)
+	subLower := toLower(substr)
+	return len(sLower) >= len(subLower) && (sLower == subLower || sLower != "" && stringContains(sLower, subLower))
+}
+
+// toLower converts a string to lowercase.
+func toLower(s string) string {
+	b := make([]byte, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= 'A' && c <= 'Z' {
+			c += 'a' - 'A'
+		}
+		b[i] = c
+	}
+	return string(b)
+}
+
+// stringContains checks if s contains substr.
+func stringContains(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
 			return true
 		}
 	}

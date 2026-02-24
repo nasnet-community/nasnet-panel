@@ -6,8 +6,8 @@ package resolver
 import (
 	"backend/graph/model"
 	"context"
-	"fmt"
 
+	"backend/internal/errors"
 	"backend/internal/events"
 )
 
@@ -22,11 +22,14 @@ func (r *subscriptionResolver) ScheduleChanged(ctx context.Context, routerID str
 	// Subscribe to schedule events via event bus
 	if r.EventBus == nil {
 		close(eventChan)
-		return eventChan, fmt.Errorf("event bus not available")
+		return eventChan, errors.NewInternalError("event bus not available", nil)
 	}
 
+	// Track the unsubscribe handler for cleanup
+	var unsubscribe func() error
+
 	// Subscribe to schedule events via event bus handler
-	err := r.EventBus.Subscribe("schedule.*", func(ctx context.Context, event events.Event) error {
+	handler := func(ctx context.Context, event events.Event) error {
 		scheduleEvent := &model.ScheduleEvent{
 			ID:        event.GetID().String(),
 			EventType: event.GetType(),
@@ -38,18 +41,42 @@ func (r *subscriptionResolver) ScheduleChanged(ctx context.Context, routerID str
 		case <-ctx.Done():
 		}
 		return nil
-	})
+	}
+
+	err := r.EventBus.Subscribe("schedule.*", handler)
 	if err != nil {
 		close(eventChan)
-		return eventChan, fmt.Errorf("failed to subscribe to schedule events: %w", err)
+		return eventChan, errors.NewInternalError("failed to subscribe to schedule events", err)
+	}
+
+	// Get unsubscribe function if available
+	if ub, ok := r.EventBus.(interface{ Unsubscribe(topic string) error }); ok {
+		unsubscribe = func() error {
+			return ub.Unsubscribe("schedule.*")
+		}
 	}
 
 	// Close channel when context is done
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic but don't crash service
+				_ = r
+			}
+			close(eventChan)
+		}()
 		<-ctx.Done()
 		r.log.Infow("ScheduleChanged subscription ended",
 			"routerID", routerID)
-		close(eventChan)
+
+		// Unsubscribe from event bus if available
+		if unsubscribe != nil {
+			if err := unsubscribe(); err != nil {
+				r.log.Errorw("failed to unsubscribe from schedule events",
+					"error", err,
+					"routerID", routerID)
+			}
+		}
 	}()
 
 	return eventChan, nil

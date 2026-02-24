@@ -8,7 +8,7 @@ import (
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
 
-	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
 )
 
 // GetRoutingChain retrieves a routing chain by device ID.
@@ -54,7 +54,7 @@ func (cr *ChainRouter) RemoveChainsByInterface(ctx context.Context, interfaceID 
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
-	log.Info().Str("interface_id", interfaceID).Msg("Removing chains referencing interface")
+	cr.logger.Info("Removing chains referencing interface", zap.String("interface_id", interfaceID))
 
 	hops, err := cr.store.ChainHop.
 		Query().
@@ -65,7 +65,7 @@ func (cr *ChainRouter) RemoveChainsByInterface(ctx context.Context, interfaceID 
 	}
 
 	if len(hops) == 0 {
-		log.Info().Msg("No chains reference this interface")
+		cr.logger.Info("No chains reference this interface")
 		return nil
 	}
 
@@ -83,16 +83,16 @@ func (cr *ChainRouter) RemoveChainsByInterface(ctx context.Context, interfaceID 
 			}).
 			Only(ctx)
 		if err != nil {
-			log.Warn().Err(err).Str("chain_id", chainID).Msg("Failed to load chain for removal")
+			cr.logger.Warn("Failed to load chain for removal", zap.Error(err), zap.String("chain_id", chainID))
 			continue
 		}
 
 		if err := cr.removeRoutingChainInternal(ctx, chain); err != nil {
-			log.Warn().Err(err).Str("chain_id", chainID).Msg("Failed to remove chain")
+			cr.logger.Warn("Failed to remove chain", zap.Error(err), zap.String("chain_id", chainID))
 		}
 	}
 
-	log.Info().Int("chain_count", len(chainIDs)).Msg("Removed chains referencing interface")
+	cr.logger.Info("Removed chains referencing interface", zap.Int("chain_count", len(chainIDs)))
 
 	return nil
 }

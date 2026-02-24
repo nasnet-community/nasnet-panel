@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -32,6 +33,9 @@ type InMemoryEventBus struct {
 // Publish publishes an event to all subscribers.
 // Implements EventBus.Publish.
 func (b *InMemoryEventBus) Publish(ctx context.Context, event Event) error {
+	if event == nil {
+		return fmt.Errorf("event cannot be nil")
+	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
 

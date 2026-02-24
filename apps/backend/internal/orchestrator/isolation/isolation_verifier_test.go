@@ -13,7 +13,7 @@ import (
 	"backend/internal/network"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // mockConfigBindingValidator is a mock implementation for testing
@@ -67,6 +67,10 @@ func (p *portAllocationAdapter) GetInstanceID() string {
 	return p.InstanceID
 }
 
+func (p *portAllocationAdapter) GetServiceType() string {
+	return p.ServiceType
+}
+
 func (m *mockPortRegistry) GetAllocationsByInstance(ctx context.Context, instanceID string) ([]network.PortAllocationEntity, error) {
 	allocations, err := m.store.PortAllocation.Query().
 		Where(portallocation.InstanceIDEQ(instanceID)).
@@ -113,7 +117,7 @@ func setupTestEnv(t *testing.T) (*ent.Client, *mockPortRegistry, string, func())
 
 // TestIsolationVerifier_NewIsolationVerifier tests constructor validation
 func TestIsolationVerifier_NewIsolationVerifier(t *testing.T) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("success with all dependencies", func(t *testing.T) {
 		client, portRegistry, _, cleanup := setupTestEnv(t)
@@ -181,7 +185,7 @@ func TestIsolationVerifier_NewIsolationVerifier(t *testing.T) {
 // TestIsolationVerifier_VerifyIPBinding tests Layer 1: IP binding validation
 func TestIsolationVerifier_VerifyIPBinding(t *testing.T) {
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("success with valid bind_ip", func(t *testing.T) {
 		_, portRegistry, _, cleanup := setupTestEnv(t)
@@ -262,7 +266,7 @@ func TestIsolationVerifier_VerifyIPBinding(t *testing.T) {
 // TestIsolationVerifier_VerifyDirectory tests Layer 2: Directory validation
 func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("success with valid binary path", func(t *testing.T) {
 		client, portRegistry, baseDir, cleanup := setupTestEnv(t)
@@ -387,7 +391,7 @@ func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 // TestIsolationVerifier_VerifyPorts tests Layer 3: Port availability
 func TestIsolationVerifier_VerifyPorts(t *testing.T) {
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("success with valid port allocations", func(t *testing.T) {
 		client, portRegistry, _, cleanup := setupTestEnv(t)
@@ -496,7 +500,7 @@ func TestIsolationVerifier_VerifyPorts(t *testing.T) {
 // TestIsolationVerifier_VerifyPreStart tests full 4-layer verification
 func TestIsolationVerifier_VerifyPreStart(t *testing.T) {
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("success with all layers passing", func(t *testing.T) {
 		client, portRegistry, baseDir, cleanup := setupTestEnv(t)
@@ -607,7 +611,7 @@ func TestIsolationVerifier_VerifyPreStart(t *testing.T) {
 // TestIsolationVerifier_ProcessBindingWarning tests Layer 4 warning behavior
 func TestIsolationVerifier_ProcessBindingWarning(t *testing.T) {
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	t.Run("process binding check returns warning not error", func(t *testing.T) {
 		client, portRegistry, baseDir, cleanup := setupTestEnv(t)

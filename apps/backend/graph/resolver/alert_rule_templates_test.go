@@ -7,6 +7,7 @@ import (
 
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"backend/internal/alerts"
@@ -206,7 +207,7 @@ func TestAlertRuleTemplate_GetSingle(t *testing.T) {
 					Version:   "1.0.0",
 				}, nil
 			}
-			return nil, assert.AnError
+			return nil, fmt.Errorf("template not found: %s", id)
 		},
 	}
 
@@ -346,7 +347,7 @@ func TestSaveCustomAlertRuleTemplate_Success(t *testing.T) {
 				Label:        "Threshold",
 				Type:         model.AlertRuleTemplateVariableTypeInteger,
 				Required:     true,
-				DefaultValue: graphql.OmittableOf(ptrString("100")),
+				DefaultValue: graphql.OmittableOf(ptrStringTest("100")),
 			},
 		}),
 	}
@@ -370,7 +371,7 @@ func TestDeleteCustomAlertRuleTemplate_Success(t *testing.T) {
 			if id == "custom-123" {
 				return nil
 			}
-			return assert.AnError
+			return fmt.Errorf("template not found: %s", id)
 		},
 	}
 
@@ -493,7 +494,7 @@ func TestAlertRuleTemplates_ServiceUnavailable(t *testing.T) {
 func TestApplyAlertRuleTemplate_ValidationFailure(t *testing.T) {
 	mockSvc := &mockAlertRuleTemplateService{
 		applyTemplateFn: func(ctx context.Context, templateID string, variables map[string]interface{}, customizations services.CreateAlertRuleInput) (*ent.AlertRule, error) {
-			return nil, assert.AnError
+			return nil, fmt.Errorf("missing required variable: DURATION")
 		},
 	}
 
@@ -522,7 +523,7 @@ func TestApplyAlertRuleTemplate_ValidationFailure(t *testing.T) {
 func TestImportAlertRuleTemplate_InvalidJSON(t *testing.T) {
 	mockSvc := &mockAlertRuleTemplateService{
 		importTemplateFn: func(ctx context.Context, jsonStr string) (*alerts.AlertRuleTemplate, error) {
-			return nil, assert.AnError
+			return nil, fmt.Errorf("invalid JSON format")
 		},
 	}
 
@@ -542,4 +543,9 @@ func TestImportAlertRuleTemplate_InvalidJSON(t *testing.T) {
 // =============================================================================
 // Helper Functions.
 // =============================================================================
-// ptrString is defined in common_helpers.go
+
+// ptrString returns a pointer to a string.
+// Used in test fixtures to set optional string fields.
+func ptrStringTest(s string) *string {
+	return &s
+}

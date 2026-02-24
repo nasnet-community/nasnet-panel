@@ -2,10 +2,8 @@ package bootstrap
 
 import (
 	"context"
-	"log"
-	"log/slog"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 
@@ -50,26 +48,26 @@ func InitializeVIF(
 	eventBus events.EventBus,
 	pathResolver storage.PathResolverPort,
 	routerPort *router.MockAdapter,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 ) (*VIFComponents, error) {
 
-	log.Printf("Initializing Virtual Interface Factory (VIF)...")
+	logger.Info("Initializing Virtual Interface Factory (VIF)")
 
 	// 1. Create DB-backed VLAN allocator (replaces SimpleVLANAllocator from MVP).
 	networkStore := adapters.NewEntNetworkAdapter(systemDB)
 	networkVLANAllocator, err := network.NewVLANAllocator(network.VLANAllocatorConfig{ //nolint:contextcheck // NewVLANAllocator does not accept ctx
 		Store:       networkStore,
 		VlanService: &vifVlanServiceAdapter{svc: services.NewVlanService(routerPort)},
-		Logger:      slog.Default(),
+		Logger:      nil, // defaults to slog.Default() inside NewVLANAllocator
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("DB-backed VLAN allocator initialized")
+	logger.Info("DB-backed VLAN allocator initialized")
 
 	// 2. Wrap in adapter that satisfies the vif.VLANAllocator interface.
 	vlanAllocator := vif.NewNetworkVLANAllocatorAdapter(networkVLANAllocator)
-	log.Printf("VLAN allocator adapter initialized")
+	logger.Info("VLAN allocator adapter initialized")
 
 	// 3. Create InterfaceFactory
 	interfaceFactory := vif.NewInterfaceFactory(vif.InterfaceFactoryConfig{
@@ -78,7 +76,7 @@ func InitializeVIF(
 		EventBus:    eventBus,
 		ParentIface: "ether1", // Parent interface for VLANs
 	})
-	log.Printf("Interface factory initialized")
+	logger.Info("Interface factory initialized")
 
 	// 4. Create GatewayManager
 	gatewayManager, err := vif.NewGatewayManager(vif.GatewayManagerConfig{
@@ -90,7 +88,7 @@ func InitializeVIF(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Gateway manager initialized")
+	logger.Info("Gateway manager initialized")
 
 	// 5. Create BridgeOrchestrator
 	bridgeOrchestrator := vif.NewBridgeOrchestrator(vif.BridgeOrchestratorConfig{
@@ -101,20 +99,20 @@ func InitializeVIF(
 		EventBus:         eventBus,
 		RouterPort:       routerPort,
 	})
-	log.Printf("Bridge orchestrator initialized")
+	logger.Info("Bridge orchestrator initialized")
 
 	// 6. Create Kill Switch Manager
 	publisher := events.NewPublisher(eventBus, "kill-switch-manager")
 	killSwitchMgr := isolation.NewKillSwitchManager(routerPort, systemDB, eventBus, publisher)
-	log.Printf("Kill switch manager initialized")
+	logger.Info("Kill switch manager initialized")
 
 	// 7. Create and start Kill Switch Listener
 	killSwitchListener := isolation.NewKillSwitchListener(systemDB, eventBus, publisher, killSwitchMgr, logger)
 	if err := killSwitchListener.Start(); err != nil {
-		log.Printf("Warning: Kill switch listener failed to start: %v", err)
+		logger.Warn("Kill switch listener failed to start", zap.Error(err))
 		// Non-fatal: listener failure shouldn't prevent VIF initialization
 	}
-	log.Printf("Kill switch listener started")
+	logger.Info("Kill switch listener started")
 
 	return &VIFComponents{
 		NetworkVLANAllocator: networkVLANAllocator,
@@ -132,7 +130,8 @@ type vifVlanServiceAdapter struct {
 	svc *services.VlanService
 }
 
-func (a *vifVlanServiceAdapter) ListVlans(ctx context.Context, routerID string, filter *network.VlanFilter) ([]*network.Vlan, error) {
+func (a *vifVlanServiceAdapter) ListVlans(ctx context.Context, routerID string, _ *network.VlanFilter) ([]*network.Vlan, error) {
+	// network.VlanFilter is an empty struct; pass nil to the service (no filter applied)
 	vlans, err := a.svc.ListVlans(ctx, routerID, nil)
 	if err != nil {
 		return nil, err

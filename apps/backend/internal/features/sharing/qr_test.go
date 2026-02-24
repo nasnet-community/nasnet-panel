@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/skip2/go-qrcode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +20,7 @@ func TestGenerateQR_MTProxy(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -63,7 +65,7 @@ func TestGenerateQR_SizeLimit(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Create oversized config (> 2KB)
 	largeConfig := make(map[string]interface{})
@@ -105,7 +107,7 @@ func TestGenerateQR_PNGValidation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -161,7 +163,7 @@ func TestGenerateQR_DefaultOptions(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -194,7 +196,7 @@ func TestGenerateQR_EventPublishing(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Capture event
 	var capturedEvent *QRCodeGeneratedEvent

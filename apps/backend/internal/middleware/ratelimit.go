@@ -45,21 +45,24 @@ var DefaultRateLimitConfigs = map[string]RateLimitConfig{
 }
 
 // TokenBucket implements the token bucket algorithm for rate limiting
+// Uses integer arithmetic (millitokens) to avoid floating-point precision issues
 type TokenBucket struct {
-	mu         sync.Mutex
-	tokens     float64
-	maxTokens  float64
-	refillRate float64
-	lastRefill time.Time
+	mu              sync.Mutex
+	tokens          int64 // Millitokens (1 token = 1000 millitokens)
+	maxTokens       int64 // Millitokens
+	refillRatePerMS int64 // Millitokens per millisecond
+	lastRefill      time.Time
 }
 
 // NewTokenBucket creates a new token bucket
 func NewTokenBucket(rate float64, burst int) *TokenBucket {
+	// Convert rate (tokens/second) to millitokens/millisecond
+	refillPerMS := int64(rate * 1000)
 	return &TokenBucket{
-		tokens:     float64(burst),
-		maxTokens:  float64(burst),
-		refillRate: rate,
-		lastRefill: time.Now(),
+		tokens:          int64(burst) * 1000, // Convert to millitokens
+		maxTokens:       int64(burst) * 1000,
+		refillRatePerMS: refillPerMS,
+		lastRefill:      time.Now(),
 	}
 }
 
@@ -70,20 +73,20 @@ func (tb *TokenBucket) Allow() bool {
 
 	// Refill tokens based on elapsed time
 	now := time.Now()
-	elapsed := now.Sub(tb.lastRefill).Seconds()
-	tb.tokens += elapsed * tb.refillRate
+	elapsedMS := now.Sub(tb.lastRefill).Milliseconds()
+	tb.tokens += elapsedMS * tb.refillRatePerMS
 	if tb.tokens > tb.maxTokens {
 		tb.tokens = tb.maxTokens
 	}
 	tb.lastRefill = now
 
-	// Check if we have a token
-	if tb.tokens < 1 {
+	// Check if we have a token (1000 millitokens = 1 token)
+	if tb.tokens < 1000 {
 		return false
 	}
 
 	// Consume a token
-	tb.tokens--
+	tb.tokens -= 1000
 	return true
 }
 
@@ -91,7 +94,7 @@ func (tb *TokenBucket) Allow() bool {
 func (tb *TokenBucket) Tokens() float64 {
 	tb.mu.Lock()
 	defer tb.mu.Unlock()
-	return tb.tokens
+	return float64(tb.tokens) / 1000.0
 }
 
 // RateLimiter manages rate limiting across multiple keys
@@ -103,7 +106,9 @@ type RateLimiter struct {
 	// Cleanup settings
 	cleanupInterval time.Duration
 	maxIdleTime     time.Duration
+	maxBuckets      int // Maximum number of buckets to prevent memory exhaustion
 	lastAccess      map[string]time.Time
+	stopCleanup     chan struct{} // Signal to stop cleanup goroutine
 }
 
 // NewRateLimiter creates a new rate limiter with the given configuration
@@ -113,7 +118,9 @@ func NewRateLimiter(config RateLimitConfig) *RateLimiter {
 		config:          config,
 		cleanupInterval: 5 * time.Minute,
 		maxIdleTime:     10 * time.Minute,
+		maxBuckets:      10000, // Prevent memory exhaustion from unique keys
 		lastAccess:      make(map[string]time.Time),
+		stopCleanup:     make(chan struct{}),
 	}
 
 	// Start cleanup goroutine
@@ -127,6 +134,11 @@ func (rl *RateLimiter) Allow(key string) bool {
 	rl.mu.Lock()
 	bucket, exists := rl.buckets[key]
 	if !exists {
+		// Prevent memory exhaustion by limiting bucket count
+		if len(rl.buckets) >= rl.maxBuckets {
+			rl.mu.Unlock()
+			return false // Reject if at capacity
+		}
 		bucket = NewTokenBucket(rl.config.Rate, rl.config.Burst)
 		rl.buckets[key] = bucket
 	}
@@ -141,17 +153,28 @@ func (rl *RateLimiter) cleanup() {
 	ticker := time.NewTicker(rl.cleanupInterval)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		rl.mu.Lock()
-		now := time.Now()
-		for key, lastAccess := range rl.lastAccess {
-			if now.Sub(lastAccess) > rl.maxIdleTime {
-				delete(rl.buckets, key)
-				delete(rl.lastAccess, key)
+	for {
+		select {
+		case <-rl.stopCleanup:
+			// Gracefully shutdown cleanup goroutine
+			return
+		case <-ticker.C:
+			rl.mu.Lock()
+			now := time.Now()
+			for key, lastAccess := range rl.lastAccess {
+				if now.Sub(lastAccess) > rl.maxIdleTime {
+					delete(rl.buckets, key)
+					delete(rl.lastAccess, key)
+				}
 			}
+			rl.mu.Unlock()
 		}
-		rl.mu.Unlock()
 	}
+}
+
+// Stop gracefully stops the cleanup goroutine
+func (rl *RateLimiter) Stop() {
+	close(rl.stopCleanup)
 }
 
 // RateLimitMiddleware returns an Echo middleware that applies rate limiting

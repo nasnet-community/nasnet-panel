@@ -8,9 +8,9 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
@@ -30,7 +30,7 @@ func setupTestScheduleService(t *testing.T) (*ScheduleService, events.EventBus, 
 	// mockScheduler := &MockScheduleEvaluator{}
 
 	// Create service
-	logger := zerolog.New(zerolog.NewTestWriter(t)).With().Timestamp().Logger()
+	logger := zap.NewNop()
 	svc, err := NewScheduleService(ScheduleServiceConfig{
 		Store:     client,
 		Scheduler: nil, // mockScheduler, // TODO: MockScheduleEvaluator doesn't match interface
@@ -75,7 +75,7 @@ func TestNewScheduleService(t *testing.T) {
 
 	mockScheduler := &MockScheduleEvaluator{}
 	_ = mockScheduler // Silence unused variable
-	logger := zerolog.New(zerolog.NewTestWriter(t)).With().Timestamp().Logger()
+	logger := zap.NewNop()
 
 	t.Run("successful creation", func(t *testing.T) {
 		svc, err := NewScheduleService(ScheduleServiceConfig{

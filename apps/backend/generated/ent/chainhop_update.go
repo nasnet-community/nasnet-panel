@@ -3,15 +3,14 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/virtualinterface"
+	"context"
+	"errors"
+	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

@@ -60,7 +60,7 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
   return (
     <div
       className={cn(
-        'relative rounded-lg border border-info/30 bg-info/5 p-4',
+        'relative rounded-card-sm border border-info/30 bg-info/5 p-component-md',
         className
       )}
       role="alert"

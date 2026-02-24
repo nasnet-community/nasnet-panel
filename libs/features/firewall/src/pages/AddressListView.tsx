@@ -196,22 +196,22 @@ export const AddressListView = memo(function AddressListView() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-4">
+      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between p-component-md gap-component-md">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight font-display">
               {t('addressLists.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
               {t('addressLists.subtitle')}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button variant="outline" onClick={handleImport} aria-label={t('addressLists.buttons.import')}>
               <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.import')}
             </Button>
-            <Button onClick={handleAddEntry} className="bg-primary hover:bg-primary/90" aria-label={t('addressLists.buttons.addEntry')}>
+            <Button onClick={handleAddEntry} aria-label={t('addressLists.buttons.addEntry')}>
               <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.addEntry')}
             </Button>
@@ -220,7 +220,7 @@ export const AddressListView = memo(function AddressListView() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-4" role="main" aria-label="Address lists content">
+      <div className="flex-1 overflow-y-auto p-component-md" role="main" aria-label="Address lists content">
         {/* Error State */}
         {error && (
           <Alert variant="destructive" className="mb-4">
@@ -259,12 +259,12 @@ export const AddressListView = memo(function AddressListView() {
           className={isMobile ? 'h-[90vh]' : 'w-full sm:max-w-2xl'}
         >
           <SheetHeader>
-            <SheetTitle>{t('addressLists.dialogs.addEntry.title')}</SheetTitle>
+            <SheetTitle className="font-display">{t('addressLists.dialogs.addEntry.title')}</SheetTitle>
             <SheetDescription>
               {t('addressLists.dialogs.addEntry.description')}
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="mt-component-lg">
             <AddressListEntryForm
               existingLists={existingLists}
               onSubmit={handleCreateEntry}
@@ -279,12 +279,12 @@ export const AddressListView = memo(function AddressListView() {
       <Dialog open={showImport} onOpenChange={setShowImport}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t('addressLists.dialogs.import.title')}</DialogTitle>
+            <DialogTitle className="font-display">{t('addressLists.dialogs.import.title')}</DialogTitle>
             <DialogDescription>
               {t('addressLists.dialogs.import.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4">
+          <div className="mt-component-md">
             <AddressListImportDialog
               routerId={routerIp}
               existingLists={existingLists}
@@ -298,12 +298,12 @@ export const AddressListView = memo(function AddressListView() {
       <Dialog open={showExport} onOpenChange={setShowExport}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t('addressLists.dialogs.export.title')}</DialogTitle>
+            <DialogTitle className="font-display">{t('addressLists.dialogs.export.title')}</DialogTitle>
             <DialogDescription>
               {t('addressLists.dialogs.export.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4">
+          <div className="mt-component-md">
             <AddressListExportDialog
               listName={selectedList || ''}
               entries={[]}

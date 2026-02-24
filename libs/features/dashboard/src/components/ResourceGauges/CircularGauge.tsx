@@ -161,6 +161,7 @@ export const CircularGauge = memo(function CircularGauge({
         className={cn(
           'flex flex-col items-center gap-2',
           'cursor-pointer hover:opacity-80',
+          'min-h-[44px] min-w-[44px]', // WCAG AAA touch target
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           'transition-opacity',
           className

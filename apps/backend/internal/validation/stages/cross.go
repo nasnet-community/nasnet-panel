@@ -8,14 +8,6 @@ import (
 	"backend/internal/validation"
 )
 
-// Operation and resource type constants for cross-resource validation.
-const (
-	operationDelete        = "delete"
-	resourceTypeIPAddress  = "ip-address"
-	resourceTypeVLAN       = "vlan"
-	resourceTypeBridgePort = "bridge-port"
-)
-
 // CrossStage validates cross-resource constraints (Stage 4).
 // Checks for conflicts between the proposed change and existing resources.
 // For example: IP address conflicts, VLAN ID conflicts, duplicate bridge ports.
@@ -27,6 +19,18 @@ func (s *CrossStage) Name() string { return "cross-resource" }
 // Validate checks cross-resource constraints.
 func (s *CrossStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
+
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     4,
+			StageName: "cross-resource",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
 
 	if input.Operation == operationDelete {
 		return result

@@ -22,6 +22,17 @@ func NewService(rp router.RouterPort) *Service {
 
 // PerformLookup executes a DNS lookup operation
 func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*LookupResult, error) {
+	// Validate input
+	if input == nil {
+		return nil, fmt.Errorf("lookup input cannot be nil")
+	}
+	if input.Hostname == "" {
+		return nil, fmt.Errorf("hostname is required")
+	}
+	if input.RecordType == "" {
+		return nil, fmt.Errorf("record type is required")
+	}
+
 	start := time.Now()
 
 	// Determine which server to use
@@ -153,7 +164,11 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushCacheR
 		}
 	}
 
-	entriesRemoved := beforeStats.TotalEntries - afterStats.TotalEntries
+	// Calculate entries removed safely (handle nil beforeStats, though unlikely)
+	entriesRemoved := 0
+	if beforeStats != nil && afterStats != nil {
+		entriesRemoved = beforeStats.TotalEntries - afterStats.TotalEntries
+	}
 
 	return &FlushCacheResult{
 		Success:        true,
@@ -227,7 +242,9 @@ func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*Benchmark
 		if results[i].Success && results[i].ResponseTimeMs > 0 {
 			if fastestServer == nil {
 				results[i].Status = "FASTEST"
-				fastestServer = &results[i]
+				// Create a copy to avoid dangling pointer (loop variable address changes)
+				fastest := results[i]
+				fastestServer = &fastest
 			} else {
 				switch {
 				case results[i].ResponseTimeMs > 100:

@@ -143,11 +143,11 @@ function MasqueradeQuickDialogInner({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-component-md">
           {/* Output Interface */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="outInterface">
-              WAN Interface <span className="text-destructive">*</span>
+              WAN Interface <span className="text-error">*</span>
             </Label>
             <Controller
               name="outInterface"
@@ -168,7 +168,7 @@ function MasqueradeQuickDialogInner({
               )}
             />
             {form.formState.errors.outInterface && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.outInterface.message}
               </p>
             )}
@@ -178,7 +178,7 @@ function MasqueradeQuickDialogInner({
           </div>
 
           {/* Comment */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="comment">
               Comment <span className="text-muted-foreground">(optional)</span>
             </Label>
@@ -201,11 +201,11 @@ function MasqueradeQuickDialogInner({
 
           {/* Help Text */}
           <div className={cn(
-            'rounded-lg border p-3',
-            'bg-info/10 dark:bg-info/5',
-            'border-info/30 dark:border-info/20'
+            'rounded-md border p-component-md',
+            'bg-info/10',
+            'border-info/30'
           )}>
-            <p className="text-sm text-info-foreground">
+            <p className="text-sm text-foreground">
               <strong>What is masquerading?</strong> Masquerade automatically translates internal
               IP addresses to the router's WAN IP for outbound traffic. This is typically used for
               home and office networks to share a single public IP address.
@@ -213,7 +213,7 @@ function MasqueradeQuickDialogInner({
           </div>
 
           {/* Dialog Footer */}
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-component-sm">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
               Cancel
             </Button>

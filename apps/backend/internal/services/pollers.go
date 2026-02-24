@@ -1,7 +1,10 @@
 // Package services provides backward-compatible type aliases for the pollers sub-package.
-// This file is deprecated - use aliases.go instead which has all type aliases.
-// This file exists only to prevent breaking changes during migration.
+//
+// DEPRECATED: This file is no longer used. All poller type aliases and constants
+// have been moved to aliases.go for better organization. This file is retained
+// as a placeholder to prevent accidental re-additions of duplicate content.
+//
+// Migration path: If you need pollers functionality, import from services package
+// and use the aliases defined in aliases.go, or import directly from the
+// internal/services/pollers sub-package.
 package services
-
-// Note: All pollers type aliases have been moved to aliases.go
-// This file is kept for documentation purposes only.

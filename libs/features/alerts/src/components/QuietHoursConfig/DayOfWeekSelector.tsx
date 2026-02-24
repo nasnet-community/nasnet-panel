@@ -67,7 +67,7 @@ function DayOfWeekSelectorComponent({
   );
 
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn('flex flex-wrap gap-component-sm', className)}>
       {days.map((day) => {
         const isSelected = value.includes(day.value);
         return (
@@ -79,7 +79,7 @@ function DayOfWeekSelectorComponent({
             disabled={disabled}
             onClick={() => handleDayToggle(day.value)}
             className={cn(
-              'min-w-[44px] h-[44px] sm:min-w-[60px]', // WCAG AAA touch target (44px minimum)
+              'min-h-[44px] min-w-[44px] sm:min-w-[60px] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', // WCAG AAA touch target (44px minimum)
               isSelected && 'bg-primary text-primary-foreground',
               !isSelected && 'hover:bg-muted'
             )}

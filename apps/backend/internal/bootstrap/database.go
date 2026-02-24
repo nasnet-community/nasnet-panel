@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"context"
-	"log"
+	"errors"
 	"os"
 	"time"
 
@@ -44,6 +44,8 @@ func DefaultDevDatabaseConfig() DatabaseConfig {
 
 // InitializeDatabase creates and initializes the database manager.
 // Returns the database manager and system database client.
+// The database must be initialized in the correct order: before all services.
+// This ensures all migrations are applied and the schema is ready.
 func InitializeDatabase(ctx context.Context, cfg DatabaseConfig) (*database.Manager, *ent.Client, error) {
 	dbManager, err := database.NewManager(ctx,
 		database.WithDataDir(cfg.DataDir),
@@ -53,7 +55,10 @@ func InitializeDatabase(ctx context.Context, cfg DatabaseConfig) (*database.Mana
 		return nil, nil, err
 	}
 
-	log.Printf("Database initialized: %s", cfg.DataDir)
 	systemDB := dbManager.SystemDB()
+	if systemDB == nil {
+		return nil, nil, errors.New("system database client is nil after initialization")
+	}
+
 	return dbManager, systemDB, nil
 }

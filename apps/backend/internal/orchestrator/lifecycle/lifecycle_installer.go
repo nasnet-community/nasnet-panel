@@ -11,6 +11,7 @@ import (
 	"backend/internal/network"
 
 	"github.com/oklog/ulid/v2"
+	"go.uber.org/zap"
 )
 
 // CreateInstance creates a new service instance and installs the binary
@@ -97,7 +98,7 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req CreateInstanc
 
 		// Download binary
 		if err := im.config.DownloadMgr.Download(downloadCtx, req.FeatureID, binaryURL, checksum); err != nil {
-			im.logger.Error().Err(err).Str("instance_id", instance.ID).Msg("Binary download failed")
+			im.logger.Error("Binary download failed", zap.Error(err), zap.String("instance_id", instance.ID))
 			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort status update, download failure is already being handled
 			im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusFailed))
 			return
@@ -113,13 +114,13 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req CreateInstanc
 			Save(downloadCtx)
 
 		if err != nil {
-			im.logger.Error().Err(err).Str("instance_id", instance.ID).Msg("Failed to update instance after download")
+			im.logger.Error("Failed to update instance after download", zap.Error(err), zap.String("instance_id", instance.ID))
 			return
 		}
 
 		// Emit installed event
 		im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusInstalled))
-		im.logger.Info().Str("instance_id", instance.ID).Msg("Instance installed successfully")
+		im.logger.Info("Instance installed successfully", zap.String("instance_id", instance.ID))
 	}()
 
 	return instance, nil
@@ -145,18 +146,20 @@ func (im *InstanceManager) allocatePorts(ctx context.Context, routerID, instance
 
 		if err != nil {
 			// Rollback: Release all previously allocated ports
-			im.logger.Error().Err(err).
-				Str("router_id", routerID).
-				Str("instance_id", instanceID).
-				Str("service_type", serviceType).
-				Int("allocated_count", len(allocations)).
-				Msg("port allocation failed, rolling back")
+			im.logger.Error("port allocation failed, rolling back",
+				zap.Error(err),
+				zap.String("router_id", routerID),
+				zap.String("instance_id", instanceID),
+				zap.String("service_type", serviceType),
+				zap.Int("allocated_count", len(allocations)),
+			)
 
 			for _, prevAlloc := range allocations {
 				if releaseErr := im.config.PortRegistry.ReleasePort(ctx, routerID, prevAlloc.Port, prevAlloc.Protocol); releaseErr != nil {
-					im.logger.Error().Err(releaseErr).
-						Int("port", prevAlloc.Port).
-						Msg("failed to release port during rollback")
+					im.logger.Error("failed to release port during rollback",
+						zap.Error(releaseErr),
+						zap.Int("port", prevAlloc.Port),
+					)
 				}
 			}
 
@@ -166,20 +169,20 @@ func (im *InstanceManager) allocatePorts(ctx context.Context, routerID, instance
 		allocatedPorts = append(allocatedPorts, resp.Port)
 		allocations = append(allocations, resp)
 
-		im.logger.Debug().
-			Str("router_id", routerID).
-			Str("instance_id", instanceID).
-			Int("port", resp.Port).
-			Str("protocol", resp.Protocol).
-			Msg("port allocated")
+		im.logger.Debug("port allocated",
+			zap.String("router_id", routerID),
+			zap.String("instance_id", instanceID),
+			zap.Int("port", resp.Port),
+			zap.String("protocol", resp.Protocol),
+		)
 	}
 
-	im.logger.Info().
-		Str("router_id", routerID).
-		Str("instance_id", instanceID).
-		Str("service_type", serviceType).
-		Interface("ports", allocatedPorts).
-		Msg("successfully allocated ports")
+	im.logger.Info("successfully allocated ports",
+		zap.String("router_id", routerID),
+		zap.String("instance_id", instanceID),
+		zap.String("service_type", serviceType),
+		zap.Any("ports", allocatedPorts),
+	)
 
 	return allocatedPorts, nil
 }
@@ -187,39 +190,39 @@ func (im *InstanceManager) allocatePorts(ctx context.Context, routerID, instance
 // releasePortsByInstance releases all port allocations for a service instance
 func (im *InstanceManager) releasePortsByInstance(ctx context.Context, instanceID string) {
 	if im.config.PortRegistry == nil {
-		im.logger.Warn().Msg("port registry not configured, cannot release ports")
+		im.logger.Warn("port registry not configured, cannot release ports")
 		return
 	}
 
 	allocations, err := im.config.PortRegistry.GetAllocationsByInstance(ctx, instanceID)
 	if err != nil {
-		im.logger.Error().Err(err).Str("instance_id", instanceID).Msg("failed to query port allocations for instance")
+		im.logger.Error("failed to query port allocations for instance", zap.Error(err), zap.String("instance_id", instanceID))
 		return
 	}
 
 	for _, alloc := range allocations {
 		protocol := alloc.GetProtocol()
 		if err := im.config.PortRegistry.ReleasePort(ctx, alloc.GetRouterID(), alloc.GetPort(), protocol); err != nil {
-			im.logger.Error().
-				Err(err).
-				Str("instance_id", instanceID).
-				Str("router_id", alloc.GetRouterID()).
-				Int("port", alloc.GetPort()).
-				Str("protocol", protocol).
-				Msg("failed to release port")
+			im.logger.Error("failed to release port",
+				zap.Error(err),
+				zap.String("instance_id", instanceID),
+				zap.String("router_id", alloc.GetRouterID()),
+				zap.Int("port", alloc.GetPort()),
+				zap.String("protocol", protocol),
+			)
 		}
 	}
 
-	im.logger.Info().
-		Str("instance_id", instanceID).
-		Int("released_count", len(allocations)).
-		Msg("released all ports for instance")
+	im.logger.Info("released all ports for instance",
+		zap.String("instance_id", instanceID),
+		zap.Int("released_count", len(allocations)),
+	)
 }
 
 // allocateVLAN allocates a VLAN for a service instance (NAS-8.18)
 func (im *InstanceManager) allocateVLAN(ctx context.Context, routerID, instanceID, serviceType string) (*int, error) {
 	if im.config.VLANAllocator == nil {
-		im.logger.Warn().Msg("vlan allocator not configured, skipping vlan allocation")
+		im.logger.Warn("vlan allocator not configured, skipping vlan allocation")
 		return nil, fmt.Errorf("instance not found")
 	}
 
@@ -236,13 +239,13 @@ func (im *InstanceManager) allocateVLAN(ctx context.Context, routerID, instanceI
 		return nil, fmt.Errorf("failed to allocate VLAN: %w", err)
 	}
 
-	im.logger.Info().
-		Str("router_id", routerID).
-		Str("instance_id", instanceID).
-		Str("service_type", serviceType).
-		Int("vlan_id", resp.VlanID).
-		Str("subnet", resp.Subnet).
-		Msg("vlan allocated for instance")
+	im.logger.Info("vlan allocated for instance",
+		zap.String("router_id", routerID),
+		zap.String("instance_id", instanceID),
+		zap.String("service_type", serviceType),
+		zap.Int("vlan_id", resp.VlanID),
+		zap.String("subnet", resp.Subnet),
+	)
 
 	return &resp.VlanID, nil
 }
@@ -250,31 +253,31 @@ func (im *InstanceManager) allocateVLAN(ctx context.Context, routerID, instanceI
 // releaseVLANsByInstance releases all VLAN allocations for a service instance
 func (im *InstanceManager) releaseVLANsByInstance(ctx context.Context, instanceID string) {
 	if im.config.VLANAllocator == nil {
-		im.logger.Warn().Msg("vlan allocator not configured, cannot release vlans")
+		im.logger.Warn("vlan allocator not configured, cannot release vlans")
 		return
 	}
 
 	allocations, err := im.config.VLANAllocator.GetAllocationsByInstance(ctx, instanceID)
 	if err != nil {
-		im.logger.Error().Err(err).Str("instance_id", instanceID).Msg("failed to query vlan allocations for instance")
+		im.logger.Error("failed to query vlan allocations for instance", zap.Error(err), zap.String("instance_id", instanceID))
 		return
 	}
 
 	for _, alloc := range allocations {
 		if err := im.config.VLANAllocator.ReleaseVLAN(ctx, alloc.GetRouterID(), alloc.GetVlanID()); err != nil {
-			im.logger.Error().
-				Err(err).
-				Str("instance_id", instanceID).
-				Str("router_id", alloc.GetRouterID()).
-				Int("vlan_id", alloc.GetVlanID()).
-				Msg("failed to release vlan")
+			im.logger.Error("failed to release vlan",
+				zap.Error(err),
+				zap.String("instance_id", instanceID),
+				zap.String("router_id", alloc.GetRouterID()),
+				zap.Int("vlan_id", alloc.GetVlanID()),
+			)
 		}
 	}
 
-	im.logger.Info().
-		Str("instance_id", instanceID).
-		Int("released_count", len(allocations)).
-		Msg("released all vlans for instance")
+	im.logger.Info("released all vlans for instance",
+		zap.String("instance_id", instanceID),
+		zap.Int("released_count", len(allocations)),
+	)
 }
 
 // requiresVLAN determines if a service feature requires VLAN allocation for network isolation.
@@ -293,9 +296,9 @@ func (im *InstanceManager) requiresVLAN(featureID string) bool {
 
 	required, exists := vlanRequiredServices[featureID]
 	if !exists {
-		im.logger.Debug().
-			Str("feature_id", featureID).
-			Msg("unknown service for vlan requirement, defaulting to no vlan")
+		im.logger.Debug("unknown service for vlan requirement, defaulting to no vlan",
+			zap.String("feature_id", featureID),
+		)
 		return false
 	}
 

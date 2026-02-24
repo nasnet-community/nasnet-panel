@@ -7,49 +7,19 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/errors"
 	"backend/internal/network"
 	"context"
-	"fmt"
 	"time"
 )
 
-// portEntityExtended is an optional interface that PortAllocationEntity implementations
-// may satisfy to expose additional fields not in the base interface.
-type portEntityExtended interface {
-	network.PortAllocationEntity
-	GetServiceType() string
-	GetNotes() string
-	GetAllocatedAt() time.Time
-}
-
-// entityToPortAllocation converts a PortAllocationEntity into a GraphQL PortAllocation model.
-// It uses the base interface for required fields and portEntityExtended for optional extras.
-func entityToPortAllocation(entity network.PortAllocationEntity) *graphql1.PortAllocation {
-	alloc := &graphql1.PortAllocation{
-		ID:          entity.GetID(),
-		RouterID:    entity.GetRouterID(),
-		Port:        entity.GetPort(),
-		Protocol:    graphql1.PortProtocol(entity.GetProtocol()),
-		InstanceID:  entity.GetInstanceID(),
-		AllocatedAt: time.Now(),
-	}
-
-	if ext, ok := entity.(portEntityExtended); ok {
-		alloc.ServiceType = ext.GetServiceType()
-		alloc.AllocatedAt = ext.GetAllocatedAt()
-		if notes := ext.GetNotes(); notes != "" {
-			n := notes
-			alloc.Notes = &n
-		}
-	}
-
-	return alloc
-}
-
 // CleanupOrphanedPorts is the resolver for the cleanupOrphanedPorts field.
+// Detects and removes orphaned port allocations for a router.
+// Orphaned ports are those allocated to service instances that no longer exist.
+// If routerID is not provided, returns empty payload (per-router cleanup required).
 func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graphql1.CleanupOrphanedPortsInput) (*graphql1.OrphanCleanupPayload, error) {
 	if r.PortRegistry == nil {
-		return nil, fmt.Errorf("port registry not available")
+		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	routerID := ""
@@ -58,8 +28,7 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 	}
 
 	if routerID == "" {
-		// No routerID: not supported by PortRegistry.DetectOrphans/CleanupOrphans directly.
-		// Return an empty payload rather than error.
+		// No routerID: per-router cleanup required; return empty payload without error.
 		return &graphql1.OrphanCleanupPayload{
 			CleanedCount:         0,
 			DeletedAllocationIDs: []string{},
@@ -69,20 +38,23 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 	// Detect orphans first to collect IDs before deletion
 	orphans, err := r.PortRegistry.DetectOrphans(ctx, routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to detect orphaned ports: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to detect orphaned ports")
 	}
 
-	var deletedIDs []string
+	// Collect orphaned allocation IDs
+	deletedIDs := make([]string, 0, len(orphans))
 	for _, o := range orphans {
 		deletedIDs = append(deletedIDs, o.GetID())
 	}
 
+	// Perform cleanup
 	cleaned, err := r.PortRegistry.CleanupOrphans(ctx, routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to cleanup orphaned ports: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to cleanup orphaned ports")
 	}
 
-	if deletedIDs == nil {
+	// deletedIDs is always initialized above, but ensure empty slice is returned (not nil)
+	if len(deletedIDs) == 0 {
 		deletedIDs = []string{}
 	}
 
@@ -93,19 +65,21 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 }
 
 // PortAllocations is the resolver for the portAllocations field.
+// Returns port allocations for a specific router, with optional filtering by protocol and service type.
+// If routerID is not provided, returns an empty list (per-router queries required).
 func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, protocol *graphql1.PortProtocol, serviceType *string) ([]*graphql1.PortAllocation, error) {
 	if r.PortRegistry == nil {
-		return nil, fmt.Errorf("port registry not available")
+		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	if routerID == nil || *routerID == "" {
-		// PortRegistry only supports per-router queries; return empty without routerID.
+		// PortRegistry only supports per-router queries; return empty list without routerID.
 		return []*graphql1.PortAllocation{}, nil
 	}
 
 	entities, err := r.PortRegistry.GetAllocationsByRouter(ctx, *routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list port allocations: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to list port allocations")
 	}
 
 	results := make([]*graphql1.PortAllocation, 0, len(entities))
@@ -115,18 +89,16 @@ func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, p
 			continue
 		}
 
-		alloc := entityToPortAllocation(entity)
-
 		// Apply serviceType filter using the extended interface if available
 		if serviceType != nil {
-			if ext, ok := entity.(portEntityExtended); ok {
-				if ext.GetServiceType() != *serviceType {
-					continue
-				}
+			ext, ok := entity.(portEntityExtended)
+			if !ok || ext.GetServiceType() != *serviceType {
+				// Skip: extended interface not available or service type doesn't match
+				continue
 			}
-			// If extended interface not available and filter is requested, skip
 		}
 
+		alloc := entityToPortAllocation(entity)
 		results = append(results, alloc)
 	}
 
@@ -134,12 +106,28 @@ func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, p
 }
 
 // IsPortAvailable is the resolver for the isPortAvailable field.
+// Validates port range (1-65535) and checks if the port is available on the specified router.
+// Note: Privileged ports (<1024) may require elevated permissions on the router.
 func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.CheckPortAvailabilityInput) (*graphql1.PortAvailability, error) {
 	if r.PortRegistry == nil {
-		return nil, fmt.Errorf("port registry not available")
+		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
+	}
+
+	// Validate input parameters
+	if input.RouterID == "" {
+		return nil, errors.NewValidationError("routerID", "[REDACTED]", "required")
+	}
+
+	if input.Port <= 0 || input.Port > 65535 {
+		return nil, errors.NewValidationError("port", "[REDACTED]", "must be between 1 and 65535")
 	}
 
 	protocol := string(input.Protocol)
+	if protocol == "" {
+		return nil, errors.NewValidationError("protocol", "[REDACTED]", "required")
+	}
+
+	// Check port availability
 	available := r.PortRegistry.IsPortAvailable(ctx, input.RouterID, input.Port, protocol)
 
 	result := &graphql1.PortAvailability{
@@ -148,8 +136,9 @@ func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.Chec
 		Available: available,
 	}
 
+	// Provide reason if port is not available
 	if !available {
-		reason := fmt.Sprintf("port %d/%s is already allocated or reserved", input.Port, protocol)
+		reason := "port is already allocated or reserved"
 		result.Reason = &reason
 	}
 
@@ -157,9 +146,11 @@ func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.Chec
 }
 
 // DetectOrphanedPorts is the resolver for the detectOrphanedPorts field.
+// Scans port allocations and identifies orphaned ports whose associated service instances
+// no longer exist or are marked for deletion. If routerID is not provided, returns empty list.
 func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *string) ([]*graphql1.OrphanedPort, error) {
 	if r.PortRegistry == nil {
-		return nil, fmt.Errorf("port registry not available")
+		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	rid := ""
@@ -169,7 +160,7 @@ func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *strin
 
 	orphans, err := r.PortRegistry.DetectOrphans(ctx, rid)
 	if err != nil {
-		return nil, fmt.Errorf("failed to detect orphaned ports: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to detect orphaned ports")
 	}
 
 	results := make([]*graphql1.OrphanedPort, 0, len(orphans))
@@ -181,4 +172,40 @@ func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *strin
 	}
 
 	return results, nil
+}
+
+type portEntityExtended interface {
+	network.PortAllocationEntity
+	GetServiceType() string
+	GetNotes() string
+	GetAllocatedAt() time.Time
+}
+
+func entityToPortAllocation(entity network.PortAllocationEntity) *graphql1.PortAllocation {
+	allocatedAt := time.Now()
+
+	alloc := &graphql1.PortAllocation{
+		ID:          entity.GetID(),
+		RouterID:    entity.GetRouterID(),
+		Port:        entity.GetPort(),
+		Protocol:    graphql1.PortProtocol(entity.GetProtocol()),
+		InstanceID:  entity.GetInstanceID(),
+		AllocatedAt: allocatedAt,
+	}
+
+	// Check for extended interface with optional fields
+	if ext, ok := entity.(portEntityExtended); ok {
+		alloc.ServiceType = ext.GetServiceType()
+		// Use the actual allocation time from the entity if available
+		if actualTime := ext.GetAllocatedAt(); !actualTime.IsZero() {
+			alloc.AllocatedAt = actualTime
+		}
+		// Only set notes if they are provided
+		if notes := ext.GetNotes(); notes != "" {
+			n := notes
+			alloc.Notes = &n
+		}
+	}
+
+	return alloc
 }

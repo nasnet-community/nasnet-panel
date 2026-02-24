@@ -60,10 +60,10 @@ function TimeRangeInputComponent({
   const crossingMidnight = crossesMidnight(startTime, endTime);
 
   return (
-    <div className={cn('space-y-4', className)}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className={cn('space-y-component-md', className)}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-component-md">
         {/* Start Time */}
-        <div className="space-y-2">
+        <div className="space-y-component-xs">
           <Label htmlFor="start-time" className="flex items-center gap-2">
             <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.startTime')}
@@ -74,13 +74,13 @@ function TimeRangeInputComponent({
             value={startTime}
             onChange={handleStartChange}
             disabled={disabled}
-            className="h-[44px]" // WCAG AAA touch target
+            className="min-h-[44px] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // WCAG AAA touch target
             aria-label={t('quietHours.startTime')}
           />
         </div>
 
         {/* End Time */}
-        <div className="space-y-2">
+        <div className="space-y-component-xs">
           <Label htmlFor="end-time" className="flex items-center gap-2">
             <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.endTime')}
@@ -91,7 +91,7 @@ function TimeRangeInputComponent({
             value={endTime}
             onChange={handleEndChange}
             disabled={disabled}
-            className="h-[44px]" // WCAG AAA touch target
+            className="min-h-[44px] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // WCAG AAA touch target
             aria-label={t('quietHours.endTime')}
           />
         </div>
@@ -101,7 +101,7 @@ function TimeRangeInputComponent({
       {crossingMidnight && (
         <Alert variant="default" className="border-info bg-info/10">
           <AlertCircle className="h-4 w-4 text-info" aria-hidden="true" />
-          <AlertDescription className="text-info">
+          <AlertDescription>
             {t('quietHours.midnightWarning')}
           </AlertDescription>
         </Alert>

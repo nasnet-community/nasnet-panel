@@ -114,13 +114,13 @@ function DnsCachePanelDesktopComponent({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-component-lg">
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-component-md">
             {/* Total Entries */}
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
+              <CardContent className="pt-component-lg">
+                <div className="flex items-center gap-component-md">
                   <Database
                     className="h-8 w-8 text-muted-foreground"
                     aria-hidden
@@ -141,7 +141,7 @@ function DnsCachePanelDesktopComponent({
 
             {/* Cache Usage */}
             <Card>
-              <CardContent className="pt-6 space-y-2">
+              <CardContent className="pt-component-lg space-y-component-sm">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
                     Cache Usage
@@ -164,8 +164,8 @@ function DnsCachePanelDesktopComponent({
 
             {/* Hit Rate */}
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
+              <CardContent className="pt-component-lg">
+                <div className="flex items-center gap-component-md">
                   <TrendingUp
                     className="h-8 w-8 text-success"
                     aria-hidden
@@ -181,17 +181,17 @@ function DnsCachePanelDesktopComponent({
 
           {/* Top Domains */}
           {cacheStats?.topDomains && cacheStats.topDomains.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-component-md">
               <h3 className="text-sm font-medium">
                 Most Queried Domains (Top 10)
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 {cacheStats.topDomains.slice(0, 10).map((domain, index) => (
                   <div
                     key={domain.domain}
-                    className="flex items-center justify-between p-3 bg-muted rounded-md"
+                    className="flex items-center justify-between p-component-md bg-muted rounded-[var(--semantic-radius-button)]"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-component-md">
                       <Badge variant="outline" className="font-mono">
                         #{index + 1}
                       </Badge>
@@ -223,9 +223,9 @@ function DnsCachePanelDesktopComponent({
 
           {/* Before/After Stats Preview */}
           {cacheStats && !flushResult && (
-            <div className="space-y-2 p-4 bg-muted rounded-md">
+            <div className="space-y-component-sm p-component-md bg-muted rounded-[var(--semantic-radius-button)]">
               <div className="text-sm font-medium">Current Cache Status:</div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>Entries:</div>
                 <div className="text-right font-mono">
                   {cacheStats.totalEntries}

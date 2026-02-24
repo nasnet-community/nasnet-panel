@@ -7,13 +7,13 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
+	"backend/internal/events"
 	"backend/internal/templates"
 	"context"
 	"encoding/json"
 	"fmt"
 	"time"
-
-	"backend/internal/events"
 )
 
 // InstallServiceTemplate installs a service template on a router
@@ -23,15 +23,23 @@ func (r *mutationResolver) InstallServiceTemplate(ctx context.Context, input mod
 		"templateID", input.TemplateID,
 		"dryRun", input.DryRun)
 
+	// Validate inputs
+	if input.RouterID == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "router ID is required")
+	}
+	if input.TemplateID == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "template ID is required")
+	}
+
 	// Check if TemplateInstaller is available
 	if r.TemplateInstaller == nil {
-		return nil, fmt.Errorf("template installer not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template installer not available")
 	}
 
 	// Dry run - just validate
 	if input.DryRun.IsSet() && input.DryRun.Value() != nil && *input.DryRun.Value() {
 		if err := r.TemplateInstaller.ValidateTemplate(ctx, input.TemplateID, input.Variables); err != nil {
-			return nil, fmt.Errorf("template validation failed: %w", err)
+			return nil, errors.Wrap(err, errors.CodeValidationFailed, errors.CategoryValidation, "template validation failed")
 		}
 
 		return &model.TemplateInstallResult{
@@ -96,9 +104,20 @@ func (r *mutationResolver) ExportAsTemplate(ctx context.Context, input model.Exp
 		"routerID", input.RouterID,
 		"instanceCount", len(input.InstanceIDs))
 
+	// Validate inputs
+	if input.RouterID == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "router ID is required")
+	}
+	if len(input.InstanceIDs) == 0 {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "at least one instance ID is required")
+	}
+	if input.Name == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "template name is required")
+	}
+
 	// Check if TemplateExporter is available
 	if r.TemplateExporter == nil {
-		return nil, fmt.Errorf("template exporter not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template exporter not available")
 	}
 
 	// Build export request
@@ -114,7 +133,7 @@ func (r *mutationResolver) ExportAsTemplate(ctx context.Context, input model.Exp
 	tmpl, err := r.TemplateExporter.ExportAsTemplate(ctx, exportReq)
 	if err != nil {
 		r.log.Errorw("template export failed", "error", err)
-		return nil, fmt.Errorf("failed to export template: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to export template")
 	}
 
 	r.log.Infow("template export completed",
@@ -130,15 +149,23 @@ func (r *mutationResolver) ExportAsTemplate(ctx context.Context, input model.Exp
 func (r *mutationResolver) ImportServiceTemplate(ctx context.Context, input model.ImportServiceTemplateInput) (*model.ServiceTemplate, error) {
 	r.log.Infow("ImportServiceTemplate mutation called", "routerID", input.RouterID)
 
+	// Validate inputs
+	if input.RouterID == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "router ID is required")
+	}
+	if len(input.TemplateData) == 0 {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "template data is required")
+	}
+
 	// Check if TemplateImporter is available
 	if r.TemplateImporter == nil {
-		return nil, fmt.Errorf("template importer not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template importer not available")
 	}
 
 	// Convert template data map to JSON string
 	templateJSON, err := json.Marshal(input.TemplateData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal template data: %w", err)
+		return nil, errors.Wrap(err, errors.CodeInvalidFormat, errors.CategoryValidation, "failed to marshal template data")
 	}
 
 	// Import template
@@ -149,7 +176,7 @@ func (r *mutationResolver) ImportServiceTemplate(ctx context.Context, input mode
 
 	if err != nil {
 		r.log.Errorw("template import failed", "error", err)
-		return nil, fmt.Errorf("failed to import template: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to import template")
 	}
 
 	r.log.Infow("template import completed",
@@ -166,15 +193,23 @@ func (r *mutationResolver) DeleteServiceTemplate(ctx context.Context, routerID s
 		"routerID", routerID,
 		"templateID", templateID)
 
+	// Validate inputs
+	if routerID == "" {
+		return false, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "router ID is required")
+	}
+	if templateID == "" {
+		return false, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "template ID is required")
+	}
+
 	// Check if TemplateImporter is available
 	if r.TemplateImporter == nil {
-		return false, fmt.Errorf("template importer not available")
+		return false, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template importer not available")
 	}
 
 	// Delete custom template (the importer will reject deletion of built-in templates)
 	if err := r.TemplateImporter.DeleteCustomTemplate(ctx, routerID, templateID); err != nil {
 		r.log.Errorw("template deletion failed", "error", err, "templateID", templateID)
-		return false, fmt.Errorf("failed to delete template: %w", err)
+		return false, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to delete template")
 	}
 
 	r.log.Infow("template deletion completed", "templateID", templateID)
@@ -190,7 +225,7 @@ func (r *queryResolver) ServiceTemplates(ctx context.Context, routerID *string, 
 
 	// Check if ServiceTemplateService is available
 	if r.ServiceTemplateService == nil {
-		return nil, fmt.Errorf("template service not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template service not available")
 	}
 
 	// Convert GraphQL enums to Go types
@@ -210,7 +245,7 @@ func (r *queryResolver) ServiceTemplates(ctx context.Context, routerID *string, 
 	templatesList, err := r.ServiceTemplateService.ListTemplates(ctx, goCategory, goScope)
 	if err != nil {
 		r.log.Errorw("failed to list templates", "error", err)
-		return nil, fmt.Errorf("failed to list templates: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to list templates")
 	}
 
 	// Convert to GraphQL model
@@ -227,16 +262,21 @@ func (r *queryResolver) ServiceTemplates(ctx context.Context, routerID *string, 
 func (r *queryResolver) ServiceTemplate(ctx context.Context, id string) (*model.ServiceTemplate, error) {
 	r.log.Infow("ServiceTemplate query called", "id", id)
 
+	// Validate inputs
+	if id == "" {
+		return nil, errors.Wrap(nil, errors.CodeValidationFailed, errors.CategoryValidation, "template ID is required")
+	}
+
 	// Check if ServiceTemplateService is available
 	if r.ServiceTemplateService == nil {
-		return nil, fmt.Errorf("template service not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "template service not available")
 	}
 
 	// Get template from service
 	tmpl, err := r.ServiceTemplateService.GetTemplate(ctx, id)
 	if err != nil {
 		r.log.Errorw("failed to get template", "error", err, "id", id)
-		return nil, fmt.Errorf("template not found: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "template not found")
 	}
 
 	result := convertTemplateToGraphQL(tmpl)
@@ -355,7 +395,7 @@ func (r *subscriptionResolver) TemplateInstallProgress(ctx context.Context, rout
 		if err := r.EventBus.SubscribeAll(eventHandler); err != nil {
 			r.log.Errorw("failed to subscribe to template events", "error", err)
 			close(ch)
-			return nil, fmt.Errorf("failed to subscribe to template events: %w", err)
+			return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to subscribe to template events")
 		}
 	}
 
@@ -363,6 +403,7 @@ func (r *subscriptionResolver) TemplateInstallProgress(ctx context.Context, rout
 	go func() {
 		<-ctx.Done()
 		r.log.Infow("TemplateInstallProgress subscription ended", "routerID", routerID)
+		close(ch)
 	}()
 
 	return ch, nil

@@ -51,14 +51,14 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
 
   if (error) {
     return (
-      <div className="space-y-4 p-4">
+      <div className="space-y-component-md p-component-md">
         <InterfaceListFilters filters={filters} onChange={onFilterChange} />
-        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10" role="alert">
-          <p className="text-destructive font-medium">Failed to load interfaces</p>
-          <p className="text-sm text-muted-foreground mt-2">
+        <div className="p-component-lg text-center border rounded-card-lg border-error bg-error/10" role="alert">
+          <p className="text-error font-medium">Failed to load interfaces</p>
+          <p className="text-sm text-muted-foreground mt-component-sm">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-4 min-h-[44px]" aria-label="Retry loading interfaces">
+          <Button onClick={onRefresh} className="mt-component-md min-h-[44px]" aria-label="Retry loading interfaces">
             Retry
           </Button>
         </div>
@@ -67,20 +67,20 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
   }
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-component-md p-component-md">
       {/* Filters */}
       <InterfaceListFilters filters={filters} onChange={onFilterChange} />
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center p-8 text-muted-foreground">
+        <div className="text-center p-component-lg text-muted-foreground">
           Loading interfaces...
         </div>
       )}
 
       {/* Empty state */}
       {!loading && interfaces.length === 0 && (
-        <div className="text-center p-8 text-muted-foreground">
+        <div className="text-center p-component-lg text-muted-foreground">
           {filters.type || filters.status || filters.search
             ? 'No interfaces match the current filters'
             : 'No interfaces found'}
@@ -88,7 +88,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
       )}
 
       {/* Interface cards */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         {interfaces.map((iface) => {
           const isSelected = selectedIds.has(iface.id);
           const statusVariant =
@@ -122,7 +122,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                   />
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-base">{iface.name}</CardTitle>
-                    <CardDescription className="flex gap-2 mt-1">
+                    <CardDescription className="flex gap-component-sm mt-component-sm">
                       <Badge variant="outline" className="text-xs">
                         {iface.type}
                       </Badge>
@@ -133,7 +133,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm">
+              <CardContent className="space-y-component-sm text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Enabled:</span>
                   <Badge variant={iface.enabled ? 'default' : 'outline'} className="text-xs">
@@ -168,7 +168,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
       {selectedIds.size > 0 && (
         <div className="fixed bottom-4 left-4 right-4 z-10">
           <Card className="shadow-lg">
-            <CardContent className="p-4">
+            <CardContent className="p-component-md">
               <BatchActionsToolbar
                 routerId={routerId}
                 selectedIds={selectedIds}

@@ -5,9 +5,9 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"backend/internal/orchestrator/scheduling"
 	"context"
-	"fmt"
 )
 
 // CreateSchedule creates a new routing schedule.
@@ -16,9 +16,14 @@ func (r *mutationResolver) CreateSchedule(ctx context.Context, routerID string, 
 		"routerID", routerID,
 		"routingID", input.RoutingID)
 
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewInternalError("authentication service not available", nil)
+	}
+
 	// Check if ScheduleService is available
 	if r.ScheduleService == nil {
-		return nil, fmt.Errorf("schedule service not available")
+		return nil, errors.NewInternalError("schedule service not available", nil)
 	}
 
 	// Convert GraphQL input to service input
@@ -42,7 +47,7 @@ func (r *mutationResolver) CreateSchedule(ctx context.Context, routerID string, 
 		r.log.Errorw("failed to create schedule",
 			"error", err,
 			"routingID", input.RoutingID)
-		return nil, fmt.Errorf("failed to create schedule: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceLocked, errors.CategoryResource, "failed to create schedule")
 	}
 
 	// Convert to GraphQL model
@@ -62,9 +67,14 @@ func (r *mutationResolver) UpdateSchedule(ctx context.Context, routerID string, 
 		"routerID", routerID,
 		"scheduleID", scheduleID)
 
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewInternalError("authentication service not available", nil)
+	}
+
 	// Check if ScheduleService is available
 	if r.ScheduleService == nil {
-		return nil, fmt.Errorf("schedule service not available")
+		return nil, errors.NewInternalError("schedule service not available", nil)
 	}
 
 	// Get existing schedule to merge with partial update
@@ -73,7 +83,7 @@ func (r *mutationResolver) UpdateSchedule(ctx context.Context, routerID string, 
 		r.log.Errorw("failed to get existing schedule",
 			"error", err,
 			"scheduleID", scheduleID)
-		return nil, fmt.Errorf("failed to get existing schedule: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to get existing schedule")
 	}
 
 	// Build service input with merged values
@@ -109,7 +119,7 @@ func (r *mutationResolver) UpdateSchedule(ctx context.Context, routerID string, 
 		r.log.Errorw("failed to update schedule",
 			"error", err,
 			"scheduleID", scheduleID)
-		return nil, fmt.Errorf("failed to update schedule: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceLocked, errors.CategoryResource, "failed to update schedule")
 	}
 
 	// Convert to GraphQL model
@@ -129,9 +139,14 @@ func (r *mutationResolver) DeleteSchedule(ctx context.Context, routerID string, 
 		"routerID", routerID,
 		"scheduleID", scheduleID)
 
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return false, errors.NewInternalError("authentication service not available", nil)
+	}
+
 	// Check if ScheduleService is available
 	if r.ScheduleService == nil {
-		return false, fmt.Errorf("schedule service not available")
+		return false, errors.NewInternalError("schedule service not available", nil)
 	}
 
 	// Delete schedule via service
@@ -139,7 +154,7 @@ func (r *mutationResolver) DeleteSchedule(ctx context.Context, routerID string, 
 		r.log.Errorw("failed to delete schedule",
 			"error", err,
 			"scheduleID", scheduleID)
-		return false, fmt.Errorf("failed to delete schedule: %w", err)
+		return false, errors.Wrap(err, errors.CodeResourceLocked, errors.CategoryResource, "failed to delete schedule")
 	}
 
 	r.log.Infow("schedule deleted",

@@ -33,13 +33,13 @@ export const InterfaceGridCard = React.memo(function InterfaceGridCard({ interfa
 
   return (
     <div className={cn(
-      'bg-card border rounded-xl transition-all duration-200',
+      'bg-card border rounded-card-sm transition-all duration-200',
       isRunning && isLinkUp ? 'border-border hover:border-success/50' :
       isRunning ? 'border-warning/30' : 'border-border opacity-60'
     )}>
-      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full text-left p-3">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full text-left p-component-md min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <div className="relative">
               <span className={cn('block w-2 h-2 rounded-full',
                 isRunning && isLinkUp ? 'bg-success' : isRunning ? 'bg-warning' : 'bg-muted-foreground'
@@ -54,19 +54,19 @@ export const InterfaceGridCard = React.memo(function InterfaceGridCard({ interfa
           {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
         </div>
         {trafficStats && !isExpanded && (
-          <div className="flex items-center gap-3 mt-2 text-xs font-mono text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <ArrowDown className="w-3 h-3 text-cyan-500" />{formatBytes(trafficStats.rxBytes)}
+          <div className="flex items-center gap-component-md mt-component-sm text-xs font-mono text-muted-foreground">
+            <span className="flex items-center gap-component-xs">
+              <ArrowDown className="w-3 h-3 text-info" />{formatBytes(trafficStats.rxBytes)}
             </span>
-            <span className="flex items-center gap-1">
-              <ArrowUp className="w-3 h-3 text-purple-500" />{formatBytes(trafficStats.txBytes)}
+            <span className="flex items-center gap-component-xs">
+              <ArrowUp className="w-3 h-3 text-category-monitoring" />{formatBytes(trafficStats.txBytes)}
             </span>
           </div>
         )}
       </button>
       {isExpanded && (
-        <div className="px-3 pb-3 pt-0 border-t border-border">
-          <div className="pt-3 space-y-2 text-xs">
+        <div className="px-component-md pb-component-md pt-0 border-t border-border rounded-card-sm">
+          <div className="pt-component-md space-y-component-sm text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('interfaces.type')}</span>
               <span className="text-foreground capitalize">{iface.type}</span>
@@ -101,8 +101,6 @@ export const InterfaceGridCard = React.memo(function InterfaceGridCard({ interfa
 });
 
 InterfaceGridCard.displayName = 'InterfaceGridCard';
-
-
 
 
 

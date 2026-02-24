@@ -47,9 +47,10 @@ func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*en
 	}
 
 	// Check for duplicate username
+	// Uses exact case-sensitive match - if case-insensitive needed, add schema-level UNIQUE COLLATE
 	exists, err := r.client.User.
 		Query().
-		Where(user.Username(input.Username)).
+		Where(user.UsernameEQ(input.Username)).
 		Exist(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("check duplicate: %w", err)
@@ -90,13 +91,15 @@ func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*en
 		userBuilder.SetDisplayName(input.DisplayName)
 	}
 
-	// Note: User schema doesn't have a settings field currently.
+	// TODO: User schema doesn't have a settings field currently.
 	// This would need to be added to the ent schema in a future update.
-	// For now, we store default settings conceptually.
-	_ = settingsJSON // Settings will be used when schema supports it
+	// Settings field reserved for future: settingsJSON should be stored in user.settings
+	// when schema is updated. For now, default settings are prepared but not persisted.
+	_ = settingsJSON
 
-	// Audit fields
-	_ = audit // Would be used for created_by field when schema supports it
+	// TODO: Audit fields (created_by, created_at) to be added to User schema
+	// once audit infrastructure is in place.
+	_ = audit
 
 	newUser, err := userBuilder.Save(ctx)
 	if err != nil {
@@ -141,13 +144,14 @@ func (r *userRepository) mapUserRole(role UserRole) user.Role {
 }
 
 // GetByUsername finds a user by their unique username.
-// Used for authentication.
+// Used for authentication. Username lookup is case-sensitive to prevent ambiguity.
+// If case-insensitive lookup is needed, normalize usernames at creation time.
 //
 // Query count: 1
 func (r *userRepository) GetByUsername(ctx context.Context, username string) (*ent.User, error) {
 	result, err := r.client.User.
 		Query().
-		Where(user.Username(username)).
+		Where(user.UsernameEQ(username)).
 		Only(ctx)
 
 	if err != nil {
@@ -255,6 +259,11 @@ func (r *userRepository) UpdatePassword(ctx context.Context, id oklogulid.ULID, 
 // VerifyPassword checks if the provided password matches the stored hash.
 // Returns nil if password matches, ErrInvalidCredentials otherwise.
 func (r *userRepository) VerifyPassword(ctx context.Context, id oklogulid.ULID, password string) error {
+	// Quick check for empty password to avoid unnecessary bcrypt call
+	if password == "" {
+		return ErrInvalidCredentials
+	}
+
 	// Get user with password hash
 	u, err := r.client.User.Get(ctx, id.String())
 	if err != nil {

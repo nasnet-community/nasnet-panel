@@ -11,21 +11,21 @@ import (
 	"backend/generated/ent/servicetemplate"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TemplateImporter imports and validates custom templates
 type TemplateImporter struct {
 	store     *ent.Client
 	validator *TemplateValidator
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // TemplateImporterConfig holds configuration for the template importer
 type TemplateImporterConfig struct {
 	Store     *ent.Client
 	Validator *TemplateValidator
-	Logger    zerolog.Logger
+	Logger    *zap.Logger
 }
 
 // ImportTemplateRequest contains parameters for importing a template
@@ -51,16 +51,25 @@ func NewTemplateImporter(cfg TemplateImporterConfig) (*TemplateImporter, error) 
 		return nil, fmt.Errorf("template validator is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &TemplateImporter{
 		store:     cfg.Store,
 		validator: cfg.Validator,
-		logger:    cfg.Logger,
+		logger:    logger,
 	}, nil
 }
 
 // ImportTemplate imports a template from JSON and saves it to the database
 // It validates the template structure and dependencies before saving
 func (ti *TemplateImporter) ImportTemplate(ctx context.Context, req ImportTemplateRequest) (*ServiceTemplate, error) {
+	if ti == nil {
+		return nil, fmt.Errorf("template importer is nil")
+	}
+
 	// Parse JSON
 	var template ServiceTemplate
 	if err := json.Unmarshal([]byte(req.TemplateJSON), &template); err != nil {
@@ -82,15 +91,21 @@ func (ti *TemplateImporter) ImportTemplate(ctx context.Context, req ImportTempla
 		return nil, fmt.Errorf("variable reference validation failed: %w", err)
 	}
 
+	// Check version compatibility
+	if template.Version == "" {
+		return nil, fmt.Errorf("template version is required for import")
+	}
+
 	// Check if template already exists
 	exists, err := ti.store.ServiceTemplate.Query().
 		Where(
-		// TODO: Add proper query conditions when ENT schema is ready
+			servicetemplate.IDEQ(template.ID),
+			servicetemplate.RouterIDEQ(req.RouterID),
 		).
 		Exist(ctx)
 
 	if err != nil {
-		ti.logger.Warn().Err(err).Msg("failed to check template existence")
+		ti.logger.Warn("failed to check template existence", zap.Error(err))
 		exists = false
 	}
 
@@ -103,18 +118,22 @@ func (ti *TemplateImporter) ImportTemplate(ctx context.Context, req ImportTempla
 		return nil, fmt.Errorf("failed to save template: %w", err)
 	}
 
-	ti.logger.Info().
-		Str("template_id", template.ID).
-		Str("template_name", template.Name).
-		Str("router_id", req.RouterID).
-		Bool("overwrite", req.Overwrite).
-		Msg("template imported successfully")
+	ti.logger.Info("template imported successfully",
+		zap.String("template_id", template.ID),
+		zap.String("template_name", template.Name),
+		zap.String("router_id", req.RouterID),
+		zap.Bool("overwrite", req.Overwrite),
+	)
 
 	return &template, nil
 }
 
 // ImportFromFile imports a template from a JSON file
 func (ti *TemplateImporter) ImportFromFile(ctx context.Context, req ImportFromFileRequest) (*ServiceTemplate, error) {
+	if ti == nil {
+		return nil, fmt.Errorf("template importer is nil")
+	}
+
 	// Read file
 	file, err := os.Open(req.FilePath)
 	if err != nil {
@@ -138,6 +157,16 @@ func (ti *TemplateImporter) ImportFromFile(ctx context.Context, req ImportFromFi
 
 // saveTemplate saves a template to the database
 func (ti *TemplateImporter) saveTemplate(ctx context.Context, template *ServiceTemplate, routerID string, overwrite bool) error {
+	if ti == nil {
+		return fmt.Errorf("template importer is nil")
+	}
+	if template == nil {
+		return fmt.Errorf("template is nil")
+	}
+	if routerID == "" {
+		return fmt.Errorf("router ID is required")
+	}
+
 	// Convert template to ENT format
 	// Convert services to []map[string]interface{} for ENT JSON field
 	servicesData := make([]map[string]interface{}, len(template.Services))
@@ -180,7 +209,7 @@ func (ti *TemplateImporter) saveTemplate(ctx context.Context, template *ServiceT
 			Exec(ctx)
 
 		if err != nil {
-			ti.logger.Warn().Err(err).Msg("failed to delete existing template (may not exist)")
+			ti.logger.Warn("failed to delete existing template (may not exist)", zap.Error(err))
 		}
 	}
 
@@ -208,16 +237,23 @@ func (ti *TemplateImporter) saveTemplate(ctx context.Context, template *ServiceT
 		return fmt.Errorf("failed to create template record: %w", err)
 	}
 
-	ti.logger.Debug().
-		Str("template_id", templateID).
-		Str("router_id", routerID).
-		Msg("template saved to database")
+	ti.logger.Debug("template saved to database",
+		zap.String("template_id", templateID),
+		zap.String("router_id", routerID),
+	)
 
 	return nil
 }
 
 // ExportTemplateToJSON exports a template to JSON string
 func (ti *TemplateImporter) ExportTemplateToJSON(template *ServiceTemplate) (string, error) {
+	if ti == nil {
+		return "", fmt.Errorf("template importer is nil")
+	}
+	if template == nil {
+		return "", fmt.Errorf("template is nil")
+	}
+
 	// Pretty-print JSON for human readability
 	data, err := json.MarshalIndent(template, "", "  ")
 	if err != nil {
@@ -229,6 +265,16 @@ func (ti *TemplateImporter) ExportTemplateToJSON(template *ServiceTemplate) (str
 
 // ExportTemplateToFile exports a template to a JSON file
 func (ti *TemplateImporter) ExportTemplateToFile(template *ServiceTemplate, filePath string) error {
+	if ti == nil {
+		return fmt.Errorf("template importer is nil")
+	}
+	if template == nil {
+		return fmt.Errorf("template is nil")
+	}
+	if filePath == "" {
+		return fmt.Errorf("file path is required")
+	}
+
 	// Generate JSON
 	jsonStr, err := ti.ExportTemplateToJSON(template)
 	if err != nil {
@@ -240,20 +286,27 @@ func (ti *TemplateImporter) ExportTemplateToFile(template *ServiceTemplate, file
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	ti.logger.Info().
-		Str("template_id", template.ID).
-		Str("file_path", filePath).
-		Msg("template exported to file")
+	ti.logger.Info("template exported to file",
+		zap.String("template_id", template.ID),
+		zap.String("file_path", filePath),
+	)
 
 	return nil
 }
 
 // ListCustomTemplates returns all user-created templates for a router
 func (ti *TemplateImporter) ListCustomTemplates(ctx context.Context, routerID string) ([]*ServiceTemplate, error) {
+	if ti == nil {
+		return nil, fmt.Errorf("template importer is nil")
+	}
+	if routerID == "" {
+		return nil, fmt.Errorf("router ID is required")
+	}
+
 	// Query templates from database
 	entTemplates, err := ti.store.ServiceTemplate.Query().
 		Where(
-		// TODO: Add proper query conditions when ENT schema is ready
+			servicetemplate.RouterIDEQ(routerID),
 		).
 		All(ctx)
 
@@ -266,10 +319,10 @@ func (ti *TemplateImporter) ListCustomTemplates(ctx context.Context, routerID st
 	for _, entTemplate := range entTemplates {
 		template, err := ti.convertFromENT(entTemplate)
 		if err != nil {
-			ti.logger.Warn().
-				Err(err).
-				Str("template_id", entTemplate.ID).
-				Msg("failed to convert template, skipping")
+			ti.logger.Warn("failed to convert template, skipping",
+				zap.Error(err),
+				zap.String("template_id", entTemplate.ID),
+			)
 			continue
 		}
 		templates = append(templates, template)
@@ -280,6 +333,16 @@ func (ti *TemplateImporter) ListCustomTemplates(ctx context.Context, routerID st
 
 // DeleteCustomTemplate deletes a user-created template
 func (ti *TemplateImporter) DeleteCustomTemplate(ctx context.Context, routerID, templateID string) error {
+	if ti == nil {
+		return fmt.Errorf("template importer is nil")
+	}
+	if routerID == "" {
+		return fmt.Errorf("router ID is required")
+	}
+	if templateID == "" {
+		return fmt.Errorf("template ID is required")
+	}
+
 	// Delete template
 	deleted, err := ti.store.ServiceTemplate.Delete().
 		Where(
@@ -296,16 +359,23 @@ func (ti *TemplateImporter) DeleteCustomTemplate(ctx context.Context, routerID, 
 		return fmt.Errorf("template not found or doesn't belong to this router")
 	}
 
-	ti.logger.Info().
-		Str("template_id", templateID).
-		Str("router_id", routerID).
-		Msg("custom template deleted")
+	ti.logger.Info("custom template deleted",
+		zap.String("template_id", templateID),
+		zap.String("router_id", routerID),
+	)
 
 	return nil
 }
 
 // convertFromENT converts an ENT ServiceTemplate to internal ServiceTemplate type
 func (ti *TemplateImporter) convertFromENT(entTemplate *ent.ServiceTemplate) (*ServiceTemplate, error) {
+	if ti == nil {
+		return nil, fmt.Errorf("template importer is nil")
+	}
+	if entTemplate == nil {
+		return nil, fmt.Errorf("ent template is nil")
+	}
+
 	// Convert []map[string]interface{} back to typed structs
 	var services []ServiceSpec
 	if svcJSON, err := json.Marshal(entTemplate.Services); err == nil {

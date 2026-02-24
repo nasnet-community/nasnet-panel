@@ -180,11 +180,14 @@ export function DHCPServerDetail() {
     return (
       <div className="container mx-auto py-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">DHCP Server Not Found</h2>
+          <h2 className="font-display text-2xl font-bold mb-2">DHCP Server Not Found</h2>
           <p className="text-muted-foreground mb-4">
             The DHCP server you're looking for doesn't exist.
           </p>
-          <Button onClick={() => navigate({ to: '/network/dhcp' })}>
+          <Button
+            onClick={() => navigate({ to: '/network/dhcp' })}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             Back to DHCP Servers
           </Button>
         </div>
@@ -200,15 +203,15 @@ export function DHCPServerDetail() {
           variant="ghost"
           size="sm"
           onClick={() => navigate({ to: '/network/dhcp' })}
-          className="mb-4"
+          className="mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Back to DHCP servers"
         >
           <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
           Back to DHCP Servers
         </Button>
-        <h1 className="text-3xl font-bold">{server.name}</h1>
+        <h1 className="font-display text-3xl font-bold">{server.name}</h1>
         <p className="text-muted-foreground mt-2">
-          DHCP server on {server.interface}
+          DHCP server on <code className="font-mono">{server.interface}</code>
         </p>
       </div>
 
@@ -224,7 +227,7 @@ export function DHCPServerDetail() {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-component-lg">
           <DHCPSummaryCard activeLeases={(server as any).activeLeases || 0} serverName={server.name} />
 
           <Card>
@@ -232,7 +235,7 @@ export function DHCPServerDetail() {
               <CardTitle>Pool Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-component-md text-sm">
                 <div>
                   <Label className="text-muted-foreground">Address Pool</Label>
                   <p className="font-mono text-sm">{server.addressPool}</p>
@@ -265,7 +268,7 @@ export function DHCPServerDetail() {
         </TabsContent>
 
         {/* Leases Tab */}
-        <TabsContent value="leases" className="space-y-6">
+        <TabsContent value="leases" className="space-y-component-lg">
           <Card>
             <CardHeader>
               <CardTitle>Active Leases</CardTitle>
@@ -275,7 +278,7 @@ export function DHCPServerDetail() {
             </CardHeader>
             <CardContent>
               {leasesLoading ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-component-lg text-muted-foreground">
                   Loading leases...
                 </div>
               ) : (
@@ -288,7 +291,7 @@ export function DHCPServerDetail() {
         </TabsContent>
 
         {/* Static Bindings Tab */}
-        <TabsContent value="static" className="space-y-6">
+        <TabsContent value="static" className="space-y-component-lg">
           <Card>
             <CardHeader>
               <CardTitle>Add Static Binding</CardTitle>
@@ -297,13 +300,14 @@ export function DHCPServerDetail() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={bindingForm.handleSubmit(handleAddStaticBinding as any)} className="space-y-4">
+              <form onSubmit={bindingForm.handleSubmit(handleAddStaticBinding as any)} className="space-y-component-md">
                 <div>
                   <Label htmlFor="mac">MAC Address</Label>
                   <MACInput
                     value={bindingForm.watch('macAddress') || ''}
                     onChange={(value: string) => bindingForm.setValue('macAddress', value)}
                     placeholder="e.g., 00:11:22:33:44:55"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
                 <div>
@@ -312,6 +316,7 @@ export function DHCPServerDetail() {
                     value={bindingForm.watch('ipAddress') || ''}
                     onChange={(value: string) => bindingForm.setValue('ipAddress', value)}
                     placeholder="e.g., 192.168.1.50"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
                 <div>
@@ -320,9 +325,15 @@ export function DHCPServerDetail() {
                     id="comment"
                     {...bindingForm.register('comment')}
                     placeholder="e.g., Office printer"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
-                <Button type="submit">Add Static Binding</Button>
+                <Button
+                  type="submit"
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  Add Static Binding
+                </Button>
               </form>
             </CardContent>
           </Card>
@@ -335,7 +346,7 @@ export function DHCPServerDetail() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-component-lg text-muted-foreground">
                 No static bindings configured
               </div>
             </CardContent>
@@ -343,7 +354,7 @@ export function DHCPServerDetail() {
         </TabsContent>
 
         {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-6">
+        <TabsContent value="settings" className="space-y-component-lg">
           <Card>
             <CardHeader>
               <CardTitle>DHCP Server Settings</CardTitle>
@@ -352,18 +363,19 @@ export function DHCPServerDetail() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={settingsForm.handleSubmit(handleUpdateSettings as any)} className="space-y-6">
+              <form onSubmit={settingsForm.handleSubmit(handleUpdateSettings as any)} className="space-y-component-lg">
                 <FormSection title="Basic Settings">
-                  <div className="space-y-4">
+                  <div className="space-y-component-md">
                     <div>
                       <Label htmlFor="name">Server Name</Label>
                       <Input
                         id="name"
                         {...settingsForm.register('name')}
                         placeholder="e.g., dhcp-lan"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                       {settingsForm.formState.errors.name && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-sm text-error mt-1">
                           {settingsForm.formState.errors.name.message}
                         </p>
                       )}
@@ -372,13 +384,14 @@ export function DHCPServerDetail() {
                 </FormSection>
 
                 <FormSection title="Network Settings">
-                  <div className="space-y-4">
+                  <div className="space-y-component-md">
                     <div>
                       <Label htmlFor="gateway">Gateway</Label>
                       <IPInput
                         value={settingsForm.watch('gateway') || ''}
                         onChange={(value: string) => settingsForm.setValue('gateway', value)}
                         placeholder="e.g., 192.168.1.1"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                     <div>
@@ -387,9 +400,10 @@ export function DHCPServerDetail() {
                         id="dns"
                         {...settingsForm.register('dnsServers')}
                         placeholder="e.g., 8.8.8.8, 8.8.4.4"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                       {settingsForm.formState.errors.dnsServers && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-sm text-error mt-1">
                           {settingsForm.formState.errors.dnsServers.message}
                         </p>
                       )}
@@ -400,7 +414,10 @@ export function DHCPServerDetail() {
                         value={settingsForm.watch('leaseTime')}
                         onValueChange={(value) => settingsForm.setValue('leaseTime', value as any)}
                       >
-                        <SelectTrigger id="leaseTime">
+                        <SelectTrigger
+                          id="leaseTime"
+                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -418,13 +435,14 @@ export function DHCPServerDetail() {
                 </FormSection>
 
                 <FormSection title="Optional Settings">
-                  <div className="space-y-4">
+                  <div className="space-y-component-md">
                     <div>
                       <Label htmlFor="domain">Domain Name</Label>
                       <Input
                         id="domain"
                         {...settingsForm.register('domain')}
                         placeholder="e.g., home.local"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                     <div>
@@ -433,13 +451,18 @@ export function DHCPServerDetail() {
                         id="ntp"
                         {...settingsForm.register('ntpServer')}
                         placeholder="e.g., pool.ntp.org"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     </div>
                   </div>
                 </FormSection>
 
-                <div className="flex gap-3">
-                  <Button type="submit" disabled={updateServerMutation.isPending as boolean}>
+                <div className="flex gap-component-md">
+                  <Button
+                    type="submit"
+                    disabled={updateServerMutation.isPending as boolean}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     <Save className="h-4 w-4 mr-2" aria-hidden="true" />
                     {updateServerMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
@@ -447,6 +470,7 @@ export function DHCPServerDetail() {
                     type="button"
                     variant="outline"
                     onClick={() => settingsForm.reset()}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     Reset
                   </Button>

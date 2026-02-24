@@ -100,14 +100,14 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
       },
       failed: {
         label: t('arp.statusFailed'),
-        className: 'bg-destructive/20 text-destructive',
+        className: 'bg-error/10 text-error',
       },
     };
 
     const { label, className: badgeClass } = config[status];
 
     return (
-      <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', badgeClass)}>
+      <span className={cn('inline-flex items-center px-2 py-0.5 rounded-pill text-xs font-medium', badgeClass)}>
         {label}
       </span>
     );

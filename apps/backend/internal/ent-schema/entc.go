@@ -13,11 +13,11 @@ import (
 
 func main() {
 	err := entc.Generate("./schema", &gen.Config{
-		// Package path for generated code
+		// Package path for generated code (import path)
 		Package: "backend/generated/ent",
 
-		// Target directory for generated code (relative to go generate location)
-		Target: "../../generated/ent/",
+		// Target directory for generated code (relative to location of entc.go)
+		Target: "../../generated/ent",
 
 		// Generate features
 		Features: []gen.Feature{

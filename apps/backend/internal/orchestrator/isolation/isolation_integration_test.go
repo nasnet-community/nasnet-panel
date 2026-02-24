@@ -11,9 +11,9 @@ import (
 	"backend/generated/ent/portallocation"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 // TestIntegration_PreStartVerificationFlow tests the full pre-start verification workflow
@@ -30,7 +30,7 @@ func TestIntegration_PreStartVerificationFlow(t *testing.T) {
 	require.NoError(t, os.MkdirAll(baseDir, 0750))
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	// Setup: Create mock port registry
 	portRegistry := newMockPortRegistry(client)
@@ -124,7 +124,7 @@ func TestIntegration_PortConflictRejection(t *testing.T) {
 	require.NoError(t, os.MkdirAll(baseDir, 0750))
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	portRegistry := newMockPortRegistry(client)
 	configValidator := NewConfigValidatorAdapter(logger)
@@ -228,7 +228,7 @@ func TestIntegration_WildcardBindRejection(t *testing.T) {
 	require.NoError(t, os.MkdirAll(baseDir, 0750))
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	portRegistry := newMockPortRegistry(client)
 	configValidator := NewConfigValidatorAdapter(logger)
@@ -324,7 +324,7 @@ func TestIntegration_DirectoryIsolationVerification(t *testing.T) {
 	require.NoError(t, os.MkdirAll(baseDir, 0750))
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	portRegistry := newMockPortRegistry(client)
 	configValidator := NewConfigValidatorAdapter(logger)

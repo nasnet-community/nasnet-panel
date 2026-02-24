@@ -7,61 +7,61 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CreateChangeSet is the resolver for the createChangeSet field.
 func (r *mutationResolver) CreateChangeSet(ctx context.Context, input model.CreateChangeSetInput) (*model.CreateChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateChangeSet - createChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "CreateChangeSet - createChangeSet", "graphql"))
 }
 
 // AddChangeSetItem is the resolver for the addChangeSetItem field.
 func (r *mutationResolver) AddChangeSetItem(ctx context.Context, changeSetID string, input model.ChangeSetItemInput) (*model.AddChangeSetItemPayload, error) {
-	panic(fmt.Errorf("not implemented: AddChangeSetItem - addChangeSetItem"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "AddChangeSetItem - addChangeSetItem", "graphql"))
 }
 
 // UpdateChangeSetItem is the resolver for the updateChangeSetItem field.
 func (r *mutationResolver) UpdateChangeSetItem(ctx context.Context, changeSetID string, itemID string, input model.UpdateChangeSetItemInput) (*model.UpdateChangeSetItemPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateChangeSetItem - updateChangeSetItem"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "UpdateChangeSetItem - updateChangeSetItem", "graphql"))
 }
 
 // RemoveChangeSetItem is the resolver for the removeChangeSetItem field.
 func (r *mutationResolver) RemoveChangeSetItem(ctx context.Context, changeSetID string, itemID string) (*model.RemoveChangeSetItemPayload, error) {
-	panic(fmt.Errorf("not implemented: RemoveChangeSetItem - removeChangeSetItem"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "RemoveChangeSetItem - removeChangeSetItem", "graphql"))
 }
 
 // ValidateChangeSet is the resolver for the validateChangeSet field.
 func (r *mutationResolver) ValidateChangeSet(ctx context.Context, changeSetID string) (*model.ValidateChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: ValidateChangeSet - validateChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ValidateChangeSet - validateChangeSet", "graphql"))
 }
 
 // ApplyChangeSet is the resolver for the applyChangeSet field.
 func (r *mutationResolver) ApplyChangeSet(ctx context.Context, changeSetID string) (*model.ApplyChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: ApplyChangeSet - applyChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ApplyChangeSet - applyChangeSet", "graphql"))
 }
 
 // CancelChangeSet is the resolver for the cancelChangeSet field.
 func (r *mutationResolver) CancelChangeSet(ctx context.Context, changeSetID string) (*model.CancelChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: CancelChangeSet - cancelChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "CancelChangeSet - cancelChangeSet", "graphql"))
 }
 
 // RollbackChangeSet is the resolver for the rollbackChangeSet field.
 func (r *mutationResolver) RollbackChangeSet(ctx context.Context, changeSetID string) (*model.RollbackChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: RollbackChangeSet - rollbackChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "RollbackChangeSet - rollbackChangeSet", "graphql"))
 }
 
 // DeleteChangeSet is the resolver for the deleteChangeSet field.
 func (r *mutationResolver) DeleteChangeSet(ctx context.Context, changeSetID string) (*model.DeleteChangeSetPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteChangeSet - deleteChangeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "DeleteChangeSet - deleteChangeSet", "graphql"))
 }
 
 // ChangeSet is the resolver for the changeSet field.
 func (r *queryResolver) ChangeSet(ctx context.Context, id string, routerID string) (*model.ChangeSet, error) {
-	panic(fmt.Errorf("not implemented: ChangeSet - changeSet"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSet - changeSet", "graphql"))
 }
 
 // ChangeSets is the resolver for the changeSets field.
 func (r *queryResolver) ChangeSets(ctx context.Context, routerID string, status *model.ChangeSetStatus, includeCompleted *bool) ([]*model.ChangeSetSummary, error) {
-	panic(fmt.Errorf("not implemented: ChangeSets - changeSets"))
+	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSets - changeSets", "graphql"))
 }

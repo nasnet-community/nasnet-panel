@@ -59,7 +59,7 @@
 import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 declare const badgeVariants: (props?: ({
-    variant?: "default" | "secondary" | "outline" | "error" | "success" | "warning" | "info" | "connected" | "offline" | null | undefined;
+    variant?: "success" | "connected" | "error" | "warning" | "info" | "default" | "offline" | "secondary" | "outline" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Props for the Badge component

@@ -17,7 +17,7 @@ import (
 
 // TestWebhook sends a test notification to a webhook.
 // Per AC: Send test notification, return response details (status code, response time, body preview truncated to 500 chars).
-func (s *WebhookService) TestWebhook(ctx context.Context, webhookID string) (*TestWebhookResult, error) {
+func (s *Service) TestWebhook(ctx context.Context, webhookID string) (*TestWebhookResult, error) {
 	// Get webhook with decrypted credentials
 	wh, authValue, err := s.GetWebhookDecrypted(ctx, webhookID)
 	if err != nil {
@@ -71,7 +71,7 @@ func (s *WebhookService) TestWebhook(ctx context.Context, webhookID string) (*Te
 }
 
 // sendWebhookRequest sends an HTTP request to the webhook URL.
-func (s *WebhookService) sendWebhookRequest(ctx context.Context, wh *ent.Webhook, authValue map[string]string, _ []byte) (statusCode int, responseBody string, retErr error) {
+func (s *Service) sendWebhookRequest(ctx context.Context, wh *ent.Webhook, authValue map[string]string, _ []byte) (statusCode int, responseBody string, retErr error) {
 	// Create HTTP client with timeout
 	client := &http.Client{
 		Timeout: 10 * time.Second,
@@ -117,7 +117,7 @@ func (s *WebhookService) sendWebhookRequest(ctx context.Context, wh *ent.Webhook
 }
 
 // addAuthentication adds authentication headers to the request.
-func (s *WebhookService) addAuthentication(req *http.Request, authType webhook.AuthType, authValue map[string]string) error {
+func (s *Service) addAuthentication(req *http.Request, authType webhook.AuthType, authValue map[string]string) error {
 	switch authType {
 	case webhook.AuthTypeNone:
 		return nil
@@ -159,7 +159,7 @@ func (s *WebhookService) addAuthentication(req *http.Request, authType webhook.A
 }
 
 // GetDeliveryLogs retrieves notification logs for a webhook.
-func (s *WebhookService) GetDeliveryLogs(ctx context.Context, webhookID string, limit int) ([]*ent.NotificationLog, error) {
+func (s *Service) GetDeliveryLogs(ctx context.Context, webhookID string, limit int) ([]*ent.NotificationLog, error) {
 	if limit == 0 {
 		limit = 50
 	}

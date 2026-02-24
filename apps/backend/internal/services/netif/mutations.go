@@ -3,7 +3,6 @@ package netif
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"backend/internal/router"
@@ -12,11 +11,11 @@ import (
 // StartMonitoring starts background monitoring for interface status changes.
 func (s *InterfaceService) StartMonitoring(ctx context.Context, routerID string) {
 	if s.eventPublisher == nil {
-		log.Printf("warning: event publisher not available, skipping monitoring: router_id=%s", routerID)
+		s.logger.Warnw("event publisher not available, skipping monitoring", "router_id", routerID)
 		return
 	}
 
-	log.Printf("starting interface monitoring: router_id=%s", routerID)
+	s.logger.Infow("starting interface monitoring", "router_id", routerID)
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -26,14 +25,14 @@ func (s *InterfaceService) StartMonitoring(ctx context.Context, routerID string)
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("stopping interface monitoring: router_id=%s", routerID)
+			s.logger.Infow("stopping interface monitoring", "router_id", routerID)
 			return
 		case <-ticker.C:
 			s.InvalidateCache(routerID)
 
 			interfaces, err := s.ListInterfaces(ctx, routerID, nil)
 			if err != nil {
-				log.Printf("failed to fetch interfaces during monitoring: router_id=%s error=%v", routerID, err)
+				s.logger.Errorw("failed to fetch interfaces during monitoring", "router_id", routerID, "error", err)
 				continue
 			}
 
@@ -43,9 +42,9 @@ func (s *InterfaceService) StartMonitoring(ctx context.Context, routerID string)
 					if err := s.eventPublisher.PublishInterfaceStatusChanged(
 						ctx, routerID, iface.ID, iface.Name, iface.Status, prevStatus,
 					); err != nil {
-						log.Printf("failed to publish status change event: router_id=%s interface=%s error=%v", routerID, iface.Name, err)
+						s.logger.Errorw("failed to publish status change event", "router_id", routerID, "interface", iface.Name, "error", err)
 					} else {
-						log.Printf("interface status changed: router_id=%s interface=%s status=%s previous=%s", routerID, iface.Name, iface.Status, prevStatus)
+						s.logger.Infow("interface status changed", "router_id", routerID, "interface", iface.Name, "status", iface.Status, "previous", prevStatus)
 					}
 				}
 				previousState[iface.ID] = iface.Status
@@ -97,7 +96,7 @@ func (s *InterfaceService) EnableInterface(ctx context.Context, routerID, interf
 				if err := s.eventPublisher.PublishInterfaceStatusChanged(
 					ctx, routerID, iface.ID, iface.Name, iface.Status, "DISABLED",
 				); err != nil {
-					log.Printf("failed to publish interface status changed event: %v", err)
+					s.logger.Errorw("failed to publish interface status changed event", "error", err)
 				}
 			}
 			return iface, nil
@@ -128,7 +127,7 @@ func (s *InterfaceService) DisableInterface(ctx context.Context, routerID, inter
 	if targetInterface.UsedBy != nil {
 		for _, usage := range targetInterface.UsedBy {
 			if usage == "gateway" {
-				log.Printf("warning: disabling interface %s which is used by gateway", targetInterface.Name)
+				s.logger.Warnw("disabling interface which is used by gateway", "interface", targetInterface.Name)
 			}
 		}
 	}
@@ -158,7 +157,7 @@ func (s *InterfaceService) DisableInterface(ctx context.Context, routerID, inter
 				if err := s.eventPublisher.PublishInterfaceStatusChanged(
 					ctx, routerID, iface.ID, iface.Name, iface.Status, targetInterface.Status,
 				); err != nil {
-					log.Printf("failed to publish interface status changed event: %v", err)
+					s.logger.Errorw("failed to publish interface status changed event", "error", err)
 				}
 			}
 			return iface, nil
@@ -237,7 +236,7 @@ func (s *InterfaceService) UpdateInterface(ctx context.Context, routerID, interf
 				if err := s.eventPublisher.PublishInterfaceStatusChanged(
 					ctx, routerID, iface.ID, iface.Name, iface.Status, targetInterface.Status,
 				); err != nil {
-					log.Printf("failed to publish interface status changed event: %v", err)
+					s.logger.Errorw("failed to publish interface status changed event", "error", err)
 				}
 			}
 			return iface, nil

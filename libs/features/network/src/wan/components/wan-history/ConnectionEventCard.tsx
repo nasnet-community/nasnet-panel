@@ -119,11 +119,11 @@ function ConnectionEventCardComponent({
   };
 
   return (
-    <div className={cn('flex gap-3 group', className)}>
+    <div className={cn('flex gap-component-md group', className)}>
       {/* Timeline dot and line */}
       <div className="flex flex-col items-center">
         <div
-          className={cn('rounded-full p-2', display.bgColor, display.color)}
+          className={cn('rounded-full p-component-sm', display.bgColor, display.color)}
           aria-hidden="true"
         >
           {display.icon}
@@ -132,9 +132,9 @@ function ConnectionEventCardComponent({
       </div>
 
       {/* Event content */}
-      <div className="flex-1 pb-6">
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <div className="flex items-center gap-2">
+      <div className="flex-1 pb-component-lg">
+        <div className="flex items-start justify-between gap-component-md mb-2">
+          <div className="flex items-center gap-component-sm">
             <Badge variant="outline" className={display.color}>
               {display.label}
             </Badge>
@@ -154,12 +154,12 @@ function ConnectionEventCardComponent({
         </div>
 
         {/* Event details */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           {/* IP Information */}
           {event.publicIP && (
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-component-sm text-sm">
               <span className="text-muted-foreground">IP:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
                 {event.publicIP}
               </code>
             </div>
@@ -167,9 +167,9 @@ function ConnectionEventCardComponent({
 
           {/* Gateway Information */}
           {event.gateway && (
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-component-sm text-sm">
               <span className="text-muted-foreground">Gateway:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
                 {event.gateway}
               </code>
             </div>
@@ -177,7 +177,7 @@ function ConnectionEventCardComponent({
 
           {/* Duration (for disconnection events) */}
           {event.duration && event.duration > 0 && (
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-component-sm text-sm">
               <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
               <span className="text-muted-foreground">
                 Duration: {formatDuration(event.duration)}
@@ -187,7 +187,7 @@ function ConnectionEventCardComponent({
 
           {/* Reason/Error message */}
           {event.reason && (
-            <p className="text-sm text-muted-foreground mt-1">{event.reason}</p>
+            <p className="text-sm text-muted-foreground mt-2">{event.reason}</p>
           )}
         </div>
       </div>
@@ -219,16 +219,16 @@ function ConnectionEventCardCompactComponent({
   );
 
   return (
-    <div className={cn('flex items-start gap-3 p-3 rounded-lg border', className)}>
+    <div className={cn('flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-card)] border', className)}>
       <div
-        className={cn('rounded-full p-2', display.bgColor, display.color)}
+        className={cn('rounded-full p-component-sm', display.bgColor, display.color)}
         aria-hidden="true"
       >
         {display.icon}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-component-sm mb-1">
           <Badge variant="outline" className={cn(display.color, 'text-xs')}>
             {display.label}
           </Badge>
@@ -236,13 +236,13 @@ function ConnectionEventCardCompactComponent({
         </div>
 
         {event.publicIP && (
-          <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+          <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
             {event.publicIP}
           </code>
         )}
 
         {event.reason && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
             {event.reason}
           </p>
         )}

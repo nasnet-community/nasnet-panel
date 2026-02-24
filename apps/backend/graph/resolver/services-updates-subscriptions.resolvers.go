@@ -104,8 +104,8 @@ func (r *subscriptionResolver) UpdateProgress(ctx context.Context, routerID stri
 	// If no EventBus is available, fall back to a no-op subscription that just waits for context cancellation.
 	if r.EventBus == nil {
 		go func() {
-			defer close(progressChan)
 			<-ctx.Done()
+			close(progressChan)
 		}()
 		return progressChan, nil
 	}
@@ -143,30 +143,39 @@ func (r *subscriptionResolver) UpdateProgress(ctx context.Context, routerID stri
 	for _, eventType := range updateEventTypes {
 		if err := r.EventBus.Subscribe(eventType, handler); err != nil {
 			// Non-fatal: log and continue
-			_ = err
+			r.log.Infow("failed to subscribe to event type",
+				"event_type", eventType,
+				"error", err)
 		}
+	}
+
+	// Send an initial "waiting" event so the client gets an immediate response
+	initial := &model.UpdateProgress{
+		InstanceID: routerID,
+		FeatureID:  "",
+		Stage:      model.UpdateStageStaging,
+		Progress:   0,
+		Message:    "Waiting for update to start",
+		Timestamp:  time.Now(),
+	}
+	select {
+	case progressChan <- initial:
+	case <-ctx.Done():
+		close(progressChan)
+		return progressChan, nil
 	}
 
 	// Goroutine to close channel when context is cancelled
 	go func() {
-		defer close(progressChan)
+		defer func() {
+			if panicErr := recover(); panicErr != nil {
+				// Log panic but don't crash service
+				r.log.Errorw("panic in update progress subscription goroutine",
+					"panic", panicErr)
+			}
+			close(progressChan)
+		}()
 		<-ctx.Done()
-	}()
-
-	// Send an initial "waiting" event so the client gets an immediate response
-	go func() {
-		initial := &model.UpdateProgress{
-			InstanceID: routerID,
-			FeatureID:  "",
-			Stage:      model.UpdateStageStaging,
-			Progress:   0,
-			Message:    "Waiting for update to start",
-			Timestamp:  time.Now(),
-		}
-		select {
-		case progressChan <- initial:
-		case <-ctx.Done():
-		}
 	}()
 
 	return progressChan, nil

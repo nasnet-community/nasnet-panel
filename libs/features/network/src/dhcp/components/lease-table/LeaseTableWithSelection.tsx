@@ -222,9 +222,9 @@ export const LeaseTableWithSelection = React.forwardRef<
     // Loading skeleton
     if (isLoading) {
       return (
-        <div ref={ref} className={cn('space-y-4', className)}>
+        <div ref={ref} className={cn('space-y-component-md', className)}>
           <Skeleton className="h-10 w-full max-w-sm" />
-          <div className="rounded-md border">
+          <div className="rounded-card-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -273,8 +273,8 @@ export const LeaseTableWithSelection = React.forwardRef<
     // Empty state
     if (leases.length === 0) {
       return (
-        <div ref={ref} className={cn('space-y-4', className)}>
-          <div className="rounded-md border p-8 text-center text-muted-foreground">
+        <div ref={ref} className={cn('space-y-component-md', className)}>
+          <div className="rounded-card-lg border p-8 text-center text-muted-foreground">
             No DHCP leases found
           </div>
         </div>
@@ -282,9 +282,9 @@ export const LeaseTableWithSelection = React.forwardRef<
     }
 
     return (
-      <div ref={ref} className={cn('space-y-4', className)}>
+      <div ref={ref} className={cn('space-y-component-md', className)}>
         {/* Search input */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-component-md">
           <Input
             placeholder="Search by IP, MAC, or hostname..."
             value={searchTerm}
@@ -298,7 +298,7 @@ export const LeaseTableWithSelection = React.forwardRef<
         </div>
 
         {/* Table */}
-        <div className="rounded-md border">
+        <div className="rounded-card-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -315,7 +315,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                 </TableHead>
 
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  className="cursor-pointer select-none hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('ipAddress')}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('ipAddress'); } }}
                   tabIndex={0}
@@ -325,7 +325,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                   IP Address{getSortIndicator('ipAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  className="cursor-pointer select-none hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('macAddress')}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('macAddress'); } }}
                   tabIndex={0}
@@ -335,7 +335,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                   MAC Address{getSortIndicator('macAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  className="cursor-pointer select-none hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('hostname')}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('hostname'); } }}
                   tabIndex={0}
@@ -346,7 +346,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                 </TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  className="cursor-pointer select-none hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('expiration')}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('expiration'); } }}
                   tabIndex={0}
@@ -385,7 +385,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                         <TableCell className="w-[50px]" onClick={(e) => e.stopPropagation()}>
                           <button
                             type="button"
-                            className="flex items-center justify-center p-1 hover:bg-muted rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[32px] min-w-[32px]"
+                            className="flex items-center justify-center p-1 hover:bg-muted rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] min-w-[44px]"
                             onClick={() => handleRowClick(lease.id)}
                             aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
                             aria-expanded={isExpanded}
@@ -414,6 +414,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                             'font-mono text-sm',
                             lease.blocked && 'line-through opacity-60'
                           )}
+                          title={lease.address}
                         >
                           {lease.address}
                         </TableCell>
@@ -422,6 +423,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                             'font-mono text-xs',
                             lease.blocked && 'line-through opacity-60'
                           )}
+                          title={formatMACAddress(lease.macAddress)}
                         >
                           {formatMACAddress(lease.macAddress)}
                         </TableCell>
@@ -435,7 +437,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                             <StatusBadge status={lease.status} />
                             {!lease.dynamic && <StatusBadge status="static" />}
                             {isNew && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
+                              <span className="inline-flex items-center gap-1 rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                                 <Icon icon={Sparkles} size="sm" />
                                 New
                               </span>
@@ -451,7 +453,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                       {isExpanded && (
                         <TableRow>
                           <TableCell colSpan={7} className="bg-muted/30 p-0">
-                            <div className="p-4">
+                            <div className="p-component-md">
                               <LeaseDetailPanel lease={lease} />
                             </div>
                           </TableCell>

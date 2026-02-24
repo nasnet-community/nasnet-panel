@@ -210,15 +210,15 @@ export const NATRulesPage = memo(function NATRulesPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-4">
+      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between p-component-md">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">NAT Rules</h1>
+            <h1 className="text-2xl font-bold tracking-tight font-display">NAT Rules</h1>
             <p className="text-sm text-muted-foreground">
               Manage network address translation for traffic routing
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             {!isMobile && (
               <>
                 <Button variant="outline" onClick={handleQuickMasquerade} aria-label="Quick Masquerade">
@@ -240,7 +240,7 @@ export const NATRulesPage = memo(function NATRulesPage() {
 
         {/* Mobile Action Buttons */}
         {isMobile && (
-          <div className="flex gap-2 px-4 pb-4">
+          <div className="flex gap-component-sm px-component-md pb-component-md">
             <Button variant="outline" size="sm" onClick={handleQuickMasquerade} className="flex-1" aria-label="Masquerade">
               <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
               Masquerade
@@ -260,7 +260,7 @@ export const NATRulesPage = memo(function NATRulesPage() {
           onValueChange={handleTabChange}
           className="h-full flex flex-col"
         >
-          <div className="border-b px-4">
+          <div className="border-b border-border px-component-md">
             <TabsList className={isMobile ? 'w-full justify-start overflow-x-auto' : ''}>
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="srcnat">Source NAT</TabsTrigger>
@@ -270,7 +270,7 @@ export const NATRulesPage = memo(function NATRulesPage() {
 
           <div className="flex-1 overflow-y-auto">
             {/* All Chains Tab */}
-            <TabsContent value="all" className="p-4 m-0">
+            <TabsContent value="all" className="p-component-md m-0">
               {isLoading ? (
                 <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                   <div className="animate-pulse space-y-4">
@@ -294,7 +294,7 @@ export const NATRulesPage = memo(function NATRulesPage() {
 
             {/* Individual Chain Tabs */}
             {chains.map((chain) => (
-              <TabsContent key={chain} value={chain} className="p-4 m-0">
+              <TabsContent key={chain} value={chain} className="p-component-md m-0">
                 {isLoading ? (
                   <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">

@@ -133,6 +133,10 @@ module.exports = {
           logging: 'var(--semantic-color-category-logging)',
           backup: 'var(--semantic-color-category-backup)',
         },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+        },
       },
       // Generated border radius tokens
       borderRadius: {
@@ -169,6 +173,14 @@ module.exports = {
         88: '22rem',
         112: '28rem',
         128: '32rem',
+        'component-xs': '0.25rem',
+        'component-sm': '0.5rem',
+        'component-md': '1rem',
+        'component-lg': '1.5rem',
+        'component-xl': '2rem',
+        'page-mobile': '1rem',
+        'page-tablet': '1.5rem',
+        'page-desktop': '2rem',
       },
       // Generated shadow tokens + semantic glows
       boxShadow: {

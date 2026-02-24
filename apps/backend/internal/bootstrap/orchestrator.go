@@ -1,10 +1,9 @@
 package bootstrap
 
 import (
-	"log"
 	"log/slog"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/adapters"
@@ -61,25 +60,25 @@ func InitializeOrchestrator(
 	bridgeOrchestrator *vif.BridgeOrchestrator,
 	vlanAllocator *network.VLANAllocator,
 	routerPort *router.MockAdapter,
-	logger zerolog.Logger,
+	logger *zap.SugaredLogger,
 ) (*OrchestratorComponents, error) {
 
-	log.Printf("Initializing service instance orchestrator...")
+	logger.Infow("Initializing service instance orchestrator")
 
 	// 1. Feature Registry - loads service manifests (Tor, sing-box, Xray, etc.)
 	featureRegistry, err := features.NewFeatureRegistry()
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Feature registry initialized with %d manifests", featureRegistry.Count())
+	logger.Infow("Feature registry initialized", "manifests", featureRegistry.Count())
 
 	// 2. Download Manager - handles binary downloads with verification
 	downloadManager := features.NewDownloadManager(eventBus, "/var/nasnet/downloads")
-	log.Printf("Download manager initialized")
+	logger.Infow("Download manager initialized")
 
 	// 3. Process Supervisor - manages service process lifecycle
-	processSupervisor := supervisor.NewProcessSupervisor(supervisor.ProcessSupervisorConfig{Logger: logger})
-	log.Printf("Process supervisor initialized")
+	processSupervisor := supervisor.NewProcessSupervisor(supervisor.ProcessSupervisorConfig{Logger: logger.Desugar()})
+	logger.Infow("Process supervisor initialized")
 
 	// Create network store adapter for dependency inversion
 	networkStore := adapters.NewEntNetworkAdapter(systemDB)
@@ -93,37 +92,37 @@ func InitializeOrchestrator(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Port registry initialized")
+	logger.Infow("Port registry initialized")
 
 	// VLAN allocator is passed in (created by InitializeVIF) - no need to re-create.
-	log.Printf("VLAN allocator received (DB-backed, shared with VIF)")
+	logger.Infow("VLAN allocator received", "type", "DB-backed", "shared_with", "VIF")
 
 	// 6. Config Validator Adapter - validates service-specific config bindings
-	configValidator := isolation.NewConfigValidatorAdapter(logger)
-	log.Printf("Config validator adapter initialized")
+	configValidator := isolation.NewConfigValidatorAdapter(logger.Desugar())
+	logger.Infow("Config validator adapter initialized")
 
 	// 7. Isolation Verifier - 4-layer isolation verification (IP, directory, port, process)
 	isolationVerifier, err := isolation.NewIsolationVerifier(isolation.IsolationVerifierConfig{
 		PortRegistry:           portRegistry,
 		ConfigBindingValidator: configValidator,
 		EventBus:               eventBus,
-		Logger:                 logger,
+		Logger:                 logger.Desugar(),
 		AllowedBaseDir:         "/data/services",
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Isolation verifier initialized (4-layer defense)")
+	logger.Infow("Isolation verifier initialized", "layers", "4-layer defense")
 
 	// 8. Resource Limiter - monitors resource usage and applies cgroups v2 memory limits
 	resourceLimiter, err := resources.NewResourceLimiter(resources.ResourceLimiterConfig{
 		EventBus: eventBus,
-		Logger:   logger,
+		Logger:   logger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Resource limiter initialized (cgroups v2 enabled: %v)", resourceLimiter.IsCgroupsEnabled())
+	logger.Infow("Resource limiter initialized", "cgroups_v2_enabled", resourceLimiter.IsCgroupsEnabled())
 
 	// 9. Instance Manager - orchestrates complete service instance lifecycle
 	instanceManager, err := lifecycle.NewInstanceManager(lifecycle.InstanceManagerConfig{
@@ -139,23 +138,23 @@ func InitializeOrchestrator(
 		BridgeOrchestrator: bridgeOrchestrator,
 		IsolationVerifier:  isolationVerifier,
 		ResourceLimiter:    resourceLimiter,
-		Logger:             logger,
+		Logger:             logger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Instance manager initialized (isolation enabled)")
+	logger.Infow("Instance manager initialized", "isolation", "enabled")
 
 	// 10. Dependency Manager - manages service instance dependency relationships
 	dependencyManager, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    systemDB,
 		EventBus: eventBus,
-		Logger:   logger,
+		Logger:   logger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Dependency manager initialized")
+	logger.Infow("Dependency manager initialized")
 
 	// 11. Boot Sequence Manager - orchestrates service startup on system boot
 	bootSequenceManager, err := boot.NewBootSequenceManager(boot.BootSequenceManagerConfig{
@@ -163,12 +162,12 @@ func InitializeOrchestrator(
 		InstanceMgr:   instanceManager,
 		Store:         systemDB,
 		EventBus:      eventBus,
-		Logger:        logger,
+		Logger:        logger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Boot sequence manager initialized")
+	logger.Infow("Boot sequence manager initialized")
 
 	return &OrchestratorComponents{
 		FeatureRegistry:     featureRegistry,

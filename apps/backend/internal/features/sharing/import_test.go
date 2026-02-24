@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"backend/internal/common/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +17,7 @@ func TestImport_SchemaVersionCompatible(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	pkg := &ServiceExportPackage{
 		SchemaVersion: "1.0",
@@ -38,7 +40,7 @@ func TestImport_SchemaVersionIncompatible(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	testCases := []struct {
 		name          string
@@ -75,7 +77,7 @@ func TestImport_MissingService(t *testing.T) {
 		}
 		return &manifest.Manifest{ID: id}, nil
 	})
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	pkg := &ServiceExportPackage{
 		SchemaVersion: "1.0",
@@ -99,7 +101,7 @@ func TestImport_RedactedFieldPrompts(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Config with redacted fields
 	config := map[string]interface{}{
@@ -205,7 +207,7 @@ func TestImport_ErrorAccumulation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Package with multiple validation errors
 	pkg := &ServiceExportPackage{
@@ -238,7 +240,7 @@ func TestImport_SyntaxValidation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	testCases := []struct {
 		name         string

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -27,13 +27,13 @@ const (
 
 // CgroupManager manages cgroups v2 for resource limiting
 type CgroupManager struct {
-	logger    zerolog.Logger
+	logger    *zap.SugaredLogger
 	available bool
 	basePath  string
 }
 
 // NewCgroupManager creates a new cgroups v2 manager
-func NewCgroupManager(logger zerolog.Logger) *CgroupManager {
+func NewCgroupManager(logger *zap.SugaredLogger) *CgroupManager {
 	mgr := &CgroupManager{
 		logger:   logger,
 		basePath: cgroupV2BasePath,
@@ -41,9 +41,9 @@ func NewCgroupManager(logger zerolog.Logger) *CgroupManager {
 	mgr.available = mgr.detectCgroupV2()
 
 	if mgr.available {
-		logger.Info().Msg("cgroups v2 detected and available")
+		logger.Info("cgroups v2 detected and available")
 	} else {
-		logger.Warn().Msg("cgroups v2 not available, resource limits will not be enforced")
+		logger.Warn("cgroups v2 not available, resource limits will not be enforced")
 	}
 
 	return mgr
@@ -59,27 +59,19 @@ func (cm *CgroupManager) detectCgroupV2() bool {
 	// Check if the cgroup.controllers file exists at the base path
 	controllerPath := filepath.Join(cm.basePath, cgroupControllerFile)
 	if _, err := os.Stat(controllerPath); err != nil {
-		cm.logger.Debug().
-			Err(err).
-			Str("path", controllerPath).
-			Msg("cgroups v2 not detected")
+		cm.logger.Debugw("cgroups v2 not detected", "path", controllerPath, "error", err)
 		return false
 	}
 
 	// Verify we can read the controllers
 	data, err := os.ReadFile(controllerPath)
 	if err != nil {
-		cm.logger.Debug().
-			Err(err).
-			Str("path", controllerPath).
-			Msg("cannot read cgroup controllers")
+		cm.logger.Debugw("cannot read cgroup controllers", "path", controllerPath, "error", err)
 		return false
 	}
 
 	controllers := strings.Fields(string(data))
-	cm.logger.Debug().
-		Strs("controllers", controllers).
-		Msg("detected cgroup v2 controllers")
+	cm.logger.Debugw("detected cgroup v2 controllers", "controllers", controllers)
 
 	// Check for required controllers (memory and cpu)
 	hasMemory := false
@@ -94,10 +86,7 @@ func (cm *CgroupManager) detectCgroupV2() bool {
 	}
 
 	if !hasMemory || !hasCPU {
-		cm.logger.Warn().
-			Bool("has_memory", hasMemory).
-			Bool("has_cpu", hasCPU).
-			Msg("required cgroup controllers not available")
+		cm.logger.Warnw("required cgroup controllers not available", "has_memory", hasMemory, "has_cpu", hasCPU)
 		return false
 	}
 
@@ -118,10 +107,7 @@ func (cm *CgroupManager) CreateCgroup(instanceID string) error {
 		return fmt.Errorf("failed to create cgroup directory: %w", err)
 	}
 
-	cm.logger.Debug().
-		Str("instance_id", instanceID).
-		Str("path", cgroupPath).
-		Msg("created cgroup")
+	cm.logger.Debugw("created cgroup", "instance_id", instanceID, "path", cgroupPath)
 
 	return nil
 }
@@ -145,10 +131,7 @@ func (cm *CgroupManager) SetMemoryLimits(instanceID string, softLimitMB, hardLim
 			return fmt.Errorf("failed to set memory.high: %w", err)
 		}
 
-		cm.logger.Debug().
-			Str("instance_id", instanceID).
-			Int("soft_limit_mb", softLimitMB).
-			Msg("set memory soft limit")
+		cm.logger.Debugw("set memory soft limit", "instance_id", instanceID, "soft_limit_mb", softLimitMB)
 	}
 
 	// Set memory.max (hard limit)
@@ -159,10 +142,7 @@ func (cm *CgroupManager) SetMemoryLimits(instanceID string, softLimitMB, hardLim
 			return fmt.Errorf("failed to set memory.max: %w", err)
 		}
 
-		cm.logger.Debug().
-			Str("instance_id", instanceID).
-			Int("hard_limit_mb", hardLimitMB).
-			Msg("set memory hard limit")
+		cm.logger.Debugw("set memory hard limit", "instance_id", instanceID, "hard_limit_mb", hardLimitMB)
 	}
 
 	return nil
@@ -195,11 +175,7 @@ func (cm *CgroupManager) SetCPUWeight(instanceID string, priority int) error {
 		return fmt.Errorf("failed to set cpu.weight: %w", err)
 	}
 
-	cm.logger.Debug().
-		Str("instance_id", instanceID).
-		Int("priority", priority).
-		Int("weight", weight).
-		Msg("set CPU weight")
+	cm.logger.Debugw("set CPU weight", "instance_id", instanceID, "priority", priority, "weight", weight)
 
 	return nil
 }
@@ -219,11 +195,7 @@ func (cm *CgroupManager) AssignProcess(instanceID string, pid int) error {
 		return fmt.Errorf("failed to assign process to cgroup: %w", err)
 	}
 
-	cm.logger.Info().
-		Str("instance_id", instanceID).
-		Int("pid", pid).
-		Str("cgroup", cgroupPath).
-		Msg("assigned process to cgroup")
+	cm.logger.Infow("assigned process to cgroup", "instance_id", instanceID, "pid", pid, "cgroup", cgroupPath)
 
 	return nil
 }
@@ -247,10 +219,7 @@ func (cm *CgroupManager) RemoveCgroup(instanceID string) error {
 		return fmt.Errorf("failed to remove cgroup: %w", err)
 	}
 
-	cm.logger.Debug().
-		Str("instance_id", instanceID).
-		Str("path", cgroupPath).
-		Msg("removed cgroup")
+	cm.logger.Debugw("removed cgroup", "instance_id", instanceID, "path", cgroupPath)
 
 	return nil
 }

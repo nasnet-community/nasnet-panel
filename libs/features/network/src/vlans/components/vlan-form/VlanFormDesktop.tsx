@@ -208,7 +208,7 @@ function VlanFormDesktopContent({
           </div>
 
           {/* Disabled Toggle */}
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="disabled">Disabled</Label>
               <p className="text-sm text-muted-foreground">

@@ -42,7 +42,7 @@ func SuggestedFix(err error) string {
 	}
 
 	// Fall back to code-based suggestions
-	return suggestedFixForCode(routerErr.Code, routerErr.Context)
+	return suggestedFixForCode(routerErr.Code)
 }
 
 func suggestedFixForValidation(err *ValidationError) string {
@@ -160,7 +160,7 @@ func suggestedFixForResource(err *ResourceError) string {
 	}
 }
 
-func suggestedFixForCode(code string, _ctx map[string]interface{}) string {
+func suggestedFixForCode(code string) string {
 	// Map error codes to generic suggestions
 	suggestions := map[string]string{
 		// Platform (P1xx)
@@ -326,5 +326,48 @@ func platformTroubleshootingSteps(err *RouterError) []string {
 		"Update to the latest firmware if possible",
 		"Check if required packages are installed",
 		"Review platform compatibility documentation",
+	}
+}
+
+// HTTPStatusCode maps a RouterError to the appropriate HTTP status code.
+// This is useful for REST API error responses.
+func HTTPStatusCode(err error) int {
+	routerErr := GetRouterError(err)
+	if routerErr == nil {
+		return 500 // Internal Server Error
+	}
+
+	switch routerErr.Category {
+	case CategoryValidation:
+		return 400 // Bad Request
+	case CategoryAuth:
+		// Map specific auth errors to appropriate codes
+		switch routerErr.Code {
+		case CodeSessionExpired, CodeInvalidCredentials, CodeAuthFailed:
+			return 401 // Unauthorized
+		case CodeInsufficientPermissions, CodeAccessDenied:
+			return 403 // Forbidden
+		default:
+			return 401
+		}
+	case CategoryResource:
+		switch routerErr.Code {
+		case CodeResourceNotFound:
+			return 404 // Not Found
+		case CodeResourceLocked, CodeResourceBusy:
+			return 409 // Conflict
+		case CodeInvalidStateTransition:
+			return 422 // Unprocessable Entity
+		default:
+			return 400
+		}
+	case CategoryNetwork, CategoryProtocol:
+		return 503 // Service Unavailable
+	case CategoryPlatform:
+		return 400 // Bad Request (platform not supported)
+	case CategoryInternal:
+		return 500 // Internal Server Error
+	default:
+		return 500
 	}
 }

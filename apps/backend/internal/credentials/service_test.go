@@ -92,3 +92,33 @@ func TestErrors(t *testing.T) {
 		assert.Equal(t, "router not found", ErrRouterNotFound.Error())
 	})
 }
+
+func TestZeroCredentials(t *testing.T) {
+	t.Run("clears credentials from memory", func(t *testing.T) {
+		creds := &Credentials{
+			Username:   "admin",
+			Password:   "supersecret123",
+			KeyVersion: 1,
+		}
+
+		// Before zeroing
+		assert.NotEmpty(t, creds.Username)
+		assert.NotEmpty(t, creds.Password)
+
+		// Zero the credentials
+		ZeroCredentials(creds)
+
+		// After zeroing
+		assert.Empty(t, creds.Username)
+		assert.Empty(t, creds.Password)
+		// KeyVersion remains unchanged
+		assert.Equal(t, 1, creds.KeyVersion)
+	})
+
+	t.Run("handles nil credentials gracefully", func(t *testing.T) {
+		// Should not panic with nil credentials
+		assert.NotPanics(t, func() {
+			ZeroCredentials(nil)
+		})
+	})
+}

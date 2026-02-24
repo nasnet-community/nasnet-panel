@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"time"
-
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertdigestentry"
 	"backend/generated/ent/alertescalation"
@@ -22,6 +20,7 @@ import (
 	"backend/generated/ent/notificationsettings"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/resource"
 	"backend/generated/ent/resourceevent"
 	"backend/generated/ent/router"
@@ -29,17 +28,19 @@ import (
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/routingschedule"
-	"backend/generated/ent/schemaversion"
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/servicetraffichourly"
 	"backend/generated/ent/session"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/user"
+	"backend/generated/ent/version"
 	"backend/generated/ent/virtualinterface"
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
 	"backend/internal/ent-schema/schema"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -1459,6 +1460,70 @@ func init() {
 			return nil
 		}
 	}()
+	provisioningsessionFields := schema.ProvisioningSession{}.Fields()
+	_ = provisioningsessionFields
+	// provisioningsessionDescRouterID is the schema descriptor for router_id field.
+	provisioningsessionDescRouterID := provisioningsessionFields[1].Descriptor()
+	// provisioningsession.RouterIDValidator is a validator for the "router_id" field. It is called by the builders before save.
+	provisioningsession.RouterIDValidator = func() func(string) error {
+		validators := provisioningsessionDescRouterID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(router string) error {
+			for _, fn := range fns {
+				if err := fn(router); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// provisioningsessionDescCurrentStep is the schema descriptor for current_step field.
+	provisioningsessionDescCurrentStep := provisioningsessionFields[8].Descriptor()
+	// provisioningsession.CurrentStepValidator is a validator for the "current_step" field. It is called by the builders before save.
+	provisioningsession.CurrentStepValidator = provisioningsessionDescCurrentStep.Validators[0].(func(string) error)
+	// provisioningsessionDescChangesetID is the schema descriptor for changeset_id field.
+	provisioningsessionDescChangesetID := provisioningsessionFields[10].Descriptor()
+	// provisioningsession.ChangesetIDValidator is a validator for the "changeset_id" field. It is called by the builders before save.
+	provisioningsession.ChangesetIDValidator = provisioningsessionDescChangesetID.Validators[0].(func(string) error)
+	// provisioningsessionDescErrorMessage is the schema descriptor for error_message field.
+	provisioningsessionDescErrorMessage := provisioningsessionFields[11].Descriptor()
+	// provisioningsession.ErrorMessageValidator is a validator for the "error_message" field. It is called by the builders before save.
+	provisioningsession.ErrorMessageValidator = provisioningsessionDescErrorMessage.Validators[0].(func(string) error)
+	// provisioningsessionDescCreatedBy is the schema descriptor for created_by field.
+	provisioningsessionDescCreatedBy := provisioningsessionFields[12].Descriptor()
+	// provisioningsession.CreatedByValidator is a validator for the "created_by" field. It is called by the builders before save.
+	provisioningsession.CreatedByValidator = provisioningsessionDescCreatedBy.Validators[0].(func(string) error)
+	// provisioningsessionDescCreatedAt is the schema descriptor for created_at field.
+	provisioningsessionDescCreatedAt := provisioningsessionFields[13].Descriptor()
+	// provisioningsession.DefaultCreatedAt holds the default value on creation for the created_at field.
+	provisioningsession.DefaultCreatedAt = provisioningsessionDescCreatedAt.Default.(func() time.Time)
+	// provisioningsessionDescUpdatedAt is the schema descriptor for updated_at field.
+	provisioningsessionDescUpdatedAt := provisioningsessionFields[14].Descriptor()
+	// provisioningsession.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	provisioningsession.DefaultUpdatedAt = provisioningsessionDescUpdatedAt.Default.(func() time.Time)
+	// provisioningsession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	provisioningsession.UpdateDefaultUpdatedAt = provisioningsessionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// provisioningsessionDescID is the schema descriptor for id field.
+	provisioningsessionDescID := provisioningsessionFields[0].Descriptor()
+	// provisioningsession.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	provisioningsession.IDValidator = func() func(string) error {
+		validators := provisioningsessionDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	resourceFields := schema.Resource{}.Fields()
 	_ = resourceFields
 	// resourceDescType is the schema descriptor for type field.
@@ -2042,46 +2107,6 @@ func init() {
 	// routingschedule.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	routingschedule.IDValidator = func() func(string) error {
 		validators := routingscheduleDescID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(id string) error {
-			for _, fn := range fns {
-				if err := fn(id); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	schemaversionFields := schema.Version{}.Fields()
-	_ = schemaversionFields
-	// schemaversionDescName is the schema descriptor for name field.
-	schemaversionDescName := schemaversionFields[2].Descriptor()
-	// schemaversion.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	schemaversion.NameValidator = schemaversionDescName.Validators[0].(func(string) error)
-	// schemaversionDescChecksum is the schema descriptor for checksum field.
-	schemaversionDescChecksum := schemaversionFields[3].Descriptor()
-	// schemaversion.ChecksumValidator is a validator for the "checksum" field. It is called by the builders before save.
-	schemaversion.ChecksumValidator = schemaversionDescChecksum.Validators[0].(func(string) error)
-	// schemaversionDescApplied is the schema descriptor for applied field.
-	schemaversionDescApplied := schemaversionFields[4].Descriptor()
-	// schemaversion.DefaultApplied holds the default value on creation for the applied field.
-	schemaversion.DefaultApplied = schemaversionDescApplied.Default.(bool)
-	// schemaversionDescErrorMessage is the schema descriptor for error_message field.
-	schemaversionDescErrorMessage := schemaversionFields[5].Descriptor()
-	// schemaversion.ErrorMessageValidator is a validator for the "error_message" field. It is called by the builders before save.
-	schemaversion.ErrorMessageValidator = schemaversionDescErrorMessage.Validators[0].(func(string) error)
-	// schemaversionDescAppliedAt is the schema descriptor for applied_at field.
-	schemaversionDescAppliedAt := schemaversionFields[7].Descriptor()
-	// schemaversion.DefaultAppliedAt holds the default value on creation for the applied_at field.
-	schemaversion.DefaultAppliedAt = schemaversionDescAppliedAt.Default.(func() time.Time)
-	// schemaversionDescID is the schema descriptor for id field.
-	schemaversionDescID := schemaversionFields[0].Descriptor()
-	// schemaversion.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	schemaversion.IDValidator = func() func(string) error {
-		validators := schemaversionDescID.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -2681,6 +2706,126 @@ func init() {
 			return nil
 		}
 	}()
+	subnetallocationFields := schema.SubnetAllocation{}.Fields()
+	_ = subnetallocationFields
+	// subnetallocationDescRouterID is the schema descriptor for router_id field.
+	subnetallocationDescRouterID := subnetallocationFields[1].Descriptor()
+	// subnetallocation.RouterIDValidator is a validator for the "router_id" field. It is called by the builders before save.
+	subnetallocation.RouterIDValidator = func() func(string) error {
+		validators := subnetallocationDescRouterID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(router string) error {
+			for _, fn := range fns {
+				if err := fn(router); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// subnetallocationDescResourceID is the schema descriptor for resource_id field.
+	subnetallocationDescResourceID := subnetallocationFields[2].Descriptor()
+	// subnetallocation.ResourceIDValidator is a validator for the "resource_id" field. It is called by the builders before save.
+	subnetallocation.ResourceIDValidator = func() func(string) error {
+		validators := subnetallocationDescResourceID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(resource_id string) error {
+			for _, fn := range fns {
+				if err := fn(resource_id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// subnetallocationDescResourceType is the schema descriptor for resource_type field.
+	subnetallocationDescResourceType := subnetallocationFields[3].Descriptor()
+	// subnetallocation.ResourceTypeValidator is a validator for the "resource_type" field. It is called by the builders before save.
+	subnetallocation.ResourceTypeValidator = func() func(string) error {
+		validators := subnetallocationDescResourceType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(resource_type string) error {
+			for _, fn := range fns {
+				if err := fn(resource_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// subnetallocationDescNetworkName is the schema descriptor for network_name field.
+	subnetallocationDescNetworkName := subnetallocationFields[4].Descriptor()
+	// subnetallocation.NetworkNameValidator is a validator for the "network_name" field. It is called by the builders before save.
+	subnetallocation.NetworkNameValidator = func() func(string) error {
+		validators := subnetallocationDescNetworkName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(network_name string) error {
+			for _, fn := range fns {
+				if err := fn(network_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// subnetallocationDescCidr is the schema descriptor for cidr field.
+	subnetallocationDescCidr := subnetallocationFields[5].Descriptor()
+	// subnetallocation.CidrValidator is a validator for the "cidr" field. It is called by the builders before save.
+	subnetallocation.CidrValidator = func() func(string) error {
+		validators := subnetallocationDescCidr.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(cidr string) error {
+			for _, fn := range fns {
+				if err := fn(cidr); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// subnetallocationDescCreatedAt is the schema descriptor for created_at field.
+	subnetallocationDescCreatedAt := subnetallocationFields[7].Descriptor()
+	// subnetallocation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	subnetallocation.DefaultCreatedAt = subnetallocationDescCreatedAt.Default.(func() time.Time)
+	// subnetallocationDescUpdatedAt is the schema descriptor for updated_at field.
+	subnetallocationDescUpdatedAt := subnetallocationFields[8].Descriptor()
+	// subnetallocation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	subnetallocation.DefaultUpdatedAt = subnetallocationDescUpdatedAt.Default.(func() time.Time)
+	// subnetallocation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	subnetallocation.UpdateDefaultUpdatedAt = subnetallocationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// subnetallocationDescID is the schema descriptor for id field.
+	subnetallocationDescID := subnetallocationFields[0].Descriptor()
+	// subnetallocation.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	subnetallocation.IDValidator = func() func(string) error {
+		validators := subnetallocationDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescUsername is the schema descriptor for username field.
@@ -2844,6 +2989,46 @@ func init() {
 	// vlanallocation.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	vlanallocation.IDValidator = func() func(string) error {
 		validators := vlanallocationDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	versionFields := schema.Version{}.Fields()
+	_ = versionFields
+	// versionDescName is the schema descriptor for name field.
+	versionDescName := versionFields[2].Descriptor()
+	// version.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	version.NameValidator = versionDescName.Validators[0].(func(string) error)
+	// versionDescChecksum is the schema descriptor for checksum field.
+	versionDescChecksum := versionFields[3].Descriptor()
+	// version.ChecksumValidator is a validator for the "checksum" field. It is called by the builders before save.
+	version.ChecksumValidator = versionDescChecksum.Validators[0].(func(string) error)
+	// versionDescApplied is the schema descriptor for applied field.
+	versionDescApplied := versionFields[4].Descriptor()
+	// version.DefaultApplied holds the default value on creation for the applied field.
+	version.DefaultApplied = versionDescApplied.Default.(bool)
+	// versionDescErrorMessage is the schema descriptor for error_message field.
+	versionDescErrorMessage := versionFields[5].Descriptor()
+	// version.ErrorMessageValidator is a validator for the "error_message" field. It is called by the builders before save.
+	version.ErrorMessageValidator = versionDescErrorMessage.Validators[0].(func(string) error)
+	// versionDescAppliedAt is the schema descriptor for applied_at field.
+	versionDescAppliedAt := versionFields[7].Descriptor()
+	// version.DefaultAppliedAt holds the default value on creation for the applied_at field.
+	version.DefaultAppliedAt = versionDescAppliedAt.Default.(func() time.Time)
+	// versionDescID is the schema descriptor for id field.
+	versionDescID := versionFields[0].Descriptor()
+	// version.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	version.IDValidator = func() func(string) error {
+		validators := versionDescID.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),

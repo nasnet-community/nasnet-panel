@@ -165,15 +165,15 @@ export const DhcpClientForm = memo(function DhcpClientForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-component-lg">
         {/* Interface Selection */}
         <FormSection
           title="Interface Configuration"
           description="Select the physical interface to use for DHCP WAN connection"
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="interface-selector">
                   <Network className="inline h-4 w-4 mr-1" />
                   Physical Interface
@@ -200,11 +200,11 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {selectedInterface && (
-              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm">
                 <h4 className="font-medium text-sm">
                   Selected Interface Details
                 </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
                     <code className="ml-2 font-mono">{selectedInterface.name}</code>
@@ -232,10 +232,10 @@ export const DhcpClientForm = memo(function DhcpClientForm({
           title="DHCP Settings"
           description="Configure how the DHCP client obtains network configuration"
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Add Default Route */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-component-lg">
+              <div className="flex items-center gap-component-md">
                 <Label htmlFor="shouldAddDefaultRoute">Add Default Route</Label>
                 <FieldHelp field="shouldAddDefaultRoute" />
               </div>
@@ -253,8 +253,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {/* Use Peer DNS */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-component-lg">
+              <div className="flex items-center gap-component-md">
                 <Label htmlFor="shouldUsePeerDNS">Use Peer DNS</Label>
                 <FieldHelp field="shouldUsePeerDNS" />
               </div>
@@ -270,8 +270,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {/* Use Peer NTP */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-component-lg">
+              <div className="flex items-center gap-component-md">
                 <Label htmlFor="shouldUsePeerNTP">Use Peer NTP</Label>
                 <FieldHelp field="shouldUsePeerNTP" />
               </div>
@@ -293,8 +293,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
           title="Optional Settings"
           description="Additional configuration options"
         >
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-component-md">
+            <div className="flex items-center gap-component-md">
               <Label htmlFor="comment">Comment</Label>
               <FieldHelp field="comment" />
             </div>
@@ -319,14 +319,14 @@ export const DhcpClientForm = memo(function DhcpClientForm({
         </FormSection>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex gap-component-md justify-end">
           {onCancel && (
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
               disabled={loading}
-              className="min-h-[44px]"
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Cancel
             </Button>
@@ -334,7 +334,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
           <Button
             type="submit"
             disabled={loading || !form.formState.isValid || !form.formState.isDirty}
-            className="min-w-[120px] min-h-[44px]"
+            className="min-w-[120px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {loading ? 'Configuring...' : 'Configure DHCP'}
           </Button>
@@ -348,11 +348,11 @@ export const DhcpClientForm = memo(function DhcpClientForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-component-md">
               <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
               Default Route Warning
             </DialogTitle>
-            <DialogDescription className="space-y-3">
+            <DialogDescription className="space-y-component-md">
               <p>
                 You are about to add a <strong>default route</strong> via this
                 DHCP connection.
@@ -368,17 +368,17 @@ export const DhcpClientForm = memo(function DhcpClientForm({
               </p>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-component-md">
             <Button
               variant="outline"
               onClick={handleCancelDefaultRoute}
-              className="min-h-[44px]"
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmDefaultRoute}
-              className={cn('min-h-[44px]', 'bg-warning hover:bg-warning/90')}
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               I Understand, Proceed
             </Button>

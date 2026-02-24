@@ -10,21 +10,8 @@
  * Supports offline/air-gapped environments
  * ======================================== */
 
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: local('Inter Variable'), local('Inter'), local('InterVariable');
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 100 800;
-  font-display: swap;
-  src: local('JetBrains Mono Variable'), local('JetBrains Mono'), local('JetBrainsMono');
-}
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
 @font-face {
   font-family: 'Satoshi';
@@ -90,6 +77,10 @@
     --card-padding: 1rem;
     --button-height: 2.5rem;
     --nav-height: 4rem;
+
+    /* Sidebar colors */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222.2 47.4% 11.2%;
   }
 
   .dark {
@@ -143,6 +134,10 @@
     --card-padding: 1rem;
     --button-height: 2.5rem;
     --nav-height: 4rem;
+
+    /* Sidebar colors */
+    --sidebar: 217.2 32.6% 17.5%;
+    --sidebar-foreground: 210 40% 98%;
   }
 }
 

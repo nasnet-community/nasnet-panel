@@ -1,0 +1,377 @@
+# =============================================================================
+# Composite Resources: Tunnels
+# =============================================================================
+# Tunnel resource types implementing the 8-layer model.
+# Includes IPIP, EoIP, GRE, and VXLAN tunnels.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# IPIP Tunnel
+# -----
+
+"""
+IPIP Tunnel resource implementing 8-layer model
+"""
+type IPIPTunnel implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: IPIPTunnelConfig!
+  ipipDeployment: IPIPTunnelDeployment
+  ipipRuntime: IPIPTunnelRuntime
+}
+
+"""
+IPIP tunnel configuration
+"""
+type IPIPTunnelConfig {
+  "User-friendly name"
+  name: String!
+
+  "Local tunnel address"
+  localAddress: IPv4!
+
+  "Remote tunnel address (other end)"
+  remoteAddress: IPv4!
+
+  "Optional comment/description"
+  comment: String
+
+  "Keep alive interval"
+  keepaliveInterval: Duration
+
+  "Enable tunnel"
+  enabled: Boolean
+}
+
+"""
+IPIP tunnel deployment state
+"""
+type IPIPTunnelDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+IPIP tunnel runtime state
+"""
+type IPIPTunnelRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether tunnel is up"
+  isUp: Boolean!
+
+  "MTU of tunnel"
+  mtu: Int
+
+  "Bytes transmitted through tunnel"
+  bytesSent: Size!
+
+  "Bytes received through tunnel"
+  bytesReceived: Size!
+
+  "Packets transmitted"
+  packetsSent: Int!
+
+  "Packets received"
+  packetsReceived: Int!
+}
+
+# -----
+# EoIP Tunnel (Ethernet over IP)
+# -----
+
+"""
+EoIP Tunnel resource implementing 8-layer model
+"""
+type EoIPTunnel implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: EoIPTunnelConfig!
+  eoipDeployment: EoIPTunnelDeployment
+  eoipRuntime: EoIPTunnelRuntime
+}
+
+"""
+EoIP tunnel configuration
+"""
+type EoIPTunnelConfig {
+  "User-friendly name"
+  name: String!
+
+  "Tunnel ID (MikroTik specific)"
+  tunnelId: Int!
+
+  "Remote tunnel endpoint"
+  remoteAddress: IPv4!
+
+  "Optional comment/description"
+  comment: String
+
+  "Enable tunnel"
+  enabled: Boolean
+}
+
+"""
+EoIP tunnel deployment state
+"""
+type EoIPTunnelDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+EoIP tunnel runtime state
+"""
+type EoIPTunnelRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether tunnel is up"
+  isUp: Boolean!
+
+  "Current remote address being used"
+  currentRemote: IPv4
+
+  "MTU of tunnel"
+  mtu: Int
+
+  "Bytes transmitted through tunnel"
+  bytesSent: Size!
+
+  "Bytes received through tunnel"
+  bytesReceived: Size!
+}
+
+# -----
+# GRE Tunnel
+# -----
+
+"""
+GRE Tunnel resource implementing 8-layer model
+"""
+type GRETunnel implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: GRETunnelConfig!
+  greDeployment: GRETunnelDeployment
+  greRuntime: GRETunnelRuntime
+}
+
+"""
+GRE tunnel configuration
+"""
+type GRETunnelConfig {
+  "User-friendly name"
+  name: String!
+
+  "Local tunnel address"
+  localAddress: IPv4!
+
+  "Remote tunnel address (other end)"
+  remoteAddress: IPv4!
+
+  "Optional comment/description"
+  comment: String
+
+  "Keep alive interval"
+  keepaliveInterval: Duration
+
+  "Enable tunnel"
+  enabled: Boolean
+}
+
+"""
+GRE tunnel deployment state
+"""
+type GRETunnelDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+GRE tunnel runtime state
+"""
+type GRETunnelRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether tunnel is up"
+  isUp: Boolean!
+
+  "MTU of tunnel"
+  mtu: Int
+
+  "Bytes transmitted through tunnel"
+  bytesSent: Size!
+
+  "Bytes received through tunnel"
+  bytesReceived: Size!
+
+  "Packets transmitted"
+  packetsSent: Int!
+
+  "Packets received"
+  packetsReceived: Int!
+}
+
+# -----
+# VXLAN Tunnel
+# -----
+
+"""
+VXLAN Tunnel resource implementing 8-layer model
+"""
+type VXLANTunnel implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: VXLANTunnelConfig!
+  vxlanDeployment: VXLANTunnelDeployment
+  vxlanRuntime: VXLANTunnelRuntime
+}
+
+"""
+VXLAN tunnel configuration
+"""
+type VXLANTunnelConfig {
+  "User-friendly name"
+  name: String!
+
+  "VXLAN Network Identifier (VNI)"
+  vni: Int!
+
+  "VXLAN UDP port"
+  port: Port!
+
+  "Remote VXLAN endpoint"
+  remoteAddress: IPv4!
+
+  "Local source address"
+  localAddress: IPv4
+
+  "Optional comment/description"
+  comment: String
+
+  "Enable tunnel"
+  enabled: Boolean
+}
+
+"""
+VXLAN tunnel deployment state
+"""
+type VXLANTunnelDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+VXLAN tunnel runtime state
+"""
+type VXLANTunnelRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether tunnel is up"
+  isUp: Boolean!
+
+  "MTU of tunnel"
+  mtu: Int
+
+  "Current remote endpoint"
+  currentRemote: IPv4
+
+  "Bytes transmitted through tunnel"
+  bytesSent: Size!
+
+  "Bytes received through tunnel"
+  bytesReceived: Size!
+
+  "Learning enabled"
+  learningEnabled: Boolean
+}

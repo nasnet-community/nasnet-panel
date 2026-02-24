@@ -3,8 +3,6 @@ package events
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/oklog/ulid/v2"
 )
 
 // =============================================================================
@@ -141,7 +139,8 @@ func (e *DeviceScanCancelledEvent) Payload() ([]byte, error) { return json.Marsh
 func NewDeviceScanCancelledEvent(scanID, routerID, source string) *DeviceScanCancelledEvent {
 	return &DeviceScanCancelledEvent{
 		BaseEvent: NewBaseEvent(EventTypeDeviceScanCancelled, PriorityNormal, source),
-		ScanID:    scanID, RouterID: routerID,
+		ScanID:    scanID,
+		RouterID:  routerID,
 	}
 }
 
@@ -174,15 +173,20 @@ type WANStatusChangedEvent struct {
 	ChangedAt      time.Time `json:"changed_at"`
 }
 
-func NewWANStatusChangedEvent(routerID, wanInterfaceID, interfaceName, status, previousStatus, connectionType string) *WANStatusChangedEvent {
+func (e *WANStatusChangedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANStatusChangedEvent(routerID, wanInterfaceID, interfaceName, status, previousStatus, connectionType, source string) *WANStatusChangedEvent {
 	return &WANStatusChangedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANStatusChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		Status: status, PreviousStatus: previousStatus, ConnectionType: connectionType, ChangedAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANStatusChanged, PriorityNormal, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		Status:         status,
+		PreviousStatus: previousStatus,
+		ConnectionType: connectionType,
+		ChangedAt:      time.Now(),
 	}
 }
-
-func (e *WANStatusChangedEvent) GetType() string { return EventTypeWANStatusChanged }
 
 type WANHealthChangedEvent struct {
 	BaseEvent
@@ -199,15 +203,20 @@ type WANHealthChangedEvent struct {
 	LastCheckTime        time.Time `json:"last_check_time"`
 }
 
-func NewWANHealthChangedEvent(routerID, wanInterfaceID, interfaceName, healthStatus, previousHealthStatus, target string) *WANHealthChangedEvent {
+func (e *WANHealthChangedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANHealthChangedEvent(routerID, wanInterfaceID, interfaceName, healthStatus, previousHealthStatus, target, source string) *WANHealthChangedEvent {
 	return &WANHealthChangedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANHealthChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-health-monitor", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		HealthStatus: healthStatus, PreviousHealthStatus: previousHealthStatus, Target: target, LastCheckTime: time.Now(),
+		BaseEvent:            NewBaseEvent(EventTypeWANHealthChanged, PriorityNormal, source),
+		RouterID:             routerID,
+		WANInterfaceID:       wanInterfaceID,
+		InterfaceName:        interfaceName,
+		HealthStatus:         healthStatus,
+		PreviousHealthStatus: previousHealthStatus,
+		Target:               target,
+		LastCheckTime:        time.Now(),
 	}
 }
-
-func (e *WANHealthChangedEvent) GetType() string { return EventTypeWANHealthChanged }
 
 type WANIPChangedEvent struct {
 	BaseEvent
@@ -222,15 +231,20 @@ type WANIPChangedEvent struct {
 	ChangedAt      time.Time `json:"changed_at"`
 }
 
-func NewWANIPChangedEvent(routerID, wanInterfaceID, interfaceName, connectionType, oldIP, newIP string) *WANIPChangedEvent {
+func (e *WANIPChangedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANIPChangedEvent(routerID, wanInterfaceID, interfaceName, connectionType, oldIP, newIP, source string) *WANIPChangedEvent {
 	return &WANIPChangedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANIPChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		ConnectionType: connectionType, OldIP: oldIP, NewIP: newIP, ChangedAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANIPChanged, PriorityNormal, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		ConnectionType: connectionType,
+		OldIP:          oldIP,
+		NewIP:          newIP,
+		ChangedAt:      time.Now(),
 	}
 }
-
-func (e *WANIPChangedEvent) GetType() string { return EventTypeWANIPChanged }
 
 type WANConfiguredEvent struct {
 	BaseEvent
@@ -243,15 +257,19 @@ type WANConfiguredEvent struct {
 	ConfiguredAt   time.Time `json:"configured_at"`
 }
 
-func NewWANConfiguredEvent(routerID, wanInterfaceID, interfaceName, connectionType string, isDefaultRoute bool) *WANConfiguredEvent {
+func (e *WANConfiguredEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANConfiguredEvent(routerID, wanInterfaceID, interfaceName, connectionType, source string, isDefaultRoute bool) *WANConfiguredEvent {
 	return &WANConfiguredEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANConfigured, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		ConnectionType: connectionType, IsDefaultRoute: isDefaultRoute, ConfiguredAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANConfigured, PriorityNormal, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		ConnectionType: connectionType,
+		IsDefaultRoute: isDefaultRoute,
+		ConfiguredAt:   time.Now(),
 	}
 }
-
-func (e *WANConfiguredEvent) GetType() string { return EventTypeWANConfigured }
 
 type WANDeletedEvent struct {
 	BaseEvent
@@ -263,15 +281,18 @@ type WANDeletedEvent struct {
 	DeletedAt      time.Time `json:"deleted_at"`
 }
 
-func NewWANDeletedEvent(routerID, wanInterfaceID, interfaceName, connectionType string) *WANDeletedEvent {
+func (e *WANDeletedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANDeletedEvent(routerID, wanInterfaceID, interfaceName, connectionType, source string) *WANDeletedEvent {
 	return &WANDeletedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANDeleted, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		ConnectionType: connectionType, DeletedAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANDeleted, PriorityNormal, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		ConnectionType: connectionType,
+		DeletedAt:      time.Now(),
 	}
 }
-
-func (e *WANDeletedEvent) GetType() string { return EventTypeWANDeleted }
 
 type WANConnectionFailedEvent struct {
 	BaseEvent
@@ -285,15 +306,19 @@ type WANConnectionFailedEvent struct {
 	FailedAt       time.Time `json:"failed_at"`
 }
 
-func NewWANConnectionFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, failureReason string) *WANConnectionFailedEvent {
+func (e *WANConnectionFailedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANConnectionFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, failureReason, source string) *WANConnectionFailedEvent {
 	return &WANConnectionFailedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANConnectionFailed, Priority: PriorityCritical, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		ConnectionType: connectionType, FailureReason: failureReason, FailedAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANConnectionFailed, PriorityCritical, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		ConnectionType: connectionType,
+		FailureReason:  failureReason,
+		FailedAt:       time.Now(),
 	}
 }
-
-func (e *WANConnectionFailedEvent) GetType() string { return EventTypeWANConnectionFailed }
 
 type WANAuthFailedEvent struct {
 	BaseEvent
@@ -307,15 +332,20 @@ type WANAuthFailedEvent struct {
 	FailedAt       time.Time `json:"failed_at"`
 }
 
-func NewWANAuthFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, username, failureReason string) *WANAuthFailedEvent {
+func (e *WANAuthFailedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
+
+func NewWANAuthFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, username, failureReason, source string) *WANAuthFailedEvent {
 	return &WANAuthFailedEvent{
-		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANAuthFailed, Priority: PriorityCritical, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
-		ConnectionType: connectionType, Username: username, FailureReason: failureReason, FailedAt: time.Now(),
+		BaseEvent:      NewBaseEvent(EventTypeWANAuthFailed, PriorityCritical, source),
+		RouterID:       routerID,
+		WANInterfaceID: wanInterfaceID,
+		InterfaceName:  interfaceName,
+		ConnectionType: connectionType,
+		Username:       username,
+		FailureReason:  failureReason,
+		FailedAt:       time.Now(),
 	}
 }
-
-func (e *WANAuthFailedEvent) GetType() string { return EventTypeWANAuthFailed }
 
 // =============================================================================
 // Network Events (NAS-8.14: VLAN Registry)

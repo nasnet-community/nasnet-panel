@@ -128,14 +128,14 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Service Logs</CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             {/* Total count */}
             <span className="text-sm text-muted-foreground">
               {searchResults.length} / {totalEntries} lines
             </span>
 
             {/* Auto-scroll toggle */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <Switch
                 id="auto-scroll"
                 checked={autoScroll}
@@ -175,7 +175,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-component-sm mt-component-sm">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -190,7 +190,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
             {hasSearch && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -235,19 +235,19 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
       <CardContent className="p-0">
         {/* Error state */}
         {error && (
-          <div className="p-4 text-sm text-destructive">
+          <div className="p-component-sm text-sm text-error">
             Error loading logs: {error.message}
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground" role="status">Loading logs...</div>
+          <div className="p-component-sm text-sm text-muted-foreground" role="status">Loading logs...</div>
         )}
 
         {/* Empty state */}
         {!isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-sm text-sm text-muted-foreground text-center">
             {hasSearch || levelFilter
               ? 'No logs match your filters'
               : 'No logs available yet'}
@@ -289,6 +289,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                       'flex items-center px-3 border-b border-border',
                       'font-mono text-xs leading-none',
                       'cursor-pointer hover:bg-accent/50 transition-colors',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                       bgColor
                     )}
                     onClick={() => handleEntryClick(entry)}

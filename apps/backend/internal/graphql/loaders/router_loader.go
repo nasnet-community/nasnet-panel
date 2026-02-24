@@ -1,11 +1,10 @@
-//nolint:dupl // similar loader pattern, distinct types
 package loaders
 
 import (
 	"context"
-	"log"
 
 	"github.com/graph-gophers/dataloader/v7"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/generated/ent/router"
@@ -14,17 +13,20 @@ import (
 // RouterLoader batches router lookups by ID.
 type RouterLoader struct {
 	loader *dataloader.Loader[string, *ent.Router]
+	logger *zap.Logger
 }
 
 // NewRouterLoader creates a new RouterLoader.
-func NewRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool) *RouterLoader {
+func NewRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool, logger *zap.Logger) *RouterLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[*ent.Router] {
 		// Track statistics
 		stats.IncrementBatchCalls()
 		stats.IncrementTotalKeys(len(keys))
 
-		if devMode {
-			log.Printf("[DataLoader] RouterLoader batch: loading %d routers", len(keys))
+		if logger != nil {
+			logger.Debug("RouterLoader batch started",
+				zap.Int("router_count", len(keys)),
+			)
 		}
 
 		// Single batched query for all keys
@@ -32,8 +34,10 @@ func NewRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool) *RouterLo
 			Where(router.IDIn(keys...)).
 			All(ctx)
 
-		if devMode && err != nil {
-			log.Printf("[DataLoader] RouterLoader batch error: %v", err)
+		if logger != nil && err != nil {
+			logger.Error("RouterLoader batch failed",
+				zap.Error(err),
+			)
 		}
 
 		// Map results back to original key order
@@ -47,6 +51,7 @@ func NewRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool) *RouterLo
 			batchFn,
 			dataloader.WithBatchCapacity[string, *ent.Router](100),
 		),
+		logger: logger,
 	}
 }
 

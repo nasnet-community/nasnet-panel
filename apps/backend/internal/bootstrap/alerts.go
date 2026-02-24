@@ -2,7 +2,6 @@ package bootstrap
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"go.uber.org/zap"
@@ -54,19 +53,19 @@ func InitializeAlertSystem(
 		"webhook":  channelshttp.NewWebhookChannel(channelshttp.WebhookConfig{}),
 		"inapp":    push.NewInAppChannel(eventBus),
 	}
-	log.Printf("Notification channels initialized (5 channels)")
+	sugar.Infow("notification channels initialized", zap.Int("count", 5))
 
 	// Initialize notification template service
 	templateService := notifications.NewTemplateService(notifications.TemplateServiceConfig{
 		DB:     systemDB,
 		Logger: sugar,
 	})
-	log.Printf("Notification template service initialized")
+	sugar.Infow("notification template service initialized")
 
 	// Initialize notification dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels:        channels,
-		Logger:          sugar,
+		Logger:          sugar.Desugar(),
 		TemplateService: templateService,
 		DB:              systemDB,
 		MaxRetries:      3,
@@ -77,7 +76,7 @@ func InitializeAlertSystem(
 	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
 		return nil, err
 	}
-	log.Printf("Notification dispatcher initialized and subscribed")
+	sugar.Infow("notification dispatcher initialized and subscribed")
 
 	// Create EventBus adapter for alerts package
 	eventBusAdapter := &eventBusAdapter{bus: eventBus}
@@ -89,7 +88,7 @@ func InitializeAlertSystem(
 		EventBus:   eventBusAdapter,
 		Logger:     sugar,
 	})
-	log.Printf("Escalation engine initialized")
+	sugar.Infow("escalation engine initialized")
 
 	// Initialize Digest Service
 	digestService, digestErr := alerts.NewDigestService(alerts.DigestServiceConfig{
@@ -101,7 +100,7 @@ func InitializeAlertSystem(
 	if digestErr != nil {
 		return nil, digestErr
 	}
-	log.Printf("Digest service initialized")
+	sugar.Infow("digest service initialized")
 
 	// Initialize Digest Scheduler
 	digestScheduler := alerts.NewDigestScheduler(alerts.DigestSchedulerConfig{
@@ -111,9 +110,9 @@ func InitializeAlertSystem(
 
 	// Start digest scheduler
 	if schedErr := digestScheduler.Start(ctx); schedErr != nil {
-		log.Printf("Warning: failed to start digest scheduler: %v", schedErr)
+		sugar.Warnw("failed to start digest scheduler", zap.Error(schedErr))
 	} else {
-		log.Printf("Digest scheduler started")
+		sugar.Infow("digest scheduler started")
 	}
 
 	// Initialize Alert Service
@@ -124,14 +123,14 @@ func InitializeAlertSystem(
 		DigestService:       &digestServiceAdapter{svc: digestService},
 		Logger:              sugar,
 	})
-	log.Printf("Alert service initialized")
+	sugar.Infow("alert service initialized")
 
 	// Initialize Alert Rule Template Service
 	alertRuleTemplateService, templateErr := alerts.NewAlertRuleTemplateService(alertService, systemDB)
 	if templateErr != nil {
 		return nil, templateErr
 	}
-	log.Printf("Alert rule template service initialized with 15 built-in templates")
+	sugar.Infow("alert rule template service initialized", zap.Int("templates", 15))
 
 	// Initialize and start Alert Engine
 	alertEngine := alerts.NewEngine(alerts.EngineConfig{
@@ -146,7 +145,7 @@ func InitializeAlertSystem(
 	if engineErr := alertEngine.Start(ctx); engineErr != nil {
 		return nil, engineErr
 	}
-	log.Printf("Alert engine started and monitoring events")
+	sugar.Infow("alert engine started and monitoring events")
 
 	// Initialize Alert Template Service (for notification formatting)
 	alertTemplateService, err := services.NewAlertTemplateService(services.AlertTemplateServiceConfig{
@@ -157,7 +156,7 @@ func InitializeAlertSystem(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Alert template service initialized with 6 built-in templates")
+	sugar.Infow("alert template service initialized", zap.Int("templates", 6))
 
 	return &AlertComponents{
 		Dispatcher:               dispatcher,

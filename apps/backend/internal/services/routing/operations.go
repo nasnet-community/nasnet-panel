@@ -14,7 +14,7 @@ const yesValue = "yes"
 
 // CheckGatewayReachability checks if a gateway is reachable.
 // Maps to: /tool/ping (simplified check)
-func (s *RouteService) CheckGatewayReachability(ctx context.Context, gateway model.IPv4) (*model.GatewayReachabilityResult, error) {
+func (s *Service) CheckGatewayReachability(ctx context.Context, gateway model.IPv4) (*model.GatewayReachabilityResult, error) {
 	// Use /tool/ping to check reachability
 	cmd := router.Command{
 		Path:   "/tool/ping",
@@ -64,7 +64,7 @@ func (s *RouteService) CheckGatewayReachability(ctx context.Context, gateway mod
 }
 
 // AnalyzeRouteImpact analyzes the impact of deleting a route.
-func (s *RouteService) AnalyzeRouteImpact(ctx context.Context, route *model.Route) *model.RouteImpactAnalysis {
+func (s *Service) AnalyzeRouteImpact(ctx context.Context, route *model.Route) *model.RouteImpactAnalysis {
 	const defaultRoute = "0.0.0.0/0"
 
 	isDefaultRoute := route.Destination == defaultRoute
@@ -96,7 +96,7 @@ func (s *RouteService) AnalyzeRouteImpact(ctx context.Context, route *model.Rout
 }
 
 // findMatchingRoutes finds all routes that match the destination IP.
-func (s *RouteService) findMatchingRoutes(
+func (s *Service) findMatchingRoutes(
 	destination string,
 	routes []*model.Route,
 ) []*model.RouteLookupCandidate {
@@ -130,7 +130,7 @@ func (s *RouteService) findMatchingRoutes(
 }
 
 // selectBestRoute selects the best route using longest prefix match, then lowest distance.
-func (s *RouteService) selectBestRoute(
+func (s *Service) selectBestRoute(
 	candidates []*model.RouteLookupCandidate,
 ) *model.RouteLookupCandidate {
 
@@ -156,7 +156,7 @@ func (s *RouteService) selectBestRoute(
 }
 
 // getSelectionReason generates a reason why this route was selected.
-func (s *RouteService) getSelectionReason(
+func (s *Service) getSelectionReason(
 	selected *model.RouteLookupCandidate,
 	candidates []*model.RouteLookupCandidate,
 ) string {
@@ -181,7 +181,7 @@ func (s *RouteService) getSelectionReason(
 }
 
 // generateExplanation generates a human-readable explanation of route selection.
-func (s *RouteService) generateExplanation(
+func (s *Service) generateExplanation(
 	destination string,
 	selected *model.RouteLookupCandidate,
 	candidates []*model.RouteLookupCandidate,
@@ -209,7 +209,7 @@ func (s *RouteService) generateExplanation(
 }
 
 // detectVPNTunnel detects if an interface is a VPN tunnel.
-func (s *RouteService) detectVPNTunnel(
+func (s *Service) detectVPNTunnel(
 	ctx context.Context,
 	iface string,
 ) *model.VPNTunnelInfo {
@@ -262,7 +262,7 @@ func (s *RouteService) detectVPNTunnel(
 }
 
 // parseTunnelStatus converts RouterOS running status to TunnelStatus enum.
-func (s *RouteService) parseTunnelStatus(running string) model.TunnelStatus {
+func (s *Service) parseTunnelStatus(running string) model.TunnelStatus {
 	const trueValue = "true"
 	if running == trueValue || running == yesValue {
 		return model.TunnelStatusConnected

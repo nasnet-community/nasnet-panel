@@ -97,7 +97,7 @@ export function FormSkeleton({
 
       {/* Actions */}
       {showActions && (
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex gap-3 pt-4 border-t border-border">
           <Skeleton className="h-10 w-24" />
           <Skeleton className="h-10 w-20" />
         </div>

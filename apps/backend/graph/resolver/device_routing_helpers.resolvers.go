@@ -27,8 +27,8 @@ func convertDeviceRoutingMatrix(matrix *routing.DeviceRoutingMatrix) *model.Devi
 		result.Interfaces[i] = convertVirtualInterfaceInfo(iface)
 	}
 
-	for i, routing := range matrix.Routings {
-		result.Routings[i] = convertDeviceRoutingInfo(routing)
+	for i, r := range matrix.Routings {
+		result.Routings[i] = convertDeviceRoutingInfo(r)
 	}
 
 	return result

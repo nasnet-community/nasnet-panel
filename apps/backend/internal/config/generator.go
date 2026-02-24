@@ -121,12 +121,13 @@ func (d *TemplateData) Get(key string) interface{} {
 	return d.Config[key]
 }
 
-// GetString retrieves a string config value.
+// GetString retrieves a string config value with type assertion safety.
 func (d *TemplateData) GetString(key string) string {
-	if val, ok := d.Config[key].(string); ok {
-		return val
+	val, ok := d.Config[key].(string)
+	if !ok {
+		return ""
 	}
-	return ""
+	return val
 }
 
 // GetInt retrieves an int config value.

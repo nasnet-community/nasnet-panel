@@ -70,10 +70,10 @@ function IPAddressListMobileComponent({
   }, [ipAddresses, filters]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">IP Addresses</h2>
+        <h2 className="text-xl font-display font-semibold">IP Addresses</h2>
         {onRefresh && (
           <Button
             variant="outline"
@@ -100,7 +100,7 @@ function IPAddressListMobileComponent({
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="flex items-center gap-component-sm rounded-md border border-destructive/50 bg-error/10 p-component-sm text-sm text-error">
           <AlertCircle className="h-4 w-4" />
           <p>{error}</p>
         </div>
@@ -108,7 +108,7 @@ function IPAddressListMobileComponent({
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-component-lg text-muted-foreground">
           Loading IP addresses...
         </div>
       )}
@@ -116,7 +116,7 @@ function IPAddressListMobileComponent({
       {/* Empty state */}
       {!loading && filteredIpAddresses.length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+          <CardContent className="py-component-lg text-center text-muted-foreground">
             No IP addresses found. Add an IP address to get started.
           </CardContent>
         </Card>
@@ -124,7 +124,7 @@ function IPAddressListMobileComponent({
 
       {/* IP Address Cards */}
       {!loading && filteredIpAddresses.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           {filteredIpAddresses.map((ip) => (
             <IPAddressCard
               key={ip.id}
@@ -169,13 +169,13 @@ function IPAddressCardComponent({
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
+      <CardHeader className="pb-component-sm">
+        <div className="flex items-start justify-between gap-component-sm">
           <div className="flex-1">
             <code className="text-base font-mono font-semibold block">
               {ipAddress.address}
             </code>
-            <div className="mt-1 flex flex-wrap gap-2">
+            <div className="mt-1 flex flex-wrap gap-component-sm">
               {isDynamic && (
                 <Badge variant="secondary" className="text-xs">
                   Dynamic
@@ -195,7 +195,7 @@ function IPAddressCardComponent({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-component-sm">
         {/* Interface */}
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Interface:</span>
@@ -227,7 +227,7 @@ function IPAddressCardComponent({
         )}
 
         {/* Actions - Full width buttons with 44px height */}
-        <div className="pt-2 space-y-2">
+        <div className="pt-component-sm space-y-component-sm">
           <Button
             variant="outline"
             className="w-full min-h-[44px]"
@@ -237,7 +237,7 @@ function IPAddressCardComponent({
             <Edit className="mr-2 h-4 w-4" />
             Edit
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button
               variant="outline"
               className="flex-1 min-h-[44px]"

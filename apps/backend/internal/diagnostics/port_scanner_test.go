@@ -257,4 +257,7 @@ func (e *testError) Temporary() bool {
 	return false
 }
 
-func ptrInt(i int) *int { return &i }
+// ptrInt returns a pointer to the given integer.
+func ptrInt(i int) *int {
+	return &i
+}

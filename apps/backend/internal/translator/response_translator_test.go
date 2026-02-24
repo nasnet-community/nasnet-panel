@@ -130,8 +130,8 @@ func TestResponseTranslator_ValueConversion(t *testing.T) {
 			Success: true,
 			Data: map[string]interface{}{
 				"mtu":      "1500",      // has FieldTypeInt mapping at /interface
-				"cpu-load": "45",        // mapped at /system/resource, auto-converts here
-				"tx-bytes": "123456789", // auto-converts as int
+				"cpu-load": "45",        // auto-converts (no mapping at /interface path)
+				"tx-bytes": "123456789", // has FieldTypeSize mapping -> int64
 			},
 		}
 
@@ -144,7 +144,12 @@ func TestResponseTranslator_ValueConversion(t *testing.T) {
 		// cpu-load auto-converts (no mapping at /interface path)
 		assert.Equal(t, 45, data["cpuLoad"])
 		// tx-bytes has FieldTypeSize mapping -> int64
-		assert.Equal(t, int64(123456789), data["txBytes"])
+		txBytesVal := data["txBytes"]
+		assert.NotNil(t, txBytesVal)
+		// txBytes should be int64 due to FieldTypeSize mapping
+		txBytesInt64, ok := txBytesVal.(int64)
+		assert.True(t, ok, "txBytes should be int64, got %T", txBytesVal)
+		assert.Equal(t, int64(123456789), txBytesInt64)
 	})
 
 	t.Run("duration values", func(t *testing.T) {
@@ -297,6 +302,95 @@ func TestBatchTranslator(t *testing.T) {
 	})
 }
 
+func TestResponseTranslator_NilRegistry(t *testing.T) {
+	// Test that nil registry doesn't panic and falls back to auto-conversion
+	rt := NewResponseTranslator(nil)
+	ctx := context.Background()
+
+	response := &CanonicalResponse{
+		Success: true,
+		Data: map[string]interface{}{
+			"name":   "test",
+			"count":  "42",
+			"active": "yes",
+		},
+	}
+
+	result, err := rt.TranslateResponse(ctx, "/test/path", response)
+	require.NoError(t, err)
+	require.True(t, result.Success)
+
+	data := result.Data.(map[string]interface{})
+	assert.Equal(t, "test", data["name"])
+	assert.Equal(t, 42, data["count"]) // Auto-converted to int
+	assert.Equal(t, true, data["active"]) // Auto-converted to bool
+}
+
+func TestResponseTranslator_NilRecord(t *testing.T) {
+	rt := NewResponseTranslator(nil)
+
+	t.Run("translate nil record", func(t *testing.T) {
+		record := rt.translateRecord("/interface", nil)
+		assert.NotNil(t, record)
+		assert.Equal(t, 0, len(record))
+	})
+
+	t.Run("nil value in record", func(t *testing.T) {
+		response := &CanonicalResponse{
+			Success: true,
+			Data: map[string]interface{}{
+				"name":    nil,
+				"address": "192.168.1.1",
+			},
+		}
+
+		result, err := rt.TranslateResponse(context.Background(), "/interface", response)
+		require.NoError(t, err)
+
+		data := result.Data.(map[string]interface{})
+		assert.Nil(t, data["name"])
+		assert.Equal(t, "192.168.1.1", data["address"])
+	})
+}
+
+func TestResponseTranslator_ContextCancellation(t *testing.T) {
+	registry := BuildDefaultRegistry()
+	rt := NewResponseTranslator(registry)
+
+	t.Run("canceled context returns error", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // Cancel immediately
+
+		response := &CanonicalResponse{
+			Success: true,
+			Data:    map[string]interface{}{"name": "test"},
+		}
+
+		_, err := rt.TranslateResponse(ctx, "/interface", response)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "canceled")
+	})
+}
+
+func TestBatchTranslator_ContextCancellation(t *testing.T) {
+	registry := BuildDefaultRegistry()
+	bt := NewBatchTranslator(registry)
+
+	t.Run("canceled context in batch", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // Cancel immediately
+
+		paths := []string{"/interface"}
+		responses := []*CanonicalResponse{
+			{Success: true, Data: map[string]interface{}{"name": "test"}},
+		}
+
+		_, err := bt.TranslateBatch(ctx, paths, responses)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "canceled")
+	})
+}
+
 func TestStreamingResponseTranslator(t *testing.T) {
 	registry := BuildDefaultRegistry()
 	srt := NewStreamingResponseTranslator("/interface", registry)
@@ -375,5 +469,28 @@ func TestStreamingResponseTranslator(t *testing.T) {
 		case <-time.After(100 * time.Millisecond):
 			// OK - channel is closed
 		}
+	})
+
+	t.Run("channel handles nil response", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		input := make(chan *CanonicalResponse, 1)
+		input <- nil // Send nil response
+		close(input)
+
+		output := srt.TranslateChannel(ctx, input)
+
+		result := <-output
+		require.NotNil(t, result)
+		assert.False(t, result.Success)
+		assert.Equal(t, "TRANSLATION_ERROR", result.Error.Code)
+		assert.Contains(t, result.Error.Message, "nil")
+	})
+
+	t.Run("translate nil streaming response", func(t *testing.T) {
+		_, err := srt.Translate(context.Background(), nil)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "nil")
 	})
 }

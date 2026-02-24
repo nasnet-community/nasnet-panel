@@ -45,6 +45,12 @@ type TemplateData struct {
 // It safely extracts data from the alert and its edges, providing sensible defaults
 // for missing data to prevent template rendering failures.
 func BuildTemplateData(alert *ent.Alert) TemplateData {
+	if alert == nil {
+		return TemplateData{
+			EventData: make(map[string]interface{}),
+		}
+	}
+
 	data := TemplateData{
 		EventType:     alert.EventType,
 		Severity:      string(alert.Severity),
@@ -79,23 +85,34 @@ func BuildTemplateData(alert *ent.Alert) TemplateData {
 }
 
 // extractDeviceInfo extracts device information from alert data.
+// It safely handles type assertions and ignores malformed data.
 func extractDeviceInfo(data map[string]interface{}, tmplData *TemplateData) {
+	if data == nil || tmplData == nil {
+		return
+	}
+
 	// Try to get device name
-	if deviceName, ok := data["device_name"].(string); ok && deviceName != "" {
-		tmplData.DeviceName = deviceName
+	if deviceNameVal, exists := data["device_name"]; exists {
+		if deviceName, ok := deviceNameVal.(string); ok && deviceName != "" {
+			tmplData.DeviceName = deviceName
+		}
 	}
 
 	// Try to get device IP
-	if deviceIP, ok := data["device_ip"].(string); ok && deviceIP != "" {
-		tmplData.DeviceIP = deviceIP
+	if deviceIPVal, exists := data["device_ip"]; exists {
+		if deviceIP, ok := deviceIPVal.(string); ok && deviceIP != "" {
+			tmplData.DeviceIP = deviceIP
+		}
 	}
 
 	// Try to get suggested actions
-	if actions, ok := data["suggested_actions"].([]interface{}); ok {
-		tmplData.SuggestedActions = make([]string, 0, len(actions))
-		for _, action := range actions {
-			if actionStr, ok := action.(string); ok {
-				tmplData.SuggestedActions = append(tmplData.SuggestedActions, actionStr)
+	if actionsVal, exists := data["suggested_actions"]; exists {
+		if actions, ok := actionsVal.([]interface{}); ok {
+			tmplData.SuggestedActions = make([]string, 0, len(actions))
+			for _, action := range actions {
+				if actionStr, ok := action.(string); ok && actionStr != "" {
+					tmplData.SuggestedActions = append(tmplData.SuggestedActions, actionStr)
+				}
 			}
 		}
 	}

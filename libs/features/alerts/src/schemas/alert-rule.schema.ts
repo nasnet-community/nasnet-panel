@@ -222,16 +222,22 @@ export const SEVERITY_CONFIG = {
   CRITICAL: {
     label: 'Critical',
     color: 'semantic.error' as const,
+    badgeClass: 'bg-error text-white',
+    borderClass: 'border-l-error',
     description: 'Requires immediate attention',
   },
   WARNING: {
     label: 'Warning',
     color: 'semantic.warning' as const,
+    badgeClass: 'bg-warning text-white',
+    borderClass: 'border-l-warning',
     description: 'Should be addressed soon',
   },
   INFO: {
     label: 'Info',
     color: 'semantic.info' as const,
+    badgeClass: 'bg-info text-white',
+    borderClass: 'border-l-info',
     description: 'For your information',
   },
 } as const;

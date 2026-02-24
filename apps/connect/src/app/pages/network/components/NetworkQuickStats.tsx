@@ -65,7 +65,7 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
     return (
       <div
         className={cn(
-          'grid grid-cols-2 sm:grid-cols-4 gap-3',
+          'grid grid-cols-2 sm:grid-cols-4 gap-component-md',
           className,
         )}
         aria-busy="true"
@@ -74,7 +74,7 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse bg-card rounded-xl border border-border p-4"
+            className="animate-pulse bg-card rounded-card-lg border border-border p-component-md"
           >
             <div className="w-8 h-8 rounded-lg bg-muted mb-3" />
             <div className="h-6 bg-muted rounded w-12 mb-1" />
@@ -88,7 +88,7 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
   return (
     <div
       className={cn(
-        'grid grid-cols-2 sm:grid-cols-4 gap-3',
+        'grid grid-cols-2 sm:grid-cols-4 gap-component-md',
         className,
       )}
       role="list"
@@ -102,12 +102,12 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
           <div
             key={idx}
             role="listitem"
-            className="bg-card rounded-xl border border-border p-4"
+            className="bg-card rounded-card-lg border border-border p-component-md"
           >
-            <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center mb-3', iconClass)}>
+            <div className={cn('w-8 h-8 rounded-card-sm flex items-center justify-center mb-3', iconClass)}>
               <Icon className="w-4 h-4" aria-hidden="true" />
             </div>
-            <p className="text-2xl font-bold text-foreground leading-none mb-1">
+            <p className="text-2xl font-bold font-mono text-foreground leading-none mb-1">
               {stat.value}
             </p>
             <p className="text-xs text-muted-foreground">{stat.label}</p>

@@ -5,31 +5,107 @@ import (
 	"testing"
 
 	"backend/internal/events"
+	"backend/internal/orchestrator/dependencies"
+	"backend/internal/orchestrator/lifecycle"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 // createTestService creates a TemplateService for testing with minimal dependencies
 func createTestService(t *testing.T) *TemplateService {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := events.NewInMemoryEventBus()
 
-	// Create service without validation (for unit tests)
-	// In real usage, InstanceManager and DependencyManager are required
-	service := &TemplateService{
-		builtInTemplates: make(map[string]*ServiceTemplate),
-		eventBus:         eventBus,
-		publisher:        events.NewPublisher(eventBus, "template-service"),
-		logger:           logger,
+	// Create minimal mock dependencies for testing
+	// These are only used for initialization validation
+	config := TemplateServiceConfig{
+		InstanceManager:   new(lifecycle.InstanceManager),
+		DependencyManager: new(dependencies.DependencyManager),
+		EventBus:          eventBus,
+		Logger:            logger,
 	}
 
-	// Load templates manually
-	err := service.LoadBuiltInTemplates()
-	require.NoError(t, err, "Failed to load built-in templates")
+	service, err := NewTemplateService(config)
+	require.NoError(t, err, "Failed to create template service")
+	require.NotNil(t, service, "Template service should not be nil")
 
 	return service
+}
+
+func TestNewTemplateService(t *testing.T) {
+	logger := zap.NewNop()
+	eventBus := events.NewInMemoryEventBus()
+
+	t.Run("missing instance manager", func(t *testing.T) {
+		config := TemplateServiceConfig{
+			InstanceManager:   nil,
+			DependencyManager: new(dependencies.DependencyManager),
+			EventBus:          eventBus,
+			Logger:            logger,
+		}
+
+		service, err := NewTemplateService(config)
+		assert.Error(t, err)
+		assert.Nil(t, service)
+		assert.Contains(t, err.Error(), "instance manager")
+	})
+
+	t.Run("missing dependency manager", func(t *testing.T) {
+		config := TemplateServiceConfig{
+			InstanceManager:   new(lifecycle.InstanceManager),
+			DependencyManager: nil,
+			EventBus:          eventBus,
+			Logger:            logger,
+		}
+
+		service, err := NewTemplateService(config)
+		assert.Error(t, err)
+		assert.Nil(t, service)
+		assert.Contains(t, err.Error(), "dependency manager")
+	})
+
+	t.Run("missing event bus", func(t *testing.T) {
+		config := TemplateServiceConfig{
+			InstanceManager:   new(lifecycle.InstanceManager),
+			DependencyManager: new(dependencies.DependencyManager),
+			EventBus:          nil,
+			Logger:            logger,
+		}
+
+		service, err := NewTemplateService(config)
+		assert.Error(t, err)
+		assert.Nil(t, service)
+		assert.Contains(t, err.Error(), "event bus")
+	})
+
+	t.Run("missing logger", func(t *testing.T) {
+		config := TemplateServiceConfig{
+			InstanceManager:   new(lifecycle.InstanceManager),
+			DependencyManager: new(dependencies.DependencyManager),
+			EventBus:          eventBus,
+			Logger:            nil,
+		}
+
+		// Logger is optional now (defaults to NewNop), so this should succeed
+		service, err := NewTemplateService(config)
+		assert.NoError(t, err)
+		assert.NotNil(t, service)
+	})
+
+	t.Run("successful creation", func(t *testing.T) {
+		config := TemplateServiceConfig{
+			InstanceManager:   new(lifecycle.InstanceManager),
+			DependencyManager: new(dependencies.DependencyManager),
+			EventBus:          eventBus,
+			Logger:            logger,
+		}
+
+		service, err := NewTemplateService(config)
+		assert.NoError(t, err)
+		assert.NotNil(t, service)
+	})
 }
 
 func TestLoadBuiltInTemplates(t *testing.T) {

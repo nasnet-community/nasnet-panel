@@ -77,18 +77,25 @@ func newStageRegistry() *stageRegistry {
 // Register adds a stage to the registry.
 // Stages are automatically sorted by number when the engine runs.
 func (r *stageRegistry) Register(stage Stage) {
+	if r == nil || stage == nil {
+		return
+	}
 	r.stages = append(r.stages, stage)
 }
 
 // GetStages returns all registered stages sorted by number.
 func (r *stageRegistry) GetStages() []Stage {
+	if r == nil {
+		return []Stage{}
+	}
+
 	// Simple insertion sort (max 7 stages).
 	sorted := make([]Stage, len(r.stages))
 	copy(sorted, r.stages)
 	for i := 1; i < len(sorted); i++ {
 		key := sorted[i]
 		j := i - 1
-		for j >= 0 && sorted[j].Number() > key.Number() {
+		for j >= 0 && sorted[j] != nil && key != nil && sorted[j].Number() > key.Number() {
 			sorted[j+1] = sorted[j]
 			j--
 		}

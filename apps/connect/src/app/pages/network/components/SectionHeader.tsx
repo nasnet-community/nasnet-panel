@@ -39,15 +39,15 @@ export const SectionHeader = React.memo(function SectionHeader({
   return (
     <div
       className={cn(
-        'flex items-center justify-between py-2',
+        'flex items-center justify-between py-component-sm',
         className
       )}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-component-md">
         {isCollapsible && (
           <button
             onClick={onToggle}
-            className="p-1 -ml-1 rounded-lg hover:bg-muted transition-colors"
+            className="p-1 -ml-1 rounded-lg hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-11 w-11 flex items-center justify-center"
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -62,12 +62,12 @@ export const SectionHeader = React.memo(function SectionHeader({
         )}
 
         <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+          <div className="flex items-center gap-component-sm">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide font-display">
               {title}
             </h3>
             {count !== undefined && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full">
+              <span className="px-component-sm py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full">
                 {count}
               </span>
             )}
@@ -83,7 +83,7 @@ export const SectionHeader = React.memo(function SectionHeader({
       {action && (
         <button
           onClick={action.onClick}
-          className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+          className="text-xs font-medium text-primary hover:text-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
         >
           {action.label}
         </button>

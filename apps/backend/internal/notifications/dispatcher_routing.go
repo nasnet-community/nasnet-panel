@@ -4,6 +4,7 @@ package notifications
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"backend/generated/ent"
@@ -53,7 +54,7 @@ func getEventType(n Notification) string {
 func (d *Dispatcher) dispatchToChannel(ctx context.Context, notification Notification, channelName string) DeliveryResult {
 	channel, exists := d.channels[channelName]
 	if !exists {
-		d.log.Warnw("unknown notification channel", "channel", channelName)
+		d.log.Sugar().Warnw("unknown notification channel", "channel", channelName)
 		return DeliveryResult{
 			Channel:   channelName,
 			Success:   false,
@@ -82,7 +83,7 @@ func (d *Dispatcher) renderAlertTemplate(ctx context.Context, notification *Noti
 
 	subject, body, err := d.templateService.RenderAlert(ctx, alert, channelName)
 	if err != nil {
-		d.log.Warnw("template render failed, using original notification",
+		d.log.Sugar().Warnw("template render failed, using original notification",
 			"channel", channelName,
 			"alert_id", alert.ID,
 			"error", err)
@@ -91,7 +92,7 @@ func (d *Dispatcher) renderAlertTemplate(ctx context.Context, notification *Noti
 
 	notification.Title = subject
 	notification.Message = body
-	d.log.Debugw("rendered alert template",
+	d.log.Sugar().Debugw("rendered alert template",
 		"channel", channelName,
 		"alert_id", alert.ID,
 		"subject_length", len(subject),
@@ -109,7 +110,7 @@ func (d *Dispatcher) resolveAlert(ctx context.Context, notification *Notificatio
 	if alertID, ok := notification.Data["alertId"].(string); ok && alertID != "" {
 		alert, err := d.db.Alert.Get(ctx, alertID)
 		if err != nil {
-			d.log.Warnw("failed to query alert for template rendering",
+			d.log.Sugar().Warnw("failed to query alert for template rendering",
 				"channel", channelName,
 				"alert_id", alertID,
 				"error", err)
@@ -139,7 +140,7 @@ func (d *Dispatcher) deliverWithRetries(ctx context.Context, channel Channel, no
 				}
 			}
 
-			d.log.Infow("retrying notification delivery",
+			d.log.Sugar().Infow("retrying notification delivery",
 				"channel", channelName,
 				"attempt", attempt,
 				"backoff_ms", backoff.Milliseconds())
@@ -150,7 +151,7 @@ func (d *Dispatcher) deliverWithRetries(ctx context.Context, channel Channel, no
 		err := channel.Send(ctx, notification)
 		if err == nil {
 			if attempt > 0 {
-				d.log.Infow("notification delivered after retry",
+				d.log.Sugar().Infow("notification delivered after retry",
 					"channel", channelName,
 					"attempts", attempt+1)
 			}
@@ -162,18 +163,30 @@ func (d *Dispatcher) deliverWithRetries(ctx context.Context, channel Channel, no
 		}
 
 		lastErr = err
-		d.log.Warnw("notification delivery failed",
+		d.log.Sugar().Warnw("notification delivery failed",
 			"channel", channelName,
 			"attempt", attempt+1,
+			"max_attempts", d.maxRetries+1,
 			"error", err)
 	}
 
-	return DeliveryResult{
+	result := DeliveryResult{
 		Channel:   channelName,
 		Success:   false,
 		Error:     lastErr.Error(),
 		Retryable: d.isRetryable(lastErr),
 	}
+
+	// Enqueue to dead letter queue for later investigation/retry
+	if d.deadLetterQueue != nil {
+		if err := d.deadLetterQueue.Enqueue(ctx, notification, channelName, lastErr.Error(), d.maxRetries+1); err != nil {
+			d.log.Sugar().Warnw("failed to enqueue message to dead letter queue",
+				"channel", channelName,
+				"error", err)
+		}
+	}
+
+	return result
 }
 
 // isRetryable determines if an error is transient and worth retrying.
@@ -213,20 +226,15 @@ func containsString(slice []string, str string) bool {
 }
 
 // contains checks if a string contains a substring (case-insensitive).
+// Uses Go's optimized string search algorithm.
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) &&
-		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
-			len(s) > len(substr)+1 && findSubstring(s, substr)))
-}
-
-// findSubstring performs simple substring search.
-func findSubstring(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
+	if substr == "" {
+		return true
 	}
-	return false
+	if len(s) < len(substr) {
+		return false
+	}
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
 
 // HandleAlertCreated processes AlertCreatedEvent and dispatches notifications.
@@ -237,12 +245,12 @@ func (d *Dispatcher) HandleAlertCreated(ctx context.Context, event events.Event)
 	// Type assert to AlertCreatedEvent
 	alertEvent, ok := event.(*events.AlertCreatedEvent)
 	if !ok {
-		d.log.Errorw("received non-AlertCreatedEvent in HandleAlertCreated",
+		d.log.Sugar().Errorw("received non-AlertCreatedEvent in HandleAlertCreated",
 			"event_type", event.GetType())
 		return fmt.Errorf("expected AlertCreatedEvent, got %T", event)
 	}
 
-	d.log.Infow("processing alert created event",
+	d.log.Sugar().Infow("processing alert created event",
 		"alert_id", alertEvent.AlertID,
 		"rule_id", alertEvent.RuleID,
 		"severity", alertEvent.Severity,
@@ -280,7 +288,7 @@ func (d *Dispatcher) HandleAlertCreated(ctx context.Context, event events.Event)
 		if result.Success {
 			successCount++
 		} else {
-			d.log.Warnw("notification delivery failed",
+			d.log.Sugar().Warnw("notification delivery failed",
 				"alert_id", alertEvent.AlertID,
 				"channel", result.Channel,
 				"error", result.Error,
@@ -288,7 +296,7 @@ func (d *Dispatcher) HandleAlertCreated(ctx context.Context, event events.Event)
 		}
 	}
 
-	d.log.Infow("alert notifications dispatched",
+	d.log.Sugar().Infow("alert notifications dispatched",
 		"alert_id", alertEvent.AlertID,
 		"total_channels", len(alertEvent.Channels),
 		"successful", successCount)

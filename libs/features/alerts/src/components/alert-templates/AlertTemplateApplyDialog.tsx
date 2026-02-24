@@ -135,7 +135,7 @@ const VariableInput = React.memo(function VariableInput({
     id: variable.name,
     value: value?.toString() || '',
     onChange: handleChange,
-    className: cn('min-h-[44px]', error && 'border-destructive'),
+    className: cn('min-h-[44px]', error && 'border-error focus-visible:ring-error'),
     'aria-invalid': !!error,
     'aria-describedby': error ? `${variable.name}-error` : undefined,
   }), [variable.name, value, error, handleChange]);
@@ -153,10 +153,10 @@ const VariableInput = React.memo(function VariableInput({
   }, [variable.type]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-component-sm">
       <Label htmlFor={variable.name} className="text-sm font-medium">
         {variable.label}
-        {variable.required && <span className="text-semantic-error ml-1">*</span>}
+        {variable.required && <span className="text-error ml-component-sm">*</span>}
       </Label>
 
       {variable.type === 'STRING' && variable.description ? (
@@ -172,7 +172,7 @@ const VariableInput = React.memo(function VariableInput({
       )}
 
       {/* Variable constraints */}
-      <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
+      <div className="flex items-center gap-component-md text-xs text-muted-foreground font-mono">
         {variable.defaultValue && (
           <span>Default: <code className="font-mono text-xs">{variable.defaultValue}</code></span>
         )}
@@ -186,7 +186,7 @@ const VariableInput = React.memo(function VariableInput({
       )}
 
       {error && (
-        <p id={`${variable.name}-error`} className="text-xs text-semantic-error" role="alert">
+        <p id={`${variable.name}-error`} className="text-xs text-error" role="alert">
           {error}
         </p>
       )}
@@ -283,27 +283,27 @@ const PreviewSection = React.memo(function PreviewSection({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <CheckCircle2 className="h-4 w-4 text-semantic-success" aria-hidden="true" />
-        <span className="text-sm font-medium text-semantic-success">
+    <div className="space-y-component-sm">
+      <div className="flex items-center gap-component-sm">
+        <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
+        <span className="text-sm font-medium text-success">
           Preview Valid - Ready to Apply
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label className="text-sm font-medium">Resolved Conditions ({resolvedConditions.length})</Label>
         {resolvedConditions.map((condition, index) => (
           <Card key={index} className="bg-muted/50">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2 text-sm flex-wrap">
-                <code className="font-mono text-xs bg-background px-2 py-1 rounded">
+            <CardContent className="p-component-sm">
+              <div className="flex items-center gap-component-sm text-sm flex-wrap">
+                <code className="font-mono text-xs bg-background px-2 py-1 rounded-[var(--semantic-radius-button)]">
                   {condition.field}
                 </code>
                 <Badge variant="outline" className="text-xs">
                   {operatorLabels[condition.operator] || condition.operator}
                 </Badge>
-                <code className="font-mono text-xs bg-primary/10 px-2 py-1 rounded">
+                <code className="font-mono text-xs bg-primary/10 px-2 py-1 rounded-[var(--semantic-radius-button)]">
                   {condition.value}
                 </code>
               </div>
@@ -348,10 +348,10 @@ const FormContent = React.memo(function FormContent({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-component-lg">
         {/* Template info */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
+        <div className="space-y-component-sm">
+          <div className="flex items-center gap-component-sm">
             <Badge variant="outline">{template.category}</Badge>
             <Badge variant="secondary">{template.severity}</Badge>
             {template.isBuiltIn && <Badge>Built-in</Badge>}
@@ -364,7 +364,7 @@ const FormContent = React.memo(function FormContent({
         {/* Variables form */}
         {template.variables.length > 0 && (
           <>
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               <h4 className="text-sm font-semibold">Template Variables</h4>
               {template.variables.map((variable) => (
                 <FormField
@@ -390,7 +390,7 @@ const FormContent = React.memo(function FormContent({
         )}
 
         {/* Preview section */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <h4 className="text-sm font-semibold">Preview</h4>
           <PreviewSection templateId={template.id} variables={variables || {}} />
         </div>
@@ -398,7 +398,7 @@ const FormContent = React.memo(function FormContent({
         <Separator />
 
         {/* Customizations */}
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           <h4 className="text-sm font-semibold">Customizations (Optional)</h4>
 
           <FormField
@@ -442,7 +442,7 @@ const FormContent = React.memo(function FormContent({
         </div>
 
         {/* Submit button */}
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-component-sm">
           <Button
             type="submit"
             disabled={isLoading}
@@ -547,7 +547,7 @@ export const AlertTemplateApplyDialog = React.memo(
   // Loading state
   if (templateLoading) {
     const content = (
-      <div className="space-y-4 p-4">
+      <div className="space-y-component-md p-component-md">
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
@@ -614,7 +614,7 @@ export const AlertTemplateApplyDialog = React.memo(
 
   const formContent = (
     <ScrollArea className="max-h-[calc(90vh-8rem)]">
-      <div className="p-1">
+      <div className="p-component-sm">
         <FormContent
           template={template}
           form={form as any}

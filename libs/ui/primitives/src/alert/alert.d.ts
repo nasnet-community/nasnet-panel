@@ -42,7 +42,7 @@
 import * as React from "react";
 import { type VariantProps } from "class-variance-authority";
 declare const alertVariants: (props?: ({
-    variant?: "default" | "destructive" | "success" | "warning" | "info" | null | undefined;
+    variant?: "success" | "warning" | "info" | "default" | "destructive" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Props for the Alert component

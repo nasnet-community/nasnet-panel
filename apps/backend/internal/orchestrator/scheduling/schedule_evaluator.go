@@ -12,7 +12,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -28,7 +28,7 @@ type ScheduleEvaluatorConfig struct {
 	EntClient           *ent.Client
 	EventBus            events.EventBus
 	KillSwitchCoord     orchestrator.KillSwitchCoordinator
-	Logger              zerolog.Logger
+	Logger              *zap.Logger
 	NowFunc             func() time.Time // Injectable for testing
 	RouterClockProvider RouterClockProvider
 }
@@ -56,7 +56,7 @@ type ScheduleEvaluator struct {
 	mu              sync.RWMutex
 	config          ScheduleEvaluatorConfig
 	publisher       *events.Publisher
-	logger          zerolog.Logger
+	logger          *zap.Logger
 	ctx             context.Context
 	cancel          context.CancelFunc
 	wg              sync.WaitGroup
@@ -84,10 +84,15 @@ func NewScheduleEvaluator(config ScheduleEvaluatorConfig) (*ScheduleEvaluator, e
 		config.NowFunc = time.Now
 	}
 
+	logger := config.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	se := &ScheduleEvaluator{
 		config:    config,
 		publisher: events.NewPublisher(config.EventBus, "schedule-evaluator"),
-		logger:    config.Logger,
+		logger:    logger,
 	}
 
 	return se, nil
@@ -108,7 +113,7 @@ func (se *ScheduleEvaluator) Start(ctx context.Context) error {
 	se.wg.Add(1)
 	go se.evaluatorLoop() //nolint:contextcheck // evaluator manages its own context
 
-	se.logger.Info().Msg("Schedule evaluator started")
+	se.logger.Info("Schedule evaluator started")
 	return nil
 }
 
@@ -128,7 +133,7 @@ func (se *ScheduleEvaluator) Stop() error {
 	// Wait for evaluator loop to finish
 	se.wg.Wait()
 
-	se.logger.Info().Msg("Schedule evaluator stopped")
+	se.logger.Info("Schedule evaluator stopped")
 	return nil
 }
 
@@ -154,9 +159,7 @@ func (se *ScheduleEvaluator) evaluatorLoop() {
 	ticker := time.NewTicker(EvaluationIntervalSeconds * time.Second)
 	defer ticker.Stop()
 
-	se.logger.Info().
-		Int("interval_seconds", EvaluationIntervalSeconds).
-		Msg("Schedule evaluator loop started")
+	se.logger.Info("Schedule evaluator loop started", zap.Int("interval_seconds", EvaluationIntervalSeconds))
 
 	// Run initial evaluation immediately
 	se.evaluate()
@@ -164,7 +167,7 @@ func (se *ScheduleEvaluator) evaluatorLoop() {
 	for {
 		select {
 		case <-se.ctx.Done():
-			se.logger.Info().Msg("Schedule evaluator loop stopped")
+			se.logger.Info("Schedule evaluator loop stopped")
 			return
 
 		case <-ticker.C:
@@ -181,9 +184,7 @@ func (se *ScheduleEvaluator) evaluate() {
 	evalCount := se.evaluationCount
 	se.mu.Unlock()
 
-	se.logger.Debug().
-		Int64("evaluation_count", evalCount).
-		Msg("Starting schedule evaluation")
+	se.logger.Debug("Starting schedule evaluation", zap.Int64("evaluation_count", evalCount))
 
 	ctx := context.Background()
 
@@ -195,15 +196,11 @@ func (se *ScheduleEvaluator) evaluate() {
 		All(ctx)
 
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Msg("Failed to load enabled schedules")
+		se.logger.Error("Failed to load enabled schedules", zap.Error(err))
 		return
 	}
 
-	se.logger.Debug().
-		Int("schedule_count", len(schedules)).
-		Msg("Loaded enabled schedules")
+	se.logger.Debug("Loaded enabled schedules", zap.Int("schedule_count", len(schedules)))
 
 	// Group schedules by routing_id for batch processing
 	schedulesByRouting := make(map[string][]*ent.RoutingSchedule)
@@ -211,18 +208,14 @@ func (se *ScheduleEvaluator) evaluate() {
 		schedulesByRouting[schedule.RoutingID] = append(schedulesByRouting[schedule.RoutingID], schedule)
 	}
 
-	se.logger.Debug().
-		Int("routing_count", len(schedulesByRouting)).
-		Msg("Grouped schedules by routing ID")
+	se.logger.Debug("Grouped schedules by routing ID", zap.Int("routing_count", len(schedulesByRouting)))
 
 	// Evaluate each routing assignment
 	for routingID, routingSchedules := range schedulesByRouting {
 		se.evaluateRoutingSchedules(ctx, routingID, routingSchedules)
 	}
 
-	se.logger.Debug().
-		Int64("evaluation_count", evalCount).
-		Msg("Completed schedule evaluation")
+	se.logger.Debug("Completed schedule evaluation", zap.Int64("evaluation_count", evalCount))
 }
 
 // evaluateRoutingSchedules evaluates all schedules for a single DeviceRouting assignment
@@ -233,29 +226,17 @@ func (se *ScheduleEvaluator) evaluateRoutingSchedules(ctx context.Context, routi
 
 	routing, err := se.config.EntClient.DeviceRouting.Get(ctx, routingID)
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("routing_id", routingID).
-			Msg("Failed to load DeviceRouting record")
+		se.logger.Error("Failed to load DeviceRouting record", zap.Error(err), zap.String("routing_id", routingID))
 		return
 	}
 
 	routerTime, timeSource := se.resolveEvaluationTime(ctx, routing.RouterID)
 
-	se.logger.Debug().
-		Str("routing_id", routingID).
-		Str("time_source", timeSource).
-		Time("evaluation_time", routerTime).
-		Int("schedule_count", len(schedules)).
-		Msg("Evaluating schedules for routing")
+	se.logger.Debug("Evaluating schedules for routing", zap.String("routing_id", routingID), zap.String("time_source", timeSource), zap.Time("evaluation_time", routerTime), zap.Int("schedule_count", len(schedules)))
 
 	isActiveNow, activeSchedule := se.findActiveSchedule(routerTime, schedules)
 
-	se.logger.Debug().
-		Str("routing_id", routingID).
-		Bool("is_active_now", isActiveNow).
-		Bool("current_active", routing.Active).
-		Msg("Schedule evaluation result")
+	se.logger.Debug("Schedule evaluation result", zap.String("routing_id", routingID), zap.Bool("is_active_now", isActiveNow), zap.Bool("current_active", routing.Active))
 
 	se.applyRoutingState(ctx, routing, isActiveNow, activeSchedule, schedules)
 }
@@ -268,10 +249,7 @@ func (se *ScheduleEvaluator) resolveEvaluationTime(ctx context.Context, routerID
 
 	routerTime, err := se.config.RouterClockProvider.GetRouterTime(ctx, routerID)
 	if err != nil {
-		se.logger.Warn().
-			Err(err).
-			Str("router_id", routerID).
-			Msg("Failed to get router time, falling back to system time")
+		se.logger.Warn("Failed to get router time, falling back to system time", zap.Error(err), zap.String("router_id", routerID))
 		return se.config.NowFunc(), "system"
 	}
 
@@ -282,11 +260,7 @@ func (se *ScheduleEvaluator) resolveEvaluationTime(ctx context.Context, routerID
 		skew = -skew
 	}
 	if skew > MaxTimeSkewSeconds*time.Second {
-		se.logger.Warn().
-			Str("router_id", routerID).
-			Dur("skew", skew).
-			Int("max_skew_seconds", MaxTimeSkewSeconds).
-			Msg("Router clock has significant time skew")
+		se.logger.Warn("Router clock has significant time skew", zap.String("router_id", routerID), zap.Duration("skew", skew), zap.Int("max_skew_seconds", MaxTimeSkewSeconds))
 	}
 
 	evalTime = routerTime
@@ -311,10 +285,7 @@ func (se *ScheduleEvaluator) applyRoutingState(ctx context.Context, routing *ent
 	} else if !isActiveNow && routing.Active {
 		se.deactivateRouting(ctx, routing, schedules)
 	} else {
-		se.logger.Debug().
-			Str("routing_id", routing.ID).
-			Bool("active", routing.Active).
-			Msg("Routing state unchanged")
+		se.logger.Debug("Routing state unchanged", zap.String("routing_id", routing.ID), zap.Bool("active", routing.Active))
 	}
 }
 
@@ -323,11 +294,7 @@ func (se *ScheduleEvaluator) applyRoutingState(ctx context.Context, routing *ent
 func (se *ScheduleEvaluator) IsWindowActive(now time.Time, schedule *ent.RoutingSchedule) bool {
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
-		se.logger.Error().
-			Err(err).
-			Str("schedule_id", schedule.ID).
-			Str("timezone", schedule.Timezone).
-			Msg("Failed to load timezone, using UTC")
+		se.logger.Error("Failed to load timezone, using UTC", zap.Error(err), zap.String("schedule_id", schedule.ID), zap.String("timezone", schedule.Timezone))
 		loc = time.UTC
 	}
 
@@ -335,12 +302,7 @@ func (se *ScheduleEvaluator) IsWindowActive(now time.Time, schedule *ent.Routing
 	currentDay := int(nowInTz.Weekday())
 	currentTime := nowInTz.Format("15:04")
 
-	se.logger.Debug().
-		Str("schedule_id", schedule.ID).
-		Int("current_day", currentDay).
-		Str("current_time", currentTime).
-		Str("timezone", schedule.Timezone).
-		Msg("Evaluating schedule window")
+	se.logger.Debug("Evaluating schedule window", zap.String("schedule_id", schedule.ID), zap.Int("current_day", currentDay), zap.String("current_time", currentTime), zap.String("timezone", schedule.Timezone))
 
 	if !containsDay(schedule.Days, currentDay) {
 		return se.checkOvernightFromPreviousDay(schedule, currentDay, currentTime)
@@ -364,20 +326,12 @@ func (se *ScheduleEvaluator) checkOvernightFromPreviousDay(schedule *ent.Routing
 	prevDay := (currentDay + 6) % 7
 	if containsDay(schedule.Days, prevDay) && schedule.StartTime > schedule.EndTime {
 		if currentTime < schedule.EndTime {
-			se.logger.Debug().
-				Str("schedule_id", schedule.ID).
-				Int("prev_day", prevDay).
-				Str("current_time", currentTime).
-				Str("end_time", schedule.EndTime).
-				Msg("In overnight window from previous day")
+			se.logger.Debug("In overnight window from previous day", zap.String("schedule_id", schedule.ID), zap.Int("prev_day", prevDay), zap.String("current_time", currentTime), zap.String("end_time", schedule.EndTime))
 			return true
 		}
 	}
 
-	se.logger.Debug().
-		Str("schedule_id", schedule.ID).
-		Int("current_day", currentDay).
-		Msg("Current day not in schedule days")
+	se.logger.Debug("Current day not in schedule days", zap.String("schedule_id", schedule.ID), zap.Int("current_day", currentDay))
 	return false
 }
 
@@ -394,12 +348,6 @@ func (se *ScheduleEvaluator) evaluateTimeWindow(schedule *ent.RoutingSchedule, c
 		windowType = "Overnight window evaluation"
 	}
 
-	se.logger.Debug().
-		Str("schedule_id", schedule.ID).
-		Str("start_time", schedule.StartTime).
-		Str("end_time", schedule.EndTime).
-		Str("current_time", currentTime).
-		Bool("is_active", isActive).
-		Msg(windowType)
+	se.logger.Debug(windowType, zap.String("schedule_id", schedule.ID), zap.String("start_time", schedule.StartTime), zap.String("end_time", schedule.EndTime), zap.String("current_time", currentTime), zap.Bool("is_active", isActive))
 	return isActive
 }

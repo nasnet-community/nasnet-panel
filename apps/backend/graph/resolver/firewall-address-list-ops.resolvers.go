@@ -7,21 +7,50 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // AddressLists is the resolver for the addressLists field.
-func (r *queryResolver) AddressLists(_ context.Context, routerID string) ([]*model.AddressList, error) {
-	panic(fmt.Errorf("not implemented: AddressLists - addressLists"))
+func (r *queryResolver) AddressLists(ctx context.Context, routerID string) ([]*model.AddressList, error) {
+	// Validation: routerID is required
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// TODO: Implement AddressLists - query address lists from router
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AddressLists - addressLists", "graphql"))
 }
 
 // AddressListEntries is the resolver for the addressListEntries field.
-func (r *queryResolver) AddressListEntries(_ context.Context, routerID string, listName string, first *int, after *string) (*model.AddressListEntryConnection, error) {
-	panic(fmt.Errorf("not implemented: AddressListEntries - addressListEntries"))
+func (r *queryResolver) AddressListEntries(ctx context.Context, routerID string, listName string, first *int, after *string) (*model.AddressListEntryConnection, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if listName == "" {
+		return nil, errors.NewValidationError("input", nil, "listName is required")
+	}
+
+	// Validation: pagination
+	if first != nil && *first < 0 {
+		return nil, errors.NewValidationError("input", nil, "first must be non-negative")
+	}
+
+	// TODO: Implement AddressListEntries - query entries with pagination
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AddressListEntries - addressListEntries", "graphql"))
 }
 
 // RulesReferencingAddressList is the resolver for the rulesReferencingAddressList field.
-func (r *queryResolver) RulesReferencingAddressList(_ context.Context, routerID string, listName string) ([]*model.FirewallRule, error) {
-	panic(fmt.Errorf("not implemented: RulesReferencingAddressList - rulesReferencingAddressList"))
+func (r *queryResolver) RulesReferencingAddressList(ctx context.Context, routerID string, listName string) ([]*model.FirewallRule, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if listName == "" {
+		return nil, errors.NewValidationError("input", nil, "listName is required")
+	}
+
+	// TODO: Implement RulesReferencingAddressList - find rules that reference this list
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: RulesReferencingAddressList - rulesReferencingAddressList", "graphql"))
 }

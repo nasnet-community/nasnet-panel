@@ -53,8 +53,11 @@ func (cd *ConflictDetector) findDuplicate(templateRule TemplateRule, existingRul
 		}
 
 		// Compare properties (simplified - would need deeper comparison in real implementation)
-		if cd.propertiesMatch(templateRule.Properties, existing.Properties) {
-			return &existing
+		// Nil check: if either has nil properties, they don't match
+		if templateRule.Properties != nil && existing.Properties != nil {
+			if cd.propertiesMatch(templateRule.Properties, existing.Properties) {
+				return &existing
+			}
 		}
 	}
 
@@ -84,9 +87,15 @@ func (cd *ConflictDetector) propertiesMatch(template, existing map[string]interf
 func (cd *ConflictDetector) detectChainConflict(templateRule TemplateRule, existingRules []Rule) *Conflict {
 	// Check for conflicting actions in same chain
 	// For example, a "drop all" rule would conflict with subsequent "accept" rules
+	// Note: This is a simplified check - proper implementation would require rule ordering/priority info
 
 	for _, existing := range existingRules {
 		if existing.Chain != templateRule.Chain {
+			continue
+		}
+
+		// Skip nil properties check
+		if existing.Properties == nil {
 			continue
 		}
 
@@ -95,7 +104,7 @@ func (cd *ConflictDetector) detectChainConflict(templateRule TemplateRule, exist
 			return &Conflict{
 				Type: "CHAIN_CONFLICT",
 				Message: "This template adds an 'accept' rule in a chain with existing 'drop all' rule. " +
-					"The template rule may not have the intended effect.",
+					"The template rule may not have the intended effect due to rule ordering.",
 				ExistingRuleID: existing.ID,
 				ProposedRule:   templateRule,
 			}

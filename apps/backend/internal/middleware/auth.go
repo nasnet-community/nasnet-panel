@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -111,6 +112,24 @@ type authResult struct {
 func AuthMiddleware(config AuthMiddlewareConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Recover from panics to prevent crashes
+			defer func() {
+				if r := recover(); r != nil {
+					c.Logger().Errorf("auth middleware panic: %v", r)
+					// Re-panic in production, return 500 in development
+					if c.Echo().Debug {
+						if err := c.JSON(http.StatusInternalServerError, map[string]interface{}{
+							"code":    "INTERNAL_ERROR",
+							"message": fmt.Sprintf("Auth middleware error: %v", r),
+						}); err != nil {
+							c.Logger().Errorf("failed to write error response: %v", err)
+						}
+						return
+					}
+					panic(r)
+				}
+			}()
+
 			if config.Skipper != nil && config.Skipper(c) {
 				return next(c)
 			}
@@ -266,14 +285,14 @@ func authenticateJWT(ctx context.Context, config AuthMiddlewareConfig, token str
 
 // extractBearerToken extracts the JWT from the Authorization header
 func extractBearerToken(c echo.Context) string {
-	auth := c.Request().Header.Get("Authorization")
-	if auth == "" {
+	authHeader := c.Request().Header.Get("Authorization")
+	if authHeader == "" {
 		return ""
 	}
 
 	const prefix = "Bearer "
-	if len(auth) > len(prefix) && strings.EqualFold(auth[:len(prefix)], prefix) {
-		return auth[len(prefix):]
+	if len(authHeader) > len(prefix) && strings.EqualFold(authHeader[:len(prefix)], prefix) {
+		return authHeader[len(prefix):]
 	}
 	return ""
 }

@@ -121,38 +121,45 @@ func (b *CommandBuilder) WithMetadata(meta CommandMetadata) *CommandBuilder {
 }
 
 // Build returns the constructed CanonicalCommand.
+// It validates that required fields are set before building.
 func (b *CommandBuilder) Build() *CanonicalCommand {
+	if b.cmd.Path == "" {
+		panic("CommandBuilder.Build: Path is required but empty")
+	}
+	if b.cmd.Action == "" {
+		panic("CommandBuilder.Build: Action is required but empty")
+	}
 	return b.cmd
 }
 
-// BuildGet is a convenience method that sets ActionGet and builds.
+// BuildGet is a convenience method that sets ActionGet and builds with validation.
 func (b *CommandBuilder) BuildGet() *CanonicalCommand {
 	b.cmd.Action = ActionGet
-	return b.cmd
+	return b.Build()
 }
 
-// BuildPrint is a convenience method that sets ActionPrint and builds.
+// BuildPrint is a convenience method that sets ActionPrint and builds with validation.
 func (b *CommandBuilder) BuildPrint() *CanonicalCommand {
 	b.cmd.Action = ActionPrint
-	return b.cmd
+	return b.Build()
 }
 
-// BuildAdd is a convenience method that sets ActionAdd and builds.
+// BuildAdd is a convenience method that sets ActionAdd and builds with validation.
 func (b *CommandBuilder) BuildAdd() *CanonicalCommand {
 	b.cmd.Action = ActionAdd
-	return b.cmd
+	return b.Build()
 }
 
-// BuildSet is a convenience method that sets ActionSet and builds.
+// BuildSet is a convenience method that sets ActionSet and builds with validation.
 func (b *CommandBuilder) BuildSet() *CanonicalCommand {
 	b.cmd.Action = ActionSet
-	return b.cmd
+	return b.Build()
 }
 
-// BuildRemove is a convenience method that sets ActionRemove and builds.
+// BuildRemove is a convenience method that sets ActionRemove and builds with validation.
 func (b *CommandBuilder) BuildRemove() *CanonicalCommand {
 	b.cmd.Action = ActionRemove
-	return b.cmd
+	return b.Build()
 }
 
 // Shorthand builder functions

@@ -72,8 +72,8 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
   };
 
   return (
-    <div className="px-4 sm:px-6 py-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+      <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Page Header */}
         <div className="flex items-start justify-between">
           <div>
@@ -90,7 +90,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
               size="sm"
               onClick={() => refetch()}
               disabled={isLoading || isFetching}
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
+              className="flex items-center gap-component-sm min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label={t('button.refresh', { ns: 'common' })}
             >
               <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
@@ -101,15 +101,15 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="space-y-6" role="status" aria-label="Loading VPN dashboard">
-            <Skeleton className="h-48 w-full rounded-2xl" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Skeleton className="h-36 rounded-xl" />
-              <Skeleton className="h-36 rounded-xl" />
+          <div className="space-y-component-lg" role="status" aria-label="Loading VPN dashboard">
+            <Skeleton className="h-48 w-full rounded-card-sm" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+              <Skeleton className="h-36 rounded-card-sm" />
+              <Skeleton className="h-36 rounded-card-sm" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-component-md">
               {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-32 rounded-xl" />
+                <Skeleton key={i} className="h-32 rounded-card-sm" />
               ))}
             </div>
           </div>
@@ -117,7 +117,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
 
         {/* Error State */}
         {isError && (
-          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6" role="alert">
+          <div className="bg-error/10 border-2 border-error rounded-card-sm p-component-lg" role="alert">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <svg
@@ -166,7 +166,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
             />
 
             {/* Navigation Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
               <VPNNavigationCard
                 type="server"
                 count={stats.totalServers}
@@ -186,7 +186,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
               <h2 className="text-lg font-semibold text-foreground mb-4">
                 {t('servers.protocols')}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-component-md">
                 {PROTOCOL_ORDER.map((protocol) => {
                   const protocolStats = stats.protocolStats.find(
                     (p) => p.protocol === protocol
@@ -219,12 +219,12 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
             )}
 
             {/* Quick Actions */}
-            <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
+            <div className="flex flex-wrap gap-component-sm pt-component-md border-t border-border">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNavigateServers}
-                className="flex items-center gap-2 min-h-[44px]"
+                className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Settings className="h-4 w-4" aria-hidden="true" />
                 {t('servers.configureServers')}
@@ -233,7 +233,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
                 variant="outline"
                 size="sm"
                 onClick={handleNavigateClients}
-                className="flex items-center gap-2 min-h-[44px]"
+                className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Settings className="h-4 w-4" aria-hidden="true" />
                 {t('servers.configureClients')}

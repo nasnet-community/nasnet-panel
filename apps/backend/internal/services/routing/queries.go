@@ -17,7 +17,7 @@ const trueValue = "true"
 
 // ListRoutes fetches all routes from the router with optional filtering.
 // Maps to: /ip/route/print
-func (s *RouteService) ListRoutes(ctx context.Context, table *string, routeType *model.RouteType) ([]*model.Route, error) {
+func (s *Service) ListRoutes(ctx context.Context, table *string, routeType *model.RouteType) ([]*model.Route, error) {
 	cmd := router.Command{
 		Path:   "/ip/route",
 		Action: "print",
@@ -65,7 +65,7 @@ func (s *RouteService) ListRoutes(ctx context.Context, table *string, routeType 
 }
 
 // GetRoute fetches a single route by ID.
-func (s *RouteService) GetRoute(ctx context.Context, id string) (*model.Route, error) {
+func (s *Service) GetRoute(ctx context.Context, id string) (*model.Route, error) {
 	cmd := router.Command{
 		Path:   "/ip/route",
 		Action: "print",
@@ -88,7 +88,7 @@ func (s *RouteService) GetRoute(ctx context.Context, id string) (*model.Route, e
 
 // LookupRoute finds which route will be used for a destination IP.
 // It performs longest prefix match and considers administrative distance for tiebreakers.
-func (s *RouteService) LookupRoute(
+func (s *Service) LookupRoute(
 	ctx context.Context,
 	destination string,
 	source *string,
@@ -170,7 +170,7 @@ func (s *RouteService) LookupRoute(
 }
 
 // mapRouteData converts RouterOS data to GraphQL model.
-func (s *RouteService) mapRouteData(data map[string]string) *model.Route {
+func (s *Service) mapRouteData(data map[string]string) *model.Route {
 	route := &model.Route{
 		ID:          data[".id"],
 		Destination: model.CIDR(data["dst-address"]),
@@ -219,7 +219,7 @@ func (s *RouteService) mapRouteData(data map[string]string) *model.Route {
 }
 
 // determineRouteType determines the route type from RouterOS flags.
-func (s *RouteService) determineRouteType(data map[string]string) model.RouteType {
+func (s *Service) determineRouteType(data map[string]string) model.RouteType {
 	if data["bgp"] == trueValue {
 		return model.RouteTypeBgp
 	}

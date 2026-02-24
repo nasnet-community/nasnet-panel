@@ -149,9 +149,14 @@ func TestScanTask_ConcurrentAccess(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_ = task.GetResults()
-			_, _ = task.GetProgress()
-			_ = task.GetStatus()
+			results := task.GetResults()
+			progress, scanned := task.GetProgress()
+			status := task.GetStatus()
+			// Verify we got reasonable values
+			assert.NotNil(t, results)
+			assert.GreaterOrEqual(t, progress, 0)
+			assert.GreaterOrEqual(t, scanned, 0)
+			assert.NotEmpty(t, status)
 		}()
 	}
 

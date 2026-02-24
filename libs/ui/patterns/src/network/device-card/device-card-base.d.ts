@@ -12,13 +12,13 @@ import type { DeviceCardBaseProps } from './device-card.types';
  * Status dot variants using semantic design tokens
  */
 declare const statusDotVariants: (props?: ({
-    status?: "muted" | "success" | "warning" | null | undefined;
+    status?: "success" | "warning" | "muted" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Status badge variants using semantic design tokens
  */
 declare const statusBadgeVariants: (props?: ({
-    status?: "muted" | "success" | "warning" | null | undefined;
+    status?: "success" | "warning" | "muted" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Connection badge variants using network design tokens

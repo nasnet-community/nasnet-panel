@@ -55,6 +55,10 @@ func ValidateSyntax(tmplStr string, funcMap template.FuncMap) error {
 		return nil
 	}
 
+	if funcMap == nil {
+		funcMap = make(template.FuncMap)
+	}
+
 	_, err := template.New("validate").Funcs(funcMap).Option("missingkey=zero").Parse(tmplStr)
 	if err != nil {
 		return fmt.Errorf("template syntax error: %w", err)
@@ -110,6 +114,10 @@ func ValidateLength(subjectRendered, bodyRendered, channel string) []string {
 
 // RenderForValidation attempts to render a template with sample data.
 func RenderForValidation(subjectTmpl, bodyTmpl string, funcMap template.FuncMap, data TemplateData) (subject, body string, err error) {
+	if funcMap == nil {
+		funcMap = make(template.FuncMap)
+	}
+
 	if subjectTmpl != "" {
 		subjectParsed, parseErr := template.New("subject").Funcs(funcMap).Option("missingkey=zero").Parse(subjectTmpl)
 		if parseErr != nil {

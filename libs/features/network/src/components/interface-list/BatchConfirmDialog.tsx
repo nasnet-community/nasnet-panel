@@ -105,12 +105,12 @@ export function BatchConfirmDialog({
             {actionLabel} {interfaces.length} Interface{interfaces.length !== 1 ? 's' : ''}?
           </DialogTitle>
           <DialogDescription asChild>
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               {isCritical && (
-                <div className="p-3 border border-destructive bg-destructive/10 rounded-md">
-                  <div className="flex items-center gap-2 mb-1">
-                    <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" aria-hidden="true" />
-                    <p className="text-destructive font-semibold text-sm">
+                <div className="p-component-sm border border-error bg-error/10 rounded-md">
+                  <div className="flex items-center gap-component-sm mb-1">
+                    <AlertTriangle className="h-4 w-4 text-error flex-shrink-0" aria-hidden="true" />
+                    <p className="text-error font-semibold text-sm">
                       Warning: Critical Operation
                     </p>
                   </div>
@@ -130,24 +130,24 @@ export function BatchConfirmDialog({
 
               {/* Interface list */}
               <div
-                className="border rounded-md p-3 max-h-64 overflow-y-auto"
+                className="border border-border rounded-md p-component-sm max-h-64 overflow-y-auto"
                 role="region"
                 aria-label="Affected interfaces"
               >
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   {interfaces.map((iface) => {
                     const isGateway = iface.usedBy && iface.usedBy.includes('gateway');
                     return (
                       <div
                         key={iface.id}
                         className={cn(
-                          'flex items-center justify-between p-2 rounded',
+                          'flex items-center justify-between p-component-xs rounded-md',
                           isGateway
-                            ? 'bg-destructive/10 border border-destructive'
+                            ? 'bg-error/10 border border-error'
                             : 'bg-muted'
                         )}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-component-sm">
                           <span className="font-medium text-sm font-mono">{iface.name}</span>
                           <Badge variant="outline" className="text-xs">
                             {iface.type}

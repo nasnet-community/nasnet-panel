@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -27,6 +27,7 @@ type SSHClient struct {
 	address string
 	config  *ssh.ClientConfig
 	mu      sync.Mutex
+	logger  *zap.Logger
 }
 
 // SSHCommandResult holds the result of a single SSH command execution.
@@ -39,7 +40,11 @@ type SSHCommandResult struct {
 }
 
 // NewSSHClient creates a new SSH client for RouterOS.
-func NewSSHClient(cfg SSHClientConfig) (*SSHClient, error) {
+func NewSSHClient(cfg SSHClientConfig, logger *zap.Logger) (*SSHClient, error) {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	address := cfg.Address
 	if !strings.Contains(address, ":") {
 		address += ":22"
@@ -56,9 +61,9 @@ func NewSSHClient(cfg SSHClientConfig) (*SSHClient, error) {
 		signer, err := ssh.ParsePrivateKey([]byte(cfg.PrivateKey))
 		if err == nil {
 			authMethods = append(authMethods, ssh.PublicKeys(signer))
-			log.Printf("[SSH] Using private key authentication")
+			logger.Debug("using private key authentication")
 		} else {
-			log.Printf("[SSH] Warning: Failed to parse private key: %v", err)
+			logger.Warn("failed to parse private key", zap.Error(err))
 		}
 	}
 
@@ -86,19 +91,20 @@ func NewSSHClient(cfg SSHClientConfig) (*SSHClient, error) {
 		Timeout:         timeout,
 	}
 
-	log.Printf("[SSH] Connecting to %s as user %s", address, cfg.Username)
+	logger.Debug("connecting to SSH server", zap.String("address", address), zap.String("username", cfg.Username))
 
 	client, err := ssh.Dial("tcp", address, config)
 	if err != nil {
 		return nil, fmt.Errorf("SSH dial failed: %w", err)
 	}
 
-	log.Printf("[SSH] Successfully connected to %s", address)
+	logger.Debug("successfully connected to SSH server", zap.String("address", address))
 
 	return &SSHClient{
 		client:  client,
 		address: address,
 		config:  config,
+		logger:  logger,
 	}, nil
 }
 
@@ -110,7 +116,7 @@ func (c *SSHClient) Close() {
 	if c.client != nil {
 		c.client.Close()
 		c.client = nil
-		log.Printf("[SSH] Connection to %s closed", c.address)
+		c.logger.Debug("SSH connection closed", zap.String("address", c.address))
 	}
 }
 
@@ -135,7 +141,7 @@ func (c *SSHClient) RunCommand(ctx context.Context, command string) (string, err
 
 	cmd := strings.TrimSpace(command)
 
-	log.Printf("[SSH] Executing: %s", TruncateForLog(cmd, 100))
+	c.logger.Debug("executing SSH command", zap.String("command", TruncateForLog(cmd, 100)))
 
 	done := make(chan error, 1)
 	go func() {
@@ -155,7 +161,7 @@ func (c *SSHClient) RunCommand(ctx context.Context, command string) (string, err
 				return output, fmt.Errorf("command failed: %s", strings.TrimSpace(errOutput))
 			}
 			if output != "" {
-				log.Printf("[SSH] Command returned error but has output: %v", err)
+				c.logger.Warn("command returned error but has output", zap.Error(err))
 				return output, nil
 			}
 			return "", fmt.Errorf("command failed: %w", err)

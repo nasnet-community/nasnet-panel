@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -66,7 +65,6 @@ func BackupDatabase(ctx context.Context, db *sql.DB, sourcePath, backupDir strin
 	_, err := db.ExecContext(ctx, vacuumSQL)
 	if err != nil {
 		// If VACUUM INTO fails, try checkpoint + file copy
-		log.Printf("[backup] VACUUM INTO failed, trying checkpoint + copy: %v", err)
 		if copyErr := backupWithCheckpoint(ctx, db, sourcePath, backupPath); copyErr != nil {
 			return nil, NewError(ErrCodeDBBackupFailed, "backup failed", copyErr).
 				WithPath(sourcePath)
@@ -88,41 +86,66 @@ func BackupDatabase(ctx context.Context, db *sql.DB, sourcePath, backupDir strin
 		Timestamp:  startTime,
 	}
 
-	log.Printf("[backup] Created backup: %s (%d bytes in %v)", backupPath, result.Size, result.Duration)
-
 	// Cleanup old backups
-	if err := cleanupOldBackups(backupDir, nameWithoutExt, MaxBackupCount); err != nil {
-		log.Printf("[backup] WARNING: Failed to cleanup old backups: %v", err)
-	}
+	_ = cleanupOldBackups(backupDir, nameWithoutExt, MaxBackupCount) //nolint:errcheck // best-effort cleanup of old backups
 
 	return result, nil
 }
 
 // backupWithCheckpoint performs a checkpoint then copies the database file.
+// Uses atomic write (temp file + rename) to ensure backup integrity.
 func backupWithCheckpoint(ctx context.Context, db *sql.DB, sourcePath, backupPath string) error {
 	// Checkpoint WAL to ensure all data is in main database
-	if _, err := db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
-		log.Printf("[backup] WARNING: WAL checkpoint failed: %v", err)
-	}
+	_, _ = db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE)") //nolint:errcheck // WAL checkpoint is best-effort
 
-	// Copy database file
+	// Copy database file using atomic write (temp file + rename)
 	src, err := os.Open(sourcePath)
 	if err != nil {
 		return fmt.Errorf("open source: %w", err)
 	}
 	defer src.Close()
 
-	dst, err := os.Create(backupPath)
+	// Write to temporary file first (in same directory for atomic rename)
+	backupDir := filepath.Dir(backupPath)
+	tempFile, err := os.CreateTemp(backupDir, ".backup-temp-")
 	if err != nil {
-		return fmt.Errorf("create backup: %w", err)
+		return fmt.Errorf("create temp file: %w", err)
 	}
-	defer dst.Close()
+	tempPath := tempFile.Name()
 
-	if _, err := io.Copy(dst, src); err != nil {
+	// Set restrictive permissions (0o600) on temp file
+	if err := tempFile.Chmod(0o600); err != nil {
+		tempFile.Close()
+		os.Remove(tempPath)
+		return fmt.Errorf("set temp file permissions: %w", err)
+	}
+
+	// Copy data to temp file
+	if _, err := io.Copy(tempFile, src); err != nil {
+		tempFile.Close()
+		os.Remove(tempPath)
 		return fmt.Errorf("copy data: %w", err)
 	}
 
-	return dst.Sync()
+	// Sync to disk
+	if err := tempFile.Sync(); err != nil {
+		tempFile.Close()
+		os.Remove(tempPath)
+		return fmt.Errorf("sync temp file: %w", err)
+	}
+
+	if err := tempFile.Close(); err != nil {
+		os.Remove(tempPath)
+		return fmt.Errorf("close temp file: %w", err)
+	}
+
+	// Atomic rename (only succeeds if source and dest are on same filesystem)
+	if err := os.Rename(tempPath, backupPath); err != nil {
+		os.Remove(tempPath) // Cleanup temp file on failure
+		return fmt.Errorf("atomic rename: %w", err)
+	}
+
+	return nil
 }
 
 // cleanupOldBackups removes old backup files, keeping only the most recent ones.
@@ -149,17 +172,14 @@ func cleanupOldBackups(backupDir, baseName string, keepCount int) error {
 
 	// Delete old backups
 	for i := keepCount; i < len(matches); i++ {
-		if err := os.Remove(matches[i]); err != nil {
-			log.Printf("[backup] WARNING: Failed to remove old backup %s: %v", matches[i], err)
-		} else {
-			log.Printf("[backup] Removed old backup: %s", matches[i])
-		}
+		_ = os.Remove(matches[i])
 	}
 
 	return nil
 }
 
 // RestoreDatabase restores a database from a backup file.
+// Uses atomic write (temp file + rename) to ensure restore safety.
 func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 	// Verify backup exists
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
@@ -170,13 +190,11 @@ func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 	// Create backup of current database before restore
 	if _, err := os.Stat(targetPath); err == nil {
 		preRestoreBackup := targetPath + ".pre-restore" + BackupSuffix
-		if err := copyFile(targetPath, preRestoreBackup); err != nil {
-			log.Printf("[backup] WARNING: Failed to backup before restore: %v", err)
-		}
+		_ = atomicCopyFile(backupPath, preRestoreBackup) //nolint:errcheck // pre-restore backup is best-effort
 	}
 
-	// Copy backup to target
-	if err := copyFile(backupPath, targetPath); err != nil {
+	// Copy backup to target using atomic write (temp file + rename)
+	if err := atomicCopyFile(backupPath, targetPath); err != nil {
 		return NewError(ErrCodeDBRestoreFailed, "failed to restore backup", err).
 			WithPath(targetPath)
 	}
@@ -185,29 +203,61 @@ func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 	_ = os.Remove(targetPath + "-wal")
 	_ = os.Remove(targetPath + "-shm")
 
-	log.Printf("[backup] Restored database from %s to %s", backupPath, targetPath)
 	return nil
 }
 
-// copyFile copies a file from src to dst.
-func copyFile(src, dst string) error {
+// atomicCopyFile copies a file from src to dst atomically.
+// Writes to a temporary file in the destination directory, then renames atomically.
+// This ensures the destination is either the old file or the new complete file, never partial.
+// Sets restrictive file permissions (0o600) to protect sensitive database files.
+func atomicCopyFile(src, dst string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer srcFile.Close()
 
-	dstFile, err := os.Create(dst)
+	// Create temp file in same directory as destination (ensures same filesystem for atomic rename)
+	dstDir := filepath.Dir(dst)
+	tmpFile, err := os.CreateTemp(dstDir, ".copy-temp-")
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	tmpPath := tmpFile.Name()
 
-	if _, err := io.Copy(dstFile, srcFile); err != nil {
+	// Set restrictive permissions (0o600) on temp file
+	if err := tmpFile.Chmod(0o600); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
 		return err
 	}
 
-	return dstFile.Sync()
+	// Copy data
+	if _, err := io.Copy(tmpFile, srcFile); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
+		return err
+	}
+
+	// Sync to disk
+	if err := tmpFile.Sync(); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
+		return err
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tmpPath)
+		return err
+	}
+
+	// Atomic rename
+	if err := os.Rename(tmpPath, dst); err != nil {
+		os.Remove(tmpPath) // Cleanup on failure
+		return err
+	}
+
+	return nil
 }
 
 // ListBackups returns a list of available backups for a database.

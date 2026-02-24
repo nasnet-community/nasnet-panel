@@ -233,7 +233,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header Card */}
       <Card>
         <CardHeader>
@@ -269,8 +269,8 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         </CardHeader>
 
         {/* Filters */}
-        <CardContent className="border-t pt-4">
-          <div className="flex items-center gap-4">
+        <CardContent className="border-t pt-component-sm">
+          <div className="flex items-center gap-component-md">
             {/* Protocol Filter */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Protocol:</span>
@@ -332,14 +332,14 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
       <Card>
         <CardContent className="p-0">
           {loading && sortedAllocations.length === 0 ? (
-            <div className="p-6 space-y-3">
+            <div className="p-component-lg space-y-component-sm">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
             </div>
           ) : error ? (
-            <div className="p-12 text-center">
-              <div className="text-destructive font-medium mb-2">
+            <div className="p-component-lg text-center">
+              <div className="text-error font-medium mb-2">
                 Failed to load port allocations
               </div>
               <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
@@ -365,7 +365,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
 
       {/* Empty State */}
       {!loading && sortedAllocations.length === 0 && !error && (
-        <div className="text-center py-12">
+        <div className="text-center py-component-lg">
           <div className="text-muted-foreground mx-auto mb-4 flex justify-center">
             <svg
               className="h-16 w-16 stroke-1"

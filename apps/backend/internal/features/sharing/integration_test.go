@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 
 	"backend/internal/router"
@@ -24,7 +26,7 @@ func TestExportImportRoundTrip(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	_ = NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	_ = NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock event publishing
 	mockEventBus.On("Publish", context.Background(), &ServiceConfigExportedEvent{}).Return(nil)
@@ -88,7 +90,7 @@ func TestExportWithRouting_ImportWithMissingDevices(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock router query for mangle rules (export)
 	mockRouter.On("QueryState", context.Background(), router.StateQuery{
@@ -173,7 +175,7 @@ func TestQRCodeRoundTrip(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock event publishing
 	var capturedEvent *QRCodeGeneratedEvent

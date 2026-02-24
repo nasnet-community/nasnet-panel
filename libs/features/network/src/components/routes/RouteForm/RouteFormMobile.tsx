@@ -57,10 +57,10 @@ function RouteFormMobileComponent({
   const interfaceValue = watch('interface');
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pb-4">
+    <form onSubmit={handleSubmit} className="space-y-component-md pb-component-md">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold font-display">
           {mode === 'create' ? 'Add Static Route' : 'Edit Static Route'}
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -69,19 +69,19 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Destination (CIDR) */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="destination-mobile">
-          Destination Network <span className="text-destructive">*</span>
+          Destination Network <span className="text-error">*</span>
         </Label>
         <Input
           id="destination-mobile"
           placeholder="192.168.1.0/24 or 0.0.0.0/0"
-          className="min-h-[44px]"
+          className="min-h-[44px] font-mono"
           {...register('destination')}
           aria-invalid={errors.destination ? 'true' : 'false'}
         />
         {errors.destination && (
-          <p className="text-sm text-destructive flex items-center gap-1">
+          <p className="text-sm text-error flex items-center gap-component-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.destination.message}
           </p>
@@ -92,20 +92,20 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Gateway (IPv4) */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="gateway-mobile">
           Gateway
-          {!interfaceValue && <span className="text-destructive"> *</span>}
+          {!interfaceValue && <span className="text-error"> *</span>}
         </Label>
         <Input
           id="gateway-mobile"
           placeholder="192.168.1.1"
-          className="min-h-[44px]"
+          className="min-h-[44px] font-mono"
           {...register('gateway')}
           aria-invalid={errors.gateway ? 'true' : 'false'}
         />
         {errors.gateway && (
-          <p className="text-sm text-destructive flex items-center gap-1">
+          <p className="text-sm text-error flex items-center gap-component-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.gateway.message}
           </p>
@@ -113,9 +113,9 @@ function RouteFormMobileComponent({
 
         {/* Gateway Reachability Indicator */}
         {gatewayValue && !errors.gateway && (
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             {reachabilityInfo.checking && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Checking reachability...</span>
               </div>
@@ -135,10 +135,10 @@ function RouteFormMobileComponent({
                   <AlertTriangle className="mr-1 h-3 w-3" />
                   Gateway may not be reachable
                 </Badge>
-                <div role="alert" className="mt-2 rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
-                  <div className="flex gap-2">
+                <div role="alert" className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm">
+                  <div className="flex gap-component-sm">
                     <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
-                    <div className="space-y-1">
+                    <div className="space-y-component-sm">
                       <p className="font-medium">Warning</p>
                       <p className="text-muted-foreground">{reachabilityInfo.message}</p>
                     </div>
@@ -155,10 +155,10 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Interface */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="interface-mobile">
           Interface
-          {!gatewayValue && <span className="text-destructive"> *</span>}
+          {!gatewayValue && <span className="text-error"> *</span>}
         </Label>
         <Select
           value={interfaceValue || 'none'}
@@ -182,7 +182,7 @@ function RouteFormMobileComponent({
           </SelectContent>
         </Select>
         {errors.interface && (
-          <p className="text-sm text-destructive flex items-center gap-1">
+          <p className="text-sm text-error flex items-center gap-component-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.interface.message}
           </p>
@@ -193,7 +193,7 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Distance (Metric) */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="distance-mobile">Distance (Metric)</Label>
         <Input
           id="distance-mobile"
@@ -205,7 +205,7 @@ function RouteFormMobileComponent({
           aria-invalid={errors.distance ? 'true' : 'false'}
         />
         {errors.distance && (
-          <p className="text-sm text-destructive flex items-center gap-1">
+          <p className="text-sm text-error flex items-center gap-component-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.distance.message}
           </p>
@@ -216,7 +216,7 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Routing Mark */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="routingMark-mobile">Routing Mark</Label>
         <Input
           id="routingMark-mobile"
@@ -230,7 +230,7 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Routing Table */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="routingTable-mobile">Routing Table</Label>
         <Select
           value={watch('routingTable')}
@@ -253,7 +253,7 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Comment */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="comment-mobile">Comment</Label>
         <Textarea
           id="comment-mobile"
@@ -264,7 +264,7 @@ function RouteFormMobileComponent({
           className="min-h-[80px]"
         />
         {errors.comment && (
-          <p className="text-sm text-destructive flex items-center gap-1">
+          <p className="text-sm text-error flex items-center gap-component-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.comment.message}
           </p>
@@ -275,7 +275,7 @@ function RouteFormMobileComponent({
       </div>
 
       {/* Action Buttons - Full width with 44px height */}
-      <div className="space-y-2 pt-2">
+      <div className="space-y-component-sm pt-component-sm">
         <Button
           type="submit"
           className="w-full min-h-[44px]"

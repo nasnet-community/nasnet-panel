@@ -149,16 +149,17 @@ export function DnsStaticEntryForm({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-md">
           {/* Hostname Field */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="required">
+          <div className="space-y-component-sm">
+            <Label htmlFor="name" className="required font-display">
               Hostname
             </Label>
             <Input
               id="name"
               placeholder="nas.local"
               disabled={isLoading}
+              className="font-mono"
               {...form.register('name')}
               aria-describedby="name-error name-help"
               aria-invalid={!!form.formState.errors.name}
@@ -174,8 +175,8 @@ export function DnsStaticEntryForm({
           </div>
 
           {/* IP Address Field */}
-          <div className="space-y-2">
-            <Label htmlFor="address" className="required">
+          <div className="space-y-component-sm">
+            <Label htmlFor="address" className="required font-display">
               IP Address
             </Label>
             <IPInput
@@ -199,8 +200,8 @@ export function DnsStaticEntryForm({
           </div>
 
           {/* TTL Field */}
-          <div className="space-y-2">
-            <Label htmlFor="ttl">Time to Live (TTL)</Label>
+          <div className="space-y-component-sm">
+            <Label htmlFor="ttl" className="font-display">Time to Live (TTL)</Label>
             <Input
               id="ttl"
               type="number"
@@ -208,6 +209,7 @@ export function DnsStaticEntryForm({
               max={604800}
               step={60}
               disabled={isLoading}
+              className="font-mono"
               {...form.register('ttl', { valueAsNumber: true })}
               aria-describedby="ttl-error ttl-help"
               aria-invalid={!!form.formState.errors.ttl}
@@ -224,8 +226,8 @@ export function DnsStaticEntryForm({
           </div>
 
           {/* Comment Field */}
-          <div className="space-y-2">
-            <Label htmlFor="comment">Comment (Optional)</Label>
+          <div className="space-y-component-sm">
+            <Label htmlFor="comment" className="font-display">Comment (Optional)</Label>
             <Textarea
               id="comment"
               placeholder="Network storage"
@@ -251,7 +253,7 @@ export function DnsStaticEntryForm({
           </div>
         </CardContent>
 
-        <CardFooter className="flex gap-2 justify-end">
+        <CardFooter className="flex gap-component-sm justify-end">
           <Button
             type="button"
             variant="outline"

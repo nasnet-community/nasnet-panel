@@ -58,15 +58,15 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
 
   if (ports.length === 0) {
     return (
-      <div className="rounded-lg border p-8 text-center">
-        <Icon icon={Network} className="mx-auto h-8 w-8 mb-3 text-muted-foreground opacity-50" aria-hidden="true" />
+      <div className="rounded-[var(--semantic-radius-card)] border p-component-lg text-center">
+        <Icon icon={Network} className="mx-auto h-8 w-8 mb-component-md text-muted-foreground opacity-50" aria-hidden="true" />
         <p className="text-sm text-muted-foreground">No ports configured</p>
       </div>
     );
   }
 
   return (
-    <div className={`rounded-lg border ${className || ''}`}>
+    <div className={`rounded-[var(--semantic-radius-card)] border ${className || ''}`}>
       <Table>
         <TableHeader>
           <TableRow>

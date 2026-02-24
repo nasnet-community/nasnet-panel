@@ -8,7 +8,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/servicetraffichourly"
 
-	"github.com/oklog/ulid/v2"
+	"backend/internal/utils"
 )
 
 const (
@@ -154,7 +154,7 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 			// Upsert: INSERT ... ON CONFLICT UPDATE
 			// Pattern: Accumulate if hour record already exists (multiple flushes per hour)
 			_, saveErr := tx.ServiceTrafficHourly.Create().
-				SetID(ulid.Make().String()).
+				SetID(utils.GenerateID()).
 				SetInstanceID(stats.instanceID).
 				SetHourStart(stats.hourStart).
 				SetTxBytes(stats.txBytes).

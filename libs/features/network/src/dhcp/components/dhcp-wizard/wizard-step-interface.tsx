@@ -119,9 +119,9 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
           </div>
 
           {selectedInterface && selectedInterface.ipAddress && (
-            <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted/50 p-component-md space-y-2">
               <h4 className="font-medium text-sm">Selected Interface Details</h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Name:</span>
                   <span className="ml-2 font-mono">{selectedInterface.name}</span>

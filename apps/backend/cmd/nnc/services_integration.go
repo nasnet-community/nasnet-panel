@@ -4,9 +4,6 @@
 package main
 
 import (
-	"log"
-
-	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -26,13 +23,12 @@ func initIntegrationServices(
 	orchestrator *bootstrap.OrchestratorComponents,
 	storage *bootstrap.StorageComponents,
 	routerPort *router.MockAdapter,
-	logger zerolog.Logger,
 	sugar *zap.SugaredLogger,
 	encryptionService *encryption.Service,
 ) (*bootstrap.IntegrationComponents, error) {
 	// Create config registry (empty for now, generators can be registered later)
 	configRegistry := config.NewRegistry()
-	log.Printf("Config registry initialized (generators can be registered dynamically)")
+	sugar.Infow("Config registry initialized", "note", "generators can be registered dynamically")
 
 	return bootstrap.InitializeIntegrationServices(
 		systemDB,
@@ -45,7 +41,7 @@ func initIntegrationServices(
 		storage.PathResolver,
 		orchestrator.PortRegistry,
 		orchestrator.VLANAllocator,
-		logger,
+		sugar.Desugar(),
 		sugar,
 	)
 }

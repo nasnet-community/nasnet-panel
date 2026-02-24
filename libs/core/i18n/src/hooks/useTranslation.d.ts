@@ -28,7 +28,7 @@ import type { TranslationNamespace } from '../i18n';
  * const { t } = useTranslation(['common', 'validation']);
  * ```
  */
-export declare function useTranslation(ns?: TranslationNamespace | TranslationNamespace[]): import("react-i18next").UseTranslationResponse<"vpn" | "wifi" | "firewall" | "errors" | "network" | "validation" | "router" | "common" | "services" | "wizard" | "dashboard" | "diagnostics" | ("vpn" | "wifi" | "firewall" | "errors" | "network" | "validation" | "router" | "common" | "services" | "wizard" | "dashboard" | "diagnostics")[], undefined>;
+export declare function useTranslation(ns?: TranslationNamespace | TranslationNamespace[]): import("react-i18next").UseTranslationResponse<"validation" | "errors" | "network" | "router" | "firewall" | "vpn" | "wifi" | "common" | "services" | "wizard" | "dashboard" | "diagnostics" | ("validation" | "errors" | "network" | "router" | "firewall" | "vpn" | "wifi" | "common" | "services" | "wizard" | "dashboard" | "diagnostics")[], undefined>;
 /**
  * React component for complex translation interpolations
  *

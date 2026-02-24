@@ -82,16 +82,16 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
   };
 
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
+    <div className={cn('flex flex-col gap-component-md', className)}>
       {/* Form Card */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold">DNS Lookup</h2>
+          <h2 className="text-lg font-semibold font-display">DNS Lookup</h2>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
             {/* Hostname Input */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="dns-hostname-mobile">Hostname</Label>
               <Input
                 id="dns-hostname-mobile"
@@ -101,14 +101,14 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                 className="min-h-[44px]"
               />
               {errors.hostname && (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="text-sm text-error" role="alert">
                   {errors.hostname.message}
                 </p>
               )}
             </div>
 
             {/* Record Type Select */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="record-type-mobile">Record Type</Label>
               <Select
                 value={recordType}
@@ -132,7 +132,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
             </div>
 
             {/* DNS Server Select */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="dns-server-mobile">DNS Server</Label>
               <Select
                 value={server || 'default'}
@@ -167,11 +167,11 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-component-sm">
               <Button
                 type="submit"
                 disabled={!isValid || isLoading}
-                className="flex-1 min-h-[44px]"
+                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Run DNS lookup"
               >
                 {isLoading ? 'Looking up...' : 'Lookup'}
@@ -181,7 +181,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                   type="button"
                   variant="outline"
                   onClick={handleReset}
-                  className="min-h-[44px]"
+                  className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-label="Clear results"
                 >
                   Clear
@@ -196,7 +196,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
       {(result || isLoading) && (
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold">Results</h2>
+            <h2 className="text-lg font-semibold font-display">Results</h2>
           </CardHeader>
           <CardContent>
             {isLoading && (

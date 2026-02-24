@@ -148,10 +148,20 @@ type CircuitBreakerFactory struct {
 
 // NewCircuitBreakerFactory creates a new factory with the given config.
 func NewCircuitBreakerFactory(config CircuitBreakerConfig, onStateChange func(routerID string, from, to gobreaker.State)) *CircuitBreakerFactory {
-	return &CircuitBreakerFactory{
+	factory := &CircuitBreakerFactory{
 		config:        config,
 		onStateChange: onStateChange,
 	}
+
+	// Validate configuration
+	if config.MaxFailures == 0 {
+		config.MaxFailures = 3 // Default fallback
+	}
+	if config.Timeout == 0 {
+		config.Timeout = 5 * time.Minute // Default fallback
+	}
+
+	return factory
 }
 
 // Create creates a new circuit breaker for a router.

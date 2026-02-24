@@ -7,21 +7,61 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // ConfigureHealthCheck is the resolver for the configureHealthCheck field.
-func (r *mutationResolver) ConfigureHealthCheck(_ context.Context, input graphql1.ConfigureHealthCheckInput) (*graphql1.ServiceInstanceHealth, error) {
-	return nil, fmt.Errorf("not implemented")
+func (r *mutationResolver) ConfigureHealthCheck(ctx context.Context, input graphql1.ConfigureHealthCheckInput) (*graphql1.ServiceInstanceHealth, error) {
+	if r.Resolver.InstanceManager == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "instance manager not configured", "graphql")
+	}
+
+	if input.InstanceID == "" {
+		return nil, errors.NewValidationError("instanceID", input.InstanceID, "instance ID is required")
+	}
+
+	// TODO: Implement ConfigureHealthCheck - call InstanceManager when API is available
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ConfigureHealthCheck", "graphql")
 }
 
 // InstanceHealth is the resolver for the instanceHealth field.
-func (r *queryResolver) InstanceHealth(_ context.Context, routerID string, instanceID string) (*graphql1.ServiceInstanceHealth, error) {
-	return nil, fmt.Errorf("not implemented")
+func (r *queryResolver) InstanceHealth(ctx context.Context, routerID string, instanceID string) (*graphql1.ServiceInstanceHealth, error) {
+	if r.Resolver.InstanceManager == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "instance manager not configured", "graphql")
+	}
+
+	// Validate input
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "router ID is required")
+	}
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", instanceID, "instance ID is required")
+	}
+
+	// TODO: Implement InstanceHealth - call InstanceManager when API is available
+	return nil, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: InstanceHealth", "graphql")
 }
 
 // InstanceHealthChanged is the resolver for the instanceHealthChanged field.
-func (r *subscriptionResolver) InstanceHealthChanged(_ context.Context, routerID string, instanceID *string) (<-chan *graphql1.ServiceInstanceHealth, error) {
-	return nil, fmt.Errorf("not implemented")
+func (r *subscriptionResolver) InstanceHealthChanged(ctx context.Context, routerID string, instanceID *string) (<-chan *graphql1.ServiceInstanceHealth, error) {
+	if r.Resolver.InstanceManager == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "instance manager not configured", "graphql")
+	}
+
+	// Validate input
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "router ID is required")
+	}
+
+	// Create a channel for health status updates
+	healthChannel := make(chan *graphql1.ServiceInstanceHealth, 10)
+
+	// TODO: Implement InstanceHealthChanged subscription - call InstanceManager when API is available
+	go func() {
+		defer close(healthChannel)
+		<-ctx.Done()
+	}()
+
+	return healthChannel, errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: InstanceHealthChanged", "graphql")
 }

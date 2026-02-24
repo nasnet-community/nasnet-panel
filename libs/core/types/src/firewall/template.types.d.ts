@@ -76,21 +76,21 @@ export declare const TemplateVariableSchema: z.ZodObject<{
     description: z.ZodOptional<z.ZodString>;
     options: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    label: string;
-    name: string;
     type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+    name: string;
+    label: string;
     isRequired: boolean;
-    defaultValue?: string | undefined;
     description?: string | undefined;
     options?: string[] | undefined;
+    defaultValue?: string | undefined;
 }, {
-    label: string;
-    name: string;
     type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+    name: string;
+    label: string;
     isRequired: boolean;
-    defaultValue?: string | undefined;
     description?: string | undefined;
     options?: string[] | undefined;
+    defaultValue?: string | undefined;
 }>;
 /**
  * Type for a template variable definition
@@ -111,17 +111,17 @@ export declare const TemplateRuleSchema: z.ZodObject<{
     position: z.ZodNullable<z.ZodNumber>;
     properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
-    table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+    chain: string;
     action: string;
     position: number | null;
-    chain: string;
+    table: "FILTER" | "NAT" | "MANGLE" | "RAW";
     properties: Record<string, unknown>;
     comment?: string | undefined;
 }, {
-    table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+    chain: string;
     action: string;
     position: number | null;
-    chain: string;
+    table: "FILTER" | "NAT" | "MANGLE" | "RAW";
     properties: Record<string, unknown>;
     comment?: string | undefined;
 }>;
@@ -147,17 +147,17 @@ export declare const TemplateConflictSchema: z.ZodObject<{
         position: z.ZodNullable<z.ZodNumber>;
         properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
     }, "strip", z.ZodTypeAny, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }>>;
@@ -166,10 +166,10 @@ export declare const TemplateConflictSchema: z.ZodObject<{
     message: string;
     existingRuleId?: string | undefined;
     proposedRule?: {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     } | undefined;
@@ -178,10 +178,10 @@ export declare const TemplateConflictSchema: z.ZodObject<{
     message: string;
     existingRuleId?: string | undefined;
     proposedRule?: {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     } | undefined;
@@ -238,21 +238,21 @@ export declare const FirewallTemplateSchema: z.ZodObject<{
         description: z.ZodOptional<z.ZodString>;
         options: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        label: string;
-        name: string;
         type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+        name: string;
+        label: string;
         isRequired: boolean;
-        defaultValue?: string | undefined;
         description?: string | undefined;
         options?: string[] | undefined;
+        defaultValue?: string | undefined;
     }, {
-        label: string;
-        name: string;
         type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+        name: string;
+        label: string;
         isRequired: boolean;
-        defaultValue?: string | undefined;
         description?: string | undefined;
         options?: string[] | undefined;
+        defaultValue?: string | undefined;
     }>, "many">>;
     rules: z.ZodReadonly<z.ZodArray<z.ZodObject<{
         table: z.ZodEnum<["FILTER", "NAT", "MANGLE", "RAW"]>;
@@ -262,17 +262,17 @@ export declare const FirewallTemplateSchema: z.ZodObject<{
         position: z.ZodNullable<z.ZodNumber>;
         properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
     }, "strip", z.ZodTypeAny, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }>, "many">>;
@@ -281,58 +281,58 @@ export declare const FirewallTemplateSchema: z.ZodObject<{
     createdAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
     updatedAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
 }, "strip", z.ZodTypeAny, {
-    id: string;
-    name: string;
     version: string;
-    rules: readonly {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-        action: string;
-        position: number | null;
-        chain: string;
-        properties: Record<string, unknown>;
-        comment?: string | undefined;
-    }[];
     description: string;
-    category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+    id: string;
+    category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+    name: string;
     isBuiltIn: boolean;
     complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
     ruleCount: number;
     variables: readonly {
-        label: string;
-        name: string;
         type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+        name: string;
+        label: string;
         isRequired: boolean;
-        defaultValue?: string | undefined;
         description?: string | undefined;
         options?: string[] | undefined;
+        defaultValue?: string | undefined;
+    }[];
+    rules: readonly {
+        chain: string;
+        action: string;
+        position: number | null;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        properties: Record<string, unknown>;
+        comment?: string | undefined;
     }[];
     updatedAt?: Date | null | undefined;
     createdAt?: Date | null | undefined;
 }, {
-    id: string;
-    name: string;
     version: string;
-    rules: readonly {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-        action: string;
-        position: number | null;
-        chain: string;
-        properties: Record<string, unknown>;
-        comment?: string | undefined;
-    }[];
     description: string;
-    category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+    id: string;
+    category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+    name: string;
     isBuiltIn: boolean;
     complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
     ruleCount: number;
     variables: readonly {
-        label: string;
-        name: string;
         type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+        name: string;
+        label: string;
         isRequired: boolean;
-        defaultValue?: string | undefined;
         description?: string | undefined;
         options?: string[] | undefined;
+        defaultValue?: string | undefined;
+    }[];
+    rules: readonly {
+        chain: string;
+        action: string;
+        position: number | null;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        properties: Record<string, unknown>;
+        comment?: string | undefined;
     }[];
     updatedAt?: Date | null | undefined;
     createdAt?: Date | null | undefined;
@@ -365,21 +365,21 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
             description: z.ZodOptional<z.ZodString>;
             options: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         }, "strip", z.ZodTypeAny, {
-            label: string;
-            name: string;
             type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
             isRequired: boolean;
-            defaultValue?: string | undefined;
             description?: string | undefined;
             options?: string[] | undefined;
+            defaultValue?: string | undefined;
         }, {
-            label: string;
-            name: string;
             type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
             isRequired: boolean;
-            defaultValue?: string | undefined;
             description?: string | undefined;
             options?: string[] | undefined;
+            defaultValue?: string | undefined;
         }>, "many">>;
         rules: z.ZodReadonly<z.ZodArray<z.ZodObject<{
             table: z.ZodEnum<["FILTER", "NAT", "MANGLE", "RAW"]>;
@@ -389,17 +389,17 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
             position: z.ZodNullable<z.ZodNumber>;
             properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
         }, "strip", z.ZodTypeAny, {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         }, {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         }>, "many">>;
@@ -408,58 +408,58 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         createdAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
         updatedAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
     }, "strip", z.ZodTypeAny, {
-        id: string;
-        name: string;
         version: string;
-        rules: readonly {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-            action: string;
-            position: number | null;
-            chain: string;
-            properties: Record<string, unknown>;
-            comment?: string | undefined;
-        }[];
         description: string;
-        category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        id: string;
+        category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        name: string;
         isBuiltIn: boolean;
         complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
         ruleCount: number;
         variables: readonly {
-            label: string;
-            name: string;
             type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
             isRequired: boolean;
-            defaultValue?: string | undefined;
             description?: string | undefined;
             options?: string[] | undefined;
+            defaultValue?: string | undefined;
+        }[];
+        rules: readonly {
+            chain: string;
+            action: string;
+            position: number | null;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            properties: Record<string, unknown>;
+            comment?: string | undefined;
         }[];
         updatedAt?: Date | null | undefined;
         createdAt?: Date | null | undefined;
     }, {
-        id: string;
-        name: string;
         version: string;
-        rules: readonly {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-            action: string;
-            position: number | null;
-            chain: string;
-            properties: Record<string, unknown>;
-            comment?: string | undefined;
-        }[];
         description: string;
-        category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        id: string;
+        category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        name: string;
         isBuiltIn: boolean;
         complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
         ruleCount: number;
         variables: readonly {
-            label: string;
-            name: string;
             type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
             isRequired: boolean;
-            defaultValue?: string | undefined;
             description?: string | undefined;
             options?: string[] | undefined;
+            defaultValue?: string | undefined;
+        }[];
+        rules: readonly {
+            chain: string;
+            action: string;
+            position: number | null;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            properties: Record<string, unknown>;
+            comment?: string | undefined;
         }[];
         updatedAt?: Date | null | undefined;
         createdAt?: Date | null | undefined;
@@ -472,17 +472,17 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         position: z.ZodNullable<z.ZodNumber>;
         properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
     }, "strip", z.ZodTypeAny, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }, {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }>, "many">>;
@@ -498,17 +498,17 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
             position: z.ZodNullable<z.ZodNumber>;
             properties: z.ZodRecord<z.ZodString, z.ZodUnknown>;
         }, "strip", z.ZodTypeAny, {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         }, {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         }>>;
@@ -517,10 +517,10 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         message: string;
         existingRuleId?: string | undefined;
         proposedRule?: {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         } | undefined;
@@ -529,10 +529,10 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         message: string;
         existingRuleId?: string | undefined;
         proposedRule?: {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         } | undefined;
@@ -554,53 +554,53 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         estimatedApplyTime: number;
     }>;
 }, "strip", z.ZodTypeAny, {
-    template: {
-        id: string;
-        name: string;
-        version: string;
-        rules: readonly {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-            action: string;
-            position: number | null;
-            chain: string;
-            properties: Record<string, unknown>;
-            comment?: string | undefined;
-        }[];
-        description: string;
-        category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
-        isBuiltIn: boolean;
-        complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
-        ruleCount: number;
-        variables: readonly {
-            label: string;
-            name: string;
-            type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
-            isRequired: boolean;
-            defaultValue?: string | undefined;
-            description?: string | undefined;
-            options?: string[] | undefined;
-        }[];
-        updatedAt?: Date | null | undefined;
-        createdAt?: Date | null | undefined;
-    };
     conflicts: readonly {
         type: "DUPLICATE_RULE" | "IP_OVERLAP" | "CHAIN_CONFLICT" | "POSITION_CONFLICT" | "PORT_CONFLICT";
         message: string;
         existingRuleId?: string | undefined;
         proposedRule?: {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         } | undefined;
     }[];
+    template: {
+        version: string;
+        description: string;
+        id: string;
+        category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        name: string;
+        isBuiltIn: boolean;
+        complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
+        ruleCount: number;
+        variables: readonly {
+            type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
+            isRequired: boolean;
+            description?: string | undefined;
+            options?: string[] | undefined;
+            defaultValue?: string | undefined;
+        }[];
+        rules: readonly {
+            chain: string;
+            action: string;
+            position: number | null;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            properties: Record<string, unknown>;
+            comment?: string | undefined;
+        }[];
+        updatedAt?: Date | null | undefined;
+        createdAt?: Date | null | undefined;
+    };
     resolvedRules: readonly {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }[];
@@ -611,53 +611,53 @@ export declare const TemplatePreviewResultSchema: z.ZodObject<{
         estimatedApplyTime: number;
     };
 }, {
-    template: {
-        id: string;
-        name: string;
-        version: string;
-        rules: readonly {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
-            action: string;
-            position: number | null;
-            chain: string;
-            properties: Record<string, unknown>;
-            comment?: string | undefined;
-        }[];
-        description: string;
-        category: "VPN" | "BASIC" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
-        isBuiltIn: boolean;
-        complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
-        ruleCount: number;
-        variables: readonly {
-            label: string;
-            name: string;
-            type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
-            isRequired: boolean;
-            defaultValue?: string | undefined;
-            description?: string | undefined;
-            options?: string[] | undefined;
-        }[];
-        updatedAt?: Date | null | undefined;
-        createdAt?: Date | null | undefined;
-    };
     conflicts: readonly {
         type: "DUPLICATE_RULE" | "IP_OVERLAP" | "CHAIN_CONFLICT" | "POSITION_CONFLICT" | "PORT_CONFLICT";
         message: string;
         existingRuleId?: string | undefined;
         proposedRule?: {
-            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            chain: string;
             action: string;
             position: number | null;
-            chain: string;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
             properties: Record<string, unknown>;
             comment?: string | undefined;
         } | undefined;
     }[];
+    template: {
+        version: string;
+        description: string;
+        id: string;
+        category: "BASIC" | "VPN" | "CUSTOM" | "HOME" | "GAMING" | "IOT" | "GUEST" | "SECURITY";
+        name: string;
+        isBuiltIn: boolean;
+        complexity: "ADVANCED" | "SIMPLE" | "MODERATE" | "EXPERT";
+        ruleCount: number;
+        variables: readonly {
+            type: "PORT" | "INTERFACE" | "SUBNET" | "IP" | "PORT_RANGE" | "VLAN_ID" | "STRING" | "NUMBER" | "BOOLEAN";
+            name: string;
+            label: string;
+            isRequired: boolean;
+            description?: string | undefined;
+            options?: string[] | undefined;
+            defaultValue?: string | undefined;
+        }[];
+        rules: readonly {
+            chain: string;
+            action: string;
+            position: number | null;
+            table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+            properties: Record<string, unknown>;
+            comment?: string | undefined;
+        }[];
+        updatedAt?: Date | null | undefined;
+        createdAt?: Date | null | undefined;
+    };
     resolvedRules: readonly {
-        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
+        chain: string;
         action: string;
         position: number | null;
-        chain: string;
+        table: "FILTER" | "NAT" | "MANGLE" | "RAW";
         properties: Record<string, unknown>;
         comment?: string | undefined;
     }[];

@@ -191,7 +191,7 @@ export function ResourceLimitsForm({
             {form.formState.errors.memoryMB && (
               <p
                 id="memoryMB-error"
-                className="text-sm text-destructive"
+                className="text-sm text-error"
                 role="alert"
               >
                 {form.formState.errors.memoryMB.message}
@@ -224,7 +224,7 @@ export function ResourceLimitsForm({
             {form.formState.errors.cpuWeight && (
               <p
                 id="cpuWeight-error"
-                className="text-sm text-destructive"
+                className="text-sm text-error"
                 role="alert"
               >
                 {form.formState.errors.cpuWeight.message}
@@ -238,10 +238,10 @@ export function ResourceLimitsForm({
           {/* Form-level error */}
           {form.formState.errors.root && (
             <div
-              className="p-3 rounded-md bg-destructive/10 border border-destructive/20"
+              className="p-3 rounded-md bg-error/10 border border-error/20"
               role="alert"
             >
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.root.message}
               </p>
             </div>

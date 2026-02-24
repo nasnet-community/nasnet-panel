@@ -8,6 +8,9 @@ import (
 	"io"
 	"os"
 	"strings"
+	// Note: Ed25519 and ECDSA are not currently used for binary verification.
+	// This package uses SHA256 checksums. GPG verification is not implemented.
+	// Public key pinning is not implemented. These are noted for future enhancement.
 )
 
 // ChecksumEntry represents a single entry from checksums.txt in GNU sha256sum format.
@@ -30,16 +33,23 @@ func (e *VerifyError) Error() string {
 }
 
 // VerificationResult contains the outcome of a binary verification check.
+// Note: GPGVerified and GPGKeyID are reserved for future use and not currently implemented.
 type VerificationResult struct {
 	Success      bool
 	ArchiveHash  string
 	BinaryHash   string
-	GPGVerified  bool
-	GPGKeyID     string
+	GPGVerified  bool   // Reserved for future use
+	GPGKeyID     string // Reserved for future use
 	Error        *VerifyError
 	VerifiedAt   string
 	ChecksumsURL string
 }
+
+// ParseChecksumsFile parses a checksums.txt file in GNU sha256sum format.
+// Format: <sha256hex>  <filename>
+// Empty lines and lines starting with # are skipped.
+// MaxFileSize is the maximum file size to verify (1GB). Larger files will be rejected.
+const MaxFileSizeToVerify = 1024 * 1024 * 1024 // 1GB
 
 // ParseChecksumsFile parses a checksums.txt file in GNU sha256sum format.
 // Format: <sha256hex>  <filename>
@@ -91,6 +101,7 @@ func ParseChecksumsFile(r io.Reader) ([]ChecksumEntry, error) {
 }
 
 // CalculateSHA256 calculates the SHA256 checksum of a file.
+// Returns an error if the file exceeds MaxFileSizeToVerify.
 func CalculateSHA256(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -98,8 +109,19 @@ func CalculateSHA256(filePath string) (string, error) {
 	}
 	defer file.Close()
 
+	// Check file size before hashing
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return "", fmt.Errorf("failed to stat file: %w", err)
+	}
+	if fileInfo.Size() > MaxFileSizeToVerify {
+		return "", fmt.Errorf("file size %d exceeds maximum allowed %d", fileInfo.Size(), MaxFileSizeToVerify)
+	}
+
 	hash := sha256.New()
-	if _, err := io.Copy(hash, file); err != nil {
+	// Limit read to MaxFileSizeToVerify to prevent reading oversized files
+	limitedFile := io.LimitReader(file, MaxFileSizeToVerify)
+	if _, err := io.Copy(hash, limitedFile); err != nil {
 		return "", fmt.Errorf("failed to calculate hash: %w", err)
 	}
 
@@ -107,6 +129,7 @@ func CalculateSHA256(filePath string) (string, error) {
 }
 
 // VerifySHA256 verifies that a file matches the expected SHA256 checksum.
+// Returns an error if the file exceeds MaxFileSizeToVerify.
 func VerifySHA256(filePath, expectedChecksum string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -114,8 +137,19 @@ func VerifySHA256(filePath, expectedChecksum string) error {
 	}
 	defer file.Close()
 
+	// Check file size before hashing
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
+	if fileInfo.Size() > MaxFileSizeToVerify {
+		return fmt.Errorf("file size %d exceeds maximum allowed %d", fileInfo.Size(), MaxFileSizeToVerify)
+	}
+
 	hash := sha256.New()
-	if _, err := io.Copy(hash, file); err != nil {
+	// Limit read to MaxFileSizeToVerify to prevent reading oversized files
+	limitedFile := io.LimitReader(file, MaxFileSizeToVerify)
+	if _, err := io.Copy(hash, limitedFile); err != nil {
 		return fmt.Errorf("failed to calculate hash: %w", err)
 	}
 

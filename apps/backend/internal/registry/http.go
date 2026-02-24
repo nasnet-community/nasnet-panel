@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,9 +26,16 @@ type DownloadConfig struct {
 	// If 0, the download starts from the beginning.
 	ResumeFrom int64
 
+	// MaxFileSize is the maximum allowed file size in bytes (default: 500MB).
+	// Set to 0 for no limit.
+	MaxFileSize int64
+
 	// ProgressFn is called periodically with bytes downloaded so far.
 	// Can be nil if progress reporting is not needed.
 	ProgressFn func(bytesDownloaded int64, totalBytes int64)
+
+	// HTTPClient is an optional custom HTTP client. If nil, a default client is created.
+	HTTPClient *http.Client
 }
 
 // DownloadResult contains the result of an HTTP download.
@@ -72,7 +80,25 @@ func executeDownloadRequest(ctx context.Context, cfg DownloadConfig) (*http.Resp
 		timeout = 5 * time.Minute
 	}
 
-	client := &http.Client{Timeout: timeout}
+	var client *http.Client
+	if cfg.HTTPClient != nil {
+		client = cfg.HTTPClient
+	} else {
+		// Create a client with strict TLS verification and reasonable timeouts
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: false, // DO NOT skip TLS verification
+				MinVersion:         tls.VersionTLS12,
+			},
+			MaxIdleConns:      10,
+			IdleConnTimeout:   30 * time.Second,
+			DisableKeepAlives: false,
+		}
+		client = &http.Client{
+			Timeout:   timeout,
+			Transport: transport,
+		}
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, cfg.URL, http.NoBody)
 	if err != nil {
@@ -91,6 +117,15 @@ func executeDownloadRequest(ctx context.Context, cfg DownloadConfig) (*http.Resp
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
 		resp.Body.Close()
 		return nil, fmt.Errorf("download returned status %d", resp.StatusCode)
+	}
+
+	// Validate Content-Length doesn't exceed MaxFileSize
+	if cfg.MaxFileSize > 0 {
+		contentLength := parseContentLength(resp, 0) // get actual content length
+		if contentLength > cfg.MaxFileSize {
+			resp.Body.Close()
+			return nil, fmt.Errorf("file size %d exceeds maximum allowed %d", contentLength, cfg.MaxFileSize)
+		}
 	}
 
 	return resp, nil
@@ -125,13 +160,22 @@ func openDestFile(destPath string, resumeFrom int64) (*os.File, error) {
 	return file, nil
 }
 
-// copyWithProgress copies from reader to writer with optional progress reporting.
+// copyWithProgress copies from reader to writer with optional progress reporting and size limits.
 func copyWithProgress(src io.Reader, dst io.Writer, resumeFrom, totalBytes int64, progressFn func(int64, int64)) (int64, error) {
 	var written int64
 	buf := make([]byte, 32*1024) // 32KB buffer
 
+	// Limit reader to prevent reading more than announced content-length
+	// This prevents slow-loris and other DoS attacks
+	var limitedSrc io.Reader
+	if totalBytes > 0 {
+		limitedSrc = io.LimitReader(src, totalBytes)
+	} else {
+		limitedSrc = src
+	}
+
 	for {
-		n, readErr := src.Read(buf)
+		n, readErr := limitedSrc.Read(buf)
 		if n > 0 {
 			nw, writeErr := dst.Write(buf[:n])
 			if writeErr != nil {

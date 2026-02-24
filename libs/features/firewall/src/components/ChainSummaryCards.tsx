@@ -51,7 +51,7 @@ const ActionDistribution = React.memo(function ActionDistribution({
         )}
         {dropPercent > 0 && (
           <div
-            className="bg-destructive"
+            className="bg-error"
             style={{ width: `${dropPercent}%` }}
             title={`${summary.dropCount} drop`}
           />
@@ -85,19 +85,19 @@ const ChainCard = React.memo(function ChainCard({
 
   // Dynamic border color based on chain
   const borderColors: Record<string, string> = {
-    blue: 'border-l-blue-500',
-    purple: 'border-l-purple-500',
-    amber: 'border-l-amber-500',
-    teal: 'border-l-teal-500',
-    rose: 'border-l-rose-500',
+    blue: 'border-l-info',
+    purple: 'border-l-secondary',
+    amber: 'border-l-primary',
+    teal: 'border-l-success',
+    rose: 'border-l-error',
   };
 
   const selectedBg: Record<string, string> = {
-    blue: 'bg-blue-50 dark:bg-blue-950/30',
-    purple: 'bg-purple-50 dark:bg-purple-950/30',
-    amber: 'bg-amber-50 dark:bg-amber-950/30',
-    teal: 'bg-teal-50 dark:bg-teal-950/30',
-    rose: 'bg-rose-50 dark:bg-rose-950/30',
+    blue: 'bg-info/10 dark:bg-info/5',
+    purple: 'bg-secondary/10 dark:bg-secondary/5',
+    amber: 'bg-primary/10 dark:bg-primary/5',
+    teal: 'bg-success/10 dark:bg-success/5',
+    rose: 'bg-error/10 dark:bg-error/5',
   };
 
   const handleClick = useCallback(() => {
@@ -111,24 +111,24 @@ const ChainCard = React.memo(function ChainCard({
       aria-pressed={isSelected}
       className={cn(
         'w-full text-left rounded-xl border-l-4 p-4 transition-all',
-        borderColors[colorName] || 'border-l-slate-500',
+        borderColors[colorName] || 'border-l-muted-foreground',
         isSelected
-          ? `${selectedBg[colorName] || 'bg-slate-50 dark:bg-slate-800'} ring-2 ring-primary/50`
-          : 'bg-card hover:bg-muted/50 dark:bg-slate-800 dark:hover:bg-slate-700/50',
-        'border border-border dark:border-slate-700'
+          ? `${selectedBg[colorName] || 'bg-muted/50 dark:bg-muted/20'} ring-2 ring-primary/50`
+          : 'bg-card hover:bg-muted/50 dark:hover:bg-muted/30',
+        'border border-border'
       )}
     >
       {/* Chain name and count */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100 uppercase text-sm tracking-wide">
+          <h3 className="font-semibold text-foreground uppercase text-sm tracking-wide">
             {summary.chain}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {description}
           </p>
         </div>
-        <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <span className="text-2xl font-bold text-foreground">
           {summary.totalRules}
         </span>
       </div>
@@ -142,7 +142,7 @@ const ChainCard = React.memo(function ChainCard({
           <span className="text-muted-foreground">accept</span>
         </div>
         <div className="text-center">
-          <span className="block font-semibold text-destructive">
+          <span className="block font-semibold text-error">
             {summary.dropCount}
           </span>
           <span className="text-muted-foreground">drop</span>
@@ -233,7 +233,7 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   if (error) {
     return (
       <div
-        className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}
+        className={cn('p-4 text-error rounded-lg bg-error/10', className)}
         role="alert"
       >
         <p className="font-medium">Error Loading Chain Summary</p>
@@ -254,8 +254,8 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
               : 'Click a chain to filter rules'}
           </p>
         </div>
-        <div className="text-sm text-slate-500 dark:text-slate-400">
-          <span className="font-medium text-slate-700 dark:text-slate-300">
+        <div className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">
             {totalRules}
           </span>{' '}
           total rules
@@ -281,7 +281,7 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
           Accept
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-destructive" aria-hidden="true" />
+          <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
           Drop
         </span>
         <span className="flex items-center gap-1">

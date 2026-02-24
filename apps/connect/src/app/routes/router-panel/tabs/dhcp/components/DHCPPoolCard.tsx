@@ -28,7 +28,7 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
   const utilizationPercent = totalSize > 0 ? Math.round((usedCount / totalSize) * 100) : 0;
 
   return (
-    <div className={`bg-card rounded-xl border border-border p-4 ${className}`}>
+    <div className={`bg-card rounded-card-sm border border-border p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -59,15 +59,15 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
 
       {/* Stats Row */}
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="bg-muted rounded-lg p-2">
+        <div className="bg-muted rounded-md p-2">
           <p className="text-lg font-bold text-foreground">{usedCount}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.assigned')}</p>
         </div>
-        <div className="bg-muted rounded-lg p-2">
+        <div className="bg-muted rounded-md p-2">
           <p className="text-lg font-bold text-foreground">{availableCount}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.available')}</p>
         </div>
-        <div className="bg-muted rounded-lg p-2">
+        <div className="bg-muted rounded-md p-2">
           <p className="text-lg font-bold text-foreground">{totalSize}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.total')}</p>
         </div>

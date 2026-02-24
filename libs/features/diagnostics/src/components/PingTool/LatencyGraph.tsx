@@ -60,14 +60,14 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as ChartDataPoint;
 
   return (
-    <div className="bg-popover border rounded-md p-2 shadow-md text-sm">
+    <div className="bg-card border rounded-md p-2 shadow-md text-sm">
       <div className="font-semibold">Ping #{data.seq}</div>
       {data.time !== null ? (
         <div className="text-muted-foreground">
           Latency: <span className="text-foreground font-mono">{data.time.toFixed(1)} ms</span>
         </div>
       ) : (
-        <div className="text-destructive">Timeout</div>
+        <div className="text-error">Timeout</div>
       )}
     </div>
   );
@@ -163,9 +163,9 @@ export const LatencyGraph = memo(
             {/* Reference line at 200ms (critical threshold) */}
             <ReferenceLine
               y={200}
-              stroke="hsl(var(--destructive))"
+              stroke="hsl(var(--error))"
               strokeDasharray="5 5"
-              label={{ value: 'Critical (200ms)', position: 'right', className: 'text-xs fill-destructive' }}
+              label={{ value: 'Critical (200ms)', position: 'right', className: 'text-xs fill-error' }}
             />
 
             {/* Latency line - connectNulls=false shows gaps for timeouts */}

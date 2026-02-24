@@ -57,10 +57,10 @@ function TemplatesBrowserDesktopComponent({
     <div className={cn('flex h-full', className)}>
       {/* Left Sidebar - Filters */}
       <aside
-        className="w-80 border-r border-border bg-muted/10 p-6 overflow-y-auto"
+        className="w-80 border-r border-border bg-muted p-component-lg overflow-y-auto"
         aria-label="Template filter controls"
       >
-        <h2 className="text-lg font-semibold mb-6">Filters</h2>
+        <h2 className="text-lg font-semibold mb-component-lg">Filters</h2>
         <TemplateFilters
           filters={filters}
           onFiltersChange={updateFilters}
@@ -72,7 +72,7 @@ function TemplatesBrowserDesktopComponent({
       {/* Main Content - Templates Grid */}
       <main className="flex-1 overflow-y-auto" aria-label="Service templates list">
         {/* Header */}
-        <div className="border-b border-border bg-background p-6 sticky top-0 z-10">
+        <div className="border-b border-border bg-background p-component-lg sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Service Templates</h1>
@@ -87,20 +87,20 @@ function TemplatesBrowserDesktopComponent({
 
         {/* Error State */}
         {error && (
-          <div className="p-6">
-            <Card className="border-destructive" role="alert">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-destructive mb-2">
+          <div className="p-component-lg">
+            <Card className="border-error" role="alert">
+              <CardContent className="p-component-lg">
+                <h3 className="font-semibold text-error mb-component-sm">
                   Failed to load templates
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground mb-component-md">
                   {error.message}
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRetry}
-                  className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   Retry
                 </Button>
@@ -111,9 +111,9 @@ function TemplatesBrowserDesktopComponent({
 
         {/* Loading State */}
         {loading && !error && (
-          <div className="p-6 grid grid-cols-2 gap-6" role="status" aria-label="Loading templates">
+          <div className="p-component-lg grid grid-cols-2 gap-component-lg" role="status" aria-label="Loading templates">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              <Skeleton key={i} className="h-64 w-full rounded-[var(--semantic-radius-card)]" />
             ))}
           </div>
         )}
@@ -142,7 +142,7 @@ function TemplatesBrowserDesktopComponent({
 
         {/* Templates Grid */}
         {!loading && !error && templates.length > 0 && (
-          <div className="p-6 grid grid-cols-2 gap-6" role="list" aria-label="Service templates list">
+          <div className="p-component-lg grid grid-cols-2 gap-component-lg" role="list" aria-label="Service templates list">
             {templates.map((template) => (
               <ServiceTemplateCard
                 key={template.id}

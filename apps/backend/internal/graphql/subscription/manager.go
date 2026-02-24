@@ -5,9 +5,10 @@ package subscription
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 
@@ -36,6 +37,7 @@ type Manager struct {
 	subscriptions map[ID]*Subscription
 	mu            sync.RWMutex
 	closed        bool
+	logger        *zap.Logger
 
 	// Statistics
 	totalDelivered    uint64
@@ -45,15 +47,18 @@ type Manager struct {
 
 // NewManager creates a new subscription manager
 func NewManager(eventBus events.EventBus) *Manager {
+	logger := zap.NewNop() // Use nop logger by default; can be replaced with actual logger
+
 	m := &Manager{
 		eventBus:      eventBus,
 		subscriptions: make(map[ID]*Subscription),
+		logger:        logger,
 	}
 
 	// Subscribe to all events for distribution
 	if eventBus != nil {
 		if err := eventBus.SubscribeAll(m.handleEvent); err != nil {
-			log.Printf("[SUBSCRIPTION_MANAGER] Failed to subscribe to events: %v", err)
+			m.logger.Error("Failed to subscribe to events", zap.Error(err))
 		}
 	}
 
@@ -86,7 +91,7 @@ func (m *Manager) Subscribe(opts Options) (ID, error) {
 	m.subscriptions[id] = sub
 	m.activeConnections++
 
-	log.Printf("[SUBSCRIPTION_MANAGER] New subscription %s for event types: %v", id, opts.EventTypes)
+	m.logger.Info("New subscription", zap.String("id", id.String()), zap.Strings("event_types", opts.EventTypes))
 
 	return id, nil
 }
@@ -103,7 +108,7 @@ func (m *Manager) Unsubscribe(id ID) error {
 	delete(m.subscriptions, id)
 	m.activeConnections--
 
-	log.Printf("[SUBSCRIPTION_MANAGER] Subscription %s removed", id)
+	m.logger.Info("Subscription removed", zap.String("id", id.String()))
 
 	return nil
 }
@@ -144,8 +149,7 @@ func (m *Manager) handleEvent(ctx context.Context, event events.Event) error {
 		default:
 			// Channel full, event dropped
 			m.totalDropped++
-			log.Printf("[SUBSCRIPTION_MANAGER] Dropped %s event for subscription %s (channel full)",
-				eventType, sub.ID)
+			m.logger.Warn("Dropped event (channel full)", zap.String("event_type", eventType), zap.String("subscription_id", sub.ID.String()))
 		}
 	}
 
@@ -189,8 +193,7 @@ func (m *Manager) Close() error {
 		delete(m.subscriptions, id)
 	}
 
-	log.Printf("[SUBSCRIPTION_MANAGER] Closed with %d delivered, %d dropped events",
-		m.totalDelivered, m.totalDropped)
+	m.logger.Info("Subscription manager closed", zap.Uint64("delivered", m.totalDelivered), zap.Uint64("dropped", m.totalDropped))
 
 	return nil
 }

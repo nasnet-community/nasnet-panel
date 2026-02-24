@@ -171,11 +171,11 @@ export const ImportTemplateDialog = React.memo(
               type="file"
               accept=".json"
               onChange={handleFileUpload}
-              className="block w-full text-sm text-gray-500
+              className="block w-full text-sm text-muted-foreground
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
-                file:bg-primary file:text-white
+                file:bg-primary file:text-foreground
                 hover:file:bg-primary/90
                 cursor-pointer"
             />
@@ -209,7 +209,7 @@ export const ImportTemplateDialog = React.memo(
   "variables": [...]
 }`}
               rows={12}
-              className="font-mono text-sm text-mono"
+              className="font-mono text-sm"
               aria-label="JSON template input"
               aria-describedby="json-input-description"
             />

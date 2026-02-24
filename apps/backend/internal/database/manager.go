@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -113,8 +112,6 @@ func NewManager(ctx context.Context, opts ...ManagerOption) (*Manager, error) {
 
 // openSystemDB opens the system database with WAL mode and integrity checks.
 func (dm *Manager) openSystemDB(ctx context.Context, path string) error {
-	startTime := time.Now()
-
 	// Open with modernc.org/sqlite driver and time format support
 	dsn := fmt.Sprintf("file:%s?_time_format=sqlite", path)
 	db, err := sql.Open("sqlite", dsn)
@@ -124,9 +121,10 @@ func (dm *Manager) openSystemDB(ctx context.Context, path string) error {
 	}
 
 	// Configure connection pool
-	db.SetMaxOpenConns(1) // SQLite only supports one writer
-	db.SetMaxIdleConns(1)
-	db.SetConnMaxLifetime(0)
+	// SQLite is single-threaded for writers, so we limit to 1 connection
+	db.SetMaxOpenConns(1)    // One writer at a time
+	db.SetMaxIdleConns(1)    // Keep one connection cached
+	db.SetConnMaxLifetime(0) // Connections don't expire (managed by our idle timeout)
 
 	// Apply PRAGMAs
 	pragmas := []string{
@@ -174,7 +172,6 @@ func (dm *Manager) openSystemDB(ctx context.Context, path string) error {
 	dm.systemDB = db
 	dm.systemClient = client
 
-	log.Printf("[database] System database opened in %v at %s", time.Since(startTime), path)
 	return nil
 }
 
@@ -231,7 +228,8 @@ func (dm *Manager) GetRouterDB(ctx context.Context, routerID string) (*ent.Clien
 		return nil, err
 	}
 
-	// Schedule idle close
+	// Schedule idle close with a timer that can be reset on activity
+	// The timer will fire after idleTimeout of inactivity
 	timer := time.AfterFunc(dm.idleTimeout, func() {
 		dm.closeRouterDB(routerID)
 	})
@@ -243,14 +241,11 @@ func (dm *Manager) GetRouterDB(ctx context.Context, routerID string) (*ent.Clien
 		lastUsed: time.Now(),
 	}
 
-	log.Printf("[database] Router database loaded: %s", routerID)
 	return client, nil
 }
 
 // openRouterDB opens a router-specific database with WAL mode.
 func (dm *Manager) openRouterDB(ctx context.Context, path, routerID string) (*ent.Client, *sql.DB, error) {
-	startTime := time.Now()
-
 	// Open with modernc.org/sqlite driver and time format support
 	dsn := fmt.Sprintf("file:%s?_time_format=sqlite", path)
 	db, err := sql.Open("sqlite", dsn)
@@ -261,9 +256,10 @@ func (dm *Manager) openRouterDB(ctx context.Context, path, routerID string) (*en
 	}
 
 	// Configure connection pool
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
-	db.SetConnMaxLifetime(0)
+	// SQLite is single-threaded for writers, so we limit to 1 connection
+	db.SetMaxOpenConns(1)    // One writer at a time
+	db.SetMaxIdleConns(1)    // Keep one connection cached
+	db.SetConnMaxLifetime(0) // Connections don't expire (managed by our idle timeout)
 
 	// Apply PRAGMAs
 	pragmas := []string{
@@ -291,11 +287,9 @@ func (dm *Manager) openRouterDB(ctx context.Context, path, routerID string) (*en
 			WithPath(path).
 			WithRouterID(routerID)
 	}
-	if integrityResult != "ok" {
-		log.Printf("[database] WARNING: Router %s database integrity check failed: %s", routerID, integrityResult)
-		// For router DBs, we log warning but continue (graceful degradation)
-		// The router will be marked as degraded in the system DB
-	}
+	// For router DBs, we continue (graceful degradation)
+	// The router will be marked as degraded in the system DB
+	// if integrityResult != "ok" { ... }
 
 	// Create ent client
 	drv := entsql.OpenDB(dialect.SQLite, db)
@@ -310,7 +304,6 @@ func (dm *Manager) openRouterDB(ctx context.Context, path, routerID string) (*en
 			WithRouterID(routerID)
 	}
 
-	log.Printf("[database] Router database opened in %v at %s", time.Since(startTime), path)
 	return client, db, nil
 }
 
@@ -326,21 +319,32 @@ func (dm *Manager) touchActivity(routerID string) {
 }
 
 // closeRouterDB closes a router database after idle timeout.
+// It safely stops the idle timer and closes both ent client and sql.DB.
 func (dm *Manager) closeRouterDB(routerID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
-	if entry, exists := dm.routerDBs[routerID]; exists {
-		entry.timer.Stop()
-		if err := entry.client.Close(); err != nil {
-			log.Printf("[database] Error closing router %s client: %v", routerID, err)
-		}
-		if err := entry.db.Close(); err != nil {
-			log.Printf("[database] Error closing router %s database: %v", routerID, err)
-		}
-		delete(dm.routerDBs, routerID)
-		log.Printf("[database] Router database closed (idle): %s", routerID)
+	entry, exists := dm.routerDBs[routerID]
+	if !exists {
+		return // Already closed or never loaded
 	}
+
+	// Stop timer to prevent goroutine leak (safe to call even if already fired)
+	if entry.timer != nil {
+		entry.timer.Stop()
+	}
+
+	// Close ent client first to flush pending operations
+	if entry.client != nil {
+		_ = entry.client.Close()
+	}
+
+	// Close underlying sql.DB to release connections
+	if entry.db != nil {
+		_ = entry.db.Close()
+	}
+
+	delete(dm.routerDBs, routerID)
 }
 
 // IsSystemDBOpen returns true if the system database is open.
@@ -364,6 +368,8 @@ func (dm *Manager) LoadedRouterCount() int {
 }
 
 // Close closes all database connections.
+// It ensures all timers are stopped, ent clients are closed, and underlying
+// sql.DB connections are released. Returns an error combining all close failures.
 func (dm *Manager) Close() error {
 	dm.closeMu.Lock()
 	dm.closed = true
@@ -374,19 +380,28 @@ func (dm *Manager) Close() error {
 
 	var errs []error
 
-	// Close all router DBs
+	// Close all router DBs first (prevent new operations during close)
 	for id, entry := range dm.routerDBs {
-		entry.timer.Stop()
-		if err := entry.client.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("close router %s client: %w", id, err))
+		// Stop idle timeout timer to prevent goroutine leaks
+		if entry.timer != nil {
+			entry.timer.Stop()
 		}
-		if err := entry.db.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("close router %s db: %w", id, err))
+		// Close ent client first (flushes pending transactions)
+		if entry.client != nil {
+			if err := entry.client.Close(); err != nil {
+				errs = append(errs, fmt.Errorf("close router %s client: %w", id, err))
+			}
+		}
+		// Close underlying sql.DB (releases connection pool)
+		if entry.db != nil {
+			if err := entry.db.Close(); err != nil {
+				errs = append(errs, fmt.Errorf("close router %s db: %w", id, err))
+			}
 		}
 		delete(dm.routerDBs, id)
 	}
 
-	// Close system DB
+	// Close system DB (close in same order: client first, then sql.DB)
 	if dm.systemClient != nil {
 		if err := dm.systemClient.Close(); err != nil {
 			errs = append(errs, fmt.Errorf("close system client: %w", err))
@@ -402,33 +417,47 @@ func (dm *Manager) Close() error {
 		return errors.Join(errs...)
 	}
 
-	log.Printf("[database] All databases closed")
 	return nil
 }
 
 // ForceCloseRouterDB immediately closes a specific router database.
-// This is useful for maintenance operations.
+// This is useful for maintenance operations. It returns early if the database
+// is not loaded, and returns the first error encountered (if any).
 func (dm *Manager) ForceCloseRouterDB(routerID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
 	entry, exists := dm.routerDBs[routerID]
 	if !exists {
-		return nil // Already closed
+		return nil // Already closed, not an error
 	}
 
-	entry.timer.Stop()
-	if err := entry.client.Close(); err != nil {
-		return NewError(ErrCodeDBConnectionFailed, "failed to close router client", err).
-			WithRouterID(routerID)
+	// Stop idle timeout timer to prevent goroutine leaks
+	if entry.timer != nil {
+		entry.timer.Stop()
 	}
-	if err := entry.db.Close(); err != nil {
-		return NewError(ErrCodeDBConnectionFailed, "failed to close router database", err).
-			WithRouterID(routerID)
+
+	// Close ent client first to flush pending operations
+	if entry.client != nil {
+		if err := entry.client.Close(); err != nil {
+			// Return error but still attempt to close sql.DB
+			_ = entry.db.Close()
+			delete(dm.routerDBs, routerID)
+			return NewError(ErrCodeDBConnectionFailed, "failed to close router client", err).
+				WithRouterID(routerID)
+		}
 	}
+
+	// Close underlying sql.DB to release connections
+	if entry.db != nil {
+		if err := entry.db.Close(); err != nil {
+			delete(dm.routerDBs, routerID)
+			return NewError(ErrCodeDBConnectionFailed, "failed to close router database", err).
+				WithRouterID(routerID)
+		}
+	}
+
 	delete(dm.routerDBs, routerID)
-
-	log.Printf("[database] Router database force closed: %s", routerID)
 	return nil
 }
 
@@ -449,10 +478,9 @@ func (dm *Manager) DeleteRouterDB(routerID string) error {
 	}
 
 	// Also delete WAL and SHM files if they exist
-	os.Remove(path + "-wal")
-	os.Remove(path + "-shm")
+	_ = os.Remove(path + "-wal")
+	_ = os.Remove(path + "-shm")
 
-	log.Printf("[database] Router database deleted: %s", routerID)
 	return nil
 }
 

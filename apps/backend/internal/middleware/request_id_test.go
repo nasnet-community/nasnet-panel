@@ -293,3 +293,70 @@ func TestRequestID_EndToEndFlow(t *testing.T) {
 	assert.NotEmpty(t, responseRequestID)
 	assert.Equal(t, capturedRequestID, responseRequestID)
 }
+
+// =============================================================================
+// Concurrency Tests
+// =============================================================================
+
+func TestGenerateRequestID_ConcurrentGeneration(t *testing.T) {
+	const numGoroutines = 100
+	const idsPerGoroutine = 10
+
+	idsChan := make(chan string, numGoroutines*idsPerGoroutine)
+	done := make(chan struct{})
+
+	// Generate IDs concurrently
+	for i := 0; i < numGoroutines; i++ {
+		go func() {
+			for j := 0; j < idsPerGoroutine; j++ {
+				idsChan <- GenerateRequestID()
+			}
+			done <- struct{}{}
+		}()
+	}
+
+	// Wait for all goroutines to finish
+	for i := 0; i < numGoroutines; i++ {
+		<-done
+	}
+	close(idsChan)
+
+	// Verify all IDs are unique
+	ids := make(map[string]bool)
+	count := 0
+	for id := range idsChan {
+		assert.False(t, ids[id], "Duplicate ID generated under concurrency: %s", id)
+		ids[id] = true
+		count++
+	}
+	assert.Equal(t, numGoroutines*idsPerGoroutine, count)
+}
+
+func TestRequestIDMiddleware_ConcurrentRequests(t *testing.T) {
+	const numRequests = 50
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestID := RequestIDFromContext(r.Context())
+		assert.NotEmpty(t, requestID)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	middleware := RequestIDMiddleware(handler)
+
+	// Simulate concurrent requests
+	done := make(chan struct{}, numRequests)
+	for i := 0; i < numRequests; i++ {
+		go func() {
+			req := httptest.NewRequest("GET", "/test", nil)
+			rec := httptest.NewRecorder()
+			middleware.ServeHTTP(rec, req)
+			assert.Equal(t, http.StatusOK, rec.Code)
+			done <- struct{}{}
+		}()
+	}
+
+	// Wait for all requests to complete
+	for i := 0; i < numRequests; i++ {
+		<-done
+	}
+}

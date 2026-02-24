@@ -99,7 +99,7 @@ export function ConnectedDevices({
   // Loading state
   if (isLoading) {
     return (
-      <Card className={cn('p-6', className)}>
+      <Card className={cn('p-component-lg', className)}>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Skeleton className="h-6 w-48" />
@@ -124,7 +124,7 @@ export function ConnectedDevices({
   // Error state
   if (error) {
     return (
-      <Card className={cn('p-6', className)}>
+      <Card className={cn('p-component-lg', className)}>
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Failed to load connected devices</AlertTitle>
@@ -137,7 +137,7 @@ export function ConnectedDevices({
   // DHCP disabled state
   if (!isDhcpEnabled) {
     return (
-      <Card className={cn('p-6', className)}>
+      <Card className={cn('p-component-lg', className)}>
         <Alert variant="warning">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>DHCP server is disabled</AlertTitle>
@@ -152,7 +152,7 @@ export function ConnectedDevices({
   // Empty state
   if (isEmpty) {
     return (
-      <Card className={cn('p-6', className)}>
+      <Card className={cn('p-component-lg', className)}>
         <EmptyState
           icon={Laptop}
           title="No devices connected"
@@ -169,14 +169,14 @@ export function ConnectedDevices({
 
   // Device list
   return (
-    <Card className={cn('p-6', className)}>
+    <Card className={cn('p-component-lg', className)}>
       {/* Header with actions */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Connected Devices</h2>
+          <div className="flex items-center gap-component-sm">
+            <h2 className="text-lg font-display font-semibold">Connected Devices</h2>
             {hideHostnames && (
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">
+              <span className="text-xs bg-muted px-2 py-0.5 rounded-card-sm text-foreground">
                 Privacy Mode
               </span>
             )}
@@ -231,7 +231,7 @@ export function ConnectedDevices({
       </div>
 
       {/* Device list */}
-      <div className="space-y-0">
+      <div className="space-y-component-sm">
         {devices.map((device) => (
           <DeviceListItem
             key={device.id}

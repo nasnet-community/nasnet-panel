@@ -1,5 +1,4 @@
-//go:build dev
-// +build dev
+//go:build test
 
 package main
 
@@ -41,6 +40,7 @@ func createTestGraphQLServer() *handler.Server {
 // TestGraphQLHealthQuery tests the health query
 func TestGraphQLHealthQuery(t *testing.T) {
 	e := echo.New()
+	defer e.Close()
 	graphqlServer := createTestGraphQLServer()
 
 	// Create GraphQL query for health
@@ -72,6 +72,7 @@ func TestGraphQLHealthQuery(t *testing.T) {
 // TestGraphQLVersionQuery tests the version query
 func TestGraphQLVersionQuery(t *testing.T) {
 	e := echo.New()
+	defer e.Close()
 	graphqlServer := createTestGraphQLServer()
 
 	// Create GraphQL query for version
@@ -92,6 +93,7 @@ func TestGraphQLVersionQuery(t *testing.T) {
 // TestGraphQLIntrospection tests that introspection is enabled
 func TestGraphQLIntrospection(t *testing.T) {
 	e := echo.New()
+	defer e.Close()
 	graphqlServer := createTestGraphQLServer()
 
 	// Create introspection query
@@ -124,6 +126,7 @@ func TestGraphQLIntrospection(t *testing.T) {
 // TestGraphQLInvalidQuery tests handling of invalid queries
 func TestGraphQLInvalidQuery(t *testing.T) {
 	e := echo.New()
+	defer e.Close()
 	graphqlServer := createTestGraphQLServer()
 
 	// Invalid query (missing closing brace)
@@ -154,6 +157,7 @@ func TestGraphQLInvalidQuery(t *testing.T) {
 // TestGraphQLEmptyQuery tests handling of empty queries
 func TestGraphQLEmptyQuery(t *testing.T) {
 	e := echo.New()
+	defer e.Close()
 	graphqlServer := createTestGraphQLServer()
 
 	// Empty query

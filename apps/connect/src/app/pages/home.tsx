@@ -51,7 +51,7 @@ export function HomePage() {
   const diskStatus = calculateStatus(diskPercentage);
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-component-lg">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

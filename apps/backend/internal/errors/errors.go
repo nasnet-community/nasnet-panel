@@ -427,7 +427,11 @@ func IsRecoverable(err error) bool {
 }
 
 // Wrap wraps an error with a RouterError, preserving the error chain.
+// The Cause field is set to the original error for proper error chain unwrapping.
 func Wrap(err error, code string, category ErrorCategory, message string) *RouterError {
+	if err == nil {
+		err = errors.New("unknown error")
+	}
 	return &RouterError{
 		Code:        code,
 		Category:    category,

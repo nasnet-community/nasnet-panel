@@ -109,21 +109,21 @@ function TemplateInstallWizardDesktopComponent({
   return (
     <Dialog open={open} onOpenChange={isInstalling ? undefined : onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4">
+        <DialogHeader className="px-component-lg pt-component-lg pb-component-sm">
           <DialogTitle>Install Template: {template.name}</DialogTitle>
 
           {/* Horizontal Stepper */}
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center justify-between mt-component-lg">
             {STEPS.map((step, index) => {
               const isActive = step.number === currentStep;
               const isCompleted = step.number < currentStep;
 
               return (
                 <React.Fragment key={step.number}>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-component-md">
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         isActive &&
                           'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2',
                         isCompleted && 'bg-primary text-primary-foreground',
@@ -151,7 +151,7 @@ function TemplateInstallWizardDesktopComponent({
                   {index < STEPS.length - 1 && (
                     <div
                       className={cn(
-                        'flex-1 h-0.5 mx-4',
+                        'flex-1 h-0.5 mx-component-md',
                         isCompleted ? 'bg-primary' : 'bg-muted'
                       )}
                     />
@@ -163,7 +163,7 @@ function TemplateInstallWizardDesktopComponent({
         </DialogHeader>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-component-lg py-component-md">
           {currentStep === 1 && (
             <VariablesStep
               template={template}
@@ -194,14 +194,14 @@ function TemplateInstallWizardDesktopComponent({
         </div>
 
         {/* Footer */}
-        <div className="border-t px-6 py-4 bg-muted/10">
+        <div className="border-border px-6 py-4 bg-card border-t">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
               {isInstalling
                 ? 'Installation in progress...'
                 : `Step ${currentStep} of 4`}
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-component-md">
               {canGoPrev && (
                 <Button
                   variant="outline"

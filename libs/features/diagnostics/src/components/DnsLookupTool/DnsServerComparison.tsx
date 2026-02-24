@@ -53,12 +53,12 @@ export const DnsServerComparison = memo(function DnsServerComparison({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
-      <div className="text-sm text-muted-foreground mb-4">
+    <div className={cn('space-y-component-md', className)}>
+      <div className="text-sm text-muted-foreground mb-component-md">
         Comparing {results.length} DNS {results.length === 1 ? 'server' : 'servers'}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-component-md md:grid-cols-2">
         {results.map((result, index) => {
           const isFastest = result.queryTime === fastestTime && results.length > 1;
           const hasError = isErrorStatus(result.status);
@@ -72,13 +72,13 @@ export const DnsServerComparison = memo(function DnsServerComparison({
                 hasError && 'opacity-75'
               )}
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-component-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold font-mono break-all">
+                  <h3 className="text-sm font-semibold font-mono break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     {result.server}
                   </h3>
                   {isFastest && !hasError && (
-                    <Badge variant="default" className="bg-success text-success-foreground">
+                    <Badge variant="success">
                       Fastest
                     </Badge>
                   )}
@@ -102,9 +102,9 @@ export const DnsServerComparison = memo(function DnsServerComparison({
       </div>
 
       {/* Summary Section */}
-      <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-        <h4 className="text-sm font-semibold mb-2">Comparison Summary</h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="mt-component-lg p-component-md bg-muted/50 rounded-card-sm">
+        <h4 className="text-sm font-semibold mb-component-sm font-display">Comparison Summary</h4>
+        <div className="grid grid-cols-2 gap-component-md text-sm">
           <div>
             <span className="text-muted-foreground">Successful queries:</span>
             <span className="ml-2 font-mono tabular-nums">
@@ -130,9 +130,9 @@ export const DnsServerComparison = memo(function DnsServerComparison({
 
           if (hasDiscrepancy) {
             return (
-              <div className="mt-3 p-2 bg-warning/10 border border-warning/20 rounded text-sm">
+              <div className="mt-component-sm p-component-sm bg-warning/10 border border-warning/20 rounded-md text-sm">
                 <span className="text-warning font-medium">⚠ Discrepancy detected:</span>
-                <span className="ml-2 text-muted-foreground">
+                <span className="ml-component-sm text-muted-foreground">
                   Different servers returned different numbers of records
                 </span>
               </div>

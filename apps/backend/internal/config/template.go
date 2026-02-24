@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 )
 
@@ -52,12 +53,12 @@ func contains(slice []string, value string) bool {
 
 // upper converts a string to uppercase.
 func upper(s string) string {
-	return s
+	return strings.ToUpper(s)
 }
 
 // lower converts a string to lowercase.
 func lower(s string) string {
-	return s
+	return strings.ToLower(s)
 }
 
 // ParseTemplate parses a template string with custom functions.

@@ -71,12 +71,12 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 animate-pulse" role="status" aria-label="Loading WiFi status">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md animate-pulse" role="status" aria-label="Loading WiFi status">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-muted rounded-xl p-3 md:p-4">
-            <div className="h-4 bg-muted-foreground/20 rounded w-12 mb-2" />
-            <div className="h-6 bg-muted-foreground/20 rounded w-8 mb-1" />
-            <div className="h-1.5 bg-muted-foreground/20 rounded-full mt-2" />
+          <div key={i} className="bg-muted rounded-card-sm p-component-sm md:p-component-md">
+            <div className="h-4 bg-muted-foreground/20 rounded w-12 mb-component-sm" />
+            <div className="h-6 bg-muted-foreground/20 rounded w-8 mb-component-xs" />
+            <div className="h-1.5 bg-muted-foreground/20 rounded-full mt-component-sm" />
           </div>
         ))}
       </div>
@@ -84,28 +84,28 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md">
       {/* Connected Clients */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <div className="flex items-center gap-1.5 mb-1">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+        <div className="flex items-center gap-component-xs mb-component-xs">
           <Users className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.clients')}</p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">{totalClients}</p>
-        <p className="text-xs text-muted-foreground mt-1">{t('status.connectedDevices')}</p>
+        <p className="text-xl md:text-2xl font-bold font-display text-foreground">{totalClients}</p>
+        <p className="text-xs text-muted-foreground mt-component-xs">{t('status.connectedDevices')}</p>
       </div>
 
       {/* Active Interfaces */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <div className="flex items-center gap-1.5 mb-1">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+        <div className="flex items-center gap-component-xs mb-component-xs">
           <Wifi className="w-3.5 h-3.5 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.active')}</p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+        <p className="text-xl md:text-2xl font-bold font-display text-foreground">
           {activeInterfaces.length}
-          <span className="text-muted-foreground text-sm font-normal ml-1">/{interfaces.length}</span>
+          <span className="text-muted-foreground text-sm font-normal ml-component-sm">/{interfaces.length}</span>
         </p>
-        <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
+        <div className="w-full bg-muted rounded-full h-1.5 mt-component-sm" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
             className="bg-success h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activePercent}%` }}
@@ -114,48 +114,48 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
       </div>
 
       {/* Signal Quality */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <div className="flex items-center gap-1.5 mb-1">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+        <div className="flex items-center gap-component-xs mb-component-xs">
           <Signal className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.signal')}</p>
         </div>
-        <p className={`text-xl md:text-2xl font-bold ${signalQuality.color}`}>
+        <p className={`text-xl md:text-2xl font-bold font-mono ${signalQuality.color}`}>
           {clients.length > 0 ? `${avgSignal} dBm` : '—'}
         </p>
         {clients.length > 0 ? (
           <>
-            <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={signalPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Signal strength">
+            <div className="w-full bg-muted rounded-full h-1.5 mt-component-sm" role="progressbar" aria-valuenow={signalPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Signal strength">
               <div
                 className={`${signalQuality.bgColor} h-1.5 rounded-full transition-all duration-300`}
                 style={{ width: `${signalPercent}%` }}
               />
             </div>
-            <p className={`text-xs mt-1 ${signalQuality.color}`}>{signalQuality.label}</p>
+            <p className={`text-xs mt-component-xs ${signalQuality.color}`}>{signalQuality.label}</p>
           </>
         ) : (
-          <p className="text-xs text-muted-foreground mt-1">{t('status.noClients')}</p>
+          <p className="text-xs text-muted-foreground mt-component-xs">{t('status.noClients')}</p>
         )}
       </div>
 
       {/* Frequency Bands */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <div className="flex items-center gap-1.5 mb-1">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+        <div className="flex items-center gap-component-xs mb-component-xs">
           <Radio className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.bands')}</p>
         </div>
-        <div className="flex flex-wrap gap-1 mt-1">
+        <div className="flex flex-wrap gap-component-xs mt-component-xs">
           {bandCounts['2.4GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-info/10 text-info">2.4G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-info/10 text-info">2.4G</span>
           )}
           {bandCounts['5GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-warning/10 text-warning">5G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-warning/10 text-warning">5G</span>
           )}
           {bandCounts['6GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-error/10 text-error">6G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-error/10 text-error">6G</span>
           )}
           {interfaces.length === 0 && <span className="text-xs text-muted-foreground">{t('status.noInterfaces')}</span>}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-component-xs">
           {t('status.interfaceCount', { count: interfaces.length, defaultValue: `${interfaces.length} interface${interfaces.length !== 1 ? 's' : ''}` })}
         </p>
       </div>

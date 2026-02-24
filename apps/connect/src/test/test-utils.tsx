@@ -21,6 +21,7 @@ import { render, type RenderOptions, type RenderResult } from '@testing-library/
 import userEvent from '@testing-library/user-event';
 
 import { I18nProvider, DirectionProvider } from '@nasnet/core/i18n';
+import { MockApolloProvider } from '@nasnet/api-client/core';
 import { PlatformProvider } from '@nasnet/ui/layouts';
 import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
 
@@ -73,21 +74,23 @@ function AllProviders({ children }: AllProvidersProps): ReactElement {
   const router = createTestRouter(children);
 
   return (
-    <I18nProvider>
-      <DirectionProvider>
-        <ThemeProvider>
-          <PlatformProvider>
-            <AnimationProvider>
-              <QueryClientProvider client={queryClient}>
-                <ToastProvider>
-                  <RouterProvider router={router} />
-                </ToastProvider>
-              </QueryClientProvider>
-            </AnimationProvider>
-          </PlatformProvider>
-        </ThemeProvider>
-      </DirectionProvider>
-    </I18nProvider>
+    <MockApolloProvider>
+      <I18nProvider>
+        <DirectionProvider>
+          <ThemeProvider>
+            <PlatformProvider>
+              <AnimationProvider>
+                <QueryClientProvider client={queryClient}>
+                  <ToastProvider>
+                    <RouterProvider router={router} />
+                  </ToastProvider>
+                </QueryClientProvider>
+              </AnimationProvider>
+            </PlatformProvider>
+          </ThemeProvider>
+        </DirectionProvider>
+      </I18nProvider>
+    </MockApolloProvider>
   );
 }
 

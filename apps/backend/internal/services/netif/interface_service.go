@@ -3,13 +3,14 @@ package netif
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"sync"
 	"time"
 
 	"backend/internal/events"
 	"backend/internal/router"
+
+	"go.uber.org/zap"
 )
 
 // InterfaceService provides network interface operations for routers.
@@ -18,12 +19,14 @@ type InterfaceService struct {
 	eventBus       events.EventBus
 	eventPublisher *events.Publisher
 	cache          *interfaceCache
+	logger         *zap.SugaredLogger
 }
 
 // InterfaceServiceConfig holds configuration for InterfaceService.
 type InterfaceServiceConfig struct {
 	RouterPort router.RouterPort
 	EventBus   events.EventBus
+	Logger     *zap.SugaredLogger
 }
 
 // interfaceCache provides simple in-memory caching for interface data.
@@ -69,10 +72,15 @@ func (c *interfaceCache) Invalidate(routerID string) {
 
 // NewInterfaceService creates a new InterfaceService with the given configuration.
 func NewInterfaceService(cfg InterfaceServiceConfig) *InterfaceService {
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop().Sugar()
+	}
 	s := &InterfaceService{
 		routerPort: cfg.RouterPort,
 		eventBus:   cfg.EventBus,
 		cache:      newInterfaceCache(30 * time.Second),
+		logger:     logger,
 	}
 	if cfg.EventBus != nil {
 		s.eventPublisher = events.NewPublisher(cfg.EventBus, "interface-service")
@@ -88,14 +96,14 @@ func (s *InterfaceService) ListInterfaces(
 ) ([]*InterfaceData, error) {
 
 	if cached := s.cache.Get(routerID); cached != nil {
-		log.Printf("returning cached interfaces for router %s (count: %d)", routerID, len(cached))
+		s.logger.Debugw("returning cached interfaces", "router_id", routerID, "count", len(cached))
 		return filterByType(cached, interfaceType), nil
 	}
 
-	log.Printf("fetching interfaces from router: router_id=%s", routerID)
+	s.logger.Debugw("fetching interfaces from router", "router_id", routerID)
 	interfaces, err := s.fetchInterfaces(ctx, routerID)
 	if err != nil {
-		log.Printf("failed to fetch interfaces: router_id=%s error=%v", routerID, err)
+		s.logger.Errorw("failed to fetch interfaces", "router_id", routerID, "error", err)
 		return nil, fmt.Errorf("failed to fetch interfaces: %w", err)
 	}
 
@@ -112,7 +120,7 @@ func (s *InterfaceService) ListInterfaces(
 
 	s.cache.Set(routerID, interfaces)
 
-	log.Printf("interfaces fetched successfully: router_id=%s count=%d", routerID, len(interfaces))
+	s.logger.Debugw("interfaces fetched successfully", "router_id", routerID, "count", len(interfaces))
 	return filterByType(interfaces, interfaceType), nil
 }
 
@@ -138,7 +146,7 @@ func (s *InterfaceService) GetInterface(
 // InvalidateCache clears the cache for a router.
 func (s *InterfaceService) InvalidateCache(routerID string) {
 	s.cache.Invalidate(routerID)
-	log.Printf("interface cache invalidated: router_id=%s", routerID)
+	s.logger.Debugw("interface cache invalidated", "router_id", routerID)
 }
 
 // fetchInterfaces retrieves basic interface data from RouterOS.

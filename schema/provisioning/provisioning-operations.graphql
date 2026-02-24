@@ -1,0 +1,212 @@
+# =============================================================================
+# Provisioning Operations (Queries, Mutations, Subscriptions)
+# =============================================================================
+# GraphQL operations for managing provisioning sessions and workflows.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# Query Extensions
+# -----
+
+extend type Query {
+  """
+  Get a provisioning session by ID
+  """
+  provisioningSession(
+    """
+    Provisioning session ID
+    """
+    id: ID!
+  ): ProvisioningSession @capability(requires: ["provisioning"])
+
+  """
+  List all provisioning sessions for a router
+  """
+  provisioningSessions(
+    """
+    Router ID to filter sessions
+    """
+    routerId: ID!
+    """
+    Pagination parameters
+    """
+    pagination: PaginationInput
+  ): ProvisioningSessionConnection! @capability(requires: ["provisioning"])
+
+  """
+  Get available provisioning resources (VPN clients, tunnels, etc.)
+  for adding to a session
+  """
+  availableProvisioningResources(
+    """
+    Router firmware target
+    """
+    firmware: ProvisioningFirmware!
+    """
+    Router operational mode
+    """
+    routerMode: ProvisioningRouterMode!
+  ): [String!]! @capability(requires: ["provisioning"])
+}
+
+# -----
+# Mutation Extensions
+# -----
+
+extend type Mutation {
+  """
+  Start a new provisioning session for a router.
+  Initializes wizard and creates empty session state.
+  """
+  startProvisioningSession(
+    """
+    Router ID to provision
+    """
+    routerId: ID!
+    """
+    Session initialization parameters
+    """
+    input: StartProvisioningSessionInput!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Add a resource to the provisioning session.
+  Resources can be VPN clients, tunnels, extra services, etc.
+  """
+  addProvisioningResource(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+    """
+    Resource to add
+    """
+    input: AddProvisioningResourceInput!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Remove a resource from the provisioning session
+  """
+  removeProvisioningResource(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+    """
+    Resource ID to remove
+    """
+    resourceId: ID!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Update networks configuration in the provisioning session
+  (LAN networks, DHCP pools, guest networks, etc.)
+  """
+  updateProvisioningNetworks(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+    """
+    Updated networks configuration
+    """
+    networksConfig: JSON!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Move to next wizard step
+  """
+  nextProvisioningStep(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Move to previous wizard step
+  """
+  prevProvisioningStep(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Validate all resources and configurations in the provisioning session.
+  Performs comprehensive validation before apply.
+  """
+  validateProvisioningSession(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): ValidateProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Apply the provisioning session to the router.
+  Creates changeset, applies configuration, and manages rollback.
+  This is a safe operation with automatic rollback on failure.
+  """
+  applyProvisioningSession(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): ApplyProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Import a complete router state (STAR format) as provisioning session.
+  Used for bulk configuration import.
+  """
+  importStarState(
+    """
+    Router ID to import into
+    """
+    routerId: ID!
+    """
+    Import parameters including STAR state
+    """
+    input: ImportStarStateInput!
+  ): ProvisioningSessionPayload! @capability(requires: ["provisioning"])
+
+  """
+  Discard a provisioning session and clean up resources
+  """
+  discardProvisioningSession(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): DiscardProvisioningSessionPayload! @capability(requires: ["provisioning"])
+}
+
+# -----
+# Subscription Extensions
+# -----
+
+extend type Subscription {
+  """
+  Subscribe to provisioning session progress updates.
+  Fires during validation and apply phases.
+  """
+  provisioningSessionProgress(
+    """
+    Provisioning session ID
+    """
+    sessionId: ID!
+  ): ProvisioningProgressEvent! @capability(requires: ["provisioning"])
+
+  """
+  Subscribe to provisioning session state changes
+  """
+  provisioningSessionChanged(
+    """
+    Router ID to filter by
+    """
+    routerId: ID!
+  ): ProvisioningSession! @capability(requires: ["provisioning"])
+}

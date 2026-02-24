@@ -19,6 +19,18 @@ func (s *SchemaStage) Name() string { return "schema" }
 func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     1,
+			StageName: "schema",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
 	if input.ResourceType == "" {
 		result.AddError(&validation.Error{
 			Stage:     1,
@@ -58,7 +70,7 @@ func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) 
 	}
 
 	// For update/delete, resource ID is required
-	if (input.Operation == "update" || input.Operation == operationDelete) && input.ResourceID == "" {
+	if (input.Operation == operationUpdate || input.Operation == operationDelete) && input.ResourceID == "" {
 		result.AddError(&validation.Error{
 			Stage:     1,
 			StageName: "schema",

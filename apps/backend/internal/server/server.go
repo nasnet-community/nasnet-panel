@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +14,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // Config holds server configuration.
@@ -64,10 +64,11 @@ func DefaultDevConfig() Config {
 type Server struct {
 	Echo   *echo.Echo
 	Config Config
+	logger *zap.Logger
 }
 
 // New creates a new server with the given configuration.
-func New(cfg Config) *Server {
+func New(cfg Config, logger *zap.Logger) *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -76,7 +77,7 @@ func New(cfg Config) *Server {
 	e.Server.WriteTimeout = cfg.WriteTimeout
 	e.Server.IdleTimeout = cfg.IdleTimeout
 
-	return &Server{Echo: e, Config: cfg}
+	return &Server{Echo: e, Config: cfg, logger: logger}
 }
 
 // Start starts the server and blocks until shutdown.
@@ -88,7 +89,7 @@ func (s *Server) Start(shutdownFn func(ctx context.Context)) {
 
 	go func() {
 		<-quit
-		log.Println("Server is shutting down gracefully...")
+		s.logger.Info("Server is shutting down gracefully")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
@@ -99,44 +100,44 @@ func (s *Server) Start(shutdownFn func(ctx context.Context)) {
 		}
 
 		if err := s.Echo.Shutdown(ctx); err != nil {
-			log.Fatalf("Could not gracefully shutdown: %v\n", err)
+			s.logger.Fatal("Could not gracefully shutdown", zap.Error(err))
 		}
 		close(done)
 	}()
 
 	addr := fmt.Sprintf("0.0.0.0:%s", s.Config.Port)
 	if err := s.Echo.Start(addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("Could not listen on %s: %v\n", addr, err)
+		s.logger.Fatal("Could not listen on address", zap.String("address", addr), zap.Error(err))
 	}
 
 	<-done
-	log.Println("Server stopped")
+	s.logger.Info("Server stopped")
 }
 
 // PerformHealthCheck performs an HTTP health check against the server and exits.
-func PerformHealthCheck(port string) {
-	log.Printf("Performing health check on port %s", port)
+func PerformHealthCheck(port string, logger *zap.Logger) {
+	logger.Info("Performing health check", zap.String("port", port))
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:"+port+"/health", http.NoBody)
 	if err != nil {
-		log.Printf("Health check failed: %v", err)
+		logger.Error("Health check failed", zap.Error(err))
 		os.Exit(1)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Health check failed: %v", err)
+		logger.Error("Health check failed", zap.Error(err))
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
 	//nolint:gocritic // health check exits after defer cleanup
 	if resp.StatusCode == http.StatusOK {
-		log.Println("Health check passed")
+		logger.Info("Health check passed")
 		os.Exit(0)
 	}
 
-	log.Printf("Health check failed with status: %d", resp.StatusCode)
+	logger.Error("Health check failed", zap.Int("status_code", resp.StatusCode))
 	os.Exit(1)
 }

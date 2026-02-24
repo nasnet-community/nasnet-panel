@@ -123,7 +123,7 @@ const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
     return (
       <AccordionItemContext.Provider value={{ value: itemValue, isOpen, onToggle }}>
         <CollapsiblePrimitive.Root open={isOpen} onOpenChange={onToggle}>
-          <div ref={ref} className={cn('border rounded-lg', className)}>
+          <div ref={ref} className={cn('border-border rounded-[var(--semantic-radius-card)]', className)}>
             {children}
           </div>
         </CollapsiblePrimitive.Root>
@@ -151,7 +151,7 @@ const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerPro
         <button
           ref={ref}
           className={cn(
-            'flex w-full items-center justify-between px-4 py-3 font-medium',
+            'flex w-full min-h-[44px] items-center justify-between px-component-md py-component-sm font-medium',
             'transition-colors duration-200',
             'hover:bg-muted/50',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -198,7 +198,7 @@ const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>
             'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'
         )}
       >
-        <div className={cn('px-4 py-3', className)}>{children}</div>
+        <div className={cn('px-component-md py-component-sm', className)}>{children}</div>
       </CollapsiblePrimitive.Content>
     );
   }

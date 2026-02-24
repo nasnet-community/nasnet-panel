@@ -76,10 +76,10 @@ export const RoutingStep = React.memo(function RoutingStep({
   );
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <div>
         <h2 className="text-lg font-semibold">Configure Routing (Optional)</h2>
-        <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        <p className="text-sm text-muted-foreground mt-component-sm">{description}</p>
       </div>
 
       {hasSuggestions ? (
@@ -95,7 +95,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                 Suggested Routing Rules ({template.suggestedRouting?.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-component-md">
               {template.suggestedRouting?.map((rule, index) => {
                 const ruleId = `rule-${index}`;
                 const isSelected = selectedRuleIds.includes(ruleId);
@@ -103,7 +103,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                 return (
                   <div
                     key={ruleId}
-                    className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                    className="flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-button)] border border-border hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <Checkbox
                       id={ruleId}
@@ -112,14 +112,14 @@ export const RoutingStep = React.memo(function RoutingStep({
                       className="mt-1"
                       aria-label={`Select routing rule: ${rule.description}`}
                     />
-                    <div className="flex-1 space-y-1">
+                    <div className="flex-1 space-y-component-sm">
                       <Label
                         htmlFor={ruleId}
                         className="cursor-pointer font-medium"
                       >
                         {rule.description}
                       </Label>
-                      <div className="text-sm text-muted-foreground space-y-0.5">
+                      <div className="text-sm text-muted-foreground space-y-component-sm">
                         <p>
                           <span className="font-medium">Devices:</span>{' '}
                           <span className="font-mono">{rule.devicePattern}</span>
@@ -158,9 +158,9 @@ export const RoutingStep = React.memo(function RoutingStep({
           </Card>
 
           {selectedRuleIds.length > 0 && (
-            <Card className="border-primary">
-              <CardContent className="pt-4">
-                <div className="flex items-center gap-2 text-sm">
+            <Card className="border-primary border-2">
+              <CardContent className="pt-component-md">
+                <div className="flex items-center gap-component-sm text-sm">
                   <Icon
                     icon={CheckCircle2}
                     className="h-4 w-4 text-primary"
@@ -177,16 +177,16 @@ export const RoutingStep = React.memo(function RoutingStep({
         </>
       ) : (
         <Card>
-          <CardContent className="py-12 text-center">
+          <CardContent className="py-component-lg text-center">
             <Icon
               icon={Route}
-              className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4"
+              className="h-12 w-12 mx-auto text-muted-foreground/50 mb-component-md"
               aria-hidden="true"
             />
             <p className="text-muted-foreground">
               This template doesn't include routing suggestions
             </p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-component-md">
               You can configure routing manually later
             </p>
           </CardContent>

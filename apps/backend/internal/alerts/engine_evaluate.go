@@ -22,7 +22,15 @@ const (
 
 // evaluateRule evaluates a single rule against event data.
 func (e *Engine) evaluateRule(ctx context.Context, rule *ent.AlertRule, eventType string, eventData map[string]interface{}, startTime time.Time) {
-	if !rule.Enabled {
+	if rule == nil || !rule.Enabled {
+		return
+	}
+
+	// Check context before proceeding with potentially expensive operations
+	if ctx.Err() != nil {
+		e.log.Debugw("context canceled, skipping rule evaluation",
+			"rule_id", rule.ID,
+			"error", ctx.Err())
 		return
 	}
 
@@ -114,6 +122,10 @@ func (e *Engine) handleQuietHoursCheck(ctx context.Context, rule *ent.AlertRule,
 
 // queueForDigest queues an alert for digest delivery during quiet hours.
 func (e *Engine) queueForDigest(ctx context.Context, rule *ent.AlertRule, eventType string, eventData map[string]interface{}) {
+	if rule == nil || e.digestService == nil {
+		return
+	}
+
 	alertID := fmt.Sprintf("%s-%d", rule.ID, time.Now().UnixNano())
 	a := Alert{
 		ID:        alertID,
@@ -138,6 +150,10 @@ func (e *Engine) queueForDigest(ctx context.Context, rule *ent.AlertRule, eventT
 // createAlert creates and persists an alert, then publishes notification.
 // If suppressedCount > 0, includes suppression info in the alert.
 func (e *Engine) createAlert(ctx context.Context, rule *ent.AlertRule, eventType string, eventData map[string]interface{}, suppressedCount int, suppressReason string) error {
+	if rule == nil || e.db == nil {
+		return fmt.Errorf("rule and db must be non-nil")
+	}
+
 	// Extract device ID if present
 	var deviceID *string
 	if id, ok := eventData["device_id"].(string); ok {
@@ -223,14 +239,19 @@ func (e *Engine) publishAlertEvent(ctx context.Context, createdAlert *ent.Alert,
 
 // runDigestDelivery runs a background worker that delivers queued alerts when quiet hours end.
 func (e *Engine) runDigestDelivery(ctx context.Context) {
+	defer e.log.Info("digest delivery worker stopped")
+
 	for {
 		select {
 		case <-e.digestTicker.C:
+			// Check context before attempting delivery
+			if ctx.Err() != nil {
+				return
+			}
 			if err := e.deliverQueuedAlerts(ctx); err != nil {
 				e.log.Errorw("failed to deliver queued alerts", "error", err)
 			}
 		case <-ctx.Done():
-			e.log.Info("digest delivery worker stopped")
 			return
 		}
 	}
@@ -238,6 +259,10 @@ func (e *Engine) runDigestDelivery(ctx context.Context) {
 
 // deliverQueuedAlerts checks if quiet hours have ended and delivers queued alerts as digest.
 func (e *Engine) deliverQueuedAlerts(ctx context.Context) error { //nolint:unparam // ctx used in nested calls
+	if e.alertQueue == nil {
+		return nil
+	}
+
 	queuedCount := e.alertQueue.Count()
 	if queuedCount == 0 {
 		return nil
@@ -290,6 +315,10 @@ func (e *Engine) checkQuietHoursForDigest(ctx context.Context, alerts []QueuedAl
 		return true
 	}
 
+	if e.quietHours == nil {
+		return true
+	}
+
 	rule, err := e.getRuleByID(ctx, alerts[0].RuleID)
 	if err != nil || rule == nil || rule.QuietHours == nil {
 		return true
@@ -332,7 +361,7 @@ func (e *Engine) determineSeverity(alerts []QueuedAlert) string {
 
 // createDigestAlert creates a single digest alert for multiple queued alerts.
 func (e *Engine) createDigestAlert(ctx context.Context, deviceID string, alerts []QueuedAlert, digest string) error {
-	if len(alerts) == 0 {
+	if len(alerts) == 0 || e.db == nil {
 		return nil
 	}
 
@@ -374,10 +403,12 @@ func (e *Engine) createDigestAlert(ctx context.Context, deviceID string, alerts 
 		"alert_count": len(alerts),
 	})
 
-	if err := e.eventBus.Publish(ctx, notificationEvent); err != nil {
-		e.log.Warnw("failed to publish digest notification event",
-			"alert_id", createdAlert.ID,
-			"error", err)
+	if e.eventBus != nil {
+		if err := e.eventBus.Publish(ctx, notificationEvent); err != nil {
+			e.log.Warnw("failed to publish digest notification event",
+				"alert_id", createdAlert.ID,
+				"error", err)
+		}
 	}
 
 	return nil

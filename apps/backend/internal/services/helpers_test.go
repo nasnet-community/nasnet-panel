@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestParseInt tests the parseInt helper function from pollers package
 func TestParseInt(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -27,7 +28,7 @@ func TestParseInt(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := parseInt(tt.input)
+			result, err := parseIntHelper(tt.input)
 			if tt.hasError {
 				assert.Error(t, err)
 			} else {
@@ -53,7 +54,7 @@ func TestParseIntList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := parseIntList(tt.input)
+			result := parseIntListHelper(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -73,7 +74,7 @@ func TestParseStringList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := parseStringList(tt.input)
+			result := parseStringListHelper(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -93,7 +94,7 @@ func TestSplitComma(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := splitComma(tt.input)
+			result := splitCommaHelper(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -114,7 +115,7 @@ func TestTrimSpace(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := trimSpace(tt.input)
+			result := trimSpaceHelper(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -135,7 +136,7 @@ func TestParseRouterOSTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := parseRouterOSTime(tt.input)
+			_, err := parseRouterOSTimeHelper(tt.input)
 			if tt.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -145,7 +146,8 @@ func TestParseRouterOSTime(t *testing.T) {
 	}
 }
 
-func parseInt(s string) (int, error) {
+// parseIntHelper is a test helper that parses string to int.
+func parseIntHelper(s string) (int, error) {
 	if s == "" {
 		return 0, nil
 	}
@@ -173,7 +175,7 @@ func TestParseRouterOSDuration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := parseRouterOSDuration(tt.input)
+			result, err := parseRouterOSDurationHelper(tt.input)
 			if tt.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -184,7 +186,8 @@ func TestParseRouterOSDuration(t *testing.T) {
 	}
 }
 
-func parseIntList(s string) []int {
+// parseIntListHelper is a test helper that parses comma-separated string to int list.
+func parseIntListHelper(s string) []int {
 	if s == "" {
 		return []int{}
 	}
@@ -200,7 +203,8 @@ func parseIntList(s string) []int {
 	return result
 }
 
-func parseStringList(s string) []string {
+// parseStringListHelper is a test helper that parses comma-separated string to string list.
+func parseStringListHelper(s string) []string {
 	if s == "" {
 		return []string{}
 	}
@@ -212,7 +216,8 @@ func parseStringList(s string) []string {
 	return result
 }
 
-func splitComma(s string) []string {
+// splitCommaHelper is a test helper that splits string by comma and trims spaces.
+func splitCommaHelper(s string) []string {
 	if s == "" {
 		return []string{}
 	}
@@ -224,11 +229,13 @@ func splitComma(s string) []string {
 	return result
 }
 
-func trimSpace(s string) string {
+// trimSpaceHelper is a test helper that trims leading/trailing spaces.
+func trimSpaceHelper(s string) string {
 	return strings.TrimSpace(s)
 }
 
-func parseRouterOSTime(s string) (time.Time, error) {
+// parseRouterOSTimeHelper is a test helper that parses RouterOS time format.
+func parseRouterOSTimeHelper(s string) (time.Time, error) {
 	if s == "" || s == "never" {
 		return time.Time{}, nil
 	}
@@ -243,7 +250,8 @@ func parseRouterOSTime(s string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("unrecognized time format: %s", s)
 }
 
-func parseRouterOSDuration(s string) (time.Duration, error) {
+// parseRouterOSDurationHelper is a test helper that parses RouterOS duration format (e.g., "1w2d3h4m5s").
+func parseRouterOSDurationHelper(s string) (time.Duration, error) {
 	if s == "" {
 		return 0, nil
 	}

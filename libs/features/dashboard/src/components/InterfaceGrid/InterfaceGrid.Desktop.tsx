@@ -92,16 +92,16 @@ export const InterfaceGridDesktop = memo(
     if (isLoading) {
       return (
         <div
-          className={cn('grid grid-cols-4 gap-4', className)}
+          className={cn('grid grid-cols-4 gap-component-md', className)}
           role="status"
           aria-label="Loading interfaces"
         >
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
-              <CardContent className="p-4">
+              <CardContent className="p-component-md">
                 <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-3 w-16 mb-4" />
-                <div className="flex gap-4">
+                <div className="flex gap-component-md">
                   <Skeleton className="h-3 w-12" />
                   <Skeleton className="h-3 w-12" />
                 </div>
@@ -137,13 +137,13 @@ export const InterfaceGridDesktop = memo(
     if (interfaces.length === 0) {
       return (
         <Card className={className}>
-          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+          <CardContent className="flex flex-col items-center justify-center py-component-lg text-center">
             <Network
-              className="h-12 w-12 text-muted-foreground mb-4"
+              className="h-12 w-12 text-muted-foreground mb-component-md"
               aria-hidden="true"
             />
             <p className="text-lg font-semibold">No interfaces found</p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-component-sm">
               The router doesn't have any network interfaces configured.
             </p>
           </CardContent>
@@ -155,7 +155,7 @@ export const InterfaceGridDesktop = memo(
       <div className={className}>
         {/* Grid of interface cards - 4 columns on desktop */}
         <div
-          className="grid grid-cols-4 gap-4"
+          className="grid grid-cols-4 gap-component-md"
           role="list"
           aria-label="Network interfaces"
         >
@@ -171,7 +171,7 @@ export const InterfaceGridDesktop = memo(
 
         {/* Show all / Show less pagination toggle */}
         {hasMore && (
-          <div className="mt-4 text-center">
+          <div className="mt-component-md text-center">
             <Button
               variant="ghost"
               onClick={handleToggleShowAll}

@@ -52,10 +52,8 @@ func (va *VLANAllocator) CleanupOrphans(ctx context.Context, routerID string) (i
 					"error", err)
 				continue
 			}
-		}
-
-		// Check if instance is in "deleting" status
-		if !isOrphan && instance.GetStatus() == "deleting" {
+		} else if instance != nil && instance.GetStatus() == "deleting" {
+			// Check if instance is in "deleting" status (only if instance exists)
 			isOrphan = true
 		}
 
@@ -126,7 +124,8 @@ func (va *VLANAllocator) DetectOrphans(ctx context.Context, routerID string) ([]
 			continue
 		}
 
-		if instance.GetStatus() == "deleting" {
+		// Check if instance exists and is in "deleting" status
+		if instance != nil && instance.GetStatus() == "deleting" {
 			orphans = append(orphans, alloc)
 		}
 	}

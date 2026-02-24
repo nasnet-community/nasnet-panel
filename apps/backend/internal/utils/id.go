@@ -1,17 +1,26 @@
 package utils
 
 import (
+	"crypto/rand"
 	"fmt"
-	"time"
 )
 
-// GenerateID generates a unique ID using timestamp-based approach.
-// For production use, consider using UUID or ULID libraries.
+// GenerateID generates a cryptographically secure unique ID.
+// Uses 12 random bytes (96 bits) encoded as hex for 24-character IDs.
 func GenerateID() string {
-	return fmt.Sprintf("id-%d", time.Now().UnixNano())
+	b := make([]byte, 12)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // Should never happen in normal conditions
+	}
+	return fmt.Sprintf("id-%x", b)
 }
 
-// GenerateKnownID generates a unique ID with "known-" prefix.
+// GenerateKnownID generates a cryptographically secure unique ID with "known-" prefix.
+// Uses 12 random bytes (96 bits) encoded as hex for 24-character IDs.
 func GenerateKnownID() string {
-	return fmt.Sprintf("known-%d", time.Now().UnixNano())
+	b := make([]byte, 12)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // Should never happen in normal conditions
+	}
+	return fmt.Sprintf("known-%x", b)
 }

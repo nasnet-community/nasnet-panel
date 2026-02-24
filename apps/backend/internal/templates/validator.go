@@ -5,17 +5,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TemplateValidator validates template structure, dependencies, and variable references
 type TemplateValidator struct {
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // TemplateValidatorConfig holds configuration for the template validator
 type TemplateValidatorConfig struct {
-	Logger zerolog.Logger
+	Logger *zap.Logger
 }
 
 // ValidationError represents a template validation error
@@ -30,13 +30,25 @@ func (e *ValidationError) Error() string {
 
 // NewTemplateValidator creates a new template validator
 func NewTemplateValidator(cfg TemplateValidatorConfig) *TemplateValidator {
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &TemplateValidator{
-		logger: cfg.Logger,
+		logger: logger,
 	}
 }
 
 // ValidateTemplate validates the basic structure of a template
 func (tv *TemplateValidator) ValidateTemplate(template *ServiceTemplate) error { //nolint:gocyclo // template validation inherently complex
+	if tv == nil {
+		return &ValidationError{Field: "validator", Message: "template validator is nil"}
+	}
+	if template == nil {
+		return &ValidationError{Field: "template", Message: "template is nil"}
+	}
+
 	// Validate required fields
 	if template.ID == "" {
 		return &ValidationError{Field: "id", Message: "template ID is required"}
@@ -118,6 +130,13 @@ func (tv *TemplateValidator) ValidateTemplate(template *ServiceTemplate) error {
 
 // ValidateDependencies validates that there are no circular dependencies
 func (tv *TemplateValidator) ValidateDependencies(template *ServiceTemplate) error {
+	if tv == nil {
+		return fmt.Errorf("template validator is nil")
+	}
+	if template == nil {
+		return fmt.Errorf("template is nil")
+	}
+
 	// Build dependency graph from suggested routing rules
 	graph := make(map[string][]string) // service name -> dependencies
 
@@ -174,6 +193,13 @@ func (tv *TemplateValidator) hasCycleDFS(node string, graph map[string][]string,
 
 // ValidateVariableReferences validates that all variable references in config are defined
 func (tv *TemplateValidator) ValidateVariableReferences(template *ServiceTemplate) error {
+	if tv == nil {
+		return fmt.Errorf("template validator is nil")
+	}
+	if template == nil {
+		return fmt.Errorf("template is nil")
+	}
+
 	// Build set of defined variables
 	definedVars := make(map[string]bool)
 	for _, configVar := range template.ConfigVariables {
@@ -283,6 +309,9 @@ func (tv *TemplateValidator) isValidCategory(category TemplateCategory) bool {
 }
 
 func (tv *TemplateValidator) validateServiceSpec(service *ServiceSpec, _ int) error {
+	if service == nil {
+		return &ValidationError{Field: "service", Message: "service spec is nil"}
+	}
 	if service.ServiceType == "" {
 		return &ValidationError{Field: "serviceType", Message: "service type is required"}
 	}
@@ -318,6 +347,9 @@ func (tv *TemplateValidator) validateServiceSpec(service *ServiceSpec, _ int) er
 }
 
 func (tv *TemplateValidator) validateConfigVariable(configVar *TemplateVariable, _ int) error {
+	if configVar == nil {
+		return &ValidationError{Field: "configVariable", Message: "config variable is nil"}
+	}
 	if configVar.Name == "" {
 		return &ValidationError{Field: "name", Message: "variable name is required"}
 	}
@@ -364,6 +396,9 @@ func (tv *TemplateValidator) validateConfigVariable(configVar *TemplateVariable,
 }
 
 func (tv *TemplateValidator) validateResourceEstimate(resources *ResourceEstimate) error {
+	if resources == nil {
+		return &ValidationError{Field: "estimatedResources", Message: "resource estimate is nil"}
+	}
 	if resources.TotalMemoryMB < 0 {
 		return &ValidationError{Field: "totalMemoryMB", Message: "memory cannot be negative"}
 	}

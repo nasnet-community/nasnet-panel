@@ -62,7 +62,7 @@ function RouteFormDesktopComponent({
   const interfaceValue = watch('interface');
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-component-lg">
       <Card>
         <CardHeader>
           <CardTitle>{mode === 'create' ? 'Add Static Route' : 'Edit Static Route'}</CardTitle>
@@ -71,11 +71,11 @@ function RouteFormDesktopComponent({
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-md">
           {/* Destination (CIDR) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="destination">
-              Destination Network <span className="text-destructive">*</span>
+              Destination Network <span className="text-error">*</span>
             </Label>
             <Input
               id="destination"
@@ -85,7 +85,7 @@ function RouteFormDesktopComponent({
               aria-describedby={errors.destination ? 'destination-error' : 'destination-help'}
             />
             {errors.destination && (
-              <p id="destination-error" className="text-sm text-destructive flex items-center gap-1">
+              <p id="destination-error" className="text-sm text-error flex items-center gap-component-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.destination.message}
               </p>
@@ -96,10 +96,10 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Gateway (IPv4) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="gateway">
               Gateway
-              {!interfaceValue && <span className="text-destructive"> *</span>}
+              {!interfaceValue && <span className="text-error"> *</span>}
             </Label>
             <Input
               id="gateway"
@@ -109,7 +109,7 @@ function RouteFormDesktopComponent({
               aria-describedby={errors.gateway ? 'gateway-error' : 'gateway-help'}
             />
             {errors.gateway && (
-              <p id="gateway-error" className="text-sm text-destructive flex items-center gap-1">
+              <p id="gateway-error" className="text-sm text-error flex items-center gap-component-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.gateway.message}
               </p>
@@ -117,9 +117,9 @@ function RouteFormDesktopComponent({
 
             {/* Gateway Reachability Indicator */}
             {gatewayValue && !errors.gateway && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 {reachabilityInfo.checking && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Checking reachability...</span>
                   </div>
@@ -144,10 +144,10 @@ function RouteFormDesktopComponent({
             )}
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
-              <div role="alert" className="rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
-                <div className="flex gap-2">
+              <div role="alert" className="rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm">
+                <div className="flex gap-component-sm">
                   <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
-                  <div className="space-y-1">
+                  <div className="space-y-component-sm">
                     <p className="font-medium">Gateway Reachability Warning</p>
                     <p className="text-muted-foreground">{reachabilityInfo.message}</p>
                     <p className="text-muted-foreground">
@@ -164,10 +164,10 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Interface */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="interface">
               Interface
-              {!gatewayValue && <span className="text-destructive"> *</span>}
+              {!gatewayValue && <span className="text-error"> *</span>}
             </Label>
             <Select
               value={interfaceValue || 'none'}
@@ -191,7 +191,7 @@ function RouteFormDesktopComponent({
               </SelectContent>
             </Select>
             {errors.interface && (
-              <p className="text-sm text-destructive flex items-center gap-1">
+              <p className="text-sm text-error flex items-center gap-component-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.interface.message}
               </p>
@@ -202,7 +202,7 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Distance (Metric) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="distance">Distance (Metric)</Label>
             <Input
               id="distance"
@@ -213,7 +213,7 @@ function RouteFormDesktopComponent({
               aria-invalid={errors.distance ? 'true' : 'false'}
             />
             {errors.distance && (
-              <p className="text-sm text-destructive flex items-center gap-1">
+              <p className="text-sm text-error flex items-center gap-component-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.distance.message}
               </p>
@@ -224,8 +224,8 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Routing Mark */}
-          <div className="space-y-2">
-            <Label htmlFor="routingMark" className="flex items-center gap-2">
+          <div className="space-y-component-sm">
+            <Label htmlFor="routingMark" className="flex items-center gap-component-sm">
               Routing Mark
               <button
                 type="button"
@@ -247,7 +247,7 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Routing Table */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="routingTable">Routing Table</Label>
             <Select
               value={watch('routingTable')}
@@ -270,7 +270,7 @@ function RouteFormDesktopComponent({
           </div>
 
           {/* Comment */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="comment">Comment</Label>
             <Textarea
               id="comment"
@@ -280,7 +280,7 @@ function RouteFormDesktopComponent({
               maxLength={255}
             />
             {errors.comment && (
-              <p className="text-sm text-destructive flex items-center gap-1">
+              <p className="text-sm text-error flex items-center gap-component-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.comment.message}
               </p>
@@ -291,7 +291,7 @@ function RouteFormDesktopComponent({
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-end gap-2">
+        <CardFooter className="flex justify-end gap-component-sm">
           <Button
             type="button"
             variant="outline"

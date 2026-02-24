@@ -151,7 +151,7 @@ function RouteDeleteConfirmationComponent({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-component-md">
             <div
               className={cn(
                 'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
@@ -163,7 +163,7 @@ function RouteDeleteConfirmationComponent({
               <Icon icon={AlertTriangle} className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
-              <DialogTitle className="text-left">
+              <DialogTitle className="text-left font-display">
                 {impact.isDefaultRoute ? 'Delete Default Route' : 'Delete Route'}
               </DialogTitle>
               {impact.severity === 'CRITICAL' && (
@@ -175,7 +175,7 @@ function RouteDeleteConfirmationComponent({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           <DialogDescription className="text-left">
             {impact.message}
           </DialogDescription>
@@ -183,16 +183,16 @@ function RouteDeleteConfirmationComponent({
           {/* Consequences */}
           <div
             className={cn(
-              'rounded-lg border-2 p-4',
+              'rounded-card-sm border-2 p-component-md',
               impact.severity === 'CRITICAL'
                 ? 'bg-error/5 border-error/20'
                 : 'bg-warning/5 border-warning/20'
             )}
           >
-            <h4 className="text-sm font-semibold mb-2">Consequences:</h4>
-            <ul className="space-y-1">
+            <h4 className="text-sm font-semibold mb-component-sm">Consequences:</h4>
+            <ul className="space-y-component-sm">
               {impact.consequences.map((consequence, index) => (
-                <li key={index} className="text-sm text-muted-foreground flex gap-2">
+                <li key={index} className="text-sm text-muted-foreground flex gap-component-sm">
                   <span className="text-destructive">•</span>
                   <span>{consequence}</span>
                 </li>
@@ -201,7 +201,7 @@ function RouteDeleteConfirmationComponent({
           </div>
 
           {/* Type-to-confirm */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="confirm-text">
               Type <code className="font-mono font-semibold">{impact.confirmText}</code> to confirm:
             </Label>
@@ -216,7 +216,7 @@ function RouteDeleteConfirmationComponent({
               aria-label="Confirmation text input"
             />
             {confirmText && !isConfirmTextValid && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 Text must match exactly (case-sensitive)
               </p>
             )}
@@ -225,7 +225,7 @@ function RouteDeleteConfirmationComponent({
           {/* Countdown */}
           {countdown !== null && countdown > 0 && (
             <div className="text-center" aria-live="polite" aria-atomic="true">
-              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-muted">
+              <div className="inline-flex items-center gap-component-sm px-component-sm py-component-sm rounded-lg bg-muted">
                 <Icon
                   icon={Loader2}
                   className="h-4 w-4 animate-spin"
@@ -239,12 +239,13 @@ function RouteDeleteConfirmationComponent({
           )}
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-component-sm">
           <Button
             type="button"
             variant="outline"
             onClick={handleCancel}
             disabled={isSubmitting || loading}
+            className="min-h-[44px]"
           >
             Cancel
           </Button>
@@ -253,6 +254,7 @@ function RouteDeleteConfirmationComponent({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm}
+            className="min-h-[44px]"
             aria-label={
               canConfirm
                 ? 'Confirm route deletion'

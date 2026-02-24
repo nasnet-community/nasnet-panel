@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import { useTranslation } from '@nasnet/core/i18n';
 import { useAlertNotifications } from '@nasnet/features/alerts';
-import { AppShell } from '@nasnet/ui/layouts';
+import { ResponsiveShell, CollapsibleSidebarProvider } from '@nasnet/ui/layouts';
 import {
   CommandPalette,
   ShortcutsOverlay,
@@ -12,8 +12,10 @@ import {
   ConnectionBanner,
 } from '@nasnet/ui/patterns';
 import { Toaster } from '@nasnet/ui/primitives';
+import { useSidebarStore } from '@nasnet/state/stores';
 
 import { AppHeader } from '../app/components/AppHeader';
+import { AppSidebar } from '../app/components/AppSidebar';
 import { useConnectionHeartbeat } from '../app/hooks/useConnectionHeartbeat';
 import { useConnectionToast } from '../app/hooks/useConnectionToast';
 import { useDefaultCommands } from '../app/hooks/useDefaultCommands';
@@ -22,6 +24,7 @@ import { Providers } from '../app/providers';
 
 function RootInner() {
   const { t } = useTranslation('common');
+  const { desktopCollapsed, toggle } = useSidebarStore();
 
   // Enable connection toast notifications
   useConnectionToast();
@@ -39,7 +42,17 @@ function RootInner() {
   useAlertNotifications();
 
   return (
-    <AppShell header={<AppHeader />} banner={<ConnectionBanner />}>
+    <ResponsiveShell
+      header={<AppHeader />}
+      banner={<ConnectionBanner />}
+      sidebar={
+        <CollapsibleSidebarProvider isCollapsed={desktopCollapsed} toggle={toggle}>
+          <AppSidebar />
+        </CollapsibleSidebarProvider>
+      }
+      sidebarCollapsed={desktopCollapsed}
+      onSidebarToggle={toggle}
+    >
       {/* Skip to main content link for keyboard/screen reader users */}
       <a
         href="#main-content"
@@ -47,7 +60,7 @@ function RootInner() {
       >
         {t('a11y.skipToMainContent')}
       </a>
-      <main id="main-content">
+      <main id="main-content" className="px-page-mobile md:px-page-tablet lg:px-page-desktop">
         <Outlet />
       </main>
       <Toaster />
@@ -57,7 +70,7 @@ function RootInner() {
       <ShortcutsOverlay />
       {/* Search FAB - visible on mobile only */}
       <SearchFAB />
-    </AppShell>
+    </ResponsiveShell>
   );
 }
 

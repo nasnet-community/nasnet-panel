@@ -53,7 +53,7 @@ func TestInstanceIsolation_VerifierNotAvailable(t *testing.T) {
 	// Call InstanceIsolation query
 	result, err := r.Query().InstanceIsolation(context.Background(), router.ID, instance.ID)
 	require.NoError(t, err)
-	assert.NotNil(t, result)
+	require.NotNil(t, result)
 	assert.Empty(t, result.Violations, "Should have no violations when verifier is unavailable")
 	assert.Nil(t, result.ResourceLimits, "Resource limits should be nil when verifier unavailable")
 	assert.Nil(t, result.LastVerified, "LastVerified should be nil when verifier unavailable")
@@ -210,10 +210,12 @@ type testLogger struct {
 }
 
 func (l *testLogger) Errorw(msg string, keysAndValues ...interface{}) {
+	_ = keysAndValues // Accept but ignore for test purposes
 	l.logger.Error().Msg(msg)
 }
 
 func (l *testLogger) Infow(msg string, keysAndValues ...interface{}) {
+	_ = keysAndValues // Accept but ignore for test purposes
 	l.logger.Info().Msg(msg)
 }
 

@@ -51,6 +51,10 @@ const (
 	EdgeRoutingChains = "routing_chains"
 	// EdgeServiceTemplates holds the string denoting the service_templates edge name in mutations.
 	EdgeServiceTemplates = "service_templates"
+	// EdgeProvisioningSessions holds the string denoting the provisioning_sessions edge name in mutations.
+	EdgeProvisioningSessions = "provisioning_sessions"
+	// EdgeSubnetAllocations holds the string denoting the subnet_allocations edge name in mutations.
+	EdgeSubnetAllocations = "subnet_allocations"
 	// Table holds the table name of the router in the database.
 	Table = "routers"
 	// SecretsTable is the table that holds the secrets relation/edge.
@@ -109,6 +113,20 @@ const (
 	ServiceTemplatesInverseTable = "service_templates"
 	// ServiceTemplatesColumn is the table column denoting the service_templates relation/edge.
 	ServiceTemplatesColumn = "router_id"
+	// ProvisioningSessionsTable is the table that holds the provisioning_sessions relation/edge.
+	ProvisioningSessionsTable = "provisioning_sessions"
+	// ProvisioningSessionsInverseTable is the table name for the ProvisioningSession entity.
+	// It exists in this package in order to avoid circular dependency with the "provisioningsession" package.
+	ProvisioningSessionsInverseTable = "provisioning_sessions"
+	// ProvisioningSessionsColumn is the table column denoting the provisioning_sessions relation/edge.
+	ProvisioningSessionsColumn = "router_id"
+	// SubnetAllocationsTable is the table that holds the subnet_allocations relation/edge.
+	SubnetAllocationsTable = "subnet_allocations"
+	// SubnetAllocationsInverseTable is the table name for the SubnetAllocation entity.
+	// It exists in this package in order to avoid circular dependency with the "subnetallocation" package.
+	SubnetAllocationsInverseTable = "subnet_allocations"
+	// SubnetAllocationsColumn is the table column denoting the subnet_allocations relation/edge.
+	SubnetAllocationsColumn = "router_id"
 )
 
 // Columns holds all SQL columns for router fields.
@@ -376,6 +394,34 @@ func ByServiceTemplates(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption 
 		sqlgraph.OrderByNeighborTerms(s, newServiceTemplatesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByProvisioningSessionsCount orders the results by provisioning_sessions count.
+func ByProvisioningSessionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProvisioningSessionsStep(), opts...)
+	}
+}
+
+// ByProvisioningSessions orders the results by provisioning_sessions terms.
+func ByProvisioningSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProvisioningSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySubnetAllocationsCount orders the results by subnet_allocations count.
+func BySubnetAllocationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubnetAllocationsStep(), opts...)
+	}
+}
+
+// BySubnetAllocations orders the results by subnet_allocations terms.
+func BySubnetAllocations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubnetAllocationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSecretsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -430,5 +476,19 @@ func newServiceTemplatesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ServiceTemplatesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ServiceTemplatesTable, ServiceTemplatesColumn),
+	)
+}
+func newProvisioningSessionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProvisioningSessionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProvisioningSessionsTable, ProvisioningSessionsColumn),
+	)
+}
+func newSubnetAllocationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubnetAllocationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubnetAllocationsTable, SubnetAllocationsColumn),
 	)
 }

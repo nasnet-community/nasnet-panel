@@ -253,3 +253,37 @@ func TestCommandBuilder_ComplexCommand(t *testing.T) {
 	assert.Equal(t, "UpdateInterface", cmd.Metadata.OperationName)
 	assert.Equal(t, "router-001", cmd.Metadata.RouterID)
 }
+
+func TestCommandBuilder_ValidationErrors(t *testing.T) {
+	t.Run("missing path panics", func(t *testing.T) {
+		defer func() {
+			r := recover()
+			require.NotNil(t, r)
+			assert.Contains(t, r.(string), "Path is required")
+		}()
+
+		NewCommandBuilder("").
+			WithAction(ActionPrint).
+			Build()
+	})
+
+	t.Run("missing action panics", func(t *testing.T) {
+		defer func() {
+			r := recover()
+			require.NotNil(t, r)
+			assert.Contains(t, r.(string), "Action is required")
+		}()
+
+		NewCommandBuilder("/interface").Build()
+	})
+
+	t.Run("nil params is safe", func(t *testing.T) {
+		cmd := NewCommandBuilder("/interface").
+			WithAction(ActionPrint).
+			WithParams(nil).
+			Build()
+
+		require.NotNil(t, cmd)
+		assert.Equal(t, 0, len(cmd.Parameters))
+	})
+}

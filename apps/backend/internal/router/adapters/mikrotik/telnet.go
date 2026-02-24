@@ -3,11 +3,12 @@ package mikrotik
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // Telnet protocol bytes.
@@ -27,6 +28,7 @@ type TelnetClientConfig struct {
 	Username string
 	Password string
 	Timeout  time.Duration
+	Logger   *zap.Logger
 }
 
 // TelnetClient wraps Telnet connection for RouterOS command execution.
@@ -36,6 +38,7 @@ type TelnetClient struct {
 	address  string
 	username string
 	mu       sync.Mutex
+	logger   *zap.Logger
 }
 
 // TelnetCommandResult holds the result of a single Telnet command execution.
@@ -59,7 +62,12 @@ func NewTelnetClient(cfg TelnetClientConfig) (*TelnetClient, error) {
 		timeout = 30 * time.Second
 	}
 
-	log.Printf("[TELNET] Connecting to %s as user %s", address, cfg.Username)
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
+	logger.Debug("telnet: connecting", zap.String("address", address), zap.String("username", cfg.Username))
 
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
@@ -71,6 +79,7 @@ func NewTelnetClient(cfg TelnetClientConfig) (*TelnetClient, error) {
 		reader:   bufio.NewReader(conn),
 		address:  address,
 		username: cfg.Username,
+		logger:   logger,
 	}
 
 	if err := client.login(cfg.Username, cfg.Password, timeout); err != nil {
@@ -78,7 +87,7 @@ func NewTelnetClient(cfg TelnetClientConfig) (*TelnetClient, error) {
 		return nil, fmt.Errorf("telnet login failed: %w", err)
 	}
 
-	log.Printf("[TELNET] Successfully connected and authenticated to %s", address)
+	logger.Debug("telnet: connected and authenticated", zap.String("address", address))
 
 	return client, nil
 }
@@ -240,7 +249,7 @@ func (c *TelnetClient) Close() {
 		_, _ = c.conn.Write([]byte("/quit\r\n"))                     //nolint:errcheck // best effort quit
 		_ = c.conn.Close()
 		c.conn = nil
-		log.Printf("[TELNET] Connection to %s closed", c.address)
+		c.logger.Debug("telnet: connection closed", zap.String("address", c.address))
 	}
 }
 

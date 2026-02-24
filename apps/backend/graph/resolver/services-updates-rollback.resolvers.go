@@ -5,15 +5,28 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // RollbackInstance rolls back service instance to previous version.
 func (r *mutationResolver) RollbackInstance(ctx context.Context, routerID string, instanceID string) (*model.UpdateResult, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", "", "required")
+	}
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", "", "required")
+	}
+
 	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instance")
 	}
 
 	if !instance.HasBackup {
@@ -39,12 +52,31 @@ func (r *mutationResolver) RollbackInstance(ctx context.Context, routerID string
 
 // ConfigureUpdateSchedule updates update check schedule for service instance.
 func (r *mutationResolver) ConfigureUpdateSchedule(ctx context.Context, input model.UpdateCheckScheduleInput) (*model.ServiceInstance, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if input.InstanceID == "" {
+		return nil, errors.NewValidationError("instanceID", "", "required")
+	}
+	if input.CheckSchedule == "" {
+		return nil, errors.NewValidationError("checkSchedule", "", "required")
+	}
+
+	// Service availability check
+	if r.UpdateScheduler == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "update scheduler not initialized", "graphql")
+	}
+
 	instance, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instance")
 	}
 
 	// TODO: Update schedule configuration via ent when schema supports it
+	// For now, log the configuration but don't persist
 	r.log.Infow("update schedule configured",
 		"instance_id", input.InstanceID,
 		"check_schedule", input.CheckSchedule,

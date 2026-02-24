@@ -105,6 +105,10 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
           <div
             className={`${utilizationBarColor} h-1.5 rounded-full transition-all duration-300`}
             style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
+            role="progressbar"
+            aria-valuenow={utilizationPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
           />
         </div>
       </div>

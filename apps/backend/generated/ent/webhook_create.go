@@ -3,13 +3,12 @@
 package ent
 
 import (
+	"backend/generated/ent/notificationlog"
+	"backend/generated/ent/webhook"
 	"context"
 	"errors"
 	"fmt"
 	"time"
-
-	"backend/generated/ent/notificationlog"
-	"backend/generated/ent/webhook"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

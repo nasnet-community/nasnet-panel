@@ -349,7 +349,7 @@ export const ServicesPage = React.memo(function ServicesPage({
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
       {/* Page header */}
       <Card>
         <CardHeader>
@@ -404,9 +404,9 @@ export const ServicesPage = React.memo(function ServicesPage({
       >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.resourceOverview.toggle')}>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.resourceOverview.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-component-md">
                   <Cpu className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <CardTitle>{t('services.sections.resourceOverview.title')}</CardTitle>
                   {resourcesData && (
@@ -425,9 +425,9 @@ export const ServicesPage = React.memo(function ServicesPage({
           </Collapsible.Trigger>
           <Collapsible.Content>
             <Separator />
-            <CardContent className="pt-6">
+            <CardContent className="pt-component-lg">
               {resourcesLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-component-md">
                   <Skeleton className="h-16 w-full" />
                   <Skeleton className="h-32 w-full" />
                 </div>
@@ -460,9 +460,9 @@ export const ServicesPage = React.memo(function ServicesPage({
         <Collapsible.Root open={updatesOpen} onOpenChange={setUpdatesOpen}>
           <Card>
             <Collapsible.Trigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.updates.toggle')}>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.updates.toggle')} tabIndex={0}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-component-md">
                     <ArrowUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     <CardTitle>{t('services.sections.updates.title')}</CardTitle>
                     <span className="text-xs px-2 py-1 rounded-full bg-warning/10 text-warning">
@@ -479,7 +479,7 @@ export const ServicesPage = React.memo(function ServicesPage({
             </Collapsible.Trigger>
             <Collapsible.Content>
               <Separator />
-              <CardContent className="pt-6">
+              <CardContent className="pt-component-lg">
                 <UpdateAllPanel
                   updates={updatesData}
                   onUpdateAll={() => {
@@ -501,9 +501,9 @@ export const ServicesPage = React.memo(function ServicesPage({
       <Collapsible.Root open={storageOpen} onOpenChange={setStorageOpen}>
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.storage.toggle')}>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.storage.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-component-md">
                   <HardDrive className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <CardTitle>{t('services.sections.storage.title')}</CardTitle>
                   {storageConfig?.enabled && (
@@ -522,7 +522,7 @@ export const ServicesPage = React.memo(function ServicesPage({
           </Collapsible.Trigger>
           <Collapsible.Content>
             <Separator />
-            <CardContent className="pt-0">
+            <CardContent className="pt-component-md">
               <StorageSettings />
             </CardContent>
           </Collapsible.Content>
@@ -533,9 +533,9 @@ export const ServicesPage = React.memo(function ServicesPage({
       <Collapsible.Root open={portsOpen} onOpenChange={setPortsOpen}>
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label={t('services.sections.ports.toggle')}>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.ports.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-component-md">
                   <Network className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <CardTitle>{t('services.sections.ports.title')}</CardTitle>
                 </div>
@@ -549,7 +549,7 @@ export const ServicesPage = React.memo(function ServicesPage({
           </Collapsible.Trigger>
           <Collapsible.Content>
             <Separator />
-            <CardContent className="pt-6">
+            <CardContent className="pt-component-lg">
               <PortRegistryView routerId={routerId} />
             </CardContent>
           </Collapsible.Content>
@@ -573,14 +573,14 @@ export const ServicesPage = React.memo(function ServicesPage({
         onViewModeChange={setViewMode}
         showMetrics={showMetrics}
         emptyState={
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold mb-2">
+          <div className="text-center py-component-lg">
+            <h3 className="text-lg font-display mb-component-sm text-foreground">
               {t('services.empty.title')}
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-component-md">
               {t('services.empty.description')}
             </p>
-            <Button onClick={() => setInstallDialogOpen(true)}>
+            <Button onClick={() => setInstallDialogOpen(true)} className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               {t('services.empty.action')}
             </Button>
           </div>

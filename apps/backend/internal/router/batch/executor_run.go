@@ -3,9 +3,10 @@ package batch
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/router/adapters/mikrotik"
 	"backend/internal/router/adapters/mikrotik/parser"
@@ -15,12 +16,16 @@ import (
 func (job *Job) executeCommands(ctx context.Context) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("[BATCH] Job %s panicked: %v", job.ID, r)
+			if job.logger != nil {
+				job.logger.Error("Batch job panicked", zap.String("job_id", job.ID), zap.Any("panic", r))
+			}
 			job.setStatus(JobStatusFailed)
 		}
 	}()
 
-	log.Printf("[BATCH] Job %s using protocol: %s", job.ID, job.Protocol)
+	if job.logger != nil {
+		job.logger.Debug("Executing batch job", zap.String("job_id", job.ID), zap.String("protocol", job.Protocol))
+	}
 
 	switch job.Protocol {
 	case ProtocolSSH:
@@ -90,7 +95,9 @@ func (job *Job) executeViaAPI(ctx context.Context) { //nolint:gocyclo // batch e
 		}
 
 		if job.DryRun {
-			log.Printf("[BATCH-API-DRY] Would execute: %s %v", apiCmd.Command, apiCmd.Args)
+			if job.logger != nil {
+				job.logger.Debug("Dry run API command", zap.String("job_id", job.ID), zap.String("command", apiCmd.Command), zap.Strings("args", apiCmd.Args))
+			}
 			job.updateProgress(i+1, 1, 0, 0)
 			continue
 		}
@@ -144,7 +151,7 @@ func (job *Job) executeViaSSH(ctx context.Context) {
 		Password:   job.Password,
 		PrivateKey: job.SSHPrivateKey,
 		Timeout:    30 * time.Second,
-	})
+	}, job.logger)
 	if err != nil {
 		job.addError(0, "connection", fmt.Sprintf("SSH connection failed: %v", err))
 		job.setStatus(JobStatusFailed)
@@ -187,7 +194,9 @@ func (job *Job) executeViaSSH(ctx context.Context) {
 		}
 
 		if output != "" {
-			log.Printf("[BATCH-SSH] Output: %s", TruncateCommand(output, 200))
+			if job.logger != nil {
+				job.logger.Debug("SSH command output", zap.String("job_id", job.ID), zap.String("output", TruncateCommand(output, 200)))
+			}
 		}
 		job.updateProgress(i+1, 1, 0, 0)
 	}
@@ -250,7 +259,9 @@ func (job *Job) executeViaTelnet(ctx context.Context) {
 		}
 
 		if output != "" {
-			log.Printf("[BATCH-TELNET] Output: %s", TruncateCommand(output, 200))
+			if job.logger != nil {
+				job.logger.Debug("Telnet command output", zap.String("job_id", job.ID), zap.String("output", TruncateCommand(output, 200)))
+			}
 		}
 		job.updateProgress(i+1, 1, 0, 0)
 	}
@@ -272,7 +283,9 @@ func (job *Job) executeDryRun(protocol string) {
 			continue
 		}
 
-		log.Printf("[BATCH-%s-DRY] Would execute: %s", protocol, TruncateCommand(rawCmd, 100))
+		if job.logger != nil {
+			job.logger.Debug("Dry run command", zap.String("job_id", job.ID), zap.String("protocol", protocol), zap.String("command", TruncateCommand(rawCmd, 100)))
+		}
 		job.updateProgress(i+1, 1, 0, 0)
 	}
 

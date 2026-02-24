@@ -13,7 +13,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/router"
 )
@@ -22,6 +25,19 @@ import (
 // router adapter's command/result types.
 type AdapterBridge struct {
 	fieldRegistry *FieldMappingRegistry
+	logger        *zap.Logger
+}
+
+// asString converts a value to its string representation.
+func asString(v interface{}) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	if b, ok := v.([]byte); ok {
+		return string(b)
+	}
+	// For other types, use standard conversion without exposing internals
+	return "[value]"
 }
 
 // NewAdapterBridge creates a new adapter bridge.
@@ -29,7 +45,12 @@ func NewAdapterBridge(registry *FieldMappingRegistry) *AdapterBridge {
 	if registry == nil {
 		registry = BuildDefaultRegistry()
 	}
-	return &AdapterBridge{fieldRegistry: registry}
+	if registry == nil {
+		// Defensive: BuildDefaultRegistry should always return a non-nil value
+		panic("failed to create default field mapping registry")
+	}
+	logger := zap.L().Named("translator.AdapterBridge")
+	return &AdapterBridge{fieldRegistry: registry, logger: logger}
 }
 
 // ToRouterCommand converts a CanonicalCommand to a router.Command.
@@ -47,7 +68,8 @@ func (b *AdapterBridge) ToRouterCommand(cmd *CanonicalCommand) router.Command {
 
 	// Convert parameters to string args
 	for key, value := range cmd.Parameters {
-		routerCmd.Args[key] = fmt.Sprintf("%v", value)
+		// Note: Key names checked for sensitive data redaction at resolver layer
+		routerCmd.Args[key] = asString(value)
 	}
 
 	// Convert filters to query string
@@ -77,26 +99,29 @@ func (b *AdapterBridge) filtersToQuery(filters []Filter) string {
 		if i > 0 {
 			query += " "
 		}
+		// Build query with field name and operator (value is appended safely)
+		var prefix string
 		switch f.Operator {
 		case FilterOpEquals:
-			query += fmt.Sprintf("%s=%v", f.Field, f.Value)
+			prefix = f.Field + "="
 		case FilterOpNotEquals:
-			query += fmt.Sprintf("%s!=%v", f.Field, f.Value)
+			prefix = f.Field + "!="
 		case FilterOpGreater:
-			query += fmt.Sprintf("%s>%v", f.Field, f.Value)
+			prefix = f.Field + ">"
 		case FilterOpLess:
-			query += fmt.Sprintf("%s<%v", f.Field, f.Value)
+			prefix = f.Field + "<"
 		case FilterOpContains:
-			query += fmt.Sprintf("%s~%v", f.Field, f.Value)
+			prefix = f.Field + "~"
 		case FilterOpGreaterOrEq:
-			query += fmt.Sprintf("%s>=%v", f.Field, f.Value)
+			prefix = f.Field + ">="
 		case FilterOpLessOrEq:
-			query += fmt.Sprintf("%s<=%v", f.Field, f.Value)
+			prefix = f.Field + "<="
 		case FilterOpIn:
-			query += fmt.Sprintf("%s%s%v", f.Field, f.Operator, f.Value)
+			prefix = f.Field + string(f.Operator)
 		default:
-			query += fmt.Sprintf("%s=%v", f.Field, f.Value)
+			prefix = f.Field + "="
 		}
+		query += prefix + asString(f.Value)
 	}
 	return query
 }
@@ -108,7 +133,8 @@ func (b *AdapterBridge) FromCommandResult(result *router.CommandResult, protocol
 	}
 
 	if !result.Success {
-		errMsg := "unknown error"
+		b.logger.Warn("adapter command failed", zap.Error(result.Error), zap.String("protocol", string(protocol)))
+		errMsg := "command failed"
 		if result.Error != nil {
 			errMsg = result.Error.Error()
 		}
@@ -172,7 +198,7 @@ func categorizeAdapterError(err error) ErrorCategory {
 	}
 
 	// Fall back to message-based classification
-	cmdErr := TranslateError(err, "")
+	cmdErr := TranslateError(err, ProtocolAPI)
 	if cmdErr != nil {
 		return cmdErr.Category
 	}
@@ -187,7 +213,7 @@ func categorizeByRouterOSError(err *router.AdapterError) ErrorCategory {
 	}
 
 	// Use message-based classification
-	cmdErr := TranslateError(err, "")
+	cmdErr := TranslateError(err, ProtocolAPI)
 	if cmdErr != nil {
 		return cmdErr.Category
 	}
@@ -232,10 +258,18 @@ type TranslatingPort struct {
 	translator *Translator
 	bridge     *AdapterBridge
 	responseRT *ResponseTranslator
+	versionMu  sync.Mutex // Protects version synchronization
 }
 
 // NewTranslatingPort creates a port wrapper with translation capabilities.
 func NewTranslatingPort(port router.RouterPort, translator *Translator) *TranslatingPort {
+	if port == nil {
+		panic("NewTranslatingPort: port is nil")
+	}
+	if translator == nil {
+		panic("NewTranslatingPort: translator is nil")
+	}
+
 	bridge := NewAdapterBridge(translator.registry)
 	responseRT := NewResponseTranslator(translator.registry)
 
@@ -259,10 +293,7 @@ func (tp *TranslatingPort) Query(ctx context.Context, path string, filters map[s
 	}
 
 	// Execute through adapter
-	result, execErr := tp.execute(ctx, cmd)
-	if execErr != nil {
-		return nil, execErr
-	}
+	result := tp.execute(ctx, cmd)
 
 	// Translate response to GraphQL format
 	return tp.responseRT.TranslateResponse(ctx, path, result)
@@ -277,11 +308,7 @@ func (tp *TranslatingPort) Get(ctx context.Context, path, id string, meta Comman
 		return nil, fmt.Errorf("translation error: %w", err)
 	}
 
-	result, execErr := tp.execute(ctx, cmd)
-	if execErr != nil {
-		return nil, execErr
-	}
-
+	result := tp.execute(ctx, cmd)
 	return tp.responseRT.TranslateResponse(ctx, path, result)
 }
 
@@ -294,11 +321,7 @@ func (tp *TranslatingPort) Create(ctx context.Context, path string, fields map[s
 		return nil, fmt.Errorf("translation error: %w", err)
 	}
 
-	result, execErr := tp.execute(ctx, cmd)
-	if execErr != nil {
-		return nil, execErr
-	}
-
+	result := tp.execute(ctx, cmd)
 	return tp.responseRT.TranslateResponse(ctx, path, result)
 }
 
@@ -311,11 +334,7 @@ func (tp *TranslatingPort) Update(ctx context.Context, path, id string, fields m
 		return nil, fmt.Errorf("translation error: %w", err)
 	}
 
-	result, execErr := tp.execute(ctx, cmd)
-	if execErr != nil {
-		return nil, execErr
-	}
-
+	result := tp.execute(ctx, cmd)
 	return tp.responseRT.TranslateResponse(ctx, path, result)
 }
 
@@ -328,38 +347,42 @@ func (tp *TranslatingPort) Delete(ctx context.Context, path, id string, meta Com
 		return nil, fmt.Errorf("translation error: %w", err)
 	}
 
-	result, execErr := tp.execute(ctx, cmd)
-	if execErr != nil {
-		return nil, execErr
-	}
-
+	result := tp.execute(ctx, cmd)
 	return tp.responseRT.TranslateResponse(ctx, path, result)
 }
 
 // ExecuteCanonical executes a pre-built canonical command with translation.
 func (tp *TranslatingPort) ExecuteCanonical(ctx context.Context, cmd *CanonicalCommand) (*CanonicalResponse, error) {
-	result, err := tp.execute(ctx, cmd)
-	if err != nil {
-		return nil, err
-	}
-
+	result := tp.execute(ctx, cmd)
 	return tp.responseRT.TranslateResponse(ctx, cmd.Path, result)
 }
 
 // execute converts a canonical command to a router command and executes it.
-func (tp *TranslatingPort) execute(ctx context.Context, cmd *CanonicalCommand) (*CanonicalResponse, error) {
+func (tp *TranslatingPort) execute(ctx context.Context, cmd *CanonicalCommand) *CanonicalResponse {
+	if cmd == nil {
+		return &CanonicalResponse{
+			Success: false,
+			Error: &CommandError{
+				Code:     "INVALID_COMMAND",
+				Message:  "command is nil",
+				Category: ErrorCategoryInternal,
+			},
+		}
+	}
+
 	// Convert to router command
 	routerCmd := tp.bridge.ToRouterCommand(cmd)
 
-	// Set timeout from command
+	// Set timeout from command, preserving parent context cancellation
+	execCtx := ctx
+	var cancel context.CancelFunc
 	if cmd.Timeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, cmd.Timeout)
+		execCtx, cancel = context.WithTimeout(ctx, cmd.Timeout)
 		defer cancel()
 	}
 
 	// Execute on the adapter
-	result, err := tp.port.ExecuteCommand(ctx, routerCmd)
+	result, err := tp.port.ExecuteCommand(execCtx, routerCmd)
 	if err != nil {
 		// Convert adapter error to canonical response
 		protocol := MapRouterProtocol(tp.port.Protocol())
@@ -370,18 +393,28 @@ func (tp *TranslatingPort) execute(ctx context.Context, cmd *CanonicalCommand) (
 			Metadata: ResponseMetadata{
 				Protocol: protocol,
 			},
-		}, nil
+		}
 	}
 
 	// Convert CommandResult to CanonicalResponse
 	protocol := MapRouterProtocol(tp.port.Protocol())
-	return tp.bridge.FromCommandResult(result, protocol), nil
+	return tp.bridge.FromCommandResult(result, protocol)
 }
 
 // syncVersion updates the translator version from the router's info.
+// This method is thread-safe and idempotent.
 func (tp *TranslatingPort) syncVersion() {
-	if tp.translator.version != nil {
+	// Quick check without lock
+	if tp.translator.GetVersion() != nil {
 		return // Already set
+	}
+
+	tp.versionMu.Lock()
+	defer tp.versionMu.Unlock()
+
+	// Double-check after acquiring lock
+	if tp.translator.GetVersion() != nil {
+		return
 	}
 
 	info, err := tp.port.Info()

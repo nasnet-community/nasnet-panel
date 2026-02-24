@@ -9,7 +9,7 @@ import (
 
 	"backend/generated/ent"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // setupTestInstance creates a test instance with the given feature ID and config content
@@ -27,7 +27,7 @@ func setupTestInstance(t *testing.T, tmpDir, featureID, configContent string) *e
 	}
 
 	// Determine config file name
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	configFileName := adapter.getConfigFileName(featureID)
 
 	// Write config file
@@ -53,7 +53,7 @@ DataDirectory /data/tor
 `
 	instance := setupTestInstance(t, tmpDir, "tor", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -72,7 +72,7 @@ ControlPort 127.0.0.1:9051
 `
 	instance := setupTestInstance(t, tmpDir, "tor", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	_, err := adapter.ValidateBinding(context.Background(), instance)
 	if err == nil {
 		t.Fatal("Expected wildcard validation to fail, but it succeeded")
@@ -96,7 +96,7 @@ func TestConfigValidatorAdapter_SingBox(t *testing.T) {
 }`
 	instance := setupTestInstance(t, tmpDir, "sing-box", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -120,7 +120,7 @@ func TestConfigValidatorAdapter_SingBox_WildcardRejected(t *testing.T) {
 }`
 	instance := setupTestInstance(t, tmpDir, "sing-box", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	_, err := adapter.ValidateBinding(context.Background(), instance)
 	if err == nil {
 		t.Fatal("Expected wildcard validation to fail, but it succeeded")
@@ -144,7 +144,7 @@ func TestConfigValidatorAdapter_XrayCore(t *testing.T) {
 }`
 	instance := setupTestInstance(t, tmpDir, "xray-core", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -160,7 +160,7 @@ func TestConfigValidatorAdapter_MTProxy(t *testing.T) {
 	configContent := `-bind-to 192.168.1.40:8888 -secret <SECRET> -workers 4`
 	instance := setupTestInstance(t, tmpDir, "mtproxy", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -182,7 +182,7 @@ dns:
 `
 	instance := setupTestInstance(t, tmpDir, "adguard-home", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -204,7 +204,7 @@ dns:
 `
 	instance := setupTestInstance(t, tmpDir, "adguard-home", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	_, err := adapter.ValidateBinding(context.Background(), instance)
 	if err == nil {
 		t.Fatal("Expected wildcard validation to fail, but it succeeded")
@@ -222,7 +222,7 @@ func TestConfigValidatorAdapter_Psiphon(t *testing.T) {
 }`
 	instance := setupTestInstance(t, tmpDir, "psiphon", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	bindIP, err := adapter.ValidateBinding(context.Background(), instance)
 	if err != nil {
 		t.Fatalf("ValidateBinding failed: %v", err)
@@ -240,7 +240,7 @@ func TestConfigValidatorAdapter_Psiphon_WildcardRejected(t *testing.T) {
 }`
 	instance := setupTestInstance(t, tmpDir, "psiphon", configContent)
 
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 	_, err := adapter.ValidateBinding(context.Background(), instance)
 	if err == nil {
 		t.Fatal("Expected wildcard validation to fail, but it succeeded")
@@ -252,7 +252,7 @@ func TestConfigValidatorAdapter_Psiphon_WildcardRejected(t *testing.T) {
 }
 
 func TestConfigValidatorAdapter_UnsupportedServiceType(t *testing.T) {
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 
 	instance := &ent.ServiceInstance{
 		ID:        "test-unsupported",
@@ -270,7 +270,7 @@ func TestConfigValidatorAdapter_UnsupportedServiceType(t *testing.T) {
 }
 
 func TestConfigValidatorAdapter_ConfigFileNotFound(t *testing.T) {
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 
 	instance := &ent.ServiceInstance{
 		ID:         "test-not-found",
@@ -289,7 +289,7 @@ func TestConfigValidatorAdapter_ConfigFileNotFound(t *testing.T) {
 }
 
 func TestConfigValidatorAdapter_GetConfigFileName(t *testing.T) {
-	adapter := NewConfigValidatorAdapter(zerolog.Nop())
+	adapter := NewConfigValidatorAdapter(zap.NewNop())
 
 	tests := []struct {
 		featureID        string

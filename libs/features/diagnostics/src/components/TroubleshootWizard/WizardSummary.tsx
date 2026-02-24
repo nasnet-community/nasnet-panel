@@ -97,18 +97,18 @@ export const WizardSummary = memo(function WizardSummary({
   }, [onClose]);
 
   return (
-    <div className="space-y-6" role="region" aria-label="Diagnostic results summary">
+    <div className="space-y-component-lg" role="region" aria-label="Diagnostic results summary">
       {/* Summary Header */}
-      <Card className="p-6">
-        <div className="flex flex-col items-center text-center space-y-4">
+      <Card className="p-component-lg">
+        <div className="flex flex-col items-center text-center space-y-component-md">
           {getSummaryIcon()}
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Troubleshooting Complete</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-component-sm">Troubleshooting Complete</h2>
             <p className="text-muted-foreground">{summaryMessage}</p>
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-3 gap-4 w-full max-w-md" role="region" aria-label="Diagnostic statistics">
+          <div className="grid grid-cols-3 gap-component-md w-full max-w-md" role="region" aria-label="Diagnostic statistics">
             <div className="text-center">
               <div className="text-2xl font-bold text-success" aria-label={`${summary.passedSteps} tests passed`}>
                 {summary.passedSteps}
@@ -132,16 +132,16 @@ export const WizardSummary = memo(function WizardSummary({
       </Card>
 
       {/* Detailed Results */}
-      <Card className="p-4">
-        <h3 className="font-semibold text-foreground mb-3">Detailed Results</h3>
-        <div className="space-y-2" role="list" aria-label="Diagnostic step results">
+      <Card className="p-component-md">
+        <h3 className="font-semibold text-foreground mb-component-md">Detailed Results</h3>
+        <div className="space-y-component-sm" role="list" aria-label="Diagnostic step results">
           {steps.map((step) => (
             <div
               key={step.id}
               role="listitem"
               aria-label={`${step.name}: ${step.status}`}
               className={cn(
-                'flex items-center gap-3 p-3 rounded-md',
+                'flex items-center gap-component-md p-component-sm rounded-card-sm',
                 step.status === 'passed' && 'bg-success/10',
                 step.status === 'failed' && 'bg-error/10',
                 step.status === 'skipped' && 'bg-muted/50'
@@ -162,7 +162,7 @@ export const WizardSummary = memo(function WizardSummary({
                 {step.result?.message && (
                   <div
                     className={cn(
-                      'text-xs mt-0.5',
+                      'text-xs mt-component-xs',
                       step.status === 'passed' && 'text-success',
                       step.status === 'failed' && 'text-error',
                       step.status === 'skipped' && 'text-muted-foreground'
@@ -185,11 +185,11 @@ export const WizardSummary = memo(function WizardSummary({
 
       {/* Applied Fixes */}
       {summary.appliedFixes.length > 0 && (
-        <Card className="p-4">
-          <h3 className="font-semibold text-foreground mb-3">Applied Fixes</h3>
-          <ul className="space-y-2" aria-label="List of applied fixes">
+        <Card className="p-component-md">
+          <h3 className="font-semibold text-foreground mb-component-md">Applied Fixes</h3>
+          <ul className="space-y-component-sm" aria-label="List of applied fixes">
             {summary.appliedFixes.map((fixCode) => (
-              <li key={fixCode} className="flex items-center gap-2 text-sm">
+              <li key={fixCode} className="flex items-center gap-component-sm text-sm">
                 <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
                 <span className="text-muted-foreground">{fixCode.replace(/_/g, ' ')}</span>
               </li>
@@ -199,11 +199,11 @@ export const WizardSummary = memo(function WizardSummary({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-component-md">
         <Button
           variant="outline"
           onClick={handleRestart}
-          className="flex-1 min-h-[44px]"
+          className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Run diagnostics again"
         >
           <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -211,7 +211,7 @@ export const WizardSummary = memo(function WizardSummary({
         </Button>
         <Button
           onClick={handleClose}
-          className="flex-1 min-h-[44px]"
+          className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Close troubleshooting wizard"
         >
           <X className="mr-2 h-4 w-4" aria-hidden="true" />

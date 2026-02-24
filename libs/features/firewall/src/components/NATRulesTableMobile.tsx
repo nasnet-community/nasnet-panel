@@ -136,7 +136,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(rule.id)} className="text-destructive">
+              <DropdownMenuItem onClick={() => onDelete(rule.id)} className="text-error">
                 <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                 Delete
               </DropdownMenuItem>
@@ -324,7 +324,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (error) {
     return (
-      <div className="p-4 text-destructive" role="alert">
+      <div className="p-4 text-error" role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );

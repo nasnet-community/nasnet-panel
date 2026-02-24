@@ -230,7 +230,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               <div className="space-y-2">
                 <Label htmlFor="group-name">
                   {t('servicePorts.fields.groupName')}
-                  <span className="text-destructive ml-0.5">*</span>
+                  <span className="text-error ml-0.5">*</span>
                 </Label>
                 <Input
                   id="group-name"
@@ -242,7 +242,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                 {nameError && (
                   <p
                     id="group-name-error"
-                    className="text-sm text-destructive"
+                    className="text-sm text-error"
                     role="alert"
                   >
                     {nameError}
@@ -291,7 +291,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               <div className="space-y-2">
                 <Label htmlFor="services-picker">
                   {t('servicePorts.fields.services')}
-                  <span className="text-destructive ml-0.5">*</span>
+                  <span className="text-error ml-0.5">*</span>
                 </Label>
                 <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
                   <PopoverTrigger asChild>
@@ -428,7 +428,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                 </Popover>
 
                 {portsError && (
-                  <p className="text-sm text-destructive" role="alert">
+                  <p className="text-sm text-error" role="alert">
                     {portsError}
                   </p>
                 )}

@@ -7,21 +7,129 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
+	"backend/internal/events"
 	"context"
-	"fmt"
 )
 
 // AddRouter is the resolver for the addRouter field.
+// Implementation requirements:
+// - Validate input: host, port, protocol (SSH/API/REST), credentials
+// - Test connection before persisting to database
+// - Create Router entity with device discovery and capability detection
+// - Return AddRouterPayload with router ID or error details
+// - Publish RouterAddedEvent when successful
 func (r *mutationResolver) AddRouter(ctx context.Context, input model.AddRouterInput) (*model.AddRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: AddRouter - addRouter"))
+	// Validate inputs
+	if input.Host == "" {
+		return nil, errors.NewValidationError("host", input.Host, "required")
+	}
+	if portPtr, ok := input.Port.ValueOK(); ok && portPtr != nil {
+		if *portPtr <= 0 || *portPtr > 65535 {
+			return nil, errors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(errors.CodeOutOfRange)
+		}
+	}
+	if input.Username == "" || input.Password == "" {
+		return nil, errors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
+	}
+
+	// Verify credential service is configured
+	if r.Resolver.CredentialService == nil {
+		return nil, errors.NewInternalError("credential service not configured", nil)
+	}
+
+	// TODO: Validate host is valid IP or hostname format
+	// TODO: Test connection using specified protocol before persisting
+	// SECURITY: Never log credentials - use masked values in debug output
+	// TODO: Create Router entity with device discovery
+	// TODO: Detect router capabilities
+	// TODO: Persist to database
+	// TODO: Return AddRouterPayload with router ID
+	// TODO: Publish RouterAddedEvent when successful
+
+	return nil, errors.NewInternalError("not implemented: AddRouter - addRouter", nil)
 }
 
 // TestRouterCredentials is the resolver for the testRouterCredentials field.
+// Implementation requirements:
+// - Validate input parameters (host, port, protocol, credentials)
+// - Attempt connection using specified protocol
+// - Test authentication
+// - Return ConnectionTestResult with success/failure status
+// - Include diagnostics: response time, version, available features
+// - Never persist credentials or router data during test
 func (r *mutationResolver) TestRouterCredentials(ctx context.Context, input model.AddRouterInput) (*model.ConnectionTestResult, error) {
-	panic(fmt.Errorf("not implemented: TestRouterCredentials - testRouterCredentials"))
+	// Validate inputs
+	if input.Host == "" {
+		return nil, errors.NewValidationError("host", input.Host, "required")
+	}
+	if portPtr, ok := input.Port.ValueOK(); ok && portPtr != nil {
+		if *portPtr <= 0 || *portPtr > 65535 {
+			return nil, errors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(errors.CodeOutOfRange)
+		}
+	}
+	if input.Username == "" || input.Password == "" {
+		return nil, errors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
+	}
+
+	// Verify diagnostic service is configured
+	if r.Resolver.DiagnosticsService == nil {
+		return nil, errors.NewInternalError("diagnostics service not configured", nil)
+	}
+
+	// TODO: Validate host is valid IP or hostname format
+	// TODO: Attempt connection using specified protocol
+	// TODO: Test authentication
+	// TODO: Measure response time
+	// TODO: Query router version and available features
+	// TODO: Return ConnectionTestResult with success/failure status
+	// SECURITY: Never persist credentials or router data during test
+	// SECURITY: Do not log credentials in error messages
+
+	return nil, errors.NewInternalError("not implemented: TestRouterCredentials - testRouterCredentials", nil)
 }
 
 // RouterAdded is the resolver for the routerAdded field.
+// Implementation requirements:
+// - Subscribe to router add events from EventBus
+// - Check context cancellation
+// - Marshal router details into RouterAddedEvent
+// - Handle goroutine cleanup on context cancellation
+// - Return error if EventBus is not initialized
 func (r *subscriptionResolver) RouterAdded(ctx context.Context) (<-chan *model.RouterAddedEvent, error) {
-	panic(fmt.Errorf("not implemented: RouterAdded - routerAdded"))
+	// Verify event bus is configured
+	if r.EventBus == nil {
+		return nil, errors.NewInternalError("event bus not configured", nil)
+	}
+
+	// Create channel for events
+	ch := make(chan *model.RouterAddedEvent, 10)
+
+	// Subscribe to router add events from event bus
+	eventType := "router.added"
+	err := r.EventBus.Subscribe(eventType, func(ctx context.Context, event events.Event) error {
+		// Convert router add event to RouterAddedEvent
+		// TODO: Implement event conversion from events.Event to model.RouterAddedEvent
+		graphqlEvent := &model.RouterAddedEvent{
+			// Fields would be populated from event payload
+		}
+		select {
+		case ch <- graphqlEvent:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+		return nil
+	})
+	if err != nil {
+		close(ch)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to subscribe to router add events")
+	}
+
+	// Ensure channel is closed when context is canceled
+	go func() {
+		<-ctx.Done()
+		close(ch)
+	}()
+
+	return ch, nil
 }

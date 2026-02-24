@@ -62,15 +62,15 @@ export interface PingResultsProps {
  * Color scheme (semantic tokens, not primitives):
  * - success (green): latency <100ms (healthy)
  * - warning (amber): latency 100-200ms (degraded)
- * - destructive (red): latency >=200ms OR timeout/error (critical)
+ * - error (red): latency >=200ms OR timeout/error (critical)
  *
  * @param result - The ping result to evaluate
- * @returns Semantic color class name (text-success, text-warning, or text-destructive)
+ * @returns Semantic color class name (text-success, text-warning, or text-error)
  * @internal
  */
 function getResultColor(result: PingResult): string {
-  if (result.error || result.time === null) return 'text-destructive'; // Red - timeout/error
-  if (result.time > 200) return 'text-destructive'; // Red - critical latency
+  if (result.error || result.time === null) return 'text-error'; // Red - timeout/error
+  if (result.time > 200) return 'text-error'; // Red - critical latency
   if (result.time > 100) return 'text-warning'; // Amber - slow
   return 'text-success'; // Green - healthy
 }
@@ -153,14 +153,14 @@ export const PingResults = memo(function PingResults({
   return (
     <div className={cn('relative', className)}>
       {/* Results list */}
-      <ScrollArea className="h-64 border rounded-md">
+      <ScrollArea className="h-64 border rounded-card-sm">
         <div
           ref={parentRef}
           role="log"
           aria-live="polite"
           aria-label="Ping results"
           aria-relevant="additions"
-          className="h-full p-2 font-mono text-sm"
+          className="h-full p-component-xs font-mono text-sm"
         >
           <div
             style={{
@@ -201,7 +201,7 @@ export const PingResults = memo(function PingResults({
           variant="secondary"
           size="sm"
           onClick={scrollToBottom}
-          className="absolute bottom-4 right-4 shadow-lg"
+          className="absolute bottom-component-md right-component-md shadow-lg"
           aria-label={`Scroll to bottom (${newEntriesCount} new results)`}
         >
           <ChevronDown className="w-4 h-4 mr-1" />

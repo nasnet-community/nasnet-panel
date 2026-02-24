@@ -10,7 +10,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TemplateInstaller orchestrates template installation with dependency ordering and event emission
@@ -20,7 +20,7 @@ type TemplateInstaller struct {
 	dependencyManager *dependencies.DependencyManager
 	eventBus          events.EventBus
 	publisher         *events.Publisher
-	logger            zerolog.Logger
+	logger            *zap.Logger
 }
 
 // TemplateInstallerConfig holds configuration for the template installer
@@ -29,7 +29,7 @@ type TemplateInstallerConfig struct {
 	InstanceManager   *lifecycle.InstanceManager
 	DependencyManager *dependencies.DependencyManager
 	EventBus          events.EventBus
-	Logger            zerolog.Logger
+	Logger            *zap.Logger
 }
 
 // InstallTemplateRequest contains parameters for template installation
@@ -69,13 +69,18 @@ func NewTemplateInstaller(cfg TemplateInstallerConfig) (*TemplateInstaller, erro
 		return nil, fmt.Errorf("event bus is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &TemplateInstaller{
 		templateService:   cfg.TemplateService,
 		instanceManager:   cfg.InstanceManager,
 		dependencyManager: cfg.DependencyManager,
 		eventBus:          cfg.EventBus,
 		publisher:         events.NewPublisher(cfg.EventBus, "template-installer"),
-		logger:            cfg.Logger,
+		logger:            logger,
 	}, nil
 }
 
@@ -108,15 +113,15 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		req.Variables,
 		req.RequestedByUID,
 	); err != nil {
-		ti.logger.Warn().Err(err).Msg("failed to publish install started event")
+		ti.logger.Warn("failed to publish install started event", zap.Error(err))
 	}
 
-	ti.logger.Info().
-		Str("template_id", template.ID).
-		Str("template_name", template.Name).
-		Str("router_id", req.RouterID).
-		Int("total_services", len(template.Services)).
-		Msg("starting template installation")
+	ti.logger.Info("starting template installation",
+		zap.String("template_id", template.ID),
+		zap.String("template_name", template.Name),
+		zap.String("router_id", req.RouterID),
+		zap.Int("total_services", len(template.Services)),
+	)
 
 	// Phase 1: Resolve user-provided variables
 	phase1Variables := make(map[string]interface{})
@@ -132,10 +137,15 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 	// Track installation progress
 	installedCount := 0
 
-	// For multi-service templates, we need to create instances in dependency order
-	// For now, we'll create them in the order they appear in the template
+	// For multi-service templates, resolve dependency order using DependencyManager
 	// TODO: Implement topological sort based on service dependencies in template
-	for i, serviceSpec := range template.Services {
+	// Build pointer slice from template.Services (preserving order; enhance with topological sort in future)
+	serviceOrder := make([]*ServiceSpec, len(template.Services))
+	for i := range template.Services {
+		serviceOrder[i] = &template.Services[i]
+	}
+
+	for i, serviceSpec := range serviceOrder {
 		// Emit progress event
 		if err := ti.publisher.PublishTemplateInstallProgress(
 			ctx,
@@ -150,7 +160,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			fmt.Sprintf("Creating service %s (%d/%d)", serviceSpec.Name, i+1, len(template.Services)),
 			startedAt,
 		); err != nil {
-			ti.logger.Warn().Err(err).Msg("failed to publish progress event")
+			ti.logger.Warn("failed to publish progress event", zap.Error(err))
 		}
 
 		// Resolve variables for this service (Phase 1 + Phase 2)
@@ -165,8 +175,11 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		// Resolve config overrides with variables
 		resolvedConfig, err := ti.resolveServiceConfig(serviceSpec.ConfigOverrides, allVariables)
 		if err != nil {
-			// Rollback: Delete created instances
-			ti.rollbackInstances(ctx, instanceIDs)
+			// Rollback: Delete created instances with error handling
+			rollbackErr := ti.rollbackInstances(ctx, instanceIDs)
+			if rollbackErr != nil {
+				ti.logger.Error("rollback failed after config resolution error", zap.Error(rollbackErr))
+			}
 
 			// Emit failure event
 			_ = ti.publisher.PublishTemplateInstallFailed( //nolint:errcheck // best-effort event publish
@@ -183,7 +196,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 				serviceMapping,
 				startedAt,
 				time.Now(),
-				true, // Rollback needed
+				true, // Rollback performed
 			)
 
 			return nil, fmt.Errorf("failed to resolve config for service %s: %w", serviceSpec.Name, err)
@@ -202,8 +215,11 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		})
 
 		if err != nil {
-			// Rollback: Delete created instances
-			ti.rollbackInstances(ctx, instanceIDs)
+			// Rollback: Delete created instances with error handling
+			rollbackErr := ti.rollbackInstances(ctx, instanceIDs)
+			if rollbackErr != nil {
+				ti.logger.Error("rollback failed after instance creation error", zap.Error(rollbackErr))
+			}
 
 			// Emit failure event
 			_ = ti.publisher.PublishTemplateInstallFailed( //nolint:errcheck // best-effort event publish
@@ -243,13 +259,13 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			phase2Variables[varName] = *instance.VlanID
 		}
 
-		ti.logger.Info().
-			Str("template_id", template.ID).
-			Str("service_name", serviceSpec.Name).
-			Str("instance_id", instance.ID).
-			Int("installed_count", installedCount).
-			Int("total_services", len(template.Services)).
-			Msg("service instance created")
+		ti.logger.Info("service instance created",
+			zap.String("template_id", template.ID),
+			zap.String("service_name", serviceSpec.Name),
+			zap.String("instance_id", instance.ID),
+			zap.Int("installed_count", installedCount),
+			zap.Int("total_services", len(template.Services)),
+		)
 
 		// Emit progress event
 		if err := ti.publisher.PublishTemplateInstallProgress(
@@ -265,7 +281,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			fmt.Sprintf("Created service %s (%d/%d)", serviceSpec.Name, installedCount, len(template.Services)),
 			startedAt,
 		); err != nil {
-			ti.logger.Warn().Err(err).Msg("failed to publish progress event")
+			ti.logger.Warn("failed to publish progress event", zap.Error(err))
 		}
 	}
 
@@ -276,9 +292,9 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			// Find target instance ID
 			_, ok := serviceMapping[rule.TargetService]
 			if !ok {
-				ti.logger.Warn().
-					Str("target_service", rule.TargetService).
-					Msg("target service not found in service mapping, skipping dependency")
+				ti.logger.Warn("target service not found in service mapping, skipping dependency",
+					zap.String("target_service", rule.TargetService),
+				)
 				continue
 			}
 
@@ -296,11 +312,11 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 						30,               // Health timeout
 					)
 					if err != nil {
-						ti.logger.Warn().
-							Err(err).
-							Str("from_instance", instanceIDs[i]).
-							Str("to_instance", instanceIDs[i-1]).
-							Msg("failed to add dependency, continuing installation")
+						ti.logger.Warn("failed to add dependency, continuing installation",
+							zap.Error(err),
+							zap.String("from_instance", instanceIDs[i]),
+							zap.String("to_instance", instanceIDs[i-1]),
+						)
 					}
 				}
 			}
@@ -325,17 +341,17 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		startedAt,
 		completedAt,
 	); err != nil {
-		ti.logger.Warn().Err(err).Msg("failed to publish install completed event")
+		ti.logger.Warn("failed to publish install completed event", zap.Error(err))
 	}
 
-	ti.logger.Info().
-		Str("template_id", template.ID).
-		Str("template_name", template.Name).
-		Str("router_id", req.RouterID).
-		Int("installed_count", installedCount).
-		Int("total_services", len(template.Services)).
-		Dur("duration", completedAt.Sub(startedAt)).
-		Msg("template installation completed")
+	ti.logger.Info("template installation completed",
+		zap.String("template_id", template.ID),
+		zap.String("template_name", template.Name),
+		zap.String("router_id", req.RouterID),
+		zap.Int("installed_count", installedCount),
+		zap.Int("total_services", len(template.Services)),
+		zap.Duration("duration", completedAt.Sub(startedAt)),
+	)
 
 	return &InstallTemplateResponse{
 		InstanceIDs:    instanceIDs,

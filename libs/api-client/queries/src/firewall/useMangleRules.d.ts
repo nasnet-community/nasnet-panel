@@ -21,7 +21,7 @@ import type { MangleRule, MangleChain } from '@nasnet/core/types';
  */
 export declare const mangleRulesKeys: {
     all: (routerId: string) => readonly ["mangle", string];
-    byChain: (routerId: string, chain: MangleChain) => readonly ["mangle", string, "input" | "output" | "prerouting" | "forward" | "postrouting"];
+    byChain: (routerId: string, chain: MangleChain) => readonly ["mangle", string, "prerouting" | "input" | "forward" | "output" | "postrouting"];
 };
 /**
  * Hook to fetch mangle rules
@@ -44,15 +44,13 @@ export declare function useMangleRules(routerId: string, options?: UseMangleRule
  * Endpoint: POST /rest/ip/firewall/mangle/add
  */
 export declare function useCreateMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, Partial<{
-    log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "jump";
-    disabled: boolean;
     passthrough: boolean;
-    chain: "input" | "output" | "prerouting" | "forward" | "postrouting";
+    log: boolean;
+    chain: "prerouting" | "input" | "forward" | "output" | "postrouting";
+    action: "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "accept" | "drop" | "jump" | "log";
+    disabled: boolean;
     id?: string | undefined;
-    content?: string | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
     protocol?: string | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
@@ -71,6 +69,7 @@ export declare function useCreateMangleRule(routerId: string): import("@tanstack
     routingMark?: string | undefined;
     packetSize?: string | undefined;
     layer7Protocol?: string | undefined;
+    content?: string | undefined;
     tcpFlags?: string | undefined;
     newConnectionMark?: string | undefined;
     newPacketMark?: string | undefined;
@@ -82,6 +81,7 @@ export declare function useCreateMangleRule(routerId: string): import("@tanstack
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
 }>, unknown>;
 /**
  * Update an existing mangle rule

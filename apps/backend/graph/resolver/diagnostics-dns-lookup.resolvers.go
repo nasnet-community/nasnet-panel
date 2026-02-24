@@ -7,31 +7,60 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // RunDNSLookup is the resolver for the runDnsLookup field.
-func (r *mutationResolver) RunDNSLookup(_ context.Context, input model.DNSLookupInput) (*model.DNSLookupResult, error) {
-	panic(fmt.Errorf("not implemented: RunDNSLookup - runDnsLookup"))
+func (r *mutationResolver) RunDNSLookup(ctx context.Context, input model.DNSLookupInput) (*model.DNSLookupResult, error) {
+	// Validate input
+	if input.DeviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	if input.Hostname == "" {
+		panic(errors.NewValidationError("input", nil, "hostname cannot be empty"))
+	}
+	// Context is used for timeout handling in implementation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: RunDNSLookup - runDnsLookup"))
 }
 
 // FlushDNSCache is the resolver for the flushDnsCache field.
-func (r *mutationResolver) FlushDNSCache(_ context.Context, deviceID string) (*model.FlushDNSCacheResult, error) {
-	panic(fmt.Errorf("not implemented: FlushDNSCache - flushDnsCache"))
+func (r *mutationResolver) FlushDNSCache(ctx context.Context, deviceID string) (*model.FlushDNSCacheResult, error) {
+	if deviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	// Context is used for timeout handling in implementation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: FlushDNSCache - flushDnsCache"))
 }
 
 // DNSServers is the resolver for the dnsServers field.
-func (r *queryResolver) DNSServers(_ context.Context, deviceID string) (*model.DNSServers, error) {
-	panic(fmt.Errorf("not implemented: DNSServers - dnsServers"))
+func (r *queryResolver) DNSServers(ctx context.Context, deviceID string) (*model.DNSServers, error) {
+	if deviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	// Context is used for timeout handling in implementation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: DNSServers - dnsServers"))
 }
 
 // DNSCacheStats is the resolver for the dnsCacheStats field.
-func (r *queryResolver) DNSCacheStats(_ context.Context, deviceID string) (*model.DNSCacheStats, error) {
-	panic(fmt.Errorf("not implemented: DNSCacheStats - dnsCacheStats"))
+func (r *queryResolver) DNSCacheStats(ctx context.Context, deviceID string) (*model.DNSCacheStats, error) {
+	if deviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	// Context is used for timeout handling in implementation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: DNSCacheStats - dnsCacheStats"))
 }
 
 // DNSBenchmark is the resolver for the dnsBenchmark field.
-func (r *queryResolver) DNSBenchmark(_ context.Context, deviceID string) (*model.DNSBenchmarkResult, error) {
-	panic(fmt.Errorf("not implemented: DNSBenchmark - dnsBenchmark"))
+func (r *queryResolver) DNSBenchmark(ctx context.Context, deviceID string) (*model.DNSBenchmarkResult, error) {
+	if deviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	// Context is used for timeout handling in implementation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: DNSBenchmark - dnsBenchmark"))
 }

@@ -11,7 +11,7 @@ import (
 	"backend/internal/events"
 	"backend/internal/router"
 
-	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
 )
 
 // RemoveRoutingChain removes a routing chain and all its router rules.
@@ -19,7 +19,7 @@ func (cr *ChainRouter) RemoveRoutingChain(ctx context.Context, chainID string) e
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
-	log.Info().Str("chain_id", chainID).Msg("Removing routing chain")
+	cr.logger.Info("Removing routing chain", zap.String("chain_id", chainID))
 
 	chain, err := cr.store.RoutingChain.
 		Query().
@@ -52,17 +52,16 @@ func (cr *ChainRouter) removeRoutingChainInternal(ctx context.Context, chain *en
 	for i := len(hops) - 1; i >= 0; i-- {
 		hop := hops[i]
 
-		log.Info().
-			Int("hop_order", hop.HopOrder).
-			Str("routing_mark", hop.RoutingMark).
-			Msg("Removing hop rules")
+		cr.logger.Info("Removing hop rules",
+			zap.Int("hop_order", hop.HopOrder),
+			zap.String("routing_mark", hop.RoutingMark))
 
 		cr.removeHopRules(ctx, hop)
 	}
 
 	// Delete RoutingChain record
 	if err := cr.store.RoutingChain.DeleteOneID(chain.ID).Exec(ctx); err != nil {
-		log.Warn().Err(err).Msg("Failed to delete chain record")
+		cr.logger.Warn("Failed to delete chain record", zap.Error(err))
 	}
 
 	// Emit event
@@ -78,11 +77,11 @@ func (cr *ChainRouter) removeRoutingChainInternal(ctx context.Context, chain *en
 			},
 		)
 		if err := cr.publisher.Publish(ctx, event); err != nil {
-			log.Warn().Err(err).Msg("Failed to publish chain removed event")
+			cr.logger.Warn("Failed to publish chain removed event", zap.Error(err))
 		}
 	}
 
-	log.Info().Str("chain_id", chain.ID).Msg("Routing chain removed successfully")
+	cr.logger.Info("Routing chain removed successfully", zap.String("chain_id", chain.ID))
 	return nil
 }
 
@@ -96,7 +95,7 @@ func (cr *ChainRouter) removeHopRules(ctx context.Context, hop *ent.ChainHop) {
 			Args:   map[string]string{".id": hop.KillSwitchRuleID},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, removeKSCmd); err != nil {
-			log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to remove kill switch rule")
+			cr.logger.Warn("Failed to remove kill switch rule", zap.Error(err), zap.Int("hop_order", hop.HopOrder))
 		}
 	}
 
@@ -108,7 +107,7 @@ func (cr *ChainRouter) removeHopRules(ctx context.Context, hop *ent.ChainHop) {
 			Args:   map[string]string{".id": hop.RouteID},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, removeRouteCmd); err != nil {
-			log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to remove route")
+			cr.logger.Warn("Failed to remove route", zap.Error(err), zap.Int("hop_order", hop.HopOrder))
 		}
 	}
 
@@ -119,7 +118,7 @@ func (cr *ChainRouter) removeHopRules(ctx context.Context, hop *ent.ChainHop) {
 		Args:   map[string]string{"name": hop.RouteTableName},
 	}
 	if _, err := cr.router.ExecuteCommand(ctx, removeTableCmd); err != nil {
-		log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to remove routing table")
+		cr.logger.Warn("Failed to remove routing table", zap.Error(err), zap.Int("hop_order", hop.HopOrder))
 	}
 
 	// Remove mangle rule
@@ -130,13 +129,13 @@ func (cr *ChainRouter) removeHopRules(ctx context.Context, hop *ent.ChainHop) {
 			Args:   map[string]string{".id": hop.MangleRuleID},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, removeMangleCmd); err != nil {
-			log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to remove mangle rule")
+			cr.logger.Warn("Failed to remove mangle rule", zap.Error(err), zap.Int("hop_order", hop.HopOrder))
 		}
 	}
 
 	// Delete ChainHop record
 	if err := cr.store.ChainHop.DeleteOneID(hop.ID).Exec(ctx); err != nil {
-		log.Warn().Err(err).Int("hop_order", hop.HopOrder).Msg("Failed to delete hop record")
+		cr.logger.Warn("Failed to delete hop record", zap.Error(err), zap.Int("hop_order", hop.HopOrder))
 	}
 }
 
@@ -148,7 +147,7 @@ func (cr *ChainRouter) UpdateRoutingChain(
 	input CreateRoutingChainInput,
 ) (*ent.RoutingChain, error) {
 
-	log.Info().Str("chain_id", chainID).Msg("Updating routing chain")
+	cr.logger.Info("Updating routing chain", zap.String("chain_id", chainID))
 
 	existingChain, err := cr.store.RoutingChain.Get(ctx, chainID)
 	if err != nil {
@@ -180,7 +179,7 @@ func (cr *ChainRouter) UpdateRoutingChain(
 			},
 		)
 		if err := cr.publisher.Publish(ctx, event); err != nil {
-			log.Warn().Err(err).Msg("Failed to publish chain updated event")
+			cr.logger.Warn("Failed to publish chain updated event", zap.Error(err))
 		}
 	}
 

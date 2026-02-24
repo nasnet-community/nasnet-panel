@@ -103,10 +103,10 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
 
   if (isLoading) {
     return (
-      <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
-        <div className="animate-pulse space-y-4">
+      <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
+        <div className="animate-pulse space-y-component-md">
           <div className="h-4 bg-muted rounded w-24" />
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             {[1, 2, 3].map((i) => (
               <div key={i} className="space-y-2">
                 <div className="h-3 bg-muted rounded w-16" />
@@ -121,8 +121,8 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
-        <h3 className="text-sm font-semibold text-foreground mb-3">
+      <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
+        <h3 className="text-sm font-semibold text-foreground mb-component-sm">
           Firewall Rules
         </h3>
         <p className="text-sm text-muted-foreground">
@@ -133,11 +133,11 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
   }
 
   return (
-    <div className={cn('bg-card rounded-xl border border-border p-4', className)}>
-      <h3 className="text-sm font-semibold text-foreground mb-3">
+    <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
+      <h3 className="text-sm font-semibold text-foreground mb-component-md">
         Rules by Chain
       </h3>
-      <div className="space-y-3 mb-6">
+      <div className="space-y-component-md mb-component-lg">
         {chainStats.map((stat) => (
           <div key={stat.chain}>
             <div className="flex items-center justify-between mb-1">
@@ -148,9 +148,9 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
                 {stat.total}
               </span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
+            <div className="w-full bg-muted rounded-[var(--semantic-radius-badge)] h-2">
               <div
-                className={cn(stat.color, 'h-2 rounded-full transition-all duration-300')}
+                className={cn(stat.color, 'h-2 rounded-[var(--semantic-radius-badge)] transition-all duration-300')}
                 style={{ width: `${(stat.total / maxChainCount) * 100}%` }}
               />
             </div>
@@ -158,12 +158,12 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
         ))}
       </div>
 
-      <h3 className="text-sm font-semibold text-foreground mb-3">
+      <h3 className="text-sm font-semibold text-foreground mb-component-md">
         Action Totals
       </h3>
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-component-sm mb-component-sm">
         <div
-          className="flex-1 flex h-3 rounded-full overflow-hidden bg-muted"
+          className="flex-1 flex h-3 rounded-[var(--semantic-radius-badge)] overflow-hidden bg-muted"
           role="img"
           aria-label={`Action distribution: ${actionTotals.accept} accept, ${actionTotals.drop} drop, ${actionTotals.reject} reject`}
         >
@@ -177,7 +177,7 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
               )}
               {actionTotals.drop > 0 && (
                 <div
-                  className="bg-destructive"
+                  className="bg-error"
                   style={{ width: `${(actionTotals.drop / totalActive) * 100}%` }}
                 />
               )}
@@ -192,21 +192,21 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs">
+      <div className="grid grid-cols-2 gap-component-sm text-xs">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-success" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-success" aria-hidden="true" />
           <span className="text-muted-foreground">
             Accept <span className="font-medium">{actionTotals.accept}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-destructive" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-error" aria-hidden="true" />
           <span className="text-muted-foreground">
             Drop <span className="font-medium">{actionTotals.drop}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-warning" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-warning" aria-hidden="true" />
           <span className="text-muted-foreground">
             Reject <span className="font-medium">{actionTotals.reject}</span>
           </span>

@@ -47,7 +47,7 @@ func (m *MockChannel) Test(ctx context.Context, config map[string]interface{}) e
 // TestDispatchToMultipleChannels verifies dispatcher sends to all specified channels.
 func TestDispatchToMultipleChannels(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Create mock channels
 	emailChannel := &MockChannel{}
@@ -105,7 +105,7 @@ func TestDispatchToMultipleChannels(t *testing.T) {
 // TestDispatchRetryLogic verifies retry with exponential backoff for failed deliveries.
 func TestDispatchRetryLogic(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Create mock channel that fails first 2 attempts
 	mockChannel := &MockChannel{
@@ -152,7 +152,7 @@ func TestDispatchRetryLogic(t *testing.T) {
 // TestDispatchMaxRetriesExhausted verifies failure after max retries.
 func TestDispatchMaxRetriesExhausted(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Create mock channel that always fails
 	mockChannel := &MockChannel{
@@ -203,7 +203,7 @@ func TestDispatchMaxRetriesExhausted(t *testing.T) {
 // TestDispatchUnknownChannel verifies handling of unknown channel names.
 func TestDispatchUnknownChannel(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	dispatcher := NewDispatcher(DispatcherConfig{
 		Channels:       map[string]Channel{},
@@ -243,7 +243,7 @@ func TestDispatchUnknownChannel(t *testing.T) {
 // TestHandleAlertCreatedEvent verifies the AlertCreatedEvent handler dispatches notifications.
 func TestHandleAlertCreatedEvent(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Create mock channels
 	emailChannel := &MockChannel{}
@@ -295,7 +295,7 @@ func TestHandleAlertCreatedEvent(t *testing.T) {
 // TestHandleAlertCreatedEventWithDeviceID verifies device ID is included in notification.
 func TestHandleAlertCreatedEventWithDeviceID(t *testing.T) {
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Create mock channel that tracks received notifications
 	var receivedNotification Notification
@@ -377,7 +377,7 @@ func (m *MockChannelWithCapture) Test(ctx context.Context, config map[string]int
 
 // TestGetChannels verifies listing registered channels.
 func TestGetChannels(t *testing.T) {
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	channels := map[string]Channel{
 		"email":    &MockChannel{},
@@ -413,7 +413,7 @@ func TestGetChannels(t *testing.T) {
 func TestDispatchWithTemplateRendering(t *testing.T) {
 	// This test verifies the backward compatibility when templateService is nil
 	ctx := context.Background()
-	logger := zaptest.NewLogger(t).Sugar()
+	logger := zaptest.NewLogger(t)
 
 	// Track received notification
 	var receivedNotification Notification

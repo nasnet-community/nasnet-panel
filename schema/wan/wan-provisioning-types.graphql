@@ -1,0 +1,285 @@
+# =============================================================================
+# WAN Provisioning Types
+# =============================================================================
+# WAN link resource types and multi-link configurations for provisioning.
+# Extends existing WAN types with provisioning-specific fields.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# WAN Link Resource
+# -----
+
+"""
+WAN Link resource implementing 8-layer model
+Extends basic WAN configuration with provisioning context
+"""
+type WANLinkResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: WANLinkConfig!
+  wanDeployment: WANLinkDeployment
+  wanRuntime: WANLinkRuntime
+}
+
+"""
+WAN link configuration
+"""
+type WANLinkConfig {
+  "User-friendly name"
+  name: String!
+
+  "Link type (DOMESTIC or FOREIGN)"
+  linkType: WANLinkTypeEnum!
+
+  "Connection type (DHCP, Static, PPPoE, LTE, None)"
+  connectionType: WANConnectionType!
+
+  "Connection-specific configuration (DHCP, PPPoE, Static, LTE)"
+  connectionConfig: JSON!
+
+  "DNS configuration"
+  dnsConfig: WANDNSConfig
+
+  "Physical interface name"
+  interface: String!
+
+  "Link priority for multi-link setup (lower = higher priority)"
+  priority: Int
+
+  "Link weight for load balancing (in multi-link scenarios)"
+  weight: Int
+
+  "Enable link"
+  enabled: Boolean!
+
+  "Optional comment/description"
+  comment: String
+}
+
+"""
+DNS configuration for WAN link
+"""
+type WANDNSConfig {
+  "Use DHCP-provided DNS"
+  useDhcpDns: Boolean
+
+  "Static DNS servers"
+  dnsServers: [IPv4!]
+
+  "DNS over HTTPS (DoH) URL"
+  dohUrl: String
+
+  "Enable DNS caching"
+  enableCaching: Boolean
+}
+
+"""
+WAN link type enum
+"""
+enum WANLinkTypeEnum {
+  """
+  Domestic ISP link (residential, small business)
+  """
+  DOMESTIC
+
+  """
+  Foreign/International link with special routing needs
+  """
+  FOREIGN
+}
+
+"""
+WAN link deployment state
+"""
+type WANLinkDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Current connection status"
+  connectionStatus: WANStatus
+
+  "Current IP address assigned"
+  currentIP: IPv4
+
+  "Current gateway"
+  currentGateway: IPv4
+
+  "DHCP lease expiration (if DHCP)"
+  leaseExpiry: DateTime
+}
+
+# Note: WANLinkRuntime type is defined in composite-wan-feature.graphql
+# WANLinkResource.wanRuntime references the same type as WANLink.wanRuntime
+
+# -----
+# Multi-Link Configuration
+# -----
+
+"""
+Multi-link configuration for load balancing and failover
+"""
+type MultiLinkConfig {
+  "Configuration name"
+  name: String!
+
+  "Load balancing strategy"
+  strategy: MultiLinkStrategy!
+
+  "WAN links to manage"
+  links: [ID!]!
+
+  "Link-specific configurations"
+  linkConfigs: [MultiLinkLinkConfig!]
+
+  "Failover configuration"
+  failoverConfig: FailoverConfig
+
+  "Bonding/Aggregation configuration"
+  bondingConfig: BondingConfig
+
+  "Enable multi-link"
+  enabled: Boolean!
+
+  "Optional comment"
+  comment: String
+}
+
+"""
+Multi-link strategy enum
+"""
+enum MultiLinkStrategy {
+  """
+  Failover - use secondary only if primary fails
+  """
+  FAILOVER
+
+  """
+  PCC (Per-Connection-Classifier) - distribute per connection
+  """
+  PCC
+
+  """
+  NTH - distribute per Nth connection
+  """
+  NTH
+
+  """
+  ECMP (Equal Cost Multi-Path) - true load balancing
+  """
+  ECMP
+}
+
+"""
+Per-link configuration in multi-link setup
+"""
+type MultiLinkLinkConfig {
+  "Link ID"
+  linkId: ID!
+
+  "Weight/priority for this link"
+  weight: Int
+
+  "Enabled in multi-link"
+  enabled: Boolean
+}
+
+# -----
+# Failover Configuration
+# -----
+
+"""
+Failover configuration for multi-link setup
+"""
+type FailoverConfig {
+  "Interval between health checks"
+  checkInterval: Duration!
+
+  "Number of failed checks before failover"
+  failoverThreshold: Int!
+
+  "Number of successful checks before recovery"
+  recoveryThreshold: Int!
+
+  "Host to ping for health check"
+  checkHost: IPv4!
+
+  "Timeout for each health check"
+  checkTimeout: Duration
+
+  "Enable failover"
+  enabled: Boolean!
+}
+
+# -----
+# Bonding Configuration
+# -----
+
+"""
+Bonding/link aggregation configuration
+"""
+type BondingConfig {
+  "Bonding mode"
+  mode: BondingMode!
+
+  "Interface monitoring interval"
+  monitorInterval: Duration
+
+  "ARP targets to monitor"
+  arpTargets: [IPv4!]
+
+  "Enable bonding"
+  enabled: Boolean!
+}
+
+"""
+Bonding mode enum
+"""
+enum BondingMode {
+  """
+  Load balancing - transmit on first available
+  """
+  BALANCE_RR
+
+  """
+  Active-backup - only one link active
+  """
+  ACTIVE_BACKUP
+
+  """
+  Balance XOR - based on source/destination
+  """
+  BALANCE_XOR
+
+  """
+  Broadcast - send on all links
+  """
+  BROADCAST
+
+  """
+  802.3AD - LACP protocol
+  """
+  BALANCE_ALB
+
+  """
+  Transmit load balancing
+  """
+  BALANCE_TLB
+}

@@ -4,6 +4,7 @@ package scanner
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -22,38 +23,38 @@ const (
 
 // RouterOSInfo contains information extracted from a RouterOS device.
 type RouterOSInfo struct {
-	Version      string `json:"version,omitempty"`
-	BoardName    string `json:"boardName,omitempty"`
-	Architecture string `json:"architecture,omitempty"`
-	Platform     string `json:"platform,omitempty"`
-	Confidence   int    `json:"confidence"`
+	Version      string `json:"version,omitempty"      validate:"omitempty,max=50"`
+	BoardName    string `json:"boardName,omitempty"    validate:"omitempty,max=100"`
+	Architecture string `json:"architecture,omitempty" validate:"omitempty,max=50"`
+	Platform     string `json:"platform,omitempty"     validate:"omitempty,max=50"`
+	Confidence   int    `json:"confidence"             validate:"min=0,max=100"`
 	IsValid      bool   `json:"isValid"`
 }
 
 // DiscoveredDevice represents a device found during network scanning.
 type DiscoveredDevice struct {
-	IP           string        `json:"ip"`
-	Hostname     string        `json:"hostname,omitempty"`
-	Ports        []int         `json:"ports"`
-	DeviceType   string        `json:"deviceType"`
-	Vendor       string        `json:"vendor,omitempty"`
-	Services     []string      `json:"services"`
+	IP           string        `json:"ip"                     validate:"required,ip"`
+	Hostname     string        `json:"hostname,omitempty"     validate:"omitempty,max=255"`
+	Ports        []int         `json:"ports"                  validate:"required,dive,min=1,max=65535"`
+	DeviceType   string        `json:"deviceType"             validate:"required,max=50"`
+	Vendor       string        `json:"vendor,omitempty"       validate:"omitempty,max=100"`
+	Services     []string      `json:"services"               validate:"required,dive,max=50"`
 	RouterOSInfo *RouterOSInfo `json:"routerOSInfo,omitempty"`
-	Confidence   int           `json:"confidence"`
+	Confidence   int           `json:"confidence"             validate:"min=0,max=100"`
 }
 
 // ScanTask represents an ongoing or completed network scan operation.
 type ScanTask struct {
-	ID         string             `json:"id"`
-	Subnet     string             `json:"subnet"`
-	Status     ScanStatus         `json:"status"`
-	Progress   int                `json:"progress"`
-	Results    []DiscoveredDevice `json:"results"`
-	StartTime  time.Time          `json:"startTime"`
+	ID         string             `json:"id"                validate:"required,ulid"`
+	Subnet     string             `json:"subnet"            validate:"required,cidrv4"`
+	Status     ScanStatus         `json:"status"            validate:"required,oneof=PENDING RUNNING SCANNING COMPLETED CANCELED FAILED"`
+	Progress   int                `json:"progress"          validate:"min=0,max=100"`
+	Results    []DiscoveredDevice `json:"results"           validate:"required"`
+	StartTime  time.Time          `json:"startTime"         validate:"required"`
 	EndTime    *time.Time         `json:"endTime,omitempty"`
-	Error      string             `json:"error,omitempty"`
-	TotalIPs   int                `json:"totalIPs"`
-	ScannedIPs int                `json:"scannedIPs"`
+	Error      string             `json:"error,omitempty"   validate:"omitempty,max=500"`
+	TotalIPs   int                `json:"totalIPs"          validate:"required,min=1"`
+	ScannedIPs int                `json:"scannedIPs"        validate:"min=0"`
 
 	// Internal fields for cancellation support
 	cancel context.CancelFunc
@@ -123,12 +124,12 @@ func (t *ScanTask) GetProgress() (progress, scannedIPs int) {
 
 // ScanProgressEvent is emitted during scan execution for real-time updates.
 type ScanProgressEvent struct {
-	TaskID       string     `json:"taskId"`
-	Progress     int        `json:"progress"`
-	DevicesFound int        `json:"devicesFound"`
-	CurrentIP    string     `json:"currentIP,omitempty"`
-	Status       ScanStatus `json:"status"`
-	Timestamp    time.Time  `json:"timestamp"`
+	TaskID       string     `json:"taskId"              validate:"required,ulid"`
+	Progress     int        `json:"progress"            validate:"min=0,max=100"`
+	DevicesFound int        `json:"devicesFound"        validate:"min=0"`
+	CurrentIP    string     `json:"currentIP,omitempty" validate:"omitempty,ip"`
+	Status       ScanStatus `json:"status"              validate:"required,oneof=PENDING RUNNING SCANNING COMPLETED CANCELED FAILED"`
+	Timestamp    time.Time  `json:"timestamp"           validate:"required"`
 }
 
 // ScannerConfig holds configuration options for the scanner service.
@@ -136,15 +137,15 @@ type ScanProgressEvent struct {
 //nolint:revive // used across packages
 type ScannerConfig struct {
 	// MaxWorkersPerSubnet24 is the number of concurrent workers for /24 scans.
-	MaxWorkersPerSubnet24 int
+	MaxWorkersPerSubnet24 int `validate:"min=1,max=256"`
 	// MaxWorkersPerSubnet16 is the number of concurrent workers for /16 scans.
-	MaxWorkersPerSubnet16 int
+	MaxWorkersPerSubnet16 int `validate:"min=1,max=512"`
 	// HTTPTimeout is the timeout for HTTP requests to devices.
-	HTTPTimeout time.Duration
+	HTTPTimeout time.Duration `validate:"required,min=1s,max=30s"`
 	// TaskRetentionDuration is how long completed tasks are kept in memory.
-	TaskRetentionDuration time.Duration
+	TaskRetentionDuration time.Duration `validate:"required,min=5m,max=24h"`
 	// MaxConcurrentScans is the maximum number of concurrent scans allowed.
-	MaxConcurrentScans int
+	MaxConcurrentScans int `validate:"min=1,max=100"`
 }
 
 // DefaultConfig returns the default scanner configuration.
@@ -156,4 +157,33 @@ func DefaultConfig() ScannerConfig {
 		TaskRetentionDuration: 1 * time.Hour,
 		MaxConcurrentScans:    5,
 	}
+}
+
+// Validate checks if the scanner configuration is valid.
+func (c ScannerConfig) Validate() error {
+	if c.MaxWorkersPerSubnet24 <= 0 {
+		return fmt.Errorf("MaxWorkersPerSubnet24 must be > 0")
+	}
+	if c.MaxWorkersPerSubnet16 <= 0 {
+		return fmt.Errorf("MaxWorkersPerSubnet16 must be > 0")
+	}
+	if c.HTTPTimeout <= 0 {
+		return fmt.Errorf("HTTPTimeout must be > 0")
+	}
+	if c.TaskRetentionDuration <= 0 {
+		return fmt.Errorf("TaskRetentionDuration must be > 0")
+	}
+	if c.MaxConcurrentScans <= 0 {
+		return fmt.Errorf("MaxConcurrentScans must be > 0")
+	}
+	if c.MaxWorkersPerSubnet24 > 100 {
+		return fmt.Errorf("MaxWorkersPerSubnet24 exceeds safe limit (100)")
+	}
+	if c.MaxWorkersPerSubnet16 > 200 {
+		return fmt.Errorf("MaxWorkersPerSubnet16 exceeds safe limit (200)")
+	}
+	if c.MaxConcurrentScans > 20 {
+		return fmt.Errorf("MaxConcurrentScans exceeds safe limit (20)")
+	}
+	return nil
 }

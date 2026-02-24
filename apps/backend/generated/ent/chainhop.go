@@ -3,13 +3,12 @@
 package ent
 
 import (
-	"fmt"
-	"strings"
-	"time"
-
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/virtualinterface"
+	"fmt"
+	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -134,8 +134,7 @@ func (p *PBREngine) AssignDeviceRouting(
 			events.PriorityNormal,
 			"pbr-engine",
 		)
-		if err := p.publisher.Publish(ctx, &event); err != nil { //nolint:revive,staticcheck // intentional no-op
-		}
+		_ = p.publisher.Publish(ctx, &event) //nolint:errcheck // best-effort event publication
 	}
 
 	return result, nil
@@ -165,11 +164,8 @@ func (p *PBREngine) RemoveDeviceRouting(ctx context.Context, deviceID string) er
 	// Step 2: Remove kill switch rules if enabled (cleanup before removing routing)
 	if record.KillSwitchEnabled && record.KillSwitchRuleID != "" {
 		killSwitchManager := isolation.NewKillSwitchManager(p.routerPort, p.client, p.eventBus, p.publisher)
-		if ksErr := killSwitchManager.Disable(ctx, record.ID); ksErr != nil {
-			// Log error but don't fail - the routing removal should continue
-			// This ensures cleanup even if kill switch rules are already gone
-			fmt.Printf("warning: failed to disable kill switch: %v\n", ksErr)
-		}
+		// Intentionally suppress error: routing removal should continue even if kill switch cleanup fails
+		_ = killSwitchManager.Disable(ctx, record.ID) //nolint:errcheck // best-effort cleanup
 	}
 
 	// Step 3: Remove mangle rule from router using stored .id (O(1) operation)
@@ -189,8 +185,7 @@ func (p *PBREngine) RemoveDeviceRouting(ctx context.Context, deviceID string) er
 			events.PriorityNormal,
 			"pbr-engine",
 		)
-		if err := p.publisher.Publish(ctx, &event); err != nil { //nolint:revive,staticcheck // intentional no-op
-		}
+		_ = p.publisher.Publish(ctx, &event) //nolint:errcheck // best-effort event publication
 	}
 
 	return nil

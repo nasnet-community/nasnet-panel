@@ -110,7 +110,7 @@ export const ServiceConfigFormDesktop = React.memo(
     if (loading.schema || loading.config) {
       return (
         <Card className={cn('w-full', className)}>
-          <CardContent className="flex items-center justify-center p-12">
+          <CardContent className="flex items-center justify-center p-component-lg">
             <Icon
               icon={Loader2}
               className="h-8 w-8 animate-spin text-muted-foreground"
@@ -125,7 +125,7 @@ export const ServiceConfigFormDesktop = React.memo(
     if (!schema) {
       return (
         <Card className={cn('w-full', className)}>
-          <CardContent className="p-8 text-center text-muted-foreground">
+          <CardContent className="p-component-lg text-center text-muted-foreground">
             No configuration schema available
           </CardContent>
         </Card>
@@ -144,7 +144,7 @@ export const ServiceConfigFormDesktop = React.memo(
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <CardContent>
             {groups.length === 1 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-component-lg">
                 {visibleFields.map((field) => (
                   <div
                     key={field.name}
@@ -171,8 +171,8 @@ export const ServiceConfigFormDesktop = React.memo(
                 </TabsList>
 
                 {groups.map((group) => (
-                  <TabsContent key={group} value={group} className="mt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <TabsContent key={group} value={group} className="mt-component-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-component-lg">
                       {groupedFields[group].map((field: any) => (
                         <div
                           key={field.name}

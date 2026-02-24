@@ -46,12 +46,12 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full text-left p-3 md:p-4 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+        className="w-full text-left p-component-md md:p-component-lg min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm"
         aria-expanded={isExpanded}
         aria-label={`${iface.name} interface details, ${isRunning ? 'running' : 'disabled'}`}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-component-md">
             {/* Status Dot */}
             <div className="relative">
               <span
@@ -70,7 +70,7 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
             </div>
 
             {/* Interface Info */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <InterfaceTypeIcon
                 type={iface.type}
                 className="w-4 h-4 text-muted-foreground"
@@ -87,10 +87,10 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
           </div>
 
           {/* Right Side - Traffic Stats or Chevron */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-component-md">
             {trafficStats && !isExpanded && (
-              <div className="hidden sm:flex items-center gap-3 text-xs font-mono text-muted-foreground">
-                <span className="flex items-center gap-1">
+              <div className="hidden sm:flex items-center gap-component-md text-xs font-mono text-muted-foreground">
+                <span className="flex items-center gap-component-xs">
                   <ArrowDown className="w-3 h-3 text-success" aria-hidden="true" />
                   {formatBytes(trafficStats.rxBytes)}
                 </span>
@@ -117,8 +117,8 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-3 pb-3 md:px-4 md:pb-4 pt-0 border-t border-border">
-          <div className="pt-3 space-y-3">
+        <div className="px-component-md pb-component-md md:px-component-lg md:pb-component-lg pt-0 border-t border-border">
+          <div className="pt-component-md space-y-component-md">
             {/* Traffic Statistics */}
             {isLoadingStats ? (
               <div className="flex items-center gap-2 text-xs text-muted-foreground py-2" role="status" aria-label={t('traffic.loading')}>
@@ -134,14 +134,14 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                 />
 
                 {/* Packet Stats */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-muted rounded-lg p-2">
+                <div className="grid grid-cols-2 gap-component-sm text-xs">
+                  <div className="bg-muted rounded-card-sm p-component-sm">
                     <p className="text-muted-foreground">{t('traffic.rxPackets')}</p>
                     <p className="font-mono text-foreground">
                       {trafficStats.rxPackets.toLocaleString()}
                     </p>
                   </div>
-                  <div className="bg-muted rounded-lg p-2">
+                  <div className="bg-muted rounded-card-sm p-component-sm">
                     <p className="text-muted-foreground">{t('traffic.txPackets')}</p>
                     <p className="font-mono text-foreground">
                       {trafficStats.txPackets.toLocaleString()}
@@ -152,11 +152,11 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                 {/* Errors & Drops */}
                 {(trafficStats.txErrors > 0 || trafficStats.rxErrors > 0 ||
                   trafficStats.txDrops > 0 || trafficStats.rxDrops > 0) && (
-                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-2 text-xs" role="alert">
-                    <p className="text-destructive font-medium mb-1">
+                  <div className="bg-error/10 border border-error/30 rounded-card-sm p-component-sm text-xs" role="alert">
+                    <p className="text-error font-medium mb-1">
                       {t('traffic.issuesDetected')}
                     </p>
-                    <div className="grid grid-cols-2 gap-1 text-destructive">
+                    <div className="grid grid-cols-2 gap-component-xs text-error">
                       {trafficStats.rxErrors > 0 && (
                         <span>{t('traffic.rxErrors')}: {trafficStats.rxErrors}</span>
                       )}

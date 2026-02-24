@@ -9,7 +9,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // ResourceUsage represents resource usage metrics for a process
@@ -22,12 +22,12 @@ type ResourceUsage struct {
 // ResourceLimiterConfig configures the ResourceLimiter
 type ResourceLimiterConfig struct {
 	EventBus events.EventBus
-	Logger   zerolog.Logger
+	Logger   *zap.Logger
 }
 
 // ResourceLimiter manages cgroup resource limits (stub for Windows)
 type ResourceLimiter struct {
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // NewResourceLimiter creates a new ResourceLimiter instance (stub for Windows)
@@ -44,7 +44,9 @@ func (rl *ResourceLimiter) IsCgroupsEnabled() bool {
 
 // ApplyMemoryLimit applies memory limits to a process (stub for Windows)
 func (rl *ResourceLimiter) ApplyMemoryLimit(_ context.Context, pid, memoryMB int, instanceID, featureID string) error {
-	rl.logger.Warn().Msg("ResourceLimiter is not supported on Windows - cgroups are Linux-only")
+	if rl.logger != nil {
+		rl.logger.Warn("ResourceLimiter is not supported on Windows - cgroups are Linux-only")
+	}
 	return nil
 }
 
@@ -55,13 +57,17 @@ func (rl *ResourceLimiter) GetResourceUsage(pid int) (*ResourceUsage, error) {
 
 // StartMonitoring starts background monitoring for a process (stub for Windows)
 func (rl *ResourceLimiter) StartMonitoring(ctx context.Context, pid int, instanceID, featureID string, memoryLimitMB int) error {
-	rl.logger.Warn().Msg("Resource monitoring is not supported on Windows")
+	if rl.logger != nil {
+		rl.logger.Warn("Resource monitoring is not supported on Windows")
+	}
 	return nil
 }
 
 // StopMonitoring stops background monitoring for a process (stub for Windows)
 func (rl *ResourceLimiter) StopMonitoring(pid int) {
-	rl.logger.Warn().Int("pid", pid).Msg("StopMonitoring called but not supported on Windows")
+	if rl.logger != nil {
+		rl.logger.Warn("StopMonitoring called but not supported on Windows", zap.Int("pid", pid))
+	}
 }
 
 // Close shuts down the resource limiter (stub for Windows)

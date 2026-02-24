@@ -9,6 +9,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"go.uber.org/zap"
 )
 
 // EventHandler processes events.
@@ -26,6 +27,7 @@ type EventBus interface {
 type EventBusOptions struct {
 	BufferSize         int
 	Logger             watermill.LoggerAdapter
+	ZapLogger          *zap.Logger
 	EnableReplay       bool
 	PersistenceEnabled bool
 }
@@ -47,9 +49,11 @@ type eventBus struct {
 	allHandler     []EventHandler
 	mu             sync.RWMutex
 	logger         watermill.LoggerAdapter
+	zapLogger      *zap.Logger
 	closed         bool
 	closeMu        sync.RWMutex
 	priorityQueues *priorityQueueManager
+	queueProcessed sync.WaitGroup // Track priority queue processor goroutine
 }
 
 // NewEventBus creates a new EventBus with the given options.
@@ -59,6 +63,9 @@ func NewEventBus(opts EventBusOptions) (EventBus, error) {
 	}
 	if opts.Logger == nil {
 		opts.Logger = watermill.NewStdLogger(false, false)
+	}
+	if opts.ZapLogger == nil {
+		opts.ZapLogger = zap.NewNop()
 	}
 
 	pubsub := gochannel.NewGoChannel(gochannel.Config{
@@ -71,21 +78,27 @@ func NewEventBus(opts EventBusOptions) (EventBus, error) {
 		pubsub:         pubsub,
 		handlers:       make(map[string][]EventHandler),
 		logger:         opts.Logger,
+		zapLogger:      opts.ZapLogger,
 		priorityQueues: newPriorityQueueManager(),
 	}
 
-	go bus.processPriorityQueues()
+	bus.queueProcessed.Add(1)
+	go func() {
+		defer bus.queueProcessed.Done()
+		bus.processPriorityQueues()
+	}()
 	return bus, nil
 }
 
 // Publish sends an event to all subscribers.
+// Blocks if the bus is closed to prevent race conditions.
 func (eb *eventBus) Publish(ctx context.Context, event Event) error {
 	eb.closeMu.RLock()
+	defer eb.closeMu.RUnlock()
+
 	if eb.closed {
-		eb.closeMu.RUnlock()
 		return fmt.Errorf("event bus is closed")
 	}
-	eb.closeMu.RUnlock()
 
 	if event == nil {
 		return fmt.Errorf("event cannot be nil")
@@ -116,7 +129,7 @@ func (eb *eventBus) publishDirect(ctx context.Context, event Event) error {
 		return fmt.Errorf("failed to publish to topic %s: %w", eventType, err)
 	}
 	if err := eb.pubsub.Publish("all", msg); err != nil {
-		eb.logger.Error("failed to publish to 'all' topic", err, nil)
+		eb.zapLogger.Error("failed to publish to 'all' topic", zap.String("eventType", eventType), zap.Error(err))
 	}
 
 	eb.notifyLocalHandlers(ctx, event)
@@ -131,19 +144,37 @@ func (eb *eventBus) notifyLocalHandlers(ctx context.Context, event Event) {
 
 	for _, handler := range handlers {
 		go func(h EventHandler) {
+			defer func() {
+				if r := recover(); r != nil {
+					eb.zapLogger.Error("handler panic",
+						zap.String("eventType", event.GetType()),
+						zap.String("eventID", event.GetID().String()),
+						zap.Any("panic", r))
+				}
+			}()
 			if err := h(ctx, event); err != nil {
-				eb.logger.Error("handler error", err, watermill.LogFields{
-					"event_type": event.GetType(), "event_id": event.GetID().String(),
-				})
+				eb.zapLogger.Error("handler error",
+					zap.String("eventType", event.GetType()),
+					zap.String("eventID", event.GetID().String()),
+					zap.Error(err))
 			}
 		}(handler)
 	}
 	for _, handler := range allHandlers {
 		go func(h EventHandler) {
+			defer func() {
+				if r := recover(); r != nil {
+					eb.zapLogger.Error("all-handler panic",
+						zap.String("eventType", event.GetType()),
+						zap.String("eventID", event.GetID().String()),
+						zap.Any("panic", r))
+				}
+			}()
 			if err := h(ctx, event); err != nil {
-				eb.logger.Error("all-handler error", err, watermill.LogFields{
-					"event_type": event.GetType(), "event_id": event.GetID().String(),
-				})
+				eb.zapLogger.Error("all-handler error",
+					zap.String("eventType", event.GetType()),
+					zap.String("eventID", event.GetID().String()),
+					zap.Error(err))
 			}
 		}(handler)
 	}
@@ -184,7 +215,11 @@ func (eb *eventBus) Close() error {
 	eb.closed = true
 	eb.closeMu.Unlock()
 
+	// Stop the priority queue processor and wait for it to complete
 	eb.priorityQueues.stop()
+	eb.queueProcessed.Wait()
+
+	// Flush any remaining events
 	eb.flushPendingEvents()
 
 	if err := eb.pubsub.Close(); err != nil {
@@ -197,9 +232,10 @@ func (eb *eventBus) flushPendingEvents() {
 	ctx := context.Background()
 	for _, event := range eb.priorityQueues.drainAll() {
 		if err := eb.publishDirect(ctx, event); err != nil {
-			eb.logger.Error("failed to flush pending event", err, watermill.LogFields{
-				"event_id": event.GetID().String(), "event_type": event.GetType(),
-			})
+			eb.zapLogger.Error("failed to flush pending event",
+				zap.String("eventID", event.GetID().String()),
+				zap.String("eventType", event.GetType()),
+				zap.Error(err))
 		}
 	}
 }

@@ -70,8 +70,8 @@ func (p *ServiceTrafficPoller) Subscribe(
 	// Check if polling session already exists
 	session, exists := p.sessions[instanceID]
 	if !exists {
-		// Create new polling session
-		pollCtx, cancel := context.WithCancel(context.Background())
+		// Create new polling session from provided context for proper cancellation
+		pollCtx, cancel := context.WithCancel(ctx)
 		session = &trafficPollingSession{
 			instanceID:  instanceID,
 			routerID:    routerID,
@@ -84,7 +84,7 @@ func (p *ServiceTrafficPoller) Subscribe(
 
 		// Start polling goroutine
 		p.wg.Add(1)
-		go p.poll(pollCtx, session) //nolint:contextcheck // pollCtx created from parent context
+		go p.poll(pollCtx, session)
 	}
 
 	// Create subscriber channel with buffer to prevent blocking
@@ -177,9 +177,10 @@ func (p *ServiceTrafficPoller) fetchAndBroadcast(ctx context.Context, session *t
 		}
 	}
 
-	if p.eventBus != nil {
-		_ = stats
-	}
+	// TODO: Publish event to event bus for persistence
+	// if p.eventBus != nil {
+	//	eventBus.Publish(ctx, event)
+	// }
 }
 
 // unsubscribe removes a subscriber channel from a traffic session

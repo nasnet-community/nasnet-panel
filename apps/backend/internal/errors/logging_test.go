@@ -346,8 +346,118 @@ func TestErrorLogger_WithRequestID_NoRequestID(t *testing.T) {
 	err := NewValidationError("field", "value", "constraint")
 	elWithReqID.Log(err.RouterError)
 
-	require.Equal(t, 1, logs.Len())
+	require.Equal(t, 1, logs.Len(), "Should log even without request ID")
 	// Should work fine, just without the request_id field
+}
+
+// =============================================================================
+// Table-Driven Log Level Tests
+// =============================================================================
+
+func TestLogLevel_AllCategories_TableDriven(t *testing.T) {
+	tests := []struct {
+		category  ErrorCategory
+		expected  zapcore.Level
+		rationale string
+	}{
+		{
+			category:  CategoryAuth,
+			expected:  zapcore.InfoLevel,
+			rationale: "Auth failures are expected operational events",
+		},
+		{
+			category:  CategoryValidation,
+			expected:  zapcore.WarnLevel,
+			rationale: "Validation errors indicate client mistakes",
+		},
+		{
+			category:  CategoryInternal,
+			expected:  zapcore.ErrorLevel,
+			rationale: "Internal errors require investigation",
+		},
+		{
+			category:  CategoryProtocol,
+			expected:  zapcore.WarnLevel,
+			rationale: "Protocol errors may indicate infrastructure issues",
+		},
+		{
+			category:  CategoryNetwork,
+			expected:  zapcore.WarnLevel,
+			rationale: "Network errors may indicate infrastructure issues",
+		},
+		{
+			category:  CategoryPlatform,
+			expected:  zapcore.WarnLevel,
+			rationale: "Platform errors are operational",
+		},
+		{
+			category:  CategoryResource,
+			expected:  zapcore.WarnLevel,
+			rationale: "Resource errors are operational",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.category), func(t *testing.T) {
+			level := LogLevel(tt.category)
+			assert.Equal(t, tt.expected, level, tt.rationale)
+		})
+	}
+}
+
+func TestErrorFields_AllErrorTypes_TableDriven(t *testing.T) {
+	tests := []struct {
+		name      string
+		setupErr  func() error
+		assertFn  func(t *testing.T, fieldMap map[string]interface{})
+		expectKey string
+	}{
+		{
+			name: "ValidationError includes field info",
+			setupErr: func() error {
+				// Pass the embedded RouterError to get proper error handling
+				return NewValidationError("username", "too_short", "minimum 3 characters").RouterError
+			},
+			assertFn: func(t *testing.T, fieldMap map[string]interface{}) {
+				assert.Equal(t, CodeValidationFailed, fieldMap["error_code"])
+				assert.Equal(t, "validation", fieldMap["error_category"])
+			},
+			expectKey: "error_code",
+		},
+		{
+			name: "AuthError includes auth category",
+			setupErr: func() error {
+				return NewAuthError(CodeSessionExpired, "session expired").RouterError
+			},
+			assertFn: func(t *testing.T, fieldMap map[string]interface{}) {
+				assert.Equal(t, CodeSessionExpired, fieldMap["error_code"])
+				assert.Equal(t, "auth", fieldMap["error_category"])
+			},
+			expectKey: "error_code",
+		},
+		{
+			name: "InternalError includes error level",
+			setupErr: func() error {
+				return NewInternalError("database failed", nil).RouterError
+			},
+			assertFn: func(t *testing.T, fieldMap map[string]interface{}) {
+				assert.Equal(t, "I500", fieldMap["error_code"])
+				assert.Equal(t, false, fieldMap["recoverable"])
+			},
+			expectKey: "error_code",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.setupErr()
+			fields := ErrorFields(err)
+			fieldMap := fieldsToMap(fields)
+
+			assert.Contains(t, fieldMap, tt.expectKey, "Should contain %q field", tt.expectKey)
+			tt.assertFn(t, fieldMap)
+		})
+	}
 }
 
 // =============================================================================

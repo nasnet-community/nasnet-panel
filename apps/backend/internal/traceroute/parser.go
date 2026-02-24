@@ -18,7 +18,8 @@ type Parser struct {
 // NewParser creates a new traceroute output parser.
 func NewParser() *Parser {
 	return &Parser{
-		// Match hop lines like: " 1  192.168.1.1  0.5ms  0.6ms  0.4ms"
+		// Match hop lines like: " 1  192.168.1.1  0.5ms  0.6ms  0.4ms" or " 1  *  *  *"
+		// Supports IPv4, IPv6, and hostnames in the address field
 		hopLineRegex: regexp.MustCompile(`^\s*(\d+)\s+(\S+)\s+([\d.]+ms|\*)\s+([\d.]+ms|\*)\s+([\d.]+ms|\*)`),
 		// Match timeout indicators
 		timeoutRegex: regexp.MustCompile(`\*`),
@@ -143,12 +144,13 @@ func (p *Parser) determineStatus(line string, successCount, _ int) HopStatus {
 //	 1  192.168.1.1  0.5ms  0.6ms  0.4ms
 //	 2  10.0.0.1  5.2ms  5.1ms  5.3ms
 //	 3  8.8.8.8  15.3ms  15.2ms  15.4ms
-func (p *Parser) ParseMikroTikOutput(output, target string, protocol Protocol) (*Result, error) {
+func (p *Parser) ParseMikroTikOutput(output, target string, protocol Protocol, maxHops int) (*Result, error) {
 	lines := strings.Split(output, "\n")
 
 	result := &Result{
 		Target:   target,
 		Protocol: protocol,
+		MaxHops:  maxHops,
 		Hops:     []Hop{},
 	}
 
@@ -161,7 +163,7 @@ func (p *Parser) ParseMikroTikOutput(output, target string, protocol Protocol) (
 
 		// Extract target IP from header line if present
 		if strings.Contains(line, "traceroute to") && strings.Contains(line, "(") {
-			// Extract IP from format: "traceroute to example.com (1.2.3.4)"
+			// Extract IP from format: "traceroute to example.com (1.2.3.4)" or IPv6
 			start := strings.Index(line, "(")
 			end := strings.Index(line, ")")
 			if start != -1 && end != -1 && end > start {

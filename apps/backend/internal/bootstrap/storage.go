@@ -2,9 +2,8 @@ package bootstrap
 
 import (
 	"context"
-	"log"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/events"
@@ -30,7 +29,7 @@ func InitializeStorage(
 	ctx context.Context,
 	systemDB *ent.Client,
 	eventBus events.EventBus,
-	storageLogger zerolog.Logger,
+	storageLogger *zap.SugaredLogger,
 ) (*StorageComponents, error) {
 	// Create storage event publisher
 	storagePublisher := CreatePublisher(eventBus, "storage-infrastructure")
@@ -38,46 +37,45 @@ func InitializeStorage(
 	// 1. Storage Detector - monitors mount points for external storage
 	storageDetector := storage.NewStorageDetector(storage.DefaultStorageDetectorConfig(
 		storagePublisher,
-		storageLogger,
+		storageLogger.Desugar(),
 	))
 	storageDetector.Start()
-	log.Printf("Storage detector started (monitoring: /data, /usb1, /disk1, /disk2)")
+	storageLogger.Infow("Storage detector started", "mount_points", []string{"/data", "/usb1", "/disk1", "/disk2"})
 
 	// 2. Storage Config Service - persists external storage configuration
 	storageService := storage.NewStorageConfigService(
 		systemDB,
 		storageDetector,
 		storagePublisher,
-		storageLogger,
+		storageLogger.Desugar(),
 	)
-	log.Printf("Storage config service initialized")
+	storageLogger.Infow("Storage config service initialized")
 
 	// 3. Path Resolver - resolves binary/config/data paths dynamically
 	pathResolver := storage.NewDefaultPathResolver(storage.DefaultPathResolverConfig())
-	log.Printf("Path resolver initialized (flash base: /flash/features)")
+	storageLogger.Infow("Path resolver initialized", "flash_base", "/flash/features")
 
 	// 4. Boot Validator - validates instance binaries on startup
 	bootValidator, err := boot.NewBootValidator(boot.BootValidatorConfig{
 		DB:           systemDB,
 		PathResolver: pathResolver,
 		EventBus:     eventBus,
-		Logger:       storageLogger,
+		Logger:       storageLogger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// Run boot validation BEFORE starting any instances
-	log.Printf("Running boot-time instance validation...")
+	storageLogger.Infow("Running boot-time instance validation")
 	bootSummary, err := bootValidator.ValidateAllInstances(ctx)
 	if err != nil {
-		log.Printf("Warning: boot validation encountered errors: %v", err)
+		storageLogger.Warnw("Boot validation encountered errors", zap.Error(err))
 	}
 	if bootSummary != nil {
-		log.Printf("Boot validation complete: %d checked, %d failed",
-			bootSummary.TotalChecked, bootSummary.FailedCount)
+		storageLogger.Infow("Boot validation complete", "total_checked", bootSummary.TotalChecked, "failed_count", bootSummary.FailedCount)
 		if bootSummary.FailedCount > 0 {
-			log.Printf("Failed services: %v", bootSummary.FailedServices)
+			storageLogger.Infow("Failed services", "services", bootSummary.FailedServices)
 		}
 	}
 

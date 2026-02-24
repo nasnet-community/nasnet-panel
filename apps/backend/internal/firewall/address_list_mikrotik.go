@@ -15,6 +15,10 @@ const addressListEndpoint = "/ip/firewall/address-list"
 
 // fetchAddressListEntries fetches all address list entries from the router
 func fetchAddressListEntries(ctx context.Context, port router.RouterPort) ([]AddressListEntry, error) {
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+
 	cmd := router.Command{
 		Path:   addressListEndpoint,
 		Action: "print",
@@ -30,6 +34,13 @@ func fetchAddressListEntries(ctx context.Context, port router.RouterPort) ([]Add
 
 // fetchAddressListEntriesByName fetches entries for a specific list name
 func fetchAddressListEntriesByName(ctx context.Context, port router.RouterPort, listName string) ([]AddressListEntry, error) {
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+	if listName == "" {
+		return nil, fmt.Errorf("list name cannot be empty")
+	}
+
 	cmd := router.Command{
 		Path:   addressListEndpoint,
 		Action: "print",
@@ -46,6 +57,10 @@ func fetchAddressListEntriesByName(ctx context.Context, port router.RouterPort, 
 
 // createAddressListEntry creates a new address list entry
 func createAddressListEntry(ctx context.Context, port router.RouterPort, input CreateAddressListEntryInput) (*AddressListEntry, error) {
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+
 	args := map[string]string{
 		"list":    input.List,
 		"address": input.Address,
@@ -84,6 +99,13 @@ func createAddressListEntry(ctx context.Context, port router.RouterPort, input C
 
 // fetchAddressListEntryByID fetches a single entry by ID
 func fetchAddressListEntryByID(ctx context.Context, port router.RouterPort, id string) (*AddressListEntry, error) {
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+	if id == "" {
+		return nil, fmt.Errorf("entry ID cannot be empty")
+	}
+
 	cmd := router.Command{
 		Path:   addressListEndpoint,
 		Action: "print",
@@ -105,6 +127,13 @@ func fetchAddressListEntryByID(ctx context.Context, port router.RouterPort, id s
 
 // deleteAddressListEntry deletes an address list entry by ID
 func deleteAddressListEntry(ctx context.Context, port router.RouterPort, id string) error {
+	if port == nil {
+		return fmt.Errorf("router port cannot be nil")
+	}
+	if id == "" {
+		return fmt.Errorf("entry ID cannot be empty")
+	}
+
 	cmd := router.Command{
 		Path:   addressListEndpoint,
 		Action: "remove",
@@ -243,13 +272,36 @@ func parseAddressListEntry(line string) *AddressListEntry {
 	}
 
 	if creationTime, ok := fields["creation-time"]; ok && creationTime != "" {
-		t, err := time.Parse(time.RFC3339, creationTime)
-		if err == nil {
-			entry.CreationTime = &t
-		}
+		parseCreationTime(creationTime, entry)
 	}
 
 	return entry
+}
+
+// parseCreationTime parses creation time in various formats and sets it on the entry.
+// Tries RFC3339 format first, then alternative MikroTik timestamp formats.
+// If parsing fails, silently continues (creation time is not critical).
+func parseCreationTime(creationTime string, entry *AddressListEntry) {
+	// Try RFC3339 format first
+	t, err := time.Parse(time.RFC3339, creationTime)
+	if err == nil {
+		entry.CreationTime = &t
+		return
+	}
+
+	// Try alternative MikroTik timestamp formats
+	alternativeFormats := []string{
+		"2006-01-02T15:04:05Z07:00",
+		"2006-01-02 15:04:05",
+		time.RFC3339Nano,
+	}
+	for _, format := range alternativeFormats {
+		if t, err = time.Parse(format, creationTime); err == nil {
+			entry.CreationTime = &t
+			return
+		}
+	}
+	// If parsing fails, skip creation time (not critical)
 }
 
 // parseRulesForList parses firewall rules that reference a specific list
@@ -293,12 +345,45 @@ func parseRulesForList(rawOutput, table, listName string) []Rule {
 }
 
 // parseRouterOSFields parses RouterOS key=value format into a map
+// Handles quoted values like comment="Test comment"
 func parseRouterOSFields(line string) map[string]string {
 	fields := make(map[string]string)
-	parts := strings.Fields(line)
+	var current strings.Builder
+	inQuote := false
 
-	for _, part := range parts {
-		kv := strings.SplitN(part, "=", 2)
+	for i := 0; i < len(line); i++ {
+		ch := line[i]
+
+		switch ch {
+		case '"':
+			inQuote = !inQuote
+		case ' ':
+			switch {
+			case !inQuote && current.Len() > 0:
+				// Process the completed key=value pair
+				pair := current.String()
+				current.Reset()
+
+				kv := strings.SplitN(pair, "=", 2)
+				if len(kv) == 2 {
+					fields[kv[0]] = kv[1]
+				}
+			case !inQuote:
+				// Skip whitespace outside of values
+				continue
+			default:
+				// Space inside quoted value
+				current.WriteByte(ch)
+			}
+		default:
+			current.WriteByte(ch)
+		}
+	}
+
+	// Process any remaining content
+	if current.Len() > 0 {
+		pair := current.String()
+		kv := strings.SplitN(pair, "=", 2)
 		if len(kv) == 2 {
 			fields[kv[0]] = kv[1]
 		}

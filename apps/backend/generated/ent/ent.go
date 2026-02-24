@@ -3,12 +3,6 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"reflect"
-	"sync"
-
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertdigestentry"
 	"backend/generated/ent/alertescalation"
@@ -26,6 +20,7 @@ import (
 	"backend/generated/ent/notificationsettings"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/resource"
 	"backend/generated/ent/resourceevent"
 	"backend/generated/ent/router"
@@ -33,16 +28,22 @@ import (
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/routingschedule"
-	"backend/generated/ent/schemaversion"
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/servicetraffichourly"
 	"backend/generated/ent/session"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/user"
+	"backend/generated/ent/version"
 	"backend/generated/ent/virtualinterface"
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
+	"context"
+	"errors"
+	"fmt"
+	"reflect"
+	"sync"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -124,6 +125,7 @@ func checkColumn(t, c string) error {
 			notificationsettings.Table:      notificationsettings.ValidColumn,
 			portallocation.Table:            portallocation.ValidColumn,
 			portknocksequence.Table:         portknocksequence.ValidColumn,
+			provisioningsession.Table:       provisioningsession.ValidColumn,
 			resource.Table:                  resource.ValidColumn,
 			resourceevent.Table:             resourceevent.ValidColumn,
 			router.Table:                    router.ValidColumn,
@@ -131,14 +133,15 @@ func checkColumn(t, c string) error {
 			routersecret.Table:              routersecret.ValidColumn,
 			routingchain.Table:              routingchain.ValidColumn,
 			routingschedule.Table:           routingschedule.ValidColumn,
-			schemaversion.Table:             schemaversion.ValidColumn,
 			servicedependency.Table:         servicedependency.ValidColumn,
 			serviceinstance.Table:           serviceinstance.ValidColumn,
 			servicetemplate.Table:           servicetemplate.ValidColumn,
 			servicetraffichourly.Table:      servicetraffichourly.ValidColumn,
 			session.Table:                   session.ValidColumn,
+			subnetallocation.Table:          subnetallocation.ValidColumn,
 			user.Table:                      user.ValidColumn,
 			vlanallocation.Table:            vlanallocation.ValidColumn,
+			version.Table:                   version.ValidColumn,
 			virtualinterface.Table:          virtualinterface.ValidColumn,
 			webhook.Table:                   webhook.ValidColumn,
 		})

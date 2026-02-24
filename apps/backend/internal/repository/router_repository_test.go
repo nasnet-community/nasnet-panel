@@ -308,6 +308,26 @@ func TestRouterRepository_ListWithCapabilities(t *testing.T) {
 		require.NoError(t, err)
 		assert.LessOrEqual(t, len(result), 2)
 	})
+
+	t.Run("pagination with offset beyond total", func(t *testing.T) {
+		filter := repository.RouterFilter{
+			Limit:  10,
+			Offset: 100, // Beyond total count
+		}
+		result, err := repo.ListWithCapabilities(ctx, filter)
+		require.NoError(t, err)
+		assert.Equal(t, 0, len(result), "should return empty slice when offset exceeds total")
+	})
+
+	t.Run("pagination with zero limit uses no limit", func(t *testing.T) {
+		filter := repository.RouterFilter{
+			Limit:  0, // Zero limit means no limit
+			Offset: 0,
+		}
+		result, err := repo.ListWithCapabilities(ctx, filter)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(result), 3, "should return all routers when limit is 0")
+	})
 }
 
 // TestRouterRepository_Delete tests router deletion.

@@ -33,8 +33,8 @@ const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { ifa
   const isLinkUp = iface.linkStatus === 'up';
 
   return (
-    <div className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between py-component-sm border-b border-border last:border-b-0">
+      <div className="flex items-center gap-component-sm">
         <span
           className={cn(
             'w-2 h-2 rounded-full',
@@ -44,10 +44,10 @@ const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { ifa
         <InterfaceTypeIcon type={iface.type} className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-foreground text-sm">{iface.name}</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-component-md">
         {trafficStats && isRunning && isLinkUp ? (
-          <span className="text-muted-foreground text-xs font-mono flex items-center gap-2">
-            <span className="flex items-center gap-0.5">
+          <span className="text-muted-foreground text-xs font-mono flex items-center gap-component-sm">
+            <span className="flex items-center gap-component-xs">
               <ArrowDown className="w-3 h-3 text-info" />
               {formatBytes(trafficStats.rxBytes)}
             </span>
@@ -61,6 +61,7 @@ const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { ifa
             {isRunning && isLinkUp ? t('status.active', { ns: 'common' }) : isRunning ? t('interfaces.noLink') : t('status.disabled', { ns: 'common' })}
           </span>
         )}
+        {/* View all button for accessibility */}
       </div>
     </div>
   );
@@ -79,10 +80,10 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
 
   if (isLoading) {
     return (
-      <div className="px-4 py-2 space-y-3 animate-pulse">
+      <div className="px-component-lg py-component-sm space-y-component-md animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-2">
+          <div key={i} className="flex items-center justify-between py-component-sm">
+            <div className="flex items-center gap-component-sm">
               <div className="w-2 h-2 bg-muted rounded-full" />
               <div className="w-4 h-4 bg-muted rounded" />
               <div className="h-4 bg-muted rounded w-20" />
@@ -95,12 +96,12 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
   }
 
   return (
-    <div className="px-4 py-2">
+    <div className="px-component-lg py-component-sm">
       {/* Header */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-component-sm">
         <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('interfaces.title')}</p>
         {hasMore && (
-          <button className="text-primary text-xs flex items-center gap-0.5 hover:text-primary/80 transition-colors">
+          <button className="text-primary text-xs flex items-center gap-component-xs hover:text-primary/80 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg px-component-sm">
             {t('button.viewAll', { ns: 'common' })}
             <ChevronRight className="w-3 h-3" />
           </button>
@@ -122,8 +123,6 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
 });
 
 InterfaceCompactList.displayName = 'InterfaceCompactList';
-
-
 
 
 

@@ -3,20 +3,21 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"time"
-
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/router"
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/vlanallocation"
+	"context"
+	"errors"
+	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -284,6 +285,36 @@ func (_c *RouterCreate) AddServiceTemplates(v ...*ServiceTemplate) *RouterCreate
 		ids[i] = v[i].ID
 	}
 	return _c.AddServiceTemplateIDs(ids...)
+}
+
+// AddProvisioningSessionIDs adds the "provisioning_sessions" edge to the ProvisioningSession entity by IDs.
+func (_c *RouterCreate) AddProvisioningSessionIDs(ids ...string) *RouterCreate {
+	_c.mutation.AddProvisioningSessionIDs(ids...)
+	return _c
+}
+
+// AddProvisioningSessions adds the "provisioning_sessions" edges to the ProvisioningSession entity.
+func (_c *RouterCreate) AddProvisioningSessions(v ...*ProvisioningSession) *RouterCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddProvisioningSessionIDs(ids...)
+}
+
+// AddSubnetAllocationIDs adds the "subnet_allocations" edge to the SubnetAllocation entity by IDs.
+func (_c *RouterCreate) AddSubnetAllocationIDs(ids ...string) *RouterCreate {
+	_c.mutation.AddSubnetAllocationIDs(ids...)
+	return _c
+}
+
+// AddSubnetAllocations adds the "subnet_allocations" edges to the SubnetAllocation entity.
+func (_c *RouterCreate) AddSubnetAllocations(v ...*SubnetAllocation) *RouterCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSubnetAllocationIDs(ids...)
 }
 
 // Mutation returns the RouterMutation object of the builder.
@@ -614,6 +645,40 @@ func (_c *RouterCreate) createSpec() (*Router, *sqlgraph.CreateSpec) {
 			},
 		}
 		edge.Schema = _c.schemaConfig.ServiceTemplate
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProvisioningSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ProvisioningSessionsTable,
+			Columns: []string{router.ProvisioningSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(provisioningsession.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _c.schemaConfig.ProvisioningSession
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SubnetAllocationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.SubnetAllocationsTable,
+			Columns: []string{router.SubnetAllocationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(subnetallocation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _c.schemaConfig.SubnetAllocation
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

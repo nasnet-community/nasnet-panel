@@ -92,7 +92,7 @@ export const ServiceConfigFormMobile = React.memo(
 
     if (!schema) {
       return (
-        <div className="p-4 text-center text-muted-foreground">
+        <div className="p-component-sm text-center text-muted-foreground">
           No configuration schema available
         </div>
       );
@@ -100,13 +100,13 @@ export const ServiceConfigFormMobile = React.memo(
 
     return (
       <div className={cn('pb-20', className)}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-component-md">
           {Object.entries(groupedFields).map(([groupName, fields]) => (
             <Card key={groupName}>
               <CardHeader>
                 <CardTitle className="text-base">{groupName}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-component-md">
                 {(fields as any[]).map((field: any) => (
                   <DynamicField
                     key={field.name}
@@ -120,7 +120,7 @@ export const ServiceConfigFormMobile = React.memo(
           ))}
 
           {!readOnly && (
-            <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-4">
+            <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-component-sm">
               <Button
                 type="submit"
                 className="w-full min-h-[44px]"

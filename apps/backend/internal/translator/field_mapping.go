@@ -101,8 +101,12 @@ func (r *FieldMappingRegistry) GetMapping(path, graphqlField string) (*FieldMapp
 }
 
 // GetMappingsForPath returns all mappings for a given API path.
+// Returns an empty map if the path has no mappings (never returns nil).
 func (r *FieldMappingRegistry) GetMappingsForPath(path string) map[string]*FieldMapping {
-	return r.mappingsByPath[path]
+	if mappings, ok := r.mappingsByPath[path]; ok {
+		return mappings
+	}
+	return make(map[string]*FieldMapping)
 }
 
 // TranslateFieldName converts a GraphQL field name (camelCase) to MikroTik format (kebab-case).
@@ -307,6 +311,8 @@ func ParseMikroTikBool(s string) bool {
 }
 
 // ParseMikroTikDuration parses a MikroTik duration string (e.g., 1d2h3m4s, 1w2d).
+// Returns 0 duration if the string is empty (no error).
+// Returns an error only for genuinely invalid formats that don't match the expected pattern.
 func ParseMikroTikDuration(s string) (time.Duration, error) {
 	if s == "" {
 		return 0, nil
@@ -318,11 +324,13 @@ func ParseMikroTikDuration(s string) (time.Duration, error) {
 	}
 
 	// RouterOS duration format: NwNdNhNmNs (weeks, days, hours, minutes, seconds)
-	re := regexp.MustCompile(`(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?`)
+	// Pattern allows partial matches (all components are optional but at least one must match)
+	re := regexp.MustCompile(`^(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$`)
 	matches := re.FindStringSubmatch(s)
 
-	if matches == nil {
-		return 0, fmt.Errorf("invalid duration format: %s", s)
+	// Check if no capture groups matched (all empty strings)
+	if len(matches) < 6 || (matches[1] == "" && matches[2] == "" && matches[3] == "" && matches[4] == "" && matches[5] == "") {
+		return 0, fmt.Errorf("invalid duration format: %s (expected format like 1w2d3h4m5s)", s)
 	}
 
 	var d time.Duration
@@ -368,6 +376,7 @@ func ParseMikroTikList(s string) []string {
 }
 
 // ParseMikroTikSize parses a MikroTik size value (e.g., "1024", "10K", "1M").
+// Handles K (KiB), M (MiB), G (GiB) suffixes. Returns 0 if empty string (no error).
 func ParseMikroTikSize(s string) (int64, error) {
 	if s == "" {
 		return 0, nil
@@ -379,24 +388,32 @@ func ParseMikroTikSize(s string) (int64, error) {
 	}
 
 	// Check for suffix
-	lastChar := s[len(s)-1]
 	var multiplier int64 = 1
+	original := s
 
-	switch unicode.ToUpper(rune(lastChar)) {
-	case 'K':
-		multiplier = 1024
-		s = s[:len(s)-1]
-	case 'M':
-		multiplier = 1024 * 1024
-		s = s[:len(s)-1]
-	case 'G':
-		multiplier = 1024 * 1024 * 1024
-		s = s[:len(s)-1]
+	if s != "" {
+		lastChar := s[len(s)-1]
+		switch unicode.ToUpper(rune(lastChar)) {
+		case 'K':
+			multiplier = 1024
+			s = s[:len(s)-1]
+		case 'M':
+			multiplier = 1024 * 1024
+			s = s[:len(s)-1]
+		case 'G':
+			multiplier = 1024 * 1024 * 1024
+			s = s[:len(s)-1]
+		}
+	}
+
+	// Ensure we have something left to parse after removing suffix
+	if s == "" {
+		return 0, fmt.Errorf("invalid size format: %q (expected number with optional K/M/G suffix)", original)
 	}
 
 	val, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("invalid size format: %s", s)
+		return 0, fmt.Errorf("invalid size format: %q (not a valid number: %w)", original, err)
 	}
 
 	return val * multiplier, nil
@@ -416,8 +433,8 @@ func DefaultInterfaceMappings() []*FieldMapping {
 		{GraphQLField: "macAddress", MikroTikField: "mac-address", Path: "/interface", Type: FieldTypeMAC},
 		{GraphQLField: "mtu", MikroTikField: "mtu", Path: "/interface", Type: FieldTypeInt},
 		{GraphQLField: "comment", MikroTikField: "comment", Path: "/interface", Type: FieldTypeString},
-		{GraphQLField: "txBytes", MikroTikField: "tx-byte", Path: "/interface", Type: FieldTypeSize},
-		{GraphQLField: "rxBytes", MikroTikField: "rx-byte", Path: "/interface", Type: FieldTypeSize},
+		{GraphQLField: "txBytes", MikroTikField: "tx-bytes", Path: "/interface", Type: FieldTypeSize},
+		{GraphQLField: "rxBytes", MikroTikField: "rx-bytes", Path: "/interface", Type: FieldTypeSize},
 	}
 }
 

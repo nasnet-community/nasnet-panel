@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 func TestCgroupManager_DetectCgroupV2(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	// Test should work on systems with or without cgroups v2
@@ -25,7 +25,7 @@ func TestCgroupManager_DetectCgroupV2(t *testing.T) {
 }
 
 func TestCgroupManager_CreateCgroup(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	if !mgr.IsAvailable() {
@@ -50,7 +50,7 @@ func TestCgroupManager_CreateCgroup(t *testing.T) {
 }
 
 func TestCgroupManager_SetMemoryLimits(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	if !mgr.IsAvailable() {
@@ -102,7 +102,7 @@ func TestCgroupManager_SetMemoryLimits(t *testing.T) {
 }
 
 func TestCgroupManager_SetCPUWeight(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	if !mgr.IsAvailable() {
@@ -155,7 +155,7 @@ func TestCgroupManager_SetCPUWeight(t *testing.T) {
 }
 
 func TestCgroupManager_AssignProcess(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	if !mgr.IsAvailable() {
@@ -205,7 +205,7 @@ func TestCgroupManager_AssignProcess(t *testing.T) {
 }
 
 func TestCgroupManager_RemoveCgroup(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 	mgr := NewCgroupManager(logger)
 
 	if !mgr.IsAvailable() {
@@ -233,7 +233,7 @@ func TestCgroupManager_RemoveCgroup(t *testing.T) {
 }
 
 func TestCgroupManager_GracefulDegradation(t *testing.T) {
-	logger := zerolog.New(os.Stderr)
+	logger := zap.NewNop().Sugar()
 
 	// Create a manager with a non-existent base path to simulate unavailable cgroups
 	mgr := &CgroupManager{

@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"backend/graph/model"
-
 	"backend/internal/orchestrator/resources"
 )
 

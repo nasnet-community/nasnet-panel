@@ -349,8 +349,6 @@ func TestPBRIntegration_ReconcileDeletedVIF(t *testing.T) {
 
 // TestPBRIntegration_CascadeOnVIFDeletion tests cascade cleanup event handler.
 func TestPBRIntegration_CascadeOnVIFDeletion(t *testing.T) {
-	t.Skip("TODO: virtualinterface.GatewayTypeSocks5 constant doesn't exist - needs GatewayType enum definition")
-
 	ctx := context.Background()
 	client, _, instanceID := setupTestDB(t, ctx)
 	defer client.Close()
@@ -365,7 +363,7 @@ func TestPBRIntegration_CascadeOnVIFDeletion(t *testing.T) {
 		SetIPAddress("10.100.0.1").
 		SetRoutingMark("mark-test").
 		SetStatus(virtualinterface.StatusActive).
-		// SetGatewayType(virtualinterface.GatewayTypeSocks5). // TODO: GatewayTypeSocks5 doesn't exist
+		SetGatewayType(virtualinterface.GatewayTypeHevSocks5Tunnel).
 		SetGatewayStatus(virtualinterface.GatewayStatusRunning).
 		Save(ctx)
 	require.NoError(t, err)

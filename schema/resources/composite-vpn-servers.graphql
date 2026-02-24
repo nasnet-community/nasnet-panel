@@ -1,0 +1,384 @@
+# =============================================================================
+# Composite Resources: VPN Servers
+# =============================================================================
+# VPN server resource types implementing the 8-layer model.
+# Includes WireGuard, PPP, and IKEv2 servers.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# WireGuard Server
+# -----
+
+"""
+WireGuard Server resource implementing 8-layer model
+"""
+type WireGuardServer implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: WireGuardServerConfig!
+  wgServerDeployment: WireGuardServerDeployment
+  wgServerRuntime: WireGuardServerRuntime
+}
+
+"""
+WireGuard server configuration
+"""
+type WireGuardServerConfig {
+  "User-friendly name"
+  name: String!
+
+  "Server listen port"
+  listenPort: Port!
+
+  "Server private key"
+  privateKey: String! @sensitive
+
+  "Server address (tunnel IP)"
+  address: String!
+
+  "Server peers"
+  peers: [ID!]!
+
+  "Enable peer to peer mode"
+  enableP2P: Boolean
+
+  "Mtu"
+  mtu: Int
+}
+
+"""
+WireGuard server deployment state
+"""
+type WireGuardServerDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Generated public key"
+  publicKey: String
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+WireGuard server runtime state
+"""
+type WireGuardServerRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether server is listening"
+  isListening: Boolean!
+
+  "Current connected peers"
+  connectedPeers: Int!
+
+  "Total bytes transferred in"
+  bytesIn: Size!
+
+  "Total bytes transferred out"
+  bytesOut: Size!
+}
+
+# -----
+# WireGuard Peer
+# -----
+
+"""
+WireGuard Peer resource implementing 8-layer model
+"""
+type WireGuardPeer implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: WireGuardPeerConfig!
+  wgPeerDeployment: WireGuardPeerDeployment
+  wgPeerRuntime: WireGuardPeerRuntime
+}
+
+"""
+WireGuard peer configuration
+"""
+type WireGuardPeerConfig {
+  "Parent WireGuard interface ID"
+  interface: ID!
+
+  "Peer public key"
+  publicKey: String!
+
+  "Allowed addresses (CIDR)"
+  allowedAddress: [CIDR!]!
+
+  "Peer endpoint (IP:port)"
+  endpoint: String
+
+  "Preshared key (optional)"
+  presharedKey: String @sensitive
+
+  "Persistent keepalive interval"
+  persistentKeepalive: Duration
+}
+
+"""
+WireGuard peer deployment state
+"""
+type WireGuardPeerDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+}
+
+"""
+WireGuard peer runtime state
+"""
+type WireGuardPeerRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether peer is connected"
+  isConnected: Boolean!
+
+  "Last handshake time"
+  lastHandshake: DateTime
+
+  "Endpoint currently used"
+  currentEndpoint: String
+
+  "Bytes received from peer"
+  bytesReceived: Size!
+
+  "Bytes sent to peer"
+  bytesSent: Size!
+}
+
+# -----
+# PPP Server (PPTP, L2TP, SSTP, OpenVPN)
+# -----
+
+"""
+PPP Server resource (covers PPTP, L2TP, SSTP, OpenVPN servers)
+Implementing 8-layer model
+"""
+type PPPServer implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: PPPServerConfig!
+  pppServerDeployment: PPPServerDeployment
+  pppServerRuntime: PPPServerRuntime
+}
+
+"""
+PPP server configuration
+"""
+type PPPServerConfig {
+  "User-friendly name"
+  name: String!
+
+  "Server type (pptp, l2tp, sstp, ovpn)"
+  serverType: String!
+
+  "Listen port"
+  port: Port!
+
+  "Server address range"
+  addressPool: String!
+
+  "Authentication type"
+  authType: String!
+
+  "Certificate (for SSTP, OpenVPN)"
+  certificate: String @sensitive
+
+  "Private key (for SSTP, OpenVPN)"
+  privateKey: String @sensitive
+
+  "Enable encryption"
+  encryption: Boolean
+
+  "Encryption cipher"
+  cipher: String
+}
+
+"""
+PPP server deployment state
+"""
+type PPPServerDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Server interface name"
+  interfaceName: String
+}
+
+"""
+PPP server runtime state
+"""
+type PPPServerRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether server is accepting connections"
+  isAccepting: Boolean!
+
+  "Number of connected clients"
+  connectedClients: Int!
+
+  "Total bytes received"
+  bytesReceived: Size!
+
+  "Total bytes sent"
+  bytesSent: Size!
+}
+
+# -----
+# IKEv2 Server
+# -----
+
+"""
+IKEv2 Server resource implementing 8-layer model
+"""
+type IKEv2Server implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: IKEv2ServerConfig!
+  ikev2ServerDeployment: IKEv2ServerDeployment
+  ikev2ServerRuntime: IKEv2ServerRuntime
+}
+
+"""
+IKEv2 server configuration
+"""
+type IKEv2ServerConfig {
+  "User-friendly name"
+  name: String!
+
+  "Server profile ID"
+  profile: String!
+
+  "Server proposal (encryption/auth)"
+  proposal: String!
+
+  "Peer configuration ID"
+  peer: String!
+
+  "Server identity"
+  identity: String!
+
+  "Traffic policy ID"
+  policy: String!
+
+  "Listen port"
+  port: Port!
+
+  "Server certificate"
+  certificate: String! @sensitive
+
+  "Server private key"
+  privateKey: String! @sensitive
+
+  "CA certificate"
+  caCertificate: String @sensitive
+}
+
+"""
+IKEv2 server deployment state
+"""
+type IKEv2ServerDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+}
+
+"""
+IKEv2 server runtime state
+"""
+type IKEv2ServerRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether server is accepting connections"
+  isAccepting: Boolean!
+
+  "Number of active SAs"
+  activeSAs: Int!
+
+  "Number of connected clients"
+  connectedClients: Int!
+
+  "Total bytes received"
+  bytesReceived: Size!
+
+  "Total bytes sent"
+  bytesSent: Size!
+}

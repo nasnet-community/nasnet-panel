@@ -65,8 +65,8 @@ type circuitBreakerInfo struct {
 	openedAt         *time.Time
 }
 
-// ServiceConfig configures the diagnostic service.
-type ServiceConfig struct {
+// Config configures the diagnostic service.
+type Config struct {
 	DocsBaseURL     string
 	RateLimitPeriod time.Duration
 	RouterProvider  RouterInfoProvider
@@ -74,7 +74,7 @@ type ServiceConfig struct {
 }
 
 // NewService creates a new diagnostic service.
-func NewService(cfg ServiceConfig) *Service {
+func NewService(cfg Config) *Service {
 	if cfg.RateLimitPeriod == 0 {
 		cfg.RateLimitPeriod = DefaultRateLimitInterval
 	}

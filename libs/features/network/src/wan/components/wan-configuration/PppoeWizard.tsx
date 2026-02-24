@@ -246,11 +246,11 @@ export const PppoeWizard = memo(function PppoeWizard({
 
       {/* Error Display */}
       {error && (
-        <div className="rounded-lg bg-destructive/10 border border-destructive p-4" role="alert" aria-live="assertive">
-          <p className="text-sm text-destructive font-medium">
+        <div className="rounded-lg bg-error/10 border border-error p-4" role="alert" aria-live="assertive">
+          <p className="text-sm text-error font-medium">
             Configuration Error
           </p>
-          <p className="text-sm text-destructive/80 mt-1">
+          <p className="text-sm text-error/80 mt-1">
             {error.message}
           </p>
         </div>

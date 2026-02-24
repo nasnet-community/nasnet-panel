@@ -3,8 +3,39 @@
 package capability
 
 import (
+	"context"
 	"time"
 )
+
+// RouterPort represents a connection to a MikroTik router.
+// It abstracts the underlying transport (API, SSH, REST, etc).
+type RouterPort interface {
+	// QueryState queries a router path and returns the state resources.
+	QueryState(ctx context.Context, query StateQuery) (*StateResult, error)
+}
+
+// StateQuery represents a query to a router state path.
+type StateQuery struct {
+	// Path is the RouterOS path (e.g., /system/resource, /system/package)
+	Path string
+	// Fields is the optional list of fields to retrieve.
+	Fields []string
+	// Filter is the optional filter map.
+	Filter map[string]string
+	// Limit is the optional query limit.
+	Limit int
+}
+
+// StateResult contains the result of a state query.
+type StateResult struct {
+	// Resources is a list of resource maps returned by the query.
+	// Each map represents a single resource with its properties.
+	Resources []map[string]string
+	// Count is the number of resources returned.
+	Count int
+	// Error is set if the query failed (optional, for error propagation).
+	Error error `json:"-"`
+}
 
 // Capability represents a feature category that can be detected on routers.
 type Capability string
@@ -34,6 +65,14 @@ const (
 	CapabilityWireGuard Capability = "WIREGUARD"
 	// CapabilityZeroTier represents ZeroTier support.
 	CapabilityZeroTier Capability = "ZEROTIER"
+	// CapabilityRESTAPI represents REST API support.
+	CapabilityRESTAPI Capability = "REST_API"
+	// CapabilityBinaryAPI represents Binary API support.
+	CapabilityBinaryAPI Capability = "BINARY_API"
+	// CapabilityACME represents ACME (Let's Encrypt) support.
+	CapabilityACME Capability = "ACME"
+	// CapabilityWiFiWave2 represents WiFi Wave2 support.
+	CapabilityWiFiWave2 Capability = "WIFI_WAVE2"
 )
 
 // AllCapabilities returns all known capabilities.
@@ -51,6 +90,10 @@ func AllCapabilities() []Capability {
 		CapabilityDude,
 		CapabilityWireGuard,
 		CapabilityZeroTier,
+		CapabilityRESTAPI,
+		CapabilityBinaryAPI,
+		CapabilityACME,
+		CapabilityWiFiWave2,
 	}
 }
 

@@ -9,6 +9,8 @@ import (
 	"backend/internal/features"
 
 	"backend/internal/events"
+
+	"go.uber.org/zap"
 )
 
 // canTransition checks if a state transition is allowed
@@ -46,10 +48,9 @@ func (im *InstanceManager) emitStateChangeEvent(ctx context.Context, instanceID,
 		Only(ctx)
 
 	if err != nil {
-		im.logger.Warn().
-			Err(err).
-			Str("instance_id", instanceID).
-			Msg("failed to fetch instance for state change event, publishing with partial context")
+		im.logger.Warn("failed to fetch instance for state change event, publishing with partial context",
+			zap.Error(err),
+			zap.String("instance_id", instanceID))
 
 		event := events.NewServiceStateChangedEvent(
 			instanceID,
@@ -63,10 +64,9 @@ func (im *InstanceManager) emitStateChangeEvent(ctx context.Context, instanceID,
 		)
 
 		if err := im.config.EventBus.Publish(ctx, event); err != nil {
-			im.logger.Error().
-				Err(err).
-				Str("instance_id", instanceID).
-				Msg("failed to publish state change event")
+			im.logger.Error("failed to publish state change event",
+				zap.Error(err),
+				zap.String("instance_id", instanceID))
 		}
 		return
 	}
@@ -90,12 +90,11 @@ func (im *InstanceManager) emitStateChangeEvent(ctx context.Context, instanceID,
 	)
 
 	if err := im.config.EventBus.Publish(ctx, event); err != nil {
-		im.logger.Error().
-			Err(err).
-			Str("instance_id", instanceID).
-			Str("from_status", fromStatus).
-			Str("to_status", toStatus).
-			Msg("failed to publish state change event")
+		im.logger.Error("failed to publish state change event",
+			zap.Error(err),
+			zap.String("instance_id", instanceID),
+			zap.String("from_status", fromStatus),
+			zap.String("to_status", toStatus))
 	}
 }
 
@@ -118,12 +117,11 @@ func (im *InstanceManager) buildProcessEnv(manifest *features.Manifest, instance
 			goMemLimit := int64(float64(manifest.RecommendedRAM) * 0.9)
 			env = append(env, fmt.Sprintf("GOMEMLIMIT=%d", goMemLimit))
 
-			im.logger.Debug().
-				Str("instance_id", instance.ID).
-				Str("feature_id", manifest.ID).
-				Int64("recommended_ram_bytes", manifest.RecommendedRAM).
-				Int64("gomemlimit_bytes", goMemLimit).
-				Msg("injected GOMEMLIMIT for Go service")
+			im.logger.Debug("injected GOMEMLIMIT for Go service",
+				zap.String("instance_id", instance.ID),
+				zap.String("feature_id", manifest.ID),
+				zap.Int64("recommended_ram_bytes", manifest.RecommendedRAM),
+				zap.Int64("gomemlimit_bytes", goMemLimit))
 		}
 	}
 

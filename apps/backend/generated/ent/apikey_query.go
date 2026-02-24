@@ -3,14 +3,13 @@
 package ent
 
 import (
-	"context"
-	"fmt"
-	"math"
-
 	"backend/generated/ent/apikey"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/user"
+	"context"
+	"fmt"
+	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -12,6 +12,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNewAdapterBridge(t *testing.T) {
+	t.Run("with nil registry uses default", func(t *testing.T) {
+		bridge := NewAdapterBridge(nil)
+		require.NotNil(t, bridge)
+		require.NotNil(t, bridge.fieldRegistry)
+	})
+}
+
 func TestAdapterBridge_ToRouterCommand(t *testing.T) {
 	bridge := NewAdapterBridge(nil)
 
@@ -105,7 +113,9 @@ func TestAdapterBridge_FromCommandResult(t *testing.T) {
 		response := bridge.FromCommandResult(result, ProtocolAPI)
 		require.True(t, response.Success)
 
-		data := response.Data.([]map[string]interface{})
+		require.NotNil(t, response.Data)
+		data, ok := response.Data.([]map[string]interface{})
+		require.True(t, ok, "expected []map[string]interface{}, got %T", response.Data)
 		require.Len(t, data, 2)
 		assert.Equal(t, "ether1", data[0]["name"])
 		assert.Equal(t, 2, response.Metadata.RecordCount)
@@ -236,6 +246,30 @@ func (m *mockRouterPort) Protocol() router.Protocol {
 	return m.protocol
 }
 
+func TestNewTranslatingPort_Validation(t *testing.T) {
+	t.Run("nil port panics", func(t *testing.T) {
+		defer func() {
+			r := recover()
+			require.NotNil(t, r)
+			assert.Contains(t, r.(string), "port is nil")
+		}()
+
+		translator := NewDefaultTranslator()
+		NewTranslatingPort(nil, translator)
+	})
+
+	t.Run("nil translator panics", func(t *testing.T) {
+		defer func() {
+			r := recover()
+			require.NotNil(t, r)
+			assert.Contains(t, r.(string), "translator is nil")
+		}()
+
+		mock := &mockRouterPort{protocol: router.ProtocolAPI}
+		NewTranslatingPort(mock, nil)
+	})
+}
+
 func TestTranslatingPort_Query(t *testing.T) {
 	mock := &mockRouterPort{
 		protocol:  router.ProtocolAPI,
@@ -267,8 +301,10 @@ func TestTranslatingPort_Query(t *testing.T) {
 
 	require.NoError(t, err)
 	require.True(t, result.Success)
+	require.NotNil(t, result.Data)
 
-	data := result.Data.([]map[string]interface{})
+	data, ok := result.Data.([]map[string]interface{})
+	require.True(t, ok, "expected []map[string]interface{}, got %T", result.Data)
 	require.Len(t, data, 2)
 	// Field names should be translated to camelCase
 	assert.Equal(t, "*1", data[0]["id"])
@@ -503,6 +539,6 @@ func TestBatchExecutor(t *testing.T) {
 		result := be.Execute(ctx, commands)
 		assert.Equal(t, 0, result.FailedIndex)
 		assert.False(t, result.Results[0].Success)
-		assert.Equal(t, "CANCELLED", result.Results[0].Error.Code)
+		assert.Equal(t, "CANCELED", result.Results[0].Error.Code)
 	})
 }

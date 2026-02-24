@@ -3,9 +3,10 @@ package batch
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
 
 	"backend/internal/router/adapters/mikrotik"
 )
@@ -135,8 +136,9 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	go job.Execute() //nolint:contextcheck // job runs independent background task
 
-	log.Printf("[BATCH-API] Created job %s with %d commands (protocol: %s)",
-		job.ID, job.Progress.Total, job.Protocol)
+	if DefaultJobStore.logger != nil {
+		DefaultJobStore.logger.Info("API request created batch job", zap.String("job_id", job.ID), zap.Int("total_commands", job.Progress.Total), zap.String("protocol", job.Protocol))
+	}
 
 	resp := SubmitResponse{
 		JobID:         job.ID,

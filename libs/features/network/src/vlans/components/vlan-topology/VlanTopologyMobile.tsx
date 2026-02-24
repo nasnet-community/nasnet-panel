@@ -122,11 +122,11 @@ function VlanTopologyMobileComponent({
   }
 
   return (
-    <div className={cn('space-y-4 pb-20', className)}>
+    <div className={cn('space-y-component-md pb-20', className)}>
       {/* Statistics Cards */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-component-sm">
             <Icon
               icon={Network}
               className="h-5 w-5"
@@ -136,24 +136,24 @@ function VlanTopologyMobileComponent({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg border p-3 space-y-1">
+          <div className="grid grid-cols-2 gap-component-sm">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
               <p className="text-sm text-muted-foreground">Total VLANs</p>
               <p className="text-2xl font-bold">{stats.totalVlans}</p>
             </div>
-            <div className="rounded-lg border p-3 space-y-1">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
               <p className="text-sm text-muted-foreground">Running</p>
               <p className="text-2xl font-bold text-success">
                 {stats.runningVlans}
               </p>
             </div>
-            <div className="rounded-lg border p-3 space-y-1">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
               <p className="text-sm text-muted-foreground">Disabled</p>
               <p className="text-2xl font-bold text-muted-foreground">
                 {stats.disabledVlans}
               </p>
             </div>
-            <div className="rounded-lg border p-3 space-y-1">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
               <p className="text-sm text-muted-foreground">Interfaces</p>
               <p className="text-2xl font-bold">{stats.parentInterfaces}</p>
             </div>
@@ -174,8 +174,8 @@ function VlanTopologyMobileComponent({
               aria-expanded={isExpanded}
               aria-label={`${isExpanded ? 'Collapse' : 'Expand'} VLANs on ${iface.name}`}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
+              <CardHeader className="pb-component-sm">
+                <div className="flex items-center gap-component-sm">
                   {isExpanded ? (
                     <Icon
                       icon={ChevronDown}
@@ -190,8 +190,8 @@ function VlanTopologyMobileComponent({
                     />
                   )}
 
-                  <div className="flex-1 flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1 flex items-start justify-between gap-component-sm">
+                    <div className="flex items-center gap-component-xs">
                       <Icon
                         icon={Network}
                         className="h-5 w-5 shrink-0"
@@ -217,7 +217,7 @@ function VlanTopologyMobileComponent({
 
             {/* VLANs List */}
             {isExpanded && iface.vlans.length > 0 && (
-              <CardContent className="pt-0 space-y-2">
+              <CardContent className="pt-0 space-y-component-sm">
                 {iface.vlans.map((vlan) => (
                   <button
                     key={vlan.id}
@@ -225,12 +225,12 @@ function VlanTopologyMobileComponent({
                       e.stopPropagation();
                       handleVlanSelect(vlan.id);
                     }}
-                    className="w-full p-3 rounded-lg border hover:border-primary/50 transition-all text-left"
+                    className="w-full p-component-sm rounded-[var(--semantic-radius-card)] border border-border hover:border-primary/50 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     aria-label={`Select VLAN ${vlan.vlanId}: ${vlan.name}`}
                   >
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
+                    <div className="space-y-component-sm">
+                      <div className="flex items-start justify-between gap-component-xs">
+                        <div className="flex items-center gap-component-xs">
                           <Badge
                             variant="outline"
                             className="font-mono min-w-[50px] justify-center shrink-0"

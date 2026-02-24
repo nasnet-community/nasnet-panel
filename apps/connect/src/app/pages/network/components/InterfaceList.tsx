@@ -31,8 +31,8 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
 
   if (interfaces.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+      <div className="text-center py-component-lg">
+        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-component-md">
           <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <p className="text-muted-foreground text-sm">
@@ -43,7 +43,7 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-component-md">
       <SectionHeader
         title={t('interfaces.title')}
         count={interfaces.length}
@@ -61,7 +61,7 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
       />
 
       {!isCollapsed && (
-        <div className="grid gap-2 md:gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-component-sm md:gap-component-md md:grid-cols-2 lg:grid-cols-3">
           {displayedInterfaces.map((iface) => (
             <InterfaceCard key={iface.id} interface={iface} />
           ))}

@@ -195,7 +195,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           <div className="space-y-2">
             <Label htmlFor="service" className="text-sm font-medium">
               {t('servicePorts.fields.name')}
-              <span className="text-destructive ml-1">*</span>
+              <span className="text-error ml-1">*</span>
             </Label>
             <Input
               id="service"
@@ -223,7 +223,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           <div className="space-y-2">
             <Label className="text-sm font-medium">
               {t('servicePorts.fields.protocol')}
-              <span className="text-destructive ml-1">*</span>
+              <span className="text-error ml-1">*</span>
             </Label>
             <RadioGroup
               value={protocol}
@@ -250,7 +250,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               </div>
             </RadioGroup>
             {errors.protocol && (
-              <p className="text-sm text-destructive">{errors.protocol.message}</p>
+              <p className="text-sm text-error">{errors.protocol.message}</p>
             )}
           </div>
 
@@ -258,7 +258,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           <div className="space-y-2">
             <Label htmlFor="port" className="text-sm font-medium">
               {t('servicePorts.fields.port')}
-              <span className="text-destructive ml-1">*</span>
+              <span className="text-error ml-1">*</span>
             </Label>
             <Input
               id="port"
@@ -272,7 +272,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.port ? 'port-error' : 'port-help'}
             />
             {errors.port && (
-              <p className="text-sm text-destructive" id="port-error" role="alert">
+              <p className="text-sm text-error" id="port-error" role="alert">
                 {errors.port.message}
               </p>
             )}
@@ -299,7 +299,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.description ? 'description-error' : 'description-help'}
             />
             {errors.description && (
-              <p className="text-sm text-destructive" id="description-error" role="alert">
+              <p className="text-sm text-error" id="description-error" role="alert">
                 {errors.description.message}
               </p>
             )}

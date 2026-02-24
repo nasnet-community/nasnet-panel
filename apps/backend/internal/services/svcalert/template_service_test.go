@@ -12,13 +12,13 @@ import (
 func TestAlertTemplateService_LoadBuiltInTemplates(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil, // Not needed for this test
 		Logger:       logger,
 		AlertService: nil, // Not needed for this test
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create alert template service: %v", err)
 	}
@@ -51,13 +51,13 @@ func TestAlertTemplateService_LoadBuiltInTemplates(t *testing.T) {
 func TestAlertTemplateService_GetTemplateByID(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -93,13 +93,13 @@ func TestAlertTemplateService_GetTemplateByID(t *testing.T) {
 func TestAlertTemplateService_GetTemplatesByEventType(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -130,13 +130,13 @@ func TestAlertTemplateService_GetTemplatesByEventType(t *testing.T) {
 func TestAlertTemplateService_PreviewTemplate(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -180,13 +180,13 @@ func TestAlertTemplateService_PreviewTemplate(t *testing.T) {
 func TestAlertTemplateService_PreviewTemplate_MissingVariables(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -251,13 +251,13 @@ func TestCommonEventTypes(t *testing.T) {
 func TestAlertTemplateService_GetTemplatesByChannel(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -297,13 +297,13 @@ func TestAlertTemplateService_GetTemplatesByChannel(t *testing.T) {
 func TestAlertTemplateService_GetTemplates_MultipleFilters(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -336,13 +336,13 @@ func TestAlertTemplateService_GetTemplates_MultipleFilters(t *testing.T) {
 func TestAlertTemplateService_GetTemplates_NoFilters(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -371,13 +371,13 @@ func TestAlertTemplateService_GetTemplates_NoFilters(t *testing.T) {
 func TestAlertTemplateService_SearchTemplates(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -440,13 +440,13 @@ func TestAlertTemplateService_SearchTemplates(t *testing.T) {
 func TestAlertTemplateService_PreviewTemplate_VariableSubstitution(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -489,13 +489,13 @@ func TestAlertTemplateService_PreviewTemplate_VariableSubstitution(t *testing.T)
 func TestAlertTemplateService_PreviewTemplate_InvalidTemplateID(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -516,13 +516,13 @@ func TestAlertTemplateService_PreviewTemplate_InvalidTemplateID(t *testing.T) {
 func TestAlertTemplateService_DeleteTemplate_BuiltIn(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -544,13 +544,13 @@ func TestAlertTemplateService_DeleteTemplate_BuiltIn(t *testing.T) {
 func TestAlertTemplateService_DeleteTemplate_NonExistent(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -568,13 +568,13 @@ func TestAlertTemplateService_DeleteTemplate_NonExistent(t *testing.T) {
 func TestAlertTemplateService_ValidateEventType(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -611,13 +611,13 @@ func TestAlertTemplateService_ValidateEventType(t *testing.T) {
 func TestAlertTemplateService_GetCommonEventTypes(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -644,13 +644,13 @@ func TestAlertTemplateService_GetCommonEventTypes(t *testing.T) {
 func TestAlertTemplateService_TemplateStructure(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 
-	cfg := AlertTemplateServiceConfig{
+	cfg := TemplateConfig{
 		DB:           nil,
 		Logger:       logger,
 		AlertService: nil,
 	}
 
-	service, err := NewAlertTemplateService(cfg)
+	service, err := NewTemplateService(cfg)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}

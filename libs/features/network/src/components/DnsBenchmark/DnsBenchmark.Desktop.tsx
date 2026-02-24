@@ -97,8 +97,8 @@ function DnsBenchmarkDesktopComponent({
         <CardTitle>DNS Server Benchmark</CardTitle>
         <CardDescription>Test response times of all configured DNS servers</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-2">
+      <CardContent className="space-y-component-md">
+        <div className="flex items-center gap-component-sm">
           <Button
             onClick={handleRunBenchmark}
             disabled={isLoading}
@@ -120,7 +120,7 @@ function DnsBenchmarkDesktopComponent({
         </div>
 
         {isLoading && (
-          <div className="space-y-2" role="status" aria-live="polite">
+          <div className="space-y-component-sm" role="status" aria-live="polite">
             <Progress
               value={progress}
               className="w-full"
@@ -138,7 +138,7 @@ function DnsBenchmarkDesktopComponent({
         )}
 
         {isSuccess && result && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <div className="text-sm text-muted-foreground">
               Tested with:{' '}
               <span className="font-mono font-medium">{result.testHostname}</span> •

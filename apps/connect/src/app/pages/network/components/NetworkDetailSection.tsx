@@ -66,7 +66,7 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
     return (
       <div
         className={cn(
-          'bg-card rounded-xl border border-border p-4',
+          'bg-card rounded-card-lg border border-border p-component-md',
           className,
         )}
         aria-busy="true"
@@ -88,7 +88,7 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
   return (
     <section
       className={cn(
-        'bg-card rounded-xl border border-border p-4',
+        'bg-card rounded-card-lg border border-border p-component-md',
         className,
       )}
       aria-labelledby={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}

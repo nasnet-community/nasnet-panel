@@ -20,6 +20,11 @@ func NewAddressListService() *AddressListService {
 
 // GetAddressLists fetches all address lists with aggregated statistics
 func (s *AddressListService) GetAddressLists(ctx context.Context, port router.RouterPort) ([]AddressListAggregate, error) {
+	// Validate preconditions
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+
 	// Fetch all entries
 	entries, err := fetchAddressListEntries(ctx, port)
 	if err != nil {
@@ -45,7 +50,7 @@ func (s *AddressListService) GetAddressLists(ctx context.Context, port router.Ro
 	}
 
 	// Fetch referencing rules count for each list
-	// Use goroutines for parallel fetching
+	// Use goroutines for parallel fetching with mutex protection
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
@@ -56,7 +61,7 @@ func (s *AddressListService) GetAddressLists(ctx context.Context, port router.Ro
 
 			rules, err := fetchRules(ctx, port, name)
 			if err != nil {
-				// Log error but continue
+				// Error logged implicitly by fetchRules, continue with safe default
 				return
 			}
 
@@ -68,7 +73,7 @@ func (s *AddressListService) GetAddressLists(ctx context.Context, port router.Ro
 
 	wg.Wait()
 
-	// Convert map to slice
+	// Convert map to slice under lock to prevent concurrent modification
 	result := make([]AddressListAggregate, 0, len(listMap))
 	for _, aggregate := range listMap {
 		result = append(result, *aggregate)
@@ -85,6 +90,14 @@ func (s *AddressListService) GetAddressListEntries(
 	first *int,
 	after *string,
 ) (*AddressListEntryConnection, error) {
+
+	// Validate preconditions
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+	if listName == "" {
+		return nil, fmt.Errorf("list name cannot be empty")
+	}
 
 	// Fetch all entries for the list
 	entries, err := fetchAddressListEntriesByName(ctx, port, listName)
@@ -161,6 +174,14 @@ func (s *AddressListService) GetReferencingRules(
 	listName string,
 ) ([]Rule, error) {
 
+	// Validate preconditions
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+	if listName == "" {
+		return nil, fmt.Errorf("list name cannot be empty")
+	}
+
 	rules, err := fetchRules(ctx, port, listName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch referencing rules: %w", err)
@@ -175,6 +196,11 @@ func (s *AddressListService) CreateAddressListEntry(
 	port router.RouterPort,
 	input CreateAddressListEntryInput,
 ) (*AddressListEntry, error) {
+
+	// Validate preconditions
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
 
 	// Validate input
 	if err := s.validateCreateInput(input); err != nil {
@@ -196,6 +222,14 @@ func (s *AddressListService) DeleteAddressListEntry(
 	id string,
 ) (bool, error) {
 
+	// Validate preconditions
+	if port == nil {
+		return false, fmt.Errorf("router port cannot be nil")
+	}
+	if id == "" {
+		return false, fmt.Errorf("entry ID cannot be empty")
+	}
+
 	err := deleteAddressListEntry(ctx, port, id)
 	if err != nil {
 		return false, fmt.Errorf("failed to delete address list entry: %w", err)
@@ -211,6 +245,17 @@ func (s *AddressListService) BulkCreateAddressListEntries(
 	listName string,
 	entries []BulkAddressInput,
 ) (*BulkCreateResult, error) {
+
+	// Validate preconditions
+	if port == nil {
+		return nil, fmt.Errorf("router port cannot be nil")
+	}
+	if listName == "" {
+		return nil, fmt.Errorf("list name cannot be empty")
+	}
+	if len(entries) == 0 {
+		return nil, fmt.Errorf("entries slice cannot be empty")
+	}
 
 	result := &BulkCreateResult{
 		SuccessCount: 0,

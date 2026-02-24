@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 declare const inputVariants: (props?: ({
-    variant?: "default" | "error" | null | undefined;
-    inputSize?: "sm" | "lg" | "default" | null | undefined;
+    variant?: "error" | "default" | null | undefined;
+    inputSize?: "default" | "sm" | "lg" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Props for the Input component.

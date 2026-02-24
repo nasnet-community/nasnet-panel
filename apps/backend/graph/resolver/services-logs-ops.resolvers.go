@@ -7,6 +7,8 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/common/ulid"
+	"backend/internal/errors"
 	"backend/internal/events"
 	"backend/internal/orchestrator/resources"
 	"bufio"
@@ -14,21 +16,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
-
-	"github.com/oklog/ulid/v2"
 )
 
 // RunServiceDiagnostics is the resolver for the runServiceDiagnostics field.
 func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input graphql1.RunDiagnosticsInput) (*graphql1.RunDiagnosticsPayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "instance manager not available")
 	}
 
 	// Verify instance exists in DB
 	instance, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("instance not found: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "instance not found")
 	}
 
 	// Get health status from instance manager
@@ -37,7 +38,7 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 		healthStatus = "UNKNOWN"
 	}
 
-	runGroupID := ulid.Make().String()
+	runGroupID := ulid.NewString()
 	now := time.Now()
 
 	// Build a basic health diagnostic result based on current instance state
@@ -56,7 +57,7 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 	}
 
 	result := &graphql1.DiagnosticResult{
-		ID:           ulid.Make().String(),
+		ID:           ulid.NewString(),
 		InstanceID:   input.InstanceID,
 		TestName:     "process_health",
 		Status:       diagStatus,
@@ -94,13 +95,13 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 // ServiceLogFile is the resolver for the serviceLogFile field.
 func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, instanceID string, maxLines *int) (*graphql1.ServiceLogFile, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "instance manager not available")
 	}
 
 	// Query instance from DB
 	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("instance not found: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "instance not found")
 	}
 
 	// Resolve log file path using the path resolver
@@ -125,7 +126,7 @@ func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, ins
 				LastUpdated: time.Now(),
 			}, nil
 		}
-		return nil, fmt.Errorf("failed to stat log file: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to stat log file")
 	}
 
 	// Determine max lines to read
@@ -137,7 +138,7 @@ func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, ins
 	// Read last N lines from log file
 	entries, lineCount, err := readLastNLines(logFilePath, instance.FeatureID, limit)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read log file: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to read log file")
 	}
 
 	return &graphql1.ServiceLogFile{
@@ -162,7 +163,7 @@ func (r *queryResolver) DiagnosticHistory(ctx context.Context, routerID string, 
 // AvailableDiagnostics is the resolver for the availableDiagnostics field.
 func (r *queryResolver) AvailableDiagnostics(ctx context.Context, serviceName string) (*graphql1.DiagnosticSuite, error) {
 	if r.FeatureRegistry == nil {
-		return nil, fmt.Errorf("feature registry not available")
+		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "feature registry not available")
 	}
 
 	// Look up manifest for the service
@@ -204,11 +205,18 @@ func (r *queryResolver) AvailableDiagnostics(ctx context.Context, serviceName st
 func (r *subscriptionResolver) ServiceLogs(ctx context.Context, routerID string, instanceID string, levelFilter *graphql1.LogLevel) (<-chan *graphql1.LogEntry, error) {
 	logChan := make(chan *graphql1.LogEntry, 50)
 
+	if r.EventBus == nil {
+		go func() {
+			defer close(logChan)
+			<-ctx.Done()
+		}()
+		return logChan, nil
+	}
+
 	go func() {
 		defer close(logChan)
 
 		// Subscribe to log appended events from the event bus
-		subID := fmt.Sprintf("servicelogs-%s-%s", instanceID, ulid.Make().String())
 		logEntryChan := make(chan *graphql1.LogEntry, 50)
 
 		err := r.EventBus.Subscribe(events.EventTypeLogAppended, func(evtCtx context.Context, event events.Event) error {
@@ -247,7 +255,6 @@ func (r *subscriptionResolver) ServiceLogs(ctx context.Context, routerID string,
 		})
 		if err != nil {
 			// If subscription fails, just close the channel
-			_ = subID
 			return
 		}
 
@@ -274,6 +281,14 @@ func (r *subscriptionResolver) ServiceLogs(ctx context.Context, routerID string,
 // DiagnosticsProgress is the resolver for the diagnosticsProgress field.
 func (r *subscriptionResolver) DiagnosticsProgress(ctx context.Context, routerID string, instanceID string) (<-chan *graphql1.DiagnosticsProgress, error) {
 	progressChan := make(chan *graphql1.DiagnosticsProgress, 10)
+
+	if r.EventBus == nil {
+		go func() {
+			defer close(progressChan)
+			<-ctx.Done()
+		}()
+		return progressChan, nil
+	}
 
 	go func() {
 		defer close(progressChan)
@@ -332,18 +347,14 @@ func (r *subscriptionResolver) DiagnosticsProgress(ctx context.Context, routerID
 	return progressChan, nil
 }
 
-// =============================================================================
-// Helpers
-// =============================================================================
-
-// readLastNLines reads the last N lines from the log file, returning parsed entries and total line count.
+// readLastNLines reads the last N lines from a log file and parses them.
 func readLastNLines(logFilePath, serviceName string, maxLines int) ([]*graphql1.LogEntry, int, error) {
 	file, err := os.Open(logFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []*graphql1.LogEntry{}, 0, nil
 		}
-		return nil, 0, fmt.Errorf("failed to open log file: %w", err)
+		return nil, 0, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to open log file")
 	}
 	defer file.Close()
 
@@ -353,7 +364,7 @@ func readLastNLines(logFilePath, serviceName string, maxLines int) ([]*graphql1.
 		lines = append(lines, scanner.Text())
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, 0, fmt.Errorf("failed to scan log file: %w", err)
+		return nil, 0, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to scan log file")
 	}
 
 	totalLines := len(lines)
@@ -392,16 +403,17 @@ func readLastNLines(logFilePath, serviceName string, maxLines int) ([]*graphql1.
 	return entries, totalLines, nil
 }
 
-// mapEventLevelToModel maps event log level string to GraphQL LogLevel enum.
+// mapEventLevelToModel converts event log level strings to GraphQL model levels.
 func mapEventLevelToModel(level string) graphql1.LogLevel {
-	switch level {
-	case "debug", "DEBUG":
+	levelLower := strings.ToLower(strings.TrimSpace(level))
+	switch levelLower {
+	case "debug":
 		return graphql1.LogLevelDebug
-	case "info", "INFO":
+	case "info":
 		return graphql1.LogLevelInfo
-	case "warn", "WARN", "warning", "WARNING":
+	case "warn", "warning":
 		return graphql1.LogLevelWarn
-	case "error", "ERROR":
+	case "error":
 		return graphql1.LogLevelError
 	default:
 		return graphql1.LogLevelUnknown

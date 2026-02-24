@@ -17,6 +17,7 @@ export { wsClient } from './apollo-ws-client';
 
 // Provider
 export { ApolloProvider } from './apollo-provider';
+export { MockApolloProvider } from './apollo-mock-provider';
 
 // Cache persistence
 export {

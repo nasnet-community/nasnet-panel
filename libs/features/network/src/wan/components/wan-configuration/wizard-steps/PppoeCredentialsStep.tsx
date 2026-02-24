@@ -175,9 +175,9 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
       </FormSection>
 
       {/* Security Notice */}
-      <div className="rounded-lg border border-info/20 bg-info/5 p-4" role="note">
+      <div className="rounded-lg border border-border bg-card/50 p-4" role="note">
         <div className="flex gap-3">
-          <Lock className="h-5 w-5 text-info flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <Lock className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="space-y-1">
             <p className="text-sm font-medium">Security Notice</p>
             <p className="text-xs text-muted-foreground">

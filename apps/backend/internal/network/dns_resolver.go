@@ -3,6 +3,8 @@ package network
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -10,11 +12,13 @@ import (
 
 // DNSResolver provides DNS resolution with caching.
 // It resolves hostnames to IP addresses and caches results with TTL.
+// Supports context cancellation and enforces query timeouts.
 type DNSResolver struct {
-	cache    map[string]*cacheEntry
-	mu       sync.RWMutex
-	ttl      time.Duration
-	resolver *net.Resolver
+	cache        map[string]*cacheEntry
+	mu           sync.RWMutex
+	ttl          time.Duration
+	resolver     *net.Resolver
+	queryTimeout time.Duration
 }
 
 // cacheEntry represents a cached DNS result.
@@ -28,6 +32,10 @@ type cacheEntry struct {
 type DNSResolverConfig struct {
 	// TTL is the cache time-to-live. Defaults to 5 minutes.
 	TTL time.Duration
+
+	// QueryTimeout is the maximum time allowed for a single DNS query.
+	// Defaults to 5 seconds. Applied if context has no deadline.
+	QueryTimeout time.Duration
 
 	// Resolver is the underlying DNS resolver. If nil, uses net.DefaultResolver.
 	Resolver *net.Resolver
@@ -55,22 +63,37 @@ func NewDNSResolver(cfg DNSResolverConfig) *DNSResolver {
 		ttl = 5 * time.Minute
 	}
 
+	queryTimeout := cfg.QueryTimeout
+	if queryTimeout == 0 {
+		queryTimeout = 5 * time.Second
+	}
+
 	resolver := cfg.Resolver
 	if resolver == nil {
 		resolver = net.DefaultResolver
 	}
 
 	return &DNSResolver{
-		cache:    make(map[string]*cacheEntry),
-		ttl:      ttl,
-		resolver: resolver,
+		cache:        make(map[string]*cacheEntry),
+		ttl:          ttl,
+		queryTimeout: queryTimeout,
+		resolver:     resolver,
 	}
 }
 
 // Resolve resolves a hostname to IP addresses.
 // Returns cached results if available and not expired.
 // Prefers IPv4 addresses over IPv6 when both are available.
+// Enforces QueryTimeout if context has no deadline.
+// Supports context cancellation.
 func (r *DNSResolver) Resolve(ctx context.Context, hostname string) (*DNSResult, error) {
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("DNS resolution canceled: %w", ctx.Err())
+	default:
+	}
+
 	// Check if input is already an IP address
 	if ip := net.ParseIP(hostname); ip != nil {
 		return &DNSResult{
@@ -97,9 +120,21 @@ func (r *DNSResolver) Resolve(ctx context.Context, hostname string) (*DNSResult,
 		}, nil
 	}
 
+	// Ensure context has a deadline by adding default timeout if needed
+	resolveCtx := ctx
+	_, hasDeadline := ctx.Deadline()
+	if !hasDeadline {
+		var cancel context.CancelFunc
+		resolveCtx, cancel = context.WithTimeout(ctx, r.queryTimeout)
+		defer cancel()
+	}
+
 	// Resolve hostname
-	ips, err := r.resolver.LookupIP(ctx, "ip", hostname)
+	ips, err := r.resolver.LookupIP(resolveCtx, "ip", hostname)
 	if err != nil {
+		// Wrap error with context about the DNS error type
+		dnsErr := newDNSError(hostname, err)
+
 		// Cache negative results with shorter TTL
 		r.mu.Lock()
 		r.cache[hostname] = &cacheEntry{
@@ -107,10 +142,7 @@ func (r *DNSResolver) Resolve(ctx context.Context, hostname string) (*DNSResult,
 			expiresAt: time.Now().Add(r.ttl / 5), // Negative cache: 1 minute
 		}
 		r.mu.Unlock()
-		return nil, &DNSError{
-			Hostname: hostname,
-			Cause:    err,
-		}
+		return nil, dnsErr
 	}
 
 	// Cache positive results
@@ -136,6 +168,9 @@ func (r *DNSResolver) ResolveToString(ctx context.Context, hostname string) (str
 	result, err := r.Resolve(ctx, hostname)
 	if err != nil {
 		return "", err
+	}
+	if result.PreferredIP == nil {
+		return "", fmt.Errorf("no IP address resolved for hostname: %s", hostname)
 	}
 	return result.PreferredIP.String(), nil
 }
@@ -265,18 +300,87 @@ func isAlphaNumeric(c byte) bool {
 		(c >= '0' && c <= '9')
 }
 
-// DNSError represents a DNS resolution error.
+// DNSErrorType distinguishes different DNS failure modes.
+type DNSErrorType int
+
+const (
+	// DNSErrorTypeUnknown indicates an unclassified DNS error.
+	DNSErrorTypeUnknown DNSErrorType = iota
+	// DNSErrorTypeNXDomain indicates the domain doesn't exist.
+	DNSErrorTypeNXDomain
+	// DNSErrorTypeTimeout indicates the DNS query timed out.
+	DNSErrorTypeTimeout
+	// DNSErrorTypeServerFailure indicates the DNS server returned SERVFAIL.
+	DNSErrorTypeServerFailure
+	// DNSErrorTypeNoAnswer indicates no records found for the query.
+	DNSErrorTypeNoAnswer
+	// DNSErrorTypeCanceled indicates the context was canceled.
+	DNSErrorTypeCanceled
+)
+
+// DNSError represents a DNS resolution error with error type classification.
 type DNSError struct {
 	Hostname string
 	Cause    error
+	Type     DNSErrorType
 }
 
 // Error implements the error interface.
 func (e *DNSError) Error() string {
-	return "DNS resolution failed for " + e.Hostname + ": " + e.Cause.Error()
+	typeStr := e.typeString()
+	return fmt.Sprintf("DNS resolution failed for %s (%s): %v", e.Hostname, typeStr, e.Cause)
+}
+
+// typeString returns a string representation of the error type.
+func (e *DNSError) typeString() string {
+	switch e.Type {
+	case DNSErrorTypeUnknown:
+		return "unknown"
+	case DNSErrorTypeNXDomain:
+		return "NXDOMAIN"
+	case DNSErrorTypeTimeout:
+		return "timeout"
+	case DNSErrorTypeServerFailure:
+		return "SERVFAIL"
+	case DNSErrorTypeNoAnswer:
+		return "no answer"
+	case DNSErrorTypeCanceled:
+		return "canceled"
+	}
+	return "unknown"
 }
 
 // Unwrap returns the underlying error.
 func (e *DNSError) Unwrap() error {
 	return e.Cause
+}
+
+// newDNSError creates a DNSError with the appropriate error type.
+func newDNSError(hostname string, cause error) *DNSError {
+	dnsErr := &DNSError{
+		Hostname: hostname,
+		Cause:    cause,
+		Type:     DNSErrorTypeUnknown,
+	}
+
+	// Classify the error
+	var netErr net.Error
+	switch {
+	case errors.Is(cause, context.Canceled):
+		dnsErr.Type = DNSErrorTypeCanceled
+	case errors.Is(cause, context.DeadlineExceeded):
+		dnsErr.Type = DNSErrorTypeTimeout
+	case errors.As(cause, &netErr):
+		if netErr.Timeout() {
+			dnsErr.Type = DNSErrorTypeTimeout
+		}
+	}
+
+	// Check for standard DNS error types by inspecting error message
+	errMsg := cause.Error()
+	if errMsg == "no such host" {
+		dnsErr.Type = DNSErrorTypeNXDomain
+	}
+
+	return dnsErr
 }

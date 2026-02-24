@@ -949,6 +949,66 @@ var (
 			},
 		},
 	}
+	// ProvisioningSessionsColumns holds the columns for the "provisioning_sessions" table.
+	ProvisioningSessionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "mode", Type: field.TypeEnum, Enums: []string{"easy", "advance"}, Default: "easy"},
+		{Name: "firmware", Type: field.TypeEnum, Enums: []string{"mikrotik", "openwrt"}, Default: "mikrotik"},
+		{Name: "router_mode", Type: field.TypeEnum, Enums: []string{"ap-mode", "trunk-mode"}, Default: "ap-mode"},
+		{Name: "wan_link_type", Type: field.TypeEnum, Enums: []string{"domestic", "foreign", "both"}, Default: "both"},
+		{Name: "resource_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "networks_config", Type: field.TypeJSON, Nullable: true},
+		{Name: "current_step", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "apply_status", Type: field.TypeEnum, Enums: []string{"pending", "validating", "applying", "applied", "failed", "rolled-back"}, Default: "pending"},
+		{Name: "changeset_id", Type: field.TypeString, Nullable: true, Size: 26},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2048},
+		{Name: "created_by", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "router_id", Type: field.TypeString, Size: 26},
+	}
+	// ProvisioningSessionsTable holds the schema information for the "provisioning_sessions" table.
+	ProvisioningSessionsTable = &schema.Table{
+		Name:       "provisioning_sessions",
+		Columns:    ProvisioningSessionsColumns,
+		PrimaryKey: []*schema.Column{ProvisioningSessionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "provisioning_sessions_routers_provisioning_sessions",
+				Columns:    []*schema.Column{ProvisioningSessionsColumns[15]},
+				RefColumns: []*schema.Column{RoutersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "provisioningsession_router_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProvisioningSessionsColumns[15]},
+			},
+			{
+				Name:    "provisioningsession_apply_status",
+				Unique:  false,
+				Columns: []*schema.Column{ProvisioningSessionsColumns[8]},
+			},
+			{
+				Name:    "provisioningsession_created_by",
+				Unique:  false,
+				Columns: []*schema.Column{ProvisioningSessionsColumns[11]},
+			},
+			{
+				Name:    "provisioningsession_router_id_apply_status",
+				Unique:  false,
+				Columns: []*schema.Column{ProvisioningSessionsColumns[15], ProvisioningSessionsColumns[8]},
+			},
+			{
+				Name:    "provisioningsession_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{ProvisioningSessionsColumns[14]},
+			},
+		},
+	}
 	// ResourcesColumns holds the columns for the "resources" table.
 	ResourcesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -1307,40 +1367,6 @@ var (
 			},
 		},
 	}
-	// SchemaVersionsColumns holds the columns for the "schema_versions" table.
-	SchemaVersionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
-		{Name: "version", Type: field.TypeInt64, Unique: true},
-		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "checksum", Type: field.TypeString, Size: 64},
-		{Name: "applied", Type: field.TypeBool, Default: true},
-		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 1000},
-		{Name: "execution_time_ms", Type: field.TypeInt64, Nullable: true},
-		{Name: "applied_at", Type: field.TypeTime},
-	}
-	// SchemaVersionsTable holds the schema information for the "schema_versions" table.
-	SchemaVersionsTable = &schema.Table{
-		Name:       "schema_versions",
-		Columns:    SchemaVersionsColumns,
-		PrimaryKey: []*schema.Column{SchemaVersionsColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "schemaversion_version",
-				Unique:  false,
-				Columns: []*schema.Column{SchemaVersionsColumns[1]},
-			},
-			{
-				Name:    "schemaversion_applied",
-				Unique:  false,
-				Columns: []*schema.Column{SchemaVersionsColumns[4]},
-			},
-			{
-				Name:    "schemaversion_applied_at",
-				Unique:  false,
-				Columns: []*schema.Column{SchemaVersionsColumns[7]},
-			},
-		},
-	}
 	// ServiceDependenciesColumns holds the columns for the "service_dependencies" table.
 	ServiceDependenciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -1642,6 +1668,64 @@ var (
 			},
 		},
 	}
+	// SubnetAllocationsColumns holds the columns for the "subnet_allocations" table.
+	SubnetAllocationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "resource_id", Type: field.TypeString, Size: 26},
+		{Name: "resource_type", Type: field.TypeString, Size: 128},
+		{Name: "network_name", Type: field.TypeString, Size: 128},
+		{Name: "cidr", Type: field.TypeString, Size: 18},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"reserved", "active", "released"}, Default: "reserved"},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "router_id", Type: field.TypeString, Size: 26},
+	}
+	// SubnetAllocationsTable holds the schema information for the "subnet_allocations" table.
+	SubnetAllocationsTable = &schema.Table{
+		Name:       "subnet_allocations",
+		Columns:    SubnetAllocationsColumns,
+		PrimaryKey: []*schema.Column{SubnetAllocationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "subnet_allocations_routers_subnet_allocations",
+				Columns:    []*schema.Column{SubnetAllocationsColumns[8]},
+				RefColumns: []*schema.Column{RoutersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "subnetallocation_router_id_cidr",
+				Unique:  true,
+				Columns: []*schema.Column{SubnetAllocationsColumns[8], SubnetAllocationsColumns[4]},
+			},
+			{
+				Name:    "subnetallocation_router_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubnetAllocationsColumns[8]},
+			},
+			{
+				Name:    "subnetallocation_resource_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubnetAllocationsColumns[1]},
+			},
+			{
+				Name:    "subnetallocation_status",
+				Unique:  false,
+				Columns: []*schema.Column{SubnetAllocationsColumns[5]},
+			},
+			{
+				Name:    "subnetallocation_router_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{SubnetAllocationsColumns[8], SubnetAllocationsColumns[5]},
+			},
+			{
+				Name:    "subnetallocation_resource_type",
+				Unique:  false,
+				Columns: []*schema.Column{SubnetAllocationsColumns[2]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -1742,6 +1826,40 @@ var (
 				Name:    "vlanallocation_allocated_at",
 				Unique:  false,
 				Columns: []*schema.Column{VlanAllocationsColumns[5]},
+			},
+		},
+	}
+	// VersionsColumns holds the columns for the "versions" table.
+	VersionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "version", Type: field.TypeInt64, Unique: true},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "checksum", Type: field.TypeString, Size: 64},
+		{Name: "applied", Type: field.TypeBool, Default: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "execution_time_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "applied_at", Type: field.TypeTime},
+	}
+	// VersionsTable holds the schema information for the "versions" table.
+	VersionsTable = &schema.Table{
+		Name:       "versions",
+		Columns:    VersionsColumns,
+		PrimaryKey: []*schema.Column{VersionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "version_version",
+				Unique:  false,
+				Columns: []*schema.Column{VersionsColumns[1]},
+			},
+			{
+				Name:    "version_applied",
+				Unique:  false,
+				Columns: []*schema.Column{VersionsColumns[4]},
+			},
+			{
+				Name:    "version_applied_at",
+				Unique:  false,
+				Columns: []*schema.Column{VersionsColumns[7]},
 			},
 		},
 	}
@@ -1864,6 +1982,7 @@ var (
 		NotificationSettingsTable,
 		PortAllocationsTable,
 		PortKnockSequencesTable,
+		ProvisioningSessionsTable,
 		ResourcesTable,
 		ResourceEventsTable,
 		RoutersTable,
@@ -1871,14 +1990,15 @@ var (
 		RouterSecretsTable,
 		RoutingChainsTable,
 		RoutingSchedulesTable,
-		SchemaVersionsTable,
 		ServiceDependenciesTable,
 		ServiceInstancesTable,
 		ServiceTemplatesTable,
 		ServiceTrafficHourliesTable,
 		SessionsTable,
+		SubnetAllocationsTable,
 		UsersTable,
 		VlanAllocationsTable,
+		VersionsTable,
 		VirtualInterfacesTable,
 		WebhooksTable,
 	}
@@ -1900,6 +2020,7 @@ func init() {
 	PortAllocationsTable.ForeignKeys[0].RefTable = RoutersTable
 	PortAllocationsTable.ForeignKeys[1].RefTable = ServiceInstancesTable
 	PortKnockSequencesTable.ForeignKeys[0].RefTable = RoutersTable
+	ProvisioningSessionsTable.ForeignKeys[0].RefTable = RoutersTable
 	ResourceEventsTable.ForeignKeys[0].RefTable = ResourcesTable
 	RouterSecretsTable.ForeignKeys[0].RefTable = RoutersTable
 	RoutingChainsTable.ForeignKeys[0].RefTable = RoutersTable
@@ -1910,6 +2031,7 @@ func init() {
 	ServiceTemplatesTable.ForeignKeys[0].RefTable = RoutersTable
 	ServiceTrafficHourliesTable.ForeignKeys[0].RefTable = ServiceInstancesTable
 	SessionsTable.ForeignKeys[0].RefTable = UsersTable
+	SubnetAllocationsTable.ForeignKeys[0].RefTable = RoutersTable
 	VlanAllocationsTable.ForeignKeys[0].RefTable = RoutersTable
 	VlanAllocationsTable.ForeignKeys[1].RefTable = ServiceInstancesTable
 	VirtualInterfacesTable.ForeignKeys[0].RefTable = ServiceInstancesTable

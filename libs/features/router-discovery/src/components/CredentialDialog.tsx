@@ -148,7 +148,7 @@ export const CredentialDialog = memo(function CredentialDialog({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-background dark:bg-surface-elevated2 rounded-lg shadow-modal max-w-md w-full"
+              className="bg-card rounded-lg shadow-modal max-w-md w-full"
             >
               {/* Header */}
               <div className="px-6 pt-6 pb-4 border-b border-border">
@@ -185,7 +185,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isValidating}
                       placeholder="admin"
-                      className={cn('w-full px-3 py-2 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
+                      className={cn('w-full px-3 py-2 border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
                       autoFocus
                     />
                   </div>
@@ -206,7 +206,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={isValidating}
                         placeholder="Enter password"
-                        className={cn('w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
+                        className={cn('w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
                       />
                       <button
                         type="button"
@@ -262,7 +262,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                       checked={saveCredentials}
                       onChange={(e) => setSaveCredentials(e.target.checked)}
                       disabled={isValidating}
-                      className={cn('h-4 w-4 rounded disabled:opacity-50', 'focus-visible:ring-2 focus-visible:ring-ring')}
+                      className={cn('h-4 w-4 rounded disabled:opacity-50', 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2')}
                     />
                     <label
                       htmlFor="saveCredentials"
@@ -279,13 +279,13 @@ export const CredentialDialog = memo(function CredentialDialog({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="p-3 bg-destructive/10 border border-destructive/20 rounded-md"
+                        className="p-3 bg-error/10 border border-error/20 rounded-md"
                         role="alert"
                       >
                         <div className="flex">
                           <div className="flex-shrink-0">
                             <svg
-                              className="h-5 w-5 text-destructive"
+                              className="h-5 w-5 text-error"
                               viewBox="0 0 20 20"
                               fill="currentColor"
                               aria-hidden="true"
@@ -298,7 +298,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm text-destructive">
+                            <p className="text-sm text-error">
                               {validationError}
                             </p>
                           </div>
@@ -339,7 +339,7 @@ export const CredentialDialog = memo(function CredentialDialog({
               <div className="px-6 py-4 bg-muted border-t border-border rounded-b-lg">
                 <p className="text-xs text-muted-foreground">
                   💡 Default MikroTik credentials: username{' '}
-                  <code className="px-1 py-0.5 bg-surface-elevated1 rounded">
+                  <code className="px-1 py-0.5 bg-card rounded font-mono">
                     admin
                   </code>{' '}
                   with empty password

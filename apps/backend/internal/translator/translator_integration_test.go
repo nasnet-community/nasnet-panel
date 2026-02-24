@@ -118,6 +118,7 @@ func TestIntegration_TranslatingPort_Query(t *testing.T) {
 }
 
 // TestIntegration_TranslatingPort_CRUD tests create, read, update, delete operations.
+// Uses sequential subtests with explicit bridgeID sharing to avoid parallel execution issues.
 func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 	config := getCHRConfig()
 
@@ -127,7 +128,7 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 
 	err := adapter.Connect(ctx)
 	if err != nil {
-		t.Skipf("Skipping integration test: cannot connect to CHR: %v", err)
+		t.Skipf("Skipping integration test: cannot connect to CHR: %w", err)
 	}
 	defer adapter.Disconnect()
 
@@ -135,12 +136,15 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 	tp := NewTranslatingPort(adapter, translator)
 
 	testBridgeName := "test-bridge-" + time.Now().Format("150405")
+	var bridgeID string
 
-	// Cleanup: ensure bridge doesn't exist before test
-	defer func() {
-		// Try to remove the test bridge if it exists
-		tp.Delete(ctx, "/interface/bridge", "*"+testBridgeName, CommandMetadata{})
-	}()
+	// Cleanup: ensure bridge doesn't exist after test
+	t.Cleanup(func() {
+		// Only attempt cleanup if bridge was created
+		if bridgeID != "" {
+			tp.Delete(ctx, "/interface/bridge", bridgeID, CommandMetadata{})
+		}
+	})
 
 	// Test: Create
 	t.Run("create bridge", func(t *testing.T) {
@@ -152,11 +156,15 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, result.Success, "create should succeed: %v", result.Error)
 		assert.NotEmpty(t, result.ID, "should return created ID")
+		bridgeID = result.ID
 	})
 
 	// Test: Get created bridge
-	var bridgeID string
 	t.Run("get created bridge", func(t *testing.T) {
+		if bridgeID == "" {
+			t.Skip("bridge was not created in prior subtest")
+		}
+
 		// Query to find the bridge by name
 		result, err := tp.Query(ctx, "/interface/bridge", map[string]interface{}{
 			"name": testBridgeName,
@@ -169,7 +177,6 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 		require.True(t, ok)
 		require.Len(t, data, 1, "should find exactly one bridge")
 
-		bridgeID = data[0]["id"].(string)
 		assert.Equal(t, testBridgeName, data[0]["name"])
 		assert.Equal(t, "Integration test bridge", data[0]["comment"])
 	})
@@ -177,7 +184,7 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 	// Test: Update
 	t.Run("update bridge", func(t *testing.T) {
 		if bridgeID == "" {
-			t.Skip("bridge ID not found")
+			t.Skip("bridge was not created in prior subtests")
 		}
 
 		result, err := tp.Update(ctx, "/interface/bridge", bridgeID, map[string]interface{}{
@@ -191,7 +198,7 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 	// Test: Verify update
 	t.Run("verify update", func(t *testing.T) {
 		if bridgeID == "" {
-			t.Skip("bridge ID not found")
+			t.Skip("bridge was not created in prior subtests")
 		}
 
 		result, err := tp.Get(ctx, "/interface/bridge", bridgeID, CommandMetadata{})
@@ -212,7 +219,7 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 	// Test: Delete
 	t.Run("delete bridge", func(t *testing.T) {
 		if bridgeID == "" {
-			t.Skip("bridge ID not found")
+			t.Skip("bridge was not created in prior subtests")
 		}
 
 		result, err := tp.Delete(ctx, "/interface/bridge", bridgeID, CommandMetadata{OperationName: "DeleteBridge"})
@@ -222,6 +229,10 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 
 	// Test: Verify deletion
 	t.Run("verify deletion", func(t *testing.T) {
+		if bridgeID == "" {
+			t.Skip("bridge was not created in prior subtests")
+		}
+
 		result, err := tp.Query(ctx, "/interface/bridge", map[string]interface{}{
 			"name": testBridgeName,
 		}, nil, CommandMetadata{})
@@ -235,6 +246,7 @@ func TestIntegration_TranslatingPort_CRUD(t *testing.T) {
 }
 
 // TestIntegration_VersionDetection tests that the translator correctly detects RouterOS version.
+// Validates that version-aware field and path translation works based on detected version.
 func TestIntegration_VersionDetection(t *testing.T) {
 	config := getCHRConfig()
 
@@ -244,13 +256,13 @@ func TestIntegration_VersionDetection(t *testing.T) {
 
 	err := adapter.Connect(ctx)
 	if err != nil {
-		t.Skipf("Skipping integration test: cannot connect to CHR: %v", err)
+		t.Skipf("Skipping integration test: cannot connect to CHR: %w", err)
 	}
 	defer adapter.Disconnect()
 
 	// Get router info
 	info, err := adapter.Info()
-	require.NoError(t, err)
+	require.NoError(t, err, "failed to get router info: %w", err)
 	require.NotNil(t, info)
 
 	t.Logf("Connected to RouterOS %s (CHR)", info.Version.String())
@@ -269,10 +281,20 @@ func TestIntegration_VersionDetection(t *testing.T) {
 		t.Logf("Translator version: %s", translator.version.String())
 		assert.Equal(t, info.Version.Major, translator.version.Major)
 		assert.Equal(t, info.Version.Minor, translator.version.Minor)
+
+		// Verify version-aware path translation works
+		// v6.x uses space-separated paths, v7.x uses slash-separated
+		ipAddressPath := translator.TranslatePath("ip.address")
+		if info.Version.Major >= 7 {
+			assert.Equal(t, "/ip/address", ipAddressPath, "v7+ should use slash-separated paths")
+		} else if info.Version.Major == 6 {
+			assert.Equal(t, "/ip address", ipAddressPath, "v6 should use space-separated paths")
+		}
 	}
 }
 
-// TestIntegration_BatchExecution tests batch command execution.
+// TestIntegration_BatchExecution tests batch command execution with version-aware path translation.
+// Verifies that batch operations work correctly with both v6 and v7 routers.
 func TestIntegration_BatchExecution(t *testing.T) {
 	config := getCHRConfig()
 
@@ -282,7 +304,7 @@ func TestIntegration_BatchExecution(t *testing.T) {
 
 	err := adapter.Connect(ctx)
 	if err != nil {
-		t.Skipf("Skipping integration test: cannot connect to CHR: %v", err)
+		t.Skipf("Skipping integration test: cannot connect to CHR: %w", err)
 	}
 	defer adapter.Disconnect()
 

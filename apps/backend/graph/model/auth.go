@@ -6,7 +6,7 @@ import (
 
 // AuthPayload represents the response from a successful login
 type AuthPayload struct {
-	Token     string    `json:"token"`
+	Token     string    `json:"-"`
 	User      *User     `json:"user"`
 	ExpiresAt time.Time `json:"expiresAt"`
 }

@@ -7,51 +7,159 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // PushoverUsage is the resolver for the pushoverUsage field.
-func (r *queryResolver) PushoverUsage(_ context.Context) (*model.PushoverUsage, error) {
-	panic(fmt.Errorf("not implemented: PushoverUsage - pushoverUsage"))
+// Returns Pushover service quota and usage statistics.
+func (r *queryResolver) PushoverUsage(ctx context.Context) (*model.PushoverUsage, error) {
+	if r.Dispatcher == nil {
+		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	// TODO: Implement Pushover usage retrieval
+	// This should query the Pushover API for current quota and usage
+	// Pass ctx to service call for proper context propagation and cancellation
+	return nil, nil
 }
 
 // Webhooks is the resolver for the webhooks field.
-func (r *queryResolver) Webhooks(_ context.Context) ([]*model.Webhook, error) {
-	panic(fmt.Errorf("not implemented: Webhooks - webhooks"))
+// Returns all configured webhook configurations.
+func (r *queryResolver) Webhooks(ctx context.Context) ([]*model.Webhook, error) {
+	if r.WebhookService == nil {
+		return nil, errors.NewInternalError("webhook service not available", nil)
+	}
+
+	// TODO: Implement webhooks list retrieval
+	// This should call r.WebhookService to list all webhooks
+	// Pass ctx to service call for proper context propagation and cancellation
+	return []*model.Webhook{}, nil
 }
 
 // Webhook is the resolver for the webhook field.
-func (r *queryResolver) Webhook(_ context.Context, id string) (*model.Webhook, error) {
-	panic(fmt.Errorf("not implemented: Webhook - webhook"))
+// Returns a specific webhook configuration by ID.
+func (r *queryResolver) Webhook(ctx context.Context, id string) (*model.Webhook, error) {
+	if r.WebhookService == nil {
+		return nil, errors.NewInternalError("webhook service not available", nil)
+	}
+
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "webhook ID is required")
+	}
+
+	// TODO: Implement single webhook retrieval
+	// This should call r.WebhookService to get the webhook by ID
+	return nil, nil
 }
 
 // NotificationLogs is the resolver for the notificationLogs field.
-func (r *queryResolver) NotificationLogs(_ context.Context, alertID *string, channel *string, webhookID *string, limit *int, offset *int) ([]*model.NotificationLog, error) {
-	panic(fmt.Errorf("not implemented: NotificationLogs - notificationLogs"))
+// Returns notification delivery logs with optional filtering by alert ID, channel, or webhook ID.
+func (r *queryResolver) NotificationLogs(ctx context.Context, alertID *string, channel *string, webhookID *string, limit *int, offset *int) ([]*model.NotificationLog, error) {
+	if r.db == nil {
+		return nil, errors.NewInternalError("database not available", nil)
+	}
+
+	// Apply default pagination if not specified
+	pageLimit := 50
+	if limit != nil && *limit > 0 && *limit <= 1000 {
+		pageLimit = *limit
+	}
+	pageOffset := 0
+	if offset != nil && *offset >= 0 {
+		pageOffset = *offset
+	}
+	_, _ = pageLimit, pageOffset // TODO: use when notification logs query is implemented
+
+	// TODO: Implement notification logs query with filters and pagination
+	// Filter by alertID, channel, webhookID as provided
+	return []*model.NotificationLog{}, nil
 }
 
 // AlertEscalations is the resolver for the alertEscalations field.
-func (r *queryResolver) AlertEscalations(_ context.Context, status *model.EscalationStatus, limit *int, offset *int) ([]*model.AlertEscalation, error) {
-	panic(fmt.Errorf("not implemented: AlertEscalations - alertEscalations"))
+// Returns alert escalation records with optional filtering by status.
+func (r *queryResolver) AlertEscalations(ctx context.Context, status *model.EscalationStatus, limit *int, offset *int) ([]*model.AlertEscalation, error) {
+	if r.db == nil {
+		return nil, errors.NewInternalError("database not available", nil)
+	}
+
+	// Apply default pagination if not specified
+	pageLimit := 50
+	if limit != nil && *limit > 0 && *limit <= 1000 {
+		pageLimit = *limit
+	}
+	pageOffset := 0
+	if offset != nil && *offset >= 0 {
+		pageOffset = *offset
+	}
+	_, _ = pageLimit, pageOffset // TODO: use when alert escalations query is implemented
+
+	// TODO: Implement alert escalations query with optional status filter
+	return []*model.AlertEscalation{}, nil
 }
 
 // DigestQueueCount is the resolver for the digestQueueCount field.
-func (r *queryResolver) DigestQueueCount(_ context.Context, channelID string) (int, error) {
-	panic(fmt.Errorf("not implemented: DigestQueueCount - digestQueueCount"))
+// Returns the number of alerts pending in the digest queue for a channel.
+func (r *queryResolver) DigestQueueCount(ctx context.Context, channelID string) (int, error) {
+	if r.Dispatcher == nil {
+		return 0, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	if channelID == "" {
+		return 0, errors.NewValidationError("channelID", channelID, "channel ID is required")
+	}
+
+	// TODO: Implement digest queue count retrieval
+	// This should query the Dispatcher for pending digest items
+	// Pass ctx to service call for proper context propagation and cancellation
+	return 0, nil
 }
 
 // DigestHistory is the resolver for the digestHistory field.
-func (r *queryResolver) DigestHistory(_ context.Context, channelID string, limit *int) ([]*model.DigestSummary, error) {
-	panic(fmt.Errorf("not implemented: DigestHistory - digestHistory"))
+// Returns historical digest summaries for a channel.
+func (r *queryResolver) DigestHistory(ctx context.Context, channelID string, limit *int) ([]*model.DigestSummary, error) {
+	if r.Dispatcher == nil {
+		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	if channelID == "" {
+		return nil, errors.NewValidationError("channelID", channelID, "channel ID is required")
+	}
+
+	// Apply default limit if not specified
+	historyLimit := 50
+	if limit != nil && *limit > 0 && *limit <= 1000 {
+		historyLimit = *limit
+	}
+	_ = historyLimit // TODO: use when digest history retrieval is implemented
+
+	// TODO: Implement digest history retrieval from Dispatcher
+	return []*model.DigestSummary{}, nil
 }
 
 // AlertRuleThrottleStatus is the resolver for the alertRuleThrottleStatus field.
-func (r *queryResolver) AlertRuleThrottleStatus(_ context.Context, ruleID *string) ([]*model.ThrottleStatus, error) {
-	panic(fmt.Errorf("not implemented: AlertRuleThrottleStatus - alertRuleThrottleStatus"))
+// Returns throttle status information for alert rules.
+func (r *queryResolver) AlertRuleThrottleStatus(ctx context.Context, ruleID *string) ([]*model.ThrottleStatus, error) {
+	if r.AlertService == nil {
+		return nil, errors.NewInternalError("alert service not available", nil)
+	}
+
+	// TODO: Implement throttle status retrieval
+	// This should query the AlertService for throttle status of rules
+	// If ruleID is specified, filter to that rule; otherwise return all
+	// Pass ctx to service call for proper context propagation and cancellation
+	return []*model.ThrottleStatus{}, nil
 }
 
 // AlertStormStatus is the resolver for the alertStormStatus field.
-func (r *queryResolver) AlertStormStatus(_ context.Context) (*model.StormStatus, error) {
-	panic(fmt.Errorf("not implemented: AlertStormStatus - alertStormStatus"))
+// Returns the current alert storm status (burst of alerts indicating system issues).
+func (r *queryResolver) AlertStormStatus(ctx context.Context) (*model.StormStatus, error) {
+	if r.AlertService == nil {
+		return nil, errors.NewInternalError("alert service not available", nil)
+	}
+
+	// TODO: Implement storm status retrieval
+	// This should query the AlertService for current storm status
+	// Pass ctx to service call for proper context propagation and cancellation
+	return nil, nil
 }

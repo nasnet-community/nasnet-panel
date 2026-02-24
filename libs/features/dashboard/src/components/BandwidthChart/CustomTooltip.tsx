@@ -48,7 +48,7 @@ export const CustomTooltip = memo<CustomTooltipProps>(
     return (
       <div
         className={cn(
-          'rounded-lg border bg-background p-3 shadow-lg',
+          'rounded-card-sm border-border border bg-card p-component-md shadow-lg',
           'text-sm',
           // Ensure proper contrast for accessibility (WCAG AAA)
           'contrast-more:border-2'
@@ -57,7 +57,7 @@ export const CustomTooltip = memo<CustomTooltipProps>(
         aria-live="polite"
       >
         {/* Timestamp */}
-        <p className="mb-2 text-muted-foreground">
+        <p className="mb-component-sm text-muted-foreground font-mono">
           {timestamp.toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -66,42 +66,40 @@ export const CustomTooltip = memo<CustomTooltipProps>(
         </p>
 
         {/* Traffic rates */}
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           {/* TX Rate */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <span
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: '#3B82F6' }}
+              className="h-3 w-3 rounded-full bg-secondary"
               aria-hidden="true"
             />
             <span className="font-medium">TX:</span>
-            <span>{formatBitrate(txData?.value || 0)}</span>
+            <span className="font-mono">{formatBitrate(txData?.value || 0)}</span>
           </div>
 
           {/* RX Rate */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <span
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: '#22C55E' }}
+              className="h-3 w-3 rounded-full bg-success"
               aria-hidden="true"
             />
             <span className="font-medium">RX:</span>
-            <span>{formatBitrate(rxData?.value || 0)}</span>
+            <span className="font-mono">{formatBitrate(rxData?.value || 0)}</span>
           </div>
         </div>
 
         {/* Total bytes (if available) */}
         {dataPoint && (
           <>
-            <hr className="my-2 border-border" />
-            <div className="space-y-1 text-xs text-muted-foreground">
+            <hr className="my-component-sm border-border" />
+            <div className="space-y-component-sm text-xs text-muted-foreground">
               <p>
                 <span className="font-medium">TX Total:</span>{' '}
-                {formatBytes(dataPoint.txBytes)}
+                <span className="font-mono">{formatBytes(dataPoint.txBytes)}</span>
               </p>
               <p>
                 <span className="font-medium">RX Total:</span>{' '}
-                {formatBytes(dataPoint.rxBytes)}
+                <span className="font-mono">{formatBytes(dataPoint.rxBytes)}</span>
               </p>
             </div>
           </>

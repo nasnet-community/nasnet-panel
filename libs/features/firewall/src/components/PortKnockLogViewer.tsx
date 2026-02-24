@@ -239,9 +239,9 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
 
   if (error) {
     return (
-      <div className={cn('p-4 rounded-lg bg-destructive/10', className)}>
-        <p className="font-medium text-destructive">Error loading port knock log</p>
-        <p className="text-sm text-destructive/80 mt-1">{error.message}</p>
+      <div className={cn('p-component-md rounded-card-sm bg-error/10', className)}>
+        <p className="font-medium text-error">Error loading port knock log</p>
+        <p className="text-sm text-error/80 mt-1">{error.message}</p>
       </div>
     );
   }
@@ -311,7 +311,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                           className={cn(
                             'h-full rounded-full transition-all',
                             attempt.status === 'success' && 'bg-success',
-                            attempt.status === 'failed' && 'bg-destructive',
+                            attempt.status === 'failed' && 'bg-error',
                             attempt.status === 'partial' && 'bg-warning'
                           )}
                           style={{
@@ -349,7 +349,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                         size="sm"
                         aria-label="Block this IP address"
                       >
-                        <Ban className="h-4 w-4 text-destructive" aria-hidden="true" />
+                        <Ban className="h-4 w-4 text-error" aria-hidden="true" />
                       </Button>
                     )}
                   </TableCell>
@@ -382,7 +382,5 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
     </div>
   );
 };
-
-PortKnockLogViewer.displayName = 'PortKnockLogViewer';
 
 PortKnockLogViewer.displayName = 'PortKnockLogViewer';

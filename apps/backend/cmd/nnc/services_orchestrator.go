@@ -4,7 +4,7 @@
 package main
 
 import (
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/bootstrap"
@@ -20,7 +20,7 @@ func initOrchestrator(
 	storage *bootstrap.StorageComponents,
 	vif *bootstrap.VIFComponents,
 	routerPort *router.MockAdapter,
-	logger zerolog.Logger,
+	sugar *zap.SugaredLogger,
 ) (*bootstrap.OrchestratorComponents, error) {
 
 	return bootstrap.InitializeOrchestrator(
@@ -31,6 +31,6 @@ func initOrchestrator(
 		vif.BridgeOrchestrator,
 		vif.NetworkVLANAllocator,
 		routerPort,
-		logger,
+		sugar,
 	)
 }

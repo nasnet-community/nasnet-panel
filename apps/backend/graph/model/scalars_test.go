@@ -125,7 +125,8 @@ func TestMAC_UnmarshalGQL_ValidAddresses(t *testing.T) {
 	}{
 		{"colon separated", "00:1A:2B:3C:4D:5E", "00:1A:2B:3C:4D:5E"},
 		{"dash separated", "00-1A-2B-3C-4D-5E", "00-1A-2B-3C-4D-5E"},
-		{"lowercase", "aa:bb:cc:dd:ee:ff", "AA:BB:CC:DD:EE:FF"},
+		{"lowercase colon", "aa:bb:cc:dd:ee:ff", "AA:BB:CC:DD:EE:FF"},
+		{"lowercase dash", "aa-bb-cc-dd-ee-ff", "AA-BB-CC-DD-EE-FF"},
 		{"mixed case", "Aa:Bb:Cc:Dd:Ee:Ff", "AA:BB:CC:DD:EE:FF"},
 		{"all zeros", "00:00:00:00:00:00", "00:00:00:00:00:00"},
 		{"all max", "FF:FF:FF:FF:FF:FF", "FF:FF:FF:FF:FF:FF"},
@@ -348,6 +349,10 @@ func TestDuration_UnmarshalGQL_InvalidDurations(t *testing.T) {
 		{"negative", "-5s"},
 		{"letters only", "abc"},
 		{"non-string type", 30},
+		{"duplicate units", "1d1d"},
+		{"wrong order", "30s1d"},
+		{"unit without value", "d"},
+		{"spaces", "1d 2h"},
 	}
 
 	for _, tt := range tests {

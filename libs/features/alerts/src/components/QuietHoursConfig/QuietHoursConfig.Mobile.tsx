@@ -66,9 +66,9 @@ function QuietHoursConfigMobileComponent({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6 px-4">
+      <CardContent className="space-y-component-lg p-component-md">
         {/* Time Range */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <TimeRangeInput
             startTime={startTime}
             endTime={endTime}
@@ -77,7 +77,7 @@ function QuietHoursConfigMobileComponent({
           />
 
           {/* Duration display */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-component-sm rounded-[var(--semantic-radius-button)]">
             <Clock className="h-5 w-5" aria-hidden="true" />
             <span>
               {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
@@ -95,7 +95,7 @@ function QuietHoursConfigMobileComponent({
         </div>
 
         {/* Days of Week */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <Label className="text-base font-medium">
             {t('quietHours.activeDays')}
           </Label>
@@ -115,7 +115,7 @@ function QuietHoursConfigMobileComponent({
         </div>
 
         {/* Bypass Critical Alerts */}
-        <div className="space-y-3 pb-4 border-b border-border">
+        <div className="space-y-component-sm pb-component-md border-b border-border">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1 flex-1">
               <Label

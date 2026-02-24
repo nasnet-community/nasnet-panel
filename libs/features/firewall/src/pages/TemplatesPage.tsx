@@ -236,17 +236,17 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
   const existingTemplateNames = allTemplates.map((t) => t.name);
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('templates.title')}</h1>
+          <h1 className="text-3xl font-display font-bold">{t('templates.title')}</h1>
           <p className="text-muted-foreground">
             {t('templates.subtitle')}
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           {/* Export All Custom Templates */}
           {customTemplates.length > 0 && (
             <Button variant="outline" onClick={handleExportAllCustom} aria-label={t('templates.buttons.exportCustom')}>
@@ -303,8 +303,8 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
 
           {/* Error State */}
           {builtInError && (
-            <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-              <p className="text-sm text-destructive">
+            <div className="rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md">
+              <p className="text-sm text-error">
                 {t('templates.errors.loadFailed')}
               </p>
             </div>
@@ -312,11 +312,11 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
 
           {/* Empty State */}
           {!isLoading && allTemplates.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center">
+            <div className="flex flex-col items-center justify-center gap-component-md rounded-[var(--semantic-radius-card)] border-2 border-dashed border-border p-component-xl text-center">
               <Settings className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
               <div>
-                <h3 className="text-lg font-semibold">{t('templates.emptyStates.noTemplates.title')}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <h3 className="text-lg font-display font-semibold">{t('templates.emptyStates.noTemplates.title')}</h3>
+                <p className="mt-component-sm text-sm text-muted-foreground">
                   {currentRules.length > 0
                     ? t('templates.emptyStates.noTemplates.descriptionWithRules')
                     : t('templates.emptyStates.noTemplates.description')}

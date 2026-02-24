@@ -2,6 +2,7 @@ package encryption
 
 import (
 	"encoding/base64"
+	"errors"
 	"os"
 	"strings"
 	"sync"
@@ -584,4 +585,147 @@ func TestNISTCompliance(t *testing.T) {
 	tamperedCiphertext := base64.StdEncoding.EncodeToString(tamperedData)
 	_, err = svc.Decrypt(tamperedCiphertext)
 	assert.ErrorIs(t, err, ErrDecryptionFailed, "tampered ciphertext should fail authentication")
+
+	// Tamper with authentication tag (last 16 bytes)
+	tamperedTag := make([]byte, len(data))
+	copy(tamperedTag, data)
+	tamperedTag[len(tamperedTag)-1] ^= 0x01
+
+	tamperedTagCiphertext := base64.StdEncoding.EncodeToString(tamperedTag)
+	_, err = svc.Decrypt(tamperedTagCiphertext)
+	assert.ErrorIs(t, err, ErrDecryptionFailed, "tampering with auth tag should fail verification")
+}
+
+func TestDeriveKeyFromPassword(t *testing.T) {
+	tests := []struct {
+		name       string
+		password   string
+		salt       []byte
+		iterations int
+		wantErr    error
+	}{
+		{
+			name:       "valid password derivation",
+			password:   "mypassword123",
+			salt:       make([]byte, 16), // 16-byte salt
+			iterations: 100000,
+			wantErr:    nil,
+		},
+		{
+			name:       "empty password",
+			password:   "",
+			salt:       make([]byte, 16),
+			iterations: 100000,
+			wantErr:    errors.New("password cannot be empty"),
+		},
+		{
+			name:       "invalid salt length",
+			password:   "password",
+			salt:       make([]byte, 8), // Wrong size
+			iterations: 100000,
+			wantErr:    errors.New("salt must be 16 bytes"),
+		},
+		{
+			name:       "insufficient iterations",
+			password:   "password",
+			salt:       make([]byte, 16),
+			iterations: 50000, // Too low
+			wantErr:    errors.New("iterations must be at least 100000"),
+		},
+		{
+			name:       "high iteration count",
+			password:   "strong-password",
+			salt:       make([]byte, 16),
+			iterations: 250000,
+			wantErr:    nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			key, err := DeriveKeyFromPassword(tt.password, tt.salt, tt.iterations)
+
+			if tt.wantErr != nil {
+				assert.ErrorContains(t, err, tt.wantErr.Error())
+				assert.Nil(t, key)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, key)
+				assert.Len(t, key, KeySize)
+
+				// Derived key should be usable
+				svc, err := NewService(Config{Key: key})
+				require.NoError(t, err)
+				assert.NotNil(t, svc)
+			}
+		})
+	}
+
+	// Test that different passwords produce different keys
+	password1 := "password1"
+	password2 := "password2"
+	salt := make([]byte, 16)
+
+	key1, err := DeriveKeyFromPassword(password1, salt, 100000)
+	require.NoError(t, err)
+
+	key2, err := DeriveKeyFromPassword(password2, salt, 100000)
+	require.NoError(t, err)
+
+	assert.NotEqual(t, key1, key2, "different passwords should produce different keys")
+
+	// Test that same password with different salts produce different keys
+	salt1 := make([]byte, 16)
+	salt2 := make([]byte, 16)
+	salt2[0] = 0xFF
+
+	key3, err := DeriveKeyFromPassword(password1, salt1, 100000)
+	require.NoError(t, err)
+
+	key4, err := DeriveKeyFromPassword(password1, salt2, 100000)
+	require.NoError(t, err)
+
+	assert.NotEqual(t, key3, key4, "different salts should produce different keys")
+}
+
+func TestGenerateSalt(t *testing.T) {
+	salts := make(map[string]bool)
+
+	// Generate multiple salts
+	for i := 0; i < 50; i++ {
+		salt, err := GenerateSalt()
+		require.NoError(t, err)
+
+		// Salt should be exactly 16 bytes
+		assert.Len(t, salt, 16)
+
+		// Salt should be unique (extremely high probability)
+		saltStr := string(salt)
+		assert.False(t, salts[saltStr], "generated salt should be unique")
+		salts[saltStr] = true
+	}
+}
+
+func TestDeriveKeyFromPasswordRoundTrip(t *testing.T) {
+	// Test that a key derived from a password can be used for encryption
+	password := "my-secret-password"
+	salt := make([]byte, 16)
+
+	// Derive key
+	key, err := DeriveKeyFromPassword(password, salt, 100000)
+	require.NoError(t, err)
+
+	// Create service with derived key
+	svc, err := NewService(Config{Key: key})
+	require.NoError(t, err)
+
+	// Encrypt and decrypt
+	plaintext := "sensitive data"
+	ciphertext, err := svc.Encrypt(plaintext)
+	require.NoError(t, err)
+
+	decrypted, err := svc.Decrypt(ciphertext)
+	require.NoError(t, err)
+
+	assert.Equal(t, plaintext, decrypted)
 }

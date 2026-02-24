@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"backend/internal/connection"
-
 	"backend/internal/events"
 	"backend/internal/router"
 )

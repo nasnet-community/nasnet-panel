@@ -7,46 +7,157 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
 	"fmt"
 )
 
 // CreatePortKnockSequence is the resolver for the createPortKnockSequence field.
-func (r *mutationResolver) CreatePortKnockSequence(_ context.Context, routerID string, input model.PortKnockSequenceInput) (*model.PortKnockSequence, error) {
-	panic(fmt.Errorf("not implemented: CreatePortKnockSequence - createPortKnockSequence"))
+func (r *mutationResolver) CreatePortKnockSequence(ctx context.Context, routerID string, input model.PortKnockSequenceInput) (*model.PortKnockSequence, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if input.Name == "" {
+		return nil, errors.NewValidationError("input", nil, "name is required")
+	}
+	if len(input.KnockPorts) == 0 {
+		return nil, errors.NewValidationError("input", nil, "at least one port in sequence is required")
+	}
+
+	// Validation: each knock port
+	for i, kp := range input.KnockPorts {
+		if kp == nil {
+			return nil, errors.NewValidationError("knockPorts", nil, fmt.Sprintf("knock port at index %d is nil", i))
+		}
+		if kp.Port < 1 || kp.Port > 65535 {
+			return nil, errors.NewValidationError("knockPorts", kp.Port, fmt.Sprintf("knock port at index %d is out of valid range (1-65535)", i))
+		}
+	}
+
+	// Validation: protected port
+	if input.ProtectedPort < 1 || input.ProtectedPort > 65535 {
+		return nil, errors.NewValidationError("input", nil, "protectedPort must be between 1 and 65535")
+	}
+
+	// TODO: Implement CreatePortKnockSequence - create new port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: CreatePortKnockSequence - createPortKnockSequence"))
 }
 
 // UpdatePortKnockSequence is the resolver for the updatePortKnockSequence field.
-func (r *mutationResolver) UpdatePortKnockSequence(_ context.Context, routerID string, id string, input model.PortKnockSequenceInput) (*model.PortKnockSequence, error) {
-	panic(fmt.Errorf("not implemented: UpdatePortKnockSequence - updatePortKnockSequence"))
+func (r *mutationResolver) UpdatePortKnockSequence(ctx context.Context, routerID string, id string, input model.PortKnockSequenceInput) (*model.PortKnockSequence, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+	if input.Name == "" {
+		return nil, errors.NewValidationError("input", nil, "name is required")
+	}
+	if len(input.KnockPorts) == 0 {
+		return nil, errors.NewValidationError("input", nil, "at least one port in sequence is required")
+	}
+
+	// Validation: each knock port
+	for i, kp := range input.KnockPorts {
+		if kp == nil {
+			return nil, errors.NewValidationError("knockPorts", nil, fmt.Sprintf("knock port at index %d is nil", i))
+		}
+		if kp.Port < 1 || kp.Port > 65535 {
+			return nil, errors.NewValidationError("knockPorts", kp.Port, fmt.Sprintf("knock port at index %d is out of valid range (1-65535)", i))
+		}
+	}
+
+	// Validation: protected port
+	if input.ProtectedPort < 1 || input.ProtectedPort > 65535 {
+		return nil, errors.NewValidationError("input", nil, "protectedPort must be between 1 and 65535")
+	}
+
+	// TODO: Implement UpdatePortKnockSequence - modify port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: UpdatePortKnockSequence - updatePortKnockSequence"))
 }
 
 // DeletePortKnockSequence is the resolver for the deletePortKnockSequence field.
-func (r *mutationResolver) DeletePortKnockSequence(_ context.Context, routerID string, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeletePortKnockSequence - deletePortKnockSequence"))
+func (r *mutationResolver) DeletePortKnockSequence(ctx context.Context, routerID string, id string) (bool, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return false, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return false, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement DeletePortKnockSequence - remove port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: DeletePortKnockSequence - deletePortKnockSequence"))
 }
 
 // TogglePortKnockSequence is the resolver for the togglePortKnockSequence field.
-func (r *mutationResolver) TogglePortKnockSequence(_ context.Context, routerID string, id string, enabled bool) (*model.PortKnockSequence, error) {
-	panic(fmt.Errorf("not implemented: TogglePortKnockSequence - togglePortKnockSequence"))
+func (r *mutationResolver) TogglePortKnockSequence(ctx context.Context, routerID string, id string, enabled bool) (*model.PortKnockSequence, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement TogglePortKnockSequence - enable/disable port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: TogglePortKnockSequence - togglePortKnockSequence"))
 }
 
 // TestPortKnockSequence is the resolver for the testPortKnockSequence field.
-func (r *mutationResolver) TestPortKnockSequence(_ context.Context, routerID string, id string) (*model.TestPortKnockResult, error) {
-	panic(fmt.Errorf("not implemented: TestPortKnockSequence - testPortKnockSequence"))
+func (r *mutationResolver) TestPortKnockSequence(ctx context.Context, routerID string, id string) (*model.TestPortKnockResult, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement TestPortKnockSequence - test port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: TestPortKnockSequence - testPortKnockSequence"))
 }
 
 // PortKnockSequences is the resolver for the portKnockSequences field.
-func (r *queryResolver) PortKnockSequences(_ context.Context, routerID string) ([]*model.PortKnockSequence, error) {
-	panic(fmt.Errorf("not implemented: PortKnockSequences - portKnockSequences"))
+func (r *queryResolver) PortKnockSequences(ctx context.Context, routerID string) ([]*model.PortKnockSequence, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// TODO: Implement PortKnockSequences - query all port knock sequences from router
+	panic(errors.NewValidationError("input", nil, "not implemented: PortKnockSequences - portKnockSequences"))
 }
 
 // PortKnockSequence is the resolver for the portKnockSequence field.
-func (r *queryResolver) PortKnockSequence(_ context.Context, routerID string, id string) (*model.PortKnockSequence, error) {
-	panic(fmt.Errorf("not implemented: PortKnockSequence - portKnockSequence"))
+func (r *queryResolver) PortKnockSequence(ctx context.Context, routerID string, id string) (*model.PortKnockSequence, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement PortKnockSequence - query specific port knock sequence
+	panic(errors.NewValidationError("input", nil, "not implemented: PortKnockSequence - portKnockSequence"))
 }
 
 // PortKnockLog is the resolver for the portKnockLog field.
-func (r *queryResolver) PortKnockLog(_ context.Context, routerID string, filters *model.PortKnockLogFilters, first *int, after *string) (*model.PortKnockAttemptConnection, error) {
-	panic(fmt.Errorf("not implemented: PortKnockLog - portKnockLog"))
+func (r *queryResolver) PortKnockLog(ctx context.Context, routerID string, filters *model.PortKnockLogFilters, first *int, after *string) (*model.PortKnockAttemptConnection, error) {
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// Validation: pagination
+	if first != nil && *first < 0 {
+		return nil, errors.NewValidationError("input", nil, "first must be non-negative")
+	}
+
+	// TODO: Implement PortKnockLog - query port knock attempts with pagination and filtering
+	panic(errors.NewValidationError("input", nil, "not implemented: PortKnockLog - portKnockLog"))
 }

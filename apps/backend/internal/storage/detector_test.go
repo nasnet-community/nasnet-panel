@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"backend/internal/events"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 // mockPublisher is a test double for events.Publisher that records published events.
@@ -56,7 +56,7 @@ func (m *mockPublisher) Count() int32 {
 // Test_StorageDetector_DetectsUSBFlash verifies USB flash drive detection.
 func Test_StorageDetector_DetectsUSBFlash(t *testing.T) {
 	mockPub := newMockPublisher()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	cfg := StorageDetectorConfig{
 		PollInterval: 100 * time.Millisecond,
@@ -107,7 +107,7 @@ func Test_StorageDetector_DetectsUSBFlash(t *testing.T) {
 // Test_StorageDetector_DetectsSDCard verifies SD card detection with critical threshold.
 func Test_StorageDetector_DetectsSDCard(t *testing.T) {
 	mockPub := newMockPublisher()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	cfg := StorageDetectorConfig{
 		PollInterval: 100 * time.Millisecond,
@@ -157,7 +157,7 @@ func Test_StorageDetector_DetectsSDCard(t *testing.T) {
 // Test_StorageDetector_NoStorageDetected verifies handling of unmounted storage.
 func Test_StorageDetector_NoStorageDetected(t *testing.T) {
 	mockPub := newMockPublisher()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	cfg := StorageDetectorConfig{
 		PollInterval: 100 * time.Millisecond,
@@ -193,7 +193,7 @@ func Test_StorageDetector_NoStorageDetected(t *testing.T) {
 // Test_StorageDetector_EmitsEventsOnTransition verifies mount/unmount transitions emit correct events.
 func Test_StorageDetector_EmitsEventsOnTransition(t *testing.T) {
 	mockPub := newMockPublisher()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	// Create detector that polls frequently
 	cfg := StorageDetectorConfig{
@@ -495,7 +495,7 @@ func Test_SpaceThreshold_EdgeCases(t *testing.T) {
 	}
 
 	mockPub := newMockPublisher()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	cfg := StorageDetectorConfig{
 		PollInterval: 1 * time.Second,

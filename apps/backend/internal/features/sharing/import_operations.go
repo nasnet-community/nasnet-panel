@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 )
 
@@ -110,14 +112,18 @@ func (s *Service) ApplyImport(ctx context.Context, pkg *ServiceExportPackage, op
 	)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
 		// Log but don't fail - event publishing is non-critical
-		fmt.Printf("Warning: failed to publish ServiceConfigImportedEvent: %v\n", err)
+		if s.logger != nil {
+			s.logger.Warn("failed to publish ServiceConfigImportedEvent", zap.Error(err))
+		}
 	}
 
 	// Audit log the import
 	if s.auditService != nil && options.UserID != "" {
 		if err := s.auditService.LogImport(ctx, instance.ID, options.UserID); err != nil {
 			// Log but don't fail - audit logging is non-critical
-			fmt.Printf("Warning: failed to log import audit: %v\n", err)
+			if s.logger != nil {
+				s.logger.Warn("failed to log import audit", zap.Error(err))
+			}
 		}
 	}
 

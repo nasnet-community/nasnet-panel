@@ -3,10 +3,11 @@ package mikrotik
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // RunCommand executes a single command and returns output.
@@ -27,7 +28,7 @@ func (c *TelnetClient) RunCommand(ctx context.Context, command string) (string, 
 	}
 
 	cmd := strings.TrimSpace(command)
-	log.Printf("[TELNET] Executing: %s", TruncateForLog(cmd, 100))
+	c.logger.Debug("telnet: executing command", zap.String("command", TruncateForLog(cmd, 100)))
 
 	if _, err := c.conn.Write([]byte(cmd + "\r\n")); err != nil {
 		return "", fmt.Errorf("sending command: %w", err)

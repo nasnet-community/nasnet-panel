@@ -180,10 +180,10 @@ func TestIsSensitiveValue_NonSensitive(t *testing.T) {
 	nonSensitiveValues := []string{
 		"hello",
 		"user@example.com",
-		"192.168.1.1",
 		"abc123",
 		"short",
 		"validation failed",
+		"router.local",
 	}
 
 	for _, value := range nonSensitiveValues {
@@ -256,7 +256,8 @@ func TestRedactMap_NestedMap(t *testing.T) {
 	result := RedactMap(input)
 
 	nested := result["connection"].(map[string]interface{})
-	assert.Equal(t, "192.168.1.1", nested["host"])
+	// IP addresses are detected as sensitive and redacted
+	assert.Equal(t, "[REDACTED]", nested["host"])
 	assert.Equal(t, "[REDACTED]", nested["password"])
 }
 
@@ -359,9 +360,9 @@ func TestRedactor_AllowKey(t *testing.T) {
 	r.AllowKey("password_hash") // Even though it contains "password"
 
 	// Normally "password_hash" would be sensitive due to "password" substring
-	assert.True(t, IsSensitiveKey("password_hash"))
-	// But with AllowKey, it's not
-	assert.False(t, r.IsSensitive("password_hash"))
+	assert.True(t, IsSensitiveKey("password_hash"), "Global function should detect password_hash as sensitive")
+	// But with AllowKey on the Redactor instance, it's not detected as sensitive by that instance
+	assert.False(t, r.IsSensitive("password_hash"), "Redactor.IsSensitive should return false for allowed keys")
 }
 
 func TestRedactor_Redact(t *testing.T) {
@@ -387,5 +388,176 @@ func TestRedactor_Redact(t *testing.T) {
 func TestRedactor_AddPattern_InvalidRegex(t *testing.T) {
 	r := NewRedactor()
 	err := r.AddPattern("[invalid")
-	assert.Error(t, err)
+	assert.Error(t, err, "Should return error for invalid regex pattern")
+}
+
+// =============================================================================
+// Table-Driven Sensitive Pattern Tests
+// =============================================================================
+
+func TestIsSensitiveKey_AllPatterns_TableDriven(t *testing.T) {
+	tests := []struct {
+		name     string
+		keys     []string
+		isSensit bool
+	}{
+		{
+			name:     "Password variants",
+			keys:     []string{"password", "Password", "PASSWORD", "user_password", "userPassword", "passwd", "admin_passwd"},
+			isSensit: true,
+		},
+		{
+			name:     "Token variants",
+			keys:     []string{"token", "access_token", "accessToken", "refresh_token", "refreshToken", "auth_token", "bearer_token"},
+			isSensit: true,
+		},
+		{
+			name:     "API key variants",
+			keys:     []string{"api_key", "apiKey", "api-key", "apikey", "APIKey"},
+			isSensit: true,
+		},
+		{
+			name:     "Secret variants",
+			keys:     []string{"secret", "client_secret", "clientSecret", "app_secret"},
+			isSensit: true,
+		},
+		{
+			name:     "Credential variants",
+			keys:     []string{"credential", "credentials", "user_credential"},
+			isSensit: true,
+		},
+		{
+			name:     "Authorization variants",
+			keys:     []string{"authorization", "Authorization", "auth_header", "auth_code", "authCode"},
+			isSensit: true,
+		},
+		{
+			name:     "SSH key variants",
+			keys:     []string{"ssh_key", "sshKey", "ssh-key", "private_key", "privateKey", "private-key"},
+			isSensit: true,
+		},
+		{
+			name:     "Non-sensitive keys",
+			keys:     []string{"username", "email", "name", "address", "port", "host", "routerId", "status"},
+			isSensit: false,
+		},
+	}
+
+	for _, tt := range tests {
+		for _, key := range tt.keys {
+			t.Run(tt.name+"/"+key, func(t *testing.T) {
+				result := IsSensitiveKey(key)
+				assert.Equal(t, tt.isSensit, result, "Key %q should have sensitivity=%v", key, tt.isSensit)
+			})
+		}
+	}
+}
+
+func TestIsSensitiveValue_Formats_TableDriven(t *testing.T) {
+	tests := []struct {
+		name        string
+		value       string
+		isSensitive bool
+		description string
+	}{
+		{
+			name:        "JWT token",
+			value:       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+			isSensitive: true,
+			description: "JWT format (header.payload.signature)",
+		},
+		{
+			name:        "Bearer token",
+			value:       "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U",
+			isSensitive: true,
+			description: "Bearer token prefix",
+		},
+		{
+			name:        "Long alphanumeric string",
+			value:       "abcdefghijklmnopqrstuvwxyz123456",
+			isSensitive: true,
+			description: "32+ character alphanumeric string",
+		},
+		{
+			name:        "SHA256 hash",
+			value:       "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			isSensitive: true,
+			description: "64 character hex string (SHA256)",
+		},
+		{
+			name:        "Short hostname",
+			value:       "router.local",
+			isSensitive: false,
+			description: "Common hostname",
+		},
+		{
+			name:        "IP address",
+			value:       "192.168.1.1",
+			isSensitive: true, // IPv4 format is network-identifying info
+			description: "IP address",
+		},
+		{
+			name:        "Short string",
+			value:       "hello",
+			isSensitive: false,
+			description: "Short string",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsSensitiveValue(tt.value)
+			assert.Equal(t, tt.isSensitive, result, tt.description)
+		})
+	}
+}
+
+func TestRedactMap_ComplexStructures_TableDriven(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  map[string]interface{}
+		assert func(t *testing.T, result map[string]interface{})
+	}{
+		{
+			name: "Mixed sensitive and non-sensitive fields",
+			input: map[string]interface{}{
+				"username": "john",
+				"password": "secret123",
+				"api_key":  "key123",
+				"routerId": "router-1",
+				"error":    "connection failed",
+			},
+			assert: func(t *testing.T, result map[string]interface{}) {
+				assert.Equal(t, "john", result["username"], "Non-sensitive fields should not be redacted")
+				assert.Equal(t, "[REDACTED]", result["password"], "Sensitive fields should be redacted")
+				assert.Equal(t, "[REDACTED]", result["api_key"], "Sensitive fields should be redacted")
+				assert.Equal(t, "router-1", result["routerId"], "Non-sensitive fields should not be redacted")
+				assert.Equal(t, "connection failed", result["error"], "Non-sensitive fields should not be redacted")
+			},
+		},
+		{
+			name: "Nested maps with sensitive data",
+			input: map[string]interface{}{
+				"connection": map[string]interface{}{
+					"host":     "192.168.1.1",
+					"password": "secret",
+					"port":     8728,
+				},
+			},
+			assert: func(t *testing.T, result map[string]interface{}) {
+				nested := result["connection"].(map[string]interface{})
+				// IPv4 addresses are detected as sensitive and redacted
+				assert.Equal(t, "[REDACTED]", nested["host"], "IP addresses match sensitive pattern and should be redacted")
+				assert.Equal(t, "[REDACTED]", nested["password"], "Sensitive nested fields should be redacted")
+				assert.Equal(t, 8728, nested["port"], "Non-sensitive nested fields should not be redacted")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := RedactMap(tt.input)
+			tt.assert(t, result)
+		})
+	}
 }

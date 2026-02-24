@@ -45,6 +45,11 @@ func (t *Translator) SetVersion(version *RouterOSVersion) {
 	t.version = version
 }
 
+// GetVersion returns the target RouterOS version.
+func (t *Translator) GetVersion() *RouterOSVersion {
+	return t.version
+}
+
 // GetRegistry returns the field mapping registry.
 func (t *Translator) GetRegistry() *FieldMappingRegistry {
 	return t.registry

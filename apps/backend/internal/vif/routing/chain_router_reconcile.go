@@ -10,7 +10,7 @@ import (
 
 	"backend/internal/router"
 
-	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
 )
 
 // MikroTik boolean string constants for reconciliation checks.
@@ -26,7 +26,7 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
-	log.Info().Str("router_id", routerID).Msg("Reconciling routing chain rules")
+	cr.logger.Info("Reconciling routing chain rules", zap.String("router_id", routerID))
 
 	chains, err := cr.store.RoutingChain.
 		Query().
@@ -41,7 +41,7 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 	}
 
 	if len(chains) == 0 {
-		log.Info().Msg("No routing chains to reconcile")
+		cr.logger.Info("No routing chains to reconcile")
 		return nil
 	}
 
@@ -73,9 +73,9 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 		}
 
 		if !allInterfacesExist {
-			log.Warn().Str("chain_id", chain.ID).Msg("Chain references deleted interface - removing chain")
+			cr.logger.Warn("Chain references deleted interface - removing chain", zap.String("chain_id", chain.ID))
 			if err := cr.removeRoutingChainInternal(ctx, chain); err != nil {
-				log.Error().Err(err).Msg("Failed to cascade clean chain")
+				cr.logger.Error("Failed to cascade clean chain", zap.Error(err))
 			} else {
 				stats.cascadeCleaned++
 			}
@@ -87,10 +87,10 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 			mangleComment := fmt.Sprintf("nnc-chain-%s-hop%d", chain.ID, hop.HopOrder)
 
 			if _, exists := existingMangleRules[mangleComment]; !exists {
-				log.Warn().Str("chain_id", chain.ID).Int("hop_order", hop.HopOrder).Msg("Mangle rule missing - recreating chain")
+				cr.logger.Warn("Mangle rule missing - recreating chain", zap.String("chain_id", chain.ID), zap.Int("hop_order", hop.HopOrder))
 				input := cr.convertChainToInput(chain, hops)
 				if _, err := cr.CreateRoutingChain(ctx, routerID, input); err != nil {
-					log.Error().Err(err).Msg("Failed to recreate chain")
+					cr.logger.Error("Failed to recreate chain", zap.Error(err))
 				} else {
 					stats.recreated++
 				}
@@ -110,12 +110,11 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 	// Remove orphaned rules
 	cr.removeOrphanedRules(ctx, chains, existingMangleRules, existingFilterRules, &stats.removed)
 
-	log.Info().
-		Int("recreated", stats.recreated).
-		Int("removed", stats.removed).
-		Int("verified", stats.verified).
-		Int("cascade_cleaned", stats.cascadeCleaned).
-		Msg("Routing chain reconciliation complete")
+	cr.logger.Info("Routing chain reconciliation complete",
+		zap.Int("recreated", stats.recreated),
+		zap.Int("removed", stats.removed),
+		zap.Int("verified", stats.verified),
+		zap.Int("cascade_cleaned", stats.cascadeCleaned))
 
 	return nil
 }
@@ -172,11 +171,10 @@ func (cr *ChainRouter) reconcileKillSwitchState(
 	shouldBeDisabled := !chain.KillSwitchActive
 
 	if isDisabled != shouldBeDisabled {
-		log.Info().
-			Str("chain_id", chain.ID).
-			Int("hop_order", hop.HopOrder).
-			Bool("should_be_disabled", shouldBeDisabled).
-			Msg("Kill switch state mismatch - correcting")
+		cr.logger.Info("Kill switch state mismatch - correcting",
+			zap.String("chain_id", chain.ID),
+			zap.Int("hop_order", hop.HopOrder),
+			zap.Bool("should_be_disabled", shouldBeDisabled))
 
 		setCmd := router.Command{
 			Path:   "/ip/firewall/filter",
@@ -187,7 +185,7 @@ func (cr *ChainRouter) reconcileKillSwitchState(
 			},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, setCmd); err != nil {
-			log.Error().Err(err).Msg("Failed to correct kill switch state")
+			cr.logger.Error("Failed to correct kill switch state", zap.Error(err))
 		}
 	}
 }
@@ -228,14 +226,14 @@ func (cr *ChainRouter) removeOrphanedRulesByType(
 			continue
 		}
 
-		log.Info().Str("comment", comment).Msgf("Removing %s", ruleKind)
+		cr.logger.Info("Removing rule", zap.String("comment", comment), zap.String("type", ruleKind))
 
 		cmd := router.Command{
 			Path: firewallPath, Action: "remove",
 			Args: map[string]string{".id": rule[".id"]},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, cmd); err != nil {
-			log.Warn().Err(err).Msgf("Failed to remove %s", ruleKind)
+			cr.logger.Warn("Failed to remove rule", zap.Error(err), zap.String("type", ruleKind))
 		} else {
 			*removedCount++
 		}

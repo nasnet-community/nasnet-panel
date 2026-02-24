@@ -64,10 +64,10 @@ function QuietHoursConfigDesktopComponent({
         <CardDescription>{t('quietHours.description')}</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-component-lg">
         {/* Time Range and Timezone (2-column grid) */}
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-component-lg">
+          <div className="space-y-component-md">
             <TimeRangeInput
               startTime={startTime}
               endTime={endTime}
@@ -94,7 +94,7 @@ function QuietHoursConfigDesktopComponent({
         </div>
 
         {/* Days of Week */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <Label className="text-base font-medium">
             {t('quietHours.activeDays')}
           </Label>
@@ -107,14 +107,14 @@ function QuietHoursConfigDesktopComponent({
             disabled={disabled}
           />
           {errors.daysOfWeek && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-sm text-error" role="alert">
               {errors.daysOfWeek}
             </p>
           )}
         </div>
 
         {/* Bypass Critical Alerts */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label

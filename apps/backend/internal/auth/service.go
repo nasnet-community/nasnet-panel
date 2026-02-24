@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/oklog/ulid/v2"
+	"go.uber.org/zap"
 )
 
 // Service errors
@@ -111,6 +112,7 @@ type Config struct {
 	UserRepository    UserRepository
 	SessionRepository SessionRepository
 	AuditLogger       AuditLogger
+	Logger            *zap.Logger // Optional structured logger
 }
 
 // Service orchestrates authentication operations
@@ -120,6 +122,7 @@ type Service struct {
 	users    UserRepository
 	sessions SessionRepository
 	audit    AuditLogger
+	logger   *zap.Logger
 }
 
 // NewService creates a new authentication service
@@ -137,12 +140,19 @@ func NewService(config Config) (*Service, error) {
 		return nil, errors.New("session repository is required")
 	}
 
+	// Use provided logger or no-op logger if not provided
+	logger := config.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &Service{
 		jwt:      config.JWTService,
 		password: config.PasswordService,
 		users:    config.UserRepository,
 		sessions: config.SessionRepository,
 		audit:    config.AuditLogger,
+		logger:   logger,
 	}, nil
 }
 
@@ -164,6 +174,11 @@ type LoginResult struct {
 
 // Login authenticates a user and creates a new session
 func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, error) {
+	// Validate input
+	if input.Username == "" || input.Password == "" {
+		return nil, ErrInvalidCredentials
+	}
+
 	// Get user by username
 	user, err := s.users.GetByUsername(ctx, input.Username)
 	if err != nil {
@@ -296,6 +311,11 @@ type ChangePasswordInput struct {
 
 // ChangePassword changes a user's password and revokes other sessions
 func (s *Service) ChangePassword(ctx context.Context, input ChangePasswordInput) error {
+	// Validate input
+	if input.UserID == "" || input.CurrentPassword == "" || input.NewPassword == "" {
+		return ErrInvalidCredentials
+	}
+
 	// Get user
 	user, err := s.users.GetByID(ctx, input.UserID)
 	if err != nil {
@@ -386,10 +406,10 @@ func (s *Service) PasswordService() *PasswordService {
 }
 
 // logAuditEvent logs an audit event if audit logger is configured
+// Sensitive fields are automatically redacted before logging
 func (s *Service) logAuditEvent(ctx context.Context, eventType string, userID, username *string, ip, userAgent string, details map[string]interface{}) {
-	if s.audit == nil {
-		return
-	}
+	// Create redacted copy of details to ensure sensitive data is never logged
+	redactedDetails := redactSensitiveFields(details)
 
 	event := AuditEvent{
 		Type:      eventType,
@@ -397,7 +417,7 @@ func (s *Service) logAuditEvent(ctx context.Context, eventType string, userID, u
 		Username:  username,
 		IP:        ip,
 		UserAgent: userAgent,
-		Details:   details,
+		Details:   redactedDetails,
 		Timestamp: time.Now(),
 	}
 
@@ -406,7 +426,39 @@ func (s *Service) logAuditEvent(ctx context.Context, eventType string, userID, u
 		event.CorrelationID = reqID
 	}
 
-	if err := s.audit.Log(ctx, event); err != nil {
-		_ = err
+	// Log to audit logger if configured
+	if s.audit != nil {
+		if err := s.audit.Log(ctx, event); err != nil {
+			s.logger.Error("failed to log audit event", zap.Error(err))
+		}
 	}
+}
+
+// redactSensitiveFields removes sensitive data from details map
+func redactSensitiveFields(details map[string]interface{}) map[string]interface{} {
+	if details == nil {
+		return nil
+	}
+
+	redacted := make(map[string]interface{})
+	sensitiveKeys := map[string]bool{
+		"password":         true,
+		"current_password": true,
+		"new_password":     true,
+		"token":            true,
+		"secret":           true,
+		"api_key":          true,
+		"credential":       true,
+		"bearer":           true,
+		"key":              true,
+	}
+
+	for k, v := range details {
+		if sensitiveKeys[k] {
+			redacted[k] = "[REDACTED]"
+		} else {
+			redacted[k] = v
+		}
+	}
+	return redacted
 }

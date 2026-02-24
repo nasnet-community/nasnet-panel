@@ -116,13 +116,13 @@ export const ManglePage = memo(function ManglePage() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-4">
+      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between p-component-md">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t('mangle.title')}</h1>
+            <h1 className="text-2xl font-bold tracking-tight font-display">{t('mangle.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('mangle.subtitle')}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button variant="outline" onClick={handleViewFlow} aria-label={t('mangle.buttons.viewFlow')}>
               <Workflow className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('mangle.buttons.viewFlow')}
@@ -142,7 +142,7 @@ export const ManglePage = memo(function ManglePage() {
           onValueChange={handleTabChange}
           className="h-full flex flex-col"
         >
-          <div className="border-b px-4">
+          <div className="border-b border-border px-component-md">
             <TabsList className={isMobile ? 'w-full justify-start overflow-x-auto' : ''}>
               <TabsTrigger value="all">
                 {t('common:button.selectAll', { defaultValue: 'All' })}
@@ -157,7 +157,7 @@ export const ManglePage = memo(function ManglePage() {
 
           <div className="flex-1 overflow-y-auto">
             {/* All Chains Tab */}
-            <TabsContent value="all" className="p-4 m-0">
+            <TabsContent value="all" className="p-component-md m-0">
               {isLoading ? (
                 <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                   <div className="animate-pulse space-y-4">
@@ -177,7 +177,7 @@ export const ManglePage = memo(function ManglePage() {
 
             {/* Individual Chain Tabs */}
             {chains.map((chain) => (
-              <TabsContent key={chain} value={chain} className="p-4 m-0">
+              <TabsContent key={chain} value={chain} className="p-component-md m-0">
                 {isLoading ? (
                   <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">
@@ -210,7 +210,7 @@ export const ManglePage = memo(function ManglePage() {
               {t('mangle.dialogs.addRule.description')}
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="mt-component-lg">
             <MangleRuleEditor
               routerId={routerIp}
               initialRule={{ chain: selectedChain === 'all' ? 'prerouting' : selectedChain }}

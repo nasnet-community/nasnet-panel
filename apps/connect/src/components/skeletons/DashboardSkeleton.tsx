@@ -38,7 +38,7 @@ export interface DashboardSkeletonProps {
 export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
   return (
     <div
-      className={cn('space-y-6 p-6', className)}
+      className={cn('space-y-6 p-component-lg', className)}
       aria-busy="true"
       aria-label="Loading dashboard"
     >
@@ -55,11 +55,11 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
       </div>
 
       {/* Status Summary Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-component-md sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-lg border bg-card p-4"
+            className="rounded-card-sm border border-border bg-card p-component-md"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-20" />
@@ -79,7 +79,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
             showTitle
             showLegend
             height={300}
-            className="rounded-lg border bg-card p-4"
+            className="rounded-card-sm border border-border bg-card p-component-md"
           />
         </div>
 
@@ -98,7 +98,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
       </div>
 
       {/* Recent Activity Section */}
-      <div className="rounded-lg border bg-card p-4">
+      <div className="rounded-card-sm border border-border bg-card p-component-md">
         <Skeleton className="mb-4 h-6 w-32" />
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (

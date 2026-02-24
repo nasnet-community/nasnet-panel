@@ -11,7 +11,7 @@ import (
 )
 
 // CreateRule creates a new alert rule.
-func (s *AlertService) CreateRule(ctx context.Context, input CreateAlertRuleInput) (*ent.AlertRule, error) {
+func (s *Service) CreateRule(ctx context.Context, input CreateAlertRuleInput) (*ent.AlertRule, error) {
 	ruleBuilder := s.db.AlertRule.Create().
 		SetName(input.Name).
 		SetEventType(input.EventType).
@@ -58,7 +58,7 @@ func (s *AlertService) CreateRule(ctx context.Context, input CreateAlertRuleInpu
 // UpdateRule updates an existing alert rule.
 //
 //nolint:gocyclo // rule update requires checking multiple conditions
-func (s *AlertService) UpdateRule(ctx context.Context, ruleID string, input UpdateAlertRuleInput) (*ent.AlertRule, error) {
+func (s *Service) UpdateRule(ctx context.Context, ruleID string, input UpdateAlertRuleInput) (*ent.AlertRule, error) {
 	rule, err := s.db.AlertRule.Get(ctx, ruleID)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -121,7 +121,7 @@ func (s *AlertService) UpdateRule(ctx context.Context, ruleID string, input Upda
 }
 
 // DeleteRule deletes an alert rule by ID.
-func (s *AlertService) DeleteRule(ctx context.Context, ruleID string) error {
+func (s *Service) DeleteRule(ctx context.Context, ruleID string) error {
 	exists, err := s.db.AlertRule.Query().Where(alertrule.ID(ruleID)).Exist(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to check rule existence: %w", err)
@@ -148,7 +148,7 @@ func (s *AlertService) DeleteRule(ctx context.Context, ruleID string) error {
 }
 
 // ToggleRule enables or disables an alert rule.
-func (s *AlertService) ToggleRule(ctx context.Context, ruleID string, enabled bool) (*ent.AlertRule, error) {
+func (s *Service) ToggleRule(ctx context.Context, ruleID string, enabled bool) (*ent.AlertRule, error) {
 	rule, err := s.db.AlertRule.Get(ctx, ruleID)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -190,7 +190,7 @@ func (s *AlertService) ToggleRule(ctx context.Context, ruleID string, enabled bo
 }
 
 // GetRule retrieves a single alert rule by ID.
-func (s *AlertService) GetRule(ctx context.Context, ruleID string) (*ent.AlertRule, error) {
+func (s *Service) GetRule(ctx context.Context, ruleID string) (*ent.AlertRule, error) {
 	rule, err := s.db.AlertRule.Get(ctx, ruleID)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -202,7 +202,7 @@ func (s *AlertService) GetRule(ctx context.Context, ruleID string) (*ent.AlertRu
 }
 
 // ListRules retrieves all alert rules, optionally filtered by device ID.
-func (s *AlertService) ListRules(ctx context.Context, deviceID *string) ([]*ent.AlertRule, error) {
+func (s *Service) ListRules(ctx context.Context, deviceID *string) ([]*ent.AlertRule, error) {
 	query := s.db.AlertRule.Query()
 	if deviceID != nil {
 		query.Where(alertrule.DeviceID(*deviceID))

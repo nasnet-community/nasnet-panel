@@ -4,13 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-routeros/routeros/v3" //nolint:misspell // RouterOS product name
+	"go.uber.org/zap"
 )
 
 // DefaultAPIPort is the default RouterOS API port.
@@ -26,6 +26,7 @@ type ROSClientConfig struct {
 	Password string
 	UseTLS   bool
 	Timeout  time.Duration
+	Logger   *zap.Logger
 }
 
 // ROSClient wraps the RouterOS API client with connection management. //nolint:misspell
@@ -35,6 +36,7 @@ type ROSClient struct {
 	username string
 	password string
 	useTLS   bool
+	logger   *zap.Logger
 	mu       sync.Mutex
 }
 
@@ -54,7 +56,12 @@ func NewROSClient(cfg ROSClientConfig) (*ROSClient, error) {
 		timeout = 30 * time.Second
 	}
 
-	log.Printf("[ROS-API] Connecting to %s (TLS: %v)", address, cfg.UseTLS)
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
+	logger.Info("connecting to RouterOS API", zap.String("address", address), zap.Bool("tls", cfg.UseTLS))
 
 	var client *routeros.Client //nolint:misspell // routeros is correct
 	var err error
@@ -91,7 +98,7 @@ func NewROSClient(cfg ROSClientConfig) (*ROSClient, error) {
 		return nil, fmt.Errorf("login failed: %w", err)
 	}
 
-	log.Printf("[ROS-API] Successfully connected and authenticated to %s", address)
+	logger.Info("successfully connected and authenticated to RouterOS API", zap.String("address", address))
 
 	return &ROSClient{
 		client:   client,
@@ -99,6 +106,7 @@ func NewROSClient(cfg ROSClientConfig) (*ROSClient, error) {
 		username: cfg.Username,
 		password: cfg.Password,
 		useTLS:   cfg.UseTLS,
+		logger:   logger,
 	}, nil
 }
 
@@ -110,7 +118,7 @@ func (c *ROSClient) Close() {
 	if c.client != nil {
 		c.client.Close()
 		c.client = nil
-		log.Printf("[ROS-API] Connection to %s closed", c.address)
+		c.logger.Info("RouterOS API connection closed", zap.String("address", c.address))
 	}
 }
 
@@ -123,7 +131,7 @@ func (c *ROSClient) Run(command string, args ...string) (*routeros.Reply, error)
 		return nil, fmt.Errorf("client not connected")
 	}
 
-	log.Printf("[ROS-API] Executing: %s %v", command, args)
+	c.logger.Debug("executing RouterOS API command", zap.String("command", command), zap.Strings("args", args))
 
 	allArgs := append([]string{command}, args...)
 	reply, err := c.client.Run(allArgs...)
@@ -149,7 +157,7 @@ func (c *ROSClient) RunWithContext(ctx context.Context, command string, args ...
 	default:
 	}
 
-	log.Printf("[ROS-API] Executing (with context): %s %v", command, args)
+	c.logger.Debug("executing RouterOS API command with context", zap.String("command", command), zap.Strings("args", args))
 
 	allArgs := append([]string{command}, args...)
 	reply, err := c.client.RunContext(ctx, allArgs...)

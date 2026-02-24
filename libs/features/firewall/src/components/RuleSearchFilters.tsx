@@ -79,8 +79,8 @@ const FilterBadge = memo(function FilterBadge({
     <Badge
       variant="secondary"
       className={cn(
-        'gap-1 pr-1 cursor-pointer hover:bg-secondary',
-        'transition-colors'
+        'gap-component-sm pr-1 cursor-pointer hover:bg-secondary',
+        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
       )}
       onClick={onRemove}
       role="button"
@@ -242,9 +242,9 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
   return (
     <div className={className}>
       {/* Section header */}
-      <div className="px-2 mb-4 flex items-center justify-between">
+      <div className="px-component-sm mb-component-md flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Filter Rules</h2>
+          <h2 className="text-lg font-display font-semibold">Filter Rules</h2>
           <p className="text-sm text-muted-foreground">
             Search and filter firewall rules
           </p>
@@ -258,10 +258,10 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
 
       {/* Filter controls */}
       <div className={cn(
-        'bg-card rounded-xl border border-border p-4'
+        'bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md'
       )}>
         {/* Search row */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col md:flex-row gap-component-sm">
           {/* Search input */}
           <div className="flex-1">
             <Input
@@ -294,7 +294,7 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
         {/* Filter dropdowns */}
         <div
           className={cn(
-            'mt-3 grid grid-cols-2 md:grid-cols-4 gap-3',
+            'mt-component-sm grid grid-cols-2 md:grid-cols-4 gap-component-sm',
             isExpanded ? 'block' : 'hidden md:grid'
           )}
         >
@@ -360,8 +360,8 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
 
         {/* Active filters */}
         {activeFilters.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-border">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="mt-component-sm pt-component-sm border-t border-border">
+            <div className="flex flex-wrap items-center gap-component-sm">
               <span className="text-xs text-muted-foreground">
                 Active:
               </span>
@@ -375,7 +375,7 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                className="min-h-[44px] h-6 px-component-sm text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 onClick={onClearAll}
                 aria-label="Clear all filters"
               >

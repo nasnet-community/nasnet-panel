@@ -3,9 +3,10 @@ package wan
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -21,6 +22,7 @@ type WANService struct {
 	cache          *wanCache
 	history        *connectionHistory
 	healthMonitor  *WANHealthMonitor
+	logger         *zap.SugaredLogger
 	mu             sync.RWMutex
 }
 
@@ -30,12 +32,18 @@ type WANService struct {
 type WANServiceConfig struct {
 	RouterPort router.RouterPort
 	EventBus   events.EventBus
+	Logger     *zap.SugaredLogger
 }
 
 // NewWANService creates a new WAN service.
 func NewWANService(config WANServiceConfig) *WANService {
 	publisher := events.NewPublisher(config.EventBus, "wan-service")
 	healthMonitor := NewWANHealthMonitor(config.RouterPort, config.EventBus)
+
+	logger := config.Logger
+	if logger == nil {
+		logger = zap.NewNop().Sugar()
+	}
 
 	return &WANService{
 		routerPort:     config.RouterPort,
@@ -44,17 +52,18 @@ func NewWANService(config WANServiceConfig) *WANService {
 		cache:          newWanCache(30 * time.Second),
 		history:        newConnectionHistory(100),
 		healthMonitor:  healthMonitor,
+		logger:         logger,
 	}
 }
 
 // ListWANInterfaces retrieves all WAN interfaces for a router.
 func (s *WANService) ListWANInterfaces(ctx context.Context, routerID string) ([]*WANInterfaceData, error) {
 	if cached := s.cache.Get(routerID); cached != nil {
-		log.Printf("[WANService] Cache hit for router %s", routerID)
+		s.logger.Infow("cache hit for WAN interfaces", zap.String("routerID", routerID))
 		return cached, nil
 	}
 
-	log.Printf("[WANService] Cache miss for router %s, fetching from RouterOS", routerID)
+	s.logger.Infow("cache miss for WAN interfaces, fetching from RouterOS", zap.String("routerID", routerID))
 	wans := []*WANInterfaceData{}
 	s.cache.Set(routerID, wans)
 	return wans, nil
@@ -76,7 +85,9 @@ func (s *WANService) GetWANInterface(ctx context.Context, routerID, wanID string
 
 // GetConnectionHistory retrieves connection history for a WAN interface.
 func (s *WANService) GetConnectionHistory(ctx context.Context, routerID, wanInterfaceID string, limit int) ([]*ConnectionEventData, error) {
-	log.Printf("[WANService] Retrieving connection history for router %s, WAN interface %s", routerID, wanInterfaceID)
+	s.logger.Infow("retrieving connection history for WAN interface",
+		zap.String("routerID", routerID),
+		zap.String("wanInterfaceID", wanInterfaceID))
 
 	evts := s.history.Get(routerID, limit)
 	if evts == nil {
@@ -94,14 +105,19 @@ func (s *WANService) GetConnectionHistory(ctx context.Context, routerID, wanInte
 
 // ConfigureHealthCheck configures health check for a WAN interface.
 func (s *WANService) ConfigureHealthCheck(ctx context.Context, routerID, wanInterfaceID string, input HealthCheckInput) error {
-	log.Printf("[WANService] Configuring health check on router %s, WAN interface %s, target %s", routerID, wanInterfaceID, input.Target)
+	s.logger.Infow("configuring health check for WAN interface",
+		zap.String("routerID", routerID),
+		zap.String("wanInterfaceID", wanInterfaceID),
+		zap.String("target", input.Target))
 	s.cache.Invalidate(routerID)
 	return fmt.Errorf("not implemented yet - Phase 5")
 }
 
 // DeleteWANConfiguration deletes WAN configuration (reverts to unconfigured).
 func (s *WANService) DeleteWANConfiguration(ctx context.Context, routerID, wanInterfaceID string) error {
-	log.Printf("[WANService] Deleting WAN configuration on router %s, WAN interface %s", routerID, wanInterfaceID)
+	s.logger.Infow("deleting WAN configuration",
+		zap.String("routerID", routerID),
+		zap.String("wanInterfaceID", wanInterfaceID))
 
 	w, err := s.GetWANInterface(ctx, routerID, wanInterfaceID)
 	if err != nil {
@@ -110,9 +126,9 @@ func (s *WANService) DeleteWANConfiguration(ctx context.Context, routerID, wanIn
 
 	s.cache.Invalidate(routerID)
 
-	event := events.NewWANDeletedEvent(routerID, wanInterfaceID, w.InterfaceName, w.ConnectionType)
+	event := events.NewWANDeletedEvent(routerID, wanInterfaceID, w.InterfaceName, w.ConnectionType, "wan-service")
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WAN deleted event: %v", err)
+		s.logger.Warnw("failed to publish WAN deleted event", zap.Error(err))
 	}
 
 	return fmt.Errorf("not implemented yet")
@@ -137,9 +153,9 @@ func (s *WANService) ConfigureWANHealthCheck(ctx context.Context, routerID, wanI
 
 	s.cache.Invalidate(routerID)
 
-	event := events.NewWANConfiguredEvent(routerID, wanID, "", "HEALTH_CHECK", false)
+	event := events.NewWANConfiguredEvent(routerID, wanID, "", "HEALTH_CHECK", "wan-service", false)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WANConfiguredEvent: %v", err)
+		s.logger.Warnw("failed to publish WANConfiguredEvent", zap.Error(err))
 	}
 
 	return nil

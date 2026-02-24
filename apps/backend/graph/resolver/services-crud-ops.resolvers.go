@@ -7,6 +7,7 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/errors"
 	"backend/internal/features"
 	"backend/internal/orchestrator/lifecycle"
 	"context"
@@ -16,7 +17,7 @@ import (
 // InstallService is the resolver for the installService field.
 func (r *mutationResolver) InstallService(ctx context.Context, input graphql1.InstallServiceInput) (*graphql1.ServiceInstancePayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not initialized")
+		return nil, errors.NewProtocolError("INSTANCE_MANAGER_NOT_INIT", "instance manager not initialized", "graphql")
 	}
 
 	cfg := map[string]interface{}{}
@@ -39,7 +40,8 @@ func (r *mutationResolver) InstallService(ctx context.Context, input graphql1.In
 
 	inst, err := r.InstanceManager.CreateInstance(ctx, req)
 	if err != nil {
-		errMsg := err.Error()
+		wrappedErr := errors.Wrap(err, "CREATE_INSTANCE_FAILED", errors.CategoryInternal, "failed to create instance")
+		errMsg := wrappedErr.Error()
 		return &graphql1.ServiceInstancePayload{
 			Errors: []*graphql1.MutationError{{Message: errMsg}},
 		}, nil
@@ -51,11 +53,12 @@ func (r *mutationResolver) InstallService(ctx context.Context, input graphql1.In
 // StartInstance is the resolver for the startInstance field.
 func (r *mutationResolver) StartInstance(ctx context.Context, input graphql1.StartInstanceInput) (*graphql1.ServiceInstancePayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not initialized")
+		return nil, errors.NewProtocolError("INSTANCE_MANAGER_NOT_INIT", "instance manager not initialized", "graphql")
 	}
 
 	if err := r.InstanceManager.StartInstance(ctx, input.InstanceID); err != nil {
-		errMsg := err.Error()
+		wrappedErr := errors.Wrap(err, "START_INSTANCE_FAILED", errors.CategoryInternal, "failed to start instance")
+		errMsg := wrappedErr.Error()
 		return &graphql1.ServiceInstancePayload{
 			Errors: []*graphql1.MutationError{{Message: errMsg}},
 		}, nil
@@ -63,7 +66,7 @@ func (r *mutationResolver) StartInstance(ctx context.Context, input graphql1.Sta
 
 	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch instance after start: %w", err)
+		return nil, errors.Wrap(err, "FETCH_INSTANCE_FAILED", errors.CategoryInternal, "failed to fetch instance after start")
 	}
 
 	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
@@ -72,11 +75,12 @@ func (r *mutationResolver) StartInstance(ctx context.Context, input graphql1.Sta
 // StopInstance is the resolver for the stopInstance field.
 func (r *mutationResolver) StopInstance(ctx context.Context, input graphql1.StopInstanceInput) (*graphql1.ServiceInstancePayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not initialized")
+		return nil, errors.NewProtocolError("INSTANCE_MANAGER_NOT_INIT", "instance manager not initialized", "graphql")
 	}
 
 	if err := r.InstanceManager.StopInstance(ctx, input.InstanceID); err != nil {
-		errMsg := err.Error()
+		wrappedErr := errors.Wrap(err, "STOP_INSTANCE_FAILED", errors.CategoryInternal, "failed to stop instance")
+		errMsg := wrappedErr.Error()
 		return &graphql1.ServiceInstancePayload{
 			Errors: []*graphql1.MutationError{{Message: errMsg}},
 		}, nil
@@ -84,7 +88,7 @@ func (r *mutationResolver) StopInstance(ctx context.Context, input graphql1.Stop
 
 	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch instance after stop: %w", err)
+		return nil, errors.Wrap(err, "FETCH_INSTANCE_FAILED", errors.CategoryInternal, "failed to fetch instance after stop")
 	}
 
 	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
@@ -93,11 +97,12 @@ func (r *mutationResolver) StopInstance(ctx context.Context, input graphql1.Stop
 // RestartInstance is the resolver for the restartInstance field.
 func (r *mutationResolver) RestartInstance(ctx context.Context, input graphql1.RestartInstanceInput) (*graphql1.ServiceInstancePayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not initialized")
+		return nil, errors.NewProtocolError("INSTANCE_MANAGER_NOT_INIT", "instance manager not initialized", "graphql")
 	}
 
 	if err := r.InstanceManager.RestartInstance(ctx, input.InstanceID); err != nil {
-		errMsg := err.Error()
+		wrappedErr := errors.Wrap(err, "RESTART_INSTANCE_FAILED", errors.CategoryInternal, "failed to restart instance")
+		errMsg := wrappedErr.Error()
 		return &graphql1.ServiceInstancePayload{
 			Errors: []*graphql1.MutationError{{Message: errMsg}},
 		}, nil
@@ -105,7 +110,7 @@ func (r *mutationResolver) RestartInstance(ctx context.Context, input graphql1.R
 
 	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch instance after restart: %w", err)
+		return nil, errors.Wrap(err, "FETCH_INSTANCE_FAILED", errors.CategoryInternal, "failed to fetch instance after restart")
 	}
 
 	return &graphql1.ServiceInstancePayload{Instance: convertEntInstanceToGraphQL(inst)}, nil
@@ -114,18 +119,19 @@ func (r *mutationResolver) RestartInstance(ctx context.Context, input graphql1.R
 // DeleteInstance is the resolver for the deleteInstance field.
 func (r *mutationResolver) DeleteInstance(ctx context.Context, input graphql1.DeleteInstanceInput) (*graphql1.ServiceInstancePayload, error) {
 	if r.InstanceManager == nil {
-		return nil, fmt.Errorf("instance manager not initialized")
+		return nil, errors.NewProtocolError("INSTANCE_MANAGER_NOT_INIT", "instance manager not initialized", "graphql")
 	}
 
 	// Fetch before deletion so the snapshot can be returned in the payload.
 	inst, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, fmt.Errorf("instance not found: %w", err)
+		return nil, errors.Wrap(err, "INSTANCE_NOT_FOUND", errors.CategoryInternal, "instance not found")
 	}
 	snapshot := convertEntInstanceToGraphQL(inst)
 
 	if err := r.InstanceManager.DeleteInstance(ctx, input.InstanceID); err != nil {
-		errMsg := err.Error()
+		wrappedErr := errors.Wrap(err, "DELETE_INSTANCE_FAILED", errors.CategoryInternal, "failed to delete instance")
+		errMsg := wrappedErr.Error()
 		return &graphql1.ServiceInstancePayload{
 			Errors: []*graphql1.MutationError{{Message: errMsg}},
 		}, nil
@@ -139,7 +145,7 @@ func (r *mutationResolver) DeleteInstance(ctx context.Context, input graphql1.De
 func (r *mutationResolver) ReverifyInstance(ctx context.Context, routerID string, instanceID string) (*graphql1.ReverifyPayload, error) {
 	inst, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("instance not found: %w", err)
+		return nil, errors.Wrap(err, "INSTANCE_NOT_FOUND", errors.CategoryInternal, "instance not found")
 	}
 
 	if inst.BinaryPath == "" || inst.BinaryChecksum == "" {

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent/servicedependency"
 )
 
@@ -118,7 +120,7 @@ func (dm *DependencyManager) dfsDetectCycle(ctx context.Context, current, target
 		Where(servicedependency.FromInstanceID(current)).
 		All(ctx)
 	if err != nil {
-		dm.logger.Error().Err(err).Str("instance_id", current).Msg("failed to get dependencies during cycle detection")
+		dm.logger.Error("failed to get dependencies during cycle detection", zap.Error(err), zap.String("instance_id", current))
 		return false, nil
 	}
 

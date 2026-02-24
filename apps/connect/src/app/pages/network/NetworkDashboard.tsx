@@ -78,7 +78,7 @@ export const NetworkDashboard = React.memo(function NetworkDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-4 py-4 md:px-6 md:py-6 space-y-4 max-w-7xl mx-auto">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 space-y-4 max-w-7xl mx-auto">
 
         {/* Section 1: DHCP Pool Status */}
         <DHCPPoolSummary
@@ -108,21 +108,21 @@ export const NetworkDashboard = React.memo(function NetworkDashboard() {
             </button>
           </div>
 
-          <div className="grid gap-2 md:gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-component-sm md:gap-component-md md:grid-cols-2 lg:grid-cols-3">
             {(interfaces || []).slice(0, 6).map((iface) => (
               <InterfaceGridCard key={iface.id} interface={iface} />
             ))}
           </div>
 
           {(!interfaces || interfaces.length === 0) && (
-            <div className="bg-card rounded-xl p-8 text-center border border-border">
+            <div className="bg-card rounded-card-sm p-8 text-center border border-border">
               <p className="text-muted-foreground">{t('network.noInterfacesFound')}</p>
             </div>
           )}
         </div>
 
         {/* Section 3 & 4: Two Column Layout - Devices and IPs */}
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-component-md lg:grid-cols-2">
           <ConnectedDevicesCard
             entries={arpEntries || []}
             isLoading={isLoadingARP}

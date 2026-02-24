@@ -89,14 +89,14 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
 
   return (
     <div
-      className={cn('flex flex-col gap-4', className)}
+      className={cn('flex flex-col gap-component-md', className)}
       role="search"
       aria-label="DHCP lease filters"
     >
       {/* Filter Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-component-sm">
         {/* Status Filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <label
             htmlFor="lease-status-filter"
             className="text-sm font-medium text-foreground"
@@ -125,7 +125,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
         </div>
 
         {/* Server Filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <label
             htmlFor="lease-server-filter"
             className="text-sm font-medium text-foreground"
@@ -170,14 +170,14 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
 
       {/* Active Filter Badges */}
       {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2" role="status" aria-live="polite">
+        <div className="flex flex-wrap items-center gap-component-sm" role="status" aria-live="polite">
           <span className="text-sm text-muted-foreground">
             Active filters:
           </span>
 
           {/* Status Filter Badge */}
           {leaseStatusFilter !== 'all' && (
-            <div className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-sm">
+            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-2 py-1 text-sm">
               <span className="text-primary font-mono">
                 Status: {LEASE_STATUS_OPTIONS.find(opt => opt.value === leaseStatusFilter)?.label}
               </span>
@@ -186,7 +186,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
                 variant="ghost"
                 size="sm"
                 onClick={() => setLeaseStatusFilter('all')}
-                className="h-6 w-6 p-0 min-h-[32px] min-w-[32px]"
+                className="h-6 w-6 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Remove status filter"
               >
                 <Icon icon={X} size="sm" />
@@ -196,7 +196,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
 
           {/* Server Filter Badge */}
           {leaseServerFilter !== 'all' && (
-            <div className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-sm">
+            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-2 py-1 text-sm">
               <span className="text-primary font-mono">
                 Server: {servers.find(s => s.id === leaseServerFilter)?.name || leaseServerFilter}
               </span>
@@ -205,7 +205,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
                 variant="ghost"
                 size="sm"
                 onClick={() => setLeaseServerFilter('all')}
-                className="h-6 w-6 p-0 min-h-[32px] min-w-[32px]"
+                className="h-6 w-6 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Remove server filter"
               >
                 <Icon icon={X} size="sm" />

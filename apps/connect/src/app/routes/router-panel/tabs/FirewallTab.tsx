@@ -156,10 +156,10 @@ export function FirewallTab() {
   }, []);
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-component-md md:p-component-lg">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Page Header */}
-        <div className="px-2">
+        <div className="px-component-sm">
           <h1 className="text-2xl md:text-3xl font-semibold mb-1">
             {t('title')}
           </h1>
@@ -203,8 +203,8 @@ export function FirewallTab() {
 
         {/* Counter Controls Toolbar */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+          <CardContent className="p-component-md">
+            <div className="flex flex-col md:flex-row gap-component-md md:items-center md:justify-between">
               {/* Left side: Filter controls */}
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <UnusedRulesFilter
@@ -216,7 +216,7 @@ export function FirewallTab() {
               </div>
 
               {/* Right side: Action buttons and settings */}
-              <div className="flex gap-2">
+              <div className="flex gap-component-sm">
                 {/* Efficiency Report Button */}
                 <Button
                   variant="outline"

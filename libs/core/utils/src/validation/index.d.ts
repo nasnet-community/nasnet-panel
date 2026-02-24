@@ -89,20 +89,20 @@ export declare const routerConnectionConfigSchema: z.ZodObject<{
     timeout: z.ZodDefault<z.ZodNumber>;
     retries: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
+    timeout: number;
+    port: number;
+    address: string;
     password: string;
     username: string;
-    address: string;
-    port: number;
     useTLS: boolean;
-    timeout: number;
     retries: number;
 }, {
+    address: string;
     password: string;
     username: string;
-    address: string;
+    timeout?: number | undefined;
     port?: number | undefined;
     useTLS?: boolean | undefined;
-    timeout?: number | undefined;
     retries?: number | undefined;
 }>;
 /**
@@ -119,15 +119,15 @@ export declare const wanConfigSchema: z.ZodObject<{
     mtu: z.ZodOptional<z.ZodNumber>;
     vlan: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    type: "static" | "dhcp" | "pppoe" | "lte";
+    type: "dhcp" | "pppoe" | "static" | "lte";
     enabled: boolean;
-    mtu?: number | undefined;
     vlan?: number | undefined;
+    mtu?: number | undefined;
 }, {
-    type: "static" | "dhcp" | "pppoe" | "lte";
+    type: "dhcp" | "pppoe" | "static" | "lte";
     enabled?: boolean | undefined;
-    mtu?: number | undefined;
     vlan?: number | undefined;
+    mtu?: number | undefined;
 }>;
 /**
  * LAN configuration schema
@@ -151,8 +151,8 @@ export declare const lanConfigSchema: z.ZodObject<{
     enabled: boolean;
     ip: string;
     interface: string;
-    subnet: string;
     bridge: boolean;
+    subnet: string;
 }, {
     ip: string;
     interface: string;
@@ -182,17 +182,17 @@ export declare const vpnConfigSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     enabled: boolean;
     protocol: "wireguard" | "openvpn" | "l2tp" | "pptp" | "sstp" | "ikev2";
-    password?: string | undefined;
-    username?: string | undefined;
     server?: string | undefined;
     certificate?: string | undefined;
-}, {
-    protocol: "wireguard" | "openvpn" | "l2tp" | "pptp" | "sstp" | "ikev2";
     password?: string | undefined;
     username?: string | undefined;
+}, {
+    protocol: "wireguard" | "openvpn" | "l2tp" | "pptp" | "sstp" | "ikev2";
     enabled?: boolean | undefined;
     server?: string | undefined;
     certificate?: string | undefined;
+    password?: string | undefined;
+    username?: string | undefined;
 }>;
 /**
  * Firewall rule schema
@@ -218,9 +218,9 @@ export declare const firewallRuleSchema: z.ZodObject<{
     enabled: z.ZodDefault<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    action: "accept" | "drop" | "reject";
     enabled: boolean;
-    protocol: "both" | "tcp" | "udp" | "icmp";
+    action: "accept" | "drop" | "reject";
+    protocol: "tcp" | "udp" | "icmp" | "both";
     sourceIP?: string | undefined;
     sourcePort?: number | undefined;
     destIP?: string | undefined;
@@ -228,7 +228,7 @@ export declare const firewallRuleSchema: z.ZodObject<{
 }, {
     name: string;
     action: "accept" | "drop" | "reject";
-    protocol: "both" | "tcp" | "udp" | "icmp";
+    protocol: "tcp" | "udp" | "icmp" | "both";
     enabled?: boolean | undefined;
     sourceIP?: string | undefined;
     sourcePort?: number | undefined;
@@ -274,17 +274,17 @@ export declare const routerStatusResponseSchema: z.ZodObject<{
     timestamp: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     uptime: number;
+    timestamp: string;
     cpu: number;
     memory: number;
     disk: number;
-    timestamp: string;
     temperature?: number | undefined;
 }, {
     uptime: number;
+    timestamp: string;
     cpu: number;
     memory: number;
     disk: number;
-    timestamp: string;
     temperature?: number | undefined;
 }>;
 /**
@@ -321,10 +321,10 @@ export declare const appConfigSchema: z.ZodObject<{
         theme: z.ZodDefault<z.ZodEnum<["light", "dark"]>>;
         language: z.ZodDefault<z.ZodEnum<["en", "fa", "de"]>>;
     }, "strip", z.ZodTypeAny, {
-        theme: "dark" | "light";
+        theme: "light" | "dark";
         language: "en" | "fa" | "de";
     }, {
-        theme?: "dark" | "light" | undefined;
+        theme?: "light" | "dark" | undefined;
         language?: "en" | "fa" | "de" | undefined;
     }>;
     router: z.ZodObject<{
@@ -332,43 +332,43 @@ export declare const appConfigSchema: z.ZodObject<{
         defaultTimeout: z.ZodNumber;
         maxRetries: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
+        maxRetries: number;
         defaultPort: number;
         defaultTimeout: number;
-        maxRetries: number;
     }, {
-        defaultTimeout: number;
         maxRetries: number;
+        defaultTimeout: number;
         defaultPort?: number | undefined;
     }>;
 }, "strip", z.ZodTypeAny, {
-    api: {
-        timeout: number;
-        retries: number;
-        baseUrl: string;
-    };
-    ui: {
-        theme: "dark" | "light";
-        language: "en" | "fa" | "de";
-    };
     router: {
+        maxRetries: number;
         defaultPort: number;
         defaultTimeout: number;
-        maxRetries: number;
     };
-}, {
     api: {
         timeout: number;
         retries: number;
         baseUrl: string;
     };
     ui: {
-        theme?: "dark" | "light" | undefined;
-        language?: "en" | "fa" | "de" | undefined;
+        theme: "light" | "dark";
+        language: "en" | "fa" | "de";
     };
+}, {
     router: {
-        defaultTimeout: number;
         maxRetries: number;
+        defaultTimeout: number;
         defaultPort?: number | undefined;
+    };
+    api: {
+        timeout: number;
+        retries: number;
+        baseUrl: string;
+    };
+    ui: {
+        theme?: "light" | "dark" | undefined;
+        language?: "en" | "fa" | "de" | undefined;
     };
 }>;
 /**
@@ -405,22 +405,22 @@ export declare const userPreferencesSchema: z.ZodObject<{
         showErrors: boolean;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    theme?: "dark" | "light" | undefined;
-    language?: "en" | "fa" | "de" | undefined;
-    autoConnect?: boolean | undefined;
+    theme?: "light" | "dark" | undefined;
     notifications?: {
         enabled: boolean;
         showWarnings: boolean;
         showErrors: boolean;
     } | undefined;
+    language?: "en" | "fa" | "de" | undefined;
+    autoConnect?: boolean | undefined;
 }, {
-    theme?: "dark" | "light" | undefined;
-    language?: "en" | "fa" | "de" | undefined;
-    autoConnect?: boolean | undefined;
+    theme?: "light" | "dark" | undefined;
     notifications?: {
         enabled: boolean;
         showWarnings: boolean;
         showErrors: boolean;
     } | undefined;
+    language?: "en" | "fa" | "de" | undefined;
+    autoConnect?: boolean | undefined;
 }>;
 //# sourceMappingURL=index.d.ts.map

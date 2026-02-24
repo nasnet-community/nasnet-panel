@@ -51,7 +51,7 @@ export const BridgeDetailMobile = memo(function BridgeDetailMobile({
         <div className="mt-4">
           {/* Loading State */}
           {loading && !isCreating && (
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />

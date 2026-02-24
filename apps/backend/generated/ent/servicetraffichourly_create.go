@@ -3,13 +3,12 @@
 package ent
 
 import (
+	"backend/generated/ent/serviceinstance"
+	"backend/generated/ent/servicetraffichourly"
 	"context"
 	"errors"
 	"fmt"
 	"time"
-
-	"backend/generated/ent/serviceinstance"
-	"backend/generated/ent/servicetraffichourly"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

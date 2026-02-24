@@ -11,9 +11,9 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
@@ -23,7 +23,7 @@ func TestScheduleEvaluator_NewScheduleEvaluator(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	bus := events.NewInMemoryEventBus()
 	killSwitch := &orchestrator.NoOpKillSwitchCoordinator{}
 
@@ -98,7 +98,7 @@ func TestScheduleEvaluator_StartStop(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	bus := events.NewInMemoryEventBus()
 	killSwitch := &orchestrator.NoOpKillSwitchCoordinator{}
 
@@ -148,7 +148,7 @@ func TestScheduleEvaluator_isWindowActive(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	bus := events.NewInMemoryEventBus()
 	killSwitch := &orchestrator.NoOpKillSwitchCoordinator{}
 
@@ -318,7 +318,7 @@ func TestScheduleEvaluator_Integration(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	bus := events.NewInMemoryEventBus()
 	killSwitch := &orchestrator.NoOpKillSwitchCoordinator{}
 
@@ -528,7 +528,7 @@ func TestScheduleEvaluator_GetStatus(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	bus := events.NewInMemoryEventBus()
 	killSwitch := &orchestrator.NoOpKillSwitchCoordinator{}
 

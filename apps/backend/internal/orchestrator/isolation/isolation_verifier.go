@@ -12,7 +12,7 @@ import (
 
 	"backend/generated/ent"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // Severity is an alias for pkg/isolation.Severity.
@@ -53,7 +53,7 @@ type IsolationVerifierConfig struct {
 	PortRegistry           PortRegistryPort
 	ConfigBindingValidator ConfigBindingValidatorPort // Optional for Layer 1
 	EventBus               events.EventBus            // Optional for event publishing
-	Logger                 zerolog.Logger
+	Logger                 *zap.Logger
 	// AllowedBaseDir is the allowed base directory for service instance files (default: "/data/services")
 	AllowedBaseDir string
 }
@@ -66,7 +66,7 @@ type IsolationVerifier struct {
 	configBindingValidator ConfigBindingValidatorPort
 	eventBus               events.EventBus
 	eventPublisher         *events.Publisher
-	logger                 zerolog.Logger
+	logger                 *zap.Logger
 	allowedBaseDir         string
 }
 
@@ -128,17 +128,15 @@ func (iv *IsolationVerifier) VerifyPreStart(ctx context.Context, instance *ent.S
 	}
 
 	if report.Passed {
-		iv.logger.Info().
-			Str("instance_id", instance.ID).
-			Str("bind_ip", report.BindIP).
-			Interface("ports", report.AllocatedPorts).
-			Int("warnings", report.CountWarnings()).
-			Msg("all isolation checks passed")
+		iv.logger.Info("all isolation checks passed",
+			zap.String("instance_id", instance.ID),
+			zap.String("bind_ip", report.BindIP),
+			zap.Any("ports", report.AllocatedPorts),
+			zap.Int("warnings", report.CountWarnings()))
 	} else {
-		iv.logger.Error().
-			Str("instance_id", instance.ID).
-			Int("violations", len(report.Violations)).
-			Msg("isolation verification failed")
+		iv.logger.Error("isolation verification failed",
+			zap.String("instance_id", instance.ID),
+			zap.Int("violations", len(report.Violations)))
 	}
 
 	return report, nil
@@ -278,10 +276,9 @@ func (iv *IsolationVerifier) emitIsolationViolationEvent(ctx context.Context, in
 	)
 
 	if err != nil {
-		iv.logger.Warn().
-			Err(err).
-			Str("instance_id", instance.ID).
-			Str("violation_type", violationType).
-			Msg("failed to publish isolation violation event")
+		iv.logger.Warn("failed to publish isolation violation event",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID),
+			zap.String("violation_type", violationType))
 	}
 }

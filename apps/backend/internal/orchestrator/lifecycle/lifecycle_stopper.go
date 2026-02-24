@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
@@ -40,7 +42,7 @@ func (im *InstanceManager) StopInstanceWithForce(ctx context.Context, instanceID
 	// Stop gateway BEFORE service process
 	if im.config.Gateway != nil {
 		if err := im.config.Gateway.StopGateway(ctx, instanceID); err != nil {
-			im.logger.Warn().Err(err).Str("instance_id", instanceID).Msg("failed to stop gateway")
+			im.logger.Warn("failed to stop gateway", zap.Error(err), zap.String("instance_id", instanceID))
 		}
 	}
 
@@ -71,7 +73,7 @@ func (im *InstanceManager) checkDependentsBeforeStop(ctx context.Context, instan
 	for _, dep := range dependents {
 		depInstance, err := im.config.Store.ServiceInstance.Get(ctx, dep.FromInstanceID)
 		if err != nil {
-			im.logger.Warn().Err(err).Str("dependent_id", dep.FromInstanceID).Msg("failed to get dependent instance")
+			im.logger.Warn("failed to get dependent instance", zap.Error(err), zap.String("dependent_id", dep.FromInstanceID))
 			continue
 		}
 		if depInstance.Status == serviceinstance.StatusRunning || depInstance.Status == serviceinstance.StatusStarting {
@@ -92,18 +94,16 @@ func (im *InstanceManager) checkDependentsBeforeStop(ctx context.Context, instan
 func (im *InstanceManager) stopMonitoring(instanceID string, managedProc interface{ GetPID() int }) {
 	if im.resourceLimiter != nil && managedProc.GetPID() > 0 {
 		pid := managedProc.GetPID()
-		im.logger.Debug().
-			Str("instance_id", instanceID).
-			Int("pid", pid).
-			Msg("Stopping resource monitoring")
+		im.logger.Debug("Stopping resource monitoring",
+			zap.String("instance_id", instanceID),
+			zap.Int("pid", pid))
 		im.resourceLimiter.StopMonitoring(pid)
 	}
 
 	if im.resourcePoller != nil {
 		im.resourcePoller.RemoveInstance(instanceID)
-		im.logger.Debug().
-			Str("instance_id", instanceID).
-			Msg("Instance unregistered from resource poller")
+		im.logger.Debug("Instance unregistered from resource poller",
+			zap.String("instance_id", instanceID))
 	}
 }
 
@@ -116,7 +116,7 @@ func (im *InstanceManager) stopAndCleanup(ctx context.Context, instanceID string
 	}
 
 	if err := im.config.Supervisor.Remove(instanceID); err != nil {
-		im.logger.Warn().Err(err).Str("instance_id", instanceID).Msg("failed to remove from supervisor")
+		im.logger.Warn("failed to remove from supervisor", zap.Error(err), zap.String("instance_id", instanceID))
 	}
 
 	if err := im.updateInstanceStatus(ctx, instanceID, StatusStopped); err != nil {
@@ -124,14 +124,14 @@ func (im *InstanceManager) stopAndCleanup(ctx context.Context, instanceID string
 	}
 
 	im.emitStateChangeEvent(ctx, instanceID, string(StatusStopping), string(StatusStopped))
-	im.logger.Info().Str("instance_id", instanceID).Msg("Instance stopped successfully")
+	im.logger.Info("Instance stopped successfully", zap.String("instance_id", instanceID))
 
 	return nil
 }
 
 // RestartInstance restarts a service instance
 func (im *InstanceManager) RestartInstance(ctx context.Context, instanceID string) error {
-	im.logger.Info().Str("instance_id", instanceID).Msg("Restarting instance")
+	im.logger.Info("Restarting instance", zap.String("instance_id", instanceID))
 
 	if err := im.StopInstance(ctx, instanceID); err != nil {
 		return fmt.Errorf("failed to stop instance: %w", err)
@@ -168,7 +168,7 @@ func (im *InstanceManager) DeleteInstance(ctx context.Context, instanceID string
 		return err
 	}
 
-	im.logger.Info().Str("instance_id", instanceID).Msg("Instance deleted successfully")
+	im.logger.Info("Instance deleted successfully", zap.String("instance_id", instanceID))
 	return nil
 }
 
@@ -185,7 +185,7 @@ func (im *InstanceManager) forceStopProcess(ctx context.Context, instanceID stri
 func (im *InstanceManager) teardownBridge(ctx context.Context, instanceID string) {
 	if im.bridgeOrch != nil {
 		if err := im.bridgeOrch.TeardownBridge(ctx, instanceID); err != nil {
-			im.logger.Warn().Err(err).Msg("Failed to teardown bridge")
+			im.logger.Warn("Failed to teardown bridge", zap.Error(err))
 		}
 	}
 }
@@ -226,21 +226,20 @@ func (im *InstanceManager) cleanupDependencies(ctx context.Context, tx *ent.Tx, 
 		Where(servicedependency.FromInstanceID(instanceID)).
 		Exec(ctx)
 	if err != nil {
-		im.logger.Warn().Err(err).Msg("failed to delete from-dependencies")
+		im.logger.Warn("failed to delete from-dependencies", zap.Error(err))
 		return
 	}
 	toCount, err := tx.ServiceDependency.Delete().
 		Where(servicedependency.ToInstanceID(instanceID)).
 		Exec(ctx)
 	if err != nil {
-		im.logger.Warn().Err(err).Msg("failed to delete to-dependencies")
+		im.logger.Warn("failed to delete to-dependencies", zap.Error(err))
 		return
 	}
-	im.logger.Info().
-		Str("instance_id", instanceID).
-		Int("from_dependencies", fromCount).
-		Int("to_dependencies", toCount).
-		Msg("cleaned up dependencies in transaction")
+	im.logger.Info("cleaned up dependencies in transaction",
+		zap.String("instance_id", instanceID),
+		zap.Int("from_dependencies", fromCount),
+		zap.Int("to_dependencies", toCount))
 }
 
 // cleanupPortAllocations releases allocated ports in a transaction.
@@ -250,12 +249,12 @@ func (im *InstanceManager) cleanupPortAllocations(ctx context.Context, tx *ent.T
 	}
 	allocs, err := im.config.PortRegistry.GetAllocationsByInstance(ctx, instanceID)
 	if err != nil {
-		im.logger.Warn().Err(err).Msg("failed to get port allocations for cleanup")
+		im.logger.Warn("failed to get port allocations for cleanup", zap.Error(err))
 		return
 	}
 	for _, alloc := range allocs {
 		if err := tx.PortAllocation.DeleteOneID(alloc.GetID()).Exec(ctx); err != nil {
-			im.logger.Warn().Err(err).Str("allocation_id", alloc.GetID()).Msg("failed to delete port allocation")
+			im.logger.Warn("failed to delete port allocation", zap.Error(err), zap.String("allocation_id", alloc.GetID()))
 		}
 	}
 }
@@ -267,12 +266,12 @@ func (im *InstanceManager) cleanupVLANAllocations(ctx context.Context, tx *ent.T
 	}
 	allocs, err := im.config.VLANAllocator.GetAllocationsByInstance(ctx, instanceID)
 	if err != nil {
-		im.logger.Warn().Err(err).Msg("failed to get VLAN allocations for cleanup")
+		im.logger.Warn("failed to get VLAN allocations for cleanup", zap.Error(err))
 		return
 	}
 	for _, alloc := range allocs {
 		if err := tx.VLANAllocation.DeleteOneID(alloc.GetID()).Exec(ctx); err != nil {
-			im.logger.Warn().Err(err).Str("allocation_id", alloc.GetID()).Msg("failed to delete VLAN allocation")
+			im.logger.Warn("failed to delete VLAN allocation", zap.Error(err), zap.String("allocation_id", alloc.GetID()))
 		}
 	}
 }

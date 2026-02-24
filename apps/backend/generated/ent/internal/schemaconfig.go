@@ -24,6 +24,7 @@ type SchemaConfig struct {
 	NotificationSettings      string // NotificationSettings table.
 	PortAllocation            string // PortAllocation table.
 	PortKnockSequence         string // PortKnockSequence table.
+	ProvisioningSession       string // ProvisioningSession table.
 	Resource                  string // Resource table.
 	ResourceEvent             string // ResourceEvent table.
 	Router                    string // Router table.
@@ -31,14 +32,15 @@ type SchemaConfig struct {
 	RouterSecret              string // RouterSecret table.
 	RoutingChain              string // RoutingChain table.
 	RoutingSchedule           string // RoutingSchedule table.
-	SchemaVersion             string // SchemaVersion table.
 	ServiceDependency         string // ServiceDependency table.
 	ServiceInstance           string // ServiceInstance table.
 	ServiceTemplate           string // ServiceTemplate table.
 	ServiceTrafficHourly      string // ServiceTrafficHourly table.
 	Session                   string // Session table.
+	SubnetAllocation          string // SubnetAllocation table.
 	User                      string // User table.
 	VLANAllocation            string // VLANAllocation table.
+	Version                   string // Version table.
 	VirtualInterface          string // VirtualInterface table.
 	Webhook                   string // Webhook table.
 }

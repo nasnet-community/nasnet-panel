@@ -61,6 +61,9 @@ type Error struct {
 
 // Error implements the error interface.
 func (e *Error) Error() string {
+	if e == nil {
+		return ""
+	}
 	if e.Cause != nil {
 		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Cause)
 	}
@@ -69,11 +72,37 @@ func (e *Error) Error() string {
 
 // Unwrap returns the underlying cause for errors.Is/errors.As support.
 func (e *Error) Unwrap() error {
+	if e == nil {
+		return nil
+	}
 	return e.Cause
 }
 
+// Is checks if this error matches the target error by comparing error codes.
+// This enables errors.Is(err, &Error{Code: "DB_CONNECTION_FAILED"}) patterns.
+func (e *Error) Is(target error) bool {
+	if e == nil || target == nil {
+		return e == target
+	}
+	if te, ok := target.(*Error); ok {
+		// Match by code if target code is specified
+		if te.Code != "" && e.Code != "" {
+			return e.Code == te.Code
+		}
+		return false
+	}
+	return false
+}
+
 // NewError creates a new Error with the given code, message, and cause.
+// It validates that code and message are non-empty to ensure proper error diagnostics.
 func NewError(code, message string, cause error) *Error {
+	if code == "" {
+		code = "DB_UNKNOWN_ERROR"
+	}
+	if message == "" {
+		message = "An unknown database error occurred"
+	}
 	return &Error{
 		Code:    code,
 		Message: message,

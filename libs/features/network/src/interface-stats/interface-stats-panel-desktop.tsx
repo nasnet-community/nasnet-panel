@@ -93,7 +93,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
           <CardDescription>Loading interface statistics...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-component-md">
             {Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="h-20" />
             ))}
@@ -151,13 +151,13 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-component-lg">
         {/* Traffic Counters Section */}
         <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Traffic Counters
           </h3>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-component-md">
             <StatsCounter value={stats.txBytes} label="TX Bytes" unit="bytes" />
             <StatsCounter value={stats.rxBytes} label="RX Bytes" unit="bytes" />
             <StatsCounter value={stats.txPackets} label="TX Packets" unit="packets" />
@@ -168,19 +168,19 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
         {/* Bandwidth Rates Section */}
         {rates && (
           <div>
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Bandwidth
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-component-md">
               <Card className="border-chart-1/20 bg-chart-1/5">
-                <CardContent className="pt-6">
+                <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
                         <ArrowUp className="h-4 w-4" aria-hidden="true" />
                         <span>TX Rate</span>
                       </div>
-                      <div className="mt-1 text-3xl font-bold font-mono tabular-nums">
+                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums">
                         {formatBitsPerSecBigInt(rates.txRate)}
                       </div>
                     </div>
@@ -190,14 +190,14 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
               </Card>
 
               <Card className="border-chart-2/20 bg-chart-2/5">
-                <CardContent className="pt-6">
+                <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
                         <ArrowDown className="h-4 w-4" aria-hidden="true" />
                         <span>RX Rate</span>
                       </div>
-                      <div className="mt-1 text-3xl font-bold font-mono tabular-nums">
+                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums">
                         {formatBitsPerSecBigInt(rates.rxRate)}
                       </div>
                     </div>
@@ -211,11 +211,11 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
 
         {/* Errors Section */}
         <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Error Statistics
           </h3>
-          <div className="space-y-4">
-            <div className="grid grid-cols-4 gap-4">
+          <div className="space-y-component-md">
+            <div className="grid grid-cols-4 gap-component-md">
               <StatsCounter value={String(stats.txErrors)} label="TX Errors" unit="count" />
               <StatsCounter value={String(stats.rxErrors)} label="RX Errors" unit="count" />
               <StatsCounter value={String(stats.txDrops)} label="TX Drops" unit="count" />

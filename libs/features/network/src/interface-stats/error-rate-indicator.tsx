@@ -78,7 +78,7 @@ export const ErrorRateIndicator = React.memo(function ErrorRateIndicator({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 rounded-md px-3 py-2 transition-colors',
+        'flex items-center gap-component-sm rounded-[var(--semantic-radius-card)] px-component-sm py-1 transition-colors',
         status === 'error' && 'bg-destructive/10 text-destructive',
         status === 'warning' && 'bg-warning/10 text-warning',
         status === 'healthy' && 'bg-success/10 text-success',

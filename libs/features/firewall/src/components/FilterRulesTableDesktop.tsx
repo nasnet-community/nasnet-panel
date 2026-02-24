@@ -206,8 +206,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
 
   const rowClassName = cn(
     rule.disabled && 'opacity-50 bg-muted',
-    isUnused && 'bg-muted/50',
-    isUnused && `opacity-${(UNUSED_RULE_OPACITY * 100).toFixed(0)}`,
+    isUnused && 'bg-muted/50 opacity-60',
     isHighlighted && 'animate-highlight bg-warning/20'
   );
 
@@ -247,7 +246,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
 
       {/* Traffic (Counter Cell) */}
       <TableCell
-        className="cursor-pointer hover:bg-muted"
+        className="cursor-pointer hover:bg-muted/50 transition-colors"
         onClick={() => onShowStats(rule)}
         role="button"
         tabIndex={0}
@@ -491,9 +490,9 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
         role="alert"
         aria-live="assertive"
       >
-        <div className="rounded-md bg-destructive/10 p-4 border border-destructive/20">
-          <h3 className="font-semibold text-destructive mb-2">Failed to load filter rules</h3>
-          <p className="text-sm text-destructive/80">
+        <div className="rounded-md bg-error/10 p-4 border border-error/20">
+          <h3 className="font-semibold text-error mb-2">Failed to load filter rules</h3>
+          <p className="text-sm text-error/80">
             {error.message || 'An error occurred while retrieving filter rules. Please check your connection and try again.'}
           </p>
         </div>

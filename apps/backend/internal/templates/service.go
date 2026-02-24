@@ -14,7 +14,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 //go:embed built_in/privacy-bundle.json
@@ -32,7 +32,7 @@ type TemplateService struct {
 	dependencyManager *dependencies.DependencyManager
 	eventBus          events.EventBus
 	publisher         *events.Publisher
-	logger            zerolog.Logger
+	logger            *zap.Logger
 }
 
 // TemplateServiceConfig holds configuration for the template service
@@ -40,7 +40,7 @@ type TemplateServiceConfig struct {
 	InstanceManager   *lifecycle.InstanceManager
 	DependencyManager *dependencies.DependencyManager
 	EventBus          events.EventBus
-	Logger            zerolog.Logger
+	Logger            *zap.Logger
 }
 
 // NewTemplateService creates a new template service
@@ -55,13 +55,18 @@ func NewTemplateService(cfg TemplateServiceConfig) (*TemplateService, error) {
 		return nil, fmt.Errorf("event bus is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	service := &TemplateService{
 		builtInTemplates:  make(map[string]*ServiceTemplate),
 		instanceManager:   cfg.InstanceManager,
 		dependencyManager: cfg.DependencyManager,
 		eventBus:          cfg.EventBus,
 		publisher:         events.NewPublisher(cfg.EventBus, "template-service"),
-		logger:            cfg.Logger.With().Str("component", "template-service").Logger(),
+		logger:            logger.With(zap.String("component", "template-service")),
 	}
 
 	// Load built-in templates
@@ -69,7 +74,7 @@ func NewTemplateService(cfg TemplateServiceConfig) (*TemplateService, error) {
 		return nil, fmt.Errorf("failed to load built-in templates: %w", err)
 	}
 
-	service.logger.Info().Int("count", len(service.builtInTemplates)).Msg("template service initialized")
+	service.logger.Info("template service initialized", zap.Int("count", len(service.builtInTemplates)))
 
 	return service, nil
 }
@@ -91,32 +96,32 @@ func (s *TemplateService) LoadBuiltInTemplates() error {
 	for _, file := range templateFiles {
 		data, err := builtInTemplatesFS.ReadFile(file)
 		if err != nil {
-			s.logger.Warn().Err(err).Str("file", file).Msg("failed to read template file")
+			s.logger.Warn("failed to read template file", zap.Error(err), zap.String("file", file))
 			continue
 		}
 
 		var template ServiceTemplate
 		if err := json.Unmarshal(data, &template); err != nil {
-			s.logger.Error().Err(err).Str("file", file).Msg("failed to parse template JSON")
+			s.logger.Error("failed to parse template JSON", zap.Error(err), zap.String("file", file))
 			continue
 		}
 
 		// Validate template
 		if err := s.validateTemplate(&template); err != nil {
-			s.logger.Error().Err(err).Str("file", file).Str("template_id", template.ID).Msg("template validation failed")
+			s.logger.Error("template validation failed", zap.Error(err), zap.String("file", file), zap.String("template_id", template.ID))
 			continue
 		}
 
 		s.builtInTemplates[template.ID] = &template
 		loadedCount++
-		s.logger.Debug().Str("template_id", template.ID).Str("name", template.Name).Msg("loaded template")
+		s.logger.Debug("loaded template", zap.String("template_id", template.ID), zap.String("name", template.Name))
 	}
 
 	if loadedCount == 0 {
 		return fmt.Errorf("no templates were successfully loaded")
 	}
 
-	s.logger.Info().Int("loaded", loadedCount).Int("total", len(templateFiles)).Msg("built-in templates loaded")
+	s.logger.Info("built-in templates loaded", zap.Int("loaded", loadedCount), zap.Int("total", len(templateFiles)))
 	return nil
 }
 
@@ -210,10 +215,10 @@ func (s *TemplateService) ListTemplates(ctx context.Context, category *TemplateC
 		templates = append(templates, &templateCopy)
 	}
 
-	s.logger.Debug().
-		Int("total", len(s.builtInTemplates)).
-		Int("filtered", len(templates)).
-		Msg("listed templates")
+	s.logger.Debug("listed templates",
+		zap.Int("total", len(s.builtInTemplates)),
+		zap.Int("filtered", len(templates)),
+	)
 
 	return templates, nil
 }

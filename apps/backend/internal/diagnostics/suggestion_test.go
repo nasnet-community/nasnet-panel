@@ -257,3 +257,158 @@ func TestSuggestionMapper_DocsURLs(t *testing.T) {
 	assert.NotNil(t, suggestions[0].DocsURL)
 	assert.Contains(t, *suggestions[0].DocsURL, "https://docs.example.com")
 }
+
+func TestSuggestionMapper_GenerateSuggestions_SSHPortClosed(t *testing.T) {
+	mapper := NewSuggestionMapper("")
+
+	closedErr := "connection refused"
+	report := &DiagnosticReport{
+		NetworkReachable: true,
+		PortStatus: []PortStatus{
+			{Port: 8728, Service: "API", Open: true},
+			{Port: 22, Service: "SSH", Open: false, Error: &closedErr},
+		},
+	}
+
+	suggestions := mapper.GenerateSuggestions(report)
+
+	// Should suggest enabling SSH (info level)
+	hasSSHSuggestion := false
+	for _, s := range suggestions {
+		if s.Title == "SSH port (22) is closed" {
+			hasSSHSuggestion = true
+			assert.Equal(t, SuggestionSeverityInfo, s.Severity)
+			assert.Contains(t, s.Description, "fallback")
+			assert.NotEmpty(t, s.Action)
+			assert.NotNil(t, s.DocsURL)
+			break
+		}
+	}
+	assert.True(t, hasSSHSuggestion)
+}
+
+func TestSuggestionMapper_GenerateSuggestions_MultipleIssues(t *testing.T) {
+	mapper := NewSuggestionMapper("")
+
+	closedErr := "connection refused"
+	tlsErr := "certificate expired"
+	report := &DiagnosticReport{
+		NetworkReachable: true,
+		PortStatus: []PortStatus{
+			{Port: 8728, Service: "API", Open: false, Error: &closedErr},
+			{Port: 8729, Service: "API-SSL", Open: false, Error: &closedErr},
+			{Port: 22, Service: "SSH", Open: true},
+		},
+		TLSStatus: &TLSStatus{
+			Valid: false,
+			Error: &tlsErr,
+		},
+		AuthStatus: AuthStatus{
+			Tested:  false,
+			Success: false,
+		},
+	}
+
+	suggestions := mapper.GenerateSuggestions(report)
+
+	// Should have multiple suggestions
+	assert.True(t, len(suggestions) >= 2, "should have at least 2 suggestions")
+
+	// Verify severity levels are appropriate
+	hasCritical := false
+	hasWarning := false
+	for _, s := range suggestions {
+		if s.Severity == SuggestionSeverityCritical {
+			hasCritical = true
+		}
+		if s.Severity == SuggestionSeverityWarning {
+			hasWarning = true
+		}
+		// All suggestions should have action and docs URL
+		assert.NotEmpty(t, s.Title)
+		assert.NotEmpty(t, s.Description)
+		assert.NotEmpty(t, s.Action)
+		assert.NotNil(t, s.DocsURL)
+	}
+	assert.True(t, hasCritical || hasWarning, "should have at least one critical or warning suggestion")
+}
+
+func TestSuggestionMapper_MapErrorToSuggestion_AllCategoriesHaveDocs(t *testing.T) {
+	mapper := NewSuggestionMapper("https://docs.example.com")
+
+	categories := []ErrorCategory{
+		ErrorCategoryTimeout,
+		ErrorCategoryRefused,
+		ErrorCategoryAuthFailed,
+		ErrorCategoryProtocolError,
+		ErrorCategoryNetworkError,
+		ErrorCategoryTLSError,
+	}
+
+	for _, category := range categories {
+		suggestion := mapper.MapErrorToSuggestion(category, "test detail")
+		assert.NotNil(t, suggestion.DocsURL, "category %s should have docs URL", category)
+		assert.NotEmpty(t, suggestion.Title, "category %s should have title", category)
+		assert.NotEmpty(t, suggestion.Action, "category %s should have action", category)
+	}
+}
+
+func TestContainsCI(t *testing.T) {
+	tests := []struct {
+		s      string
+		substr string
+		want   bool
+	}{
+		{"CONNECTION TIMEOUT", "timeout", true},
+		{"connection refused", "REFUSED", true},
+		{"Authentication Failed", "auth", true},
+		{"DEADLINE EXCEEDED", "deadline", true},
+		{"no route to host", "route", true},
+		{"something else", "xyz", false},
+		{"", "test", false},
+		{"test", "", false},
+	}
+
+	for _, tt := range tests {
+		result := containsCI(tt.s, tt.substr)
+		assert.Equal(t, tt.want, result, "containsCI(%q, %q) = %v, want %v", tt.s, tt.substr, result, tt.want)
+	}
+}
+
+func TestStringContains(t *testing.T) {
+	tests := []struct {
+		s      string
+		substr string
+		want   bool
+	}{
+		{"hello world", "world", true},
+		{"hello world", "lo wo", true},
+		{"hello world", "xyz", false},
+		{"test", "test", true},
+		{"", "test", false},
+		{"test", "", false},
+	}
+
+	for _, tt := range tests {
+		result := stringContains(tt.s, tt.substr)
+		assert.Equal(t, tt.want, result, "stringContains(%q, %q) = %v, want %v", tt.s, tt.substr, result, tt.want)
+	}
+}
+
+func TestToLower(t *testing.T) {
+	tests := []struct {
+		s    string
+		want string
+	}{
+		{"HELLO", "hello"},
+		{"Hello World", "hello world"},
+		{"123!@#", "123!@#"},
+		{"", ""},
+		{"lowercase", "lowercase"},
+	}
+
+	for _, tt := range tests {
+		result := toLower(tt.s)
+		assert.Equal(t, tt.want, result, "toLower(%q) = %q, want %q", tt.s, result, tt.want)
+	}
+}

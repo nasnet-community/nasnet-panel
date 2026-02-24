@@ -46,6 +46,9 @@ func convertRedactedFieldValues(values map[string]interface{}) map[string]interf
 	return values
 }
 
+// convertRedactedFieldValuesRequired converts redacted field values, treating nil as empty map.
+// Unlike convertRedactedFieldValues, this variant is explicitly used for required fields
+// where nil should be treated the same as an empty map.
 func convertRedactedFieldValuesRequired(values map[string]interface{}) map[string]interface{} {
 	if values == nil {
 		return make(map[string]interface{})
@@ -57,6 +60,24 @@ func convertEntInstanceToModel(instance *ent.ServiceInstance) *model.ServiceInst
 	if instance == nil {
 		return nil
 	}
+
+	var bindIP *string
+	if instance.BindIP != "" {
+		bindIP = &instance.BindIP
+	}
+	var binaryPath *string
+	if instance.BinaryPath != "" {
+		binaryPath = &instance.BinaryPath
+	}
+	var binaryVersion *string
+	if instance.BinaryVersion != "" {
+		binaryVersion = &instance.BinaryVersion
+	}
+	var binaryChecksum *string
+	if instance.BinaryChecksum != "" {
+		binaryChecksum = &instance.BinaryChecksum
+	}
+
 	return &model.ServiceInstance{
 		ID:             instance.ID,
 		FeatureID:      instance.FeatureID,
@@ -64,12 +85,12 @@ func convertEntInstanceToModel(instance *ent.ServiceInstance) *model.ServiceInst
 		RouterID:       instance.RouterID,
 		Status:         model.ServiceInstanceStatus(instance.Status),
 		VlanID:         instance.VlanID,
-		BindIP:         &instance.BindIP,
+		BindIP:         bindIP,
 		Ports:          instance.Ports,
 		Config:         instance.Config,
-		BinaryPath:     &instance.BinaryPath,
-		BinaryVersion:  &instance.BinaryVersion,
-		BinaryChecksum: &instance.BinaryChecksum,
+		BinaryPath:     binaryPath,
+		BinaryVersion:  binaryVersion,
+		BinaryChecksum: binaryChecksum,
 		CreatedAt:      instance.CreatedAt,
 		UpdatedAt:      instance.UpdatedAt,
 	}

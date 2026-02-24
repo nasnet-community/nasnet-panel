@@ -1,10 +1,10 @@
 package loaders
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 )
@@ -13,6 +13,9 @@ import (
 type Config struct {
 	// DB is the ent database client
 	DB *ent.Client
+
+	// Logger is the zap logger instance (optional, used for dev mode logging)
+	Logger *zap.Logger
 
 	// DevMode enables development logging (batch sizes, query counts)
 	DevMode bool
@@ -28,13 +31,14 @@ type Config struct {
 //
 //	e.Use(loaders.Middleware(loaders.Config{
 //	    DB:      entClient,
+//	    Logger:  logger,
 //	    DevMode: true,
 //	}))
 func Middleware(cfg Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Create new DataLoaders for this request
-			loaders := NewLoaders(cfg.DB, cfg.DevMode)
+			loaders := NewLoaders(cfg.DB, cfg.DevMode, cfg.Logger)
 
 			// Add loaders to context
 			ctx := WithLoaders(c.Request().Context(), loaders)
@@ -45,7 +49,7 @@ func Middleware(cfg Config) echo.MiddlewareFunc {
 
 			// Log stats if enabled (development mode)
 			if cfg.LogStats && cfg.DevMode {
-				loaders.LogStats()
+				loaders.LogStats(cfg.Logger)
 			}
 
 			return err
@@ -58,12 +62,12 @@ func Middleware(cfg Config) echo.MiddlewareFunc {
 //
 // Usage:
 //
-//	handler := loaders.HTTPMiddleware(loaders.Config{DB: entClient})(yourHandler)
+//	handler := loaders.HTTPMiddleware(loaders.Config{DB: entClient, Logger: logger})(yourHandler)
 func HTTPMiddleware(cfg Config) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Create new DataLoaders for this request
-			loaders := NewLoaders(cfg.DB, cfg.DevMode)
+			loaders := NewLoaders(cfg.DB, cfg.DevMode, cfg.Logger)
 
 			// Add loaders to context
 			ctx := WithLoaders(r.Context(), loaders)
@@ -73,7 +77,7 @@ func HTTPMiddleware(cfg Config) func(http.Handler) http.Handler {
 
 			// Log stats if enabled (development mode)
 			if cfg.LogStats && cfg.DevMode {
-				loaders.LogStats()
+				loaders.LogStats(cfg.Logger)
 			}
 		})
 	}
@@ -85,18 +89,21 @@ func HTTPMiddleware(cfg Config) func(http.Handler) http.Handler {
 // Usage with gqlgen:
 //
 //	graphqlHandler := handler.New(schema)
-//	wrappedHandler := loaders.GraphQLMiddleware(loaders.Config{DB: entClient})(graphqlHandler)
+//	wrappedHandler := loaders.GraphQLMiddleware(loaders.Config{DB: entClient, Logger: logger})(graphqlHandler)
 func GraphQLMiddleware(cfg Config) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Create new DataLoaders for this request
-			loaders := NewLoaders(cfg.DB, cfg.DevMode)
+			loaders := NewLoaders(cfg.DB, cfg.DevMode, cfg.Logger)
 
 			// Add loaders to context
 			ctx := WithLoaders(r.Context(), loaders)
 
-			if cfg.DevMode {
-				log.Printf("[DataLoader] Initialized for request: %s %s", r.Method, r.URL.Path)
+			if cfg.DevMode && cfg.Logger != nil {
+				cfg.Logger.Debug("DataLoader initialized for request",
+					zap.String("method", r.Method),
+					zap.String("path", r.URL.Path),
+				)
 			}
 
 			// Execute request with updated context
@@ -104,7 +111,7 @@ func GraphQLMiddleware(cfg Config) func(http.Handler) http.Handler {
 
 			// Log stats at end of request (development mode)
 			if cfg.LogStats && cfg.DevMode {
-				loaders.LogStats()
+				loaders.LogStats(cfg.Logger)
 			}
 		})
 	}

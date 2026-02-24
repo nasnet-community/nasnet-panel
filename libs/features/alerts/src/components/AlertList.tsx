@@ -89,7 +89,7 @@ export const AlertList = memo(
     if (error) {
       return (
         <div
-          className="p-4 bg-destructive/10 text-destructive rounded-md"
+          className="p-4 bg-error/10 text-error rounded-md"
           role="alert"
           aria-live="assertive"
         >
@@ -118,7 +118,7 @@ export const AlertList = memo(
     }
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         {alerts.map(({ node: alert }: { node: Record<string, any> }) => {
           const severityInfo = SEVERITY_CONFIG[alert.severity as keyof typeof SEVERITY_CONFIG];
           const isAcknowledged = Boolean(alert.acknowledgedAt);
@@ -127,23 +127,20 @@ export const AlertList = memo(
             <div
               key={alert.id}
               className={cn(
-                'p-4 border-l-4 rounded-md shadow-sm transition-opacity',
-                isAcknowledged && 'opacity-60'
+                'p-component-md border-l-4 border-border rounded-[var(--semantic-radius-card)] shadow-sm transition-opacity',
+                isAcknowledged && 'opacity-60',
+                severityInfo.borderClass
               )}
-              style={{
-                borderLeftColor: `var(--${severityInfo.color})`,
-              }}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   {/* Title and Severity */}
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="flex items-center gap-component-sm mb-2 flex-wrap">
                     <span
-                      className="inline-block px-2 py-0.5 text-xs font-medium rounded"
-                      style={{
-                        backgroundColor: `var(--${severityInfo.color})`,
-                        color: 'white',
-                      }}
+                      className={cn(
+                        'inline-block px-2 py-0.5 text-xs font-medium rounded',
+                        severityInfo.badgeClass
+                      )}
                     >
                       {severityInfo.label}
                     </span>
@@ -159,7 +156,7 @@ export const AlertList = memo(
                   <p className="text-sm text-muted-foreground mb-2">{alert.message}</p>
 
                   {/* Metadata */}
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-component-md text-xs text-muted-foreground">
                     <span>
                       {formatDistanceToNow(new Date(alert.triggeredAt), { addSuffix: true })}
                     </span>
@@ -192,10 +189,10 @@ export const AlertList = memo(
                     disabled={isAcknowledging}
                     aria-label={`Acknowledge alert: ${alert.title}`}
                     className={cn(
-                      'px-3 py-1.5 text-sm border border-border rounded-md',
+                      'min-h-[44px] px-3 py-1.5 text-sm border border-border rounded-[var(--semantic-radius-button)]',
                       'hover:bg-muted disabled:opacity-50 transition-colors',
-                      'whitespace-nowrap focus-visible:ring-2 focus-visible:ring-ring',
-                      'focus-visible:ring-offset-2 focus-visible:outline-none'
+                      'whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'focus-visible:ring-offset-2'
                     )}
                   >
                     {isAcknowledging ? (
@@ -215,13 +212,13 @@ export const AlertList = memo(
 
         {/* Pagination Info */}
         {hasNextPage && (
-          <div className="text-center pt-4">
+          <div className="text-center pt-component-md">
             <button
               aria-label={`Load more alerts, ${totalCount - alerts.length} remaining`}
               className={cn(
-                'text-sm text-primary hover:underline',
-                'focus-visible:ring-2 focus-visible:ring-ring',
-                'focus-visible:ring-offset-2 focus-visible:outline-none rounded'
+                'text-sm text-primary hover:underline rounded-[var(--semantic-radius-button)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'focus-visible:ring-offset-2'
               )}
             >
               Load More ({totalCount - alerts.length} remaining)

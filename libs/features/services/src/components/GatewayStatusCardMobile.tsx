@@ -119,8 +119,8 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
           {/* Error message */}
           {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-semantic-error">Error Message</span>
-              <p className="text-sm text-semantic-error">{gateway.errorMessage}</p>
+              <span className="text-xs text-error">Error Message</span>
+              <p className="text-sm text-error">{gateway.errorMessage}</p>
             </div>
           )}
 

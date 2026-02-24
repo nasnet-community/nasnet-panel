@@ -342,10 +342,10 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleSaveTemplate as any)}>
-          <ScrollArea className="max-h-[60vh] pr-4">
-            <div className="space-y-4">
+          <ScrollArea className="max-h-[60vh] pr-component-md">
+            <div className="space-y-component-md">
               {/* Name */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="name">Template Name *</Label>
                 <Input
                   id="name"
@@ -362,7 +362,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
               </div>
 
               {/* Description */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
@@ -377,8 +377,8 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
               </div>
 
               {/* Category and Complexity */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-component-md">
+                <div className="space-y-component-sm">
                   <Label htmlFor="category">Category *</Label>
                   <Select
                     defaultValue="CUSTOM"
@@ -399,7 +399,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="complexity">Complexity *</Label>
                   <Select
                     defaultValue="MODERATE"
@@ -419,7 +419,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
               </div>
 
               {/* Version */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="version">Version</Label>
                 <Input
                   id="version"
@@ -434,7 +434,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
 
               {/* Variables */}
               {potentialVariables.length > 0 && (
-                <div className="space-y-3 rounded-lg border p-4">
+                <div className="space-y-3 rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
                   <div className="flex items-center justify-between">
                     <Label>Template Variables</Label>
                     <Badge variant="secondary">
@@ -444,11 +444,11 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   <p className="text-sm text-muted-foreground">
                     Select values to parameterize. This makes your template reusable for different networks.
                   </p>
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     {potentialVariables.map((variable) => (
                       <div
                         key={variable.name}
-                        className="flex items-start space-x-3 rounded-md border p-3 hover:bg-accent/50"
+                        className="flex items-start space-x-3 rounded-[var(--semantic-radius-button)] border border-border bg-card p-component-sm hover:bg-muted/50 transition-colors"
                       >
                         <Checkbox
                           id={`var-${variable.name}`}
@@ -470,7 +470,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                             {variable.description}
                           </p>
                           {variable.defaultValue && (
-                            <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono">
+                            <code className="text-xs bg-muted px-component-sm py-1 rounded-[var(--semantic-radius-button)] font-mono">
                               Default: {variable.defaultValue}
                             </code>
                           )}
@@ -494,7 +494,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
             </div>
           </ScrollArea>
 
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-component-lg">
             <Button
               type="button"
               variant="outline"

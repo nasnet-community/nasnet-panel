@@ -33,9 +33,9 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-2 p-4 animate-pulse" role="status" aria-label="Loading network stats">
+      <div className="grid grid-cols-3 gap-component-sm p-component-md animate-pulse" role="status" aria-label="Loading network stats">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-xl p-3 text-center">
+          <div key={i} className="bg-card rounded-card-lg p-component-sm text-center">
             <div className="h-5 bg-muted rounded w-12 mx-auto mb-1" />
             <div className="h-3 bg-muted rounded w-8 mx-auto" />
           </div>
@@ -46,17 +46,17 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2 p-4" role="group" aria-label="Network statistics">
+    <div className="grid grid-cols-3 gap-component-sm p-component-md" role="group" aria-label="Network statistics">
       {/* CPU */}
-      <div className="bg-card rounded-xl p-3 text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
           <Cpu className="w-3.5 h-3.5 text-info" aria-hidden="true" />
         </div>
         <p className={cn(
-          'text-lg font-bold',
+          'text-lg font-bold font-mono',
           resourceData?.cpuLoad !== undefined
             ? calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-info' :
-              calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-warning' : 'text-destructive'
+              calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-warning' : 'text-error'
             : 'text-foreground'
         )}>
           {resourceData?.cpuLoad ?? '--'}%
@@ -65,15 +65,15 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
       </div>
 
       {/* Memory */}
-      <div className="bg-card rounded-xl p-3 text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <HardDrive className="w-3.5 h-3.5 text-secondary" aria-hidden="true" />
+          <HardDrive className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
         </div>
         <p className={cn(
-          'text-lg font-bold',
+          'text-lg font-bold font-mono',
           resourceData
-            ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-secondary' :
-              calculateStatus(memoryPercentage) === 'warning' ? 'text-warning' : 'text-destructive'
+            ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-warning' :
+              calculateStatus(memoryPercentage) === 'warning' ? 'text-warning' : 'text-error'
             : 'text-foreground'
         )}>
           {memoryPercentage}%
@@ -82,11 +82,11 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
       </div>
 
       {/* Uptime */}
-      <div className="bg-card rounded-xl p-3 text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
           <Clock className="w-3.5 h-3.5 text-success" aria-hidden="true" />
         </div>
-        <p className="text-lg font-bold text-success">{uptimeFormatted}</p>
+        <p className="text-lg font-bold font-mono text-success">{uptimeFormatted}</p>
         <p className="text-muted-foreground text-xs">{t('quickStats.uptime')}</p>
       </div>
     </div>

@@ -140,7 +140,7 @@ export function DnsStaticEntriesListDesktop({
 
   if (entries.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <EmptyState
           icon={FileText}
           title="No Static DNS Entries"
@@ -157,7 +157,7 @@ export function DnsStaticEntriesListDesktop({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         {/* Data Table */}
         <DataTable
           columns={columns}

@@ -15,7 +15,7 @@ import (
 	"backend/internal/orchestrator/lifecycle"
 	"backend/internal/orchestrator/supervisor"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // GatewayManager manages SOCKS-to-TUN gateways using hev-socks5-tunnel
@@ -25,7 +25,7 @@ type GatewayManager struct {
 	pathResolver  storage.PathResolverPort
 	gateways      map[string]*GatewayInstance
 	mu            sync.RWMutex
-	logger        zerolog.Logger
+	logger        *zap.Logger
 }
 
 // GatewayInstance represents a running gateway
@@ -45,7 +45,7 @@ type GatewayManagerConfig struct {
 	Supervisor    ProcessSupervisor        // Required
 	PathResolver  storage.PathResolverPort // Required
 	HevBinaryPath string                   // Optional, defaults to "/app/hev-socks5-tunnel"
-	Logger        zerolog.Logger
+	Logger        *zap.Logger
 }
 
 // NewGatewayManager creates a new GatewayManager instance
@@ -63,8 +63,8 @@ func NewGatewayManager(config GatewayManagerConfig) (*GatewayManager, error) {
 	}
 
 	logger := config.Logger
-	if logger.GetLevel() == zerolog.Disabled {
-		logger = zerolog.Nop()
+	if logger == nil {
+		logger = zap.NewNop()
 	}
 
 	return &GatewayManager{
@@ -72,7 +72,7 @@ func NewGatewayManager(config GatewayManagerConfig) (*GatewayManager, error) {
 		hevBinaryPath: hevPath,
 		pathResolver:  config.PathResolver,
 		gateways:      make(map[string]*GatewayInstance),
-		logger:        logger.With().Str("component", "gateway_manager").Logger(),
+		logger:        logger.Named("gateway_manager"),
 	}, nil
 }
 
@@ -94,7 +94,7 @@ func (gm *GatewayManager) StartGateway(ctx context.Context, instance *ent.Servic
 		mode = m
 	}
 	if !gm.needsGateway(manifest, mode) {
-		gm.logger.Debug().Str("instance_id", instanceID).Msg("gateway not needed")
+		gm.logger.Debug("gateway not needed", zap.String("instance_id", instanceID))
 		return nil
 	}
 
@@ -154,12 +154,11 @@ func (gm *GatewayManager) StartGateway(ctx context.Context, instance *ent.Servic
 		StartTime:  time.Now(),
 	}
 
-	gm.logger.Info().
-		Str("instance_id", instanceID).
-		Str("tun_name", tunName).
-		Str("socks_addr", config.Socks5.Address).
-		Int("socks_port", config.Socks5.Port).
-		Msg("gateway started successfully")
+	gm.logger.Info("gateway started successfully",
+		zap.String("instance_id", instanceID),
+		zap.String("tun_name", tunName),
+		zap.String("socks_addr", config.Socks5.Address),
+		zap.Int("socks_port", config.Socks5.Port))
 
 	return nil
 }
@@ -171,32 +170,31 @@ func (gm *GatewayManager) StopGateway(ctx context.Context, instanceID string) er
 
 	gateway, exists := gm.gateways[instanceID]
 	if !exists {
-		gm.logger.Debug().Str("instance_id", instanceID).Msg("gateway not found, nothing to stop")
+		gm.logger.Debug("gateway not found, nothing to stop", zap.String("instance_id", instanceID))
 		return nil
 	}
 
 	// Stop supervised process (SIGTERM → timeout → SIGKILL)
 	if err := gm.supervisor.Stop(ctx, gateway.ProcessID); err != nil {
-		gm.logger.Warn().Err(err).Str("process_id", gateway.ProcessID).Msg("error stopping gateway process")
+		gm.logger.Warn("error stopping gateway process", zap.Error(err), zap.String("process_id", gateway.ProcessID))
 	}
 
 	// Verify TUN interface removed (poll with timeout)
 	if err := gm.waitForTUNRemoval(ctx, gateway.TunName, 2*time.Second); err != nil {
-		gm.logger.Warn().Err(err).Str("tun_name", gateway.TunName).Msg("TUN interface not removed cleanly")
+		gm.logger.Warn("TUN interface not removed cleanly", zap.Error(err), zap.String("tun_name", gateway.TunName))
 	}
 
 	// Remove from supervisor
 	if err := gm.supervisor.Remove(gateway.ProcessID); err != nil {
-		gm.logger.Warn().Err(err).Str("process_id", gateway.ProcessID).Msg("error removing gateway from supervisor")
+		gm.logger.Warn("error removing gateway from supervisor", zap.Error(err), zap.String("process_id", gateway.ProcessID))
 	}
 
 	// Remove from map
 	delete(gm.gateways, instanceID)
 
-	gm.logger.Info().
-		Str("instance_id", instanceID).
-		Str("tun_name", gateway.TunName).
-		Msg("gateway stopped successfully")
+	gm.logger.Info("gateway stopped successfully",
+		zap.String("instance_id", instanceID),
+		zap.String("tun_name", gateway.TunName))
 
 	return nil
 }

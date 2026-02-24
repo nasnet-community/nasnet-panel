@@ -141,7 +141,7 @@ export const TimeRangeSelector = memo<TimeRangeSelectorProps>(
         role="radiogroup"
         aria-label="Select time range for bandwidth graph"
         className={cn(
-          'inline-flex items-center gap-1 rounded-lg bg-muted p-1',
+          'inline-flex items-center gap-component-sm rounded-card-lg bg-muted p-component-sm',
           className
         )}
       >
@@ -160,7 +160,7 @@ export const TimeRangeSelector = memo<TimeRangeSelectorProps>(
               onKeyDown={(e) => handleKeyDown(e, option.value)}
               className={cn(
                 // Base styles
-                'relative rounded-md px-4 py-2 text-sm font-medium transition-all',
+                'relative rounded-card-sm px-component-md py-component-sm text-sm font-medium transition-all',
                 // Minimum 44px height for touch targets (WCAG AAA)
                 'min-h-[44px]',
                 // Focus styles (3px ring)

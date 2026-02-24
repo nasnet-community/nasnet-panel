@@ -2,12 +2,11 @@ package dependencies
 
 import (
 	"context"
-	"os"
 	"testing"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 )
@@ -24,7 +23,7 @@ func TestComputeStartupOrder_EmptySet(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -53,7 +52,7 @@ func TestComputeStartupOrder_NoDependencies(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -90,7 +89,7 @@ func TestComputeStartupOrder_LinearChain(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -141,7 +140,7 @@ func TestComputeStartupOrder_MultipleLayers(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -199,7 +198,7 @@ func TestComputeStartupOrder_ParallelBranches(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -256,7 +255,7 @@ func TestComputeStartupOrder_CycleDetection(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -306,7 +305,7 @@ func TestDetectCycle_SimpleCycle(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -355,7 +354,7 @@ func TestDetectCycle_ComplexCycle(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -421,7 +420,7 @@ func TestDetectCycle_DiamondPattern(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,

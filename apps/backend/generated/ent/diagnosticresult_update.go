@@ -3,14 +3,13 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-
 	"backend/generated/ent/diagnosticresult"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/serviceinstance"
+	"context"
+	"errors"
+	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

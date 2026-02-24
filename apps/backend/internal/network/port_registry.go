@@ -148,14 +148,23 @@ func (pr *PortRegistry) AllocatePort(ctx context.Context, req AllocatePortReques
 			"default_port", 10000)
 	}
 
-	// Lock for entire allocation process to prevent race conditions
+	// Lock for entire allocation process to prevent race conditions.
+	// The lock is held from finding an available port through persisting the allocation,
+	// ensuring atomicity and preventing double-allocation of the same port.
 	pr.mu.Lock()
 	defer pr.mu.Unlock()
 
-	// Find next available port (must be called while holding lock)
+	// Find next available port (must be called while holding lock).
+	// No concurrent goroutine can allocate the same port since we hold the write lock.
 	port, err := pr.findNextAvailablePortUnsafe(ctx, req.RouterID, req.Protocol, basePorts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find available port: %w", err)
+	}
+
+	// Prepare notes: pass nil if empty, otherwise pass pointer to string
+	var notesPtr *string
+	if req.Notes != "" {
+		notesPtr = &req.Notes
 	}
 
 	allocation, err := pr.store.PortAllocation().Create().
@@ -165,7 +174,7 @@ func (pr *PortRegistry) AllocatePort(ctx context.Context, req AllocatePortReques
 		SetProtocol(req.Protocol).
 		SetInstanceID(req.InstanceID).
 		SetServiceType(req.ServiceType).
-		SetNillableNotes(&req.Notes).
+		SetNillableNotes(notesPtr).
 		Save(ctx)
 
 	if err != nil {
@@ -246,6 +255,11 @@ func (pr *PortRegistry) findNextAvailablePortUnsafe(ctx context.Context, routerI
 // IsPortAvailable checks if a port is available for allocation on a router.
 // It checks the in-memory cache, database, and reserved ports list.
 func (pr *PortRegistry) IsPortAvailable(ctx context.Context, routerID string, port int, protocol string) bool {
+	// Validate port range (1-65535)
+	if port < 1 || port > 65535 {
+		return false
+	}
+
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 

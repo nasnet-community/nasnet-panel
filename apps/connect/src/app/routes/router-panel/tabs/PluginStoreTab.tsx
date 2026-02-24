@@ -261,7 +261,7 @@ export const PluginStoreTab = React.memo(function PluginStoreTab({ routerId }: P
   const installedCount = plugins.filter(p => p.status === 'installed' || p.status === 'running').length;
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Page Header */}
         <div>

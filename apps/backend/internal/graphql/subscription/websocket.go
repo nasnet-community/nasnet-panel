@@ -5,12 +5,12 @@ package subscription
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 const (
@@ -75,6 +75,7 @@ type WebSocketHandler struct {
 	config   WebSocketConfig
 	upgrader websocket.Upgrader
 	manager  *Manager
+	logger   *zap.Logger
 }
 
 // NewWebSocketHandler creates a new WebSocket handler
@@ -82,6 +83,7 @@ func NewWebSocketHandler(manager *Manager, config WebSocketConfig) *WebSocketHan
 	return &WebSocketHandler{
 		config:  config,
 		manager: manager,
+		logger:  zap.NewNop(), // Use nop logger by default; can be replaced with actual logger
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -95,11 +97,11 @@ func NewWebSocketHandler(manager *Manager, config WebSocketConfig) *WebSocketHan
 func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conn, err := h.upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("[WS] Upgrade failed: %v", err)
+		h.logger.Error("WebSocket upgrade failed", zap.Error(err))
 		return
 	}
 
-	client := newWSClient(conn, h.config, h.manager)
+	client := newWSClient(conn, h.config, h.manager, h.logger)
 	go client.readPump()
 	go client.writePump()
 }
@@ -109,6 +111,7 @@ type wsClient struct {
 	conn    *websocket.Conn
 	config  WebSocketConfig
 	manager *Manager
+	logger  *zap.Logger
 	send    chan []byte
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -119,13 +122,14 @@ type wsClient struct {
 }
 
 // newWSClient creates a new WebSocket client
-func newWSClient(conn *websocket.Conn, config WebSocketConfig, manager *Manager) *wsClient {
+func newWSClient(conn *websocket.Conn, config WebSocketConfig, manager *Manager, logger *zap.Logger) *wsClient {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &wsClient{
 		conn:    conn,
 		config:  config,
 		manager: manager,
+		logger:  logger,
 		send:    make(chan []byte, 256),
 		ctx:     ctx,
 		cancel:  cancel,
@@ -151,7 +155,7 @@ func (c *wsClient) readPump() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("[WS] Unexpected close: %v", err)
+				c.logger.Warn("Unexpected WebSocket close", zap.Error(err))
 			}
 			return
 		}
@@ -178,7 +182,7 @@ func (c *wsClient) writePump() {
 			}
 
 			if writeErr := c.conn.WriteMessage(websocket.TextMessage, message); writeErr != nil {
-				log.Printf("[WS] Write error: %v", writeErr)
+				c.logger.Error("WebSocket write error", zap.Error(writeErr))
 				return
 			}
 
@@ -198,7 +202,7 @@ func (c *wsClient) writePump() {
 func (c *wsClient) handleMessage(data []byte) {
 	var msg WSMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
-		log.Printf("[WS] Invalid message: %v", err)
+		c.logger.Error("Invalid WebSocket message", zap.Error(err))
 		return
 	}
 
@@ -222,7 +226,7 @@ func (c *wsClient) handleMessage(data []byte) {
 		c.cleanup()
 
 	default:
-		log.Printf("[WS] Unknown message type: %s", msg.Type)
+		c.logger.Warn("Unknown WebSocket message type", zap.String("type", msg.Type))
 	}
 }
 
@@ -245,7 +249,7 @@ func (c *wsClient) handleConnectionInit(msg WSMessage) {
 	}
 
 	c.sendMessage(&WSMessage{Type: GQLConnectionAck})
-	log.Printf("[WS] Connection initialized")
+	c.logger.Info("WebSocket connection initialized")
 }
 
 // handleSubscribe handles new subscription requests
@@ -276,7 +280,7 @@ func (c *wsClient) handleSubscribe(msg WSMessage) {
 	// Note: In a full implementation, we'd create a proper subscription through the manager
 	// and map the operation ID to the subscription ID
 
-	log.Printf("[WS] Subscription started: %s", msg.ID)
+	c.logger.Info("WebSocket subscription started", zap.String("id", msg.ID))
 
 	// Start goroutine to forward events
 	go func() {
@@ -306,7 +310,7 @@ func (c *wsClient) handleComplete(msg WSMessage) {
 			_ = c.manager.Unsubscribe(subID) //nolint:errcheck // Unsubscribe error is logged elsewhere
 		}
 		delete(c.subs, msg.ID)
-		log.Printf("[WS] Subscription completed: %s", msg.ID)
+		c.logger.Info("WebSocket subscription completed", zap.String("id", msg.ID))
 	}
 }
 
@@ -321,14 +325,14 @@ func (c *wsClient) sendMessage(msg *WSMessage) {
 
 	data, err := json.Marshal(msg)
 	if err != nil {
-		log.Printf("[WS] Marshal error: %v", err)
+		c.logger.Error("WebSocket marshal error", zap.Error(err))
 		return
 	}
 
 	select {
 	case c.send <- data:
 	default:
-		log.Printf("[WS] Send buffer full, dropping message")
+		c.logger.Warn("WebSocket send buffer full, dropping message")
 	}
 }
 
@@ -396,5 +400,5 @@ func (c *wsClient) cleanup() {
 
 	close(c.send)
 
-	log.Printf("[WS] Client disconnected")
+	c.logger.Info("WebSocket client disconnected")
 }

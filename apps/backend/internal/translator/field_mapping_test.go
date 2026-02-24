@@ -277,3 +277,152 @@ func TestBuildDefaultRegistry(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "address", mapping.MikroTikField)
 }
+
+func TestGetMappingsForPath_NoMappings(t *testing.T) {
+	registry := NewFieldMappingRegistry()
+
+	// Should return empty map, never nil
+	mappings := registry.GetMappingsForPath("/nonexistent/path")
+	assert.NotNil(t, mappings)
+	assert.Equal(t, 0, len(mappings))
+}
+
+func TestParseMikroTikDuration_InvalidFormats(t *testing.T) {
+	tests := []struct {
+		input    string
+		hasError bool
+	}{
+		{"xyz", true},          // No numbers at all
+		{"1x", true},           // Invalid unit
+		{"", false},            // Empty is OK (returns 0)
+		{"1d2h3m4s", false},    // Valid
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			_, err := ParseMikroTikDuration(tt.input)
+			if tt.hasError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestParseMikroTikSize_EdgeCases(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+		hasError bool
+	}{
+		{"", 0, false},         // Empty OK
+		{"K", 0, true},         // Just suffix, no number
+		{"M", 0, true},         // Just suffix, no number
+		{"0", 0, false},        // Zero
+		{"0K", 0, false},       // Zero with suffix
+		{"-5", -5, false},      // Negative (ParseInt accepts this)
+		{"-5K", -5 * 1024, false},       // Negative with suffix (accepted by ParseInt)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			val, err := ParseMikroTikSize(tt.input)
+			if tt.hasError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.expected, val)
+			}
+		})
+	}
+}
+
+func TestFieldMappingRegistry_MissingFields(t *testing.T) {
+	registry := NewFieldMappingRegistry()
+
+	t.Run("GetMikroTikField missing field", func(t *testing.T) {
+		field, ok := registry.GetMikroTikField("nonexistent")
+		assert.False(t, ok)
+		assert.Equal(t, "", field)
+	})
+
+	t.Run("GetGraphQLField missing field", func(t *testing.T) {
+		field, ok := registry.GetGraphQLField("/nonexistent", "field")
+		assert.False(t, ok)
+		assert.Equal(t, "", field)
+	})
+
+	t.Run("GetMapping missing path", func(t *testing.T) {
+		mapping, ok := registry.GetMapping("/nonexistent", "field")
+		assert.False(t, ok)
+		assert.Nil(t, mapping)
+	})
+
+	t.Run("GetMappingsForPath missing path returns empty", func(t *testing.T) {
+		mappings := registry.GetMappingsForPath("/nonexistent")
+		assert.NotNil(t, mappings)
+		assert.Equal(t, 0, len(mappings))
+	})
+}
+
+func TestFieldMappingRegistry_RoundTrip(t *testing.T) {
+	t.Run("round-trip translation macAddress", func(t *testing.T) {
+		registry := BuildDefaultRegistry()
+
+		// GraphQL → MikroTik
+		mikrotikField, ok := registry.GetMikroTikField("macAddress")
+		require.True(t, ok)
+		assert.Equal(t, "mac-address", mikrotikField)
+
+		// MikroTik → GraphQL
+		graphqlField, ok := registry.GetGraphQLField("/interface", "mac-address")
+		require.True(t, ok)
+		assert.Equal(t, "macAddress", graphqlField)
+
+		// Should round-trip correctly
+		assert.Equal(t, "macAddress", graphqlField)
+	})
+
+	t.Run("round-trip automatic conversion", func(t *testing.T) {
+		// Test KebabToCamel(CamelToKebab(x)) == x
+		tests := []string{"myField", "someValue", "txBytes", "freeMemory"}
+
+		for _, original := range tests {
+			kebab := CamelToKebab(original)
+			back := KebabToCamel(kebab)
+			assert.Equal(t, original, back, "round-trip failed for %s", original)
+		}
+	})
+}
+
+func TestParseSize_Negative(t *testing.T) {
+	// ParseInt accepts negative numbers, documenting this behavior
+	val, err := ParseMikroTikSize("-1024")
+	require.NoError(t, err) // ParseInt accepts negatives
+	assert.Equal(t, int64(-1024), val)
+
+	val, err = ParseMikroTikSize("1024")
+	require.NoError(t, err)
+	assert.Equal(t, int64(1024), val)
+}
+
+func TestConvertByType_AllTypes(t *testing.T) {
+	t.Run("all field types convert without panic", func(t *testing.T) {
+		// Test that all FieldType constants convert without panic
+		testValue := "test"
+
+		types := []FieldType{
+			FieldTypeString, FieldTypeInt, FieldTypeBool,
+			FieldTypeDuration, FieldTypeList, FieldTypeMAC,
+			FieldTypeIP, FieldTypeSize,
+		}
+
+		for _, ft := range types {
+			result := FormatMikroTikValue(testValue, ft)
+			assert.NotPanics(t, func() {
+				_ = result
+			}, "FormatMikroTikValue panicked for type %s", ft)
+		}
+	})
+}

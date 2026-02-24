@@ -121,17 +121,17 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Device Scan</h2>
+        <h2 className="text-xl font-semibold font-display">Device Scan</h2>
         <p className="text-sm text-muted-foreground">
           Discover devices on your network
         </p>
       </div>
 
       {/* Controls */}
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <InterfaceSelector
           routerId={routerId || ''}
           value={selectedInterface}
@@ -147,12 +147,12 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
           label="Subnet to scan"
         />
 
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           {isScanning ? (
             <Button
               variant="destructive"
               onClick={stopScan}
-              className="flex-1"
+              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               size="lg"
               aria-label="Stop the currently running device scan"
             >
@@ -162,7 +162,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
             <Button
               onClick={handleStartScan}
               disabled={!routerId}
-              className="flex-1"
+              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               size="lg"
               aria-label="Start ARP device scan on the selected subnet"
             >
@@ -175,6 +175,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
               onClick={reset}
               size="lg"
               aria-label="Reset and start a new device scan"
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               New Scan
             </Button>
@@ -184,7 +185,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
 
       {/* Progress Indicator */}
       {isScanning && (
-        <Card className="p-4 space-y-2">
+        <Card className="p-component-md space-y-component-sm">
           <Progress
             value={progress}
             className="h-3"
@@ -203,12 +204,12 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
       {/* Error State */}
       {error && (
         <Card
-          className="p-4 bg-destructive/10 border border-destructive/30"
+          className="p-component-md bg-error/10 border border-error/30"
           role="alert"
           aria-live="assertive"
         >
-          <p className="font-medium text-destructive">Scan failed</p>
-          <p className="text-sm text-destructive mt-1">{error}</p>
+          <p className="font-medium text-error">Scan failed</p>
+          <p className="text-sm text-error mt-component-sm">{error}</p>
         </Card>
       )}
 
@@ -228,9 +229,9 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
 
       {/* Empty State */}
       {isComplete && devices.length === 0 && (
-        <Card className="p-8 text-center border-dashed">
+        <Card className="p-component-lg text-center border-dashed">
           <p className="text-muted-foreground font-medium">No devices found</p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-component-sm">
             Try a different subnet
           </p>
         </Card>

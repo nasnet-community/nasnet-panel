@@ -33,7 +33,7 @@ export const SecurityLevelBadge = React.memo(function SecurityLevelBadge({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
+        'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
         config.className,
         className
       )}
@@ -57,25 +57,25 @@ function getSecurityLevelConfig(level: SecurityLevel) {
       return {
         label: 'Strong',
         icon: Shield,
-        className: 'bg-success/10 text-success dark:bg-success/20',
+        className: 'bg-success/10 text-success',
       };
     case 'moderate':
       return {
         label: 'Moderate',
         icon: ShieldAlert,
-        className: 'bg-warning/10 text-warning dark:bg-warning/20',
+        className: 'bg-warning/10 text-warning',
       };
     case 'weak':
       return {
         label: 'Weak',
         icon: ShieldX,
-        className: 'bg-error/10 text-error dark:bg-error/20',
+        className: 'bg-error/10 text-error',
       };
     case 'none':
       return {
         label: 'None',
         icon: ShieldOff,
-        className: 'bg-muted text-muted-foreground dark:bg-muted/20',
+        className: 'bg-muted text-muted-foreground',
       };
   }
 }

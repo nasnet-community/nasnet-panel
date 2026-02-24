@@ -138,7 +138,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'wireguard' || activeTab === 'all'}
           >
             {wireguardPeers.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {wireguardPeers.map((peer) => (
                   <VPNClientCard
                     key={peer.id}
@@ -172,7 +172,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'openvpn' || activeTab === 'all'}
           >
             {openvpnClients.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {openvpnClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -209,7 +209,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'l2tp' || activeTab === 'all'}
           >
             {l2tpClients.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {l2tpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -247,7 +247,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'pptp' || activeTab === 'all'}
           >
             {pptpClients.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {pptpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -285,7 +285,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'sstp' || activeTab === 'all'}
           >
             {sstpClients.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {sstpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -324,7 +324,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             defaultExpanded={activeTab === 'ikev2' || activeTab === 'all'}
           >
             {ipsecClientPeers.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-component-md md:grid-cols-2">
                 {ipsecClientPeers.map((peer) => {
                   const activeConn = getIPsecActive(peer.id);
                   return (
@@ -363,11 +363,11 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 py-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+      <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-component-md">
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
@@ -378,12 +378,13 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Button
               variant="outline"
               size="sm"
               onClick={refetchAll}
               disabled={isLoading || isFetching}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
@@ -393,9 +394,9 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+              <Skeleton key={i} className="h-32 w-full rounded-card-sm" />
             ))}
           </div>
         )}
@@ -404,7 +405,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
         {!isLoading && (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}>
             {/* Protocol Tabs */}
-            <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
+            <TabsList className="w-full flex-wrap h-auto gap-component-sm bg-transparent p-0 mb-component-lg">
               <TabsTrigger
                 value="all"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -459,7 +460,7 @@ interface EmptyStateProps {
 function EmptyState({ protocol, onAdd }: EmptyStateProps) {
   const { t } = useTranslation('vpn');
   return (
-    <div className="text-center py-8 bg-muted/30 rounded-xl">
+    <div className="text-center py-component-lg bg-muted/30 rounded-card-sm">
       <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
         {t('clients.noClientsConfigured', { protocol: getProtocolLabel(protocol) })}
@@ -467,7 +468,7 @@ function EmptyState({ protocol, onAdd }: EmptyStateProps) {
       <p className="text-sm text-muted-foreground mb-4">
         {t('clients.getStartedAddFirst', { protocol: getProtocolLabel(protocol) })}
       </p>
-      <Button onClick={onAdd}>
+      <Button onClick={onAdd} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]">
         <Plus className="h-4 w-4 mr-2" />
         {t('clients.addClient', { protocol: getProtocolLabel(protocol) })}
       </Button>

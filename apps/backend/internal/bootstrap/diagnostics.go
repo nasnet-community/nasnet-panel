@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"log"
+	"go.uber.org/zap"
 
 	"backend/internal/diagnostics"
 	"backend/internal/dns"
@@ -20,31 +20,38 @@ type DiagnosticsComponents struct {
 // InitializeDiagnostics creates and initializes diagnostic services.
 // This includes:
 // - Diagnostics service (connection diagnostics, circuit breaker)
-// - Traceroute service (hop-by-hop network path tracing)
-// - DNS service (DNS lookup and query operations)
+// - Traceroute service (hop-by-hop network path tracing) - currently deferred
+// - DNS service (DNS lookup and query operations) - currently deferred
+//
+// Note: Traceroute and DNS services are returned as nil and can be initialized later
+// when proper adapters implementing traceroute.RouterPort and dns.RouterPort interfaces
+// are available.
 func InitializeDiagnostics(
 	routerPort *router.MockAdapter,
+	logger *zap.SugaredLogger,
 ) (*DiagnosticsComponents, error) {
+
+	_ = routerPort // Reserved for future traceroute/DNS initialization
 	// 1. Diagnostics Service - connection diagnostics with circuit breaker
-	diagnosticsService := diagnostics.NewService(diagnostics.ServiceConfig{
+	diagnosticsService := diagnostics.NewService(diagnostics.Config{
 		DocsBaseURL:     "https://docs.nasnetconnect.io",
 		RateLimitPeriod: 0, // Use default
 		RouterProvider:  nil,
 		CBProvider:      nil,
 	})
-	log.Printf("Diagnostics service initialized (port scanner + circuit breaker)")
+	logger.Infow("diagnostics service initialized", zap.String("features", "port scanner + circuit breaker"))
 
 	// 2. Traceroute Service - hop-by-hop network path tracing
 	// Note: Requires adapter that implements traceroute.RouterPort interface
 	// For now, this will be nil and can be initialized when proper adapter is available
 	var tracerouteService *traceroute.Service
-	log.Printf("Traceroute service: deferred (requires traceroute.RouterPort adapter)")
+	logger.Infow("traceroute service deferred", zap.String("reason", "requires traceroute.RouterPort adapter"))
 
 	// 3. DNS Service - DNS lookup operations
 	// Note: Requires adapter that implements dns interface
 	// For now, this will be nil and can be initialized when proper adapter is available
 	var dnsService *dns.Service
-	log.Printf("DNS service: deferred (requires dns.RouterPort adapter)")
+	logger.Infow("DNS service deferred", zap.String("reason", "requires dns.RouterPort adapter"))
 
 	return &DiagnosticsComponents{
 		DiagnosticsService: diagnosticsService,

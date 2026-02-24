@@ -278,9 +278,12 @@ func TestRegistry_ThreadSafety(t *testing.T) {
 	// Concurrent registers
 	for i := 0; i < 10; i++ {
 		go func(id int) {
-			gen := newMockGenerator("service-" + string(rune('0'+id)))
-			registry.Register(gen)
-			done <- true
+			defer func() { done <- true }()
+			gen := newMockGenerator(fmt.Sprintf("service-%d", id))
+			err := registry.Register(gen)
+			if err != nil {
+				t.Errorf("Failed to register generator %d: %v", id, err)
+			}
 		}(i)
 	}
 

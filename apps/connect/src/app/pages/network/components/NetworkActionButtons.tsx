@@ -48,8 +48,8 @@ export const NetworkActionButtons = React.memo(function NetworkActionButtons({
   return (
     <div
       className={cn(
-        'flex items-center gap-2',
-        compact ? 'gap-1' : 'gap-2',
+        'flex items-center',
+        compact ? 'gap-component-sm' : 'gap-component-md',
         className,
       )}
       role="toolbar"
@@ -63,15 +63,15 @@ export const NetworkActionButtons = React.memo(function NetworkActionButtons({
           onClick={action.onClick}
           aria-label={action.label}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium',
+            'inline-flex items-center gap-1.5 rounded-card-sm border px-3 py-1.5 text-sm font-medium',
             'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50',
             'min-h-[44px]',
             action.variant === 'destructive'
               ? 'border-error bg-error/10 text-error hover:bg-error/15'
               : action.variant === 'outline'
-                ? 'border-border bg-transparent text-foreground hover:bg-accent'
-                : 'border-border bg-background text-foreground hover:bg-accent',
+                ? 'border-border bg-transparent text-foreground hover:bg-muted'
+                : 'border-border bg-muted text-foreground hover:bg-muted',
           )}
         >
           <span

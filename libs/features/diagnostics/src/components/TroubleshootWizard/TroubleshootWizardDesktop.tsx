@@ -132,7 +132,7 @@ const TroubleshootWizardDesktopComponent = memo(
           For now, we'll skip the stepper display to avoid type errors. */}
 
       {/* Main Content */}
-      <Card className="p-6">
+      <Card className="p-component-lg">
         {wizard.isIdle && (
           <div className="text-center py-8">
             <h2 className="text-xl font-semibold text-foreground mb-3">
@@ -149,7 +149,7 @@ const TroubleshootWizardDesktopComponent = memo(
         )}
 
         {(wizard.isRunning || wizard.isAwaitingFixDecision || wizard.isApplyingFix || wizard.isVerifying) && (
-          <div className="space-y-6">
+          <div className="space-y-component-lg">
             {/* Current Step Display */}
             <div>
               <h2 className="text-xl font-semibold text-foreground mb-2">
@@ -179,7 +179,7 @@ const TroubleshootWizardDesktopComponent = memo(
 
             {/* Verifying Message */}
             {wizard.isVerifying && (
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-md text-center">
+              <div className="p-component-md bg-primary/10 border border-primary/20 rounded-[var(--semantic-radius-button)] text-center">
                 <p className="text-sm text-foreground">
                   Verifying fix effectiveness... Please wait.
                 </p>

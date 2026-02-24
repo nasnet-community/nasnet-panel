@@ -453,7 +453,7 @@ func TestEngine_StormDetectionIntegration(t *testing.T) {
 		}, RealClock{}),
 		rulesCache: make(map[string]*ent.AlertRule),
 	}
-	_ = engine // Silence unused variable warning
+	_ = engine // Variable needed for test structure
 
 	// Create test event
 	// testEvent := events.NewTypedEvent("test.event", map[string]interface{}{
@@ -515,7 +515,7 @@ func TestEngine_StormDetectionReset(t *testing.T) {
 		}, RealClock{}),
 		rulesCache: make(map[string]*ent.AlertRule),
 	}
-	_ = engine // Silence unused variable
+	_ = engine // Variable needed for test structure
 
 	// ctx := context.Background()
 	// testEvent := events.NewTypedEvent("test.event", map[string]interface{}{
@@ -552,7 +552,7 @@ func TestEngine_StormDetectionReset(t *testing.T) {
 func TestEngine_StormDetectionCooldown(t *testing.T) {
 	t.Skip("TODO: events.NewMockEventBus doesn't exist - needs mock implementation")
 	clock := NewMockClock(time.Now())
-	_ = clock // Silence unused variable
+	_ = clock // Variable needed for test structure
 	// mockEventBus := events.NewMockEventBus()
 	logger := zap.NewNop().Sugar()
 
@@ -569,7 +569,7 @@ func TestEngine_StormDetectionCooldown(t *testing.T) {
 		}, nil), // clock), // TODO: skipped test
 		rulesCache: make(map[string]*ent.AlertRule),
 	}
-	_ = engine // Silence unused variable
+	_ = engine // Variable needed for test structure
 
 	// ctx := context.Background()
 	// testEvent := events.NewTypedEvent("test.event", map[string]interface{}{

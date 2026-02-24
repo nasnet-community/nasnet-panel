@@ -15,9 +15,10 @@ package loaders
 
 import (
 	"context"
-	"log"
 	"sync/atomic"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 )
@@ -81,20 +82,23 @@ func (s *LoaderStats) IncrementCacheHits() {
 }
 
 // LogStats logs the current loader statistics (for development mode).
-func (s *LoaderStats) LogStats(prefix string) {
+func (s *LoaderStats) LogStats(logger *zap.Logger, prefix string) {
+	if logger == nil {
+		return
+	}
 	duration := time.Since(s.StartTime)
-	log.Printf("[DataLoader] %s: batch_calls=%d, total_keys=%d, cache_hits=%d, duration=%s",
-		prefix,
-		atomic.LoadInt64(&s.BatchCalls),
-		atomic.LoadInt64(&s.TotalKeys),
-		atomic.LoadInt64(&s.CacheHits),
-		duration,
+	logger.Info("DataLoader statistics",
+		zap.String("prefix", prefix),
+		zap.Int64("batch_calls", atomic.LoadInt64(&s.BatchCalls)),
+		zap.Int64("total_keys", atomic.LoadInt64(&s.TotalKeys)),
+		zap.Int64("cache_hits", atomic.LoadInt64(&s.CacheHits)),
+		zap.Duration("duration", duration),
 	)
 }
 
 // NewLoaders creates a new Loaders instance with all DataLoaders initialized.
 // Each DataLoader is request-scoped - a new instance should be created per request.
-func NewLoaders(db *ent.Client, devMode bool) *Loaders {
+func NewLoaders(db *ent.Client, devMode bool, logger *zap.Logger) *Loaders {
 	stats := &LoaderStats{
 		StartTime: time.Now(),
 	}
@@ -105,10 +109,10 @@ func NewLoaders(db *ent.Client, devMode bool) *Loaders {
 	}
 
 	// Initialize individual loaders
-	loaders.RouterLoader = NewRouterLoader(db, stats, devMode)
-	loaders.ResourceLoader = NewResourceLoader(db, stats, devMode)
-	loaders.ResourcesByRouterLoader = NewResourcesByRouterLoader(db, stats, devMode)
-	loaders.ResourcesByTypeLoader = NewResourcesByTypeLoader(db, stats, devMode)
+	loaders.RouterLoader = NewRouterLoader(db, stats, devMode, logger)
+	loaders.ResourceLoader = NewResourceLoader(db, stats, devMode, logger)
+	loaders.ResourcesByRouterLoader = NewResourcesByRouterLoader(db, stats, devMode, logger)
+	loaders.ResourcesByTypeLoader = NewResourcesByTypeLoader(db, stats, devMode, logger)
 
 	return loaders
 }
@@ -119,8 +123,8 @@ func (l *Loaders) Stats() *LoaderStats {
 }
 
 // LogStats logs the current loader statistics (call at end of request).
-func (l *Loaders) LogStats() {
-	l.stats.LogStats("request complete")
+func (l *Loaders) LogStats(logger *zap.Logger) {
+	l.stats.LogStats(logger, "request complete")
 }
 
 // GetLoaders retrieves DataLoaders from context.

@@ -144,6 +144,15 @@ const (
 	EventTypeTemplateInstallProgress  = "template.install.progress"
 	EventTypeTemplateInstallCompleted = "template.install.completed"
 	EventTypeTemplateInstallFailed    = "template.install.failed"
+
+	// Provisioning events
+	EventTypeProvisioningSessionApplied  = "provisioning.session.applied"
+	EventTypeProvisioningSessionFailed   = "provisioning.session.failed"
+	EventTypeWireGuardClientApplied      = "vpn.wireguard.client.applied"
+	EventTypeWireGuardClientConnected    = "vpn.wireguard.client.connected"
+	EventTypeWireGuardClientDisconnected = "vpn.wireguard.client.disconnected"
+	EventTypeWANLinkApplied              = "wan.link.applied"
+	EventTypeTunnelApplied               = "tunnel.applied"
 )
 
 // =============================================================================
@@ -154,7 +163,7 @@ const (
 var CriticalEventTypes = []string{
 	EventTypeRouterStatusChanged, EventTypeResourceWAN, EventTypeResourceVPN, EventTypeResourceFW,
 	EventTypeRouterDeleted, EventTypeConfigApplied, EventTypeFeatureInstalled, EventTypeFeatureCrashed,
-	EventTypeAuthSessionRevoked, EventTypeAuthPasswordChanged, EventTypeAlertCreated,
+	EventTypeAuthSessionRevoked, EventTypeAuthPasswordChanged, EventTypeCredentialChanged, EventTypeAlertCreated,
 	EventTypeStorageUnmounted, EventTypeStorageUnavailable, EventTypeBinaryVerificationFailed,
 	EventTypeBinaryIntegrityFailed, EventTypeBootSequenceFailed, EventTypeIsolationViolation,
 	EventTypeResourceOOM, EventTypeChainHopFailed, EventTypeServiceCrashed, EventTypeServiceKillSwitch,

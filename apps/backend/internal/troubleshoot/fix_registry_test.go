@@ -1,6 +1,7 @@
 package troubleshoot
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -269,7 +270,7 @@ func TestFixRegistry_EdgeCases(t *testing.T) {
 // Helper functions
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && s[0:len(substr)] == substr || s[len(s)-len(substr):] == substr || s != s[0:len(substr)] && s != s[len(s)-len(substr):] && s[0:len(substr)] != substr && s[len(s)-len(substr):] != substr)
+	return strings.Contains(s, substr)
 }
 
 func extractPath(command string) string {

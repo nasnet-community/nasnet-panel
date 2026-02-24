@@ -72,14 +72,14 @@ function TemplatesBrowserMobileComponent({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header with filter button */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background sticky top-0 z-10">
+      <div className="flex items-center justify-between p-component-md border-b border-border bg-background sticky top-0 z-10">
         <h1 className="text-lg font-semibold">Service Templates</h1>
         <Sheet open={filterSheetOpen} onOpenChange={handleFilterSheetOpenChange}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="default"
-              className="min-h-[44px] min-w-[44px] px-3"
+              className="min-h-[44px] min-w-[44px] px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label={hasActiveFilters ? 'Open filters (filters active)' : 'Open filters'}
             >
               <Filter className="h-4 w-4" aria-hidden="true" />
@@ -95,7 +95,7 @@ function TemplatesBrowserMobileComponent({
             <SheetHeader>
               <SheetTitle>Filter Templates</SheetTitle>
             </SheetHeader>
-            <div className="mt-6 overflow-y-auto h-[calc(85vh-80px)]">
+            <div className="mt-component-lg overflow-y-auto h-[calc(85vh-80px)]">
               <TemplateFilters
                 filters={filters}
                 onFiltersChange={updateFilters}
@@ -109,15 +109,15 @@ function TemplatesBrowserMobileComponent({
 
       {/* Error State */}
       {error && (
-        <div className="p-4">
-          <div className="rounded-lg bg-destructive/10 p-4 text-destructive" role="alert">
+        <div className="p-component-md">
+          <div className="rounded-[var(--semantic-radius-card)] bg-error/10 p-component-md text-error" role="alert">
             <p className="font-medium">Failed to load templates</p>
-            <p className="text-sm mt-1">{error.message}</p>
+            <p className="text-sm mt-component-sm">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRetry}
-              className="mt-3 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="mt-component-md min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Retry
             </Button>
@@ -127,9 +127,9 @@ function TemplatesBrowserMobileComponent({
 
       {/* Loading State */}
       {loading && !error && (
-        <div className="p-4 space-y-4" role="status" aria-label="Loading templates">
+        <div className="p-component-md space-y-component-md" role="status" aria-label="Loading templates">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+            <Skeleton key={i} className="h-48 w-full rounded-[var(--semantic-radius-card)]" />
           ))}
         </div>
       )}
@@ -158,7 +158,7 @@ function TemplatesBrowserMobileComponent({
 
       {/* Template List */}
       {!loading && !error && templates.length > 0 && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4" role="list" aria-label="Service templates list">
+        <div className="flex-1 overflow-y-auto p-component-md space-y-component-md" role="list" aria-label="Service templates list">
           {templates.map((template) => (
             <ServiceTemplateCard
               key={template.id}

@@ -241,6 +241,9 @@ type PortAllocationEntity interface {
 
 	// GetInstanceID returns the service instance ID.
 	GetInstanceID() string
+
+	// GetServiceType returns the service type.
+	GetServiceType() string
 }
 
 // GlobalSettingsRepo defines minimal database operations for global settings.

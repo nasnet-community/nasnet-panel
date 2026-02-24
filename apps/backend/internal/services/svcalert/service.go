@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// AlertService provides alert rule and alert management operations.
-type AlertService struct {
+// Service provides alert rule and alert management operations.
+type Service struct {
 	db                  *ent.Client
 	eventBus            events.EventBus
 	eventPublisher      *events.Publisher
@@ -18,8 +18,8 @@ type AlertService struct {
 	log                 *zap.SugaredLogger
 }
 
-// AlertServiceConfig holds configuration for AlertService.
-type AlertServiceConfig struct {
+// Config holds configuration for Service.
+type Config struct {
 	DB                  *ent.Client
 	EventBus            events.EventBus
 	Engine              EngineInterface
@@ -28,9 +28,9 @@ type AlertServiceConfig struct {
 	Logger              *zap.SugaredLogger
 }
 
-// NewAlertService creates a new AlertService with the given configuration.
-func NewAlertService(cfg AlertServiceConfig) *AlertService {
-	s := &AlertService{
+// NewService creates a new Service with the given configuration.
+func NewService(cfg Config) *Service {
+	s := &Service{
 		db:                  cfg.DB,
 		eventBus:            cfg.EventBus,
 		engine:              cfg.Engine,

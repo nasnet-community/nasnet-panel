@@ -66,6 +66,10 @@ func (c *memoryCache) Get(routerID string) (*Capabilities, bool) {
 
 	// Update refreshing status on the returned copy
 	caps := entry.caps
+	if caps == nil {
+		return nil, false
+	}
+
 	if c.refreshing[routerID] {
 		// Create a copy with IsRefreshing set
 		capsCopy := *caps
@@ -80,6 +84,10 @@ func (c *memoryCache) Get(routerID string) (*Capabilities, bool) {
 func (c *memoryCache) Set(routerID string, caps *Capabilities) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	if caps == nil {
+		return
+	}
 
 	c.entries[routerID] = &cacheEntry{
 		caps:      caps,
@@ -205,24 +213,4 @@ func (s *Service) backgroundRefresh(routerID string, portGetter func(string) (Ro
 	}
 
 	s.cache.Set(routerID, caps)
-}
-
-// RouterPort is the interface for router communication (alias to avoid import cycle).
-type RouterPort interface {
-	QueryState(ctx context.Context, query StateQuery) (*StateResult, error)
-}
-
-// StateQuery represents a state query (alias from router package).
-type StateQuery struct {
-	Path   string
-	Fields []string
-	Filter map[string]string
-	Limit  int
-}
-
-// StateResult represents a state query result (alias from router package).
-type StateResult struct {
-	Resources []map[string]string
-	Count     int
-	Error     error
 }

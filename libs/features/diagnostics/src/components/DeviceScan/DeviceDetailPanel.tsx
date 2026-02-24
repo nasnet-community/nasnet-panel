@@ -146,11 +146,11 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
   }, [routerId, device.mac, device.firstSeen, device.hostname, device.ip]);
 
   return (
-    <Card className={cn('p-4 space-y-4', className)}>
+    <Card className={cn('p-component-md space-y-component-md', className)}>
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-lg">
+          <h3 className="font-semibold text-lg font-display">
             {device.hostname || 'Unknown Device'}
           </h3>
           <p className="text-sm text-muted-foreground font-mono">{device.ip}</p>
@@ -160,13 +160,14 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
           size="sm"
           onClick={onClose}
           aria-label="Close device details panel"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           ×
         </Button>
       </div>
 
       {/* Device Information */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div>
           <p className="text-xs font-medium text-muted-foreground">MAC Address</p>
           <p className="text-sm font-mono text-foreground">{device.mac}</p>
@@ -199,8 +200,8 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
 
       {/* DHCP Lease Information */}
       {device.dhcpLease && (
-        <div className="pt-4 border-t space-y-3">
-          <div className="flex items-center gap-2">
+        <div className="pt-component-md border-t border-border space-y-component-sm">
+          <div className="flex items-center gap-component-sm">
             <Badge variant="default">DHCP Lease</Badge>
             <Badge variant="secondary">
               {device.dhcpLease.status}
@@ -220,11 +221,11 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
       )}
 
       {/* Actions */}
-      <div className="pt-4 border-t">
+      <div className="pt-component-md border-t border-border">
         <Button
           onClick={handleAddToKnownDevices}
           disabled={!routerId || isAdding}
-          className="w-full"
+          className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           size="sm"
         >
           {isAdding ? 'Adding...' : 'Add to Known Devices'}

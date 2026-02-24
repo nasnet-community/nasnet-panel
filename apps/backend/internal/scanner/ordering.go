@@ -109,16 +109,21 @@ func ParseIPRange(subnet string) ([]string, error) {
 		}
 
 		// Generate all usable IPs in CIDR range (skip network and broadcast)
-		for ip := incrementIP(ipNet.IP.Mask(ipNet.Mask)); ipNet.Contains(ip); incrementIP(ip) {
+		ip := make(net.IP, len(ipNet.IP))
+		copy(ip, ipNet.IP.Mask(ipNet.Mask))
+		incrementIP(ip)
+
+		for ipNet.Contains(ip) {
 			// Don't include broadcast address
 			if isBroadcast(ip, ipNet) {
 				break
 			}
 			ips = append(ips, ip.String())
-			// Limit to prevent memory issues on large ranges
-			if len(ips) > 65534 { // Max for /16
+			// Limit to prevent memory issues on large ranges (max /16 = 65536)
+			if len(ips) > 65534 {
 				break
 			}
+			incrementIP(ip)
 		}
 	case strings.Contains(subnet, "-"):
 		// Range notation (e.g., 192.168.1.1-192.168.1.100)
@@ -201,27 +206,129 @@ func IsPrivateIP(ip string) bool {
 }
 
 // ValidateSubnet checks if a subnet string is valid and within allowed ranges.
+// It prevents dangerous scans like /8 that could contain millions of IPs.
 func ValidateSubnet(subnet string) error {
-	ips, err := ParseIPRange(subnet)
+	switch {
+	case strings.Contains(subnet, "/"):
+		return validateCIDRSubnet(subnet)
+	case strings.Contains(subnet, "-"):
+		return validateIPRange(subnet)
+	default:
+		return validateSingleIP(subnet)
+	}
+}
+
+// validateCIDRSubnet validates a CIDR notation subnet.
+func validateCIDRSubnet(subnet string) error {
+	_, ipNet, err := net.ParseCIDR(subnet)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid CIDR notation: %w", err)
 	}
 
-	if len(ips) == 0 {
-		return fmt.Errorf("subnet produces no valid IPs")
+	// Calculate network size (number of host bits)
+	ones, bits := ipNet.Mask.Size()
+	if bits == 0 {
+		return fmt.Errorf("invalid network mask")
+	}
+	hostBits := bits - ones
+
+	// Prevent scanning of excessively large networks
+	// /16 = 65536 IPs (max allowed)
+	// /8  = 16.7M IPs (not allowed)
+	if hostBits > 16 {
+		return fmt.Errorf("subnet too large: /%d would require scanning %d IPs (max /16 with 65536 IPs)", ones, 1<<uint(hostBits))
 	}
 
-	// Check that all IPs are in private ranges
-	for _, ip := range ips {
-		if !IsPrivateIP(ip) {
-			return fmt.Errorf("subnet contains non-private IP: %s (only 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 allowed)", ip)
-		}
+	// Reject IPv6 CIDR blocks (not supported)
+	ipv4 := ipNet.IP.To4()
+	if ipv4 == nil {
+		return fmt.Errorf("IPv6 CIDR blocks not supported, only IPv4 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)")
+	}
+
+	// Validate first IP is in private range
+	if !IsPrivateIP(ipNet.IP.String()) {
+		return fmt.Errorf("subnet %s not in private ranges (only 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 allowed)", subnet)
+	}
+
+	return nil
+}
+
+// validateIPRange validates an IP range in the format "start-end".
+func validateIPRange(subnet string) error {
+	parts := strings.Split(subnet, "-")
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid IP range format: expected 'start-end'")
+	}
+
+	startIP := net.ParseIP(strings.TrimSpace(parts[0]))
+	endIP := net.ParseIP(strings.TrimSpace(parts[1]))
+	if startIP == nil || endIP == nil {
+		return fmt.Errorf("invalid IP addresses in range")
+	}
+
+	// Only IPv4 ranges supported
+	start := startIP.To4()
+	end := endIP.To4()
+	if start == nil || end == nil {
+		return fmt.Errorf("only IPv4 ranges supported")
+	}
+
+	// Validate both are private
+	if !IsPrivateIP(startIP.String()) {
+		return fmt.Errorf("start IP %s not in private range", startIP.String())
+	}
+	if !IsPrivateIP(endIP.String()) {
+		return fmt.Errorf("end IP %s not in private range", endIP.String())
+	}
+
+	// Calculate size and validate it's not too large
+	// Convert to uint32 for comparison
+	startVal := uint32(start[0])<<24 | uint32(start[1])<<16 | uint32(start[2])<<8 | uint32(start[3])
+	endVal := uint32(end[0])<<24 | uint32(end[1])<<16 | uint32(end[2])<<8 | uint32(end[3])
+
+	if startVal > endVal {
+		return fmt.Errorf("start IP must be <= end IP")
+	}
+
+	rangeSize := endVal - startVal + 1
+	if rangeSize > 65536 {
+		return fmt.Errorf("IP range too large: %d IPs (max 65536)", rangeSize)
+	}
+
+	return nil
+}
+
+// validateSingleIP validates a single IP address.
+func validateSingleIP(subnet string) error {
+	parsedIP := net.ParseIP(subnet)
+	if parsedIP == nil {
+		return fmt.Errorf("invalid IP format: %s", subnet)
+	}
+
+	// Must be IPv4
+	if parsedIP.To4() == nil {
+		return fmt.Errorf("only IPv4 addresses supported")
+	}
+
+	// Check for loopback (127.0.0.0/8) and link-local (169.254.0.0/16)
+	if parsedIP.IsLoopback() {
+		return fmt.Errorf("loopback addresses (127.0.0.0/8) not allowed")
+	}
+	if parsedIP.IsLinkLocalUnicast() {
+		return fmt.Errorf("link-local addresses (169.254.0.0/16) not allowed")
+	}
+
+	// Must be private
+	if !IsPrivateIP(subnet) {
+		return fmt.Errorf("IP %s not in private range (only 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 allowed)", subnet)
 	}
 
 	return nil
 }
 
 // incrementIP increments an IP address by 1.
+//
+//nolint:unparam // return value kept for potential future use
 func incrementIP(ip net.IP) net.IP {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++

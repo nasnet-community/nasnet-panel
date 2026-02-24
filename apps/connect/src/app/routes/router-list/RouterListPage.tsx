@@ -49,7 +49,7 @@ export const RouterListPage = React.memo(function RouterListPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold">{t('list.title')}</h1>
+            <h1 className="text-2xl md:text-3xl font-semibold font-display">{t('list.title')}</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {t('list.subtitle')}
             </p>
@@ -69,7 +69,7 @@ export const RouterListPage = React.memo(function RouterListPage() {
               aria-hidden="true"
               className="w-20 h-20 rounded-2xl shadow-md mb-6"
             />
-            <h2 className="text-xl md:text-2xl font-semibold mb-2">{t('list.noRoutersYet')}</h2>
+            <h2 className="text-xl md:text-2xl font-semibold font-display mb-2">{t('list.noRoutersYet')}</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
               {t('list.emptyStateDescription')}
             </p>

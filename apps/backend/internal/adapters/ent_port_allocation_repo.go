@@ -63,9 +63,12 @@ func (q *entPortAllocationQuery) All(ctx context.Context) ([]network.PortAllocat
 		return nil, err
 	}
 
-	result := make([]network.PortAllocationEntity, len(allocations))
-	for i, alloc := range allocations {
-		result[i] = &entPortAllocationEntity{allocation: alloc}
+	result := make([]network.PortAllocationEntity, 0, len(allocations))
+	for _, alloc := range allocations {
+		if alloc == nil {
+			continue
+		}
+		result = append(result, &entPortAllocationEntity{allocation: alloc})
 	}
 	return result, nil
 }
@@ -206,4 +209,8 @@ func (e *entPortAllocationEntity) GetProtocol() string {
 
 func (e *entPortAllocationEntity) GetInstanceID() string {
 	return e.allocation.InstanceID
+}
+
+func (e *entPortAllocationEntity) GetServiceType() string {
+	return e.allocation.ServiceType
 }

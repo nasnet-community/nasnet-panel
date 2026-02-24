@@ -2,11 +2,10 @@ package bootstrap
 
 import (
 	"context"
-	"log"
 	"path/filepath"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 
@@ -82,14 +81,14 @@ func InitializeUpdateManager(
 	downloadManager *features.DownloadManager,
 	instanceManager *lifecycle.InstanceManager,
 	dataDir string,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 ) (*UpdateComponents, error) {
 
-	log.Printf("Initializing service update manager...")
+	logger.Info("Initializing service update manager")
 
 	// 1. GitHub Client for release checking
 	githubClient := updates.NewGitHubClient()
-	log.Printf("GitHub client initialized")
+	logger.Info("GitHub client initialized")
 
 	// 2. Update Service - checks for available updates via GitHub Releases API
 	updateService, err := updates.NewUpdateService(updates.UpdateServiceConfig{
@@ -98,12 +97,11 @@ func InitializeUpdateManager(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Update service initialized")
+	logger.Info("Update service initialized")
 
 	// 3. Binary Verifier - SHA256 verification for downloaded binaries
-	_ = events.NewPublisher(eventBus, "binary-verifier")
 	updateVerifier := &updates.Verifier{}
-	log.Printf("Binary verifier initialized")
+	logger.Info("Binary verifier initialized")
 
 	// 4. Update Journal - power-safe journaling for atomic updates
 	journalPath := filepath.Join(dataDir, "update-journal.db")
@@ -111,11 +109,11 @@ func InitializeUpdateManager(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Update journal initialized at %s", journalPath)
+	logger.Info("Update journal initialized", zap.String("path", journalPath))
 
 	// 5. Config Migrator Registry - handles version-specific config migrations
 	updateMigratorRegistry := &updates.MigratorRegistry{}
-	log.Printf("Config migrator registry initialized")
+	logger.Info("Config migrator registry initialized")
 
 	// 6. Health Checker Adapter - adapts InstanceManager for UpdateEngine
 	healthCheckerAdapter := &instanceHealthAdapter{manager: instanceManager}
@@ -142,11 +140,11 @@ func InitializeUpdateManager(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Update engine initialized (6-phase atomic updates with rollback)")
+	logger.Info("Update engine initialized", zap.String("type", "6-phase atomic updates with rollback"))
 
 	// Boot-time recovery: Check for incomplete updates and roll them back
 	if recoveryErr := updateEngine.RecoverFromCrash(ctx); recoveryErr != nil {
-		log.Printf("Warning: boot-time update recovery encountered errors: %v", recoveryErr)
+		logger.Warn("Boot-time update recovery encountered errors", zap.Error(recoveryErr))
 	}
 
 	// 8. Update Scheduler - coordinates periodic update checks with smart timing
@@ -164,14 +162,14 @@ func InitializeUpdateManager(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Update scheduler initialized")
+	logger.Info("Update scheduler initialized")
 
 	// Start update scheduler (begins periodic update checks)
 	//nolint:contextcheck // scheduler.Start() creates its own context
 	if err := updateScheduler.Start(); err != nil {
-		log.Printf("Warning: failed to start update scheduler: %v", err)
+		logger.Warn("Failed to start update scheduler", zap.Error(err))
 	} else {
-		log.Printf("Update scheduler started (checks every 6h, quiet hours 02:00-06:00 UTC)")
+		logger.Info("Update scheduler started", zap.String("schedule", "checks every 6h, quiet hours 02:00-06:00 UTC"))
 	}
 
 	return &UpdateComponents{

@@ -28,14 +28,14 @@ export function DnsServerListMobile({
   isLoading = false,
 }: DnsServerListProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-component-sm">
       {/* DNS Servers List */}
       {servers.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-component-xs">
           {servers.map((server, index) => (
             <Card key={server.id} className="overflow-hidden">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
+              <CardContent className="p-component-sm">
+                <div className="flex items-center gap-component-sm">
                   {/* Drag Handle (static servers only) */}
                   {!server.isDynamic && (
                     <div className="flex-shrink-0 text-muted-foreground touch-manipulation">
@@ -76,7 +76,7 @@ export function DnsServerListMobile({
                       onClick={() => onRemove(server.id)}
                       disabled={isLoading}
                       aria-label={`Remove DNS server ${server.address}`}
-                      className="flex-shrink-0 h-11 w-11" // 44px touch target
+                      className="flex-shrink-0 min-h-[44px] min-w-[44px]"
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -89,9 +89,9 @@ export function DnsServerListMobile({
       ) : (
         // Empty state
         <Card>
-          <CardContent className="p-6 text-center">
-            <Globe className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-            <p className="text-sm text-muted-foreground mb-1">
+          <CardContent className="p-component-lg text-center">
+            <Globe className="h-12 w-12 mx-auto mb-component-md text-muted-foreground opacity-50" />
+            <p className="text-sm text-muted-foreground mb-component-xs">
               No DNS servers configured
             </p>
             <p className="text-xs text-muted-foreground/70">
@@ -105,16 +105,16 @@ export function DnsServerListMobile({
       <Button
         onClick={onAdd}
         variant="outline"
-        className="w-full h-11"
+        className="w-full min-h-[44px]"
         disabled={isLoading}
         aria-label="Add a new DNS server"
       >
-        <Plus className="h-5 w-5 mr-2" />
+        <Plus className="h-5 w-5 mr-component-sm" />
         Add DNS Server
       </Button>
 
       {/* Help Text */}
-      <div className="text-xs text-muted-foreground space-y-1 px-1">
+      <div className="text-xs text-muted-foreground space-y-component-sm px-component-sm">
         <p>
           <strong>Static:</strong> Manually configured, higher priority
         </p>

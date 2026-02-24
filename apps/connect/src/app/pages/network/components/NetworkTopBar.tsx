@@ -76,7 +76,11 @@ export const NetworkTopBar = React.memo(function NetworkTopBar({
       </div>
 
       {/* Menu Button */}
-      <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
+      <button
+        className="p-2 min-h-[44px] w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={t('actions.menu')}
+        type="button"
+      >
         <MoreVertical className="w-4 h-4" />
       </button>
     </div>

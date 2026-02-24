@@ -128,17 +128,17 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={cn('space-y-6', className)}>
+      <form onSubmit={handleSubmit} className={cn('space-y-component-lg', className)}>
         {/* Basic Configuration */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
+        <div className="space-y-component-md">
+          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
             <Webhook className="w-5 h-5" />
             Basic Configuration
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-component-md">
             {/* Name */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="name">
                 Webhook Name <span className="text-error">*</span>
               </Label>
@@ -162,7 +162,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             </div>
 
             {/* URL */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="url">
                 Webhook URL <span className="text-error">*</span>
               </Label>
@@ -176,7 +176,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                       id="url"
                       type="url"
                       placeholder="https://api.example.com/webhook"
-                      className={fieldState.error ? 'border-error' : ''}
+                      className={fieldState.error ? 'border-error font-mono' : 'font-mono'}
                     />
                     {fieldState.error && (
                       <p className="text-sm text-error mt-1">{fieldState.error.message}</p>
@@ -187,7 +187,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             </div>
 
             {/* Description */}
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-component-sm col-span-2">
               <Label htmlFor="description">Description</Label>
               <Controller
                 control={control}
@@ -206,15 +206,15 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         </div>
 
         {/* Authentication */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
+        <div className="space-y-component-md">
+          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
             <Shield className="w-5 h-5" />
             Authentication
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-component-md">
             {/* Auth Type */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="authType">Authentication Type</Label>
               <Controller
                 control={control}
@@ -229,7 +229,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                         <SelectItem key={option.value} value={option.value}>
                           <div>
                             <div className="font-medium">{option.label}</div>
-                            <div className="text-xs text-muted">{option.description}</div>
+                            <div className="text-xs text-muted-foreground">{option.description}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -242,21 +242,21 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             {/* Conditional Auth Fields */}
             {authType === 'BASIC' && (
               <>
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="username">Username</Label>
                   <Controller
                     control={control}
                     name="username"
-                    render={({ field }) => <Input {...field} id="username" />}
+                    render={({ field }) => <Input {...field} id="username" className="font-mono" />}
                   />
                 </div>
-                <div className="space-y-2 col-span-2">
+                <div className="space-y-component-sm col-span-2">
                   <Label htmlFor="password">Password</Label>
                   <Controller
                     control={control}
                     name="password"
                     render={({ field }) => (
-                      <Input {...field} id="password" type="password" />
+                      <Input {...field} id="password" type="password" className="font-mono" />
                     )}
                   />
                 </div>
@@ -264,13 +264,13 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             )}
 
             {authType === 'BEARER' && (
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-component-sm col-span-2">
                 <Label htmlFor="bearerToken">Bearer Token</Label>
                 <Controller
                   control={control}
                   name="bearerToken"
                   render={({ field }) => (
-                    <Input {...field} id="bearerToken" type="password" />
+                    <Input {...field} id="bearerToken" type="password" className="font-mono" />
                   )}
                 />
               </div>
@@ -279,15 +279,15 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         </div>
 
         {/* Template Configuration */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
+        <div className="space-y-component-md">
+          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
             <Code className="w-5 h-5" />
             Payload Template
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-component-md">
             {/* Template Type */}
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-component-sm col-span-2">
               <Label htmlFor="template">Template Type</Label>
               <Controller
                 control={control}
@@ -302,7 +302,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                         <SelectItem key={preset.value} value={preset.value}>
                           <div>
                             <div className="font-medium">{preset.label}</div>
-                            <div className="text-xs text-muted">{preset.description}</div>
+                            <div className="text-xs text-muted-foreground">{preset.description}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -314,7 +314,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
             {/* Custom Template */}
             {template === 'CUSTOM' && (
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-component-sm col-span-2">
                 <Label htmlFor="customTemplate">
                   Custom Template JSON <span className="text-error">*</span>
                 </Label>
@@ -328,7 +328,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                         id="customTemplate"
                         placeholder='{"message": "{{message}}", "severity": "{{severity}}"}'
                         rows={6}
-                        className={`font-mono text-sm ${fieldState.error ? 'border-error' : ''}`}
+                        className={`font-mono text-sm rounded-[var(--semantic-radius-button)] ${fieldState.error ? 'border-error' : ''}`}
                       />
                       {fieldState.error && (
                         <p className="text-sm text-error mt-1">{fieldState.error.message}</p>
@@ -342,16 +342,16 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         </div>
 
         {/* Custom Headers */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Custom Headers</h3>
+        <div className="space-y-component-md">
+          <h3 className="text-lg font-semibold font-display">Custom Headers</h3>
 
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             {/* Existing Headers */}
             {Object.keys(headers).length > 0 && (
-              <div className="space-y-2 mb-4">
+              <div className="space-y-component-sm mb-4">
                 {Object.entries(headers).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-2 p-2 bg-muted rounded">
-                    <code className="flex-1 text-sm">
+                  <div key={key} className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
+                    <code className="flex-1 text-sm font-mono">
                       {key}: {value}
                     </code>
                     <Button
@@ -368,7 +368,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             )}
 
             {/* Add New Header */}
-            <div className="flex gap-2">
+            <div className="flex gap-component-sm">
               <Input
                 placeholder="Header name"
                 value={newHeaderKey}
@@ -394,14 +394,14 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         </div>
 
         {/* Advanced Settings */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
+        <div className="space-y-component-md">
+          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
             <Settings className="w-5 h-5" />
             Advanced Settings
           </h3>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-component-md">
+            <div className="space-y-component-sm">
               <Label htmlFor="timeoutSeconds">Timeout (seconds)</Label>
               <Controller
                 control={control}
@@ -419,7 +419,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="maxRetries">Max Retries</Label>
               <Controller
                 control={control}
@@ -432,24 +432,25 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                     min={0}
                     max={5}
                     onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    className="font-mono"
                   />
                 )}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="signingSecret">Signing Secret (optional)</Label>
               <Controller
                 control={control}
                 name="signingSecret"
                 render={({ field }) => (
-                  <Input {...field} id="signingSecret" type="password" />
+                  <Input {...field} id="signingSecret" type="password" className="font-mono" />
                 )}
               />
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-component-md">
             <Controller
               control={control}
               name="retryEnabled"
@@ -516,7 +517,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         )}
 
         {/* Form Actions */}
-        <div className="flex gap-4 pt-4 border-t">
+        <div className="flex gap-component-md pt-4 border-t">
           <Button type="submit" disabled={!isValid || isSubmitting}>
             {isSubmitting ? 'Saving...' : isEditMode ? 'Update Webhook' : 'Create Webhook'}
           </Button>
@@ -544,9 +545,9 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="p-4 bg-muted rounded-lg">
-              <code className="text-sm break-all">{signingSecret}</code>
+          <div className="space-y-component-md">
+            <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)]">
+              <code className="text-sm break-all font-mono">{signingSecret}</code>
             </div>
 
             <Button onClick={handleCopySecret} className="w-full">

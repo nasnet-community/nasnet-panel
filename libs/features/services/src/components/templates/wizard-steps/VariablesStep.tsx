@@ -170,18 +170,18 @@ function VariablesStepComponent({
   }, [form, handleFormChange]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <div>
         <h2 className="text-lg font-semibold">
           {t('wizard.configureVariables', 'Configure Template Variables')}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-component-sm">
           {t('wizard.configureVariablesDesc', 'Fill in the configuration values for your template')}
         </p>
       </div>
 
       <Form {...form}>
-        <form className="space-y-4">
+        <form className="space-y-component-md">
           {template.configVariables.map((variable) => (
             <FormField
               key={variable.name}
@@ -197,10 +197,11 @@ function VariablesStepComponent({
                   </FormLabel>
                   <FormControl>
                     {variable.type === 'BOOLEAN' ? (
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-component-sm">
                         <Switch
                           checked={field.value as boolean}
                           onCheckedChange={field.onChange}
+                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         />
                         <span className="text-sm">
                           {field.value ? 'Enabled' : 'Disabled'}
@@ -228,6 +229,7 @@ function VariablesStepComponent({
                         placeholder={variable.default ? String(variable.default) : ''}
                         {...field}
                         value={field.value as string | number}
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
                     )}
                   </FormControl>
@@ -241,9 +243,9 @@ function VariablesStepComponent({
           ))}
 
           {template.configVariables.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-component-lg text-muted-foreground">
               <p>{t('wizard.noVariables', 'This template has no configurable variables')}</p>
-              <p className="text-sm mt-1">{t('wizard.clickNext', 'Click Next to continue')}</p>
+              <p className="text-sm mt-component-sm">{t('wizard.clickNext', 'Click Next to continue')}</p>
             </div>
           )}
         </form>

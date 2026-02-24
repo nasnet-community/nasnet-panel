@@ -8,18 +8,18 @@ import (
 
 	"backend/generated/ent"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // ConfigValidatorAdapter adapts ConfigBindingValidator to the ConfigBindingValidatorPort interface
 // required by IsolationVerifier. It reads config files from disk and validates IP bindings.
 type ConfigValidatorAdapter struct {
 	validator *ConfigBindingValidator
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // NewConfigValidatorAdapter creates a new adapter with constructor injection
-func NewConfigValidatorAdapter(logger zerolog.Logger) *ConfigValidatorAdapter {
+func NewConfigValidatorAdapter(logger *zap.Logger) *ConfigValidatorAdapter {
 	return &ConfigValidatorAdapter{
 		validator: NewConfigBindingValidator(),
 		logger:    logger,
@@ -54,12 +54,11 @@ func (a *ConfigValidatorAdapter) ValidateBinding(ctx context.Context, instance *
 	// Extract and validate bind IPs using ConfigBindingValidator
 	bindIPs, err := a.validator.ExtractBindIPs(featureID, string(configContent))
 	if err != nil {
-		a.logger.Error().
-			Err(err).
-			Str("instance_id", instance.ID).
-			Str("feature_id", featureID).
-			Str("config_path", configPath).
-			Msg("bind IP validation failed")
+		a.logger.Error("bind IP validation failed",
+			zap.String("instance_id", instance.ID),
+			zap.String("feature_id", featureID),
+			zap.String("config_path", configPath),
+			zap.Error(err))
 		return "", err
 	}
 
@@ -72,12 +71,11 @@ func (a *ConfigValidatorAdapter) ValidateBinding(ctx context.Context, instance *
 	// (Most services only have one bind IP, but Tor can have SOCKSPort + ControlPort)
 	bindIP := bindIPs[0]
 
-	a.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("feature_id", featureID).
-		Str("bind_ip", bindIP).
-		Int("total_bind_ips", len(bindIPs)).
-		Msg("bind IP validation succeeded")
+	a.logger.Debug("bind IP validation succeeded",
+		zap.String("instance_id", instance.ID),
+		zap.String("feature_id", featureID),
+		zap.String("bind_ip", bindIP),
+		zap.Int("total_bind_ips", len(bindIPs)))
 
 	return bindIP, nil
 }

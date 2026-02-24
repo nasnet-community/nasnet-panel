@@ -19,23 +19,23 @@ declare const synFloodConfigSchema: z.ZodEffects<z.ZodObject<{
     burst: z.ZodEffects<z.ZodString, string, string>;
     action: z.ZodEnum<["drop", "tarpit"]>;
 }, "strip", z.ZodTypeAny, {
-    action: "drop" | "tarpit";
     enabled: boolean;
+    action: "drop" | "tarpit";
     burst: string;
     synLimit: string;
 }, {
-    action: "drop" | "tarpit";
     enabled: boolean;
+    action: "drop" | "tarpit";
     burst: string;
     synLimit: string;
 }>, {
-    action: "drop" | "tarpit";
     enabled: boolean;
+    action: "drop" | "tarpit";
     burst: string;
     synLimit: string;
 }, {
-    action: "drop" | "tarpit";
     enabled: boolean;
+    action: "drop" | "tarpit";
     burst: string;
     synLimit: string;
 }>;

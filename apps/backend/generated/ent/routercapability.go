@@ -3,12 +3,11 @@
 package ent
 
 import (
+	"backend/generated/ent/routercapability"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/routercapability"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

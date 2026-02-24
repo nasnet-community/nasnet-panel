@@ -54,6 +54,10 @@ func (i *VersionCapabilityIntegration) GetFeatureSupport(
 	isCHR bool,
 ) *FeatureSupportInfo {
 
+	if caps == nil {
+		return nil
+	}
+
 	v := ConvertToCompatibilityVersion(caps.Software.Version)
 	support := i.compatSvc.GetFeatureSupport(featureID, v, isCHR)
 
@@ -100,6 +104,10 @@ type FeatureSupportInfo struct {
 
 // GetSupportedFeatures returns all features supported by the given capabilities.
 func (i *VersionCapabilityIntegration) GetSupportedFeatures(caps *Capabilities, isCHR bool) []FeatureSupportInfo {
+	if caps == nil {
+		return nil
+	}
+
 	v := ConvertToCompatibilityVersion(caps.Software.Version)
 	supported := i.compatSvc.GetSupportedFeatures(v, isCHR)
 
@@ -126,6 +134,10 @@ func (i *VersionCapabilityIntegration) GetSupportedFeatures(caps *Capabilities, 
 
 // GetUnsupportedFeatures returns all features not supported by the given capabilities.
 func (i *VersionCapabilityIntegration) GetUnsupportedFeatures(caps *Capabilities, isCHR bool) []FeatureSupportInfo {
+	if caps == nil {
+		return nil
+	}
+
 	v := ConvertToCompatibilityVersion(caps.Software.Version)
 	unsupported := i.compatSvc.GetUnsupportedFeatures(v, isCHR)
 
@@ -163,6 +175,10 @@ func (i *VersionCapabilityIntegration) GetUnsupportedFeatures(caps *Capabilities
 // EnhanceCapabilities enriches the capabilities with version-based feature information.
 // This merges hardware detection with version compatibility data.
 func (i *VersionCapabilityIntegration) EnhanceCapabilities(caps *Capabilities, isCHR bool) {
+	if caps == nil {
+		return
+	}
+
 	v := ConvertToCompatibilityVersion(caps.Software.Version)
 
 	// Enhance REST API capability
@@ -233,14 +249,6 @@ func (i *VersionCapabilityIntegration) EnhanceCapabilities(caps *Capabilities, i
 			"Upgrade to RouterOS 7.13+ for WiFi Wave2 interface")
 	}
 }
-
-// Additional capability constants for version-specific features
-const (
-	CapabilityRESTAPI   Capability = "REST_API"
-	CapabilityBinaryAPI Capability = "BINARY_API"
-	CapabilityACME      Capability = "ACME"
-	CapabilityWiFiWave2 Capability = "WIFI_WAVE2"
-)
 
 // getMissingPackages returns packages from required that are not in installed.
 func getMissingPackages(installed, required []string) []string {

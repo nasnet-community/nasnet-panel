@@ -219,15 +219,15 @@ function VlanPortConfigComponent({
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-component-lg">
           {/* Mode Selection */}
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             <Label>Port Mode</Label>
             <RadioGroup
               value={mode}
               onValueChange={handleModeChange}
             >
-              <div className="flex items-start space-x-3 rounded-lg border p-4">
+              <div className="flex items-start gap-component-md rounded-card-sm border border-border p-component-md">
                 <RadioGroupItem value="access" id="access-mode" />
                 <div className="flex-1">
                   <Label htmlFor="access-mode" className="font-medium">
@@ -240,7 +240,7 @@ function VlanPortConfigComponent({
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3 rounded-lg border p-4">
+              <div className="flex items-start gap-component-md rounded-card-sm border border-border p-component-md">
                 <RadioGroupItem value="trunk" id="trunk-mode" />
                 <div className="flex-1">
                   <Label htmlFor="trunk-mode" className="font-medium">
@@ -256,10 +256,10 @@ function VlanPortConfigComponent({
           </div>
 
           {/* PVID Configuration */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="pvid">
               {mode === 'access' ? 'VLAN ID' : 'Native VLAN (PVID)'}
-              {mode === 'access' && <span className="text-destructive"> *</span>}
+              {mode === 'access' && <span className="text-error"> *</span>}
             </Label>
             <Input
               id="pvid"
@@ -272,7 +272,7 @@ function VlanPortConfigComponent({
               aria-describedby={errors.pvid ? 'pvid-error' : undefined}
             />
             {errors.pvid && (
-              <p id="pvid-error" className="text-sm text-destructive">
+              <p id="pvid-error" className="text-sm text-error">
                 {errors.pvid.message}
               </p>
             )}
@@ -285,19 +285,19 @@ function VlanPortConfigComponent({
 
           {/* Tagged VLANs (Trunk Mode Only) */}
           {mode === 'trunk' && (
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               <Label>Tagged VLANs</Label>
 
               {/* VLAN List */}
               {taggedVlanIds.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-component-sm">
                   {taggedVlanIds.sort((a, b) => a - b).map((vlanId) => (
                     <Badge key={vlanId} variant="outline" className="font-mono">
                       {vlanId}
                       <button
                         type="button"
                         onClick={() => handleRemoveVlan(vlanId)}
-                        className="ml-2 hover:text-destructive"
+                        className="ml-2 hover:text-error"
                         aria-label={`Remove VLAN ${vlanId}`}
                       >
                         <Icon
@@ -312,7 +312,7 @@ function VlanPortConfigComponent({
               )}
 
               {/* Add VLAN Input */}
-              <div className="flex gap-2">
+              <div className="flex gap-component-sm">
                 <Input
                   type="number"
                   min={1}
@@ -333,7 +333,7 @@ function VlanPortConfigComponent({
               </div>
 
               {errors.taggedVlanIds && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-error">
                   {errors.taggedVlanIds.message}
                 </p>
               )}
@@ -372,7 +372,7 @@ function VlanPortConfigComponent({
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             {onCancel && (
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel

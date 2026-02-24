@@ -110,10 +110,10 @@ export const DiagnosticStep = memo(function DiagnosticStep({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg border-2 transition-all min-h-[44px]',
+        'flex items-center gap-component-md p-component-sm rounded-[var(--semantic-radius-card)] border-2 transition-all min-h-[44px]',
         statusColor,
         isActive && 'ring-2 ring-primary ring-offset-2',
-        onClick && 'cursor-pointer hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        onClick && 'cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         step.status === 'pending' && 'opacity-60'
       )}
       onClick={handleClick}

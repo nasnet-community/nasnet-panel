@@ -107,28 +107,39 @@ func (r *Registry) Clear() {
 func (r *Registry) GetSchema(serviceType string) (*Schema, error) {
 	generator, err := r.Get(serviceType)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get schema for service type %s: %w", serviceType, err)
 	}
 
-	return generator.GetSchema(), nil
+	schema := generator.GetSchema()
+	if schema == nil {
+		return nil, fmt.Errorf("generator for service type %s returned nil schema", serviceType)
+	}
+	return schema, nil
 }
 
 // Generate generates configuration for a service instance.
 func (r *Registry) Generate(serviceType, instanceID string, config map[string]interface{}, bindIP string) ([]byte, error) {
 	generator, err := r.Get(serviceType)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate config for service type %s: %w", serviceType, err)
 	}
 
-	return generator.Generate(instanceID, config, bindIP)
+	output, err := generator.Generate(instanceID, config, bindIP)
+	if err != nil {
+		return nil, fmt.Errorf("config generation failed for service type %s (instance %s): %w", serviceType, instanceID, err)
+	}
+	return output, nil
 }
 
 // Validate validates configuration for a service type.
 func (r *Registry) Validate(serviceType string, config map[string]interface{}, bindIP string) error {
 	generator, err := r.Get(serviceType)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to validate config for service type %s: %w", serviceType, err)
 	}
 
-	return generator.Validate(config, bindIP)
+	if err := generator.Validate(config, bindIP); err != nil {
+		return fmt.Errorf("validation failed for service type %s: %w", serviceType, err)
+	}
+	return nil
 }

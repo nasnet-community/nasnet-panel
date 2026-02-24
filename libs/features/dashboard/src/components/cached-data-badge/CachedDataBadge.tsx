@@ -251,19 +251,19 @@ function getStatusConfig(status: CacheStatus): StatusConfig {
   const configs: Record<CacheStatus, StatusConfig> = {
     fresh: {
       bgClass: 'bg-success/10',
-      textClass: 'text-success-dark',
+      textClass: 'text-success',
       borderClass: 'border-success/30',
       message: 'Connected',
     },
     warning: {
       bgClass: 'bg-warning/10',
-      textClass: 'text-warning-dark',
+      textClass: 'text-warning',
       borderClass: 'border-warning/30',
       message: 'Connection unstable',
     },
     critical: {
       bgClass: 'bg-error/10',
-      textClass: 'text-error-dark',
+      textClass: 'text-error',
       borderClass: 'border-error/30',
       message: 'Router unreachable',
     },

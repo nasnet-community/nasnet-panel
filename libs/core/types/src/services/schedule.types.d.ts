@@ -144,28 +144,28 @@ export declare const ScheduleInputSchema: z.ZodEffects<z.ZodObject<{
     enabled: z.ZodDefault<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     enabled: boolean;
-    days: number[];
     routingID: string;
+    days: number[];
     startTime: string;
     endTime: string;
     timezone: string;
 }, {
-    days: number[];
     routingID: string;
+    days: number[];
     startTime: string;
     endTime: string;
     timezone: string;
     enabled?: boolean | undefined;
 }>, {
     enabled: boolean;
-    days: number[];
     routingID: string;
+    days: number[];
     startTime: string;
     endTime: string;
     timezone: string;
 }, {
-    days: number[];
     routingID: string;
+    days: number[];
     startTime: string;
     endTime: string;
     timezone: string;

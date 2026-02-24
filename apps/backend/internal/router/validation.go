@@ -2,6 +2,7 @@ package router
 
 import (
 	"backend/internal/network"
+	"strconv"
 )
 
 // ValidationError represents a field-level validation error.
@@ -151,7 +152,7 @@ func (v *AddRouterInputValidator) validatePort(port int) *ValidationError {
 			Code:          "OUT_OF_RANGE",
 			Message:       "Port must be between 1 and 65535",
 			Suggestion:    "Common ports: 8728 (API), 8729 (API-SSL), 22 (SSH), 80/443 (REST)",
-			ProvidedValue: intToString(port),
+			ProvidedValue: strconv.Itoa(port),
 		}
 	}
 	return nil
@@ -267,31 +268,6 @@ func truncateValue(s string, maxLen int) string {
 		return s
 	}
 	return s[:maxLen]
-}
-
-// intToString converts an int to string without importing strconv.
-func intToString(i int) string {
-	if i == 0 {
-		return "0"
-	}
-
-	negative := false
-	if i < 0 {
-		negative = true
-		i = -i
-	}
-
-	digits := ""
-	for i > 0 {
-		digit := byte('0' + i%10)
-		digits = string(digit) + digits
-		i /= 10
-	}
-
-	if negative {
-		return "-" + digits
-	}
-	return digits
 }
 
 // ValidateHostFormat performs a quick host format validation without DNS lookup.

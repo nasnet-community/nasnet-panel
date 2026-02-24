@@ -1,6 +1,7 @@
 package alerts
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 
 func TestNewServiceAlertRateLimiter_Defaults(t *testing.T) {
 	t.Skip("TODO: limiter has unexported maxAlerts, windowSeconds, clock, cleanupTicker fields")
-	limiter := NewServiceAlertRateLimiter()
+	limiter := NewRateLimiter()
 	defer limiter.Close()
 	_ = limiter // Silence unused
 
@@ -27,10 +28,10 @@ func TestNewServiceAlertRateLimiter_Defaults(t *testing.T) {
 func TestNewServiceAlertRateLimiter_CustomConfig(t *testing.T) {
 	t.Skip("TODO: limiter has unexported maxAlerts, windowSeconds, clock fields")
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(10),
-		WithServiceWindowSeconds(120),
+		WithMaxAlerts(10),
+		WithWindowSeconds(120),
 	)
 	defer limiter.Close()
 	_ = limiter // Silence unused
@@ -47,10 +48,10 @@ func TestNewServiceAlertRateLimiter_CustomConfig(t *testing.T) {
 
 func TestShouldAllow_FirstAlert(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -63,10 +64,10 @@ func TestShouldAllow_FirstAlert(t *testing.T) {
 
 func TestShouldAllow_WithinLimit(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -90,10 +91,10 @@ func TestShouldAllow_WithinLimit(t *testing.T) {
 
 func TestShouldAllow_ExceedLimit(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(3),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(3),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -116,10 +117,10 @@ func TestShouldAllow_ExceedLimit(t *testing.T) {
 
 func TestShouldAllow_WindowReset(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(3),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(3),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -154,10 +155,10 @@ func TestShouldAllow_WindowReset(t *testing.T) {
 
 func TestShouldAllow_FixedWindowBoundary(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(2),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(2),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -190,10 +191,10 @@ func TestShouldAllow_FixedWindowBoundary(t *testing.T) {
 
 func TestShouldAllow_MultipleInstances(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(2),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(2),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -228,10 +229,10 @@ func TestShouldAllow_MultipleInstances(t *testing.T) {
 
 func TestGetSuppressedCount(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(2),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(2),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -271,10 +272,10 @@ func TestGetWindowStats(t *testing.T) {
 	clock := NewMockClock(time.Time{})
 	startTime := clock.Now()
 
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(3),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(3),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -323,10 +324,10 @@ func TestGetWindowStats(t *testing.T) {
 
 func TestReset_SingleInstance(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(2),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(2),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -352,10 +353,10 @@ func TestReset_SingleInstance(t *testing.T) {
 
 func TestResetAll(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(1),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(1),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -388,10 +389,10 @@ func TestResetAll(t *testing.T) {
 
 func TestCleanup_RemovesExpiredWindows(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -415,10 +416,10 @@ func TestCleanup_RemovesExpiredWindows(t *testing.T) {
 
 func TestCleanup_KeepsActiveWindows(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -437,10 +438,10 @@ func TestCleanup_KeepsActiveWindows(t *testing.T) {
 
 func TestCleanup_SelectiveRemoval(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -470,10 +471,10 @@ func TestCleanup_SelectiveRemoval(t *testing.T) {
 
 func TestShouldAllow_ZeroMaxAlerts(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(0), // Disabled
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(0), // Disabled
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -486,10 +487,10 @@ func TestShouldAllow_ZeroMaxAlerts(t *testing.T) {
 
 func TestShouldAllow_NegativeMaxAlerts(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(-1), // Disabled
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(-1), // Disabled
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -502,10 +503,10 @@ func TestShouldAllow_NegativeMaxAlerts(t *testing.T) {
 
 func TestShouldAllow_EmptyInstanceID(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(2),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(2),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -526,10 +527,10 @@ func TestShouldAllow_EmptyInstanceID(t *testing.T) {
 
 func TestShouldAllow_Concurrent(t *testing.T) {
 	clock := NewMockClock(time.Time{}) // Note: MockClock is not thread-safe, but we're not advancing time here
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(100),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(100),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -562,10 +563,10 @@ func TestShouldAllow_Concurrent(t *testing.T) {
 
 func TestReset_Concurrent(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 	defer limiter.Close()
 
@@ -576,7 +577,7 @@ func TestReset_Concurrent(t *testing.T) {
 	done := make(chan bool, goroutines)
 	for i := 0; i < goroutines; i++ {
 		go func(idx int) {
-			instanceID := "instance-" + string(rune('0'+idx%instances))
+			instanceID := fmt.Sprintf("instance-%d", idx%instances)
 			for j := 0; j < 10; j++ {
 				limiter.ShouldAllow(instanceID)
 				if j%3 == 0 {
@@ -602,10 +603,10 @@ func TestReset_Concurrent(t *testing.T) {
 
 func TestClose_StopsCleanupWorker(t *testing.T) {
 	clock := NewMockClock(time.Time{})
-	limiter := NewServiceAlertRateLimiter(
+	limiter := NewRateLimiter(
 		WithServiceClock(clock),
-		WithServiceMaxAlerts(5),
-		WithServiceWindowSeconds(60),
+		WithMaxAlerts(5),
+		WithWindowSeconds(60),
 	)
 
 	// Close should not hang

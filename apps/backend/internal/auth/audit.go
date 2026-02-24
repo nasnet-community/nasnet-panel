@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"log"
 	"sync"
-	"time"
+
+	"go.uber.org/zap"
 )
 
 // Audit event types for authentication
@@ -20,37 +20,58 @@ const (
 	AuditAPIKeyCreated    = "apikey.created"
 	AuditAPIKeyRevoked    = "apikey.revoked"
 	AuditAPIKeyUsed       = "apikey.used"
+
+	// Redaction marker for sensitive fields
+	redacted = "[REDACTED]"
 )
 
-// LoggerAuditLogger implements AuditLogger using standard logging
-// This is a simple implementation that logs to stdout/stderr
+// LoggerAuditLogger implements AuditLogger using zap logging
+// This is a structured logging implementation for audit events
 // For production, consider using a persistent audit store
 type LoggerAuditLogger struct {
+	logger *zap.Logger
 	prefix string
 }
 
 // NewLoggerAuditLogger creates a new logger-based audit logger
-func NewLoggerAuditLogger(prefix string) *LoggerAuditLogger {
-	return &LoggerAuditLogger{prefix: prefix}
+func NewLoggerAuditLogger(logger *zap.Logger, prefix string) *LoggerAuditLogger {
+	if logger == nil {
+		logger = zap.NewNop() // Fallback to no-op logger
+	}
+	return &LoggerAuditLogger{logger: logger, prefix: prefix}
 }
 
-// Log logs an audit event
+// Log logs an audit event using structured zap logging
 func (l *LoggerAuditLogger) Log(ctx context.Context, event AuditEvent) error {
-	// Format: [AUDIT] timestamp type user_id ip details
+	// Format structured audit event
 	userID := "anonymous"
 	if event.UserID != nil {
 		userID = *event.UserID
 	}
 
-	log.Printf("[%s] %s type=%s user=%s ip=%s correlation=%s details=%v",
-		l.prefix,
-		event.Timestamp.Format(time.RFC3339),
-		event.Type,
-		userID,
-		event.IP,
-		event.CorrelationID,
-		sanitizeDetails(event.Details),
-	)
+	fields := []zap.Field{
+		zap.String("prefix", l.prefix),
+		zap.String("type", event.Type),
+		zap.String("user_id", userID),
+		zap.String("ip", event.IP),
+		zap.String("correlation_id", event.CorrelationID),
+		zap.Time("timestamp", event.Timestamp),
+	}
+
+	// Add sanitized details
+	sanitized := sanitizeDetails(event.Details)
+	if len(sanitized) > 0 {
+		// Add individual sanitized fields
+		for k, v := range sanitized {
+			if v == redacted {
+				fields = append(fields, zap.String(k, redacted))
+			} else {
+				fields = append(fields, zap.Any(k, v))
+			}
+		}
+	}
+
+	l.logger.Info("audit_event", fields...)
 	return nil
 }
 
@@ -65,7 +86,7 @@ func sanitizeDetails(details map[string]interface{}) map[string]interface{} {
 		// Never log passwords or tokens
 		switch k {
 		case "password", "current_password", "new_password", "token", "secret", "api_key":
-			sanitized[k] = "[REDACTED]"
+			sanitized[k] = redacted
 		default:
 			sanitized[k] = v
 		}

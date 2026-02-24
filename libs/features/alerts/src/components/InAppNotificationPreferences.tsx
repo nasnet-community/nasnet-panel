@@ -140,11 +140,11 @@ function InAppNotificationPreferencesComponent({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-component-lg">
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
+          <div className="space-y-component-sm">
+            <div className="flex items-center gap-component-sm">
               <Icon
                 icon={settings.enabled ? Bell : BellOff}
                 size="sm"
@@ -171,7 +171,7 @@ function InAppNotificationPreferencesComponent({
         {settings.enabled && (
           <>
             {/* Severity Filter */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="severity-filter" className="font-medium">
                 Severity Filter
               </Label>
@@ -198,7 +198,7 @@ function InAppNotificationPreferencesComponent({
             </div>
 
             {/* Auto-Dismiss Timing */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="auto-dismiss" className="font-medium">
                 Auto-Dismiss Timing
               </Label>
@@ -228,8 +228,8 @@ function InAppNotificationPreferencesComponent({
 
             {/* Sound Toggle */}
             <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
+              <div className="space-y-component-sm">
+                <div className="flex items-center gap-component-sm">
                   <Icon
                     icon={settings.soundEnabled ? Volume2 : VolumeX}
                     size="sm"
@@ -256,7 +256,7 @@ function InAppNotificationPreferencesComponent({
 
         {/* Help text when disabled */}
         {!settings.enabled && (
-          <div className="p-4 bg-muted rounded-md text-sm text-muted-foreground">
+          <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)] text-sm text-muted-foreground">
             <p>
               In-app notifications are currently disabled. Enable them to receive real-time
               alerts in the application.

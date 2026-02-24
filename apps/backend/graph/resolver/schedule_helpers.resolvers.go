@@ -67,7 +67,11 @@ type RoutingScheduleResolver interface {
 // Schedules resolves the schedules field for DeviceRouting.
 func (r *deviceRoutingResolver) Schedules(ctx context.Context, obj *model.DeviceRouting) ([]*model.RoutingSchedule, error) {
 	if r.ScheduleService == nil {
-		return nil, nil // Service not available, return empty
+		return []*model.RoutingSchedule{}, nil // Service not available, return empty slice
+	}
+
+	if obj == nil {
+		return []*model.RoutingSchedule{}, nil // Parent object nil, return empty
 	}
 
 	schedules, err := r.ScheduleService.GetSchedulesByRouting(ctx, obj.ID)
@@ -96,8 +100,16 @@ func (r *deviceRoutingResolver) HasSchedules(ctx context.Context, obj *model.Dev
 // It computes whether the schedule is currently active based on the current time,
 // schedule's time window, days, and timezone.
 func (r *routingScheduleResolver) IsActive(ctx context.Context, obj *model.RoutingSchedule) (bool, error) {
+	if obj == nil {
+		return false, nil // Parent object nil
+	}
+
 	if r.ScheduleEvaluator == nil || !obj.Enabled {
 		return false, nil // Evaluator not available or schedule disabled
+	}
+
+	if r.ScheduleService == nil {
+		return false, nil // Schedule service not available
 	}
 
 	// Query the schedule from database to get fresh ent entity
@@ -107,6 +119,10 @@ func (r *routingScheduleResolver) IsActive(ctx context.Context, obj *model.Routi
 			"error", err,
 			"scheduleID", obj.ID)
 		return false, err
+	}
+
+	if schedule == nil {
+		return false, nil // Schedule not found
 	}
 
 	// Use the evaluator's IsWindowActive to check if current time falls within schedule window

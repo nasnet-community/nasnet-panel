@@ -229,3 +229,62 @@ func TestOpenDatabase_InvalidPath(t *testing.T) {
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBConnectionFailed, dbErr.Code)
 }
+
+func TestOpenDatabase_EmptyPath(t *testing.T) {
+	// Try to open database with empty path
+	cfg := DefaultConfig("")
+	ctx := context.Background()
+
+	_, err := OpenDatabase(ctx, cfg)
+	require.Error(t, err)
+
+	var dbErr *Error
+	require.ErrorAs(t, err, &dbErr)
+	assert.Equal(t, ErrCodeDBConnectionFailed, dbErr.Code)
+	assert.Contains(t, err.Error(), "empty")
+}
+
+func TestOpenDatabase_SecureFilePermissions(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "secure_perms.db")
+
+	cfg := DefaultConfig(dbPath)
+	ctx := context.Background()
+
+	result, err := OpenDatabase(ctx, cfg)
+	require.NoError(t, err)
+	defer result.DB.Close()
+
+	// Verify database file has secure permissions (0o600 = owner read/write only)
+	info, err := os.Stat(dbPath)
+	require.NoError(t, err)
+
+	mode := info.Mode().Perm()
+	assert.Equal(t, os.FileMode(0o600), mode,
+		"database file should have 0o600 permissions (owner only), got %o", mode)
+}
+
+func TestOpenDatabase_ExistingFilePermissions(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "existing_perms.db")
+
+	// Create file with permissive permissions
+	err := os.WriteFile(dbPath, []byte(""), 0o644)
+	require.NoError(t, err)
+
+	// Open database should fix permissions
+	cfg := DefaultConfig(dbPath)
+	ctx := context.Background()
+
+	result, err := OpenDatabase(ctx, cfg)
+	require.NoError(t, err)
+	defer result.DB.Close()
+
+	// Verify permissions were fixed to 0o600
+	info, err := os.Stat(dbPath)
+	require.NoError(t, err)
+
+	mode := info.Mode().Perm()
+	assert.Equal(t, os.FileMode(0o600), mode,
+		"existing database file permissions should be fixed to 0o600, got %o", mode)
+}

@@ -3,12 +3,11 @@
 package ent
 
 import (
+	"backend/generated/ent/router"
+	"backend/generated/ent/routersecret"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/router"
-	"backend/generated/ent/routersecret"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -64,9 +63,13 @@ type RouterEdges struct {
 	RoutingChains []*RoutingChain `json:"routing_chains,omitempty"`
 	// User-created service templates on this router
 	ServiceTemplates []*ServiceTemplate `json:"service_templates,omitempty"`
+	// Provisioning sessions for this router
+	ProvisioningSessions []*ProvisioningSession `json:"provisioning_sessions,omitempty"`
+	// Subnet allocations managed on this router
+	SubnetAllocations []*SubnetAllocation `json:"subnet_allocations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [10]bool
 }
 
 // SecretsOrErr returns the Secrets value or an error if the edge
@@ -141,6 +144,24 @@ func (e RouterEdges) ServiceTemplatesOrErr() ([]*ServiceTemplate, error) {
 		return e.ServiceTemplates, nil
 	}
 	return nil, &NotLoadedError{edge: "service_templates"}
+}
+
+// ProvisioningSessionsOrErr returns the ProvisioningSessions value or an error if the edge
+// was not loaded in eager-loading.
+func (e RouterEdges) ProvisioningSessionsOrErr() ([]*ProvisioningSession, error) {
+	if e.loadedTypes[8] {
+		return e.ProvisioningSessions, nil
+	}
+	return nil, &NotLoadedError{edge: "provisioning_sessions"}
+}
+
+// SubnetAllocationsOrErr returns the SubnetAllocations value or an error if the edge
+// was not loaded in eager-loading.
+func (e RouterEdges) SubnetAllocationsOrErr() ([]*SubnetAllocation, error) {
+	if e.loadedTypes[9] {
+		return e.SubnetAllocations, nil
+	}
+	return nil, &NotLoadedError{edge: "subnet_allocations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -287,6 +308,16 @@ func (_m *Router) QueryRoutingChains() *RoutingChainQuery {
 // QueryServiceTemplates queries the "service_templates" edge of the Router entity.
 func (_m *Router) QueryServiceTemplates() *ServiceTemplateQuery {
 	return NewRouterClient(_m.config).QueryServiceTemplates(_m)
+}
+
+// QueryProvisioningSessions queries the "provisioning_sessions" edge of the Router entity.
+func (_m *Router) QueryProvisioningSessions() *ProvisioningSessionQuery {
+	return NewRouterClient(_m.config).QueryProvisioningSessions(_m)
+}
+
+// QuerySubnetAllocations queries the "subnet_allocations" edge of the Router entity.
+func (_m *Router) QuerySubnetAllocations() *SubnetAllocationQuery {
+	return NewRouterClient(_m.config).QuerySubnetAllocations(_m)
 }
 
 // Update returns a builder for updating this Router.

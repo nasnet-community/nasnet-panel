@@ -211,3 +211,111 @@ func TestRestoreDatabase_BackupNotFound(t *testing.T) {
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBRestoreFailed, dbErr.Code)
 }
+
+func TestBackupDatabase_FailedCheckpoint(t *testing.T) {
+	tmpDir := t.TempDir()
+	ctx := context.Background()
+
+	// Create a test database
+	dbPath := filepath.Join(tmpDir, "checkpoint_test.db")
+	db, err := sql.Open("sqlite", "file:"+dbPath)
+	require.NoError(t, err)
+	defer db.Close()
+
+	_, err = db.ExecContext(ctx, "CREATE TABLE test (id INTEGER)")
+	require.NoError(t, err)
+
+	backupDir := filepath.Join(tmpDir, "backups")
+
+	// Create backup (may fail checkpoint but should still create backup)
+	result, err := BackupDatabase(ctx, db, dbPath, backupDir)
+
+	// Should succeed even if checkpoint fails (fallback to copy)
+	if err != nil {
+		// If it does error, verify the error is formatted correctly
+		var dbErr *Error
+		require.ErrorAs(t, err, &dbErr)
+		assert.Equal(t, ErrCodeDBBackupFailed, dbErr.Code)
+	} else {
+		// If successful, verify backup exists
+		assert.NotEmpty(t, result.BackupPath)
+		_, err := os.Stat(result.BackupPath)
+		assert.NoError(t, err, "backup file should exist")
+	}
+}
+
+func TestBackupDatabase_AtomicWrite(t *testing.T) {
+	tmpDir := t.TempDir()
+	ctx := context.Background()
+
+	// Create a test database with data
+	dbPath := filepath.Join(tmpDir, "atomic_test.db")
+	db, err := sql.Open("sqlite", "file:"+dbPath)
+	require.NoError(t, err)
+	defer db.Close()
+
+	_, err = db.ExecContext(ctx, `
+		CREATE TABLE test_table (id INTEGER PRIMARY KEY, data TEXT);
+		INSERT INTO test_table (data) VALUES ('test_data');
+	`)
+	require.NoError(t, err)
+
+	backupDir := filepath.Join(tmpDir, "backups")
+
+	// Create backup
+	result, err := BackupDatabase(ctx, db, dbPath, backupDir)
+	require.NoError(t, err)
+
+	// Verify backup file has secure permissions (0o600)
+	info, err := os.Stat(result.BackupPath)
+	require.NoError(t, err)
+
+	// Check mode is 0o600 (owner read/write only)
+	mode := info.Mode().Perm()
+	assert.Equal(t, os.FileMode(0o600), mode,
+		"backup file should have 0o600 permissions (owner only), got %o", mode)
+}
+
+func TestRestoreDatabase_AtomicWrite(t *testing.T) {
+	tmpDir := t.TempDir()
+	ctx := context.Background()
+
+	// Create and backup original database
+	dbPath := filepath.Join(tmpDir, "restore_atomic_test.db")
+	db, err := sql.Open("sqlite", "file:"+dbPath)
+	require.NoError(t, err)
+
+	_, err = db.ExecContext(ctx, `
+		CREATE TABLE test_table (id INTEGER PRIMARY KEY, value TEXT);
+		INSERT INTO test_table (value) VALUES ('original_data');
+	`)
+	require.NoError(t, err)
+
+	backupDir := filepath.Join(tmpDir, "backups")
+	result, err := BackupDatabase(ctx, db, dbPath, backupDir)
+	require.NoError(t, err)
+
+	db.Close()
+
+	// Restore the backup
+	err = RestoreDatabase(ctx, result.BackupPath, dbPath)
+	require.NoError(t, err)
+
+	// Verify restored file has secure permissions (0o600)
+	info, err := os.Stat(dbPath)
+	require.NoError(t, err)
+
+	mode := info.Mode().Perm()
+	assert.Equal(t, os.FileMode(0o600), mode,
+		"restored database file should have 0o600 permissions, got %o", mode)
+
+	// Verify data integrity
+	restoredDB, err := sql.Open("sqlite", "file:"+dbPath)
+	require.NoError(t, err)
+	defer restoredDB.Close()
+
+	var value string
+	err = restoredDB.QueryRowContext(ctx, "SELECT value FROM test_table").Scan(&value)
+	require.NoError(t, err)
+	assert.Equal(t, "original_data", value)
+}

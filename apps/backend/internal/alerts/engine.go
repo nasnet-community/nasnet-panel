@@ -62,6 +62,10 @@ type EngineConfig struct {
 
 // NewEngine creates a new alert engine.
 func NewEngine(cfg EngineConfig) *Engine {
+	if cfg.DB == nil || cfg.EventBus == nil || cfg.Logger == nil {
+		panic("NewEngine requires non-nil DB, EventBus, and Logger")
+	}
+
 	var escalationEngine *EscalationEngine
 	busAdapter := &eventBusAdapter{bus: cfg.EventBus}
 
@@ -101,7 +105,7 @@ func (e *Engine) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to load initial rules: %w", err)
 	}
 
-	err := e.eventBus.SubscribeAll(e.handleEvent)
+	err := e.eventBus.SubscribeAll(e.HandleEvent)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe to events: %w", err)
 	}
@@ -114,7 +118,7 @@ func (e *Engine) Start(ctx context.Context) error {
 		}
 	}
 
-	go e.throttleManager.StartSummaryWorker(ctx, 5*time.Minute)
+	go e.throttleManager.StartSummaryWorker(ctx, 5*time.Minute, e.log.Desugar())
 	e.log.Info("throttle summary worker started (5 minute interval)")
 
 	if e.escalationEngine != nil {
@@ -131,8 +135,8 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// handleEvent processes an incoming event and evaluates it against all rules.
-func (e *Engine) handleEvent(ctx context.Context, event events.Event) error {
+// HandleEvent processes an incoming event and evaluates it against all rules.
+func (e *Engine) HandleEvent(ctx context.Context, event events.Event) error {
 	startTime := time.Now()
 
 	// Check storm detector first
@@ -147,7 +151,7 @@ func (e *Engine) handleEvent(ctx context.Context, event events.Event) error {
 		if eventType != "" {
 			rules := e.getMatchingRules(eventType)
 			suppressReason := fmt.Sprintf("storm: %.0f/min (threshold: %.0f/min)",
-				stormStatus.CurrentRate, stormStatus.CurrentRate)
+				stormStatus.CurrentRate, stormStatus.ThresholdRate)
 			for _, rule := range rules {
 				e.trackSuppression(rule.ID, suppressReason)
 			}

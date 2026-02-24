@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 declare const cardVariants: (props?: ({
-    variant?: "default" | "flat" | "elevated" | "interactive" | null | undefined;
+    variant?: "flat" | "default" | "elevated" | "interactive" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * CardProps interface extending HTMLDivAttributes with CVA variant support

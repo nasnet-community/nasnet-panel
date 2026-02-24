@@ -2,6 +2,7 @@ package storage
 
 import (
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -104,6 +105,12 @@ func (r *DefaultPathResolver) BinaryPath(serviceName string) string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
+	// Validate service name to prevent directory traversal attacks
+	if err := validateServiceName(serviceName); err != nil {
+		// Return empty path on validation failure (caller should handle)
+		return ""
+	}
+
 	// Use external storage if enabled and mounted
 	if r.externalEnabled && r.externalMounted && r.externalPath != "" {
 		return filepath.Join(r.externalPath, "bin", serviceName)
@@ -119,6 +126,12 @@ func (r *DefaultPathResolver) ConfigPath(serviceName string) string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
+	// Validate service name to prevent directory traversal attacks
+	if err := validateServiceName(serviceName); err != nil {
+		// Return empty path on validation failure (caller should handle)
+		return ""
+	}
+
 	// ALWAYS use flash for configs
 	return filepath.Join(r.flashConfigDir, serviceName+".json")
 }
@@ -129,6 +142,12 @@ func (r *DefaultPathResolver) ManifestPath(serviceName string) string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
+	// Validate service name to prevent directory traversal attacks
+	if err := validateServiceName(serviceName); err != nil {
+		// Return empty path on validation failure (caller should handle)
+		return ""
+	}
+
 	// ALWAYS use flash for manifests
 	return filepath.Join(r.flashManifestDir, serviceName+".manifest")
 }
@@ -137,6 +156,12 @@ func (r *DefaultPathResolver) ManifestPath(serviceName string) string {
 func (r *DefaultPathResolver) DataPath(serviceName string) string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+
+	// Validate service name to prevent directory traversal attacks
+	if err := validateServiceName(serviceName); err != nil {
+		// Return empty path on validation failure (caller should handle)
+		return ""
+	}
 
 	// Prefer external storage if available
 	if r.externalEnabled && r.externalMounted && r.externalPath != "" {
@@ -151,6 +176,12 @@ func (r *DefaultPathResolver) DataPath(serviceName string) string {
 func (r *DefaultPathResolver) LogsPath(serviceName string) string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+
+	// Validate service name to prevent directory traversal attacks
+	if err := validateServiceName(serviceName); err != nil {
+		// Return empty path on validation failure (caller should handle)
+		return ""
+	}
 
 	// Prefer external storage if available
 	if r.externalEnabled && r.externalMounted && r.externalPath != "" {
@@ -193,13 +224,45 @@ func (r *DefaultPathResolver) RootPath(pathType string) string {
 
 // UpdateExternalStorage updates the external storage configuration.
 // This is called when storage is mounted/unmounted or configuration changes.
-func (r *DefaultPathResolver) UpdateExternalStorage(enabled bool, path string, mounted bool) {
+// It validates the path to prevent directory traversal attacks.
+func (r *DefaultPathResolver) UpdateExternalStorage(enabled bool, path string, mounted bool) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	// If disabling external storage, accept any path (it won't be used)
+	if !enabled {
+		r.externalEnabled = false
+		r.externalPath = ""
+		r.externalMounted = false
+		return nil
+	}
+
+	// If enabling, validate path
+	if path == "" {
+		return NewStorageError(ErrCodeInvalidConfig, "external storage path cannot be empty when enabled", "")
+	}
+
+	// Validate path is absolute (no relative paths like ../external)
+	if !filepath.IsAbs(path) {
+		return NewStorageError(ErrCodeInvalidConfig, "external storage path must be absolute", path)
+	}
+
+	// Normalize path and ensure it doesn't escape via symlinks (use filepath.Abs for extra safety)
+	cleanPath := filepath.Clean(path)
+	if cleanPath != path {
+		return NewStorageErrorWithDetails(
+			ErrCodePathTraversal,
+			"external storage path contains suspicious patterns",
+			path,
+			map[string]interface{}{"normalized": cleanPath},
+		)
+	}
+
 	r.externalEnabled = enabled
-	r.externalPath = path
+	r.externalPath = cleanPath
 	r.externalMounted = mounted
+
+	return nil
 }
 
 // IsUsingExternalStorage returns true if external storage is actively being used.
@@ -230,4 +293,48 @@ func (r *DefaultPathResolver) GetFlashPaths() map[string]string {
 		"data":     r.flashDataDir,
 		"logs":     r.flashLogsDir,
 	}
+}
+
+// validateServiceName checks if a service name is safe from directory traversal attacks.
+// Service names must:
+// - Be non-empty
+// - Not contain path separators (../, ..\, etc.)
+// - Not be an absolute path
+// - Only contain alphanumerics, hyphens, underscores (safe feature identifiers)
+func validateServiceName(serviceName string) error {
+	if serviceName == "" {
+		return NewStorageError(ErrCodeInvalidServiceID, "service name cannot be empty", "")
+	}
+
+	// Check for directory traversal attempts
+	if strings.Contains(serviceName, "..") {
+		return NewStorageError(ErrCodePathTraversal, "service name contains parent directory reference (..)", serviceName)
+	}
+
+	if strings.ContainsAny(serviceName, "/\\") {
+		return NewStorageError(ErrCodeInvalidServiceID, "service name contains path separators", serviceName)
+	}
+
+	if filepath.IsAbs(serviceName) {
+		return NewStorageError(ErrCodeInvalidServiceID, "service name cannot be an absolute path", serviceName)
+	}
+
+	// Ensure service name is safe: only alphanumerics, hyphens, underscores, and dots
+	// This matches feature ID conventions (e.g., "tor", "sing-box", "xray-core", "adguard.home")
+	for _, r := range serviceName {
+		if !((r >= 'a' && r <= 'z') ||
+			(r >= 'A' && r <= 'Z') ||
+			(r >= '0' && r <= '9') ||
+			r == '-' || r == '_' || r == '.') {
+
+			return NewStorageErrorWithDetails(
+				ErrCodeInvalidServiceID,
+				"service name contains invalid character",
+				serviceName,
+				map[string]interface{}{"invalid_char": string(r)},
+			)
+		}
+	}
+
+	return nil
 }

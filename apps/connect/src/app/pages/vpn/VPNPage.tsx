@@ -49,8 +49,8 @@ export const VPNPage = React.memo(function VPNPage() {
   const isFetching = isFetchingWG;
 
   return (
-    <div className="px-6 py-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+      <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Page header */}
         <div className="flex items-start justify-between">
           <div>
@@ -68,7 +68,7 @@ export const VPNPage = React.memo(function VPNPage() {
             size="sm"
             onClick={() => refetch()}
             disabled={isLoading || isFetching}
-            className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
+            className="flex items-center gap-component-sm min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={t('button.refresh', { ns: 'common' })}
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
@@ -78,16 +78,16 @@ export const VPNPage = React.memo(function VPNPage() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="space-y-4" role="status" aria-label="Loading VPN interfaces">
-            <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
-            <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
-            <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
+          <div className="space-y-component-md" role="status" aria-label="Loading VPN interfaces">
+            <Skeleton className="h-48 w-full rounded-card-sm" />
+            <Skeleton className="h-48 w-full rounded-card-sm" />
+            <Skeleton className="h-48 w-full rounded-card-sm" />
           </div>
         )}
 
         {/* Error state */}
         {isError && (
-          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl md:rounded-3xl p-6 shadow-sm" role="alert">
+          <div className="bg-error/10 border-2 border-error rounded-card-sm p-component-lg shadow-sm" role="alert">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <svg
@@ -119,7 +119,7 @@ export const VPNPage = React.memo(function VPNPage() {
 
         {/* Empty state */}
         {!isLoading && !isError && wireguardInterfaces && wireguardInterfaces.length === 0 && (
-          <div className="bg-card border border-border rounded-2xl md:rounded-3xl p-12 text-center">
+          <div className="bg-card border border-border rounded-card-sm p-component-lg text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center">
               <svg
                 className="w-8 h-8 text-muted-foreground"
@@ -147,7 +147,7 @@ export const VPNPage = React.memo(function VPNPage() {
 
         {/* WireGuard Interface list */}
         {!isLoading && !isError && wireguardInterfaces && wireguardInterfaces.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {wireguardInterfaces.map((iface: WireGuardInterface) => (
               <WireGuardCard
                 key={iface.id}
@@ -159,7 +159,7 @@ export const VPNPage = React.memo(function VPNPage() {
 
         {/* Other VPN Types Section (Story 0-4-4) */}
         {!isLoading && !isError && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <h2 className="text-xl font-semibold text-foreground">
               {t('servers.otherVPNTypes')}
             </h2>
@@ -174,7 +174,7 @@ export const VPNPage = React.memo(function VPNPage() {
               defaultExpanded={false}
             >
               {l2tpInterfaces && l2tpInterfaces.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-component-sm">
                   {l2tpInterfaces.map((iface: L2TPInterface) => (
                     <GenericVPNCard key={iface.id} vpnInterface={iface} />
                   ))}
@@ -193,7 +193,7 @@ export const VPNPage = React.memo(function VPNPage() {
               defaultExpanded={false}
             >
               {pptpInterfaces && pptpInterfaces.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-component-sm">
                   {pptpInterfaces.map((iface: PPTPInterface) => (
                     <GenericVPNCard key={iface.id} vpnInterface={iface} />
                   ))}
@@ -212,7 +212,7 @@ export const VPNPage = React.memo(function VPNPage() {
               defaultExpanded={false}
             >
               {sstpInterfaces && sstpInterfaces.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-component-sm">
                   {sstpInterfaces.map((iface: SSSTPInterface) => (
                     <GenericVPNCard key={iface.id} vpnInterface={iface} />
                   ))}

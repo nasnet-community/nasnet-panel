@@ -84,13 +84,13 @@ function FilterPanel({ browser }: FilterPanelProps) {
   };
 
   const severityColors = {
-    CRITICAL: 'text-destructive',
+    CRITICAL: 'text-error',
     WARNING: 'text-warning',
     INFO: 'text-info',
   };
 
   return (
-    <div className="w-64 border-r bg-muted/30 p-4 space-y-6 overflow-y-auto">
+    <div className="w-64 border-r border-border bg-muted/30 p-component-md space-y-component-lg overflow-y-auto">
       {/* Clear filters button */}
       {hasActiveFilter && (
         <Button
@@ -105,7 +105,7 @@ function FilterPanel({ browser }: FilterPanelProps) {
       )}
 
       {/* Search */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="search-desktop">Search</Label>
         <Input
           id="search-desktop"
@@ -118,9 +118,9 @@ function FilterPanel({ browser }: FilterPanelProps) {
       </div>
 
       {/* Category filter */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label>Category</Label>
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           {/* All categories option */}
           <button
             onClick={() => setFilter({ category: 'all' })}
@@ -172,9 +172,9 @@ function FilterPanel({ browser }: FilterPanelProps) {
       </div>
 
       {/* Severity filter */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label>Severity</Label>
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           {/* All severities option */}
           <button
             onClick={() => setFilter({ severity: 'all' })}
@@ -226,9 +226,9 @@ function FilterPanel({ browser }: FilterPanelProps) {
       </div>
 
       {/* Built-in / Custom toggle */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label>Template Type</Label>
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           <button
             onClick={() =>
               setFilter({
@@ -295,7 +295,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   const categoryMeta = getCategoryMeta(template.category);
 
   const severityColors = {
-    CRITICAL: 'bg-destructive/10 text-destructive',
+    CRITICAL: 'bg-error/10 text-error',
     WARNING: 'bg-warning/10 text-warning',
     INFO: 'bg-info/10 text-info',
   };
@@ -318,10 +318,10 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       }}
     >
       <CardHeader>
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-component-sm">
           <div className="flex-1">
             <CardTitle className="text-lg">{template.name}</CardTitle>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-component-sm mt-component-sm">
               <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
                 {categoryMeta.label}
               </Badge>
@@ -336,11 +336,11 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
             </div>
           </div>
         </div>
-        <CardDescription className="mt-2 line-clamp-2">{template.description}</CardDescription>
+        <CardDescription className="mt-component-sm line-clamp-2">{template.description}</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-component-md text-sm text-muted-foreground">
           <div>
             <span className="font-medium">{template.conditions.length}</span> condition
             {template.conditions.length !== 1 && 's'}
@@ -358,7 +358,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         </div>
       </CardContent>
 
-      <CardFooter className="flex gap-2">
+      <CardFooter className="flex gap-component-sm">
         <Button
           variant="default"
           size="sm"
@@ -432,7 +432,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with sort controls */}
-        <div className="border-b p-4 bg-background">
+        <div className="border-b border-border p-component-md bg-background">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-semibold">Alert Rule Templates</h1>
@@ -442,7 +442,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
             </div>
 
             {/* Sort controls */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-component-md">
               <Tabs
                 value={sort.field}
                 onValueChange={(value) => setSort(value as typeof sort.field)}
@@ -465,7 +465,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
         </div>
 
         {/* Template grid */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-component-lg">
           {loading ? (
             <div
               className="flex items-center justify-center h-full"
@@ -493,7 +493,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
             </div>
           ) : (
             <div
-              className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+              className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-component-md"
               role="list"
               aria-label="Alert rule templates"
             >

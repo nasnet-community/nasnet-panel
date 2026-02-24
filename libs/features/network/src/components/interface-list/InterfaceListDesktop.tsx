@@ -47,7 +47,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'name',
       header: 'Name',
       cell: (row: any) => (
-        <span className="font-medium">{row.name}</span>
+        <span className="font-medium font-mono">{row.name}</span>
       ),
     },
     {
@@ -83,7 +83,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'ip',
       header: 'IP Address',
       cell: (row: any) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground font-mono">
           {row.ip?.join(', ') || '-'}
         </span>
       ),
@@ -108,16 +108,16 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
 
   if (error) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <div className="flex items-center justify-between">
           <InterfaceListFilters filters={filters} onChange={onFilterChange} />
         </div>
-        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10" role="alert">
-          <p className="text-destructive font-medium">Failed to load interfaces</p>
-          <p className="text-sm text-muted-foreground mt-2">
+        <div className="p-component-lg text-center border rounded-card-sm border-error bg-error/10" role="alert">
+          <p className="text-error font-medium">Failed to load interfaces</p>
+          <p className="text-sm text-error/70 mt-component-sm">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-4" aria-label="Retry loading interfaces">
+          <Button onClick={onRefresh} className="mt-component-md" aria-label="Retry loading interfaces">
             Retry
           </Button>
         </div>
@@ -126,7 +126,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <InterfaceListFilters filters={filters} onChange={onFilterChange} />

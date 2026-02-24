@@ -7,46 +7,216 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CreatePortMirror is the resolver for the createPortMirror field.
 func (r *mutationResolver) CreatePortMirror(ctx context.Context, routerID string, input model.CreatePortMirrorInput) (*model.PortMirrorMutationResult, error) {
-	panic(fmt.Errorf("not implemented: CreatePortMirror - createPortMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if len(input.SourceInterfaceIds) == 0 {
+		return nil, errors.NewValidationError("input", nil, "at least one source interface is required")
+	}
+	if input.DestinationInterfaceID == "" {
+		return nil, errors.NewValidationError("input", nil, "destination interface is required")
+	}
+
+	// Validate source != destination
+	for _, src := range input.SourceInterfaceIds {
+		if src == input.DestinationInterfaceID {
+			return nil, errors.NewValidationError("input", nil, "source interface cannot be the same as destination interface")
+		}
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreatePortMirror - createPortMirror", "graphql"))
 }
 
 // UpdatePortMirror is the resolver for the updatePortMirror field.
 func (r *mutationResolver) UpdatePortMirror(ctx context.Context, routerID string, id string, input model.UpdatePortMirrorInput) (*model.PortMirrorMutationResult, error) {
-	panic(fmt.Errorf("not implemented: UpdatePortMirror - updatePortMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+	if dstPtr, ok := input.DestinationInterfaceID.ValueOK(); ok && dstPtr != nil && *dstPtr != "" {
+		// Validate source != destination if destination is provided
+		if srcIDs, ok2 := input.SourceInterfaceIds.ValueOK(); ok2 && len(srcIDs) > 0 {
+			for _, src := range srcIDs {
+				if src == *dstPtr {
+					return nil, errors.NewValidationError("input", nil, "source interface cannot be the same as destination interface")
+				}
+			}
+		}
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdatePortMirror - updatePortMirror", "graphql"))
 }
 
 // DeletePortMirror is the resolver for the deletePortMirror field.
 func (r *mutationResolver) DeletePortMirror(ctx context.Context, routerID string, id string) (*model.DeleteResult, error) {
-	panic(fmt.Errorf("not implemented: DeletePortMirror - deletePortMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeletePortMirror - deletePortMirror", "graphql"))
 }
 
 // EnablePortMirror is the resolver for the enablePortMirror field.
 func (r *mutationResolver) EnablePortMirror(ctx context.Context, routerID string, id string) (*model.PortMirrorMutationResult, error) {
-	panic(fmt.Errorf("not implemented: EnablePortMirror - enablePortMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: EnablePortMirror - enablePortMirror", "graphql"))
 }
 
 // DisablePortMirror is the resolver for the disablePortMirror field.
 func (r *mutationResolver) DisablePortMirror(ctx context.Context, routerID string, id string) (*model.PortMirrorMutationResult, error) {
-	panic(fmt.Errorf("not implemented: DisablePortMirror - disablePortMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DisablePortMirror - disablePortMirror", "graphql"))
 }
 
 // PortMirrors is the resolver for the portMirrors field.
 func (r *queryResolver) PortMirrors(ctx context.Context, routerID string) ([]*model.PortMirror, error) {
-	panic(fmt.Errorf("not implemented: PortMirrors - portMirrors"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService to fetch port mirrors
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PortMirrors - portMirrors", "graphql"))
 }
 
 // PortMirror is the resolver for the portMirror field.
 func (r *queryResolver) PortMirror(ctx context.Context, routerID string, id string) (*model.PortMirror, error) {
-	panic(fmt.Errorf("not implemented: PortMirror - portMirror"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return nil, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "interface service not configured", "graphql")
+	}
+
+	// TODO: Call r.Resolver.InterfaceService to fetch port mirror by ID
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PortMirror - portMirror", "graphql"))
 }
 
 // PortMirrorChanged is the resolver for the portMirrorChanged field.
 func (r *subscriptionResolver) PortMirrorChanged(ctx context.Context, routerID string) (<-chan *model.PortMirror, error) {
-	panic(fmt.Errorf("not implemented: PortMirrorChanged - portMirrorChanged"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("input", nil, "unauthorized: authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+
+	// Create channel for port mirror change events
+	mirrorChan := make(chan *model.PortMirror, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(mirrorChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to port mirror changes and send to mirrorChan
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PortMirrorChanged - portMirrorChanged", "graphql"))
 }

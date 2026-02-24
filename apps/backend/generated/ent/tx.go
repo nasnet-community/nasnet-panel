@@ -48,6 +48,8 @@ type Tx struct {
 	PortAllocation *PortAllocationClient
 	// PortKnockSequence is the client for interacting with the PortKnockSequence builders.
 	PortKnockSequence *PortKnockSequenceClient
+	// ProvisioningSession is the client for interacting with the ProvisioningSession builders.
+	ProvisioningSession *ProvisioningSessionClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// ResourceEvent is the client for interacting with the ResourceEvent builders.
@@ -62,8 +64,6 @@ type Tx struct {
 	RoutingChain *RoutingChainClient
 	// RoutingSchedule is the client for interacting with the RoutingSchedule builders.
 	RoutingSchedule *RoutingScheduleClient
-	// SchemaVersion is the client for interacting with the SchemaVersion builders.
-	SchemaVersion *SchemaVersionClient
 	// ServiceDependency is the client for interacting with the ServiceDependency builders.
 	ServiceDependency *ServiceDependencyClient
 	// ServiceInstance is the client for interacting with the ServiceInstance builders.
@@ -74,10 +74,14 @@ type Tx struct {
 	ServiceTrafficHourly *ServiceTrafficHourlyClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
+	// SubnetAllocation is the client for interacting with the SubnetAllocation builders.
+	SubnetAllocation *SubnetAllocationClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// VLANAllocation is the client for interacting with the VLANAllocation builders.
 	VLANAllocation *VLANAllocationClient
+	// Version is the client for interacting with the Version builders.
+	Version *VersionClient
 	// VirtualInterface is the client for interacting with the VirtualInterface builders.
 	VirtualInterface *VirtualInterfaceClient
 	// Webhook is the client for interacting with the Webhook builders.
@@ -230,6 +234,7 @@ func (tx *Tx) init() {
 	tx.NotificationSettings = NewNotificationSettingsClient(tx.config)
 	tx.PortAllocation = NewPortAllocationClient(tx.config)
 	tx.PortKnockSequence = NewPortKnockSequenceClient(tx.config)
+	tx.ProvisioningSession = NewProvisioningSessionClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.ResourceEvent = NewResourceEventClient(tx.config)
 	tx.Router = NewRouterClient(tx.config)
@@ -237,14 +242,15 @@ func (tx *Tx) init() {
 	tx.RouterSecret = NewRouterSecretClient(tx.config)
 	tx.RoutingChain = NewRoutingChainClient(tx.config)
 	tx.RoutingSchedule = NewRoutingScheduleClient(tx.config)
-	tx.SchemaVersion = NewSchemaVersionClient(tx.config)
 	tx.ServiceDependency = NewServiceDependencyClient(tx.config)
 	tx.ServiceInstance = NewServiceInstanceClient(tx.config)
 	tx.ServiceTemplate = NewServiceTemplateClient(tx.config)
 	tx.ServiceTrafficHourly = NewServiceTrafficHourlyClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
+	tx.SubnetAllocation = NewSubnetAllocationClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.VLANAllocation = NewVLANAllocationClient(tx.config)
+	tx.Version = NewVersionClient(tx.config)
 	tx.VirtualInterface = NewVirtualInterfaceClient(tx.config)
 	tx.Webhook = NewWebhookClient(tx.config)
 }

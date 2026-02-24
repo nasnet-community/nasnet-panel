@@ -7,46 +7,300 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // AcknowledgeAlert is the resolver for the acknowledgeAlert field.
+// Marks a single alert as acknowledged.
 func (r *mutationResolver) AcknowledgeAlert(ctx context.Context, alertID string) (*model.AlertPayload, error) {
-	panic(fmt.Errorf("not implemented: AcknowledgeAlert - acknowledgeAlert"))
+	if r.AlertService == nil {
+		return &model.AlertPayload{
+			Errors: []*model.MutationError{{
+				Code:    "ALERT_SERVICE_UNAVAILABLE",
+				Message: "Alert service not available",
+			}},
+		}, nil
+	}
+
+	if alertID == "" {
+		return &model.AlertPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Alert ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement single alert acknowledgement
+	// This should call r.AlertService to acknowledge the alert
+	// Pass ctx to service call for proper context propagation and cancellation
+	// Validate alert exists before acknowledging
+	return &model.AlertPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "AcknowledgeAlert not yet implemented",
+		}},
+	}, nil
 }
 
 // AcknowledgeAlerts is the resolver for the acknowledgeAlerts field.
+// Marks multiple alerts as acknowledged in a single operation.
 func (r *mutationResolver) AcknowledgeAlerts(ctx context.Context, alertIds []string) (*model.BulkAlertPayload, error) {
-	panic(fmt.Errorf("not implemented: AcknowledgeAlerts - acknowledgeAlerts"))
+	if r.AlertService == nil {
+		return &model.BulkAlertPayload{
+			Errors: []*model.MutationError{{
+				Code:    "ALERT_SERVICE_UNAVAILABLE",
+				Message: "Alert service not available",
+			}},
+		}, nil
+	}
+
+	if len(alertIds) == 0 {
+		return &model.BulkAlertPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "At least one alert ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement bulk alert acknowledgement
+	// This should call r.AlertService to acknowledge multiple alerts
+	// Pass ctx to service call for proper context propagation and cancellation
+	// Ensure alert IDs are valid before acknowledgement
+	// Handle partial failures gracefully
+	return &model.BulkAlertPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "AcknowledgeAlerts not yet implemented",
+		}},
+	}, nil
 }
 
 // TestNotificationChannel is the resolver for the testNotificationChannel field.
+// Tests a notification channel configuration by sending a test message.
 func (r *mutationResolver) TestNotificationChannel(ctx context.Context, channel string, config map[string]any) (*model.TestNotificationPayload, error) {
-	panic(fmt.Errorf("not implemented: TestNotificationChannel - testNotificationChannel"))
+	if r.Dispatcher == nil {
+		return &model.TestNotificationPayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "DISPATCHER_UNAVAILABLE",
+				Message: "Notification dispatcher service not available",
+			}},
+		}, nil
+	}
+
+	if channel == "" {
+		return &model.TestNotificationPayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel type is required",
+			}},
+		}, nil
+	}
+
+	if config == nil || len(config) == 0 {
+		return &model.TestNotificationPayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel configuration is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement channel test functionality
+	// This should validate the config and send a test notification
+	// Pass ctx to service call for proper context propagation and timeout handling
+	// Validate channel configuration structure based on channel type
+	// Return meaningful error messages for validation failures
+	return &model.TestNotificationPayload{
+		Success: false,
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "TestNotificationChannel not yet implemented",
+		}},
+	}, nil
 }
 
 // CreateWebhook is the resolver for the createWebhook field.
+// Creates a new webhook configuration with URL validation.
 func (r *mutationResolver) CreateWebhook(ctx context.Context, input model.CreateWebhookInput) (*model.WebhookPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateWebhook - createWebhook"))
+	if r.WebhookService == nil {
+		return &model.WebhookPayload{
+			Errors: []*model.MutationError{{
+				Code:    "WEBHOOK_SERVICE_UNAVAILABLE",
+				Message: "Webhook service not available",
+			}},
+		}, nil
+	}
+
+	// Validate URL format
+	if input.URL == "" {
+		return &model.WebhookPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Webhook URL is required",
+			}},
+		}, nil
+	}
+
+	if _, err := url.ParseRequestURI(input.URL); err != nil {
+		return &model.WebhookPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_URL",
+				Message: fmt.Sprintf("Invalid webhook URL: %v", err),
+			}},
+		}, nil
+	}
+
+	// TODO: Implement webhook creation with additional validation
+	// This should call r.WebhookService to create the webhook
+	return &model.WebhookPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "CreateWebhook not yet implemented",
+		}},
+	}, nil
 }
 
 // UpdateWebhook is the resolver for the updateWebhook field.
+// Updates an existing webhook configuration with URL validation.
 func (r *mutationResolver) UpdateWebhook(ctx context.Context, id string, input model.UpdateWebhookInput) (*model.WebhookPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateWebhook - updateWebhook"))
+	if r.WebhookService == nil {
+		return &model.WebhookPayload{
+			Errors: []*model.MutationError{{
+				Code:    "WEBHOOK_SERVICE_UNAVAILABLE",
+				Message: "Webhook service not available",
+			}},
+		}, nil
+	}
+
+	if id == "" {
+		return &model.WebhookPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Webhook ID is required",
+			}},
+		}, nil
+	}
+
+	// Validate URL if provided (input.URL is graphql.Omittable[*string])
+	if urlPtr, ok := input.URL.ValueOK(); ok && urlPtr != nil && *urlPtr != "" {
+		if _, err := url.ParseRequestURI(*urlPtr); err != nil {
+			return &model.WebhookPayload{
+				Errors: []*model.MutationError{{
+					Code:    "INVALID_URL",
+					Message: fmt.Sprintf("Invalid webhook URL: %v", err),
+				}},
+			}, nil
+		}
+	}
+
+	// TODO: Implement webhook update with validation
+	// This should call r.WebhookService to update the webhook
+	// Pass ctx to service call for proper context propagation and cancellation
+	// Validate webhook exists before updating
+	// Ensure URL is HTTPS for security (production requirement)
+	return &model.WebhookPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "UpdateWebhook not yet implemented",
+		}},
+	}, nil
 }
 
 // DeleteWebhook is the resolver for the deleteWebhook field.
+// Deletes a webhook configuration.
 func (r *mutationResolver) DeleteWebhook(ctx context.Context, id string) (*model.DeletePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteWebhook - deleteWebhook"))
+	if r.WebhookService == nil {
+		return &model.DeletePayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "WEBHOOK_SERVICE_UNAVAILABLE",
+				Message: "Webhook service not available",
+			}},
+		}, nil
+	}
+
+	if id == "" {
+		return &model.DeletePayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Webhook ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement webhook deletion
+	// This should call r.WebhookService to delete the webhook
+	// Pass ctx to service call for proper context propagation and cancellation
+	// Ensure webhook exists before deletion
+	return &model.DeletePayload{
+		Success: false,
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "DeleteWebhook not yet implemented",
+		}},
+	}, nil
 }
 
 // TestWebhook is the resolver for the testWebhook field.
+// Tests a webhook by sending a test payload.
 func (r *mutationResolver) TestWebhook(ctx context.Context, id string) (*model.WebhookTestPayload, error) {
-	panic(fmt.Errorf("not implemented: TestWebhook - testWebhook"))
+	if r.WebhookService == nil {
+		return &model.WebhookTestPayload{
+			Result: &model.WebhookTestResult{Success: false},
+			Errors: []*model.MutationError{{
+				Code:    "WEBHOOK_SERVICE_UNAVAILABLE",
+				Message: "Webhook service not available",
+			}},
+		}, nil
+	}
+
+	if id == "" {
+		return &model.WebhookTestPayload{
+			Result: &model.WebhookTestResult{Success: false},
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Webhook ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement webhook testing
+	// This should call r.WebhookService to send a test request
+	// Pass ctx to service call for proper context propagation and timeout handling
+	// Ensure webhook exists and is properly configured
+	// Return response details (status code, response body) for debugging
+	return &model.WebhookTestPayload{
+		Result: &model.WebhookTestResult{Success: false},
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "TestWebhook not yet implemented",
+		}},
+	}, nil
 }
 
 // TriggerDigestNow is the resolver for the triggerDigestNow field.
+// Immediately triggers digest notification for a channel (ignoring schedule).
 func (r *mutationResolver) TriggerDigestNow(ctx context.Context, channelID string) (*model.DigestSummary, error) {
-	panic(fmt.Errorf("not implemented: TriggerDigestNow - triggerDigestNow"))
+	if r.Dispatcher == nil {
+		return nil, errors.NewValidationError("dispatcher", nil, "notification dispatcher service not available")
+	}
+
+	if channelID == "" {
+		return nil, errors.NewValidationError("channelID", channelID, "channel ID is required")
+	}
+
+	// TODO: Implement manual digest triggering
+	// This should call r.Dispatcher to immediately send digest
+	// Pass ctx to service call for proper context propagation and timeout handling
+	// Ensure channel is configured and has pending alerts before triggering
+	return nil, nil
 }

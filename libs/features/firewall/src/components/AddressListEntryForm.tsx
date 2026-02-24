@@ -131,15 +131,15 @@ export const AddressListEntryForm = ({
       className={cn(className)}
       noValidate
     >
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         {/* List Selection */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Label htmlFor="list" className="text-sm font-medium">
-            List Name <span className="text-destructive">*</span>
+            List Name <span className="text-error">*</span>
           </Label>
 
           {showCreateNewList ? (
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Input
                 id="list"
                 {...register('list')}
@@ -161,7 +161,7 @@ export const AddressListEntryForm = ({
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               {existingLists.length > 0 ? (
                 <select
                   id="list"
@@ -169,7 +169,7 @@ export const AddressListEntryForm = ({
                   disabled={isLoading || isSubmitting}
                   aria-invalid={!!errors.list}
                   aria-describedby={errors.list ? 'list-error' : undefined}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Select a list...</option>
                   {existingLists.map((list) => (
@@ -203,19 +203,19 @@ export const AddressListEntryForm = ({
           )}
 
           {errors.list && (
-            <p id="list-error" className="text-sm text-destructive">
+            <p id="list-error" className="text-sm text-error">
               {errors.list.message}
             </p>
           )}
         </div>
 
         {/* Address Input */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Label htmlFor="address" className="text-sm font-medium">
-            Address <span className="text-destructive">*</span>
+            Address <span className="text-error">*</span>
           </Label>
 
-          <div className="space-y-1">
+          <div className="space-y-component-xs">
             <Input
               id="address"
               {...register('address')}
@@ -237,7 +237,7 @@ export const AddressListEntryForm = ({
           </div>
 
           {errors.address ? (
-            <p id="address-error" className="text-sm text-destructive">
+            <p id="address-error" className="text-sm text-error">
               {errors.address.message}
             </p>
           ) : (
@@ -248,7 +248,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Timeout Field */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Label htmlFor="timeout" className="text-sm font-medium">
             Timeout (optional)
           </Label>
@@ -264,7 +264,7 @@ export const AddressListEntryForm = ({
           />
 
           {errors.timeout ? (
-            <p id="timeout-error" className="text-sm text-destructive">
+            <p id="timeout-error" className="text-sm text-error">
               {errors.timeout.message}
             </p>
           ) : (
@@ -275,7 +275,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Comment Field */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Label htmlFor="comment" className="text-sm font-medium">
             Comment (optional)
           </Label>
@@ -292,7 +292,7 @@ export const AddressListEntryForm = ({
           />
 
           {errors.comment && (
-            <p id="comment-error" className="text-sm text-destructive">
+            <p id="comment-error" className="text-sm text-error">
               {errors.comment.message}
             </p>
           )}
@@ -303,7 +303,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-2 pt-4">
+        <div className="flex justify-end gap-component-sm pt-component-md">
           {onCancel && (
             <Button
               type="button"
@@ -317,7 +317,6 @@ export const AddressListEntryForm = ({
           <Button
             type="submit"
             disabled={isLoading || isSubmitting}
-            className="bg-category-firewall hover:bg-category-firewall/90"
           >
             {isSubmitting || isLoading ? 'Adding...' : 'Add Entry'}
           </Button>

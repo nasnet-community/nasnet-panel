@@ -5,12 +5,27 @@ import (
 	"fmt"
 )
 
-// ValidateTemplate validates a template before installation
-// Checks variable references, service types, and dependency cycles.
+// ValidateTemplate validates a template before installation.
+// Checks:
+// - Template existence and schema validity
+// - All required variables are provided
+// - Variable types match expected types
+// - Service types are valid
+// - Template scope is internally consistent
 func (ti *TemplateInstaller) ValidateTemplate(ctx context.Context, templateID string, variables map[string]interface{}) error {
+	// Check context before starting validation
+	if ctx.Err() != nil {
+		return fmt.Errorf("validation canceled: %w", ctx.Err())
+	}
+
 	template, err := ti.templateService.GetTemplate(ctx, templateID)
 	if err != nil {
 		return fmt.Errorf("failed to get template: %w", err)
+	}
+
+	// Validate template scope consistency
+	if err := ti.validateTemplateScope(template); err != nil {
+		return err
 	}
 
 	// Validate all required variables are provided
@@ -35,6 +50,27 @@ func (ti *TemplateInstaller) ValidateTemplate(ctx context.Context, templateID st
 		}
 	}
 
+	// Validate service types are non-empty (basic service schema check)
+	for i, service := range template.Services {
+		if service.ServiceType == "" {
+			return fmt.Errorf("service at index %d has empty service type", i)
+		}
+		if service.Name == "" {
+			return fmt.Errorf("service at index %d has empty name", i)
+		}
+	}
+
+	return nil
+}
+
+// validateTemplateScope validates that template scope is internally consistent.
+func (ti *TemplateInstaller) validateTemplateScope(template *ServiceTemplate) error {
+	if template.Scope == ScopeSingle && len(template.Services) != 1 {
+		return fmt.Errorf("single-scope template must have exactly 1 service, got %d", len(template.Services))
+	}
+	if template.Scope == ScopeMultiple && len(template.Services) < 2 {
+		return fmt.Errorf("multi-scope template must have at least 2 services, got %d", len(template.Services))
+	}
 	return nil
 }
 

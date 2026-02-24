@@ -429,15 +429,15 @@ function DeviceRoutingPageComponent({
   );
 
   return (
-    <div className={cn('container mx-auto py-6', className)}>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Device Routing</h1>
+    <div className={cn('container mx-auto py-component-lg', className)}>
+      <div className="mb-component-lg">
+        <h1 className="text-3xl font-display tracking-tight text-foreground">Device Routing</h1>
         <p className="text-muted-foreground">
           Route network devices through service instances (Tor, Xray, etc.)
         </p>
 
         {/* Global Kill Switch (NAS-8.13) */}
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-component-md flex items-center gap-component-md">
           <KillSwitchToggle
             routerId={routerId}
             deviceId=""
@@ -452,15 +452,15 @@ function DeviceRoutingPageComponent({
       {bulkProgress && (
         <div
           className={cn(
-            'mb-4 rounded-md border p-3',
-            'border-primary bg-semantic-info-bg'
+            'mb-component-md rounded-[var(--semantic-radius-card)] border p-component-sm',
+            'border-border bg-info/10'
           )}
           role="status"
           aria-live="polite"
           aria-label={`Bulk assignment progress: ${bulkProgress.percentage}% complete`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium text-foreground">
               Bulk Assignment Progress: {bulkProgress.percentage}%
             </span>
             <span className="text-sm font-mono text-muted-foreground">
@@ -472,9 +472,9 @@ function DeviceRoutingPageComponent({
 
       {/* Routing Chain Visualizations (NAS-8.10) */}
       {routingChains.length > 0 && (
-        <section className="mb-6 space-y-3">
-          <h2 className="text-lg font-semibold">Active Routing Chains</h2>
-          <div className="space-y-3">
+        <section className="mb-component-lg space-y-component-md">
+          <h2 className="text-lg font-display text-foreground">Active Routing Chains</h2>
+          <div className="space-y-component-md">
             {routingChains.slice(0, 5).map((chain) => (
               <RoutingChainViz
                 key={chain.id}

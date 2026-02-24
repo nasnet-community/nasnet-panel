@@ -142,11 +142,11 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
   }, [setCreateDialogOpen, setEditingSequenceId]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Port Knocking</h1>
+          <h1 className="text-3xl font-bold font-display">Port Knocking</h1>
           <p className="text-muted-foreground mt-1">
             Protect sensitive services behind secret knock sequences
           </p>
@@ -161,7 +161,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Icon icon={Shield} className="h-5 w-5 text-destructive" aria-hidden="true" />
+            <Icon icon={Shield} className="h-5 w-5 text-error" aria-hidden="true" />
             What is Port Knocking?
           </CardTitle>
           <CardDescription>

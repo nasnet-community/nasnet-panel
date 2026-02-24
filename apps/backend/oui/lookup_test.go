@@ -17,7 +17,9 @@ func TestExtractOUI(t *testing.T) {
 		{"Lowercase", "aa:bb:cc:dd:ee:ff", "AABBCC"},
 		{"Mixed case", "Aa:Bb:Cc:Dd:Ee:Ff", "AABBCC"},
 		{"Short MAC", "AA:BB", ""},
-		{"Invalid format", "ZZZZ", ""},
+		{"Invalid hex chars", "ZZ:ZZ:ZZ:DD:EE:FF", ""},
+		{"Invalid hex in OUI", "XY:AB:CD:12:34:56", ""},
+		{"Empty string", "", ""},
 	}
 
 	for _, tt := range tests {
@@ -186,16 +188,7 @@ func TestNormalizeMAC(t *testing.T) {
 
 // Helper function
 func contains(s, substr string) bool {
-	return len(s) > 0 && len(substr) > 0 && (s == substr || len(s) >= len(substr) && s[:len(substr)] == substr || stringContains(s, substr))
-}
-
-func stringContains(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
+	return strings.Contains(s, substr)
 }
 
 func normalizeMAC(mac string) string {

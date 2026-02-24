@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 	"backend/generated/ent/router"
 	"backend/internal/connection"
-
 	"backend/internal/events"
 )
 
@@ -103,7 +104,7 @@ func (s *RouterService) UpdateRouterStatus(ctx context.Context, routerID, newSta
 			parseEventStatus(newStatus),
 			parseEventStatus(previousStatus),
 		); pubErr != nil {
-			fmt.Printf("[RouterService] Warning: failed to publish status change: %v\n", pubErr)
+			s.logger.Warn("Failed to publish router status changed event", zap.Error(pubErr))
 		}
 	}
 
@@ -197,29 +198,10 @@ func (s *RouterService) TestCredentials(ctx context.Context, routerID, username,
 
 // containsAny checks if the string contains any of the substrings (case-insensitive).
 func containsAny(s string, substrs ...string) bool {
-	lower := s
+	lower := strings.ToLower(s)
 	for _, sub := range substrs {
-		if sub == "" || len(lower) < len(sub) {
-			continue
-		}
-		for i := 0; i <= len(lower)-len(sub); i++ {
-			match := true
-			for j := 0; j < len(sub); j++ {
-				c1, c2 := lower[i+j], sub[j]
-				if c1 >= 'A' && c1 <= 'Z' {
-					c1 += 32
-				}
-				if c2 >= 'A' && c2 <= 'Z' {
-					c2 += 32
-				}
-				if c1 != c2 {
-					match = false
-					break
-				}
-			}
-			if match {
-				return true
-			}
+		if strings.Contains(lower, strings.ToLower(sub)) {
+			return true
 		}
 	}
 	return false

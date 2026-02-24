@@ -9,17 +9,17 @@ import (
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 
+	"backend/internal/common/ulid"
 	"backend/internal/events"
 
-	"github.com/oklog/ulid/v2"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // DependencyManagerConfig holds configuration for the dependency manager
 type DependencyManagerConfig struct {
 	Store    *ent.Client
 	EventBus events.EventBus
-	Logger   zerolog.Logger
+	Logger   *zap.Logger
 }
 
 // DependencyManager manages service instance dependencies
@@ -28,7 +28,7 @@ type DependencyManager struct {
 	store     *ent.Client
 	eventBus  events.EventBus
 	publisher *events.Publisher
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // DependencyInfo represents a dependency relationship
@@ -73,10 +73,15 @@ func NewDependencyManager(cfg DependencyManagerConfig) (*DependencyManager, erro
 		return nil, fmt.Errorf("event bus is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	dm := &DependencyManager{
 		store:    cfg.Store,
 		eventBus: cfg.EventBus,
-		logger:   cfg.Logger,
+		logger:   logger,
 	}
 
 	// Create event publisher if event bus is provided
@@ -136,7 +141,7 @@ func (dm *DependencyManager) AddDependency(ctx context.Context, fromInstanceID, 
 	}
 
 	// Create dependency
-	id := ulid.Make().String()
+	id := ulid.NewString()
 	dep, err := dm.store.ServiceDependency.Create().
 		SetID(id).
 		SetFromInstanceID(fromInstanceID).
@@ -154,12 +159,7 @@ func (dm *DependencyManager) AddDependency(ctx context.Context, fromInstanceID, 
 		_ = dm.publisher.PublishDependencyAdded(ctx, fromInstanceID, toInstanceID, dependencyType) //nolint:errcheck // event publication is best-effort, dependency was already created
 	}
 
-	dm.logger.Info().
-		Str("dependency_id", dep.ID).
-		Str("from_instance", fromInstanceID).
-		Str("to_instance", toInstanceID).
-		Str("type", dependencyType).
-		Msg("dependency added")
+	dm.logger.Info("dependency added", zap.String("dependency_id", dep.ID), zap.String("from_instance", fromInstanceID), zap.String("to_instance", toInstanceID), zap.String("type", dependencyType))
 
 	return dep.ID, nil
 }
@@ -185,11 +185,7 @@ func (dm *DependencyManager) RemoveDependency(ctx context.Context, dependencyID 
 		_ = dm.publisher.PublishDependencyRemoved(ctx, dep.FromInstanceID, dep.ToInstanceID) //nolint:errcheck // event publication is best-effort, dependency was already deleted
 	}
 
-	dm.logger.Info().
-		Str("dependency_id", dependencyID).
-		Str("from_instance", dep.FromInstanceID).
-		Str("to_instance", dep.ToInstanceID).
-		Msg("dependency removed")
+	dm.logger.Info("dependency removed", zap.String("dependency_id", dependencyID), zap.String("from_instance", dep.FromInstanceID), zap.String("to_instance", dep.ToInstanceID))
 
 	return nil
 }
@@ -308,11 +304,7 @@ func (dm *DependencyManager) CleanupForInstance(ctx context.Context, instanceID 
 		return fmt.Errorf("failed to delete to-dependencies: %w", err)
 	}
 
-	dm.logger.Info().
-		Str("instance_id", instanceID).
-		Int("from_dependencies", fromCount).
-		Int("to_dependencies", toCount).
-		Msg("cleaned up dependencies for instance")
+	dm.logger.Info("cleaned up dependencies for instance", zap.String("instance_id", instanceID), zap.Int("from_dependencies", fromCount), zap.Int("to_dependencies", toCount))
 
 	return nil
 }

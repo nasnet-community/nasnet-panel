@@ -6,14 +6,13 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
-	"backend/internal/orchestrator/dependencies"
-
 	"backend/internal/events"
-
-	"github.com/rs/zerolog"
-	"golang.org/x/sync/errgroup"
+	"backend/internal/orchestrator/dependencies"
 )
 
 // InstanceStarter defines the interface for starting service instances.
@@ -30,7 +29,7 @@ type BootSequenceManagerConfig struct {
 	InstanceMgr   InstanceStarter
 	Store         *ent.Client
 	EventBus      events.EventBus
-	Logger        zerolog.Logger
+	Logger        *zap.Logger
 }
 
 // SequenceManager orchestrates service instance startup on system boot
@@ -42,7 +41,7 @@ type BootSequenceManager struct {
 	store     *ent.Client
 	eventBus  events.EventBus
 	publisher *events.Publisher
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // NewBootSequenceManager creates a new boot sequence manager
@@ -86,14 +85,13 @@ func (bsm *BootSequenceManager) ExecuteBootSequence(ctx context.Context) error {
 		return err
 	}
 	if len(instanceIDs) == 0 {
-		bsm.logger.Info().Msg("no auto-start instances found")
+		bsm.logger.Info("no auto-start instances found")
 		return nil
 	}
 
-	bsm.logger.Info().
-		Int("instance_count", len(instanceIDs)).
-		Strs("instance_ids", instanceIDs).
-		Msg("starting boot sequence")
+	bsm.logger.Info("starting boot sequence",
+		zap.Int("instance_count", len(instanceIDs)),
+		zap.Strings("instance_ids", instanceIDs))
 
 	bsm.publishStartedEvent(ctx, instanceIDs)
 
@@ -110,12 +108,11 @@ func (bsm *BootSequenceManager) ExecuteBootSequence(ctx context.Context) error {
 	totalDuration := time.Since(startTime)
 	bsm.publishCompletedEvent(ctx, instanceIDs, successfulStarts, failedStarts, totalDuration)
 
-	bsm.logger.Info().
-		Int("total_instances", len(instanceIDs)).
-		Int("started", len(successfulStarts)).
-		Int("failed", len(failedStarts)).
-		Dur("duration", totalDuration).
-		Msg("boot sequence complete")
+	bsm.logger.Info("boot sequence complete",
+		zap.Int("total_instances", len(instanceIDs)),
+		zap.Int("started", len(successfulStarts)),
+		zap.Int("failed", len(failedStarts)),
+		zap.Duration("duration", totalDuration))
 
 	if len(failedStarts) > 0 {
 		return fmt.Errorf("boot sequence completed with %d failures: %v", len(failedStarts), failedStarts)
@@ -144,7 +141,7 @@ func (bsm *BootSequenceManager) collectAutoStartInstances(ctx context.Context) (
 func (bsm *BootSequenceManager) publishStartedEvent(ctx context.Context, instanceIDs []string) {
 	if bsm.publisher != nil {
 		if pubErr := bsm.publisher.PublishBootSequenceStarted(ctx, len(instanceIDs), instanceIDs); pubErr != nil {
-			bsm.logger.Warn().Err(pubErr).Msg("failed to publish boot sequence started event")
+			bsm.logger.Warn("failed to publish boot sequence started event", zap.Error(pubErr))
 		}
 	}
 }
@@ -159,20 +156,17 @@ func (bsm *BootSequenceManager) computeStartupLayers(ctx context.Context, instan
 		return nil, fmt.Errorf("failed to compute startup order: %w", err)
 	}
 
-	bsm.logger.Info().
-		Int("layer_count", len(layers)).
-		Msg("computed startup order")
+	bsm.logger.Info("computed startup order", zap.Int("layer_count", len(layers)))
 	return layers, nil
 }
 
 // executeLayers starts each layer sequentially, returning accumulated successes and failures.
 func (bsm *BootSequenceManager) executeLayers(ctx context.Context, layers [][]string) (successfulStarts, failedStarts []string, retErr error) {
 	for layerIdx, layer := range layers {
-		bsm.logger.Info().
-			Int("layer", layerIdx).
-			Int("instance_count", len(layer)).
-			Strs("instance_ids", layer).
-			Msg("starting layer")
+		bsm.logger.Info("starting layer",
+			zap.Int("layer", layerIdx),
+			zap.Int("instance_count", len(layer)),
+			zap.Strings("instance_ids", layer))
 
 		layerStartTime := time.Now()
 		layerSuccesses, layerFailures, err := bsm.startLayer(ctx, layer)
@@ -182,18 +176,17 @@ func (bsm *BootSequenceManager) executeLayers(ctx context.Context, layers [][]st
 
 		if bsm.publisher != nil {
 			if pubErr := bsm.publisher.PublishBootSequenceLayerComplete(ctx, layerIdx, layer, len(layerSuccesses), len(layerFailures)); pubErr != nil {
-				bsm.logger.Warn().Err(pubErr).Msg("failed to publish layer complete event")
+				bsm.logger.Warn("failed to publish layer complete event", zap.Error(pubErr))
 			}
 		}
 
 		if err != nil {
-			bsm.logger.Error().
-				Err(err).
-				Int("layer", layerIdx).
-				Dur("duration", layerDuration).
-				Int("successes", len(layerSuccesses)).
-				Int("failures", len(layerFailures)).
-				Msg("layer failed, stopping boot sequence")
+			bsm.logger.Error("layer failed, stopping boot sequence",
+				zap.Error(err),
+				zap.Int("layer", layerIdx),
+				zap.Duration("duration", layerDuration),
+				zap.Int("successes", len(layerSuccesses)),
+				zap.Int("failures", len(layerFailures)))
 
 			if bsm.publisher != nil {
 				var failedID string
@@ -206,12 +199,11 @@ func (bsm *BootSequenceManager) executeLayers(ctx context.Context, layers [][]st
 			return successfulStarts, failedStarts, fmt.Errorf("boot sequence failed at layer %d: %w", layerIdx, err)
 		}
 
-		bsm.logger.Info().
-			Int("layer", layerIdx).
-			Dur("duration", layerDuration).
-			Int("successes", len(layerSuccesses)).
-			Int("failures", len(layerFailures)).
-			Msg("layer complete")
+		bsm.logger.Info("layer complete",
+			zap.Int("layer", layerIdx),
+			zap.Duration("duration", layerDuration),
+			zap.Int("successes", len(layerSuccesses)),
+			zap.Int("failures", len(layerFailures)))
 	}
 
 	return successfulStarts, failedStarts, nil
@@ -228,7 +220,7 @@ func (bsm *BootSequenceManager) publishCompletedEvent(ctx context.Context, insta
 			totalDuration.Milliseconds(),
 			failedStarts,
 		); err != nil {
-			bsm.logger.Warn().Err(err).Msg("failed to publish boot sequence complete event")
+			bsm.logger.Warn("failed to publish boot sequence complete event", zap.Error(err))
 		}
 	}
 }
@@ -253,9 +245,7 @@ func (bsm *BootSequenceManager) startLayer(ctx context.Context, instanceIDs []st
 				healthCtx, cancel := context.WithTimeout(groupCtx, 60*time.Second)
 				defer cancel()
 
-				bsm.logger.Info().
-					Str("instance_id", id).
-					Msg("starting instance in layer")
+				bsm.logger.Info("starting instance in layer", zap.String("instance_id", id))
 
 				// Start the instance (will auto-start dependencies if needed)
 				if err := bsm.instMgr.StartInstance(healthCtx, id); err != nil {
@@ -263,10 +253,9 @@ func (bsm *BootSequenceManager) startLayer(ctx context.Context, instanceIDs []st
 					failedIDs = append(failedIDs, id)
 					mu.Unlock()
 
-					bsm.logger.Error().
-						Err(err).
-						Str("instance_id", id).
-						Msg("failed to start instance in layer")
+					bsm.logger.Error("failed to start instance in layer",
+						zap.Error(err),
+						zap.String("instance_id", id))
 
 					// Return error to fail the entire layer
 					return fmt.Errorf("instance %s failed to start: %w", id, err)
@@ -276,9 +265,7 @@ func (bsm *BootSequenceManager) startLayer(ctx context.Context, instanceIDs []st
 				successIDs = append(successIDs, id)
 				mu.Unlock()
 
-				bsm.logger.Info().
-					Str("instance_id", id).
-					Msg("instance started successfully")
+				bsm.logger.Info("instance started successfully", zap.String("instance_id", id))
 
 				return nil
 			}

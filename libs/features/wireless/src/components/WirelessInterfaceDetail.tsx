@@ -68,34 +68,34 @@ export const WirelessInterfaceDetail = forwardRef<
   }, [iface.macAddress]);
 
   return (
-    <div ref={ref} className={cn('space-y-4', className)}>
+    <div ref={ref} className={cn('space-y-component-md', className)}>
       {/* Header Section */}
-      <Card className="p-6">
-        <div className="flex items-start justify-between mb-4">
+      <Card className="p-component-lg">
+        <div className="flex items-start justify-between mb-component-md">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Wifi className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
+            <div className="flex items-center gap-component-sm mb-component-xs">
+              <Wifi className="h-5 w-5 text-muted-foreground" />
+              <h2 className="text-xl font-semibold font-display text-foreground">
                 {iface.ssid || 'Not configured'}
               </h2>
               {iface.hideSsid && (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="ml-component-sm">
                   <EyeOff className="h-3 w-3 mr-1" />
                   Hidden
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground font-mono">
               {iface.name}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Button
               variant="default"
               size="sm"
               onClick={() => setShowSettingsModal(true)}
               aria-label="Edit settings"
-              className="gap-2"
+              className="gap-component-sm"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Edit Settings</span>
@@ -106,7 +106,7 @@ export const WirelessInterfaceDetail = forwardRef<
         </div>
 
         {/* Mode and Band */}
-        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
           <span>{modeLabel}</span>
           {iface.band !== 'Unknown' && (
             <>
@@ -118,32 +118,32 @@ export const WirelessInterfaceDetail = forwardRef<
       </Card>
 
       {/* Radio Settings Section */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Radio className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
-          <h3 className="text-sm font-semibold text-foreground">
+      <Card className="p-component-lg">
+        <div className="flex items-center gap-component-sm mb-component-md">
+          <Radio className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <h3 className="text-sm font-semibold font-display text-foreground">
             Radio Settings
           </h3>
         </div>
 
-        <div className="space-y-3">
-          <DetailRow label="Frequency" value={`${iface.frequency} MHz`} />
-          <DetailRow label="Channel" value={iface.channel || 'Auto'} />
-          <DetailRow label="Channel Width" value={iface.channelWidth} />
-          <DetailRow label="TX Power" value={`${iface.txPower} dBm`} />
+        <div className="space-y-component-sm">
+          <DetailRow label="Frequency" value={`${iface.frequency} MHz`} technical />
+          <DetailRow label="Channel" value={iface.channel || 'Auto'} technical />
+          <DetailRow label="Channel Width" value={iface.channelWidth} technical />
+          <DetailRow label="TX Power" value={`${iface.txPower} dBm`} technical />
         </div>
       </Card>
 
       {/* Security Section */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
-          <h3 className="text-sm font-semibold text-foreground">
+      <Card className="p-component-lg">
+        <div className="flex items-center gap-component-sm mb-component-md">
+          <Shield className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <h3 className="text-sm font-semibold font-display text-foreground">
             Security
           </h3>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <DetailRow label="Security Profile" value={iface.securityProfile} />
           <DetailRow
             label="Network Visibility"
@@ -154,15 +154,15 @@ export const WirelessInterfaceDetail = forwardRef<
 
       {/* Signal Strength (Station Mode Only) */}
       {isStation && iface.signalStrength !== undefined && (
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Signal className="h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden="true" />
-            <h3 className="text-sm font-semibold text-foreground">
+        <Card className="p-component-lg">
+          <div className="flex items-center gap-component-sm mb-component-md">
+            <Signal className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <h3 className="text-sm font-semibold font-display text-foreground">
               Connection
             </h3>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             <DetailRow
               label="Signal Strength"
               value={`${iface.signalStrength} dBm`}
@@ -176,15 +176,15 @@ export const WirelessInterfaceDetail = forwardRef<
 
       {/* Regional Settings */}
       {iface.countryCode && (
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Globe className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+        <Card className="p-component-lg">
+          <div className="flex items-center gap-component-sm mb-component-md">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold font-display text-foreground">
               Regional
             </h3>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             <DetailRow
               label="Country/Region"
               value={`${getCountryName(iface.countryCode)} (${iface.countryCode})`}
@@ -199,30 +199,30 @@ export const WirelessInterfaceDetail = forwardRef<
       )}
 
       {/* Hardware Section */}
-      <Card className="p-6">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+      <Card className="p-component-lg">
+        <h3 className="text-sm font-semibold font-display text-foreground mb-component-md">
           Hardware
         </h3>
 
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-600 dark:text-slate-400">
+            <span className="text-sm text-muted-foreground">
               MAC Address
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <code className="text-sm font-mono text-foreground">
                 {iface.macAddress}
               </code>
               <button
                 onClick={handleCopyMac}
-                className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="h-11 w-11 p-component-xs rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex items-center justify-center"
                 aria-label="Copy MAC address to clipboard"
                 type="button"
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="h-4 w-4 text-success" />
                 ) : (
-                  <Copy className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                  <Copy className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
             </div>
@@ -251,9 +251,9 @@ WirelessInterfaceDetail.displayName = 'WirelessInterfaceDetail';
 /**
  * Detail row component for consistent key-value display
  */
-const DetailRow = ({ label, value }: { label: string; value: string }) => (
+const DetailRow = ({ label, value, technical }: { label: string; value: string; technical?: boolean }) => (
   <div className="flex items-center justify-between">
     <span className="text-sm text-muted-foreground">{label}</span>
-    <span className="text-sm font-medium text-foreground font-mono">{value}</span>
+    <span className={cn('text-sm font-medium text-foreground', technical && 'font-mono')}>{value}</span>
   </div>
 );

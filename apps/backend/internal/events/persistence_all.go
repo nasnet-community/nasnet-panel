@@ -2,11 +2,12 @@ package events
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/oklog/ulid/v2"
+	"go.uber.org/zap"
 )
 
 // EventStore provides persistence for critical events.
@@ -25,6 +26,7 @@ type MemoryEventStore struct {
 	processed map[ulid.ULID]bool
 	mu        sync.RWMutex
 	maxEvents int
+	logger    *zap.Logger
 }
 
 type storedEvent struct {
@@ -38,15 +40,20 @@ func NewMemoryEventStore(maxEvents int) *MemoryEventStore {
 	if maxEvents <= 0 {
 		maxEvents = 10000
 	}
+	logger, _ := zap.NewProduction() //nolint:errcheck // fallback logger creation
 	return &MemoryEventStore{
 		events:    make(map[ulid.ULID]storedEvent),
 		processed: make(map[ulid.ULID]bool),
 		maxEvents: maxEvents,
+		logger:    logger,
 	}
 }
 
 // PersistEvent saves an event to the in-memory store.
 func (s *MemoryEventStore) PersistEvent(ctx context.Context, event Event) error {
+	if event == nil {
+		return fmt.Errorf("event cannot be nil")
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if !event.GetPriority().ShouldPersist() {
@@ -109,11 +116,11 @@ func (s *MemoryEventStore) ReplayEvents(ctx context.Context, handler EventHandle
 			return ctx.Err()
 		default:
 			if err := handler(ctx, event); err != nil {
-				log.Printf("[EVENTS] Failed to replay event %s: %v", event.GetID(), err)
+				s.logger.Error("failed to replay event", zap.String("event_id", event.GetID().String()), zap.Error(err))
 				continue
 			}
 			if err := s.MarkProcessed(ctx, event.GetID()); err != nil {
-				log.Printf("[EVENTS] Failed to mark event %s as processed: %v", event.GetID(), err)
+				s.logger.Error("failed to mark event as processed", zap.String("event_id", event.GetID().String()), zap.Error(err))
 			}
 		}
 	}
@@ -160,11 +167,16 @@ type PersistentEventBus struct {
 	store           EventStore
 	persistenceFail bool
 	mu              sync.RWMutex
+	logger          *zap.Logger
 }
 
 // NewPersistentEventBus creates an event bus with persistence.
 func NewPersistentEventBus(bus EventBus, store EventStore) *PersistentEventBus {
-	return &PersistentEventBus{EventBus: bus, store: store}
+	if bus == nil || store == nil {
+		panic("bus and store must not be nil")
+	}
+	logger, _ := zap.NewProduction() //nolint:errcheck // fallback logger creation
+	return &PersistentEventBus{EventBus: bus, store: store, logger: logger}
 }
 
 // Publish publishes an event and persists it if critical.
@@ -183,7 +195,7 @@ func (pb *PersistentEventBus) persistAsync(ctx context.Context, event Event) {
 		pb.mu.Lock()
 		pb.persistenceFail = true
 		pb.mu.Unlock()
-		log.Printf("[EVENTS] WARN: persistence failed for event %s: %v", event.GetID(), err)
+		pb.logger.Warn("persistence failed for event", zap.String("event_id", event.GetID().String()), zap.Error(err))
 	} else {
 		pb.mu.Lock()
 		pb.persistenceFail = false
@@ -219,11 +231,13 @@ type DailySync struct {
 	bus       EventBus
 	startHour int
 	stopCh    chan struct{}
+	logger    *zap.Logger
 }
 
 // NewDailySync creates a new daily sync scheduler.
 func NewDailySync(store EventStore, bus EventBus) *DailySync {
-	return &DailySync{store: store, bus: bus, startHour: 2, stopCh: make(chan struct{})}
+	logger, _ := zap.NewProduction() //nolint:errcheck // fallback logger creation
+	return &DailySync{store: store, bus: bus, startHour: 2, stopCh: make(chan struct{}), logger: logger}
 }
 
 // Start begins the daily sync scheduler.
@@ -254,11 +268,11 @@ func (ds *DailySync) run(ctx context.Context) {
 }
 
 func (ds *DailySync) doSync(ctx context.Context) {
-	log.Printf("[EVENTS] Starting daily sync at %s", time.Now().Format(time.RFC3339))
+	ds.logger.Info("starting daily sync", zap.Time("timestamp", time.Now()))
 	yesterday := time.Now().Add(-24 * time.Hour)
 	events, err := ds.store.GetEventsSince(ctx, yesterday)
 	if err != nil {
-		log.Printf("[EVENTS] Daily sync failed to get events: %v", err)
+		ds.logger.Error("daily sync failed to get events", zap.Error(err))
 		return
 	}
 	var filtered []Event
@@ -267,6 +281,5 @@ func (ds *DailySync) doSync(ctx context.Context) {
 			filtered = append(filtered, event)
 		}
 	}
-	log.Printf("[EVENTS] Daily sync: %d events to sync (filtered from %d)", len(filtered), len(events))
-	log.Printf("[EVENTS] Daily sync completed successfully")
+	ds.logger.Info("daily sync completed successfully", zap.Int("synced_events", len(filtered)), zap.Int("total_events", len(events)))
 }

@@ -5,6 +5,7 @@ package troubleshoot_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -460,7 +461,7 @@ func TestIntegration_ConcurrentSessions(t *testing.T) {
 	// Create 3 concurrent sessions
 	sessions := make([]string, 3)
 	for i := 0; i < 3; i++ {
-		startMutation := `mutation { startTroubleshoot(routerId: "router-` + string(rune(i+1)) + `") { session { id } } }`
+		startMutation := `mutation { startTroubleshoot(routerId: "router-` + fmt.Sprintf("%d", i+1) + `") { session { id } } }`
 		result := executeGraphQL(t, server, startMutation)
 		sessionID := result["data"].(map[string]interface{})["startTroubleshoot"].(map[string]interface{})["session"].(map[string]interface{})["id"].(string)
 		sessions[i] = sessionID

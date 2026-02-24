@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // ConnectionErrorCode represents specific error types for connection failures.
@@ -242,35 +243,9 @@ func ClassifyError(err error, protocol Protocol, host string, port int) *Connect
 
 // containsAny checks if s contains any of the substrings (case-insensitive).
 func containsAny(s string, substrings ...string) bool {
-	lower := toLower(s)
+	lower := strings.ToLower(s)
 	for _, sub := range substrings {
-		if contains(lower, toLower(sub)) {
-			return true
-		}
-	}
-	return false
-}
-
-// toLower is a simple lowercase conversion without importing strings.
-func toLower(s string) string {
-	result := make([]byte, len(s))
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c >= 'A' && c <= 'Z' {
-			c += 'a' - 'A'
-		}
-		result[i] = c
-	}
-	return string(result)
-}
-
-// contains checks if s contains substr.
-func contains(s, substr string) bool {
-	if len(substr) > len(s) {
-		return false
-	}
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
+		if strings.Contains(lower, strings.ToLower(sub)) {
 			return true
 		}
 	}

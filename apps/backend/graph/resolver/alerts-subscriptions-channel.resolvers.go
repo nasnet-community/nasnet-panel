@@ -7,11 +7,88 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
+	"backend/internal/events"
+	"backend/internal/notifications"
 	"context"
 	"fmt"
+	"time"
 )
 
 // AlertEvents is the resolver for the alertEvents field.
+// It streams alert events from the event bus with optional device ID filtering.
+// The returned channel is buffered to prevent blocking publishers.
+// Goroutine cleanup is handled via context cancellation.
 func (r *subscriptionResolver) AlertEvents(ctx context.Context, deviceID *string) (<-chan *model.AlertEvent, error) {
-	panic(fmt.Errorf("not implemented: AlertEvents - alertEvents"))
+	if r.EventBus == nil {
+		eventChan := make(chan *model.AlertEvent)
+		close(eventChan)
+		return eventChan, errors.NewValidationError("eventBus", nil, "event bus is not available")
+	}
+
+	// Create a buffered channel to prevent publisher blocking
+	eventChan := make(chan *model.AlertEvent, 10)
+
+	// Subscribe to alert notification events with cleanup on context cancellation
+	handler := func(ctx context.Context, event events.Event) error {
+		// Type assert to notification event
+		notifEvent, ok := event.(*notifications.AlertNotificationEvent)
+		if !ok {
+			return nil // Ignore non-alert notification events
+		}
+
+		// Apply device ID filter if specified
+		if deviceID != nil {
+			if notifEvent.DeviceID != *deviceID {
+				return nil // Skip events for other devices
+			}
+		}
+
+		// Convert notification to GraphQL AlertEvent
+		alertEvent := &model.AlertEvent{
+			Action: model.AlertActionCreated,
+			Alert: &model.Alert{
+				ID:          fmt.Sprintf("alert-%d", time.Now().Unix()),
+				Title:       notifEvent.Title,
+				Message:     notifEvent.Message,
+				Severity:    model.AlertSeverity(notifEvent.Severity),
+				DeviceID:    ptrString(notifEvent.DeviceID),
+				Data:        notifEvent.Data,
+				EventType:   "alert.notification",
+				TriggeredAt: time.Now(),
+				Rule: &model.AlertRule{
+					ID: notifEvent.RuleID,
+				},
+			},
+		}
+
+		// Send event, skip if channel buffer is full (non-blocking)
+		select {
+		case eventChan <- alertEvent:
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			// Channel buffer full, skip event
+		}
+
+		return nil
+	}
+
+	// Subscribe to alert notification events by type
+	// We subscribe to all events and filter by type in the handler
+	if err := r.EventBus.SubscribeAll(handler); err != nil {
+		close(eventChan)
+		return eventChan, errors.NewProtocolError(errors.CodeCommandFailed, "failed to subscribe to alert events", "graphql").WithCause(err)
+	}
+
+	// Goroutine for cleanup on context cancellation
+	go func() {
+		<-ctx.Done()
+		// Close the event channel to signal subscription end to client
+		// Note: EventBus unsubscription should be handled by the event bus implementation
+		// when it detects the handler stops consuming (ctx cancellation)
+		close(eventChan)
+	}()
+
+	return eventChan, nil
 }

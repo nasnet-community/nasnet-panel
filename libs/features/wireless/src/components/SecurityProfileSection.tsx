@@ -48,12 +48,12 @@ export const SecurityProfileSection = React.memo(function SecurityProfileSection
 
   return (
     <Card className={className}>
-      <div className="p-6">
+      <div className="p-component-lg">
         {/* Header with security level badge */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+        <div className="flex items-center justify-between mb-component-md">
+          <div className="flex items-center gap-component-sm">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold font-display text-foreground">
               Security
             </h3>
           </div>
@@ -61,7 +61,7 @@ export const SecurityProfileSection = React.memo(function SecurityProfileSection
         </div>
 
         {/* Security details */}
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           <DetailRow label="Profile" value={profile.name} />
 
           {/* Authentication type */}

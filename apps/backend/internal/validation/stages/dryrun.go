@@ -28,6 +28,18 @@ func (s *DryRunStage) Name() string { return "dry-run" }
 func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     7,
+			StageName: "dry-run",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
 	if s.routerPort == nil || !s.routerPort.IsConnected() {
 		result.AddError(&validation.Error{
 			Stage:     7,

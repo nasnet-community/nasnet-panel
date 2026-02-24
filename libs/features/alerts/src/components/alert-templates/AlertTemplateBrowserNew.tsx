@@ -99,9 +99,9 @@ export const AlertTemplateBrowserNew = React.memo(
   // Handle errors
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6">
+      <div className="flex flex-col items-center justify-center h-full p-component-lg">
         <div className="text-center space-y-4">
-          <h3 className="text-lg font-semibold text-semantic-error">Failed to load templates</h3>
+          <h3 className="text-lg font-semibold text-error">Failed to load templates</h3>
           <p className="text-sm text-muted-foreground">{error.message}</p>
         </div>
       </div>

@@ -26,9 +26,9 @@ export const InterfaceListPage = memo(function InterfaceListPage({
   routerId = 'default-router',
 }: InterfaceListPageProps) {
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Network Interfaces</h1>
+    <div className="container mx-auto p-component-lg">
+      <div className="mb-component-lg">
+        <h1 className="text-2xl font-bold font-display">Network Interfaces</h1>
         <p className="text-muted-foreground mt-1">
           View and manage router network interfaces
         </p>

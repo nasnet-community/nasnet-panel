@@ -22,7 +22,7 @@ import type { RawRule, RawChain } from '@nasnet/core/types';
  */
 export declare const rawRulesKeys: {
     all: (routerId: string) => readonly ["raw", string];
-    byChain: (routerId: string, chain: RawChain) => readonly ["raw", string, "output" | "prerouting"];
+    byChain: (routerId: string, chain: RawChain) => readonly ["raw", string, "prerouting" | "output"];
     detail: (routerId: string, ruleId: string) => readonly ["raw", string, string];
 };
 /**
@@ -64,13 +64,11 @@ export declare function useRawRule(routerId: string, ruleId: string, options?: {
  * Endpoint: POST /rest/ip/firewall/raw/add
  */
 export declare function useCreateRawRule(routerId: string): UseMutationResult<unknown, Error, Partial<{
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "prerouting" | "output";
+    action: "accept" | "drop" | "jump" | "log" | "notrack";
     disabled: boolean;
-    chain: "output" | "prerouting";
     id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -81,6 +79,8 @@ export declare function useCreateRawRule(routerId: string): UseMutationResult<un
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
+    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;

@@ -2,7 +2,6 @@ package mikrotik
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -19,7 +18,6 @@ func InitializeContainerIPs() {
 
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Printf("[CONTAINER] Warning: Failed to enumerate network interfaces: %v\n", err)
 		return
 	}
 
@@ -47,19 +45,12 @@ func InitializeContainerIPs() {
 
 			if ip != nil && ip.To4() != nil {
 				detectedIPs = append(detectedIPs, ip)
-				fmt.Printf("[CONTAINER] Detected container IP: %s (interface: %s)\n", ip.String(), iface.Name)
 			}
 		}
 	}
 
 	containerIPs = detectedIPs
 	containerIPsInitialized = true
-
-	if len(containerIPs) > 0 {
-		fmt.Printf("[CONTAINER] Container IP detection completed: %d addresses found\n", len(containerIPs))
-	} else {
-		fmt.Printf("[CONTAINER] Warning: No container IPs detected - self-connection detection disabled\n")
-	}
 }
 
 // IsSelfConnection checks if the requested IP is the container's own IP.
@@ -121,7 +112,6 @@ func DetectDefaultGateway() {
 					ip := ParseHexIP(gatewayHex)
 					if ip != nil {
 						gatewayIP = ip
-						fmt.Printf("[CONTAINER] Detected default gateway: %s\n", ip.String())
 						break
 					}
 				}
@@ -130,26 +120,18 @@ func DetectDefaultGateway() {
 	}
 
 	gatewayIPInitialized = true
-
-	if gatewayIP != nil {
-		fmt.Printf("[CONTAINER] Gateway detection completed: %s\n", gatewayIP.String())
-	} else {
-		fmt.Printf("[CONTAINER] Warning: No default gateway detected\n")
-	}
 }
 
 // detectGatewayAlternative attempts to detect gateway on non-Linux systems.
 func detectGatewayAlternative() {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		fmt.Printf("[CONTAINER] Warning: Could not detect gateway IP: %v\n", err)
 		return
 	}
 	defer conn.Close()
 
 	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
 	if !ok || localAddr.IP == nil {
-		fmt.Printf("[CONTAINER] Warning: Could not assert UDP address type\n")
 		return
 	}
 	if localAddr.IP != nil {
@@ -159,8 +141,6 @@ func detectGatewayAlternative() {
 			copy(gateway, ip)
 			gateway[3] = 1
 			gatewayIP = gateway
-			fmt.Printf("[CONTAINER] Estimated gateway IP: %s (based on local IP: %s)\n",
-				gateway.String(), localAddr.IP.String())
 		}
 	}
 }

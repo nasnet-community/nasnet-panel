@@ -6,19 +6,33 @@ package resolver
 import (
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // UpdateInstance triggers update for a specific service instance.
 func (r *mutationResolver) UpdateInstance(ctx context.Context, routerID string, instanceID string) (*model.UpdateResult, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", "", "required")
+	}
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", "", "required")
+	}
+
+	// Service availability check
 	if r.UpdateService == nil {
-		return nil, fmt.Errorf("update service not initialized")
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "update service not initialized", "graphql")
 	}
 
 	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instance")
 	}
 
 	updateInfo, available, err := r.UpdateService.CheckForUpdate(
@@ -27,7 +41,7 @@ func (r *mutationResolver) UpdateInstance(ctx context.Context, routerID string, 
 		instance.BinaryVersion,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to check for update: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to check for update")
 	}
 
 	if !available {
@@ -53,15 +67,26 @@ func (r *mutationResolver) UpdateInstance(ctx context.Context, routerID string, 
 
 // UpdateAllInstances triggers updates for all instances with available updates.
 func (r *mutationResolver) UpdateAllInstances(ctx context.Context, routerID string, minSeverity *model.UpdateSeverity) (int, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return 0, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return 0, errors.NewValidationError("routerID", "", "required")
+	}
+
+	// Service availability check
 	if r.UpdateService == nil {
-		return 0, fmt.Errorf("update service not initialized")
+		return 0, errors.NewProtocolError(errors.CodeCommandFailed, "update service not initialized", "graphql")
 	}
 
 	instances, err := r.db.ServiceInstance.Query().
 		Where(serviceinstance.RouterIDEQ(routerID)).
 		All(ctx)
 	if err != nil {
-		return 0, fmt.Errorf("failed to query service instances: %w", err)
+		return 0, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instances")
 	}
 
 	updatesQueued := 0
@@ -80,6 +105,17 @@ func (r *mutationResolver) UpdateAllInstances(ctx context.Context, routerID stri
 
 		if !available {
 			continue
+		}
+
+		// Check if update meets minimum severity threshold (if specified)
+		if minSeverity != nil {
+			if !severityMeetsThreshold(model.UpdateSeverity(updateInfo.Severity), *minSeverity) {
+				r.log.Infow("update skipped due to severity threshold",
+					"instance_id", instance.ID,
+					"update_severity", updateInfo.Severity,
+					"min_severity", *minSeverity)
+				continue
+			}
 		}
 
 		r.log.Infow("update queued",

@@ -54,7 +54,7 @@ export interface ToastViewportProps extends React.ComponentPropsWithoutRef<typeo
  */
 declare const ToastViewport: React.MemoExoticComponent<React.ForwardRefExoticComponent<ToastViewportProps & React.RefAttributes<HTMLOListElement>>>;
 declare const toastVariants: (props?: ({
-    variant?: "default" | "destructive" | "error" | "success" | "warning" | "info" | null | undefined;
+    variant?: "success" | "error" | "warning" | "info" | "default" | "destructive" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**
  * Props for the Toast component

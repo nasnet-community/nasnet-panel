@@ -102,7 +102,7 @@ func (db *Database) Size() int {
 
 // extractOUI extracts the first 6 hex digits (OUI) from a MAC address
 // Input: AA:BB:CC:DD:EE:FF or AA-BB-CC-DD-EE-FF or AABBCCDDEEFF
-// Output: AABBCC
+// Output: AABBCC (or empty string if invalid)
 func extractOUI(macAddress string) string {
 	// Remove colons and dashes
 	normalized := strings.ReplaceAll(macAddress, ":", "")
@@ -114,5 +114,19 @@ func extractOUI(macAddress string) string {
 		return ""
 	}
 
-	return normalized[:6]
+	oui := normalized[:6]
+
+	// Validate that all characters are valid hex digits
+	for _, ch := range oui {
+		if !isHexDigit(ch) {
+			return ""
+		}
+	}
+
+	return oui
+}
+
+// isHexDigit checks if a rune is a valid hexadecimal digit
+func isHexDigit(r rune) bool {
+	return (r >= '0' && r <= '9') || (r >= 'A' && r <= 'F')
 }

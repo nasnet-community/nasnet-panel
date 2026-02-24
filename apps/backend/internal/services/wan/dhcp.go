@@ -3,7 +3,6 @@ package wan
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"backend/internal/utils"
@@ -23,7 +22,7 @@ const (
 //
 //nolint:gocyclo // DHCP configuration complexity
 func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, input DhcpClientInput) (*WANInterfaceData, error) {
-	log.Printf("[WANService] Configuring DHCP client on router %s, interface %s", routerID, input.Interface)
+	s.logger.Info("configuring DHCP client on interface", "router_id", routerID, "interface", input.Interface)
 
 	checkCmd := router.Command{
 		Path:   "/ip/dhcp-client/print",
@@ -37,7 +36,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 	}
 
 	if checkResult.Success && len(checkResult.Data) > 0 {
-		log.Printf("[WANService] Removing existing DHCP client on interface %s", input.Interface)
+		s.logger.Info("removing existing DHCP client on interface", "interface", input.Interface)
 		for _, item := range checkResult.Data {
 			if id, ok := item[".id"]; ok {
 				removeCmd := router.Command{
@@ -77,7 +76,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 		return nil, fmt.Errorf("DHCP client configuration failed: %w", addResult.Error)
 	}
 
-	log.Printf("[WANService] DHCP client configured successfully on interface %s", input.Interface)
+	s.logger.Info("DHCP client configured successfully on interface", "interface", input.Interface)
 	time.Sleep(2 * time.Second)
 
 	statusCmd := router.Command{
@@ -88,7 +87,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 
 	statusResult, err := s.routerPort.ExecuteCommand(ctx, statusCmd)
 	if err != nil {
-		log.Printf("[WANService] Warning: Failed to fetch DHCP status: %v", err)
+		s.logger.Warn("failed to fetch DHCP status", "error", err)
 	}
 
 	wanData := &WANInterfaceData{
@@ -152,16 +151,16 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 	}
 	s.history.Add(routerID, historyEvent)
 
-	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "DHCP", input.AddDefaultRoute)
+	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "DHCP", "wan-service", input.AddDefaultRoute)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WAN configured event: %v", err)
+		s.logger.Error("failed to publish WAN configured event", "error", err)
 	}
 
-	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "DHCP")
+	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "DHCP", "wan-service")
 	statusEvent.PublicIP = wanData.PublicIP
 	statusEvent.Gateway = wanData.Gateway
 	if err := s.eventBus.Publish(ctx, statusEvent); err != nil {
-		log.Printf("[WANService] Failed to publish WAN status changed event: %v", err)
+		s.logger.Error("failed to publish WAN status changed event", "error", err)
 	}
 
 	return wanData, nil

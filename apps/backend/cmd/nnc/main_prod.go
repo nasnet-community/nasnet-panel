@@ -9,9 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
-	"time"
 
-	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 
 	"backend/internal/bootstrap"
@@ -25,23 +23,34 @@ import (
 //go:embed dist/**
 var frontendFiles embed.FS
 
+// prodLogger is set during run() to be available to legacy handlers
+var prodLogger *zap.Logger
+
 //nolint:gochecknoinits // required for production build tag registration
 func init() {
+	// Create a temporary logger for init-time logging
+	tmpLogger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
+
+	tmpSugar := tmpLogger.Sugar()
+
 	// Apply production runtime configuration
 	runtimeCfg := bootstrap.DefaultProdRuntimeConfig()
-	bootstrap.ApplyRuntimeConfig(runtimeCfg)
+	if err := bootstrap.ApplyRuntimeConfig(runtimeCfg, tmpSugar); err != nil {
+		tmpLogger.Sync() //nolint:errcheck // best-effort sync before exit
+		log.Fatalf("Failed to apply runtime configuration: %v", err)
+	}
+	tmpLogger.Sync() //nolint:errcheck // best-effort sync at end of init
 
 	// Initialize scanner pool with production settings
 	scannerPool = NewScannerPool(runtimeCfg.ScannerWorkers)
-
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Println("Production NasNetConnect server initialized")
 
 	ServerVersion = "production-v2.0"
 }
 
 func run() {
-	ctx := context.Background()
 	cfg := server.DefaultProdConfig()
 
 	// 1. Initialize Runtime Configuration
@@ -52,9 +61,9 @@ func run() {
 	if err != nil {
 		log.Fatalf("Failed to create event bus: %v", err)
 	}
-	log.Printf("Event bus initialized (buffer: %d)", runtimeCfg.EventBusBufferSize)
 
 	// 3. Initialize Database
+	ctx := context.Background()
 	dbCfg := bootstrap.DefaultProdDatabaseConfig()
 	dbManager, systemDB, err := bootstrap.InitializeDatabase(ctx, dbCfg)
 	if err != nil {
@@ -62,9 +71,6 @@ func run() {
 	}
 
 	// 4. Initialize Structured Loggers
-	zerologWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
-	storageLogger := zerolog.New(zerologWriter).With().Timestamp().Logger()
-
 	loggerConfig := zap.NewProductionConfig()
 	loggerConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	logger, err := loggerConfig.Build()
@@ -74,11 +80,11 @@ func run() {
 	defer func() {
 		if syncErr := logger.Sync(); syncErr != nil {
 			// Ignore sync errors on stderr/stdout (common on Linux/Windows)
-			// Only log to stderr if it's a different error
-			log.Printf("Warning: Failed to sync logger: %v\n", syncErr)
+			logger.Warn("failed to sync logger", zap.Error(syncErr))
 		}
 	}()
 	sugar := logger.Sugar()
+	prodLogger = logger // Store for use by legacy handlers
 
 	// 5. Initialize Mock Router Adapter (until ClientFactory is implemented)
 	mockRouterPort := router.NewMockAdapter("prod-router")
@@ -89,29 +95,27 @@ func run() {
 		RouterPort: mockRouterPort,
 		EventBus:   eventBus,
 	})
-	log.Printf("Basic services initialized")
 
 	// 7. Initialize Alert System
 	alertComponents, err := bootstrap.InitializeAlertSystem(ctx, systemDB, eventBus, sugar)
 	if err != nil {
-		//nolint:gocritic // defer cleanup intentional before fatal
-		log.Fatalf("Failed to initialize alert system: %v", err)
+		sugar.Fatalw("failed to initialize alert system", zap.Error(err))
 	}
 
 	// 8. Initialize Production Services (Storage, VIF, Orchestrator, Updates, Templates, Core, etc.)
-	prodSvcs, err := initProdServices(ctx, systemDB, eventBus, mockRouterPort, storageLogger, sugar, alertComponents, dbCfg.DataDir)
+	prodSvcs, err := initProdServices(ctx, systemDB, eventBus, mockRouterPort, logger, alertComponents, dbCfg.DataDir)
 	if err != nil {
-		log.Fatalf("Failed to initialize production services: %v", err)
+		sugar.Fatalw("failed to initialize production services", zap.Error(err))
 	}
 
 	// 9. Create Server
-	srv := server.New(cfg)
+	srv := server.New(cfg, logger)
 	server.ApplyProdMiddleware(srv.Echo)
 
 	// 10. Serve Embedded Frontend
 	fsys, err := fs.Sub(frontendFiles, "dist")
 	if err != nil {
-		log.Fatalf("Error accessing embedded files: %v", err)
+		sugar.Fatalw("error accessing embedded files", zap.Error(err))
 	}
 	frontendHandler := server.NewFrontendHandler(fsys)
 
@@ -123,7 +127,8 @@ func run() {
 		alertComponents.DigestScheduler,
 		prodSvcs.updates.UpdateScheduler,
 		prodSvcs.storage.Detector,
-	)
+		sugar,
+	).WithTrafficAggregator(prodSvcs.traffic.TrafficAggregator)
 
 	// 11. Setup Routes
 	setupProdRoutes(srv.Echo, &prodRoutesDeps{
@@ -180,34 +185,29 @@ func run() {
 		configSvc:            prodSvcs.integration.ConfigService,
 		killSwitchManager:    prodSvcs.vif.KillSwitchManager,
 		resourceLimiter:      prodSvcs.orchestrator.ResourceLimiter,
-		// TODO: wire chainRouter, pbrEngine, routingMatrixSvc, chainLatencyMeasurer
-		// once a routing bootstrap component is added to prodServices.
-		chainRouter:          nil,
-		pbrEngine:            nil,
-		routingMatrixSvc:     nil,
-		chainLatencyMeasurer: nil,
+		chainRouter:          prodSvcs.routing.ChainRouter,
+		pbrEngine:            prodSvcs.routing.PBREngine,
+		routingMatrixSvc:     prodSvcs.routing.RoutingMatrixSvc,
+		chainLatencyMeasurer: prodSvcs.routing.ChainLatencyMeasurer,
 		logger:               sugar,
 	})
 
 	// 12. Boot Sequence for Auto-Start Services
 	go func() {
-		log.Println("Executing boot sequence for auto-start service instances...")
 		if err := prodSvcs.orchestrator.BootSequenceManager.ExecuteBootSequence(ctx); err != nil {
-			log.Printf("Boot sequence completed with errors: %v", err)
-		} else {
-			log.Println("Boot sequence completed successfully")
+			sugar.Errorw("Boot sequence completed with errors", zap.Error(err))
 		}
 	}()
 
 	// 13. Print Startup Banner
-	log.Printf("=== NasNetConnect Server v2.0 ===")
-	log.Printf("Server starting on 0.0.0.0:%s", cfg.Port)
-	log.Printf("Memory limit: %dMB, GC: %d%%, Workers: %d",
-		runtimeCfg.MemoryLimitMB, runtimeCfg.GCPercent, runtimeCfg.ScannerWorkers)
-	log.Printf("Frontend: embedded, same-origin")
-	log.Printf("GraphQL endpoint: http://localhost:%s/graphql", cfg.Port)
-	log.Printf("Health check: http://localhost:%s/health", cfg.Port)
-	log.Printf("================================")
+	sugar.Infow("NasNetConnect Server v2.0 starting",
+		"address", "0.0.0.0:"+cfg.Port,
+		"memory_limit_mb", runtimeCfg.MemoryLimitMB,
+		"gc_percent", runtimeCfg.GCPercent,
+		"workers", runtimeCfg.ScannerWorkers,
+		"graphql_endpoint", "http://localhost:"+cfg.Port+"/graphql",
+		"health_check", "http://localhost:"+cfg.Port+"/health",
+	)
 
 	// 15. Start Server with Graceful Shutdown
 	srv.Start(func(ctx context.Context) {
@@ -222,5 +222,9 @@ func performHealthCheck() {
 	if port == "" {
 		port = "80"
 	}
-	server.PerformHealthCheck(port)
+	hcLogger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
+	server.PerformHealthCheck(port, hcLogger)
 }

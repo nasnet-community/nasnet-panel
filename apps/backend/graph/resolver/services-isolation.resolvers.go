@@ -9,17 +9,34 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 	"time"
 )
 
 // InstanceIsolation is the resolver for the instanceIsolation query field.
 // Returns complete isolation status including violations and resource limits.
 func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, instanceID string) (*model.IsolationStatus, error) {
-	r.log.Infow("InstanceIsolation query called",
-		"routerID", routerID,
-		"instanceID", instanceID)
+	if r.Resolver.log != nil {
+		r.Resolver.log.Infow("InstanceIsolation query called",
+			"routerID", routerID,
+			"instanceID", instanceID)
+	}
+
+	// Validate input
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", instanceID, "required")
+	}
+
+	// TODO: Add authorization check - verify user has permission to check isolation status
+
+	// Check if InstanceManager is available first (before dereferencing)
+	if r.Resolver.InstanceManager == nil {
+		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "instance manager not configured", "manager", "instance")
+	}
 
 	// Load the service instance from database
 	instance, err := r.db.ServiceInstance.Query().
@@ -28,12 +45,14 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("service instance not found: %s", instanceID)
+			return nil, errors.NewResourceError(errors.CodeResourceNotFound, "service instance not found", "instance", instanceID)
 		}
-		r.log.Errorw("failed to query service instance",
-			"error", err,
-			"instanceID", instanceID)
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
+		if r.Resolver.log != nil {
+			r.Resolver.log.Errorw("failed to query service instance",
+				"error", err,
+				"instanceID", instanceID)
+		}
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to query service instance")
 	}
 
 	// Initialize isolation status with empty violations
@@ -42,12 +61,13 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 		LastVerified: nil,
 	}
 
-	// Check if IsolationVerifier is available
-	isolationVerifier := r.InstanceManager.IsolationVerifier()
-	if r.InstanceManager == nil || isolationVerifier == nil {
-		r.log.Infow("IsolationVerifier not available, returning empty status",
-			"instanceID", instanceID)
-
+	// Check if IsolationVerifier is available (safe null check after InstanceManager check)
+	isolationVerifier := r.Resolver.InstanceManager.IsolationVerifier()
+	if isolationVerifier == nil {
+		if r.Resolver.log != nil {
+			r.Resolver.log.Infow("IsolationVerifier not available, returning empty status",
+				"instanceID", instanceID)
+		}
 		// Return empty status with nil resource limits (verifier unavailable)
 		return isolationStatus, nil
 	}
@@ -55,10 +75,12 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 	// Run isolation verification
 	report, err := isolationVerifier.VerifyPreStart(ctx, instance)
 	if err != nil {
-		r.log.Errorw("failed to run isolation verification",
-			"error", err,
-			"instanceID", instanceID)
-		return nil, fmt.Errorf("failed to run isolation verification: %w", err)
+		if r.Resolver.log != nil {
+			r.Resolver.log.Errorw("failed to run isolation verification",
+				"error", err,
+				"instanceID", instanceID)
+		}
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to run isolation verification")
 	}
 
 	// Convert violations to GraphQL model
@@ -75,111 +97,26 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 	isolationStatus.LastVerified = &now
 
 	// Get resource limits if ResourceLimiter is available
-	resourceLimiter := r.InstanceManager.ResourceLimiter()
+	resourceLimiter := r.Resolver.InstanceManager.ResourceLimiter()
 	if resourceLimiter != nil {
-		// Check if instance is running (has PID)
-		// For MVP, we assume memory limit is stored somewhere or use default
-		// In production, this would query actual cgroup limits
+		// TODO: Query actual cgroup limits from database or cgroup filesystem
+		// For MVP, use placeholder default. In production, retrieve from:
+		// 1. Instance metadata in database
+		// 2. Cgroup v2 memory.max file if instance is running
 		resourceLimits := &model.ResourceLimits{
-			MemoryMb:   50, // Default 50MB (would come from cgroup or database)
+			MemoryMb:   50, // TODO: Replace with actual limit from instance or database
 			CPUPercent: nil,
 			Applied:    resourceLimiter.IsCgroupsEnabled(),
 		}
 		isolationStatus.ResourceLimits = resourceLimits
 	}
 
-	r.log.Infow("isolation status retrieved",
-		"instanceID", instanceID,
-		"violationCount", len(isolationStatus.Violations),
-		"passed", len(isolationStatus.Violations) == 0)
+	if r.Resolver.log != nil {
+		r.Resolver.log.Infow("isolation status retrieved",
+			"instanceID", instanceID,
+			"violationCount", len(isolationStatus.Violations),
+			"passed", len(isolationStatus.Violations) == 0)
+	}
 
 	return isolationStatus, nil
 }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, instanceID string) (*model.IsolationStatus, error) {
-	r.log.Infow("InstanceIsolation query called",
-		"routerID", routerID,
-		"instanceID", instanceID)
-
-	// Load the service instance from database
-	instance, err := r.db.ServiceInstance.Query().
-		Where(serviceinstance.IDEQ(instanceID)).
-		Where(serviceinstance.RouterIDEQ(routerID)).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("service instance not found: %s", instanceID)
-		}
-		r.log.Errorw("failed to query service instance",
-			"error", err,
-			"instanceID", instanceID)
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
-	}
-
-	// Initialize isolation status with empty violations
-	isolationStatus := &model.IsolationStatus{
-		Violations:   []*model.IsolationViolation{},
-		LastVerified: nil,
-	}
-
-	// Check if IsolationVerifier is available
-	isolationVerifier := r.InstanceManager.IsolationVerifier()
-	if r.InstanceManager == nil || isolationVerifier == nil {
-		r.log.Infow("IsolationVerifier not available, returning empty status",
-			"instanceID", instanceID)
-
-		// Return empty status with nil resource limits (verifier unavailable)
-		return isolationStatus, nil
-	}
-
-	// Run isolation verification
-	report, err := isolationVerifier.VerifyPreStart(ctx, instance)
-	if err != nil {
-		r.log.Errorw("failed to run isolation verification",
-			"error", err,
-			"instanceID", instanceID)
-		return nil, fmt.Errorf("failed to run isolation verification: %w", err)
-	}
-
-	// Convert violations to GraphQL model
-	now := time.Now()
-	for _, violation := range report.Violations {
-		isolationStatus.Violations = append(isolationStatus.Violations, &model.IsolationViolation{
-			Layer:     violation.Layer,
-			Severity:  convertIsolationSeverity(violation.Severity),
-			Message:   violation.Description,
-			Timestamp: now,
-		})
-	}
-
-	isolationStatus.LastVerified = &now
-
-	// Get resource limits if ResourceLimiter is available
-	resourceLimiter := r.InstanceManager.ResourceLimiter()
-	if resourceLimiter != nil {
-		// Check if instance is running (has PID)
-		// For MVP, we assume memory limit is stored somewhere or use default
-		// In production, this would query actual cgroup limits
-		resourceLimits := &model.ResourceLimits{
-			MemoryMb:   50, // Default 50MB (would come from cgroup or database)
-			CPUPercent: nil,
-			Applied:    resourceLimiter.IsCgroupsEnabled(),
-		}
-		isolationStatus.ResourceLimits = resourceLimits
-	}
-
-	r.log.Infow("isolation status retrieved",
-		"instanceID", instanceID,
-		"violationCount", len(isolationStatus.Violations),
-		"passed", len(isolationStatus.Violations) == 0)
-
-	return isolationStatus, nil
-}
-*/

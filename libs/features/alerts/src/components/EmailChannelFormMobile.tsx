@@ -85,10 +85,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
   }, [recipientInput, addRecipient]);
 
   return (
-    <form onSubmit={handleSubmit} className={cn('space-y-4 pb-24', className)}>
+    <form onSubmit={handleSubmit} className={cn('space-y-component-md pb-24', className)}>
       {/* Enable Toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+        <div className="flex items-center gap-component-sm">
           <Mail className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Email Notifications</Label>
@@ -111,13 +111,13 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
       </div>
 
       {/* SMTP Server Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <button
           type="button"
           onClick={() => setShowServer(!showServer)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4"
+          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Server className="h-5 w-5" />
             <span className="font-semibold">SMTP Server</span>
           </div>
@@ -127,25 +127,26 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showServer && (
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-            <div className="space-y-2">
+          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+            <div className="space-y-component-sm">
               <Label htmlFor="host">
-                SMTP Host <span className="text-destructive">*</span>
+                SMTP Host <span className="text-error">*</span>
               </Label>
               <Input
                 id="host"
                 placeholder="smtp.gmail.com"
                 {...register('host')}
                 error={!!errors.host}
+                className="font-mono"
               />
               {errors.host && (
-                <p className="text-sm text-destructive">{errors.host.message}</p>
+                <p className="text-sm text-error">{errors.host.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="port">
-                Port <span className="text-destructive">*</span>
+                Port <span className="text-error">*</span>
               </Label>
               <Controller
                 control={control}
@@ -158,6 +159,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                     {...field}
                     onChange={(e) => field.onChange(parseInt(e.target.value))}
                     error={!!errors.port}
+                    className="font-mono"
                   />
                 )}
               />
@@ -165,13 +167,13 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 Common: 587 (TLS), 465 (SSL), 25 (Plain)
               </p>
               {errors.port && (
-                <p className="text-sm text-destructive">{errors.port.message}</p>
+                <p className="text-sm text-error">{errors.port.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="username">
-                Username <span className="text-destructive">*</span>
+                Username <span className="text-error">*</span>
               </Label>
               <Input
                 id="username"
@@ -179,36 +181,37 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 autoComplete="username"
                 {...register('username')}
                 error={!!errors.username}
+                className="font-mono"
               />
               {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
+                <p className="text-sm text-error">{errors.username.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="password">
-                Password <span className="text-destructive">*</span>
+                Password <span className="text-error">*</span>
               </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className="pr-12"
+                  className="pr-12 font-mono"
                   {...register('password')}
                   error={!!errors.password}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 h-11 w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-error">{errors.password.message}</p>
               )}
             </div>
           </div>
@@ -216,13 +219,13 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
       </div>
 
       {/* Email Addresses Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <button
           type="button"
           onClick={() => setShowAddresses(!showAddresses)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4"
+          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Mail className="h-5 w-5" />
             <span className="font-semibold">Email Addresses</span>
           </div>
@@ -232,10 +235,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showAddresses && (
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-            <div className="space-y-2">
+          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+            <div className="space-y-component-sm">
               <Label htmlFor="fromAddress">
-                From Address <span className="text-destructive">*</span>
+                From Address <span className="text-error">*</span>
               </Label>
               <Input
                 id="fromAddress"
@@ -244,23 +247,24 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 placeholder="alerts@example.com"
                 {...register('fromAddress')}
                 error={!!errors.fromAddress}
+                className="font-mono"
               />
               {errors.fromAddress && (
-                <p className="text-sm text-destructive">{errors.fromAddress.message}</p>
+                <p className="text-sm text-error">{errors.fromAddress.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="fromName">From Name</Label>
               <Input id="fromName" placeholder="NasNet Alerts" {...register('fromName')} />
               <p className="text-xs text-muted-foreground">Optional display name</p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="recipientInput">
-                Recipients <span className="text-destructive">*</span>
+                Recipients <span className="text-error">*</span>
               </Label>
-              <div className="flex gap-2">
+              <div className="flex gap-component-sm">
                 <Input
                   id="recipientInput"
                   type="email"
@@ -269,7 +273,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                   value={recipientInput}
                   onChange={(e) => setRecipientInput(e.target.value)}
                   onKeyDown={handleRecipientKeyDown}
-                  className="flex-1"
+                  className="flex-1 font-mono"
                 />
                 <Button
                   type="button"
@@ -285,14 +289,14 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               <p className="text-xs text-muted-foreground">Tap Add or press Enter (max 10)</p>
 
               {recipients.length > 0 && (
-                <div className="flex flex-wrap gap-2 rounded-md border border-border bg-muted/50 p-3">
+                <div className="flex flex-wrap gap-component-sm rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-sm">
                   {recipients.map((email, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1 pr-1 text-sm">
+                    <Badge key={index} variant="secondary" className="gap-1 pr-1 text-sm font-mono">
                       {email}
                       <button
                         type="button"
                         onClick={() => removeRecipient(index)}
-                        className="ml-1 rounded-full p-1 min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-destructive/20"
+                        className="ml-1 rounded-full p-1 h-8 w-8 flex items-center justify-center hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={`Remove ${email}`}
                       >
                         <X className="h-4 w-4" />
@@ -303,7 +307,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               )}
 
               {errors.toAddresses && (
-                <p className="text-sm text-destructive">{errors.toAddresses.message}</p>
+                <p className="text-sm text-error">{errors.toAddresses.message}</p>
               )}
             </div>
           </div>
@@ -311,13 +315,13 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
       </div>
 
       {/* Advanced TLS Settings Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4"
+          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Shield className="h-5 w-5" />
             <span className="font-semibold">Advanced TLS Settings</span>
           </div>
@@ -327,8 +331,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showAdvanced && (
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-4">
+          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+            <div className="flex items-center justify-between rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-md">
               <div>
                 <Label className="font-medium">Use TLS/SSL</Label>
                 <p className="text-sm text-muted-foreground">Encrypt connection (recommended)</p>
@@ -348,7 +352,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-warning bg-warning/10 p-4">
+            <div className="flex items-center justify-between rounded-[var(--semantic-radius-button)] border border-warning bg-warning/10 p-component-md">
               <div>
                 <Label className="font-medium text-warning">Skip Certificate Check</Label>
                 <p className="text-sm text-warning/80">Use with self-signed certs only</p>
@@ -391,8 +395,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
       )}
 
       {/* Fixed Bottom Action Bar */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background p-4 safe-area-inset-bottom">
-        <div className="mx-auto flex max-w-screen-sm gap-3">
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background p-component-md safe-area-inset-bottom">
+        <div className="mx-auto flex max-w-screen-sm gap-component-sm">
           <Button
             type="button"
             variant="outline"

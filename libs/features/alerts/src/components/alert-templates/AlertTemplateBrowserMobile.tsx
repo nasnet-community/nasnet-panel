@@ -109,7 +109,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
           <SheetTitle>Filter Templates</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-component-lg mt-component-md">
           {/* Clear filters button */}
           {hasActiveFilter && (
             <Button
@@ -123,7 +123,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
           )}
 
           {/* Search */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="search-mobile">Search</Label>
             <Input
               id="search-mobile"
@@ -137,9 +137,9 @@ function FilterSheet({ browser }: FilterSheetProps) {
           </div>
 
           {/* Category filter */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label>Category</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-component-sm">
               {/* All categories option */}
               <button
                 onClick={() => setFilter({ category: 'all' })}
@@ -188,9 +188,9 @@ function FilterSheet({ browser }: FilterSheetProps) {
           </div>
 
           {/* Severity filter */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label>Severity</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-component-sm">
               {/* All severities option */}
               <button
                 onClick={() => setFilter({ severity: 'all' })}
@@ -239,9 +239,9 @@ function FilterSheet({ browser }: FilterSheetProps) {
           </div>
 
           {/* Built-in / Custom toggle */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label>Template Type</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-component-sm">
               <button
                 onClick={() =>
                   setFilter({
@@ -310,7 +310,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   const categoryMeta = getCategoryMeta(template.category);
 
   const severityColors = {
-    CRITICAL: 'bg-destructive/10 text-destructive',
+    CRITICAL: 'bg-error/10 text-error',
     WARNING: 'bg-warning/10 text-warning',
     INFO: 'bg-info/10 text-info',
   };
@@ -332,10 +332,10 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         }
       }}
     >
-      <CardHeader className="pb-3">
-        <div className="flex flex-col gap-2">
+      <CardHeader className="pb-component-sm">
+        <div className="flex flex-col gap-component-sm">
           <CardTitle className="text-base">{template.name}</CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-component-sm">
             <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
               {categoryMeta.label}
             </Badge>
@@ -351,9 +351,9 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         </div>
       </CardHeader>
 
-      <CardContent className="pb-3">
+      <CardContent className="pb-component-sm">
         <CardDescription className="text-sm line-clamp-2">{template.description}</CardDescription>
-        <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-component-sm mt-component-sm text-xs text-muted-foreground">
           <div>
             <span className="font-medium">{template.conditions.length}</span> condition
             {template.conditions.length !== 1 && 's'}
@@ -365,7 +365,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         </div>
       </CardContent>
 
-      <CardFooter className="flex gap-2 pt-0">
+      <CardFooter className="flex gap-component-sm pt-0">
         <Button
           variant="default"
           size="sm"
@@ -440,7 +440,7 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
       aria-label="Alert template browser"
     >
       {/* Header */}
-      <div className="border-b p-4 space-y-3 bg-background">
+      <div className="border-b border-border p-component-md space-y-component-sm bg-background">
         <div>
           <h1 className="text-lg font-semibold">Alert Rule Templates</h1>
           <p className="text-sm text-muted-foreground" aria-live="polite">
@@ -476,7 +476,7 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
       </div>
 
       {/* Template list */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-component-md">
         {loading ? (
           <div
             className="flex items-center justify-center h-full"
@@ -504,7 +504,7 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
             )}
           </div>
         ) : (
-          <div className="space-y-3" role="list" aria-label="Alert rule templates">
+          <div className="space-y-component-sm" role="list" aria-label="Alert rule templates">
             {filteredTemplates.map((template) => (
               <div key={template.id} role="listitem">
                 <TemplateCardComponent

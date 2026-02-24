@@ -93,13 +93,13 @@ export const InterfaceGridMobile = memo(
     if (isLoading) {
       return (
         <div
-          className={cn('grid grid-cols-2 gap-2', className)}
+          className={cn('grid grid-cols-2 gap-component-sm', className)}
           role="status"
           aria-label="Loading interfaces"
         >
           {Array.from({ length: 2 }).map((_, i) => (
             <Card key={i}>
-              <CardContent className="p-3">
+              <CardContent className="p-component-sm">
                 <Skeleton className="h-4 w-20 mb-2" />
                 <Skeleton className="h-3 w-16" />
               </CardContent>
@@ -114,7 +114,7 @@ export const InterfaceGridMobile = memo(
       return (
         <Alert variant="destructive" className={className}>
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          <AlertDescription className="flex flex-col gap-2">
+          <AlertDescription className="flex flex-col gap-component-sm">
             <span className="text-sm">
               Failed to load interfaces: {error.message}
             </span>
@@ -137,13 +137,13 @@ export const InterfaceGridMobile = memo(
     if (interfaces.length === 0) {
       return (
         <Card className={className}>
-          <CardContent className="flex flex-col items-center justify-center py-6 text-center">
+          <CardContent className="flex flex-col items-center justify-center py-component-lg text-center">
             <Network
-              className="h-10 w-10 text-muted-foreground mb-3"
+              className="h-10 w-10 text-muted-foreground mb-component-sm"
               aria-hidden="true"
             />
             <p className="text-base font-semibold">No interfaces found</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-component-sm">
               No network interfaces configured.
             </p>
           </CardContent>
@@ -155,7 +155,7 @@ export const InterfaceGridMobile = memo(
       <div className={className}>
         {/* Grid of interface cards - 2 columns on mobile */}
         <div
-          className="grid grid-cols-2 gap-2"
+          className="grid grid-cols-2 gap-component-sm"
           role="list"
           aria-label="Network interfaces"
         >
@@ -171,7 +171,7 @@ export const InterfaceGridMobile = memo(
 
         {/* Show all / Show less pagination toggle */}
         {hasMore && (
-          <div className="mt-3 text-center">
+          <div className="mt-component-sm text-center">
             <Button
               variant="ghost"
               size="sm"

@@ -50,7 +50,7 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
     return (
       <section>
         <SectionHeader title={t('clients.title')} />
-        <div className="bg-card rounded-xl border border-border p-4 animate-pulse">
+        <div className="bg-card rounded-card-sm border border-border p-component-md animate-pulse">
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 bg-muted rounded" />
@@ -65,7 +65,7 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
     return (
       <section>
         <SectionHeader title={t('clients.title')} />
-        <div className="bg-card rounded-xl border border-border p-8 text-center">
+        <div className="bg-card rounded-card-sm border border-border p-component-lg text-center">
           <Signal className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">{t('status.noClientsConnected')}</p>
         </div>
@@ -76,48 +76,48 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
   return (
     <section>
       <SectionHeader title={t('clients.title')} count={clients.length} />
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card rounded-card-sm border border-border overflow-hidden">
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.macAddress')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.interface')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.signal')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.rate')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.traffic')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">{t('clients.uptime')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.macAddress')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.interface')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.signal')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.rate')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.traffic')}</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.uptime')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {sortedClients.map((client) => (
                 <tr key={client.id} className="hover:bg-muted transition-colors">
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <span className="font-mono text-sm text-foreground">{client.macAddress}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <span className="text-sm text-muted-foreground">{client.interface}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <div className="flex items-center gap-2">
                       <SignalBars signal={client.signalStrength} />
                       <span className="text-sm text-muted-foreground">{client.signalStrength} dBm</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <div className="text-sm text-muted-foreground">
                       <span className="text-success">↓</span> {client.rxRate} Mbps
                       <span className="text-warning ml-2">↑</span> {client.txRate} Mbps
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <div className="text-sm font-mono text-muted-foreground">
                       <span className="text-success">↓</span> {formatBytes(client.rxBytes)}
                       <span className="text-warning ml-2">↑</span> {formatBytes(client.txBytes)}
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="p-component-md">
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Clock className="w-3.5 h-3.5" />
                       {client.uptime}
@@ -132,7 +132,7 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
         {/* Mobile Cards */}
         <div className="md:hidden divide-y divide-border">
           {sortedClients.map((client) => (
-            <div key={client.id} className="p-4 space-y-2">
+            <div key={client.id} className="p-component-md space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-sm text-foreground">{client.macAddress}</span>
                 <SignalBars signal={client.signalStrength} />

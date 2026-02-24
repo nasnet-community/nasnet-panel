@@ -1,6 +1,17 @@
 import type { Preview } from '@storybook/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nProvider } from '@nasnet/core/i18n';
+import { MockApolloProvider } from '@nasnet/api-client/core';
+import { PlatformProvider } from '@nasnet/ui/layouts';
+import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
 import './preview.css';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, gcTime: 0, staleTime: 0 },
+    mutations: { retry: false },
+  },
+});
 
 const preview: Preview = {
   parameters: {
@@ -46,13 +57,23 @@ const preview: Preview = {
     (Story, context) => {
       const isDark = context.globals.theme === 'dark';
       return (
-        <I18nProvider>
-          <div className={isDark ? 'dark' : ''} data-theme={isDark ? 'dark' : 'light'}>
-            <div className="p-4 min-h-screen bg-background text-foreground">
-              <Story />
-            </div>
-          </div>
-        </I18nProvider>
+        <MockApolloProvider>
+          <QueryClientProvider client={queryClient}>
+            <I18nProvider>
+              <PlatformProvider>
+                <AnimationProvider>
+                  <ToastProvider>
+                    <div className={isDark ? 'dark' : ''} data-theme={isDark ? 'dark' : 'light'}>
+                      <div className="p-4 min-h-screen bg-background text-foreground">
+                        <Story />
+                      </div>
+                    </div>
+                  </ToastProvider>
+                </AnimationProvider>
+              </PlatformProvider>
+            </I18nProvider>
+          </QueryClientProvider>
+        </MockApolloProvider>
       );
     },
   ],

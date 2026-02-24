@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 
 	"backend/internal/events"
@@ -52,6 +54,7 @@ type Service struct {
 	eventBus        events.EventBus
 	featureRegistry *FeatureRegistry
 	auditService    AuditService
+	logger          *zap.Logger
 }
 
 // AuditService interface for audit logging (dependency injection)
@@ -67,6 +70,7 @@ func NewService(
 	eventBus events.EventBus,
 	featureRegistry *FeatureRegistry,
 	auditService AuditService,
+	logger *zap.Logger,
 ) *Service {
 
 	return &Service{
@@ -75,6 +79,7 @@ func NewService(
 		eventBus:        eventBus,
 		featureRegistry: featureRegistry,
 		auditService:    auditService,
+		logger:          logger,
 	}
 }
 
@@ -159,14 +164,18 @@ func (s *Service) Export(ctx context.Context, instanceID string, options ExportO
 	)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
 		// Log but don't fail - event publishing is non-critical
-		fmt.Printf("Warning: failed to publish ServiceConfigExportedEvent: %v\n", err)
+		if s.logger != nil {
+			s.logger.Warn("failed to publish ServiceConfigExportedEvent", zap.Error(err))
+		}
 	}
 
 	// Audit log the export
 	if s.auditService != nil && options.UserID != "" {
 		if err := s.auditService.LogExport(ctx, instance.ID, options.UserID); err != nil {
 			// Log but don't fail - audit logging is non-critical
-			fmt.Printf("Warning: failed to log export audit: %v\n", err)
+			if s.logger != nil {
+				s.logger.Warn("failed to log export audit", zap.Error(err))
+			}
 		}
 	}
 

@@ -84,11 +84,11 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
     await deleteMultiple(selectedLeases);
   }, [selectedLeases, deleteMultiple]);
   return (
-    <div className="flex h-full flex-col gap-6 p-6">
+    <div className="flex h-full flex-col gap-component-lg p-component-lg">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
             DHCP Leases
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -101,6 +101,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
           variant="outline"
           disabled={isLoading || leases.length === 0}
           aria-label="Export leases to CSV"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Download className="mr-2 h-4 w-4" aria-hidden="true" />
           Export CSV
@@ -123,10 +124,10 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
       {/* Error State */}
       {isError && (
         <div
-          className="rounded-md border border-destructive bg-destructive/10 p-4"
+          className="rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md"
           role="alert"
         >
-          <p className="text-sm font-medium text-destructive">
+          <p className="text-sm font-medium text-error">
             Failed to load DHCP leases
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -150,7 +151,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
 
       {/* Empty State */}
       {!isLoading && !isError && leases.length === 0 && (
-        <div className="flex flex-1 items-center justify-center rounded-md border border-dashed p-8">
+        <div className="flex flex-1 items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed border-border p-component-lg">
           <div className="text-center">
             <p className="text-sm font-medium">No DHCP leases found</p>
             <p className="mt-1 text-sm text-muted-foreground">

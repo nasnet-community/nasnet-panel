@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 	"backend/internal/orchestrator/isolation"
@@ -53,20 +55,18 @@ func (im *InstanceManager) startInstanceRecursive(ctx context.Context, instanceI
 			if !dep.AutoStart {
 				continue
 			}
-			im.logger.Info().
-				Str("instance_id", instanceID).
-				Str("dependency_id", dep.ToInstanceID).
-				Msg("auto-starting dependency")
+			im.logger.Info("auto-starting dependency",
+				zap.String("instance_id", instanceID),
+				zap.String("dependency_id", dep.ToInstanceID))
 
 			if err := im.startInstanceRecursive(ctx, dep.ToInstanceID, depth+1, visited); err != nil {
 				return fmt.Errorf("failed to auto-start dependency %s: %w", dep.ToInstanceID, err)
 			}
 
-			im.logger.Info().
-				Str("instance_id", instanceID).
-				Str("dependency_id", dep.ToInstanceID).
-				Int("timeout_seconds", dep.HealthTimeoutSeconds).
-				Msg("waiting for dependency health check")
+			im.logger.Info("waiting for dependency health check",
+				zap.String("instance_id", instanceID),
+				zap.String("dependency_id", dep.ToInstanceID),
+				zap.Int("timeout_seconds", dep.HealthTimeoutSeconds))
 
 			healthCtx, cancel := context.WithTimeout(ctx, time.Duration(dep.HealthTimeoutSeconds)*time.Second)
 			defer cancel() //nolint:gocritic // intentional per-iteration cleanup
@@ -148,7 +148,7 @@ func (im *InstanceManager) startInstanceInternal(ctx context.Context, instanceID
 		AutoRestart:   true,
 		ShutdownGrace: 10 * 1000000000, // 10 seconds in nanoseconds
 		EventBus:      im.publisher,
-		Logger:        im.logger.With().Str("instance_id", instanceID).Logger(),
+		Logger:        im.logger.With(zap.String("instance_id", instanceID)),
 		RouterID:      instance.RouterID,
 		Ports:         instance.Ports,
 	}
@@ -179,7 +179,7 @@ func (im *InstanceManager) startInstanceInternal(ctx context.Context, instanceID
 	// Apply resource limits and start monitoring (NAS-8.4)
 	im.applyResourceLimits(ctx, instanceID, instance)
 
-	im.logger.Info().Str("instance_id", instanceID).Msg("Instance started successfully")
+	im.logger.Info("Instance started successfully", zap.String("instance_id", instanceID))
 
 	// Setup virtual interface bridge (NAS-8.2)
 	if err := im.setupBridgeIfNeeded(ctx, instanceID, instance, manifest); err != nil {
@@ -198,11 +198,11 @@ func (im *InstanceManager) runPreStartIsolationChecks(ctx context.Context, insta
 		return nil
 	}
 
-	im.logger.Debug().Str("instance_id", instanceID).Msg("Running pre-start isolation checks")
+	im.logger.Debug("Running pre-start isolation checks", zap.String("instance_id", instanceID))
 
 	report, err := im.isolationVerifier.VerifyPreStart(ctx, instance)
 	if err != nil {
-		im.logger.Error().Err(err).Str("instance_id", instanceID).Msg("Isolation verification failed")
+		im.logger.Error("Isolation verification failed", zap.Error(err), zap.String("instance_id", instanceID))
 		_ = im.updateInstanceStatus(ctx, instanceID, StatusFailed) //nolint:errcheck // best-effort status update after isolation verification error
 		return fmt.Errorf("isolation verification error: %w", err)
 	}
@@ -216,20 +216,18 @@ func (im *InstanceManager) runPreStartIsolationChecks(ctx context.Context, insta
 		}
 
 		if len(errorViolations) > 0 {
-			im.logger.Error().
-				Str("instance_id", instanceID).
-				Strs("violations", errorViolations).
-				Msg("Instance failed pre-start isolation checks")
+			im.logger.Error("Instance failed pre-start isolation checks",
+				zap.String("instance_id", instanceID),
+				zap.Strings("violations", errorViolations))
 			_ = im.updateInstanceStatus(ctx, instanceID, StatusFailed) //nolint:errcheck // best-effort status update after isolation violations detected
 			return fmt.Errorf("isolation violations detected: %s", errorViolations)
 		}
 	}
 
-	im.logger.Info().
-		Str("instance_id", instanceID).
-		Str("bind_ip", report.BindIP).
-		Int("allocated_ports", len(report.AllocatedPorts)).
-		Msg("Pre-start isolation checks passed")
+	im.logger.Info("Pre-start isolation checks passed",
+		zap.String("instance_id", instanceID),
+		zap.String("bind_ip", report.BindIP),
+		zap.Int("allocated_ports", len(report.AllocatedPorts)))
 	return nil
 }
 
@@ -241,14 +239,13 @@ func (im *InstanceManager) runPreFlightResourceCheck(ctx context.Context, instan
 
 	requiredMB := int(*instance.MemoryLimit / (1024 * 1024))
 
-	im.logger.Debug().
-		Str("instance_id", instanceID).
-		Int("required_mb", requiredMB).
-		Msg("Checking resource availability")
+	im.logger.Debug("Checking resource availability",
+		zap.String("instance_id", instanceID),
+		zap.Int("required_mb", requiredMB))
 
 	availability, err := im.resourceManager.CheckResourceAvailability(ctx, requiredMB)
 	if err != nil {
-		im.logger.Error().Err(err).Str("instance_id", instanceID).Msg("Failed to check resource availability")
+		im.logger.Error("Failed to check resource availability", zap.Error(err), zap.String("instance_id", instanceID))
 		_ = im.updateInstanceStatus(ctx, instanceID, StatusFailed) //nolint:errcheck // best-effort status update after resource check failure
 		return fmt.Errorf("resource availability check error: %w", err)
 	}
@@ -265,23 +262,21 @@ func (im *InstanceManager) runPreFlightResourceCheck(ctx context.Context, instan
 			}
 		}
 
-		im.logger.Warn().
-			Str("instance_id", instanceID).
-			Int("required_mb", requiredMB).
-			Int("available_mb", availability.AvailableMB).
-			Int("allocated_mb", availability.AllocatedMB).
-			Msg("Insufficient resources to start instance")
+		im.logger.Warn("Insufficient resources to start instance",
+			zap.String("instance_id", instanceID),
+			zap.Int("required_mb", requiredMB),
+			zap.Int("available_mb", availability.AvailableMB),
+			zap.Int("allocated_mb", availability.AllocatedMB))
 
 		_ = im.updateInstanceStatus(ctx, instanceID, StatusFailed) //nolint:errcheck // best-effort status update after insufficient resources detected
 		return fmt.Errorf("%s", errMsg)
 	}
 
-	im.logger.Info().
-		Str("instance_id", instanceID).
-		Int("required_mb", requiredMB).
-		Int("available_mb", availability.AvailableMB).
-		Int("allocated_mb", availability.AllocatedMB).
-		Msg("Pre-flight resource check passed")
+	im.logger.Info("Pre-flight resource check passed",
+		zap.String("instance_id", instanceID),
+		zap.Int("required_mb", requiredMB),
+		zap.Int("available_mb", availability.AvailableMB),
+		zap.Int("allocated_mb", availability.AllocatedMB))
 	return nil
 }
 
@@ -312,10 +307,9 @@ func (im *InstanceManager) waitForSOCKSReady(ctx context.Context, instance *ent.
 	}
 	socksAddrPort := net.JoinHostPort(socksAddr, strconv.Itoa(socksPort))
 
-	im.logger.Debug().
-		Str("instance_id", instance.ID).
-		Str("socks_addr", socksAddrPort).
-		Msg("waiting for SOCKS5 port to be ready")
+	im.logger.Debug("waiting for SOCKS5 port to be ready",
+		zap.String("instance_id", instance.ID),
+		zap.String("socks_addr", socksAddrPort))
 
 	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
@@ -328,10 +322,9 @@ func (im *InstanceManager) waitForSOCKSReady(ctx context.Context, instance *ent.
 			conn, err := net.DialTimeout("tcp", socksAddrPort, 500*time.Millisecond)
 			if err == nil {
 				conn.Close()
-				im.logger.Info().
-					Str("instance_id", instance.ID).
-					Str("socks_addr", socksAddrPort).
-					Msg("SOCKS5 port is ready")
+				im.logger.Info("SOCKS5 port is ready",
+					zap.String("instance_id", instance.ID),
+					zap.String("socks_addr", socksAddrPort))
 				return nil
 			}
 		}

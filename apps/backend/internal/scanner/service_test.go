@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func newTestService() *ScannerService {
 		TaskRetentionDuration: 5 * time.Second,
 		MaxConcurrentScans:    2,
 	}
-	return NewService(config, nil)
+	return NewService(config, nil, zap.NewNop())
 }
 
 func TestNewService(t *testing.T) {
@@ -27,7 +28,7 @@ func TestNewService(t *testing.T) {
 }
 
 func TestNewServiceWithDefaults(t *testing.T) {
-	svc := NewServiceWithDefaults(nil)
+	svc := NewServiceWithDefaults(nil, zap.NewNop())
 	require.NotNil(t, svc)
 	assert.Equal(t, 20, svc.config.MaxWorkersPerSubnet24)
 	assert.Equal(t, 50, svc.config.MaxWorkersPerSubnet16)
@@ -77,7 +78,7 @@ func TestStartScan_ConcurrentLimit(t *testing.T) {
 		TaskRetentionDuration: 5 * time.Second,
 		MaxConcurrentScans:    1, // Only allow 1 concurrent scan
 	}
-	svc := NewService(config, nil)
+	svc := NewService(config, nil, zap.NewNop())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

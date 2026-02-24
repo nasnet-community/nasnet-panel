@@ -25,6 +25,7 @@ import (
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
 	"backend/generated/ent/predicate"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/resource"
 	"backend/generated/ent/resourceevent"
 	"backend/generated/ent/router"
@@ -32,13 +33,14 @@ import (
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/routingschedule"
-	"backend/generated/ent/schemaversion"
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/servicetraffichourly"
 	"backend/generated/ent/session"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/user"
+	"backend/generated/ent/version"
 	"backend/generated/ent/virtualinterface"
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
@@ -561,6 +563,33 @@ func (f TraversePortKnockSequence) Traverse(ctx context.Context, q ent.Query) er
 	return fmt.Errorf("unexpected query type %T. expect *ent.PortKnockSequenceQuery", q)
 }
 
+// The ProvisioningSessionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ProvisioningSessionFunc func(context.Context, *ent.ProvisioningSessionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ProvisioningSessionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ProvisioningSessionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ProvisioningSessionQuery", q)
+}
+
+// The TraverseProvisioningSession type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseProvisioningSession func(context.Context, *ent.ProvisioningSessionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseProvisioningSession) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseProvisioningSession) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProvisioningSessionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ProvisioningSessionQuery", q)
+}
+
 // The ResourceFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ResourceFunc func(context.Context, *ent.ResourceQuery) (ent.Value, error)
 
@@ -750,33 +779,6 @@ func (f TraverseRoutingSchedule) Traverse(ctx context.Context, q ent.Query) erro
 	return fmt.Errorf("unexpected query type %T. expect *ent.RoutingScheduleQuery", q)
 }
 
-// The SchemaVersionFunc type is an adapter to allow the use of ordinary function as a Querier.
-type SchemaVersionFunc func(context.Context, *ent.SchemaVersionQuery) (ent.Value, error)
-
-// Query calls f(ctx, q).
-func (f SchemaVersionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
-	if q, ok := q.(*ent.SchemaVersionQuery); ok {
-		return f(ctx, q)
-	}
-	return nil, fmt.Errorf("unexpected query type %T. expect *ent.SchemaVersionQuery", q)
-}
-
-// The TraverseSchemaVersion type is an adapter to allow the use of ordinary function as Traverser.
-type TraverseSchemaVersion func(context.Context, *ent.SchemaVersionQuery) error
-
-// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
-func (f TraverseSchemaVersion) Intercept(next ent.Querier) ent.Querier {
-	return next
-}
-
-// Traverse calls f(ctx, q).
-func (f TraverseSchemaVersion) Traverse(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.SchemaVersionQuery); ok {
-		return f(ctx, q)
-	}
-	return fmt.Errorf("unexpected query type %T. expect *ent.SchemaVersionQuery", q)
-}
-
 // The ServiceDependencyFunc type is an adapter to allow the use of ordinary function as a Querier.
 type ServiceDependencyFunc func(context.Context, *ent.ServiceDependencyQuery) (ent.Value, error)
 
@@ -912,6 +914,33 @@ func (f TraverseSession) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.SessionQuery", q)
 }
 
+// The SubnetAllocationFunc type is an adapter to allow the use of ordinary function as a Querier.
+type SubnetAllocationFunc func(context.Context, *ent.SubnetAllocationQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f SubnetAllocationFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.SubnetAllocationQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.SubnetAllocationQuery", q)
+}
+
+// The TraverseSubnetAllocation type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseSubnetAllocation func(context.Context, *ent.SubnetAllocationQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseSubnetAllocation) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseSubnetAllocation) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.SubnetAllocationQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.SubnetAllocationQuery", q)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type UserFunc func(context.Context, *ent.UserQuery) (ent.Value, error)
 
@@ -964,6 +993,33 @@ func (f TraverseVLANAllocation) Traverse(ctx context.Context, q ent.Query) error
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.VLANAllocationQuery", q)
+}
+
+// The VersionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type VersionFunc func(context.Context, *ent.VersionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f VersionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.VersionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.VersionQuery", q)
+}
+
+// The TraverseVersion type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseVersion func(context.Context, *ent.VersionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseVersion) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseVersion) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.VersionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.VersionQuery", q)
 }
 
 // The VirtualInterfaceFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -1057,6 +1113,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.PortAllocationQuery, predicate.PortAllocation, portallocation.OrderOption]{typ: ent.TypePortAllocation, tq: q}, nil
 	case *ent.PortKnockSequenceQuery:
 		return &query[*ent.PortKnockSequenceQuery, predicate.PortKnockSequence, portknocksequence.OrderOption]{typ: ent.TypePortKnockSequence, tq: q}, nil
+	case *ent.ProvisioningSessionQuery:
+		return &query[*ent.ProvisioningSessionQuery, predicate.ProvisioningSession, provisioningsession.OrderOption]{typ: ent.TypeProvisioningSession, tq: q}, nil
 	case *ent.ResourceQuery:
 		return &query[*ent.ResourceQuery, predicate.Resource, resource.OrderOption]{typ: ent.TypeResource, tq: q}, nil
 	case *ent.ResourceEventQuery:
@@ -1071,8 +1129,6 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.RoutingChainQuery, predicate.RoutingChain, routingchain.OrderOption]{typ: ent.TypeRoutingChain, tq: q}, nil
 	case *ent.RoutingScheduleQuery:
 		return &query[*ent.RoutingScheduleQuery, predicate.RoutingSchedule, routingschedule.OrderOption]{typ: ent.TypeRoutingSchedule, tq: q}, nil
-	case *ent.SchemaVersionQuery:
-		return &query[*ent.SchemaVersionQuery, predicate.SchemaVersion, schemaversion.OrderOption]{typ: ent.TypeSchemaVersion, tq: q}, nil
 	case *ent.ServiceDependencyQuery:
 		return &query[*ent.ServiceDependencyQuery, predicate.ServiceDependency, servicedependency.OrderOption]{typ: ent.TypeServiceDependency, tq: q}, nil
 	case *ent.ServiceInstanceQuery:
@@ -1083,10 +1139,14 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.ServiceTrafficHourlyQuery, predicate.ServiceTrafficHourly, servicetraffichourly.OrderOption]{typ: ent.TypeServiceTrafficHourly, tq: q}, nil
 	case *ent.SessionQuery:
 		return &query[*ent.SessionQuery, predicate.Session, session.OrderOption]{typ: ent.TypeSession, tq: q}, nil
+	case *ent.SubnetAllocationQuery:
+		return &query[*ent.SubnetAllocationQuery, predicate.SubnetAllocation, subnetallocation.OrderOption]{typ: ent.TypeSubnetAllocation, tq: q}, nil
 	case *ent.UserQuery:
 		return &query[*ent.UserQuery, predicate.User, user.OrderOption]{typ: ent.TypeUser, tq: q}, nil
 	case *ent.VLANAllocationQuery:
 		return &query[*ent.VLANAllocationQuery, predicate.VLANAllocation, vlanallocation.OrderOption]{typ: ent.TypeVLANAllocation, tq: q}, nil
+	case *ent.VersionQuery:
+		return &query[*ent.VersionQuery, predicate.Version, version.OrderOption]{typ: ent.TypeVersion, tq: q}, nil
 	case *ent.VirtualInterfaceQuery:
 		return &query[*ent.VirtualInterfaceQuery, predicate.VirtualInterface, virtualinterface.OrderOption]{typ: ent.TypeVirtualInterface, tq: q}, nil
 	case *ent.WebhookQuery:

@@ -69,10 +69,10 @@ function VlanFormMobileContent({
           </SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={onSubmit} className="mt-6">
-          <div className="space-y-6 pb-20">
+        <form onSubmit={onSubmit} className="mt-component-lg">
+          <div className="space-y-component-lg pb-20">
             {/* Name Field */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="name-mobile">
                 Name <span className="text-destructive">*</span>
               </Label>
@@ -95,7 +95,7 @@ function VlanFormMobileContent({
             </div>
 
             {/* VLAN ID Field */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="vlanId-mobile">
                 VLAN ID <span className="text-destructive">*</span>
               </Label>
@@ -136,7 +136,7 @@ function VlanFormMobileContent({
             </div>
 
             {/* Parent Interface Field */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="interface-mobile">
                 Parent Interface <span className="text-destructive">*</span>
               </Label>
@@ -162,7 +162,7 @@ function VlanFormMobileContent({
             </div>
 
             {/* MTU Field */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="mtu-mobile">MTU (bytes)</Label>
               <Input
                 id="mtu-mobile"
@@ -190,7 +190,7 @@ function VlanFormMobileContent({
             </div>
 
             {/* Comment Field */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="comment-mobile">Comment</Label>
               <Textarea
                 id="comment-mobile"
@@ -216,8 +216,8 @@ function VlanFormMobileContent({
             </div>
 
             {/* Disabled Toggle */}
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5 flex-1">
+            <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border p-component-md">
+              <div className="space-y-1 flex-1">
                 <Label htmlFor="disabled-mobile">Disabled</Label>
                 <p className="text-sm text-muted-foreground">
                   Administratively disable this VLAN
@@ -258,7 +258,7 @@ function VlanFormMobileContent({
           </div>
 
           {/* Fixed Bottom Actions */}
-          <SheetFooter className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t flex-row gap-3">
+          <SheetFooter className="fixed bottom-0 left-0 right-0 p-component-md bg-background border-t border-border flex-row gap-component-md">
             <Button
               type="button"
               variant="outline"

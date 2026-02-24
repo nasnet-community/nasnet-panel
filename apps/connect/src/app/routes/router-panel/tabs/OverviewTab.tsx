@@ -219,33 +219,33 @@ export const OverviewTab = React.memo(function OverviewTab() {
   const getStatusIcon = () => {
     switch (networkStatus) {
       case 'healthy':
-        return <CheckCircle className="w-16 h-16 text-white" />;
+        return <CheckCircle className="w-16 h-16 text-foreground" />;
       case 'warning':
-        return <AlertTriangle className="w-16 h-16 text-white" />;
+        return <AlertTriangle className="w-16 h-16 text-foreground" />;
       case 'error':
-        return <XCircle className="w-16 h-16 text-white" />;
+        return <XCircle className="w-16 h-16 text-foreground" />;
       case 'loading':
-        return <Loader2 className="w-16 h-16 text-white animate-spin" />;
+        return <Loader2 className="w-16 h-16 text-foreground animate-spin" />;
     }
   };
 
   const getHeroGradient = () => {
     switch (networkStatus) {
       case 'healthy':
-        return 'from-primary-500 to-primary-400';
+        return 'from-primary to-primary';
       case 'warning':
-        return 'from-warning to-warning-dark';
+        return 'from-warning to-warning';
       case 'error':
-        return 'from-error to-error-dark';
+        return 'from-error to-error';
       case 'loading':
-        return 'from-muted-foreground to-muted-foreground';
+        return 'from-muted to-muted';
     }
   };
 
   return (
     <div className="min-h-full">
       {/* Hero Section with Status */}
-      <div className={`bg-gradient-to-r ${getHeroGradient()} px-4 pt-6 pb-28 md:px-6 md:pb-32 rounded-b-[40px]`}>
+      <div className={`bg-gradient-to-r ${getHeroGradient()} px-page-mobile md:px-page-tablet lg:px-page-desktop pt-6 pb-28 md:pb-32 rounded-card-lg`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-2">
             <p className="text-white/70 text-sm">{t('overview.routerStatus')}</p>
@@ -263,7 +263,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
       </div>
 
       {/* Main Content */}
-      <div className="px-4 md:px-6 -mt-20">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop -mt-20">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Quick Actions Card (Floating) */}
           <QuickActionsCard
@@ -276,8 +276,8 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* Resource Monitor Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.resourceMonitor')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.resourceMonitor')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
               {/* System Information Card */}
               <SystemInfoCard
                 data={data}
@@ -316,8 +316,8 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* DHCP & Traffic Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.networkActivity')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.networkActivity')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
               {/* DHCP Summary */}
               <DHCPSummaryCard
                 activeLeases={activeDhcpLeases}
@@ -338,7 +338,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* VPN Clients Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.vpnStatus')}</h2>
+            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.vpnStatus')}</h2>
             <VPNClientsSummary
               connectedCount={vpnConnectedCount}
               clients={connectedVpnClients}
@@ -349,9 +349,9 @@ export const OverviewTab = React.memo(function OverviewTab() {
           </div>
 
           {/* Hardware Details Section */}
-          <div className="pb-6">
-            <h2 className="text-lg font-semibold mb-4 px-2">{t('overview.hardware')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="pb-component-lg">
+            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.hardware')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
               <HardwareCard
                 data={hardwareData}
                 isLoading={hardwareLoading}

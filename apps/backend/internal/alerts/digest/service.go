@@ -14,6 +14,7 @@ import (
 	alerts "backend/templates/alerts"
 
 	"backend/internal/events"
+	"backend/internal/utils"
 )
 
 // Service manages queuing and delivery of digest notifications.
@@ -155,7 +156,7 @@ func (ds *Service) CompileDigest(ctx context.Context, channelID string, since ti
 	}
 
 	payload := &Payload{
-		DigestID:       uuid.New().String(),
+		DigestID:       utils.GenerateID(),
 		ChannelID:      channelID,
 		ChannelType:    entries[0].ChannelType,
 		Entries:        entries,

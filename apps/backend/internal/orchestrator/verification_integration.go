@@ -7,11 +7,10 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
+	"backend/internal/events"
 	"backend/internal/features/verification"
 
-	"backend/internal/events"
-
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // VerificationIntegration provides methods to integrate binary verification
@@ -20,11 +19,14 @@ type VerificationIntegration struct {
 	verifier  *verification.Verifier
 	store     *ent.Client
 	publisher *events.Publisher
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // NewVerificationIntegration creates a new verification integration helper.
-func NewVerificationIntegration(verifier *verification.Verifier, store *ent.Client, publisher *events.Publisher, logger zerolog.Logger) *VerificationIntegration {
+func NewVerificationIntegration(verifier *verification.Verifier, store *ent.Client, publisher *events.Publisher, logger *zap.Logger) *VerificationIntegration {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	return &VerificationIntegration{
 		verifier:  verifier,
 		store:     store,
@@ -57,11 +59,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 	// Verify archive
 	result, err := vi.verifier.VerifyArchive(ctx, archivePath, checksumsPath, checksumsURL, spec)
 	if err != nil {
-		vi.logger.Error().
-			Err(err).
-			Str("instance_id", instanceID).
-			Str("feature_id", featureID).
-			Msg("Archive verification failed")
+		vi.logger.Error("Archive verification failed", zap.Error(err), zap.String("instance_id", instanceID), zap.String("feature_id", featureID))
 
 		// Emit verification failed event
 		verifiedAt := time.Now().Format(time.RFC3339)
@@ -85,12 +83,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 	}
 
 	if !result.Success {
-		vi.logger.Error().
-			Str("instance_id", instanceID).
-			Str("feature_id", featureID).
-			Str("expected", result.Error.Expected).
-			Str("actual", result.Error.Actual).
-			Msg("Archive hash mismatch")
+		vi.logger.Error("Archive hash mismatch", zap.String("instance_id", instanceID), zap.String("feature_id", featureID), zap.String("expected", result.Error.Expected), zap.String("actual", result.Error.Actual))
 
 		// Emit verification failed event
 		if vi.publisher != nil {
@@ -112,12 +105,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 		return fmt.Errorf("archive verification failed: hash mismatch")
 	}
 
-	vi.logger.Info().
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Str("archive_hash", result.ArchiveHash).
-		Bool("gpg_verified", result.GPGVerified).
-		Msg("Archive verified successfully")
+	vi.logger.Info("Archive verified successfully", zap.String("instance_id", instanceID), zap.String("feature_id", featureID), zap.String("archive_hash", result.ArchiveHash), zap.Bool("gpg_verified", result.GPGVerified))
 
 	return nil
 }
@@ -175,10 +163,7 @@ func (vi *VerificationIntegration) UpdateInstanceVerification(
 		)
 	}
 
-	vi.logger.Info().
-		Str("instance_id", instanceID).
-		Str("binary_hash", binaryHash).
-		Msg("Binary verification complete")
+	vi.logger.Info("Binary verification complete", zap.String("instance_id", instanceID), zap.String("binary_hash", binaryHash))
 
 	return nil
 }
@@ -188,7 +173,7 @@ func (vi *VerificationIntegration) UpdateInstanceVerification(
 //
 // Integration point: NewInstanceManager() constructor (line ~95, after Reconcile)
 func (vi *VerificationIntegration) StartupIntegrityCheck(ctx context.Context) error {
-	vi.logger.Info().Msg("Starting binary integrity check")
+	vi.logger.Info("Starting binary integrity check")
 
 	// Query all instances with verification enabled
 	instances, err := vi.store.ServiceInstance.Query().
@@ -207,7 +192,7 @@ func (vi *VerificationIntegration) StartupIntegrityCheck(ctx context.Context) er
 	}
 
 	if len(instances) == 0 {
-		vi.logger.Info().Msg("No instances to verify")
+		vi.logger.Info("No instances to verify")
 		return nil
 	}
 
@@ -232,7 +217,7 @@ func (vi *VerificationIntegration) StartupIntegrityCheck(ctx context.Context) er
 	}
 
 	if len(verificationInfos) == 0 {
-		vi.logger.Info().Msg("No instances with verification data")
+		vi.logger.Info("No instances with verification data")
 		return nil
 	}
 
@@ -242,17 +227,11 @@ func (vi *VerificationIntegration) StartupIntegrityCheck(ctx context.Context) er
 		return fmt.Errorf("integrity check failed: %w", err)
 	}
 
-	vi.logger.Info().
-		Int("verified", verified).
-		Int("failed", failed).
-		Int("total", len(verificationInfos)).
-		Msg("Integrity check complete")
+	vi.logger.Info("Integrity check complete", zap.Int("verified", verified), zap.Int("failed", failed), zap.Int("total", len(verificationInfos)))
 
 	// If any failed, update their status
 	if failed > 0 {
-		vi.logger.Warn().
-			Int("failed_count", failed).
-			Msg("Binary integrity failures detected - instances will not start")
+		vi.logger.Warn("Binary integrity failures detected - instances will not start", zap.Int("failed_count", failed))
 	}
 
 	return nil
@@ -295,9 +274,7 @@ func (vi *VerificationIntegration) PreStartIntegrityCheck(
 
 	// Skip if no verification data
 	if instance.BinaryHash == "" || instance.BinaryPath == "" {
-		vi.logger.Warn().
-			Str("instance_id", instanceID).
-			Msg("Verification enabled but no verification data - skipping check")
+		vi.logger.Warn("Verification enabled but no verification data - skipping check", zap.String("instance_id", instanceID))
 		return nil
 	}
 
@@ -322,9 +299,7 @@ func (vi *VerificationIntegration) PreStartIntegrityCheck(
 		return fmt.Errorf("binary integrity check failed: binary has been modified")
 	}
 
-	vi.logger.Info().
-		Str("instance_id", instanceID).
-		Msg("Binary integrity check passed")
+	vi.logger.Info("Binary integrity check passed", zap.String("instance_id", instanceID))
 
 	return nil
 }

@@ -15,7 +15,7 @@
 import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 declare const statusIndicatorVariants: (props?: ({
-    status?: "warning" | "info" | "offline" | "pending" | "online" | null | undefined;
+    status?: "warning" | "info" | "online" | "offline" | "pending" | null | undefined;
     size?: "sm" | "md" | "lg" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 /**

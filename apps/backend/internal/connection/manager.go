@@ -123,6 +123,32 @@ func stateToString(s gobreaker.State) string {
 	}
 }
 
+// handleConnectionError handles the error response when connection fails.
+// It updates the connection status, publishes status change event, and determines
+// whether automatic reconnection should be triggered.
+func (m *Manager) handleConnectionError(ctx context.Context, routerID string, conn *Connection, err error) error {
+	// Update status to error state
+	conn.UpdateStatus(func(status *Status) {
+		_ = status.SetError(err.Error()) //nolint:errcheck // state transition failure is non-fatal, error is already being returned
+	})
+	m.publishStatusChange(ctx, routerID, StateConnecting, StateError, err.Error())
+
+	// Check if we should auto-reconnect
+	if !conn.IsManuallyDisconnected() {
+		shouldReconnect := true
+		if conn.CircuitBreaker == nil {
+			shouldReconnect = false
+		} else if conn.CircuitBreaker.IsOpen() {
+			shouldReconnect = false
+		}
+		if shouldReconnect {
+			m.startReconnection(ctx, conn)
+		}
+	}
+
+	return err
+}
+
 // GetConnection returns the connection for a router, or an error if not found.
 func (m *Manager) GetConnection(routerID string) (*Connection, error) {
 	conn := m.pool.Get(routerID)
@@ -133,9 +159,16 @@ func (m *Manager) GetConnection(routerID string) (*Connection, error) {
 }
 
 // GetOrCreateConnection returns the connection for a router, creating one if needed.
+// Returns nil if the connection cannot be created (e.g., max connections limit reached).
 func (m *Manager) GetOrCreateConnection(routerID string, config Config) *Connection {
 	cb := m.cbFactory.Create(routerID)
-	return m.pool.GetOrCreate(routerID, config, cb)
+	conn := m.pool.GetOrCreate(routerID, config, cb)
+	if conn == nil {
+		m.logger.Warn("failed to create connection, pool limit reached",
+			zap.String("routerID", routerID),
+		)
+	}
+	return conn
 }
 
 // Connect establishes a connection to a router.
@@ -148,6 +181,9 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Config) e
 	m.mu.RUnlock()
 
 	conn := m.GetOrCreateConnection(routerID, config)
+	if conn == nil {
+		return fmt.Errorf("failed to create connection for router %s: pool limit reached", routerID)
+	}
 
 	// Check if already connected
 	if conn.IsConnected() {
@@ -162,7 +198,7 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Config) e
 
 	// Update state to connecting
 	conn.UpdateStatus(func(status *Status) {
-		_ = status.SetConnecting() //nolint:errcheck // state transition failure is non-fatal, connection attempt proceeds regardless
+		_ = status.SetConnecting() //nolint:errcheck // status transition is best-effort during connect initiation
 	})
 
 	// Publish state change event
@@ -183,18 +219,7 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Config) e
 	})
 
 	if err != nil {
-		// Connection failed
-		conn.UpdateStatus(func(status *Status) {
-			_ = status.SetError(err.Error()) //nolint:errcheck // state transition failure is non-fatal, error is already being returned
-		})
-		m.publishStatusChange(ctx, routerID, StateConnecting, StateError, err.Error())
-
-		// Check if we should auto-reconnect
-		if !conn.IsManuallyDisconnected() && conn.CircuitBreaker != nil && !conn.CircuitBreaker.IsOpen() {
-			m.startReconnection(ctx, conn)
-		}
-
-		return err
+		return m.handleConnectionError(ctx, routerID, conn, err)
 	}
 
 	// Connection successful
@@ -204,7 +229,7 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Config) e
 	}
 	conn.SetClient(client)
 	conn.UpdateStatus(func(status *Status) {
-		_ = status.SetConnected(string(client.Protocol()), client.Version()) //nolint:errcheck // state transition failure is non-fatal, client is already connected
+		_ = status.SetConnected(string(client.Protocol()), client.Version()) //nolint:errcheck // status transition is best-effort, client is already connected
 	})
 	m.publishStatusChange(ctx, routerID, StateConnecting, StateConnected, "")
 
@@ -248,7 +273,7 @@ func (m *Manager) Disconnect(routerID string, reason DisconnectReason) error {
 
 	// Update status
 	conn.UpdateStatus(func(status *Status) {
-		_ = status.SetDisconnected(reason) //nolint:errcheck // state transition failure is non-fatal during disconnect
+		_ = status.SetDisconnected(reason) //nolint:errcheck // status transition is best-effort during disconnect
 	})
 
 	// Use background context for disconnect event publishing
@@ -282,7 +307,7 @@ func (m *Manager) Reconnect(ctx context.Context, routerID string) error {
 	// Record the attempt
 	conn.RecordReconnectAttempt()
 
-	// Trigger reconnection
+	// Trigger reconnection - will handle nil CircuitBreaker safely
 	return m.Connect(ctx, routerID, conn.Config())
 }
 
@@ -323,7 +348,7 @@ func (m *Manager) RemoveConnection(routerID string) error {
 		return fmt.Errorf("connection not found for router %s", routerID)
 	}
 
-	// Disconnect first
+	// Disconnect first - best-effort, we still remove from pool regardless of disconnect error
 	_ = m.Disconnect(routerID, DisconnectReasonShutdown) //nolint:errcheck // best-effort disconnect before pool removal
 
 	// Remove from pool

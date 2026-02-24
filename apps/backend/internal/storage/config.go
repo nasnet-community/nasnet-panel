@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 
 	"backend/generated/ent"
 	"backend/generated/ent/globalsettings"
 
-	"github.com/oklog/ulid/v2"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/internal/events"
+	"backend/internal/utils"
 )
 
 const (
@@ -34,7 +35,7 @@ type StorageConfigService struct { //nolint:revive // type name appropriate for 
 	client    *ent.Client
 	detector  *StorageDetector
 	publisher *events.Publisher
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // NewStorageConfigService creates a new StorageConfigService.
@@ -42,25 +43,29 @@ func NewStorageConfigService(
 	client *ent.Client,
 	detector *StorageDetector,
 	publisher *events.Publisher,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 ) *StorageConfigService {
+
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 
 	return &StorageConfigService{
 		client:    client,
 		detector:  detector,
 		publisher: publisher,
-		logger:    logger.With().Str("component", "storage-config").Logger(),
+		logger:    logger.With(zap.String("component", "storage-config")),
 	}
 }
 
 // SetExternalPath sets the external storage path.
 // Validates that the path exists and is mounted before saving.
 func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string) error {
-	s.logger.Info().Str("path", path).Msg("setting external storage path")
+	s.logger.Info("setting external storage path", zap.String("path", path))
 
 	// Validate the path exists and is mounted
 	if err := s.validatePath(path); err != nil {
-		s.logger.Error().Err(err).Str("path", path).Msg("path validation failed")
+		s.logger.Error("path validation failed", zap.Error(err), zap.String("path", path))
 		return err
 	}
 
@@ -76,14 +81,14 @@ func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string)
 	}
 
 	if err := s.upsertSetting(ctx, StorageKeyExternalPath, value, globalsettings.ValueTypeString, "External storage mount path"); err != nil {
-		s.logger.Error().Err(err).Msg("failed to save external path")
+		s.logger.Error("failed to save external path", zap.Error(err))
 		return WrapStorageError(ErrCodeInvalidConfig, "failed to save configuration", path, err)
 	}
 
-	s.logger.Info().
-		Str("path", path).
-		Str("previous_path", currentPath).
-		Msg("external storage path updated")
+	s.logger.Info("external storage path updated",
+		zap.String("path", path),
+		zap.String("previous_path", currentPath),
+	)
 
 	// Emit configuration changed event
 	if currentPath != path {
@@ -96,7 +101,7 @@ func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string)
 			"storage-config-service",
 		)
 		if err := s.publisher.Publish(ctx, event); err != nil {
-			s.logger.Error().Err(err).Msg("failed to publish storage config changed event")
+			s.logger.Error("failed to publish storage config changed event", zap.Error(err))
 		}
 	}
 
@@ -128,7 +133,7 @@ func (s *StorageConfigService) GetExternalPath(ctx context.Context) (string, err
 
 // SetEnabled enables or disables external storage usage.
 func (s *StorageConfigService) SetEnabled(ctx context.Context, enabled bool) error {
-	s.logger.Info().Bool("enabled", enabled).Msg("setting external storage enabled state")
+	s.logger.Info("setting external storage enabled state", zap.Bool("enabled", enabled))
 
 	// If enabling, validate that path is configured and mounted
 	if enabled {
@@ -153,11 +158,11 @@ func (s *StorageConfigService) SetEnabled(ctx context.Context, enabled bool) err
 	}
 
 	if err := s.upsertSetting(ctx, StorageKeyEnabled, value, globalsettings.ValueTypeBoolean, "Whether external storage is enabled"); err != nil {
-		s.logger.Error().Err(err).Msg("failed to save enabled state")
+		s.logger.Error("failed to save enabled state", zap.Error(err))
 		return WrapStorageError(ErrCodeInvalidConfig, "failed to save configuration", "", err)
 	}
 
-	s.logger.Info().Bool("enabled", enabled).Msg("external storage enabled state updated")
+	s.logger.Info("external storage enabled state updated", zap.Bool("enabled", enabled))
 	return nil
 }
 
@@ -204,10 +209,10 @@ func (s *StorageConfigService) GetConfig(ctx context.Context) (*StorageConfig, e
 
 // UpdateConfig updates the complete storage configuration atomically.
 func (s *StorageConfigService) UpdateConfig(ctx context.Context, cfg *StorageConfig) error {
-	s.logger.Info().
-		Bool("enabled", cfg.Enabled).
-		Str("path", cfg.ExternalPath).
-		Msg("updating storage configuration")
+	s.logger.Info("updating storage configuration",
+		zap.Bool("enabled", cfg.Enabled),
+		zap.String("path", cfg.ExternalPath),
+	)
 
 	// Validate path first if provided
 	if cfg.ExternalPath != "" {
@@ -236,12 +241,31 @@ func (s *StorageConfigService) UpdateConfig(ctx context.Context, cfg *StorageCon
 	return s.SetEnabled(ctx, cfg.Enabled)
 }
 
-// validatePath checks if a path exists and is mounted via StorageDetector.
+// validatePath checks if a path exists, is absolute, and is mounted via StorageDetector.
 func (s *StorageConfigService) validatePath(path string) error {
 	if path == "" {
 		return NewStorageError(
 			ErrCodeInvalidPath,
 			"path cannot be empty",
+			path,
+		)
+	}
+
+	// Validate path is absolute (no relative paths like ../external)
+	if !filepath.IsAbs(path) {
+		return NewStorageError(
+			ErrCodeInvalidPath,
+			"path must be absolute (no relative paths)",
+			path,
+		)
+	}
+
+	// Validate path doesn't contain suspicious patterns
+	cleanPath := filepath.Clean(path)
+	if cleanPath != path {
+		return NewStorageError(
+			ErrCodeInvalidPath,
+			"path contains suspicious patterns",
 			path,
 		)
 	}
@@ -324,7 +348,7 @@ func (s *StorageConfigService) upsertSetting(
 
 	// Create new
 	_, err = s.client.GlobalSettings.Create().
-		SetID(ulid.Make().String()).
+		SetID(utils.GenerateID()).
 		SetNamespace(StorageNamespace).
 		SetKey(key).
 		SetValue(valueMap).

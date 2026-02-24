@@ -159,8 +159,8 @@ function ConnectionHistoryTableComponent({
    */
   if (loading && events.length === 0) {
     return (
-      <div className={cn('flex items-center justify-center py-12', className)}>
-        <div className="flex flex-col items-center gap-3">
+      <div className={cn('flex items-center justify-center py-component-lg', className)}>
+        <div className="flex flex-col items-center gap-component-md">
           <RefreshCw
             className="h-8 w-8 animate-spin text-muted-foreground"
             aria-hidden="true"
@@ -179,8 +179,8 @@ function ConnectionHistoryTableComponent({
    */
   if (error && events.length === 0) {
     return (
-      <div className={cn('rounded-lg border border-destructive/20 bg-destructive/5 p-6', className)}>
-        <div className="flex items-start gap-3">
+      <div className={cn('rounded-[var(--semantic-radius-card)] border border-destructive/20 bg-destructive/5 p-component-lg', className)}>
+        <div className="flex items-start gap-component-md">
           <History
             className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5"
             aria-hidden="true"
@@ -189,7 +189,7 @@ function ConnectionHistoryTableComponent({
             <h3 className="font-semibold text-destructive">
               Failed to load connection history
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-2">
               {error.message || 'An unexpected error occurred. Please try again.'}
             </p>
             {onRefresh && (
@@ -197,7 +197,7 @@ function ConnectionHistoryTableComponent({
                 variant="outline"
                 size="sm"
                 onClick={onRefresh}
-                className="mt-3"
+                className="mt-component-md"
                 aria-label="Retry loading connection history"
               >
                 <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -233,9 +233,9 @@ function ConnectionHistoryTableComponent({
   if (filteredEvents.length === 0) {
 
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-component-md', className)}>
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-component-md">
           <div className="flex-1">
             <Input
               placeholder="Search by IP, interface, or reason..."
@@ -280,9 +280,9 @@ function ConnectionHistoryTableComponent({
    * Full results with filters, pagination, and platform-responsive layout
    */
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header with filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-component-md">
         <div className="flex-1">
           <Input
             placeholder="Search by IP, interface, or reason..."
@@ -291,7 +291,7 @@ function ConnectionHistoryTableComponent({
             aria-label="Search connection events"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           <Select value={filterType} onValueChange={handleFilterChange}>
             <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by event type">
               <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -331,7 +331,7 @@ function ConnectionHistoryTableComponent({
       </div>
 
       {/* Event timeline */}
-      <div className={isMobile ? 'space-y-3' : ''} role="list">
+      <div className={isMobile ? 'space-y-component-sm' : ''} role="list">
         {paginatedEvents.map((event) =>
           isMobile ? (
             <div key={event.id} role="listitem">
@@ -347,11 +347,11 @@ function ConnectionHistoryTableComponent({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-4 border-t">
+        <div className="flex items-center justify-between pt-component-md border-t">
           <div className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button
               variant="outline"
               size="sm"

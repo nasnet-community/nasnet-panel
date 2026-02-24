@@ -107,6 +107,10 @@ func (Router) Edges() []ent.Edge {
 			Comment("Multi-hop routing chains configured on this router"),
 		edge.To("service_templates", ServiceTemplate.Type).
 			Comment("User-created service templates on this router"),
+		edge.To("provisioning_sessions", ProvisioningSession.Type).
+			Comment("Provisioning sessions for this router"),
+		edge.To("subnet_allocations", SubnetAllocation.Type).
+			Comment("Subnet allocations managed on this router"),
 	}
 }
 

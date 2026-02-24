@@ -12,7 +12,7 @@ import (
 	"backend/internal/common/isolation"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TestDirectoryIsolation_InstanceSeparation verifies that two instances with separate
@@ -24,7 +24,7 @@ func TestDirectoryIsolation_InstanceSeparation(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
@@ -324,7 +324,7 @@ func TestDirectoryIsolation_CrossInstanceAccess(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
@@ -423,7 +423,7 @@ func TestDirectoryIsolation_BaseDirectoryVariations(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()

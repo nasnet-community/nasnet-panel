@@ -95,11 +95,11 @@ const BandwidthTooltip = React.memo(function BandwidthTooltip({
   if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className={cn('rounded-md border bg-popover p-3 shadow-md')}>
-      <p className="mb-2 text-sm font-medium">{formatDateTime(label)}</p>
+    <div className={cn('rounded-md border bg-popover p-component-sm shadow-md')}>
+      <p className="mb-component-sm text-sm font-medium">{formatDateTime(label)}</p>
       <div className="space-y-1">
         {payload.map((entry: any) => (
-          <div key={entry.dataKey} className="flex items-center gap-2 text-sm">
+          <div key={entry.dataKey} className="flex items-center gap-component-sm text-sm">
             <div
               className="h-3 w-3 rounded-full"
               style={{ backgroundColor: entry.color }}
@@ -221,7 +221,7 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
     // Empty state
     if (chartData.length === 0) {
       return (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed">
+        <div className="flex h-[400px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed">
           <p className="text-sm text-muted-foreground">
             No data available for the selected time range
           </p>

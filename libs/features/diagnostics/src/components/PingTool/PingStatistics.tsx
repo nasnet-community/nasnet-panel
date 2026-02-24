@@ -88,7 +88,7 @@ export const PingStatistics = memo(function PingStatistics({
   const badgeVariant = getBadgeVariant(lossPercent);
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header with status badge */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Statistics</h3>
@@ -103,31 +103,31 @@ export const PingStatistics = memo(function PingStatistics({
 
       {/* Statistics grid */}
       <dl
-        className="grid grid-cols-2 gap-4"
+        className="grid grid-cols-2 gap-component-md"
         aria-label="Ping statistics summary"
       >
         {/* Packets Sent */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Packets Sent</dt>
           <dd className="text-2xl font-bold">{sent}</dd>
         </div>
 
         {/* Packets Received */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Packets Received</dt>
           <dd className="text-2xl font-bold text-success">{received}</dd>
         </div>
 
         {/* Packets Lost */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Packets Lost</dt>
-          <dd className={cn('text-2xl font-bold', lost > 0 && 'text-destructive')}>
+          <dd className={cn('text-2xl font-bold', lost > 0 && 'text-error')}>
             {lost}
           </dd>
         </div>
 
         {/* Packet Loss Percentage */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Packet Loss</dt>
           <dd className={cn('text-2xl font-bold', statusColor)}>
             {lossPercent}%
@@ -135,25 +135,25 @@ export const PingStatistics = memo(function PingStatistics({
         </div>
 
         {/* Min RTT */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Min RTT</dt>
           <dd className="text-lg font-semibold font-mono">{formatRtt(minRtt)}</dd>
         </div>
 
         {/* Avg RTT */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Avg RTT</dt>
           <dd className="text-lg font-semibold font-mono">{formatRtt(avgRtt)}</dd>
         </div>
 
         {/* Max RTT */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Max RTT</dt>
           <dd className="text-lg font-semibold font-mono">{formatRtt(maxRtt)}</dd>
         </div>
 
         {/* Std Dev */}
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           <dt className="text-sm text-muted-foreground">Std Dev</dt>
           <dd className="text-lg font-semibold font-mono text-muted-foreground">
             {formatRtt(stdDev)}

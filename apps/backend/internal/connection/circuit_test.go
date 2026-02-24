@@ -3,6 +3,7 @@ package connection
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -223,4 +224,77 @@ func TestCircuitBreaker_RecoveryAfterTimeout(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "success", result)
 	assert.True(t, cb.IsClosed()) // Should be closed after successful recovery
+}
+
+func TestCircuitBreaker_HalfOpenStateTransitions(t *testing.T) {
+	var stateTransitions []string
+
+	config := CircuitBreakerConfig{
+		MaxFailures: 1,
+		Timeout:     100 * time.Millisecond,
+		MaxRequests: 1,
+	}
+
+	cb := NewCircuitBreaker("router-123", config, WithOnStateChange(func(routerID string, from, to gobreaker.State) {
+		stateTransitions = append(stateTransitions, fmt.Sprintf("%s->%s", from.String(), to.String()))
+	}))
+
+	// Initial state is CLOSED
+	assert.True(t, cb.IsClosed())
+
+	// Cause failure to transition to OPEN
+	_, _ = cb.Execute(func() (any, error) {
+		return nil, errors.New("fail")
+	})
+
+	require.True(t, cb.IsOpen())
+	assert.Equal(t, "OPEN", cb.StateString())
+
+	// Wait for timeout to allow half-open attempt
+	time.Sleep(150 * time.Millisecond)
+
+	// Attempt successful recovery
+	result, err := cb.Execute(func() (any, error) {
+		return "recovery", nil
+	})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "recovery", result)
+	assert.True(t, cb.IsClosed())
+	assert.Equal(t, "CLOSED", cb.StateString())
+
+	// Verify state transitions: CLOSED -> OPEN -> HALF_OPEN -> CLOSED
+	// The circuit breaker transitions through these states
+	assert.True(t, len(stateTransitions) >= 2, "should have at least 2 state transitions")
+}
+
+func TestCircuitBreaker_HalfOpenFailureReturnsToOpen(t *testing.T) {
+	config := CircuitBreakerConfig{
+		MaxFailures: 1,
+		Timeout:     100 * time.Millisecond,
+		MaxRequests: 1,
+	}
+
+	cb := NewCircuitBreaker("router-123", config)
+
+	// Trip the circuit
+	_, _ = cb.Execute(func() (any, error) {
+		return nil, errors.New("fail")
+	})
+	require.True(t, cb.IsOpen())
+
+	// Wait for timeout to allow half-open attempt
+	time.Sleep(150 * time.Millisecond)
+
+	// Attempt unsuccessful recovery (circuit still fails)
+	result, err := cb.Execute(func() (any, error) {
+		return nil, errors.New("still failing")
+	})
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+
+	// Should be back to OPEN after failed recovery attempt
+	assert.True(t, cb.IsOpen())
+	assert.Equal(t, "OPEN", cb.StateString())
 }

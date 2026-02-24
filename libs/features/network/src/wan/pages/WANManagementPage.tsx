@@ -216,7 +216,7 @@ export function WANManagementPage() {
         </TabsContent>
 
         <TabsContent value="health" className="space-y-6">
-          <div className="rounded-lg border p-6">
+          <div className="rounded-card-lg border border-border bg-card p-component-lg">
             <p className="text-sm text-muted-foreground">
               Configure health checks for each WAN interface to monitor
               connectivity and detect link failures.

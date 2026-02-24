@@ -112,10 +112,10 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Root Bridge Status */}
-          <div className="flex items-center justify-between p-4 rounded-lg border">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between p-component-md rounded-card-sm border">
+            <div className="flex items-center gap-component-md">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                className={`flex h-10 w-10 items-center justify-center rounded-pill ${
                   stpStatus?.rootBridge ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
                 }`}
               >
@@ -139,7 +139,7 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
           {stpStatus?.rootBridgeId && (
             <div className="space-y-1">
               <p className="text-sm font-medium">Root Bridge ID</p>
-              <div className="font-mono text-xs bg-muted px-2 py-1 rounded break-all">
+              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md break-all">
                 {stpStatus.rootBridgeId}
               </div>
             </div>
@@ -157,16 +157,16 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
           {!stpStatus?.rootBridge && stpStatus?.rootPathCost !== undefined && (
             <div className="space-y-1">
               <p className="text-sm font-medium">Root Path Cost</p>
-              <div className="font-mono text-xs bg-muted px-2 py-1 rounded">
+              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md">
                 {stpStatus.rootPathCost}
               </div>
             </div>
           )}
 
           {/* Topology Changes */}
-          <div className="flex items-center justify-between p-4 rounded-lg border">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex items-center justify-between p-component-md rounded-card-sm border">
+            <div className="flex items-center gap-component-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-primary/10 text-primary">
                 <Icon icon={Activity} className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>

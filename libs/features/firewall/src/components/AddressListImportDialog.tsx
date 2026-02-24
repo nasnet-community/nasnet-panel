@@ -171,9 +171,9 @@ function AddressListImportDialogContent({
   }, [handleReset]);
 
   const renderSelectStep = () => (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Target List Selection */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="target-list">Target Address List</Label>
         <Input
           id="target-list"
@@ -193,7 +193,7 @@ function AddressListImportDialogContent({
       </div>
 
       {/* Format Selection */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="format">File Format</Label>
         <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
           <SelectTrigger id="format">
@@ -211,7 +211,7 @@ function AddressListImportDialogContent({
       {/* File Upload / Drag-and-Drop */}
       <div
         className={cn(
-          'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
+          'border-2 border-dashed rounded-card-sm p-component-lg text-center transition-colors',
           isDragging
             ? 'border-primary bg-primary/5'
             : 'border-border hover:border-primary/50'
@@ -242,7 +242,7 @@ function AddressListImportDialogContent({
       </div>
 
       {/* Text Area Paste */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="paste-content">Or paste content here</Label>
         <Textarea
           id="paste-content"
@@ -268,7 +268,7 @@ function AddressListImportDialogContent({
       </Alert>
 
       {/* Actions */}
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-component-sm">
         <Button variant="outline" onClick={handleClose}>
           Cancel
         </Button>
@@ -283,18 +283,18 @@ function AddressListImportDialogContent({
   );
 
   const renderPreviewStep = () => (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Summary */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg border p-4">
-          <div className="flex items-center gap-2 mb-2">
+      <div className="grid grid-cols-2 gap-component-md">
+        <div className="rounded-card-sm border p-component-md">
+          <div className="flex items-center gap-component-sm mb-component-sm">
             <CheckCircle2 className="w-5 h-5 text-success" />
             <span className="font-medium">Valid Entries</span>
           </div>
           <p className="text-2xl font-bold">{parseResult?.data.length || 0}</p>
         </div>
-        <div className="rounded-lg border p-4">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="rounded-card-sm border p-component-md">
+          <div className="flex items-center gap-component-sm mb-component-sm">
             <AlertCircle className="w-5 h-5 text-error" />
             <span className="font-medium">Errors</span>
           </div>
@@ -304,7 +304,7 @@ function AddressListImportDialogContent({
 
       {/* Error List (limit to first 100) */}
       {parseResult && parseResult.errors.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
             <Label>Validation Errors</Label>
             {parseResult.errors.length > 100 && (
@@ -313,11 +313,11 @@ function AddressListImportDialogContent({
               </Badge>
             )}
           </div>
-          <ScrollArea className="h-48 rounded-lg border p-4">
-            <div className="space-y-2">
+          <ScrollArea className="h-48 rounded-card-sm border p-component-md">
+            <div className="space-y-component-sm">
               {parseResult.errors.slice(0, 100).map((error, index) => (
                 <div key={index} className="text-sm">
-                  <span className="font-mono text-destructive">Line {error.line}:</span>{' '}
+                  <span className="font-mono text-error">Line {error.line}:</span>{' '}
                   <span className="font-mono">{error.address}</span> - {error.message}
                 </div>
               ))}
@@ -333,18 +333,18 @@ function AddressListImportDialogContent({
 
       {/* Preview of valid entries */}
       {parseResult && parseResult.data.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <Label>Preview (first 10 entries)</Label>
-          <ScrollArea className="h-48 rounded-lg border p-4">
-            <div className="space-y-2">
+          <ScrollArea className="h-48 rounded-card-sm border p-component-md">
+            <div className="space-y-component-sm">
               {parseResult.data.slice(0, 10).map((entry, index) => (
                 <div key={index} className="text-sm font-mono">
                   {entry.address}
                   {entry.comment && (
-                    <span className="text-muted-foreground ml-2">// {entry.comment}</span>
+                    <span className="text-muted-foreground ml-component-sm">// {entry.comment}</span>
                   )}
                   {entry.timeout && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge variant="secondary" className="ml-component-sm">
                       {entry.timeout}
                     </Badge>
                   )}
@@ -363,11 +363,11 @@ function AddressListImportDialogContent({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-component-sm">
         <Button variant="outline" onClick={handleReset}>
           Back
         </Button>
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
@@ -383,19 +383,19 @@ function AddressListImportDialogContent({
   );
 
   const renderImportingStep = () => (
-    <div className="space-y-4 py-8">
+    <div className="space-y-component-md py-component-lg">
       <div className="text-center">
-        <div className="mb-4">
+        <div className="mb-component-md">
           <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
             <Upload className="w-8 h-8 text-primary animate-pulse" />
           </div>
         </div>
-        <h3 className="text-lg font-medium mb-2">Importing entries...</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <h3 className="text-lg font-medium mb-component-sm">Importing entries...</h3>
+        <p className="text-sm text-muted-foreground mb-component-md">
           Importing {parseResult?.data.length || 0} entries to {targetList}
         </p>
         <Progress value={importProgress} className="w-full" />
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground mt-component-sm">
           {importProgress.toFixed(0)}%
         </p>
       </div>
@@ -403,19 +403,19 @@ function AddressListImportDialogContent({
   );
 
   const renderCompleteStep = () => (
-    <div className="space-y-4 py-8">
+    <div className="space-y-component-md py-component-lg">
       <div className="text-center">
-        <div className="mb-4">
+        <div className="mb-component-md">
           <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-success" />
           </div>
         </div>
-        <h3 className="text-lg font-medium mb-2">Import Complete!</h3>
+        <h3 className="text-lg font-medium mb-component-sm">Import Complete!</h3>
         <p className="text-sm text-muted-foreground">
           Successfully imported {parseResult?.data.length || 0} entries to {targetList}
         </p>
       </div>
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-component-sm">
         <Button onClick={handleReset}>Import More</Button>
         <Button variant="default" onClick={handleClose}>
           Close
@@ -425,7 +425,7 @@ function AddressListImportDialogContent({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {step === 'select' && renderSelectStep()}
       {step === 'preview' && renderPreviewStep()}
       {step === 'importing' && renderImportingStep()}
@@ -444,7 +444,7 @@ export function AddressListImportDialog({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className={className}>
-          <Upload className="w-4 h-4 mr-2" aria-hidden="true" />
+          <Upload className="w-4 h-4 mr-component-sm" aria-hidden="true" />
           Import
         </Button>
       </DialogTrigger>

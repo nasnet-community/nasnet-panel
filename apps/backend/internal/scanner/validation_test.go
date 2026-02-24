@@ -164,3 +164,193 @@ func TestHTTPAPIPorts(t *testing.T) {
 	assert.Contains(t, HTTPAPIPorts, 443)
 	assert.Len(t, HTTPAPIPorts, 2)
 }
+
+// ===== Validation Tests =====
+
+func TestValidateSubnet_ValidPrivateCIDRs(t *testing.T) {
+	tests := []struct {
+		name   string
+		subnet string
+		valid  bool
+	}{
+		{"192.168 /24", "192.168.1.0/24", true},
+		{"192.168 /16", "192.168.0.0/16", true},
+		{"10.0 /24", "10.0.0.0/24", true},
+		{"10.0 /16", "10.0.0.0/16", true},
+		{"172.16 /24", "172.16.0.0/24", true},
+		{"172.31 /24", "172.31.0.0/24", true},
+		{"Single private IP", "192.168.1.1", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateSubnet(tt.subnet)
+			if tt.valid {
+				assert.NoError(t, err, "expected %s to be valid", tt.subnet)
+			} else {
+				assert.Error(t, err, "expected %s to be invalid", tt.subnet)
+			}
+		})
+	}
+}
+
+func TestValidateSubnet_InvalidCIDRNotations(t *testing.T) {
+	tests := []struct {
+		name   string
+		subnet string
+	}{
+		{"Malformed CIDR", "192.168.1.0/33"},
+		{"Missing prefix length", "192.168.1.0/"},
+		{"Invalid IP in CIDR", "999.999.999.999/24"},
+		{"Not a number in prefix", "192.168.1.0/aa"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateSubnet(tt.subnet)
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestValidateSubnet_CIDRSizeLimits(t *testing.T) {
+	tests := []struct {
+		name   string
+		subnet string
+		valid  bool
+	}{
+		{"/24 (254 IPs)", "192.168.1.0/24", true},
+		{"/16 (65534 IPs)", "192.168.0.0/16", true},
+		{"/15 (131070 IPs - too large)", "192.168.0.0/15", false},
+		{"/8 (16M IPs - way too large)", "10.0.0.0/8", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateSubnet(tt.subnet)
+			if tt.valid {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "too large")
+			}
+		})
+	}
+}
+
+func TestValidateSubnet_PublicAddresses(t *testing.T) {
+	publicIPs := []string{
+		"8.8.8.8",           // Google DNS
+		"1.1.1.1",           // Cloudflare DNS
+		"200.1.0.0/16",      // Public range
+		"1.0.0.0/8",         // Public range
+		"192.0.2.0/24",      // Public documentation range
+	}
+
+	for _, ip := range publicIPs {
+		t.Run(ip, func(t *testing.T) {
+			err := ValidateSubnet(ip)
+			assert.Error(t, err, "expected %s to be rejected (public IP)", ip)
+		})
+	}
+}
+
+func TestValidateSubnet_LoopbackAddresses(t *testing.T) {
+	loopbackIPs := []string{
+		"127.0.0.1",
+		"127.0.0.254",
+		"127.255.255.255",
+	}
+
+	for _, ip := range loopbackIPs {
+		t.Run(ip, func(t *testing.T) {
+			err := ValidateSubnet(ip)
+			assert.Error(t, err, "expected %s to be rejected (loopback)", ip)
+			assert.Contains(t, err.Error(), "loopback")
+		})
+	}
+}
+
+func TestValidateSubnet_LinkLocalAddresses(t *testing.T) {
+	linkLocalIPs := []string{
+		"169.254.0.0/16",
+		"169.254.1.1",
+		"169.254.169.254",
+	}
+
+	for _, ip := range linkLocalIPs {
+		t.Run(ip, func(t *testing.T) {
+			err := ValidateSubnet(ip)
+			assert.Error(t, err, "expected %s to be rejected (link-local)", ip)
+		})
+	}
+}
+
+func TestValidateSubnet_IPv6NotSupported(t *testing.T) {
+	ipv6Addresses := []string{
+		"2001:db8::/32",
+		"fe80::1/64",
+		"::1",
+	}
+
+	for _, addr := range ipv6Addresses {
+		t.Run(addr, func(t *testing.T) {
+			err := ValidateSubnet(addr)
+			assert.Error(t, err, "expected %s to be rejected (IPv6)", addr)
+		})
+	}
+}
+
+func TestValidateSubnet_IPRanges(t *testing.T) {
+	tests := []struct {
+		name   string
+		subnet string
+		valid  bool
+	}{
+		{"Valid range /24 subnet", "192.168.1.1-192.168.1.254", true},
+		{"Valid range small", "192.168.1.1-192.168.1.10", true},
+		{"Range with start > end", "192.168.1.100-192.168.1.10", false},
+		{"Range with public IPs", "8.8.8.8-8.8.8.100", false},
+		{"Range too large", "192.168.0.1-192.168.5.254", false},
+		{"Invalid start IP", "999.999.999.999-192.168.1.100", false},
+		{"Invalid end IP", "192.168.1.1-999.999.999.999", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateSubnet(tt.subnet)
+			if tt.valid {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestIsValidVersionFormat(t *testing.T) {
+	tests := []struct {
+		version string
+		valid   bool
+	}{
+		{"7.8", true},
+		{"6.49.8", true},
+		{"7.12", true},
+		{"1.0", true},
+		{"7.12rc1", true},
+		{"RouterOS 7.8", false},
+		{"7", false},
+		{".7.8", false},
+		{"7.", false},
+		{"", false},
+		{"7..8", false},
+		{"7.a", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.version, func(t *testing.T) {
+			result := isValidVersionFormat(tt.version)
+			assert.Equal(t, tt.valid, result)
+		})
+	}
+}

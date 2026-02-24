@@ -246,3 +246,38 @@ func TestUserRepository_GetWithSessions(t *testing.T) {
 		assert.True(t, repository.IsNotFound(err))
 	})
 }
+
+// TestUserRepository_GetByUsername_CaseSensitivity tests case-sensitive username lookup.
+func TestUserRepository_GetByUsername_CaseSensitivity(t *testing.T) {
+	client := setupTestDB(t)
+	ctx := context.Background()
+
+	repo := repository.NewUserRepository(repository.UserRepositoryConfig{
+		Client: client,
+	})
+
+	t.Run("username lookup is case-sensitive", func(t *testing.T) {
+		// Create user with lowercase username
+		input := repository.CreateUserInput{
+			Username: "adminuser",
+			Password: "securepassword123",
+			Role:     repository.UserRoleAdmin,
+		}
+		created, err := repo.Create(ctx, input)
+		require.NoError(t, err)
+
+		// Exact match should work
+		found, err := repo.GetByUsername(ctx, "adminuser")
+		require.NoError(t, err)
+		assert.Equal(t, created.ID, found.ID)
+
+		// Different case should NOT match (case-sensitive)
+		_, err = repo.GetByUsername(ctx, "AdminUser")
+		require.Error(t, err)
+		assert.True(t, repository.IsNotFound(err), "username lookup should be case-sensitive")
+
+		_, err = repo.GetByUsername(ctx, "ADMINUSER")
+		require.Error(t, err)
+		assert.True(t, repository.IsNotFound(err), "username lookup should be case-sensitive")
+	})
+}

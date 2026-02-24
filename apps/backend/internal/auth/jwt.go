@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"time"
@@ -283,17 +282,24 @@ func (s *JWTService) RefreshToken(claims *Claims, sessionCreatedAt time.Time) (s
 
 	// Check if session maximum would be exceeded
 	sessionMaxExpiry := sessionCreatedAt.Add(s.config.SessionDuration)
-	if time.Now().Add(s.config.TokenDuration).After(sessionMaxExpiry) {
+	tokenExpiry := time.Now().Add(s.config.TokenDuration)
+
+	// If new token would exceed session maximum, cap it at session expiry
+	if tokenExpiry.After(sessionMaxExpiry) {
 		// Session maximum reached, calculate remaining time
 		remaining := time.Until(sessionMaxExpiry)
 		if remaining <= 0 {
 			return "", time.Time{}, ErrSessionExpired
 		}
-		// Issue token that expires at session max
-		// We'll adjust the token duration temporarily
-		originalDuration := s.config.TokenDuration
-		s.config.TokenDuration = remaining
-		defer func() { s.config.TokenDuration = originalDuration }()
+		// Create a modified input for this refresh only
+		// Generate token with capped expiry by adjusting the duration calculation in GenerateToken
+		// This is safe because we're not modifying shared state
+		return s.generateTokenWithExpiry(TokenInput{
+			UserID:    claims.UserID,
+			Username:  claims.Username,
+			Role:      Role(claims.Role),
+			SessionID: claims.SessionID,
+		}, sessionMaxExpiry)
 	}
 
 	// Generate new token with same user info
@@ -303,6 +309,38 @@ func (s *JWTService) RefreshToken(claims *Claims, sessionCreatedAt time.Time) (s
 		Role:      Role(claims.Role),
 		SessionID: claims.SessionID,
 	})
+}
+
+// generateTokenWithExpiry creates a new JWT token with a specific expiry time
+// This is used when session maximum duration limits token lifetime
+func (s *JWTService) generateTokenWithExpiry(input TokenInput, expiresAt time.Time) (string, time.Time, error) {
+	now := time.Now()
+
+	// Generate a unique token ID (jti)
+	tokenID := ulid.Make().String()
+
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        tokenID,
+			Issuer:    s.config.Issuer,
+			Subject:   input.UserID,
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			NotBefore: jwt.NewNumericDate(now),
+		},
+		UserID:    input.UserID,
+		Username:  input.Username,
+		Role:      string(input.Role),
+		SessionID: input.SessionID,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	tokenString, err := token.SignedString(s.config.PrivateKey)
+	if err != nil {
+		return "", time.Time{}, fmt.Errorf("failed to sign token: %w", err)
+	}
+
+	return tokenString, expiresAt, nil
 }
 
 // GetConfig returns the current JWT configuration (for testing/debugging)
@@ -412,23 +450,9 @@ func parsePublicKey(keyPEM []byte) (*rsa.PublicKey, error) {
 // This should NOT be used in production - keys should be managed externally
 func GenerateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	// Use crypto/rand for key generation
-	privateKey, err := rsa.GenerateKey(cryptoRandReader, 2048)
+	privateKey, err := rsa.GenerateKey(cryptorand.Reader, 2048)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate key pair: %w", err)
 	}
 	return privateKey, &privateKey.PublicKey, nil
-}
-
-// cryptoRandReader is the crypto/rand reader for key generation
-var cryptoRandReader = cryptoRand{}
-
-type cryptoRand struct{}
-
-func (cryptoRand) Read(b []byte) (int, error) {
-	return readCryptoRand(b)
-}
-
-// readCryptoRand is a variable to allow testing
-var readCryptoRand = func(b []byte) (int, error) {
-	return io.ReadFull(cryptorand.Reader, b)
 }

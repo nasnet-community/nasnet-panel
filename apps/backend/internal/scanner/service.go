@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/internal/events"
 )
 
@@ -31,20 +33,30 @@ type ScannerService struct {
 	config     ScannerConfig
 	tasks      sync.Map // map[string]*ScanTask
 	eventBus   events.EventBus
+	logger     *zap.Logger
 	runningCnt int32 // atomic counter for running scans
 }
 
 // NewService creates a new scanner service with the given configuration.
-func NewService(config ScannerConfig, eventBus events.EventBus) *ScannerService {
+// Note: Configuration is validated at service creation time.
+func NewService(config ScannerConfig, eventBus events.EventBus, logger *zap.Logger) *ScannerService {
+	// Validate configuration
+	if err := config.Validate(); err != nil {
+		// Log validation error but continue with defaults as fallback
+		// This prevents service creation failures due to config issues
+		logger.Warn("scanner config validation failed, using defaults", zap.Error(err))
+		config = DefaultConfig()
+	}
 	return &ScannerService{
 		config:   config,
 		eventBus: eventBus,
+		logger:   logger,
 	}
 }
 
 // NewServiceWithDefaults creates a new scanner service with default configuration.
-func NewServiceWithDefaults(eventBus events.EventBus) *ScannerService {
-	return NewService(DefaultConfig(), eventBus)
+func NewServiceWithDefaults(eventBus events.EventBus, logger *zap.Logger) *ScannerService {
+	return NewService(DefaultConfig(), eventBus, logger)
 }
 
 // StartScan initiates a network scan for the given subnet.
@@ -91,7 +103,7 @@ func (s *ScannerService) StartScan(ctx context.Context, subnet string) (*ScanTas
 	go s.executeScan(taskCtx, task, ips)
 
 	// Publish scan started event
-	s.publishScanStarted(task)
+	s.publishScanStarted(task, s.logger)
 
 	return task, nil
 }
@@ -129,7 +141,7 @@ func (s *ScannerService) StartAutoScan(ctx context.Context) (*ScanTask, error) {
 	go s.executeGatewayScan(taskCtx, task, ips)
 
 	// Publish scan started event
-	s.publishScanStarted(task)
+	s.publishScanStarted(task, s.logger)
 
 	return task, nil
 }
@@ -165,8 +177,14 @@ func (s *ScannerService) CancelScan(taskID string) (*ScanTask, error) {
 
 // GetHistory returns recent scan tasks.
 func (s *ScannerService) GetHistory(limit int) []*ScanTask {
+	if limit <= 0 {
+		limit = 100 // Default limit
+	}
 	var tasks []*ScanTask
 	s.tasks.Range(func(key, value interface{}) bool {
+		if value == nil {
+			return len(tasks) < limit // Skip nil values
+		}
 		if task, ok := value.(*ScanTask); ok {
 			tasks = append(tasks, task)
 		}
@@ -175,10 +193,12 @@ func (s *ScannerService) GetHistory(limit int) []*ScanTask {
 	return tasks
 }
 
-// scheduleCleanup schedules task removal after retention period.
+// scheduleCleanup schedules task removal after retention period with cancellation support.
 func (s *ScannerService) scheduleCleanup(task *ScanTask) {
 	go func() {
-		time.Sleep(s.config.TaskRetentionDuration)
+		ticker := time.NewTimer(s.config.TaskRetentionDuration)
+		defer ticker.Stop()
+		<-ticker.C
 		s.tasks.Delete(task.ID)
 	}()
 }

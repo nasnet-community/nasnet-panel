@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -47,7 +48,9 @@ func NewGraphQLHandler(cfg GraphQLConfig) *handler.Server {
 					return true
 				}
 				// In production, only allow same-origin WebSocket connections
-				return true
+				origin := r.Header.Get("Origin")
+				host := r.Host
+				return origin != "" && (strings.EqualFold(origin, "http://"+host) || strings.EqualFold(origin, "https://"+host))
 			},
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -64,6 +67,9 @@ func NewGraphQLHandler(cfg GraphQLConfig) *handler.Server {
 	}
 
 	srv.Use(extension.Introspection{})
+
+	// Add query complexity limit to prevent DoS attacks
+	srv.Use(extension.FixedComplexityLimit(5000))
 
 	return srv
 }

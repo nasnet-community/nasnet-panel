@@ -173,6 +173,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
         <Checkbox
           checked={selectedInterfaces.includes(row.id)}
           onCheckedChange={() => handleToggleInterfaceSelection(row.id)}
+          className="h-11 w-11"
           aria-label={`Select ${row.name}`}
         />
       ),
@@ -182,8 +183,8 @@ export const InterfaceComparison = memo(function InterfaceComparison({
       id: 'name',
       header: 'Interface',
       cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{row.name}</span>
+        <div className="flex items-center gap-component-sm">
+          <span className="font-medium font-mono">{row.name}</span>
           {row.isHotspot && (
             <Badge variant="secondary" className="text-xs">
               Hotspot
@@ -198,7 +199,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
       id: 'txRate',
       header: 'TX Rate',
       cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-1 text-chart-1">
+        <div className="flex items-center gap-component-sm text-chart-1">
           <ArrowUp className="h-4 w-4" aria-hidden="true" />
           <span className="font-mono">{formatBandwidth(row.txRate)}</span>
         </div>
@@ -210,7 +211,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
       id: 'rxRate',
       header: 'RX Rate',
       cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-1 text-chart-2">
+        <div className="flex items-center gap-component-sm text-chart-2">
           <ArrowDown className="h-4 w-4" aria-hidden="true" />
           <span className="font-mono">{formatBandwidth(row.rxRate)}</span>
         </div>
@@ -223,7 +224,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
       header: 'Errors',
       cell: (row: InterfaceStats) => (
         <span className={cn(
-          row.totalErrors > 0 ? 'text-destructive' : 'text-muted-foreground',
+          row.totalErrors > 0 ? 'text-error' : 'text-muted-foreground',
           'font-mono'
         )}>
           {row.totalErrors}
@@ -253,9 +254,9 @@ export const InterfaceComparison = memo(function InterfaceComparison({
     .filter((iface): iface is InterfaceInfo => iface !== undefined);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {/* Comparison Table */}
-      <Card>
+      <Card className="rounded-card-sm">
         <CardHeader>
           <CardTitle>Interface Comparison</CardTitle>
         </CardHeader>
@@ -276,7 +277,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
 
       {/* Side-by-side Bandwidth Charts */}
       {selectedInterfaceDetails.length > 0 && (
-        <Card>
+        <Card className="rounded-card-sm">
           <CardHeader>
             <CardTitle>
               Bandwidth Comparison ({selectedInterfaceDetails.length} selected)
@@ -284,14 +285,14 @@ export const InterfaceComparison = memo(function InterfaceComparison({
           </CardHeader>
           <CardContent>
             <div
-              className="grid gap-4"
+              className="grid gap-component-md"
               style={{
                 gridTemplateColumns: `repeat(${selectedInterfaceDetails.length}, 1fr)`,
               }}
             >
               {selectedInterfaceDetails.map((iface) => (
-                <div key={iface.id} className="space-y-2">
-                  <h3 className="text-sm font-medium">{iface.name}</h3>
+                <div key={iface.id} className="space-y-component-sm">
+                  <h3 className="text-sm font-medium font-display">{iface.name}</h3>
                   <BandwidthChart
                     routerId={routerId}
                     interfaceId={iface.id}

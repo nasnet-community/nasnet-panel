@@ -156,10 +156,10 @@ function ServiceAlertsTabDesktopComponent({
   // Loading state
   if (loading && filteredAlerts.length === 0) {
     return (
-      <div className={cn('p-6', className)}>
+      <div className={cn('p-component-lg', className)}>
         <Card>
           <CardContent className="p-12">
-            <div className="flex flex-col items-center justify-center gap-4">
+            <div className="flex flex-col items-center justify-center gap-component-md">
               <Icon icon={Loader2} className="h-10 w-10 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Loading alerts...</p>
             </div>
@@ -172,11 +172,11 @@ function ServiceAlertsTabDesktopComponent({
   // Error state
   if (error) {
     return (
-      <div className={cn('p-6', className)}>
-        <Card className="border-destructive">
+      <div className={cn('p-component-lg', className)}>
+        <Card className="border-error">
           <CardContent className="p-8">
-            <div className="flex flex-col items-center gap-4">
-              <Icon icon={AlertTriangle} className="h-10 w-10 text-destructive" />
+            <div className="flex flex-col items-center gap-component-md">
+              <Icon icon={AlertTriangle} className="h-10 w-10 text-error" />
               <div className="text-center">
                 <h3 className="font-semibold text-lg mb-2">Error Loading Alerts</h3>
                 <p className="text-sm text-muted-foreground">{error.message}</p>
@@ -189,13 +189,13 @@ function ServiceAlertsTabDesktopComponent({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header card with stats and filters */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Service Alerts</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <Badge variant="outline">Total: {stats.total}</Badge>
               {stats.critical > 0 && (
                 <Badge variant="error">Critical: {stats.critical}</Badge>
@@ -213,7 +213,7 @@ function ServiceAlertsTabDesktopComponent({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-component-md">
             {/* Search */}
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -404,9 +404,9 @@ function ServiceAlertsTabDesktopComponent({
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-component-md">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 <span className="text-sm text-muted-foreground">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </span>
@@ -416,9 +416,9 @@ function ServiceAlertsTabDesktopComponent({
                 </span>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-component-md">
                 {/* Page size selector */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <span className="text-sm text-muted-foreground">Per page:</span>
                   <Select
                     value={pagination.pageSize.toString()}
@@ -437,13 +437,14 @@ function ServiceAlertsTabDesktopComponent({
                 </div>
 
                 {/* Page navigation */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={prevPage}
                     disabled={pagination.currentPage === 1}
                     aria-label="Go to previous page"
+                    className="min-h-[44px]"
                   >
                     <Icon icon={ChevronLeft} className="h-4 w-4" />
                     Previous
@@ -454,6 +455,7 @@ function ServiceAlertsTabDesktopComponent({
                     onClick={nextPage}
                     disabled={pagination.currentPage === pagination.totalPages}
                     aria-label="Go to next page"
+                    className="min-h-[44px]"
                   >
                     Next
                     <Icon icon={ChevronRight} className="h-4 w-4" />

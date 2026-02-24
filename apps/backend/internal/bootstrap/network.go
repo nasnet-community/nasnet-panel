@@ -1,9 +1,8 @@
 package bootstrap
 
 import (
-	"log"
+	"go.uber.org/zap"
 
-	"backend/generated/ent"
 	"backend/internal/services/base"
 	"backend/internal/services/bridge"
 	"backend/internal/services/netif"
@@ -29,34 +28,34 @@ type NetworkComponents struct {
 // - Bridge service (bridge configuration operations)
 // - VLAN service (VLAN interface management)
 func InitializeNetworkServices(
-	systemDB *ent.Client,
 	eventBus events.EventBus,
 	routerPort *router.MockAdapter,
+	logger *zap.SugaredLogger,
 ) (*NetworkComponents, error) {
 	// 1. IP Address Service - IP address management operations
 	ipAddressService := netif.NewIPAddressService(netif.IPAddressServiceConfig{
 		RouterPort: routerPort,
 		EventBus:   eventBus,
 	})
-	log.Printf("IP address service initialized (10s cache TTL)")
+	logger.Infow("IP address service initialized", "cache_ttl", "10s")
 
 	// 2. WAN Service - WAN link configuration and health monitoring
 	wanService := wan.NewWANService(wan.WANServiceConfig{
 		RouterPort: routerPort,
 		EventBus:   eventBus,
 	})
-	log.Printf("WAN service initialized (30s cache TTL + health monitor)")
+	logger.Infow("WAN service initialized", "cache_ttl", "30s", "health_monitor", "enabled")
 
 	// 3. Bridge Service - bridge configuration operations with STP support
 	bridgeService := bridge.NewService(base.ServiceConfig{
 		RouterPort: routerPort,
 		EventBus:   eventBus,
 	})
-	log.Printf("Bridge service initialized (10s undo support)")
+	logger.Infow("Bridge service initialized", "undo_support", "10s")
 
 	// 4. VLAN Service - VLAN interface management
 	vlanService := vlan.NewVlanService(routerPort)
-	log.Printf("VLAN service initialized")
+	logger.Infow("VLAN service initialized")
 
 	return &NetworkComponents{
 		IPAddressService: ipAddressService,

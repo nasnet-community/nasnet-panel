@@ -37,7 +37,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
       {/* Interface cards skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[1, 2].map((i) => (
-          <div key={i} className="bg-card rounded-2xl border border-border p-4">
+          <div key={i} className="bg-card rounded-card-lg border border-border p-component-md">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="h-9 w-9 rounded-lg bg-muted" />
@@ -58,7 +58,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
 
       {/* Clients table skeleton */}
       <div className="h-5 bg-muted rounded w-40" />
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="bg-card rounded-card-sm border border-border p-component-md">
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-12 bg-muted rounded" />

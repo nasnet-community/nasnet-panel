@@ -40,6 +40,7 @@ var scanner = &Scanner{
 }
 
 func handleScan(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	var req struct {
 		Subnet string `json:"subnet"`
 	}
@@ -52,7 +53,7 @@ func handleScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	taskID := fmt.Sprintf("scan_%d", time.Now().UnixNano())
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	task := &ScanTask{
 		ID: taskID, Subnet: req.Subnet, StartTime: time.Now(),
 		Status: "running", Results: make([]Device, 0), Cancel: cancel,
@@ -60,7 +61,7 @@ func handleScan(w http.ResponseWriter, r *http.Request) {
 	scannerPool.mu.Lock()
 	scannerPool.activeTasks[taskID] = task
 	scannerPool.mu.Unlock()
-	go processScanTask(ctx, task) //nolint:contextcheck // intentional background context for async task
+	go processScanTask(ctx, task)
 
 	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": taskID, "status": "started", "message": "Scan started successfully",
@@ -80,13 +81,19 @@ func handleScanStatus(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, http.StatusNotFound, "task_not_found", "Task not found")
 		return
 	}
+	task.mu.RLock()
+	status := task.Status
+	progress := task.Progress
+	results := task.Results
+	task.mu.RUnlock()
 	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": task.ID, "subnet": task.Subnet, "start_time": task.StartTime.Unix(),
-		"status": task.Status, "progress": task.Progress, "results": task.Results,
+		"status": status, "progress": progress, "results": results,
 	})
 }
 
 func handleScanStop(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	var req struct {
 		TaskID string `json:"task_id"`
 	}
@@ -114,9 +121,9 @@ func handleScanStop(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func handleAutoScan(w http.ResponseWriter, _ *http.Request) {
+func handleAutoScan(w http.ResponseWriter, r *http.Request) {
 	taskID := fmt.Sprintf("auto_scan_%d", time.Now().UnixNano())
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	task := &ScanTask{
 		ID: taskID, Subnet: "192.168.0-255.1", StartTime: time.Now(),
 		Status: "running", Results: make([]Device, 0), Cancel: cancel,
@@ -124,7 +131,7 @@ func handleAutoScan(w http.ResponseWriter, _ *http.Request) {
 	scannerPool.mu.Lock()
 	scannerPool.activeTasks[taskID] = task
 	scannerPool.mu.Unlock()
-	go processGatewayScanTask(ctx, task) //nolint:contextcheck // intentional background context for async task
+	go processGatewayScanTask(ctx, task)
 
 	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": taskID, "status": "started", "message": "Gateway auto-scan started successfully",
@@ -133,14 +140,15 @@ func handleAutoScan(w http.ResponseWriter, _ *http.Request) {
 
 func processGatewayScanTask(ctx context.Context, task *ScanTask) {
 	cfg := pkgScanner.Config{MaxWorkers: scanner.maxWorkers, Timeout: scanner.timeout}
-	var mu sync.Mutex
 	pkgScanner.ProcessGatewayScan(ctx, cfg, func(device pkgScanner.Device) {
-		mu.Lock()
+		task.mu.Lock()
 		task.Results = append(task.Results, device)
-		mu.Unlock()
+		task.mu.Unlock()
 	})
+	task.mu.Lock()
 	task.Status = statusCompleted
 	task.Progress = 100
+	task.mu.Unlock()
 	go func() {
 		time.Sleep(30 * time.Minute)
 		scannerPool.mu.Lock()
@@ -152,12 +160,16 @@ func processGatewayScanTask(ctx context.Context, task *ScanTask) {
 func processScanTask(ctx context.Context, task *ScanTask) {
 	ips, err := pkgScanner.ParseIPRange(task.Subnet)
 	if err != nil {
+		task.mu.Lock()
 		task.Status = "error"
+		task.mu.Unlock()
 		return
 	}
 	if len(ips) == 0 {
+		task.mu.Lock()
 		task.Status = statusCompleted
 		task.Progress = 100
+		task.mu.Unlock()
 		return
 	}
 	totalIPs := len(ips)
@@ -187,9 +199,11 @@ func processScanTask(ctx context.Context, task *ScanTask) {
 	go func() {
 		for device := range results {
 			processed++
+			task.mu.Lock()
 			task.Progress = (processed * 100) / totalIPs
 			deviceResults = append(deviceResults, device)
 			task.Results = deviceResults
+			task.mu.Unlock()
 		}
 	}()
 	go func() {
@@ -203,8 +217,10 @@ func processScanTask(ctx context.Context, task *ScanTask) {
 		}
 	}()
 	wg.Wait()
+	task.mu.Lock()
 	task.Status = statusCompleted
 	task.Progress = 100
+	task.mu.Unlock()
 	go func() {
 		time.Sleep(1 * time.Hour)
 		scannerPool.mu.Lock()
@@ -219,7 +235,8 @@ type RouterProxyRequest = mikrotik.RouterProxyRequest
 type RouterProxyResponse = mikrotik.RouterProxyResponse
 
 func handleRouterProxy(w http.ResponseWriter, r *http.Request) {
-	mikrotik.HandleRouterProxy(w, r)
+	//nolint:contextcheck // legacy HTTP handler uses request context
+	mikrotik.HandleRouterProxy(w, r, prodLogger)
 }
 
 // ========== Batch ==========

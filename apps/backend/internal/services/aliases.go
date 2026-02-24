@@ -106,8 +106,8 @@ var NewIPAddressService = netif.NewIPAddressService
 // Alert sub-package aliases (svcalert)
 // ---------------------------------------------------------------------------
 
-type AlertService = svcalert.AlertService
-type AlertServiceConfig = svcalert.AlertServiceConfig
+type AlertService = svcalert.Service
+type AlertServiceConfig = svcalert.Config
 type EscalationCanceller = svcalert.EscalationCanceller
 type DigestService = svcalert.DigestService
 type DigestPayload = svcalert.DigestPayload
@@ -130,11 +130,11 @@ type TemplateVariable = svcalert.TemplateVariable
 type ChannelType = svcalert.ChannelType
 type PreviewResult = svcalert.PreviewResult
 type ValidationInfo = svcalert.ValidationInfo
-type AlertTemplateService = svcalert.AlertTemplateService
-type AlertTemplateServiceConfig = svcalert.AlertTemplateServiceConfig
+type AlertTemplateService = svcalert.TemplateService
+type AlertTemplateServiceConfig = svcalert.TemplateConfig
 
-var NewAlertService = svcalert.NewAlertService
-var NewAlertTemplateService = svcalert.NewAlertTemplateService
+var NewAlertService = svcalert.NewService
+var NewAlertTemplateService = svcalert.NewTemplateService
 
 // ChannelType constants.
 const (
@@ -183,9 +183,9 @@ var CommonEventTypes = svcalert.CommonEventTypes
 // Routing sub-package aliases
 // ---------------------------------------------------------------------------
 
-type RouteService = routing.RouteService
+type RouteService = routing.Service
 
-var NewRouteService = routing.NewRouteService
+var NewRouteService = routing.NewService
 
 // ---------------------------------------------------------------------------
 // VLAN sub-package aliases (under networking)
@@ -230,6 +230,11 @@ var NewPortMirrorService = monitoring.NewPortMirrorService
 // Integration sub-package aliases
 // ---------------------------------------------------------------------------
 
-type WebhookService = integration.WebhookService
+type WebhookService = integration.Service
+type WebhookServiceConfig = integration.Config
+type CreateWebhookInput = integration.CreateWebhookInput
+type UpdateWebhookInput = integration.UpdateWebhookInput
+type WebhookCreateResult = integration.WebhookCreateResult
+type TestWebhookResult = integration.TestWebhookResult
 
-var NewWebhookService = integration.NewWebhookService
+var NewWebhookService = integration.NewService

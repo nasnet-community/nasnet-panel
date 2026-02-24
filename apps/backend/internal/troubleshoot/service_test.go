@@ -469,8 +469,9 @@ func TestApplyTroubleshootFix(t *testing.T) {
 		assert.NotEmpty(t, message)
 		assert.Equal(t, FixStatusApplied, status)
 
-		// Verify fix was tracked
-		assert.Contains(t, session.AppliedFixes, "WAN_DISABLED")
+		// Verify fix was tracked - retrieve from store to get updated session
+		updatedSession, _ := svc.GetSession(context.Background(), session.ID)
+		assert.Contains(t, updatedSession.AppliedFixes, "WAN_DISABLED")
 	})
 
 	t.Run("manual fix returns correct status", func(t *testing.T) {

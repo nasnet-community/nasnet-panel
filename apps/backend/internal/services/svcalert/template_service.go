@@ -18,24 +18,24 @@ import (
 //go:embed templates/alerts/*.json
 var templatesFS embed.FS
 
-// AlertTemplateService handles alert template operations.
-type AlertTemplateService struct {
+// TemplateService handles alert template operations.
+type TemplateService struct {
 	db               *ent.Client
 	builtInTemplates map[string]*AlertTemplate
 	log              *zap.SugaredLogger
-	alertService     *AlertService
+	alertService     *Service
 }
 
-// AlertTemplateServiceConfig holds configuration for AlertTemplateService.
-type AlertTemplateServiceConfig struct {
+// Config holds configuration for TemplateService.
+type TemplateConfig struct {
 	DB           *ent.Client
 	Logger       *zap.SugaredLogger
-	AlertService *AlertService
+	AlertService *Service
 }
 
-// NewAlertTemplateService creates a new alert template service.
-func NewAlertTemplateService(cfg AlertTemplateServiceConfig) (*AlertTemplateService, error) {
-	service := &AlertTemplateService{
+// NewTemplateService creates a new alert template service.
+func NewTemplateService(cfg TemplateConfig) (*TemplateService, error) {
+	service := &TemplateService{
 		db:               cfg.DB,
 		log:              cfg.Logger,
 		alertService:     cfg.AlertService,
@@ -49,7 +49,7 @@ func NewAlertTemplateService(cfg AlertTemplateServiceConfig) (*AlertTemplateServ
 	return service, nil
 }
 
-func (s *AlertTemplateService) loadBuiltInTemplates() error {
+func (s *TemplateService) loadBuiltInTemplates() error {
 	templateFiles := []string{
 		"templates/alerts/router-offline-email.json",
 		"templates/alerts/router-offline-inapp.json",
@@ -83,7 +83,7 @@ func (s *AlertTemplateService) loadBuiltInTemplates() error {
 	return nil
 }
 
-func (s *AlertTemplateService) isValidEventType(eventType string) bool {
+func (s *TemplateService) isValidEventType(eventType string) bool {
 	commonTypes := CommonEventTypes()
 	for _, t := range commonTypes {
 		if t == eventType {
@@ -94,7 +94,7 @@ func (s *AlertTemplateService) isValidEventType(eventType string) bool {
 }
 
 // GetTemplates returns all templates, optionally filtered by event type or channel.
-func (s *AlertTemplateService) GetTemplates(ctx context.Context, eventType *string, channel *ChannelType) ([]*AlertTemplate, error) {
+func (s *TemplateService) GetTemplates(ctx context.Context, eventType *string, channel *ChannelType) ([]*AlertTemplate, error) {
 	templates := make([]*AlertTemplate, 0)
 	for _, tmpl := range s.builtInTemplates {
 		if eventType != nil && tmpl.EventType != *eventType {
@@ -109,7 +109,7 @@ func (s *AlertTemplateService) GetTemplates(ctx context.Context, eventType *stri
 }
 
 // GetTemplateByID retrieves a template by its ID.
-func (s *AlertTemplateService) GetTemplateByID(ctx context.Context, id string) (*AlertTemplate, error) {
+func (s *TemplateService) GetTemplateByID(ctx context.Context, id string) (*AlertTemplate, error) {
 	if tmpl, exists := s.builtInTemplates[id]; exists {
 		return tmpl, nil
 	}
@@ -117,17 +117,17 @@ func (s *AlertTemplateService) GetTemplateByID(ctx context.Context, id string) (
 }
 
 // GetTemplatesByEventType returns all templates for a specific event type.
-func (s *AlertTemplateService) GetTemplatesByEventType(ctx context.Context, eventType string) ([]*AlertTemplate, error) {
+func (s *TemplateService) GetTemplatesByEventType(ctx context.Context, eventType string) ([]*AlertTemplate, error) {
 	return s.GetTemplates(ctx, &eventType, nil)
 }
 
 // GetTemplatesByChannel returns all templates for a specific channel.
-func (s *AlertTemplateService) GetTemplatesByChannel(ctx context.Context, channel ChannelType) ([]*AlertTemplate, error) {
+func (s *TemplateService) GetTemplatesByChannel(ctx context.Context, channel ChannelType) ([]*AlertTemplate, error) {
 	return s.GetTemplates(ctx, nil, &channel)
 }
 
 // PreviewTemplate renders a template with variable substitution for preview.
-func (s *AlertTemplateService) PreviewTemplate(ctx context.Context, templateID string, variables map[string]interface{}) (*PreviewResult, error) {
+func (s *TemplateService) PreviewTemplate(ctx context.Context, templateID string, variables map[string]interface{}) (*PreviewResult, error) {
 	tmpl, err := s.GetTemplateByID(ctx, templateID)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (s *AlertTemplateService) PreviewTemplate(ctx context.Context, templateID s
 	}, nil
 }
 
-func (s *AlertTemplateService) validateVariables(tmpl *AlertTemplate, variables map[string]interface{}) ValidationInfo {
+func (s *TemplateService) validateVariables(tmpl *AlertTemplate, variables map[string]interface{}) ValidationInfo {
 	missingVars := make([]string, 0)
 	warnings := make([]string, 0)
 
@@ -179,7 +179,7 @@ func (s *AlertTemplateService) validateVariables(tmpl *AlertTemplate, variables 
 	}
 }
 
-func (s *AlertTemplateService) renderTemplate(tmplStr string, variables map[string]interface{}) (string, error) {
+func (s *TemplateService) renderTemplate(tmplStr string, variables map[string]interface{}) (string, error) {
 	tmpl, err := template.New("alert").Parse(tmplStr)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse template: %w", err)
@@ -194,7 +194,7 @@ func (s *AlertTemplateService) renderTemplate(tmplStr string, variables map[stri
 }
 
 // ApplyTemplate applies a template to create an alert rule.
-func (s *AlertTemplateService) ApplyTemplate(ctx context.Context, templateID string, variables map[string]interface{}, ruleConfig CreateAlertRuleInput) (*ent.AlertRule, error) {
+func (s *TemplateService) ApplyTemplate(ctx context.Context, templateID string, variables map[string]interface{}, ruleConfig CreateAlertRuleInput) (*ent.AlertRule, error) {
 	tmpl, err := s.GetTemplateByID(ctx, templateID)
 	if err != nil {
 		return nil, err
@@ -228,7 +228,7 @@ func (s *AlertTemplateService) ApplyTemplate(ctx context.Context, templateID str
 }
 
 // SaveTemplate saves a custom template to the database.
-func (s *AlertTemplateService) SaveTemplate(ctx context.Context, tmpl *AlertTemplate) (*AlertTemplate, error) {
+func (s *TemplateService) SaveTemplate(ctx context.Context, tmpl *AlertTemplate) (*AlertTemplate, error) {
 	if !s.isValidEventType(tmpl.EventType) {
 		return nil, fmt.Errorf("invalid event type: %s. Must be one of the common event types", tmpl.EventType)
 	}
@@ -296,7 +296,7 @@ func (s *AlertTemplateService) SaveTemplate(ctx context.Context, tmpl *AlertTemp
 }
 
 // DeleteTemplate deletes a custom template (built-in templates cannot be deleted).
-func (s *AlertTemplateService) DeleteTemplate(ctx context.Context, templateID string) error {
+func (s *TemplateService) DeleteTemplate(ctx context.Context, templateID string) error {
 	if _, exists := s.builtInTemplates[templateID]; exists {
 		return fmt.Errorf("cannot delete built-in template: %s", templateID)
 	}
@@ -314,7 +314,7 @@ func (s *AlertTemplateService) DeleteTemplate(ctx context.Context, templateID st
 }
 
 // SearchTemplates searches templates by name, description, or tags.
-func (s *AlertTemplateService) SearchTemplates(ctx context.Context, query string) ([]*AlertTemplate, error) {
+func (s *TemplateService) SearchTemplates(ctx context.Context, query string) ([]*AlertTemplate, error) {
 	results := make([]*AlertTemplate, 0)
 	searchPattern := regexp.MustCompile(`(?i)` + regexp.QuoteMeta(query))
 
@@ -339,6 +339,6 @@ func (s *AlertTemplateService) SearchTemplates(ctx context.Context, query string
 }
 
 // GetCommonEventTypes returns the list of all supported event types.
-func (s *AlertTemplateService) GetCommonEventTypes() []string {
+func (s *TemplateService) GetCommonEventTypes() []string {
 	return CommonEventTypes()
 }

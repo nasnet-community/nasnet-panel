@@ -6,7 +6,7 @@ package main
 import (
 	"context"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/bootstrap"
@@ -21,16 +21,17 @@ func initStorageAndVIF(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
 	routerPort *router.MockAdapter,
-	logger zerolog.Logger,
+	sugar *zap.SugaredLogger,
+	zapLogger *zap.Logger,
 ) (*bootstrap.StorageComponents, *bootstrap.VIFComponents, error) {
 	// 1. Initialize Storage Infrastructure
-	storage, err := bootstrap.InitializeStorage(ctx, systemDB, eventBus, logger)
+	storage, err := bootstrap.InitializeStorage(ctx, systemDB, eventBus, sugar)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// 2. Initialize Virtual Interface Factory (VIF)
-	vif, err := bootstrap.InitializeVIF(ctx, systemDB, eventBus, storage.PathResolver, routerPort, logger)
+	vif, err := bootstrap.InitializeVIF(ctx, systemDB, eventBus, storage.PathResolver, routerPort, zapLogger)
 	if err != nil {
 		return nil, nil, err
 	}

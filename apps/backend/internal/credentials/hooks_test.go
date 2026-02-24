@@ -90,3 +90,23 @@ func TestIsBase64Char(t *testing.T) {
 		})
 	}
 }
+
+func TestDoubleEncryptionPrevention(t *testing.T) {
+	t.Run("detects already encrypted data", func(t *testing.T) {
+		// Realistic encrypted data from our encryption service
+		// This is base64(nonce + ciphertext + tag)
+		encryptedData := []byte("dGhpc2lzYXJlYWxpc3RpY2VuY3J5cHRlZGRhdGFzdHJpbmdmb3J0ZXN0aW5ndG9wcmV2ZW50ZG91YmxlZW5j")
+
+		// Should be detected as encrypted (length > 40 chars, all valid base64)
+		result := isEncrypted(encryptedData)
+		assert.True(t, result, "Should detect encrypted data to prevent double-encryption")
+	})
+
+	t.Run("detects plaintext password", func(t *testing.T) {
+		plaintextPassword := []byte("MySecretPassword123")
+
+		// Short plaintext should not be detected as encrypted
+		result := isEncrypted(plaintextPassword)
+		assert.False(t, result, "Should detect plaintext to allow encryption")
+	})
+}

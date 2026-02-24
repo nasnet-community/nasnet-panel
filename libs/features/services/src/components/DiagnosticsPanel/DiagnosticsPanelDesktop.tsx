@@ -118,10 +118,10 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
         open={isExpanded}
         onOpenChange={() => toggleTest(result.id)}
       >
-        <div className="flex items-center gap-3 p-3 hover:bg-accent/50 rounded-md transition-colors">
+        <div className="flex items-center gap-component-md p-component-sm hover:bg-accent/50 rounded-[var(--semantic-radius-button)] transition-colors">
           <Icon icon={statusIcon as LucideIcon} className={cn('h-5 w-5', getStatusColor(result.status))} aria-hidden="true" />
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <span className="font-medium">{result.testName}</span>
               <span className="text-xs text-muted-foreground">
                 {formatDuration(result.durationMs)}
@@ -130,7 +130,7 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
             <p className="text-sm text-muted-foreground truncate">{result.message}</p>
           </div>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {isExpanded ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
@@ -140,17 +140,17 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
           </CollapsibleTrigger>
         </div>
         <CollapsibleContent>
-          <div className="ml-11 p-3 bg-muted/50 rounded-md space-y-2">
+          <div className="ml-11 p-component-sm bg-muted/50 rounded-[var(--semantic-radius-button)] space-y-component-sm">
             {result.details && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Details:</strong>
-                <p className="mt-1 whitespace-pre-wrap">{result.details}</p>
+                <p className="mt-component-sm whitespace-pre-wrap font-mono">{result.details}</p>
               </div>
             )}
             {result.errorMessage && (
               <div className="text-sm">
-                <strong className="text-destructive">Error:</strong>
-                <p className="mt-1 text-destructive whitespace-pre-wrap">
+                <strong className="text-error">Error:</strong>
+                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono">
                   {result.errorMessage}
                 </p>
               </div>
@@ -158,7 +158,7 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
             {result.metadata && Object.keys(result.metadata).length > 0 && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Metadata:</strong>
-                <pre className="mt-1 text-xs overflow-x-auto">
+                <pre className="mt-component-sm text-xs overflow-x-auto font-mono">
                   {JSON.stringify(result.metadata, null, 2)}
                 </pre>
               </div>
@@ -179,10 +179,10 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
         open={isExpanded}
         onOpenChange={() => toggleRun(run.runGroupID)}
       >
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
           <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 hover:bg-accent/50 cursor-pointer">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between p-component-md hover:bg-accent/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <div className="flex items-center gap-component-md">
                 <Icon icon={isExpanded ? ChevronDown : ChevronRight} className="h-5 w-5" aria-hidden="true" />
                 <div>
                   <div className="font-medium">{timestamp}</div>
@@ -201,7 +201,7 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="border-t">
+            <div className="border-t border-border">
               {run.results.map((result) => renderTestResult(result))}
             </div>
           </CollapsibleContent>
@@ -238,7 +238,7 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-component-md">
         {/* Startup failure alert */}
         {latestRun && hasLatestFailures && (
           <Alert variant="destructive">
@@ -264,9 +264,9 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
 
         {/* Progress during test execution */}
         {isRunning && (
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
+              <span className="text-muted-foreground truncate">
                 Running: {currentTest || 'Initializing...'}
               </span>
               <span className="font-medium">
@@ -279,21 +279,21 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
 
         {/* Loading state */}
         {isLoadingHistory && !history && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             Loading diagnostic history...
           </div>
         )}
 
         {/* Empty state */}
         {!isLoadingHistory && !history?.length && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             No diagnostic history available. Click "Run Diagnostics" to start.
           </div>
         )}
 
         {/* Diagnostic history */}
         {history && history.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-component-md">
             <h3 className="text-sm font-medium text-muted-foreground">
               Diagnostic History
             </h3>

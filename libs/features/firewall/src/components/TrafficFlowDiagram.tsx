@@ -243,15 +243,15 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
   return (
     <div className={className}>
       {/* Section header */}
-      <div className="px-2 mb-4">
-        <h2 className="text-lg font-semibold">Traffic Flow</h2>
+      <div className="px-component-sm mb-component-md">
+        <h2 className="text-lg font-display font-semibold">Traffic Flow</h2>
         <p className="text-sm text-muted-foreground">
           Packet path through firewall chains
         </p>
       </div>
 
       {/* Diagram container */}
-      <div className="bg-card rounded-xl border border-border p-4 overflow-x-auto">
+      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md overflow-x-auto">
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="w-full h-auto min-w-[600px]"
@@ -475,17 +475,17 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
       </div>
 
       {/* Legend */}
-      <div className="mt-2 px-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
+      <div className="mt-component-sm px-component-sm flex flex-wrap items-center gap-component-md text-xs text-muted-foreground">
+        <span className="flex items-center gap-component-sm">
           <span className="inline-block w-4 h-0.5 bg-border" />
           Packet flow
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-component-sm">
           <span className="inline-block w-6 h-0.5 border-t-2 border-dashed border-primary" />
           Active traffic
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded bg-muted border border-border" />
+        <span className="flex items-center gap-component-sm">
+          <span className="inline-block w-3 h-3 rounded-[var(--semantic-radius-badge)] bg-muted border border-border" />
           Chain (click to filter)
         </span>
       </div>

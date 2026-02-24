@@ -5,13 +5,34 @@ package storage
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/sys/unix"
 )
 
 // probeMountPoint probes a mount point on Linux using unix.Statfs.
 // This is the production implementation for RouterOS (Linux-based).
+// It validates the path is safe before probing (prevents directory traversal).
 func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
+	// Validate path is absolute to prevent directory traversal attacks
+	if !filepath.IsAbs(path) {
+		return nil, &StorageError{
+			Code:    ErrCodeInvalidPath,
+			Message: "mount point path must be absolute",
+			Path:    path,
+		}
+	}
+
+	// Validate path doesn't contain suspicious patterns like ../
+	cleanPath := filepath.Clean(path)
+	if cleanPath != path {
+		return nil, &StorageError{
+			Code:    ErrCodeInvalidPath,
+			Message: "mount point path contains suspicious patterns",
+			Path:    path,
+		}
+	}
+
 	// Check if the path exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, &StorageError{

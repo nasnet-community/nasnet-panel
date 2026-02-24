@@ -51,7 +51,7 @@ export const BridgeDetailDesktop = memo(function BridgeDetailDesktop({
         <div className="mt-6">
           {/* Loading State */}
           {loading && !isCreating && (
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />

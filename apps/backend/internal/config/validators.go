@@ -129,3 +129,45 @@ func ValidateEmail(email string) error {
 	}
 	return nil
 }
+
+// ValidateStringLength validates that a string is within specified length bounds.
+func ValidateStringLength(fieldName, value string, minLen, maxLen int) error {
+	if len(value) < minLen {
+		return fmt.Errorf("%s minimum length is %d characters, got %d", fieldName, minLen, len(value))
+	}
+	if len(value) > maxLen {
+		return fmt.Errorf("%s maximum length is %d characters, got %d", fieldName, maxLen, len(value))
+	}
+	return nil
+}
+
+// ValidateIPCIDR validates a CIDR notation IP address.
+func ValidateIPCIDR(cidr string) error {
+	if cidr == "" {
+		return fmt.Errorf("CIDR notation cannot be empty")
+	}
+	_, _, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return fmt.Errorf("invalid CIDR notation: %s, error: %w", cidr, err)
+	}
+	return nil
+}
+
+// ValidateIPRange validates that startIP is before endIP.
+func ValidateIPRange(startIP, endIP string) error {
+	if startIP == "" || endIP == "" {
+		return fmt.Errorf("IP range cannot have empty addresses")
+	}
+	start := net.ParseIP(startIP)
+	if start == nil {
+		return fmt.Errorf("invalid start IP: %s", startIP)
+	}
+	end := net.ParseIP(endIP)
+	if end == nil {
+		return fmt.Errorf("invalid end IP: %s", endIP)
+	}
+	if start.String() > end.String() {
+		return fmt.Errorf("start IP %s must be before end IP %s", startIP, endIP)
+	}
+	return nil
+}

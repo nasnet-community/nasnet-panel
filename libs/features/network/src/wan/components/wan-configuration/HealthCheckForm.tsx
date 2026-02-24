@@ -107,18 +107,18 @@ const HealthCheckFormComponent = ({
   }) as any, [routerID, wanID, onSuccess]);
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg">
       {/* Enable/Disable Toggle */}
       <FormSection
         title="Health Monitoring"
         description="Monitor WAN connectivity by pinging a target host"
       >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-component-md">
+          <div className="flex items-center gap-component-sm">
             <Activity className="h-5 w-5 text-primary" />
             <div>
               <Label htmlFor="enabled">Enable Health Monitoring</Label>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 Monitor connectivity and detect link failures
               </p>
             </div>
@@ -134,12 +134,12 @@ const HealthCheckFormComponent = ({
         </div>
 
         {!isEnabled && (
-          <div className="mt-4 rounded-lg border border-warning/20 bg-warning/5 p-4">
-            <div className="flex gap-3">
+          <div className="mt-4 rounded-card-sm border border-warning/20 bg-warning/5 p-component-md">
+            <div className="flex gap-component-md">
               <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium">Health Monitoring Disabled</p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-2">
                   WAN link failures will not be detected automatically. Enable
                   monitoring to receive alerts when connectivity is lost.
                 </p>
@@ -156,14 +156,14 @@ const HealthCheckFormComponent = ({
             title="Health Check Target"
             description="Host or IP address to ping for connectivity checks"
           >
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               {/* Target Presets */}
               <div>
-                <Label className="mb-2 flex items-center gap-2">
+                <Label className="mb-2 flex items-center gap-component-sm">
                   <Target className="h-4 w-4" />
                   Quick Targets
                 </Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-component-sm">
                   {Object.entries(HEALTH_CHECK_TARGETS).map(([key, preset]) => {
                     // Skip GATEWAY if no gateway provided
                     if (key === 'GATEWAY' && !gateway) return null;
@@ -198,7 +198,7 @@ const HealthCheckFormComponent = ({
 
               {/* Target Input */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-component-sm mb-2">
                   <Label htmlFor="target">Target Host/IP</Label>
                   <FieldHelp field="target" />
                 </div>
@@ -212,13 +212,13 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.target && (
                   <p
                     id="target-error"
-                    className="text-sm text-error mt-1"
+                    className="text-sm text-error mt-2"
                     role="alert"
                   >
                     {form.formState.errors.target.message}
                   </p>
                 )}
-                <p id="target-help" className="text-xs text-muted-foreground mt-1">
+                <p id="target-help" className="text-xs text-muted-foreground mt-2">
                   Recommended: Use a public DNS server (1.1.1.1, 8.8.8.8) or your
                   WAN gateway
                 </p>
@@ -231,14 +231,14 @@ const HealthCheckFormComponent = ({
             title="Check Interval"
             description="How often to ping the target host"
           >
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               {/* Interval Presets */}
               <div>
-                <Label className="mb-2 flex items-center gap-2">
+                <Label className="mb-2 flex items-center gap-component-sm">
                   <Zap className="h-4 w-4" />
                   Quick Intervals
                 </Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-component-sm">
                   {Object.entries(INTERVAL_PRESETS).map(([key, preset]) => (
                     <Button
                       key={key}
@@ -263,7 +263,7 @@ const HealthCheckFormComponent = ({
 
               {/* Interval Input */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-component-sm mb-2">
                   <Label htmlFor="interval">Interval (seconds)</Label>
                   <FieldHelp field="intervalSeconds" />
                 </div>
@@ -279,7 +279,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.intervalSeconds && (
                   <p
                     id="interval-error"
-                    className="text-sm text-error mt-1"
+                    className="text-sm text-error mt-2"
                     role="alert"
                   >
                     {form.formState.errors.intervalSeconds.message}
@@ -287,7 +287,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="interval-help"
-                  className="text-xs text-muted-foreground mt-1"
+                  className="text-xs text-muted-foreground mt-2"
                 >
                   Valid range: 5-300 seconds (recommended: 10s)
                 </p>
@@ -295,7 +295,7 @@ const HealthCheckFormComponent = ({
 
               {/* Timeout Input */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-component-sm mb-2">
                   <Label htmlFor="timeout">Timeout (seconds)</Label>
                   <FieldHelp field="timeoutSeconds" />
                 </div>
@@ -311,7 +311,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.timeoutSeconds && (
                   <p
                     id="timeout-error"
-                    className="text-sm text-error mt-1"
+                    className="text-sm text-error mt-2"
                     role="alert"
                   >
                     {form.formState.errors.timeoutSeconds.message}
@@ -319,7 +319,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="timeout-help"
-                  className="text-xs text-muted-foreground mt-1"
+                  className="text-xs text-muted-foreground mt-2"
                 >
                   Valid range: 1-30 seconds (recommended: 2s)
                 </p>
@@ -327,7 +327,7 @@ const HealthCheckFormComponent = ({
 
               {/* Failure Threshold Input */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-component-sm mb-2">
                   <Label htmlFor="failureThreshold">Failure Threshold</Label>
                   <FieldHelp field="failureThreshold" />
                 </div>
@@ -345,7 +345,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.failureThreshold && (
                   <p
                     id="failureThreshold-error"
-                    className="text-sm text-error mt-1"
+                    className="text-sm text-error mt-2"
                     role="alert"
                   >
                     {form.formState.errors.failureThreshold.message}
@@ -353,7 +353,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="failureThreshold-help"
-                  className="text-xs text-muted-foreground mt-1"
+                  className="text-xs text-muted-foreground mt-2"
                 >
                   Valid range: 1-10 (recommended: 3)
                 </p>
@@ -366,8 +366,8 @@ const HealthCheckFormComponent = ({
             title="Identification"
             description="Optional comment for this health check"
           >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
+            <div className="space-y-component-sm">
+              <div className="flex items-center gap-component-sm">
                 <Label htmlFor="comment">Comment</Label>
                 <FieldHelp field="comment" />
               </div>
@@ -382,13 +382,13 @@ const HealthCheckFormComponent = ({
               {form.formState.errors.comment && (
                 <p
                   id="comment-error"
-                  className="text-sm text-error"
+                  className="text-sm text-error mt-2"
                   role="alert"
                 >
                   {form.formState.errors.comment.message}
                 </p>
               )}
-              <p id="comment-help" className="text-xs text-muted-foreground">
+              <p id="comment-help" className="text-xs text-muted-foreground mt-2">
                 {form.watch('comment')?.length || 0}/255 characters
               </p>
             </div>
@@ -397,7 +397,7 @@ const HealthCheckFormComponent = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4 border-t">
+      <div className="flex justify-end gap-component-md pt-component-md border-t">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

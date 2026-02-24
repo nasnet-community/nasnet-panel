@@ -219,7 +219,7 @@ export const DnsPage = memo(function DnsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="space-y-6 p-4">
+      <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64" />
         <Skeleton className="h-64" />
@@ -230,7 +230,7 @@ export const DnsPage = memo(function DnsPage() {
   // Error state
   if (error || !settings) {
     return (
-      <div className="p-4">
+      <div className="p-page-mobile md:p-page-tablet lg:p-page-desktop">
         <Alert variant="destructive">
           <Icon icon={AlertTriangle} className="h-4 w-4" />
           <AlertTitle>Failed to load DNS configuration</AlertTitle>
@@ -238,7 +238,7 @@ export const DnsPage = memo(function DnsPage() {
             {error?.message || 'Unable to fetch DNS settings'}
           </AlertDescription>
         </Alert>
-        <Button onClick={refetch} className="mt-4" aria-label="Retry loading DNS configuration">
+        <Button onClick={refetch} className="mt-component-md min-h-[44px]" aria-label="Retry loading DNS configuration">
           Retry
         </Button>
       </div>
@@ -246,7 +246,7 @@ export const DnsPage = memo(function DnsPage() {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop">
       <PageHeader title="DNS Configuration" />
 
       {/* DNS Servers Section */}
@@ -254,7 +254,7 @@ export const DnsPage = memo(function DnsPage() {
         <CardHeader>
           <CardTitle>DNS Servers</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-component-lg">
           {/* Server List */}
           <DnsServerList
             servers={[
@@ -275,7 +275,7 @@ export const DnsPage = memo(function DnsPage() {
           />
 
           {/* DNS Settings Form */}
-          <div className="pt-6 border-t border-border">
+          <div className="pt-component-lg border-t border-border">
             <DnsSettingsForm
               initialValues={{
                 servers: settings.staticServers,

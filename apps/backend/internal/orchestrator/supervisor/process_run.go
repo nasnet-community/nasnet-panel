@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/internal/orchestrator/resources"
 
 	"backend/internal/events"
@@ -16,27 +18,27 @@ import (
 
 // run is the main process management loop
 func (mp *ManagedProcess) run(ctx context.Context) {
-	mp.logger.Debug().Str("process", mp.Name).Msg("run() started")
+	mp.logger.Debug("run() started", zap.String("process", mp.Name))
 	defer func() {
-		mp.logger.Debug().Str("process", mp.Name).Msg("run() closing stoppedChan")
+		mp.logger.Debug("run() closing stoppedChan", zap.String("process", mp.Name))
 		close(mp.stoppedChan)
 	}()
 
 	for {
 		select {
 		case <-mp.stopChan:
-			mp.logger.Debug().Str("process", mp.Name).Msg("run() received stopChan (top of loop)")
+			mp.logger.Debug("run() received stopChan (top of loop)", zap.String("process", mp.Name))
 			mp.stopProcess()
 			mp.setStateSafe(ProcessStateStopped)
 			return
 		case <-ctx.Done():
-			mp.logger.Debug().Str("process", mp.Name).Msg("run() received ctx.Done()")
+			mp.logger.Debug("run() received ctx.Done()", zap.String("process", mp.Name))
 			mp.stopProcess()
 			mp.setStateSafe(ProcessStateStopped)
 			return
 		default:
 			if err := mp.startProcess(); err != nil {
-				mp.logger.Error().Err(err).Str("process", mp.Name).Msg("failed to start process")
+				mp.logger.Error("failed to start process", zap.Error(err), zap.String("process", mp.Name))
 				mp.publishCrashEvent(ctx, -1, err.Error(), mp.AutoRestart)
 
 				if !mp.AutoRestart {
@@ -49,11 +51,11 @@ func (mp *ManagedProcess) run(ctx context.Context) {
 			}
 
 			mp.setStateSafe(ProcessStateRunning)
-			mp.logger.Info().Str("process", mp.Name).Int("pid", mp.pid).Msg("process started")
+			mp.logger.Info("process started", zap.String("process", mp.Name), zap.Int("pid", mp.pid))
 
-			mp.logger.Debug().Str("process", mp.Name).Msg("run() waiting for cmd.Wait()")
+			mp.logger.Debug("run() waiting for cmd.Wait()", zap.String("process", mp.Name))
 			exitErr := mp.cmd.Wait()
-			mp.logger.Debug().Str("process", mp.Name).Err(exitErr).Msg("run() cmd.Wait() returned")
+			mp.logger.Debug("run() cmd.Wait() returned", zap.String("process", mp.Name), zap.Error(exitErr))
 			uptime := time.Since(mp.startTime)
 
 			mp.mu.Lock()
@@ -64,29 +66,30 @@ func (mp *ManagedProcess) run(ctx context.Context) {
 			// Clean up cgroup if manager is available
 			if mp.cgroupManager != nil {
 				if err := mp.cgroupManager.RemoveCgroup(mp.ID); err != nil {
-					mp.logger.Warn().
-						Err(err).
-						Str("process_id", mp.ID).
-						Msg("failed to remove cgroup")
+					mp.logger.Warn("failed to remove cgroup",
+						zap.Error(err),
+						zap.String("process_id", mp.ID))
 				}
 			}
 
 			if uptime >= mp.backoffConfig.StableUptime {
 				mp.resetBackoff()
-				mp.logger.Info().Str("process", mp.Name).Dur("uptime", uptime).Msg("process ran stably, reset backoff")
+				mp.logger.Info("process ran stably, reset backoff",
+					zap.String("process", mp.Name),
+					zap.Duration("uptime", uptime))
 			}
 
 			select {
 			case <-mp.stopChan:
-				mp.logger.Debug().Str("process", mp.Name).Msg("run() received stopChan (after wait)")
+				mp.logger.Debug("run() received stopChan (after wait)", zap.String("process", mp.Name))
 				mp.setStateSafe(ProcessStateStopped)
 				return
 			case <-ctx.Done():
-				mp.logger.Debug().Str("process", mp.Name).Msg("run() received ctx.Done() (after wait)")
+				mp.logger.Debug("run() received ctx.Done() (after wait)", zap.String("process", mp.Name))
 				mp.setStateSafe(ProcessStateStopped)
 				return
 			default:
-				mp.logger.Debug().Str("process", mp.Name).Msg("run() no stop signal, continuing loop")
+				mp.logger.Debug("run() no stop signal, continuing loop", zap.String("process", mp.Name))
 			}
 
 			exitCode := 0
@@ -99,12 +102,11 @@ func (mp *ManagedProcess) run(ctx context.Context) {
 				errorMessage = exitErr.Error()
 			}
 
-			mp.logger.Warn().
-				Err(exitErr).
-				Str("process", mp.Name).
-				Dur("uptime", uptime).
-				Int("exit_code", exitCode).
-				Msg("process exited")
+			mp.logger.Warn("process exited",
+				zap.Error(exitErr),
+				zap.String("process", mp.Name),
+				zap.Duration("uptime", uptime),
+				zap.Int("exit_code", exitCode))
 
 			mp.publishCrashEvent(ctx, exitCode, errorMessage, mp.AutoRestart)
 
@@ -146,12 +148,12 @@ func (mp *ManagedProcess) startProcess() error {
 
 		go func() {
 			if err := resources.CopyLogs(mp.logCapture, stdout, ""); err != nil {
-				mp.logger.Debug().Err(err).Msg("stdout copy finished")
+				mp.logger.Debug("stdout copy finished", zap.Error(err))
 			}
 		}()
 		go func() {
 			if err := resources.CopyLogs(mp.logCapture, stderr, "[stderr] "); err != nil {
-				mp.logger.Debug().Err(err).Msg("stderr copy finished")
+				mp.logger.Debug("stderr copy finished", zap.Error(err))
 			}
 		}()
 	}
@@ -166,11 +168,10 @@ func (mp *ManagedProcess) startProcess() error {
 
 	if mp.cgroupManager != nil {
 		if err := mp.cgroupManager.AssignProcess(mp.ID, mp.pid); err != nil {
-			mp.logger.Warn().
-				Err(err).
-				Str("process_id", mp.ID).
-				Int("pid", mp.pid).
-				Msg("failed to assign process to cgroup")
+			mp.logger.Warn("failed to assign process to cgroup",
+				zap.Error(err),
+				zap.String("process_id", mp.ID),
+				zap.Int("pid", mp.pid))
 		}
 	}
 
@@ -186,11 +187,11 @@ func (mp *ManagedProcess) stopProcess() {
 		return
 	}
 
-	mp.logger.Info().Str("process", mp.Name).Int("pid", mp.pid).Msg("stopping process")
+	mp.logger.Info("stopping process", zap.String("process", mp.Name), zap.Int("pid", mp.pid))
 	mp.state = ProcessStateStopping
 
 	if err := mp.cmd.Process.Kill(); err != nil {
-		mp.logger.Warn().Err(err).Str("process", mp.Name).Msg("failed to kill process")
+		mp.logger.Warn("failed to kill process", zap.Error(err), zap.String("process", mp.Name))
 	}
 }
 
@@ -202,11 +203,10 @@ func (mp *ManagedProcess) backoff() {
 		delay = mp.backoffConfig.InitialInterval
 	}
 
-	mp.logger.Info().
-		Str("process", mp.Name).
-		Dur("delay", delay).
-		Int("restart_count", mp.restartCount).
-		Msg("backing off before restart")
+	mp.logger.Info("backing off before restart",
+		zap.String("process", mp.Name),
+		zap.Duration("delay", delay),
+		zap.Int("restart_count", mp.restartCount))
 
 	select {
 	case <-time.After(delay):
@@ -256,10 +256,9 @@ func (mp *ManagedProcess) publishCrashEvent(ctx context.Context, exitCode int, l
 	)
 
 	if err := mp.eventBus.Publish(ctx, event); err != nil {
-		mp.logger.Error().
-			Err(err).
-			Str("instance_id", mp.ID).
-			Str("event_type", events.EventTypeServiceCrashed).
-			Msg("failed to publish crash event")
+		mp.logger.Error("failed to publish crash event",
+			zap.Error(err),
+			zap.String("instance_id", mp.ID),
+			zap.String("event_type", events.EventTypeServiceCrashed))
 	}
 }

@@ -179,15 +179,15 @@ export const StaticIPForm = memo(function StaticIPForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className={cn('space-y-6', className)}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className={cn('space-y-component-lg', className)}>
         {/* Interface Selection */}
         <FormSection
           title="Interface Configuration"
           description="Select the physical interface for static IP WAN connection"
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="interface-selector">
                   <Network className="inline h-4 w-4 mr-1" />
                   Physical Interface
@@ -214,11 +214,11 @@ export const StaticIPForm = memo(function StaticIPForm({
             </div>
 
             {selectedInterface && (
-              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm">
                 <h4 className="font-medium text-sm">
                   Selected Interface Details
                 </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
                     <span className="ml-2 font-mono text-xs">{selectedInterface.name}</span>
@@ -246,10 +246,10 @@ export const StaticIPForm = memo(function StaticIPForm({
           title="IP Address Configuration"
           description="Configure static IP address and gateway"
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* IP Address with Subnet Mask */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="address">
                   <Globe className="inline h-4 w-4 mr-1" />
                   IP Address (CIDR)
@@ -275,11 +275,11 @@ export const StaticIPForm = memo(function StaticIPForm({
               </p>
 
               {/* Subnet Mask Presets */}
-              <div className="mt-2">
+              <div className="mt-component-md">
                 <Label className="text-xs text-muted-foreground mb-1">
                   Quick Subnet Presets:
                 </Label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-component-md">
                   {Object.entries(SUBNET_PRESETS).map(([key, preset]) => (
                     <Button
                       key={key}
@@ -300,7 +300,7 @@ export const StaticIPForm = memo(function StaticIPForm({
 
             {/* Gateway */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="gateway">Gateway</Label>
                 <FieldHelp field="gateway" />
               </div>
@@ -330,11 +330,11 @@ export const StaticIPForm = memo(function StaticIPForm({
           title="DNS Servers"
           description="Configure DNS servers (optional but recommended)"
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* DNS Presets */}
             <div>
-              <Label className="mb-2">Quick DNS Presets:</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <Label className="mb-component-md">Quick DNS Presets:</Label>
+              <div className="grid grid-cols-2 gap-component-md">
                 {Object.entries(DNS_PRESETS).map(([key, preset]) => (
                   <Button
                     key={key}
@@ -354,7 +354,7 @@ export const StaticIPForm = memo(function StaticIPForm({
 
             {/* Primary DNS */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="primary-dns">Primary DNS</Label>
                 <FieldHelp field="primaryDNS" />
               </div>
@@ -380,7 +380,7 @@ export const StaticIPForm = memo(function StaticIPForm({
 
             {/* Secondary DNS */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-component-md mb-component-md">
                 <Label htmlFor="secondary-dns">Secondary DNS (Optional)</Label>
                 <FieldHelp field="secondaryDNS" />
               </div>
@@ -411,8 +411,8 @@ export const StaticIPForm = memo(function StaticIPForm({
           title="Identification"
           description="Optional comment for this configuration"
         >
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-component-md">
+            <div className="flex items-center gap-component-md">
               <Label htmlFor="comment">Comment</Label>
               <FieldHelp field="comment" />
             </div>
@@ -437,7 +437,7 @@ export const StaticIPForm = memo(function StaticIPForm({
         </FormSection>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex gap-component-md justify-end">
           {onCancel && (
             <Button
               type="button"
@@ -445,6 +445,7 @@ export const StaticIPForm = memo(function StaticIPForm({
               onClick={onCancel}
               disabled={isLoading}
               aria-label="Cancel static IP configuration"
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Cancel
             </Button>
@@ -452,7 +453,7 @@ export const StaticIPForm = memo(function StaticIPForm({
           <Button
             type="submit"
             disabled={isLoading || !form.formState.isValid || !form.formState.isDirty}
-            className="min-w-[120px]"
+            className="min-w-[120px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-busy={isLoading}
           >
             {isLoading ? 'Configuring...' : 'Configure Static IP'}
@@ -467,11 +468,11 @@ export const StaticIPForm = memo(function StaticIPForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-component-md">
               <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
               Static IP Configuration Warning
             </DialogTitle>
-            <DialogDescription className="space-y-3">
+            <DialogDescription className="space-y-component-md">
               <p>
                 You are about to configure a <strong>static IP</strong> on this
                 interface and add a <strong>default route</strong>.
@@ -487,18 +488,18 @@ export const StaticIPForm = memo(function StaticIPForm({
               </p>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-component-md">
             <Button
               variant="outline"
               onClick={handleCancelSafety}
-              className="min-h-[44px]"
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label="Cancel and go back"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmSafety}
-              className="bg-warning hover:bg-warning/90 min-h-[44px]"
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label="Understand the warning and proceed"
             >
               I Understand, Proceed

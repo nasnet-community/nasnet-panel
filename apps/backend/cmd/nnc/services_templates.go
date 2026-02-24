@@ -6,7 +6,7 @@ package main
 import (
 	"context"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/bootstrap"
@@ -22,7 +22,7 @@ func initUpdateAndTemplates(
 	storage *bootstrap.StorageComponents,
 	orchestrator *bootstrap.OrchestratorComponents,
 	dataDir string,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 ) (*bootstrap.UpdateComponents, *bootstrap.TemplateComponents, error) {
 	// Initialize Update Manager
 	updates, err := bootstrap.InitializeUpdateManager(

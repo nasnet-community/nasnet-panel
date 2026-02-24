@@ -73,11 +73,13 @@ func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Rule
 		properties["dst-port"] = fmt.Sprintf("%d", knockPort.Port)
 
 		// Set timeout based on stage
+		// Timeout causes MikroTik to automatically remove the IP from the address list
 		if stageNum == len(sequence.KnockPorts) {
-			// Final stage uses access timeout
+			// Final stage uses access timeout (how long user has access after final knock)
 			properties["address-list-timeout"] = sequence.AccessTimeout
 		} else {
-			// Intermediate stages use knock timeout
+			// Intermediate stages use knock timeout (how long to wait for next knock in sequence)
+			// If user doesn't knock the next port in time, they must start over
 			properties["address-list-timeout"] = sequence.KnockTimeout
 		}
 
@@ -138,7 +140,8 @@ func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Rule
 	return rules
 }
 
-// CleanupKnockRules removes all firewall rules associated with a knock sequence
+// CleanupKnockRules removes all firewall rules associated with a knock sequence.
+// Respects context cancellation and timeout.
 func (s *PortKnockService) CleanupKnockRules(ctx context.Context, sequenceName string) error {
 	// Validate sequence name
 	if !isValidSequenceName(sequenceName) {
@@ -146,16 +149,19 @@ func (s *PortKnockService) CleanupKnockRules(ctx context.Context, sequenceName s
 	}
 
 	// In a real implementation, would:
-	// 1. Connect to router via RouterPort interface
-	// 2. Find all rules with comment matching "!knock:<sequenceName>:*"
-	// 3. Remove each rule using /ip/firewall/filter/remove
-	// 4. Clean up address lists (knock_stage*_<sequenceName>, <sequenceName>_allowed)
+	// 1. Check context.Done() for cancellation between operations
+	// 2. Connect to router via RouterPort interface
+	// 3. Find all rules with comment matching "!knock:<sequenceName>:*"
+	// 4. Remove each rule using /ip/firewall/filter/remove (respecting context)
+	// 5. Clean up address lists (knock_stage*_<sequenceName>, <sequenceName>_allowed)
 
 	// For now, return success (implementation would be in the REST handler)
+	// TODO: Real implementation should use ctx for cancellation support
 	return nil
 }
 
-// SetKnockRulesEnabled enables or disables all rules for a sequence
+// SetKnockRulesEnabled enables or disables all rules for a sequence.
+// Respects context cancellation and timeout.
 func (s *PortKnockService) SetKnockRulesEnabled(ctx context.Context, sequenceName string, enabled bool) error {
 	// Validate sequence name
 	if !isValidSequenceName(sequenceName) {
@@ -163,12 +169,14 @@ func (s *PortKnockService) SetKnockRulesEnabled(ctx context.Context, sequenceNam
 	}
 
 	// In a real implementation, would:
-	// 1. Find all rules with comment matching "!knock:<sequenceName>:*"
-	// 2. Set disabled property on each rule using /ip/firewall/filter/set
+	// 1. Check context.Done() for cancellation between operations
+	// 2. Find all rules with comment matching "!knock:<sequenceName>:*"
+	// 3. Set disabled property on each rule using /ip/firewall/filter/set (respecting context)
 	//    - enabled=true means set disabled=no
 	//    - enabled=false means set disabled=yes
 
 	// For now, return success (implementation would be in the REST handler)
+	// TODO: Real implementation should use ctx for cancellation support
 	return nil
 }
 

@@ -234,7 +234,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
       toast({
         title: 'Failed to Create Port Forward',
         description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'error',
+        variant: 'destructive',
       });
     }
   }, [createPortForward, form, handleClose, onSuccess]);
@@ -266,8 +266,8 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
           </DialogHeader>
 
           {/* Progress Indicator */}
-          <div className="mb-4">
-            <div className="flex gap-2">
+          <div className="mb-component-md">
+            <div className="flex gap-component-sm">
               {stepper.steps.map((step, index) => (
                 <div
                   key={step.id}
@@ -281,9 +281,9 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Step 1: External Settings */}
           {stepper.currentIndex === 0 && (
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               {/* Protocol */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="protocol">Protocol</Label>
                 <Controller
                   name="protocol"
@@ -303,7 +303,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
               </div>
 
               {/* External Port */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="externalPort">External Port</Label>
                 <Controller
                   name="externalPort"
@@ -321,7 +321,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.externalPort && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-error">
                     {form.formState.errors.externalPort.message}
                   </p>
                 )}
@@ -331,7 +331,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
               </div>
 
               {/* WAN Interface */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="wanInterface">WAN Interface</Label>
                 <Controller
                   name="wanInterface"
@@ -357,9 +357,9 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Step 2: Internal Settings */}
           {stepper.currentIndex === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               {/* Internal IP */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="internalIP">Internal IP Address</Label>
                 <Controller
                   name="internalIP"
@@ -374,14 +374,14 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.internalIP && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-error">
                     {form.formState.errors.internalIP.message}
                   </p>
                 )}
               </div>
 
               {/* Internal Port */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="internalPort">
                   Internal Port <span className="text-muted-foreground">(optional)</span>
                 </Label>
@@ -403,7 +403,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.internalPort && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-error">
                     {form.formState.errors.internalPort.message}
                   </p>
                 )}
@@ -413,7 +413,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
               </div>
 
               {/* Comment */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="comment">
                   Comment <span className="text-muted-foreground">(optional)</span>
                 </Label>
@@ -430,8 +430,8 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Step 3: Review & Confirm */}
           {stepper.currentIndex === 2 && (
-            <div className="space-y-4">
-              <div className="rounded-lg border p-4 space-y-3">
+            <div className="space-y-component-md">
+              <div className="rounded-md border p-component-md space-y-component-sm">
                 <h3 className="font-semibold">Configuration Summary</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -465,8 +465,8 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                 </div>
               </div>
 
-              <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 p-4">
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+              <div className="rounded-md bg-warning/10 border border-warning/30 p-component-md">
+                <p className="text-sm font-medium text-foreground">
                   {summary}
                 </p>
               </div>
@@ -475,15 +475,15 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Validation Errors */}
           {stepper.errors && Object.keys(stepper.errors).length > 0 && (
-            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-              <p className="text-sm text-destructive">
+            <div className="rounded-md bg-error/10 border border-error/20 p-component-md">
+              <p className="text-sm text-error">
                 {Object.values(stepper.errors)[0]}
               </p>
             </div>
           )}
 
           {/* Dialog Footer - Navigation Buttons */}
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-component-sm">
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>

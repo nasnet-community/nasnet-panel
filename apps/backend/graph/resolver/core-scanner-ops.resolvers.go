@@ -7,36 +7,193 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // ScanNetwork is the resolver for the scanNetwork field.
+// Implementation requirements:
+// - Validate subnet CIDR (e.g., 192.168.1.0/24)
+// - Check subnet is routable and not reserved
+// - Delegate to ScannerService for actual scanning
+// - Return ScanNetworkPayload with taskID for async tracking
+// - Publish ScanStartedEvent
+// - Deduplicate results by device identity (MAC address)
 func (r *mutationResolver) ScanNetwork(ctx context.Context, input model.ScanNetworkInput) (*model.ScanNetworkPayload, error) {
-	panic(fmt.Errorf("not implemented: ScanNetwork - scanNetwork"))
+	// Validate input
+	if input.Subnet == "" {
+		return nil, errors.NewValidationError("subnet", input.Subnet, "required")
+	}
+
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Validate subnet CIDR format (e.g., 192.168.1.0/24)
+	// TODO: Check subnet is routable and not reserved
+	// TODO: Delegate to ScannerService.ScanSubnet for actual scanning
+	// TODO: Generate taskID for async tracking
+	// TODO: Return ScanNetworkPayload with taskID
+	// TODO: Publish ScanStartedEvent via EventPublisher
+	// TODO: Implement deduplication by MAC address in results
+
+	return nil, errors.NewInternalError("not implemented: ScanNetwork - scanNetwork", nil)
 }
 
 // AutoScanGateways is the resolver for the autoScanGateways field.
+// Implementation requirements:
+// - Detect local network gateways via routing table
+// - For each gateway, extract subnet from routing information
+// - Initiate network scans for discovered subnets
+// - Return ScanNetworkPayload with taskID
+// - Publish ScanStartedEvent with gateway discovery details
+// - Handle no-gateway case gracefully with informative error
 func (r *mutationResolver) AutoScanGateways(ctx context.Context) (*model.ScanNetworkPayload, error) {
-	panic(fmt.Errorf("not implemented: AutoScanGateways - autoScanGateways"))
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Detect local network gateways via routing table
+	// TODO: Extract subnet from routing information for each gateway
+	// TODO: Validate discovered subnets are not reserved
+	// TODO: Initiate network scans for discovered subnets
+	// TODO: Generate taskID for async tracking
+	// TODO: Return ScanNetworkPayload with taskID
+	// TODO: Publish ScanStartedEvent with gateway discovery details
+	// TODO: Handle no-gateway case with informative error message
+
+	return nil, errors.NewInternalError("not implemented: AutoScanGateways - autoScanGateways", nil)
 }
 
 // CancelScan is the resolver for the cancelScan field.
+// Implementation requirements:
+// - Validate taskID exists and is active
+// - Send cancellation signal to ScannerService
+// - Stop current scan operations cleanly
+// - Return CancelScanPayload with success status
+// - Publish ScanCancelledEvent with task details
+// - Return error if task not found or already completed
 func (r *mutationResolver) CancelScan(ctx context.Context, taskID string) (*model.CancelScanPayload, error) {
-	panic(fmt.Errorf("not implemented: CancelScan - cancelScan"))
+	// Validate input
+	if taskID == "" {
+		return nil, errors.NewValidationError("taskID", taskID, "required")
+	}
+
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Validate taskID exists and is active (not already completed)
+	// TODO: Send cancellation signal to ScannerService
+	// TODO: Stop current scan operations cleanly
+	// TODO: Return CancelScanPayload with success status
+	// TODO: Publish ScanCancelledEvent with task details
+	// TODO: Return error if task not found or already completed
+
+	return nil, errors.NewInternalError("not implemented: CancelScan - cancelScan", nil)
 }
 
 // ScanStatus is the resolver for the scanStatus field.
+// Implementation requirements:
+// - Look up scan task by taskID
+// - Return ScanTask with current progress, status, and results
+// - Include: startTime, endTime, hostsScanned, hostsDiscovered, devicesFound
+// - Handle task not found case with proper error
+// - Include partial results if scan is still in progress
 func (r *queryResolver) ScanStatus(ctx context.Context, taskID string) (*model.ScanTask, error) {
-	panic(fmt.Errorf("not implemented: ScanStatus - scanStatus"))
+	// Validate input
+	if taskID == "" {
+		return nil, errors.NewValidationError("taskID", taskID, "required")
+	}
+
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Look up scan task by taskID
+	// TODO: Return ScanTask with current progress, status, and results
+	// TODO: Include: startTime, endTime, hostsScanned, hostsDiscovered, devicesFound
+	// TODO: Handle task not found case with proper error
+	// TODO: Include partial results if scan is still in progress
+
+	return nil, errors.NewInternalError("not implemented: ScanStatus - scanStatus", nil)
 }
 
 // ScanHistory is the resolver for the scanHistory field.
+// Implementation requirements:
+// - Retrieve completed scan tasks from database
+// - Apply limit (default 50, max 1000) for pagination
+// - Sort by startTime descending (most recent first)
+// - Include summary stats: duration, host count, device count
+// - Return empty list if no scans completed yet
+// - Respect context cancellation
 func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.ScanTask, error) {
-	panic(fmt.Errorf("not implemented: ScanHistory - scanHistory"))
+	// Set default limit and validate
+	scanLimit := 50
+	if limit != nil {
+		if *limit < 1 {
+			return nil, errors.NewValidationError("limit", *limit, "must be greater than 0").WithCode(errors.CodeOutOfRange)
+		}
+		if *limit > 1000 {
+			scanLimit = 1000 // Max limit is 1000
+		} else {
+			scanLimit = *limit
+		}
+	}
+
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Retrieve completed scan tasks from database
+	// TODO: Apply limit (default 50, max 1000) for pagination
+	// TODO: Sort by startTime descending (most recent first)
+	// TODO: Include summary stats: duration, host count, device count
+	// TODO: Return empty list if no scans completed yet
+	// TODO: Respect context cancellation
+
+	_ = scanLimit // TODO: Pass scanLimit to database query
+
+	return nil, errors.NewInternalError("not implemented: ScanHistory - scanHistory", nil)
 }
 
 // ScanProgress is the resolver for the scanProgress field.
+// Implementation requirements:
+// - Validate taskID exists and is active (not completed)
+// - Subscribe to ScanProgressEvent from EventBus
+// - Filter events by taskID
+// - Return channel of ScanProgressEvent with updates
+// - Handle context cancellation and cleanup goroutines
+// - Return error if EventBus not initialized or task not found
+// - Include: percentage complete, hosts scanned, devices found, eta
 func (r *subscriptionResolver) ScanProgress(ctx context.Context, taskID string) (<-chan *model.ScanProgressEvent, error) {
-	panic(fmt.Errorf("not implemented: ScanProgress - scanProgress"))
+	// Validate input
+	if taskID == "" {
+		return nil, errors.NewValidationError("taskID", taskID, "required")
+	}
+
+	// Verify event bus is configured
+	if r.EventBus == nil {
+		return nil, errors.NewInternalError("event bus not configured", nil)
+	}
+
+	// Verify scanner service is configured
+	if r.Resolver.ScannerService == nil {
+		return nil, errors.NewInternalError("scanner service not configured", nil)
+	}
+
+	// TODO: Validate taskID exists and is active (not completed)
+	// TODO: Create event channel for progress updates
+	// TODO: Subscribe to ScanProgressEvent from EventBus
+	// TODO: Filter events by taskID in the callback
+	// TODO: Return channel of ScanProgressEvent with updates
+	// TODO: Handle context cancellation and cleanup goroutines
+	// TODO: Include: percentage complete, hosts scanned, devices found, eta
+
+	return nil, errors.NewInternalError("not implemented: ScanProgress - scanProgress", nil)
 }

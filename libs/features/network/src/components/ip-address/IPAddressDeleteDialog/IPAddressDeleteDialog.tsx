@@ -108,7 +108,7 @@ export function IPAddressDeleteDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Trash
-              className="h-5 w-5 text-destructive flex-shrink-0"
+              className="h-5 w-5 text-error flex-shrink-0"
               aria-hidden="true"
             />
             Delete IP Address
@@ -119,7 +119,7 @@ export function IPAddressDeleteDialog({
         </DialogHeader>
 
         {/* IP Address Info */}
-        <div className="rounded-lg border p-3 bg-muted/50">
+        <div className="rounded-card-sm border p-component-sm bg-muted/50">
           <div className="text-sm font-medium mb-1 font-mono">{ipAddress.address}</div>
           <div className="text-sm text-muted-foreground">
             Interface: <span className="font-mono">{ipAddress.interfaceName}</span>

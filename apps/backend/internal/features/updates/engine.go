@@ -15,7 +15,7 @@ import (
 	"backend/internal/events"
 	"backend/internal/storage"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // HealthChecker interface for health validation
@@ -32,7 +32,7 @@ type UpdateEngineConfig struct {
 	PathResolver     storage.PathResolverPort
 	BaseDir          string // Base directory for updates (e.g., /var/lib/nasnet)
 	EventBus         events.EventBus
-	Logger           zerolog.Logger
+	Logger           *zap.Logger
 	HealthChecker    HealthChecker
 	InstanceStopper  InstanceStopper
 	InstanceStarter  InstanceStarter
@@ -51,7 +51,7 @@ type InstanceStarter interface {
 // UpdateEngine orchestrates atomic 6-phase updates with rollback
 type UpdateEngine struct {
 	config    UpdateEngineConfig
-	logger    zerolog.Logger
+	logger    *zap.Logger
 	publisher *events.Publisher
 }
 
@@ -78,9 +78,14 @@ func NewUpdateEngine(config UpdateEngineConfig) (*UpdateEngine, error) {
 
 	publisher := events.NewPublisher(config.EventBus, "update-engine")
 
+	logger := config.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &UpdateEngine{
 		config:    config,
-		logger:    config.Logger.With().Str("component", "update_engine").Logger(),
+		logger:    logger.Named("update_engine"),
 		publisher: publisher,
 	}, nil
 }
@@ -110,12 +115,11 @@ func (e *UpdateEngine) resolveConfigPath(featureID string) string {
 
 // ApplyUpdate executes the 6-phase atomic update process
 func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, currentVersion, targetVersion, downloadURL, checksumURL string) error {
-	e.logger.Info().
-		Str("instanceID", instanceID).
-		Str("featureID", featureID).
-		Str("currentVersion", currentVersion).
-		Str("targetVersion", targetVersion).
-		Msg("Starting atomic update")
+	e.logger.Info("Starting atomic update",
+		zap.String("instanceID", instanceID),
+		zap.String("featureID", featureID),
+		zap.String("currentVersion", currentVersion),
+		zap.String("targetVersion", targetVersion))
 
 	// Phase 1: STAGING - Download and verify
 	if err := e.phaseStaging(ctx, instanceID, featureID, currentVersion, targetVersion, downloadURL, checksumURL); err != nil {
@@ -130,7 +134,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 	// Phase 3: SWAP - Stop service, swap binaries
 	if err := e.phaseSwap(ctx, instanceID, featureID, currentVersion, targetVersion); err != nil {
 		// Critical failure - attempt rollback
-		e.logger.Error().Err(err).Msg("SWAP phase failed, attempting rollback")
+		e.logger.Error("SWAP phase failed, attempting rollback", zap.Error(err))
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
 			return fmt.Errorf("SWAP failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
@@ -139,7 +143,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 
 	// Phase 4: MIGRATION - Run config migrations
 	if err := e.phaseMigration(ctx, instanceID, featureID, currentVersion, targetVersion); err != nil {
-		e.logger.Error().Err(err).Msg("MIGRATION phase failed, attempting rollback")
+		e.logger.Error("MIGRATION phase failed, attempting rollback", zap.Error(err))
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
 			return fmt.Errorf("MIGRATION failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
@@ -148,7 +152,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 
 	// Phase 5: VALIDATION - Start service and verify health
 	if err := e.phaseValidation(ctx, instanceID, featureID, currentVersion, targetVersion); err != nil {
-		e.logger.Error().Err(err).Msg("VALIDATION phase failed, attempting rollback")
+		e.logger.Error("VALIDATION phase failed, attempting rollback", zap.Error(err))
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
 			return fmt.Errorf("VALIDATION failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
@@ -160,17 +164,16 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 		return fmt.Errorf("COMMIT phase failed: %w", err)
 	}
 
-	e.logger.Info().
-		Str("instanceID", instanceID).
-		Str("targetVersion", targetVersion).
-		Msg("Atomic update completed successfully")
+	e.logger.Info("Atomic update completed successfully",
+		zap.String("instanceID", instanceID),
+		zap.String("targetVersion", targetVersion))
 
 	return nil
 }
 
 // phaseStaging downloads and verifies the new binary
 func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, currentVersion, targetVersion, downloadURL, checksumURL string) error {
-	e.logger.Info().Str("phase", "STAGING").Msg("Starting STAGING phase")
+	e.logger.Info("Starting STAGING phase", zap.String("phase", "STAGING"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseStaging, map[string]interface{}{
 		"downloadURL": downloadURL,
@@ -193,7 +196,7 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 	// Fetch expected checksum from checksum URL
 	expectedChecksum, checksumErr := fetchChecksum(ctx, checksumURL, featureID)
 	if checksumErr != nil {
-		e.logger.Warn().Err(checksumErr).Msg("failed to fetch checksum, proceeding without verification")
+		e.logger.Warn("failed to fetch checksum, proceeding without verification", zap.Error(checksumErr))
 		expectedChecksum = "" // Proceed without verification if checksum unavailable
 	}
 
@@ -202,16 +205,16 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 		return fmt.Errorf("download failed: %w", err)
 	}
 
-	e.logger.Debug().Str("stagingBinary", stagingBinary).Msg("download completed to staging")
+	e.logger.Debug("download completed to staging", zap.String("stagingBinary", stagingBinary))
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseStaging) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "STAGING").Msg("STAGING phase completed")
+	e.logger.Info("STAGING phase completed", zap.String("phase", "STAGING"))
 	return nil
 }
 
 // phaseBackup backs up the current binary and configuration
 func (e *UpdateEngine) phaseBackup(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "BACKUP").Msg("Starting BACKUP phase")
+	e.logger.Info("Starting BACKUP phase", zap.String("phase", "BACKUP"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseBackup, nil)
 	if err != nil {
@@ -239,18 +242,18 @@ func (e *UpdateEngine) phaseBackup(ctx context.Context, instanceID, featureID, c
 	configDir := e.resolveConfigPath(featureID)
 	backupConfigDir := filepath.Join(backupDir, "config")
 	if err := copyDir(configDir, backupConfigDir); err != nil {
-		e.logger.Warn().Err(err).Msg("config backup skipped (no config directory or copy failed)")
+		e.logger.Warn("config backup skipped (no config directory or copy failed)", zap.Error(err))
 		// Non-fatal: some features may not have config files
 	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseBackup) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "BACKUP").Msg("BACKUP phase completed")
+	e.logger.Info("BACKUP phase completed", zap.String("phase", "BACKUP"))
 	return nil
 }
 
 // phaseSwap stops the service and atomically swaps binaries
 func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "SWAP").Msg("Starting SWAP phase")
+	e.logger.Info("Starting SWAP phase", zap.String("phase", "SWAP"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseSwap, nil)
 	if err != nil {
@@ -293,7 +296,7 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 	_ = os.Remove(tempSwap)
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseSwap) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "SWAP").Msg("SWAP phase completed")
+	e.logger.Info("SWAP phase completed", zap.String("phase", "SWAP"))
 	return nil
 }
 
@@ -301,7 +304,7 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 //
 //nolint:nestif // sequential error handling requires nesting
 func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "MIGRATION").Msg("Starting MIGRATION phase")
+	e.logger.Info("Starting MIGRATION phase", zap.String("phase", "MIGRATION"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseMigration, nil)
 	if err != nil {
@@ -324,7 +327,7 @@ func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID
 	configData, readErr := os.ReadFile(configPath)
 	if readErr != nil {
 		if os.IsNotExist(readErr) {
-			e.logger.Info().Msg("no config file found, skipping migration")
+			e.logger.Info("no config file found, skipping migration")
 		} else {
 			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, readErr.Error()) //nolint:errcheck // best-effort journal logging
 			return fmt.Errorf("failed to read config: %w", readErr)
@@ -356,20 +359,19 @@ func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID
 			return fmt.Errorf("failed to write migrated config: %w", err)
 		}
 
-		e.logger.Info().
-			Str("from", currentVersion).
-			Str("to", targetVersion).
-			Msg("config migration completed")
+		e.logger.Info("config migration completed",
+			zap.String("from", currentVersion),
+			zap.String("to", targetVersion))
 	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseMigration) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "MIGRATION").Msg("MIGRATION phase completed")
+	e.logger.Info("MIGRATION phase completed", zap.String("phase", "MIGRATION"))
 	return nil
 }
 
 // phaseValidation starts the service and verifies health
 func (e *UpdateEngine) phaseValidation(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "VALIDATION").Msg("Starting VALIDATION phase")
+	e.logger.Info("Starting VALIDATION phase", zap.String("phase", "VALIDATION"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseValidation, nil)
 	if err != nil {
@@ -399,13 +401,13 @@ func (e *UpdateEngine) phaseValidation(ctx context.Context, instanceID, featureI
 	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseValidation) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "VALIDATION").Msg("VALIDATION phase completed")
+	e.logger.Info("VALIDATION phase completed", zap.String("phase", "VALIDATION"))
 	return nil
 }
 
 // phaseCommit finalizes the update
 func (e *UpdateEngine) phaseCommit(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "COMMIT").Msg("Starting COMMIT phase")
+	e.logger.Info("Starting COMMIT phase", zap.String("phase", "COMMIT"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseCommit, nil)
 	if err != nil {
@@ -419,13 +421,13 @@ func (e *UpdateEngine) phaseCommit(ctx context.Context, instanceID, featureID, c
 	// Keep backup for rollback window (cleanup can happen later)
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseCommit) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "COMMIT").Msg("COMMIT phase completed")
+	e.logger.Info("COMMIT phase completed", zap.String("phase", "COMMIT"))
 	return nil
 }
 
 // rollback restores from backup
 func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, currentVersion, targetVersion string) error {
-	e.logger.Info().Str("phase", "ROLLBACK").Msg("Starting ROLLBACK")
+	e.logger.Info("Starting ROLLBACK", zap.String("phase", "ROLLBACK"))
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseRollback, nil)
 	if err != nil {
@@ -450,7 +452,7 @@ func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, curr
 	backupConfigDir := filepath.Join(e.resolveBackupPath(featureID, instanceID, currentVersion), "config")
 	configDir := e.resolveConfigPath(featureID)
 	if err := copyDir(backupConfigDir, configDir); err != nil {
-		e.logger.Warn().Err(err).Msg("config restore skipped during rollback")
+		e.logger.Warn("config restore skipped during rollback", zap.Error(err))
 	}
 
 	// Restart instance
@@ -459,13 +461,13 @@ func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, curr
 	}
 
 	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseRollback) //nolint:errcheck // best-effort journal logging
-	e.logger.Info().Str("phase", "ROLLBACK").Msg("ROLLBACK completed")
+	e.logger.Info("ROLLBACK completed", zap.String("phase", "ROLLBACK"))
 	return nil
 }
 
 // RecoverFromCrash recovers incomplete updates on boot
 func (e *UpdateEngine) RecoverFromCrash(ctx context.Context) error {
-	e.logger.Info().Msg("Checking for incomplete updates")
+	e.logger.Info("Checking for incomplete updates")
 
 	entries, err := e.config.Journal.GetIncompleteUpdates(ctx)
 	if err != nil {
@@ -473,21 +475,20 @@ func (e *UpdateEngine) RecoverFromCrash(ctx context.Context) error {
 	}
 
 	if len(entries) == 0 {
-		e.logger.Info().Msg("No incomplete updates found")
+		e.logger.Info("No incomplete updates found")
 		return nil
 	}
 
-	e.logger.Warn().Int("count", len(entries)).Msg("Found incomplete updates, attempting recovery")
+	e.logger.Warn("Found incomplete updates, attempting recovery", zap.Int("count", len(entries)))
 
 	for _, entry := range entries {
-		e.logger.Info().
-			Str("instanceID", entry.InstanceID).
-			Str("phase", string(entry.Phase)).
-			Msg("Recovering incomplete update")
+		e.logger.Info("Recovering incomplete update",
+			zap.String("instanceID", entry.InstanceID),
+			zap.String("phase", string(entry.Phase)))
 
 		// Attempt rollback for any incomplete update
 		if err := e.rollback(ctx, entry.InstanceID, entry.FeatureID, entry.FromVersion, entry.ToVersion); err != nil {
-			e.logger.Error().Err(err).Str("instanceID", entry.InstanceID).Msg("Recovery failed")
+			e.logger.Error("Recovery failed", zap.Error(err), zap.String("instanceID", entry.InstanceID))
 		}
 	}
 

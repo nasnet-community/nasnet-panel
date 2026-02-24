@@ -51,7 +51,7 @@ export function DnsStaticEntriesListMobile({
 
   if (entries.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <EmptyState
           icon={FileText}
           title="No Static Entries"
@@ -68,15 +68,15 @@ export function DnsStaticEntriesListMobile({
 
   return (
     <>
-      <div className="space-y-3">
+      <div className="space-y-component-md">
         {/* Entries List */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           {sortedEntries.map((entry) => (
             <Card key={entry['.id']} className="overflow-hidden">
-              <CardContent className="p-3">
-                <div className="space-y-2">
+              <CardContent className="p-component-sm">
+                <div className="space-y-component-sm">
                   {/* Hostname */}
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-component-sm">
                     <Globe className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{entry.name}</div>
@@ -87,7 +87,7 @@ export function DnsStaticEntriesListMobile({
                   </div>
 
                   {/* TTL and Comment */}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-component-sm text-xs text-muted-foreground">
                     <Badge variant="secondary" className="text-xs">
                       TTL: {formatTTL(parseInt(entry.ttl))}
                     </Badge>
@@ -97,7 +97,7 @@ export function DnsStaticEntriesListMobile({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2 pt-1">
+                  <div className="flex gap-component-sm pt-1">
                     <Button
                       variant="outline"
                       size="sm"

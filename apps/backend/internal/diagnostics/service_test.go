@@ -41,7 +41,7 @@ func (m *MockRouterProvider) GetRouterCredentials(_ context.Context, routerID st
 }
 
 func TestNewService(t *testing.T) {
-	cfg := ServiceConfig{
+	cfg := Config{
 		DocsBaseURL:     "https://docs.example.com",
 		RateLimitPeriod: 5 * time.Second,
 	}
@@ -56,14 +56,14 @@ func TestNewService(t *testing.T) {
 }
 
 func TestNewService_DefaultRateLimitPeriod(t *testing.T) {
-	cfg := ServiceConfig{}
+	cfg := Config{}
 	svc := NewService(cfg)
 
 	assert.Equal(t, DefaultRateLimitInterval, svc.rateLimitPeriod)
 }
 
 func TestService_RecordAttempt(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 
 	attempt := ConnectionAttempt{
 		Protocol:  ProtocolAPI,
@@ -81,7 +81,7 @@ func TestService_RecordAttempt(t *testing.T) {
 }
 
 func TestService_RecordAttempt_LimitHistory(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 
 	// Record more than the limit
 	for i := 0; i < DefaultAttemptHistoryLimit+10; i++ {
@@ -103,7 +103,7 @@ func TestService_RecordAttempt_LimitHistory(t *testing.T) {
 }
 
 func TestService_GetConnectionAttempts(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 
 	// Record 5 attempts
 	for i := 0; i < 5; i++ {
@@ -134,7 +134,7 @@ func TestService_GetConnectionAttempts(t *testing.T) {
 }
 
 func TestService_GetConnectionAttempts_NoAttempts(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 	ctx := context.Background()
 
 	attempts, err := svc.GetConnectionAttempts(ctx, "nonexistent", 10)
@@ -143,7 +143,7 @@ func TestService_GetConnectionAttempts_NoAttempts(t *testing.T) {
 }
 
 func TestService_ClearAttempts(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 
 	attempt := ConnectionAttempt{
 		Protocol:  ProtocolAPI,
@@ -160,7 +160,7 @@ func TestService_ClearAttempts(t *testing.T) {
 }
 
 func TestService_GetCircuitBreakerStatus_Default(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 	ctx := context.Background()
 
 	status, err := svc.GetCircuitBreakerStatus(ctx, "router-1")
@@ -172,7 +172,7 @@ func TestService_GetCircuitBreakerStatus_Default(t *testing.T) {
 }
 
 func TestService_CircuitBreakerTrips(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 	ctx := context.Background()
 
 	// Record failures to trip the circuit breaker
@@ -194,7 +194,7 @@ func TestService_CircuitBreakerTrips(t *testing.T) {
 }
 
 func TestService_CircuitBreakerResets(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 	ctx := context.Background()
 
 	// Trip the circuit breaker
@@ -214,7 +214,7 @@ func TestService_CircuitBreakerResets(t *testing.T) {
 }
 
 func TestService_CircuitBreakerRecovery(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 
 	// Record a failure
 	svc.RecordAttempt("router-1", ConnectionAttempt{Success: false})
@@ -239,7 +239,7 @@ func TestService_CircuitBreakerRecovery(t *testing.T) {
 }
 
 func TestService_RateLimit(t *testing.T) {
-	svc := NewService(ServiceConfig{
+	svc := NewService(Config{
 		RateLimitPeriod: 100 * time.Millisecond,
 		RouterProvider: &MockRouterProvider{
 			hosts: map[string]string{
@@ -266,7 +266,7 @@ func TestService_RateLimit(t *testing.T) {
 }
 
 func TestService_RunDiagnostics_NoRouterProvider(t *testing.T) {
-	svc := NewService(ServiceConfig{})
+	svc := NewService(Config{})
 	ctx := context.Background()
 
 	_, err := svc.RunDiagnostics(ctx, "router-1")

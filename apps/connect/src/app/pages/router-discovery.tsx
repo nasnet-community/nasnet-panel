@@ -276,7 +276,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <img
@@ -284,7 +284,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             alt="NasNet"
             className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-lg"
           />
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl font-bold font-display text-foreground mb-4">
             {t('discovery.title')}
           </h1>
           <p className="text-lg text-muted-foreground">
@@ -294,12 +294,12 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
 
         {/* View Mode Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-lg border border-border bg-card p-1">
+          <div className="inline-flex rounded-card-sm border border-border bg-card p-1">
             <button
               onClick={() => setViewMode('scan')}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
                 viewMode === 'scan'
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -307,9 +307,9 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             </button>
             <button
               onClick={() => setViewMode('manual')}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
                 viewMode === 'manual'
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -317,9 +317,9 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
                 viewMode === 'list'
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -337,7 +337,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             {viewMode === 'scan' && (
-              <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+              <div className="bg-card rounded-card-sm shadow-sm border border-border p-6">
                 <NetworkScanner
                   onScanComplete={handleScanComplete}
                   onRouterSelect={handleRouterSelectFromScan}
@@ -353,7 +353,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             )}
 
             {viewMode === 'list' && (
-              <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+              <div className="bg-card rounded-card-sm shadow-sm border border-border p-6">
                 <RouterList
                   routers={allRouters}
                   selectedRouterId={selectedRouterId}
@@ -374,16 +374,16 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
                       <p className="mt-1 text-sm text-muted-foreground">
                         {t('discovery.getStarted')}
                       </p>
-                      <div className="mt-6 flex gap-3 justify-center">
+                      <div className="mt-6 flex gap-component-md justify-center">
                         <button
                           onClick={() => setViewMode('scan')}
-                          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                          className="px-component-md py-component-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
                         >
                           {t('discovery.scanNetwork')}
                         </button>
                         <button
                           onClick={() => setViewMode('manual')}
-                          className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors"
+                          className="px-component-md py-component-sm bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
                         >
                           {t('discovery.addManually')}
                         </button>

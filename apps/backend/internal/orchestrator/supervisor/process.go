@@ -7,13 +7,14 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/types"
 
 	"backend/internal/events"
 
 	"github.com/cenkalti/backoff/v4"
-	"github.com/rs/zerolog"
 )
 
 // ProcessState represents the current state of a managed process
@@ -73,7 +74,7 @@ type ManagedProcess struct {
 	cgroupManager  *resources.CgroupManager
 	logCapture     *resources.LogCapture
 	eventBus       *events.Publisher
-	logger         zerolog.Logger
+	logger         *zap.Logger
 	stopChan       chan struct{}
 	stoppedChan    chan struct{}
 	ctx            context.Context
@@ -95,7 +96,7 @@ type ProcessConfig struct {
 	CgroupManager *resources.CgroupManager
 	LogDir        string
 	EventBus      *events.Publisher
-	Logger        zerolog.Logger
+	Logger        *zap.Logger
 	RouterID      string
 	Ports         []int
 }
@@ -145,10 +146,9 @@ func NewManagedProcess(cfg ProcessConfig) *ManagedProcess {
 			Logger:      cfg.Logger,
 		})
 		if err != nil {
-			cfg.Logger.Warn().
-				Err(err).
-				Str("instance_id", cfg.ID).
-				Msg("failed to initialize log capture")
+			cfg.Logger.Warn("failed to initialize log capture",
+				zap.Error(err),
+				zap.String("instance_id", cfg.ID))
 		} else {
 			mp.logCapture = logCapture
 		}
@@ -174,15 +174,15 @@ func (mp *ManagedProcess) Start(ctx context.Context) error {
 
 // Stop gracefully stops the managed process
 func (mp *ManagedProcess) Stop(ctx context.Context) error {
-	mp.logger.Debug().Str("process", mp.Name).Msg("Stop() called")
+	mp.logger.Debug("Stop() called", zap.String("process", mp.Name))
 	mp.mu.Lock()
 	if mp.state == ProcessStateStopped {
-		mp.logger.Debug().Str("process", mp.Name).Msg("Already stopped")
+		mp.logger.Debug("Already stopped", zap.String("process", mp.Name))
 		mp.mu.Unlock()
 		return nil
 	}
 	if mp.state == ProcessStateStopping {
-		mp.logger.Debug().Str("process", mp.Name).Msg("Already stopping, waiting")
+		mp.logger.Debug("Already stopping, waiting", zap.String("process", mp.Name))
 		mp.mu.Unlock()
 		select {
 		case <-mp.stoppedChan:
@@ -193,30 +193,30 @@ func (mp *ManagedProcess) Stop(ctx context.Context) error {
 	}
 
 	if mp.cmd != nil && mp.cmd.Process != nil {
-		mp.logger.Debug().Str("process", mp.Name).Int("pid", mp.pid).Msg("Killing process")
+		mp.logger.Debug("Killing process", zap.String("process", mp.Name), zap.Int("pid", mp.pid))
 		mp.state = ProcessStateStopping
 		if err := mp.cmd.Process.Kill(); err != nil {
-			mp.logger.Warn().Err(err).Str("process", mp.Name).Msg("failed to kill process")
+			mp.logger.Warn("failed to kill process", zap.Error(err), zap.String("process", mp.Name))
 		}
 	}
 	mp.mu.Unlock()
 
-	mp.logger.Debug().Str("process", mp.Name).Msg("Closing stopChan")
+	mp.logger.Debug("Closing stopChan", zap.String("process", mp.Name))
 	select {
 	case <-mp.stopChan:
-		mp.logger.Debug().Str("process", mp.Name).Msg("stopChan already closed")
+		mp.logger.Debug("stopChan already closed", zap.String("process", mp.Name))
 	default:
 		close(mp.stopChan)
-		mp.logger.Debug().Str("process", mp.Name).Msg("stopChan closed")
+		mp.logger.Debug("stopChan closed", zap.String("process", mp.Name))
 	}
 
-	mp.logger.Debug().Str("process", mp.Name).Msg("Waiting for stoppedChan")
+	mp.logger.Debug("Waiting for stoppedChan", zap.String("process", mp.Name))
 	select {
 	case <-mp.stoppedChan:
-		mp.logger.Debug().Str("process", mp.Name).Msg("stoppedChan received")
+		mp.logger.Debug("stoppedChan received", zap.String("process", mp.Name))
 		return nil
 	case <-ctx.Done():
-		mp.logger.Debug().Str("process", mp.Name).Msg("Context timeout")
+		mp.logger.Debug("Context timeout", zap.String("process", mp.Name))
 		return ctx.Err()
 	}
 }

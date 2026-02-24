@@ -13,15 +13,17 @@ import (
 
 // Dispatcher manages notification delivery across multiple channels with retry logic.
 // Per Task 3.9: Add retry logic with exponential backoff for failed deliveries (max 3 retries).
+// Per Task 3.9: Add dead letter queue for failed notifications after max retries exhausted.
 type Dispatcher struct {
 	channels        map[string]Channel
-	log             *zap.SugaredLogger
+	log             *zap.Logger
 	digestService   DigestService            // Interface for digest operations
 	templateService TemplateRenderer         // Optional template renderer for alert content
 	db              *ent.Client              // Database client for querying alerts (needed for template rendering)
 	digestConfigs   map[string]*DigestConfig // Per-channel digest configuration (NAS-18.11 Task 7)
 	maxRetries      int                      // Retry configuration
 	initialBackoff  time.Duration            // Retry configuration
+	deadLetterQueue *DeadLetterQueue         // Dead letter queue for failed notifications (Task 3.9)
 }
 
 // DigestService defines methods for digest queuing (NAS-18.11 Task 7).
@@ -49,13 +51,14 @@ type DigestConfig struct {
 // DispatcherConfig holds dispatcher configuration.
 type DispatcherConfig struct {
 	Channels        map[string]Channel
-	Logger          *zap.SugaredLogger
+	Logger          *zap.Logger
 	DigestService   DigestService            // Optional digest service for NAS-18.11
 	TemplateService TemplateRenderer         // Optional template renderer for alert content (NAS-18.11 Task 5)
 	DB              *ent.Client              // Database client (required if TemplateService is provided)
 	DigestConfigs   map[string]*DigestConfig // Per-channel digest configuration (NAS-18.11 Task 7)
 	MaxRetries      int                      // Default: 3
 	InitialBackoff  time.Duration            // Default: 1 second
+	DeadLetterQueue *DeadLetterQueue         // Optional DLQ for failed notifications (Task 3.9)
 }
 
 // NewDispatcher creates a new notification dispatcher.
@@ -84,6 +87,7 @@ func NewDispatcher(cfg DispatcherConfig) *Dispatcher {
 		digestConfigs:   digestConfigs,
 		maxRetries:      maxRetries,
 		initialBackoff:  initialBackoff,
+		deadLetterQueue: cfg.DeadLetterQueue,
 	}
 }
 
@@ -138,10 +142,10 @@ func (d *Dispatcher) Dispatch(ctx context.Context, notification Notification, ch
 
 			// Queue for digest
 			if err := d.digestService.QueueAlert(ctx, alert, channelName, "email", bypassSent); err != nil {
-				d.log.Warnw("failed to queue alert for digest",
-					"channel", channelName,
-					"alert_id", alert.ID,
-					"error", err)
+				d.log.Warn("Failed to queue alert for digest",
+					zap.String("channel", channelName),
+					zap.String("alert_id", alert.ID),
+					zap.Error(err))
 			}
 		}
 	}
@@ -175,7 +179,17 @@ func (d *Dispatcher) GetChannels() []string {
 }
 
 // GetChannel returns a specific channel by name.
-// Returns nil if the channel doesn't exist.
+// Returns nil if the channel doesn't exist or is not configured.
+// Callers must check for nil before using the returned channel.
 func (d *Dispatcher) GetChannel(name string) Channel {
+	if d == nil || d.channels == nil {
+		return nil
+	}
 	return d.channels[name]
+}
+
+// GetDeadLetterQueue returns the dead letter queue instance.
+// Returns nil if DLQ is not configured.
+func (d *Dispatcher) GetDeadLetterQueue() *DeadLetterQueue {
+	return d.deadLetterQueue
 }

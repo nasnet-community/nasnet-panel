@@ -10,7 +10,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -73,14 +73,14 @@ type ResourceSuggestion struct {
 // ResourceManagerConfig configures the ResourceManager
 type ResourceManagerConfig struct {
 	Store  *ent.Client
-	Logger zerolog.Logger
+	Logger *zap.Logger
 }
 
 // ResourceManager manages system resource detection and pre-flight checks (stub for Windows)
 type ResourceManager struct {
 	mu     sync.RWMutex
 	store  *ent.Client
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // NewResourceManager creates a new ResourceManager instance (stub for Windows)
@@ -94,7 +94,11 @@ func NewResourceManager(config ResourceManagerConfig) (*ResourceManager, error) 
 		logger: config.Logger,
 	}
 
-	rm.logger.Warn().Msg("ResourceManager on Windows uses fallback values - /proc not available")
+	if rm.logger == nil {
+		rm.logger = zap.NewNop()
+	}
+
+	rm.logger.Warn("ResourceManager on Windows uses fallback values - /proc not available")
 
 	return rm, nil
 }
@@ -104,10 +108,9 @@ func (rm *ResourceManager) GetSystemResources(ctx context.Context) (*SystemResou
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
 
-	rm.logger.Warn().
-		Int("fallback_total_mb", DefaultSystemMemoryMB).
-		Int("fallback_available_mb", DefaultAvailableMemoryMB).
-		Msg("Using fallback values for Windows (no /proc filesystem)")
+	rm.logger.Warn("Using fallback values for Windows (no /proc filesystem)",
+		zap.Int("fallback_total_mb", DefaultSystemMemoryMB),
+		zap.Int("fallback_available_mb", DefaultAvailableMemoryMB))
 
 	return &SystemResources{
 		TotalMemoryMB:     DefaultSystemMemoryMB,

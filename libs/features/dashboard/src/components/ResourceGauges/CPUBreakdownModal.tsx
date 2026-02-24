@@ -81,10 +81,10 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         </DialogHeader>
 
         {/* Overall CPU usage summary */}
-        <div className="mb-4 p-4 rounded-lg bg-muted">
+        <div className="mb-4 p-component-md rounded-card-sm bg-card border border-border">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium text-foreground">Overall Usage</span>
-            <span className="text-2xl font-bold text-foreground">{overallUsage}%</span>
+            <span className="text-2xl font-bold font-mono text-foreground">{overallUsage}%</span>
           </div>
           <div className="text-xs text-muted-foreground">
             {coreCount} core{coreCount > 1 ? 's' : ''}
@@ -98,14 +98,14 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
             <div key={`core-${index}`} className="space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-foreground">Core {index + 1}</span>
-                <span className="text-muted-foreground">{usage}%</span>
+                <span className="font-mono text-muted-foreground">{usage}%</span>
               </div>
 
               {/* Horizontal bar */}
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-2 bg-muted rounded-pill overflow-hidden">
                 <div
                   className={cn(
-                    'h-full rounded-full transition-all duration-500',
+                    'h-full rounded-pill transition-all duration-500',
                     usage >= 90
                       ? 'bg-error'
                       : usage >= 70

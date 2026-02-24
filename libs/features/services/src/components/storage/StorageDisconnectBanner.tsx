@@ -94,14 +94,14 @@ function StorageDisconnectBannerComponent({
     >
       <AlertTriangle className="h-5 w-5" aria-hidden="true" />
 
-      <AlertTitle className="text-lg font-semibold pr-8">
+      <AlertTitle className="text-lg font-semibold pr-8 font-display">
         External Storage Disconnected
       </AlertTitle>
 
-      <AlertDescription className="space-y-3">
+      <AlertDescription className="space-y-component-sm">
         <p>
           Storage at{' '}
-          <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+          <code className="relative rounded-[var(--semantic-radius-button)] bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
             {config.path}
           </code>{' '}
           is no longer available.
@@ -109,10 +109,10 @@ function StorageDisconnectBannerComponent({
 
         {affectedServices.length > 0 && (
           <div>
-            <p className="font-medium mb-2">
+            <p className="font-medium mb-component-sm">
               Affected services ({affectedServices.length}):
             </p>
-            <ul className="list-disc list-inside space-y-1 pl-2">
+            <ul className="list-disc list-inside space-y-component-sm pl-2">
               {displayServices.map((service) => (
                 <li key={service} className="text-sm">
                   {service}
@@ -127,7 +127,7 @@ function StorageDisconnectBannerComponent({
           </div>
         )}
 
-        <p className="text-sm font-medium border-t border-destructive/30 pt-3 mt-3">
+        <p className="text-sm font-medium border-t border-error/30 pt-component-sm mt-component-sm">
           Reconnect the storage device to restore service functionality.
         </p>
       </AlertDescription>
@@ -137,7 +137,7 @@ function StorageDisconnectBannerComponent({
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
-        className="absolute top-4 right-4 h-6 w-6 p-0"
+        className="absolute top-4 right-4 min-h-[44px] min-w-[44px] p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label="Dismiss alert (warning persists until storage reconnects)"
       >
         <X className="h-4 w-4" aria-hidden="true" />

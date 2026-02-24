@@ -137,7 +137,7 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
         toast({
           title: 'Failed to save template',
           description: result.saveCustomAlertRuleTemplate.errors[0].message,
-          variant: 'destructive',
+          variant: 'error',
         });
       }
     },
@@ -145,7 +145,7 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
       toast({
         title: 'Error',
         description: err.message || 'Failed to save template',
-        variant: 'destructive',
+        variant: 'error',
       });
     },
   });

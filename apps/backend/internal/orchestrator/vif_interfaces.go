@@ -210,14 +210,14 @@ func (h *RealPBRCascadeHook) OnServiceDeleted(ctx context.Context, instanceID st
 	}
 
 	// Remove each mangle rule from the router before deleting DB records.
-	for _, r := range routings {
-		if r.MangleRuleID == "" {
+	for _, routing := range routings {
+		if routing.MangleRuleID == "" {
 			continue
 		}
 		cmd := router.Command{
 			Path:   "/ip/firewall/mangle",
 			Action: "remove",
-			ID:     r.MangleRuleID,
+			ID:     routing.MangleRuleID,
 		}
 		if _, cmdErr := h.router.ExecuteCommand(ctx, cmd); cmdErr != nil {
 			// Log but do not abort: best-effort cleanup of router rules.

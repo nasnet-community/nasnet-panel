@@ -71,6 +71,17 @@ type AddDependencyInput struct {
 	HealthTimeoutSeconds int            `json:"healthTimeoutSeconds"`
 }
 
+// Input for adding a provisioning resource to a session
+type AddProvisioningResourceInput struct {
+	// Resource type identifier (e.g., "wireguard-client", "ovpn-client", "tunnel-ipip")
+	ResourceType string `json:"resourceType"`
+	// Resource-specific configuration
+	// Structure depends on resourceType
+	Configuration map[string]any `json:"configuration"`
+	// Resource relationships to other resources or networks
+	Relationships graphql.Omittable[*ProvisioningRelationshipsInput] `json:"relationships,omitempty"`
+}
+
 // Input for manually adding a new router with full credentials and protocol preference.
 // This is the primary input type for the addRouter mutation.
 type AddRouterInput struct {
@@ -569,6 +580,20 @@ type ApplyFixPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Payload for applying a provisioning session to router
+type ApplyProvisioningSessionPayload struct {
+	// The provisioning session after apply
+	Session *ProvisioningSession `json:"session"`
+	// List of resources that were successfully applied
+	AppliedResources []Resource `json:"appliedResources"`
+	// Changeset ID that was created and applied
+	ChangesetID string `json:"changesetId"`
+	// Configuration preview that was applied (RouterOS commands)
+	Preview *ConfigPreview `json:"preview,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 type ApplyResourcePayload struct {
 	// The applied resource
 	Resource Resource `json:"resource,omitempty"`
@@ -750,6 +775,18 @@ type BinaryVerification struct {
 	VerifiedAt *time.Time `json:"verifiedAt,omitempty"`
 	// Verification status (valid, invalid, pending, not_verified)
 	Status VerificationStatus `json:"status"`
+}
+
+// Bonding/link aggregation configuration
+type BondingConfig struct {
+	// Bonding mode
+	Mode BondingMode `json:"mode"`
+	// Interface monitoring interval
+	MonitorInterval *Duration `json:"monitorInterval,omitempty"`
+	// ARP targets to monitor
+	ArpTargets []IPv4 `json:"arpTargets,omitempty"`
+	// Enable bonding
+	Enabled bool `json:"enabled"`
 }
 
 // BootSequenceEvent represents a real-time boot sequence event.
@@ -1409,6 +1446,8 @@ type ConfigSchemaField struct {
 	Sensitive bool `json:"sensitive"`
 	// Validation function name
 	ValidateFunc *string `json:"validateFunc,omitempty"`
+	// Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network')
+	Group *string `json:"group,omitempty"`
 }
 
 // Validation error for a configuration field
@@ -2387,6 +2426,16 @@ type DigestSummary struct {
 	Period string `json:"period"`
 }
 
+// Payload for discarding a provisioning session
+type DiscardProvisioningSessionPayload struct {
+	// Whether discard succeeded
+	Success bool `json:"success"`
+	// ID of discarded session
+	SessionID string `json:"sessionId"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 type DisconnectRouterPayload struct {
 	// The router that was disconnected
 	Router *Router `json:"router,omitempty"`
@@ -2611,6 +2660,73 @@ type EmailConfigInput struct {
 	SkipVerify graphql.Omittable[*bool] `json:"skipVerify,omitempty"`
 }
 
+// EoIP Tunnel resource implementing 8-layer model
+type EoIPTunnel struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *EoIPTunnelConfig      `json:"config"`
+	EoipDeployment *EoIPTunnelDeployment  `json:"eoipDeployment,omitempty"`
+	EoipRuntime    *EoIPTunnelRuntime     `json:"eoipRuntime,omitempty"`
+}
+
+func (EoIPTunnel) IsResource() {}
+
+func (EoIPTunnel) IsNode() {}
+
+// EoIP tunnel configuration
+type EoIPTunnelConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Tunnel ID (MikroTik specific)
+	TunnelID int `json:"tunnelId"`
+	// Remote tunnel endpoint
+	RemoteAddress IPv4 `json:"remoteAddress"`
+	// Optional comment/description
+	Comment *string `json:"comment,omitempty"`
+	// Enable tunnel
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// EoIP tunnel deployment state
+type EoIPTunnelDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// EoIP tunnel runtime state
+type EoIPTunnelRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether tunnel is up
+	IsUp bool `json:"isUp"`
+	// Current remote address being used
+	CurrentRemote *IPv4 `json:"currentRemote,omitempty"`
+	// MTU of tunnel
+	Mtu *int `json:"mtu,omitempty"`
+	// Bytes transmitted through tunnel
+	BytesSent Size `json:"bytesSent"`
+	// Bytes received through tunnel
+	BytesReceived Size `json:"bytesReceived"`
+}
+
 // Rich error extensions for detailed error diagnostics.
 // Included in GraphQL error responses under the 'extensions' key.
 type ErrorExtensions struct {
@@ -2726,6 +2842,22 @@ type ExportServiceConfigPayload struct {
 	DownloadURL *string `json:"downloadURL,omitempty"`
 	// Mutation errors
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Failover configuration for multi-link setup
+type FailoverConfig struct {
+	// Interval between health checks
+	CheckInterval Duration `json:"checkInterval"`
+	// Number of failed checks before failover
+	FailoverThreshold int `json:"failoverThreshold"`
+	// Number of successful checks before recovery
+	RecoveryThreshold int `json:"recoveryThreshold"`
+	// Host to ping for health check
+	CheckHost IPv4 `json:"checkHost"`
+	// Timeout for each health check
+	CheckTimeout *Duration `json:"checkTimeout,omitempty"`
+	// Enable failover
+	Enabled bool `json:"enabled"`
 }
 
 // Information about a feature in the compatibility matrix
@@ -3037,6 +3169,77 @@ type FlushDNSCacheResult struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// GRE Tunnel resource implementing 8-layer model
+type GRETunnel struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]any         `json:"configuration,omitempty"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	Config        *GRETunnelConfig       `json:"config"`
+	GreDeployment *GRETunnelDeployment   `json:"greDeployment,omitempty"`
+	GreRuntime    *GRETunnelRuntime      `json:"greRuntime,omitempty"`
+}
+
+func (GRETunnel) IsResource() {}
+
+func (GRETunnel) IsNode() {}
+
+// GRE tunnel configuration
+type GRETunnelConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Local tunnel address
+	LocalAddress IPv4 `json:"localAddress"`
+	// Remote tunnel address (other end)
+	RemoteAddress IPv4 `json:"remoteAddress"`
+	// Optional comment/description
+	Comment *string `json:"comment,omitempty"`
+	// Keep alive interval
+	KeepaliveInterval *Duration `json:"keepaliveInterval,omitempty"`
+	// Enable tunnel
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// GRE tunnel deployment state
+type GRETunnelDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// GRE tunnel runtime state
+type GRETunnelRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether tunnel is up
+	IsUp bool `json:"isUp"`
+	// MTU of tunnel
+	Mtu *int `json:"mtu,omitempty"`
+	// Bytes transmitted through tunnel
+	BytesSent Size `json:"bytesSent"`
+	// Bytes received through tunnel
+	BytesReceived Size `json:"bytesReceived"`
+	// Packets transmitted
+	PacketsSent int `json:"packetsSent"`
+	// Packets received
+	PacketsReceived int `json:"packetsReceived"`
+}
+
 // Gateway monitoring information for SOCKS-to-TUN gateway instances.
 // Provides visibility into hev-socks5-tunnel processes.
 type GatewayInfo struct {
@@ -3170,6 +3373,233 @@ type HourlyStats struct {
 	ErrorCount int `json:"errorCount"`
 }
 
+// IKEv2 VPN Client resource implementing 8-layer model
+type IKEv2Client struct {
+	ID              string                 `json:"id"`
+	ScopedID        string                 `json:"scopedId"`
+	Type            string                 `json:"type"`
+	Category        ResourceCategory       `json:"category"`
+	Configuration   map[string]any         `json:"configuration,omitempty"`
+	Validation      *ValidationResult      `json:"validation,omitempty"`
+	Deployment      *DeploymentState       `json:"deployment,omitempty"`
+	Runtime         *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry       *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata        *ResourceMetadata      `json:"metadata"`
+	Relationships   *ResourceRelationships `json:"relationships,omitempty"`
+	Platform        *PlatformInfo          `json:"platform,omitempty"`
+	Config          *IKEv2ClientConfig     `json:"config"`
+	Ikev2Deployment *IKEv2Deployment       `json:"ikev2Deployment,omitempty"`
+	Ikev2Runtime    *IKEv2Runtime          `json:"ikev2Runtime,omitempty"`
+}
+
+func (IKEv2Client) IsResource() {}
+
+func (IKEv2Client) IsNode() {}
+
+// IKEv2 client configuration
+type IKEv2ClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VPN server address
+	Server string `json:"server"`
+	// VPN server port
+	Port *Port `json:"port,omitempty"`
+	// Username
+	Username string `json:"username"`
+	// Password
+	Password string `json:"password"`
+	// Authentication method
+	AuthMethod string `json:"authMethod"`
+	// Local identity
+	LocalIdentity string `json:"localIdentity"`
+	// Remote identity (gateway)
+	RemoteIdentity string `json:"remoteIdentity"`
+	// Encryption algorithm (aes128, aes192, aes256, etc.)
+	EncAlgorithm string `json:"encAlgorithm"`
+	// Integrity algorithm (sha1, sha256, sha384, sha512)
+	IntAlgorithm string `json:"intAlgorithm"`
+	// DH Group (group2, group14, group15, etc.)
+	DhGroup string `json:"dhGroup"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+}
+
+// IKEv2 deployment state
+type IKEv2Deployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// IKEv2 runtime state
+type IKEv2Runtime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to VPN
+	IsConnected bool `json:"isConnected"`
+	// Connection uptime
+	ConnectionUptime *Duration `json:"connectionUptime,omitempty"`
+	// Tunnel IP address
+	TunnelAddress *IPv4 `json:"tunnelAddress,omitempty"`
+	// Bytes in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes out
+	BytesOut Size `json:"bytesOut"`
+}
+
+// IKEv2 Server resource implementing 8-layer model
+type IKEv2Server struct {
+	ID                    string                 `json:"id"`
+	ScopedID              string                 `json:"scopedId"`
+	Type                  string                 `json:"type"`
+	Category              ResourceCategory       `json:"category"`
+	Configuration         map[string]any         `json:"configuration,omitempty"`
+	Validation            *ValidationResult      `json:"validation,omitempty"`
+	Deployment            *DeploymentState       `json:"deployment,omitempty"`
+	Runtime               *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry             *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata              *ResourceMetadata      `json:"metadata"`
+	Relationships         *ResourceRelationships `json:"relationships,omitempty"`
+	Platform              *PlatformInfo          `json:"platform,omitempty"`
+	Config                *IKEv2ServerConfig     `json:"config"`
+	Ikev2ServerDeployment *IKEv2ServerDeployment `json:"ikev2ServerDeployment,omitempty"`
+	Ikev2ServerRuntime    *IKEv2ServerRuntime    `json:"ikev2ServerRuntime,omitempty"`
+}
+
+func (IKEv2Server) IsResource() {}
+
+func (IKEv2Server) IsNode() {}
+
+// IKEv2 server configuration
+type IKEv2ServerConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Server profile ID
+	Profile string `json:"profile"`
+	// Server proposal (encryption/auth)
+	Proposal string `json:"proposal"`
+	// Peer configuration ID
+	Peer string `json:"peer"`
+	// Server identity
+	Identity string `json:"identity"`
+	// Traffic policy ID
+	Policy string `json:"policy"`
+	// Listen port
+	Port Port `json:"port"`
+	// Server certificate
+	Certificate string `json:"certificate"`
+	// Server private key
+	PrivateKey string `json:"privateKey"`
+	// CA certificate
+	CaCertificate *string `json:"caCertificate,omitempty"`
+}
+
+// IKEv2 server deployment state
+type IKEv2ServerDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+}
+
+// IKEv2 server runtime state
+type IKEv2ServerRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether server is accepting connections
+	IsAccepting bool `json:"isAccepting"`
+	// Number of active SAs
+	ActiveSAs int `json:"activeSAs"`
+	// Number of connected clients
+	ConnectedClients int `json:"connectedClients"`
+	// Total bytes received
+	BytesReceived Size `json:"bytesReceived"`
+	// Total bytes sent
+	BytesSent Size `json:"bytesSent"`
+}
+
+// IPIP Tunnel resource implementing 8-layer model
+type IPIPTunnel struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *IPIPTunnelConfig      `json:"config"`
+	IpipDeployment *IPIPTunnelDeployment  `json:"ipipDeployment,omitempty"`
+	IpipRuntime    *IPIPTunnelRuntime     `json:"ipipRuntime,omitempty"`
+}
+
+func (IPIPTunnel) IsResource() {}
+
+func (IPIPTunnel) IsNode() {}
+
+// IPIP tunnel configuration
+type IPIPTunnelConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Local tunnel address
+	LocalAddress IPv4 `json:"localAddress"`
+	// Remote tunnel address (other end)
+	RemoteAddress IPv4 `json:"remoteAddress"`
+	// Optional comment/description
+	Comment *string `json:"comment,omitempty"`
+	// Keep alive interval
+	KeepaliveInterval *Duration `json:"keepaliveInterval,omitempty"`
+	// Enable tunnel
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// IPIP tunnel deployment state
+type IPIPTunnelDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// IPIP tunnel runtime state
+type IPIPTunnelRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether tunnel is up
+	IsUp bool `json:"isUp"`
+	// MTU of tunnel
+	Mtu *int `json:"mtu,omitempty"`
+	// Bytes transmitted through tunnel
+	BytesSent Size `json:"bytesSent"`
+	// Bytes received through tunnel
+	BytesReceived Size `json:"bytesReceived"`
+	// Packets transmitted
+	PacketsSent int `json:"packetsSent"`
+	// Packets received
+	PacketsReceived int `json:"packetsReceived"`
+}
+
 // ISP contact information
 type ISPInfo struct {
 	// ISP name
@@ -3227,6 +3657,16 @@ type ImportServiceTemplateInput struct {
 	RouterID string `json:"routerID"`
 	// Template JSON data
 	TemplateData map[string]any `json:"templateData"`
+}
+
+// Input for importing STAR (Setup Template Archive) state
+type ImportStarStateInput struct {
+	// STAR state JSON - complete router configuration
+	StarState map[string]any `json:"starState"`
+	// Whether to override existing resources
+	OverrideExisting graphql.Omittable[*bool] `json:"overrideExisting,omitempty"`
+	// Whether to validate before importing
+	ValidateFirst graphql.Omittable[*bool] `json:"validateFirst,omitempty"`
 }
 
 // Validation error for service import.
@@ -3686,6 +4126,83 @@ type KnockPortInput struct {
 	Order int `json:"order"`
 }
 
+// L2TP VPN Client resource implementing 8-layer model
+type L2TPClient struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *L2TPClientConfig      `json:"config"`
+	L2tpDeployment *L2TPDeployment        `json:"l2tpDeployment,omitempty"`
+	L2tpRuntime    *L2TPRuntime           `json:"l2tpRuntime,omitempty"`
+}
+
+func (L2TPClient) IsResource() {}
+
+func (L2TPClient) IsNode() {}
+
+// L2TP client configuration
+type L2TPClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VPN server address
+	Server string `json:"server"`
+	// VPN server port
+	Port *Port `json:"port,omitempty"`
+	// Username
+	Username string `json:"username"`
+	// Password
+	Password string `json:"password"`
+	// Use IPSec encryption
+	UseIpsec *bool `json:"useIpsec,omitempty"`
+	// IPSec shared secret
+	IpsecSecret *string `json:"ipsecSecret,omitempty"`
+	// Authentication method
+	AuthMethod string `json:"authMethod"`
+	// L2TP protocol version
+	ProtoVersion *string `json:"protoVersion,omitempty"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+}
+
+// L2TP deployment state
+type L2TPDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// L2TP runtime state
+type L2TPRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to VPN
+	IsConnected bool `json:"isConnected"`
+	// Connection uptime
+	ConnectionUptime *Duration `json:"connectionUptime,omitempty"`
+	// Tunnel IP address
+	TunnelAddress *IPv4 `json:"tunnelAddress,omitempty"`
+	// Bytes in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes out
+	BytesOut Size `json:"bytesOut"`
+}
+
 // LAN Network composite resource - groups bridge, DHCP, firewall, routing
 type LANNetwork struct {
 	ID            string                 `json:"id"`
@@ -3858,6 +4375,36 @@ type MtuGuidance struct {
 	RecommendedMtu int `json:"recommendedMtu"`
 	// Human-readable explanation of the overhead
 	Explanation string `json:"explanation"`
+}
+
+// Multi-link configuration for load balancing and failover
+type MultiLinkConfig struct {
+	// Configuration name
+	Name string `json:"name"`
+	// Load balancing strategy
+	Strategy MultiLinkStrategy `json:"strategy"`
+	// WAN links to manage
+	Links []string `json:"links"`
+	// Link-specific configurations
+	LinkConfigs []*MultiLinkLinkConfig `json:"linkConfigs,omitempty"`
+	// Failover configuration
+	FailoverConfig *FailoverConfig `json:"failoverConfig,omitempty"`
+	// Bonding/Aggregation configuration
+	BondingConfig *BondingConfig `json:"bondingConfig,omitempty"`
+	// Enable multi-link
+	Enabled bool `json:"enabled"`
+	// Optional comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+// Per-link configuration in multi-link setup
+type MultiLinkLinkConfig struct {
+	// Link ID
+	LinkID string `json:"linkId"`
+	// Weight/priority for this link
+	Weight *int `json:"weight,omitempty"`
+	// Enabled in multi-link
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 type Mutation struct {
@@ -4057,6 +4604,103 @@ type NtfyChannelInput struct {
 	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
 }
 
+// OpenVPN VPN Client resource implementing 8-layer model
+type OpenVPNClient struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *OpenVPNClientConfig   `json:"config"`
+	OvpnDeployment *OpenVPNDeployment     `json:"ovpnDeployment,omitempty"`
+	OvpnRuntime    *OpenVPNRuntime        `json:"ovpnRuntime,omitempty"`
+}
+
+func (OpenVPNClient) IsResource() {}
+
+func (OpenVPNClient) IsNode() {}
+
+// OpenVPN client configuration
+type OpenVPNClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VPN server address
+	Server string `json:"server"`
+	// VPN server port
+	Port Port `json:"port"`
+	// Connection mode: tcp or udp
+	Protocol string `json:"protocol"`
+	// Authentication mode: user/pass, certificate, or both
+	AuthType string `json:"authType"`
+	// Username (if using user/pass auth)
+	Username *string `json:"username,omitempty"`
+	// Password (if using user/pass auth)
+	Password *string `json:"password,omitempty"`
+	// CA certificate PEM
+	CaCert string `json:"caCert"`
+	// Client certificate PEM
+	ClientCert string `json:"clientCert"`
+	// Client key PEM
+	ClientKey string `json:"clientKey"`
+	// Encryption cipher
+	Cipher *string `json:"cipher,omitempty"`
+	// TLS version (e.g., 1.2, 1.3)
+	TLSVersion *string `json:"tlsVersion,omitempty"`
+	// Verify server certificate
+	VerifyServerCert *bool `json:"verifyServerCert,omitempty"`
+	// Route all traffic through VPN (kill switch)
+	RouteAllTraffic *bool `json:"routeAllTraffic,omitempty"`
+	// Do not pull default route from server
+	RouteNoPull *bool `json:"routeNoPull,omitempty"`
+	// Custom DNS servers
+	DNSServers []IPv4 `json:"dnsServers,omitempty"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+}
+
+// OpenVPN deployment state (router-generated)
+type OpenVPNDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+	// Generated client profile
+	ProfilePath *string `json:"profilePath,omitempty"`
+}
+
+// OpenVPN runtime state
+type OpenVPNRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to VPN server
+	IsConnected bool `json:"isConnected"`
+	// Time of last successful connection
+	LastConnectTime *time.Time `json:"lastConnectTime,omitempty"`
+	// Connection uptime
+	ConnectionUptime *Duration `json:"connectionUptime,omitempty"`
+	// Current tunnel IP
+	TunnelAddress *IPv4 `json:"tunnelAddress,omitempty"`
+	// Server endpoint currently connected to
+	ConnectedEndpoint *string `json:"connectedEndpoint,omitempty"`
+	// Bytes transferred in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes transferred out
+	BytesOut Size `json:"bytesOut"`
+}
+
 // Operation counts by type
 type OperationCounts struct {
 	Create int `json:"create"`
@@ -4080,6 +4724,155 @@ type OrphanedPort struct {
 	Allocation *PortAllocation `json:"allocation"`
 	// Reason why this allocation is orphaned
 	Reason string `json:"reason"`
+}
+
+// PPP Server resource (covers PPTP, L2TP, SSTP, OpenVPN servers)
+// Implementing 8-layer model
+type PPPServer struct {
+	ID                  string                 `json:"id"`
+	ScopedID            string                 `json:"scopedId"`
+	Type                string                 `json:"type"`
+	Category            ResourceCategory       `json:"category"`
+	Configuration       map[string]any         `json:"configuration,omitempty"`
+	Validation          *ValidationResult      `json:"validation,omitempty"`
+	Deployment          *DeploymentState       `json:"deployment,omitempty"`
+	Runtime             *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry           *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata            *ResourceMetadata      `json:"metadata"`
+	Relationships       *ResourceRelationships `json:"relationships,omitempty"`
+	Platform            *PlatformInfo          `json:"platform,omitempty"`
+	Config              *PPPServerConfig       `json:"config"`
+	PppServerDeployment *PPPServerDeployment   `json:"pppServerDeployment,omitempty"`
+	PppServerRuntime    *PPPServerRuntime      `json:"pppServerRuntime,omitempty"`
+}
+
+func (PPPServer) IsResource() {}
+
+func (PPPServer) IsNode() {}
+
+// PPP server configuration
+type PPPServerConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Server type (pptp, l2tp, sstp, ovpn)
+	ServerType string `json:"serverType"`
+	// Listen port
+	Port Port `json:"port"`
+	// Server address range
+	AddressPool string `json:"addressPool"`
+	// Authentication type
+	AuthType string `json:"authType"`
+	// Certificate (for SSTP, OpenVPN)
+	Certificate *string `json:"certificate,omitempty"`
+	// Private key (for SSTP, OpenVPN)
+	PrivateKey *string `json:"privateKey,omitempty"`
+	// Enable encryption
+	Encryption *bool `json:"encryption,omitempty"`
+	// Encryption cipher
+	Cipher *string `json:"cipher,omitempty"`
+}
+
+// PPP server deployment state
+type PPPServerDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Server interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// PPP server runtime state
+type PPPServerRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether server is accepting connections
+	IsAccepting bool `json:"isAccepting"`
+	// Number of connected clients
+	ConnectedClients int `json:"connectedClients"`
+	// Total bytes received
+	BytesReceived Size `json:"bytesReceived"`
+	// Total bytes sent
+	BytesSent Size `json:"bytesSent"`
+}
+
+// PPTP VPN Client resource implementing 8-layer model
+type PPTPClient struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *PPTPClientConfig      `json:"config"`
+	PptpDeployment *PPTPDeployment        `json:"pptpDeployment,omitempty"`
+	PptpRuntime    *PPTPRuntime           `json:"pptpRuntime,omitempty"`
+}
+
+func (PPTPClient) IsResource() {}
+
+func (PPTPClient) IsNode() {}
+
+// PPTP client configuration
+type PPTPClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VPN server address
+	ConnectTo string `json:"connectTo"`
+	// VPN server port
+	Port *Port `json:"port,omitempty"`
+	// Username
+	Username string `json:"username"`
+	// Password
+	Password string `json:"password"`
+	// Authentication method (pap, chap, mschap, mschap2)
+	AuthMethod string `json:"authMethod"`
+	// Keep alive timeout
+	KeepaliveTimeout *Duration `json:"keepaliveTimeout,omitempty"`
+	// Enable on-demand dialing
+	DialOnDemand *bool `json:"dialOnDemand,omitempty"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+}
+
+// PPTP deployment state
+type PPTPDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// PPTP runtime state
+type PPTPRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to VPN
+	IsConnected bool `json:"isConnected"`
+	// Connection uptime
+	ConnectionUptime *Duration `json:"connectionUptime,omitempty"`
+	// Tunnel IP address
+	TunnelAddress *IPv4 `json:"tunnelAddress,omitempty"`
+	// Bytes in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes out
+	BytesOut Size `json:"bytesOut"`
 }
 
 // Information about pagination in a connection
@@ -4485,6 +5278,110 @@ type PreviewNotificationTemplateInput struct {
 	BodyTemplate string `json:"bodyTemplate"`
 }
 
+// Progress event for provisioning operations (validation, apply, etc.)
+// Emitted via subscription during long-running operations.
+type ProvisioningProgressEvent struct {
+	// Session ID this event is for
+	SessionID string `json:"sessionId"`
+	// Current phase name (e.g., "validating_resources", "applying_config", "verifying_deployment")
+	Phase string `json:"phase"`
+	// Current step number (0-indexed)
+	Step int `json:"step"`
+	// Total number of steps in this phase
+	TotalSteps int `json:"totalSteps"`
+	// Human-readable progress message
+	Message string `json:"message"`
+	// Overall operation status
+	Status ProvisioningApplyStatus `json:"status"`
+	// Resource being processed (if applicable)
+	ResourceID *string `json:"resourceId,omitempty"`
+	// Type of resource being processed
+	ResourceType *string `json:"resourceType,omitempty"`
+	// Percentage complete (0-100)
+	PercentComplete int `json:"percentComplete"`
+	// Timestamp of this event
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Resource relationships for provisioning context
+type ProvisioningRelationshipsInput struct {
+	// IDs of resources this resource depends on
+	DependsOn graphql.Omittable[[]string] `json:"dependsOn,omitempty"`
+	// IDs of resources that depend on this resource
+	Dependents graphql.Omittable[[]string] `json:"dependents,omitempty"`
+	// Associated network interfaces (LAN, WAN, etc.)
+	Networks graphql.Omittable[[]string] `json:"networks,omitempty"`
+	// Associated firewall rules or policies
+	FirewallRules graphql.Omittable[[]string] `json:"firewallRules,omitempty"`
+	// Associated routing rules
+	RoutingRules graphql.Omittable[[]string] `json:"routingRules,omitempty"`
+}
+
+// Provisioning session encapsulates the entire setup workflow for a router.
+// Manages state transitions from initial setup through resource configuration
+// to final apply on the router.
+type ProvisioningSession struct {
+	// Unique session identifier
+	ID string `json:"id"`
+	// Router being provisioned
+	RouterID string `json:"routerId"`
+	// Provisioning mode (EASY or ADVANCE)
+	Mode ProvisioningMode `json:"mode"`
+	// Target firmware
+	Firmware ProvisioningFirmware `json:"firmware"`
+	// Router operational mode
+	RouterMode ProvisioningRouterMode `json:"routerMode"`
+	// WAN link type for this provisioning
+	WanLinkType ProvisioningWANLinkType `json:"wanLinkType"`
+	// List of resource IDs included in this session
+	// (VPN clients, tunnels, extra features, etc.)
+	ResourceIds []string `json:"resourceIds"`
+	// Networks configuration JSON (LAN, guest networks, etc.)
+	NetworksConfig map[string]any `json:"networksConfig"`
+	// Current step in the wizard workflow
+	CurrentStep WizardStep `json:"currentStep"`
+	// Current status of session apply operation
+	ApplyStatus ProvisioningApplyStatus `json:"applyStatus"`
+	// Associated changeset ID (created when moving to APPLY)
+	ChangesetID *string `json:"changesetId,omitempty"`
+	// Error message if apply failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// User who created this session
+	CreatedBy string `json:"createdBy"`
+	// Session creation time
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update time
+	UpdatedAt time.Time `json:"updatedAt"`
+	// Session expiration time (for cleanup of abandoned sessions)
+	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+// Connection type for paginated provisioning sessions
+type ProvisioningSessionConnection struct {
+	// Edges contain provisioning session nodes
+	Edges []*ProvisioningSessionEdge `json:"edges"`
+	// Page information for pagination
+	PageInfo *PageInfo `json:"pageInfo"`
+	// Total count of provisioning sessions
+	TotalCount int `json:"totalCount"`
+}
+
+// Edge in provisioning session connection
+type ProvisioningSessionEdge struct {
+	// Cursor for pagination
+	Cursor string `json:"cursor"`
+	// Provisioning session node
+	Node *ProvisioningSession `json:"node"`
+}
+
+// Payload for provisioning session mutations
+type ProvisioningSessionPayload struct {
+	// The provisioning session (null if operation failed)
+	Session *ProvisioningSession `json:"session,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Pushover API usage statistics
 type PushoverUsage struct {
 	// Number of messages used this month
@@ -4806,6 +5703,22 @@ type ResourceUsage struct {
 	UsagePercent float64 `json:"usagePercent"`
 	// Resource status (ok, warning, critical)
 	Status ResourceStatus `json:"status"`
+}
+
+// Validation result for a single resource in provisioning session
+type ResourceValidationResult struct {
+	// Resource ID
+	ResourceID string `json:"resourceId"`
+	// Resource type
+	ResourceType string `json:"resourceType"`
+	// Whether resource passed validation
+	IsValid bool `json:"isValid"`
+	// Validation errors (if any)
+	Errors []string `json:"errors,omitempty"`
+	// Validation warnings (non-blocking)
+	Warnings []string `json:"warnings,omitempty"`
+	// Additional validation metadata
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 // Input for restarting a service instance.
@@ -5332,6 +6245,83 @@ type RuntimeState struct {
 	Uptime *Duration `json:"uptime,omitempty"`
 }
 
+// SSTP VPN Client resource implementing 8-layer model
+type SSTPClient struct {
+	ID             string                 `json:"id"`
+	ScopedID       string                 `json:"scopedId"`
+	Type           string                 `json:"type"`
+	Category       ResourceCategory       `json:"category"`
+	Configuration  map[string]any         `json:"configuration,omitempty"`
+	Validation     *ValidationResult      `json:"validation,omitempty"`
+	Deployment     *DeploymentState       `json:"deployment,omitempty"`
+	Runtime        *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry      *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata       *ResourceMetadata      `json:"metadata"`
+	Relationships  *ResourceRelationships `json:"relationships,omitempty"`
+	Platform       *PlatformInfo          `json:"platform,omitempty"`
+	Config         *SSTPClientConfig      `json:"config"`
+	SstpDeployment *SSTPDeployment        `json:"sstpDeployment,omitempty"`
+	SstpRuntime    *SSTPRuntime           `json:"sstpRuntime,omitempty"`
+}
+
+func (SSTPClient) IsResource() {}
+
+func (SSTPClient) IsNode() {}
+
+// SSTP client configuration
+type SSTPClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VPN server address
+	Server string `json:"server"`
+	// VPN server port
+	Port *Port `json:"port,omitempty"`
+	// Username
+	Username string `json:"username"`
+	// Password
+	Password string `json:"password"`
+	// Authentication method
+	AuthMethod string `json:"authMethod"`
+	// TLS version
+	TLSVersion *string `json:"tlsVersion,omitempty"`
+	// Verify server certificate
+	VerifyServerCert *bool `json:"verifyServerCert,omitempty"`
+	// Server Name Indication (SNI)
+	Sni *string `json:"sni,omitempty"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+}
+
+// SSTP deployment state
+type SSTPDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// SSTP runtime state
+type SSTPRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to VPN
+	IsConnected bool `json:"isConnected"`
+	// Connection uptime
+	ConnectionUptime *Duration `json:"connectionUptime,omitempty"`
+	// Tunnel IP address
+	TunnelAddress *IPv4 `json:"tunnelAddress,omitempty"`
+	// Bytes in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes out
+	BytesOut Size `json:"bytesOut"`
+}
+
 // Input for saving custom alert rule template
 type SaveAlertRuleTemplateInput struct {
 	// Template name
@@ -5821,6 +6811,21 @@ type StartInstanceInput struct {
 	RouterID string `json:"routerID"`
 	// Instance ID to start
 	InstanceID string `json:"instanceID"`
+}
+
+// Input for starting a new provisioning session
+type StartProvisioningSessionInput struct {
+	// Provisioning mode (EASY or ADVANCE)
+	Mode ProvisioningMode `json:"mode"`
+	// Target firmware
+	Firmware ProvisioningFirmware `json:"firmware"`
+	// Router operational mode
+	RouterMode ProvisioningRouterMode `json:"routerMode"`
+	// WAN link type
+	WanLinkType ProvisioningWANLinkType `json:"wanLinkType"`
+	// Initial networks configuration (LAN, DHCP, etc.)
+	// JSON structure varies by router mode and firmware
+	Networks map[string]any `json:"networks"`
 }
 
 // Result of starting a troubleshooting session
@@ -7232,12 +8237,97 @@ type VPNTunnelInfo struct {
 	RemoteAddress *string `json:"remoteAddress,omitempty"`
 }
 
+// VXLAN Tunnel resource implementing 8-layer model
+type VXLANTunnel struct {
+	ID              string                 `json:"id"`
+	ScopedID        string                 `json:"scopedId"`
+	Type            string                 `json:"type"`
+	Category        ResourceCategory       `json:"category"`
+	Configuration   map[string]any         `json:"configuration,omitempty"`
+	Validation      *ValidationResult      `json:"validation,omitempty"`
+	Deployment      *DeploymentState       `json:"deployment,omitempty"`
+	Runtime         *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry       *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata        *ResourceMetadata      `json:"metadata"`
+	Relationships   *ResourceRelationships `json:"relationships,omitempty"`
+	Platform        *PlatformInfo          `json:"platform,omitempty"`
+	Config          *VXLANTunnelConfig     `json:"config"`
+	VxlanDeployment *VXLANTunnelDeployment `json:"vxlanDeployment,omitempty"`
+	VxlanRuntime    *VXLANTunnelRuntime    `json:"vxlanRuntime,omitempty"`
+}
+
+func (VXLANTunnel) IsResource() {}
+
+func (VXLANTunnel) IsNode() {}
+
+// VXLAN tunnel configuration
+type VXLANTunnelConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// VXLAN Network Identifier (VNI)
+	Vni int `json:"vni"`
+	// VXLAN UDP port
+	Port Port `json:"port"`
+	// Remote VXLAN endpoint
+	RemoteAddress IPv4 `json:"remoteAddress"`
+	// Local source address
+	LocalAddress *IPv4 `json:"localAddress,omitempty"`
+	// Optional comment/description
+	Comment *string `json:"comment,omitempty"`
+	// Enable tunnel
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// VXLAN tunnel deployment state
+type VXLANTunnelDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// VXLAN tunnel runtime state
+type VXLANTunnelRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether tunnel is up
+	IsUp bool `json:"isUp"`
+	// MTU of tunnel
+	Mtu *int `json:"mtu,omitempty"`
+	// Current remote endpoint
+	CurrentRemote *IPv4 `json:"currentRemote,omitempty"`
+	// Bytes transmitted through tunnel
+	BytesSent Size `json:"bytesSent"`
+	// Bytes received through tunnel
+	BytesReceived Size `json:"bytesReceived"`
+	// Learning enabled
+	LearningEnabled *bool `json:"learningEnabled,omitempty"`
+}
+
 type ValidateChangeSetPayload struct {
 	// The validated change set
 	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
 	// Validation result
 	Validation *ChangeSetValidationResult `json:"validation,omitempty"`
 	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Payload for provisioning session validation
+type ValidateProvisioningSessionPayload struct {
+	// The provisioning session
+	Session *ProvisioningSession `json:"session"`
+	// Validation results for each resource
+	ValidationResults []*ResourceValidationResult `json:"validationResults"`
+	// Overall validation passed
+	IsValid bool `json:"isValid"`
+	// Mutation errors
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
@@ -7521,6 +8611,18 @@ type WANConnectionEventEdge struct {
 
 func (WANConnectionEventEdge) IsEdge() {}
 
+// DNS configuration for WAN link
+type WANDNSConfig struct {
+	// Use DHCP-provided DNS
+	UseDhcpDNS *bool `json:"useDhcpDns,omitempty"`
+	// Static DNS servers
+	DNSServers []IPv4 `json:"dnsServers,omitempty"`
+	// DNS over HTTPS (DoH) URL
+	DohURL *string `json:"dohUrl,omitempty"`
+	// Enable DNS caching
+	EnableCaching *bool `json:"enableCaching,omitempty"`
+}
+
 // Input for configuring WAN health check
 type WANHealthCheckInput struct {
 	// Target host to ping (IP or hostname)
@@ -7621,6 +8723,72 @@ type WANLink struct {
 func (WANLink) IsResource() {}
 
 func (WANLink) IsNode() {}
+
+// WAN link configuration
+type WANLinkConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Link type (DOMESTIC or FOREIGN)
+	LinkType WANLinkTypeEnum `json:"linkType"`
+	// Connection type (DHCP, Static, PPPoE, LTE, None)
+	ConnectionType WANConnectionType `json:"connectionType"`
+	// Connection-specific configuration (DHCP, PPPoE, Static, LTE)
+	ConnectionConfig map[string]any `json:"connectionConfig"`
+	// DNS configuration
+	DNSConfig *WANDNSConfig `json:"dnsConfig,omitempty"`
+	// Physical interface name
+	Interface string `json:"interface"`
+	// Link priority for multi-link setup (lower = higher priority)
+	Priority *int `json:"priority,omitempty"`
+	// Link weight for load balancing (in multi-link scenarios)
+	Weight *int `json:"weight,omitempty"`
+	// Enable link
+	Enabled bool `json:"enabled"`
+	// Optional comment/description
+	Comment *string `json:"comment,omitempty"`
+}
+
+// WAN link deployment state
+type WANLinkDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Current connection status
+	ConnectionStatus *WANStatus `json:"connectionStatus,omitempty"`
+	// Current IP address assigned
+	CurrentIP *IPv4 `json:"currentIP,omitempty"`
+	// Current gateway
+	CurrentGateway *IPv4 `json:"currentGateway,omitempty"`
+	// DHCP lease expiration (if DHCP)
+	LeaseExpiry *time.Time `json:"leaseExpiry,omitempty"`
+}
+
+// WAN Link resource implementing 8-layer model
+// Extends basic WAN configuration with provisioning context
+type WANLinkResource struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]any         `json:"configuration,omitempty"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	Config        *WANLinkConfig         `json:"config"`
+	WanDeployment *WANLinkDeployment     `json:"wanDeployment,omitempty"`
+	WanRuntime    *WANLinkRuntime        `json:"wanRuntime,omitempty"`
+}
+
+func (WANLinkResource) IsResource() {}
+
+func (WANLinkResource) IsNode() {}
 
 // WAN Link runtime state
 type WANLinkRuntime struct {
@@ -7811,6 +8979,73 @@ type WireGuardDeployment struct {
 	InterfaceName *string `json:"interfaceName,omitempty"`
 }
 
+// WireGuard Peer resource implementing 8-layer model
+type WireGuardPeer struct {
+	ID               string                   `json:"id"`
+	ScopedID         string                   `json:"scopedId"`
+	Type             string                   `json:"type"`
+	Category         ResourceCategory         `json:"category"`
+	Configuration    map[string]any           `json:"configuration,omitempty"`
+	Validation       *ValidationResult        `json:"validation,omitempty"`
+	Deployment       *DeploymentState         `json:"deployment,omitempty"`
+	Runtime          *RuntimeState            `json:"runtime,omitempty"`
+	Telemetry        *TelemetryData           `json:"telemetry,omitempty"`
+	Metadata         *ResourceMetadata        `json:"metadata"`
+	Relationships    *ResourceRelationships   `json:"relationships,omitempty"`
+	Platform         *PlatformInfo            `json:"platform,omitempty"`
+	Config           *WireGuardPeerConfig     `json:"config"`
+	WgPeerDeployment *WireGuardPeerDeployment `json:"wgPeerDeployment,omitempty"`
+	WgPeerRuntime    *WireGuardPeerRuntime    `json:"wgPeerRuntime,omitempty"`
+}
+
+func (WireGuardPeer) IsResource() {}
+
+func (WireGuardPeer) IsNode() {}
+
+// WireGuard peer configuration
+type WireGuardPeerConfig struct {
+	// Parent WireGuard interface ID
+	Interface string `json:"interface"`
+	// Peer public key
+	PublicKey string `json:"publicKey"`
+	// Allowed addresses (CIDR)
+	AllowedAddress []CIDR `json:"allowedAddress"`
+	// Peer endpoint (IP:port)
+	Endpoint *string `json:"endpoint,omitempty"`
+	// Preshared key (optional)
+	PresharedKey *string `json:"presharedKey,omitempty"`
+	// Persistent keepalive interval
+	PersistentKeepalive *Duration `json:"persistentKeepalive,omitempty"`
+}
+
+// WireGuard peer deployment state
+type WireGuardPeerDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+}
+
+// WireGuard peer runtime state
+type WireGuardPeerRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether peer is connected
+	IsConnected bool `json:"isConnected"`
+	// Last handshake time
+	LastHandshake *time.Time `json:"lastHandshake,omitempty"`
+	// Endpoint currently used
+	CurrentEndpoint *string `json:"currentEndpoint,omitempty"`
+	// Bytes received from peer
+	BytesReceived Size `json:"bytesReceived"`
+	// Bytes sent to peer
+	BytesSent Size `json:"bytesSent"`
+}
+
 // WireGuard runtime state
 type WireGuardRuntime struct {
 	IsRunning    bool          `json:"isRunning"`
@@ -7829,6 +9064,77 @@ type WireGuardRuntime struct {
 	BytesOut Size `json:"bytesOut"`
 	// Current active peers count
 	ActivePeers int `json:"activePeers"`
+}
+
+// WireGuard Server resource implementing 8-layer model
+type WireGuardServer struct {
+	ID                 string                     `json:"id"`
+	ScopedID           string                     `json:"scopedId"`
+	Type               string                     `json:"type"`
+	Category           ResourceCategory           `json:"category"`
+	Configuration      map[string]any             `json:"configuration,omitempty"`
+	Validation         *ValidationResult          `json:"validation,omitempty"`
+	Deployment         *DeploymentState           `json:"deployment,omitempty"`
+	Runtime            *RuntimeState              `json:"runtime,omitempty"`
+	Telemetry          *TelemetryData             `json:"telemetry,omitempty"`
+	Metadata           *ResourceMetadata          `json:"metadata"`
+	Relationships      *ResourceRelationships     `json:"relationships,omitempty"`
+	Platform           *PlatformInfo              `json:"platform,omitempty"`
+	Config             *WireGuardServerConfig     `json:"config"`
+	WgServerDeployment *WireGuardServerDeployment `json:"wgServerDeployment,omitempty"`
+	WgServerRuntime    *WireGuardServerRuntime    `json:"wgServerRuntime,omitempty"`
+}
+
+func (WireGuardServer) IsResource() {}
+
+func (WireGuardServer) IsNode() {}
+
+// WireGuard server configuration
+type WireGuardServerConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// Server listen port
+	ListenPort Port `json:"listenPort"`
+	// Server private key
+	PrivateKey string `json:"privateKey"`
+	// Server address (tunnel IP)
+	Address string `json:"address"`
+	// Server peers
+	Peers []string `json:"peers"`
+	// Enable peer to peer mode
+	EnableP2p *bool `json:"enableP2P,omitempty"`
+	// Mtu
+	Mtu *int `json:"mtu,omitempty"`
+}
+
+// WireGuard server deployment state
+type WireGuardServerDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Generated public key
+	PublicKey *string `json:"publicKey,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// WireGuard server runtime state
+type WireGuardServerRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether server is listening
+	IsListening bool `json:"isListening"`
+	// Current connected peers
+	ConnectedPeers int `json:"connectedPeers"`
+	// Total bytes transferred in
+	BytesIn Size `json:"bytesIn"`
+	// Total bytes transferred out
+	BytesOut Size `json:"bytesOut"`
 }
 
 // Alert action types for subscriptions
@@ -8213,6 +9519,76 @@ func (e *BatchInterfaceAction) UnmarshalJSON(b []byte) error {
 }
 
 func (e BatchInterfaceAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Bonding mode enum
+type BondingMode string
+
+const (
+	// Load balancing - transmit on first available
+	BondingModeBalanceRr BondingMode = "BALANCE_RR"
+	// Active-backup - only one link active
+	BondingModeActiveBackup BondingMode = "ACTIVE_BACKUP"
+	// Balance XOR - based on source/destination
+	BondingModeBalanceXor BondingMode = "BALANCE_XOR"
+	// Broadcast - send on all links
+	BondingModeBroadcast BondingMode = "BROADCAST"
+	// 802.3AD - LACP protocol
+	BondingModeBalanceAlb BondingMode = "BALANCE_ALB"
+	// Transmit load balancing
+	BondingModeBalanceTlb BondingMode = "BALANCE_TLB"
+)
+
+var AllBondingMode = []BondingMode{
+	BondingModeBalanceRr,
+	BondingModeActiveBackup,
+	BondingModeBalanceXor,
+	BondingModeBroadcast,
+	BondingModeBalanceAlb,
+	BondingModeBalanceTlb,
+}
+
+func (e BondingMode) IsValid() bool {
+	switch e {
+	case BondingModeBalanceRr, BondingModeActiveBackup, BondingModeBalanceXor, BondingModeBroadcast, BondingModeBalanceAlb, BondingModeBalanceTlb:
+		return true
+	}
+	return false
+}
+
+func (e BondingMode) String() string {
+	return string(e)
+}
+
+func (e *BondingMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BondingMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BondingMode", str)
+	}
+	return nil
+}
+
+func (e BondingMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *BondingMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e BondingMode) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -11518,6 +12894,70 @@ func (e MirrorDirection) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// Multi-link strategy enum
+type MultiLinkStrategy string
+
+const (
+	// Failover - use secondary only if primary fails
+	MultiLinkStrategyFailover MultiLinkStrategy = "FAILOVER"
+	// PCC (Per-Connection-Classifier) - distribute per connection
+	MultiLinkStrategyPcc MultiLinkStrategy = "PCC"
+	// NTH - distribute per Nth connection
+	MultiLinkStrategyNth MultiLinkStrategy = "NTH"
+	// ECMP (Equal Cost Multi-Path) - true load balancing
+	MultiLinkStrategyEcmp MultiLinkStrategy = "ECMP"
+)
+
+var AllMultiLinkStrategy = []MultiLinkStrategy{
+	MultiLinkStrategyFailover,
+	MultiLinkStrategyPcc,
+	MultiLinkStrategyNth,
+	MultiLinkStrategyEcmp,
+}
+
+func (e MultiLinkStrategy) IsValid() bool {
+	switch e {
+	case MultiLinkStrategyFailover, MultiLinkStrategyPcc, MultiLinkStrategyNth, MultiLinkStrategyEcmp:
+		return true
+	}
+	return false
+}
+
+func (e MultiLinkStrategy) String() string {
+	return string(e)
+}
+
+func (e *MultiLinkStrategy) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MultiLinkStrategy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MultiLinkStrategy", str)
+	}
+	return nil
+}
+
+func (e MultiLinkStrategy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MultiLinkStrategy) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MultiLinkStrategy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // NAT action types for firewall NAT rules.
 type NatAction string
 
@@ -12111,6 +13551,311 @@ func (e *ProtocolPreference) UnmarshalJSON(b []byte) error {
 }
 
 func (e ProtocolPreference) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Status of provisioning session apply operation
+type ProvisioningApplyStatus string
+
+const (
+	// Session in draft state - not ready for application
+	ProvisioningApplyStatusDraft ProvisioningApplyStatus = "DRAFT"
+	// Validating all resources and configurations
+	ProvisioningApplyStatusValidating ProvisioningApplyStatus = "VALIDATING"
+	// All validations passed - ready to apply
+	ProvisioningApplyStatusValidated ProvisioningApplyStatus = "VALIDATED"
+	// Applying configuration changes to router
+	ProvisioningApplyStatusApplying ProvisioningApplyStatus = "APPLYING"
+	// Configuration successfully applied to router
+	ProvisioningApplyStatusApplied ProvisioningApplyStatus = "APPLIED"
+	// Application failed - rollback may have occurred
+	ProvisioningApplyStatusFailed ProvisioningApplyStatus = "FAILED"
+)
+
+var AllProvisioningApplyStatus = []ProvisioningApplyStatus{
+	ProvisioningApplyStatusDraft,
+	ProvisioningApplyStatusValidating,
+	ProvisioningApplyStatusValidated,
+	ProvisioningApplyStatusApplying,
+	ProvisioningApplyStatusApplied,
+	ProvisioningApplyStatusFailed,
+}
+
+func (e ProvisioningApplyStatus) IsValid() bool {
+	switch e {
+	case ProvisioningApplyStatusDraft, ProvisioningApplyStatusValidating, ProvisioningApplyStatusValidated, ProvisioningApplyStatusApplying, ProvisioningApplyStatusApplied, ProvisioningApplyStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e ProvisioningApplyStatus) String() string {
+	return string(e)
+}
+
+func (e *ProvisioningApplyStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProvisioningApplyStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProvisioningApplyStatus", str)
+	}
+	return nil
+}
+
+func (e ProvisioningApplyStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProvisioningApplyStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProvisioningApplyStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Target firmware for provisioning
+type ProvisioningFirmware string
+
+const (
+	// MikroTik RouterOS
+	ProvisioningFirmwareMikrotik ProvisioningFirmware = "MIKROTIK"
+	// OpenWRT
+	ProvisioningFirmwareOpenwrt ProvisioningFirmware = "OPENWRT"
+)
+
+var AllProvisioningFirmware = []ProvisioningFirmware{
+	ProvisioningFirmwareMikrotik,
+	ProvisioningFirmwareOpenwrt,
+}
+
+func (e ProvisioningFirmware) IsValid() bool {
+	switch e {
+	case ProvisioningFirmwareMikrotik, ProvisioningFirmwareOpenwrt:
+		return true
+	}
+	return false
+}
+
+func (e ProvisioningFirmware) String() string {
+	return string(e)
+}
+
+func (e *ProvisioningFirmware) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProvisioningFirmware(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProvisioningFirmware", str)
+	}
+	return nil
+}
+
+func (e ProvisioningFirmware) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProvisioningFirmware) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProvisioningFirmware) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Provisioning mode - determines the setup workflow complexity
+type ProvisioningMode string
+
+const (
+	// EASY: Guided wizard for basic setup (WAN, LAN, optional extra features)
+	ProvisioningModeEasy ProvisioningMode = "EASY"
+	// ADVANCE: Full control over all provisioning parameters and resource config
+	ProvisioningModeAdvance ProvisioningMode = "ADVANCE"
+)
+
+var AllProvisioningMode = []ProvisioningMode{
+	ProvisioningModeEasy,
+	ProvisioningModeAdvance,
+}
+
+func (e ProvisioningMode) IsValid() bool {
+	switch e {
+	case ProvisioningModeEasy, ProvisioningModeAdvance:
+		return true
+	}
+	return false
+}
+
+func (e ProvisioningMode) String() string {
+	return string(e)
+}
+
+func (e *ProvisioningMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProvisioningMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProvisioningMode", str)
+	}
+	return nil
+}
+
+func (e ProvisioningMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProvisioningMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProvisioningMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Router operational mode for provisioning
+type ProvisioningRouterMode string
+
+const (
+	// Access Point mode - router provides WiFi, acts as network hub
+	ProvisioningRouterModeApMode ProvisioningRouterMode = "AP_MODE"
+	// Trunk/Core mode - high-performance router backbone
+	ProvisioningRouterModeTrunkMode ProvisioningRouterMode = "TRUNK_MODE"
+)
+
+var AllProvisioningRouterMode = []ProvisioningRouterMode{
+	ProvisioningRouterModeApMode,
+	ProvisioningRouterModeTrunkMode,
+}
+
+func (e ProvisioningRouterMode) IsValid() bool {
+	switch e {
+	case ProvisioningRouterModeApMode, ProvisioningRouterModeTrunkMode:
+		return true
+	}
+	return false
+}
+
+func (e ProvisioningRouterMode) String() string {
+	return string(e)
+}
+
+func (e *ProvisioningRouterMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProvisioningRouterMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProvisioningRouterMode", str)
+	}
+	return nil
+}
+
+func (e ProvisioningRouterMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProvisioningRouterMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProvisioningRouterMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// WAN link type for provisioning context
+type ProvisioningWANLinkType string
+
+const (
+	// Domestic ISP link (residential, small business)
+	ProvisioningWANLinkTypeDomestic ProvisioningWANLinkType = "DOMESTIC"
+	// Foreign/International link with special routing needs
+	ProvisioningWANLinkTypeForeign ProvisioningWANLinkType = "FOREIGN"
+	// Supports both domestic and foreign link configurations
+	ProvisioningWANLinkTypeBoth ProvisioningWANLinkType = "BOTH"
+)
+
+var AllProvisioningWANLinkType = []ProvisioningWANLinkType{
+	ProvisioningWANLinkTypeDomestic,
+	ProvisioningWANLinkTypeForeign,
+	ProvisioningWANLinkTypeBoth,
+}
+
+func (e ProvisioningWANLinkType) IsValid() bool {
+	switch e {
+	case ProvisioningWANLinkTypeDomestic, ProvisioningWANLinkTypeForeign, ProvisioningWANLinkTypeBoth:
+		return true
+	}
+	return false
+}
+
+func (e ProvisioningWANLinkType) String() string {
+	return string(e)
+}
+
+func (e *ProvisioningWANLinkType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProvisioningWANLinkType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProvisioningWANLinkType", str)
+	}
+	return nil
+}
+
+func (e ProvisioningWANLinkType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProvisioningWANLinkType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProvisioningWANLinkType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -15439,6 +17184,64 @@ func (e WANEventType) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// WAN link type enum
+type WANLinkTypeEnum string
+
+const (
+	// Domestic ISP link (residential, small business)
+	WANLinkTypeEnumDomestic WANLinkTypeEnum = "DOMESTIC"
+	// Foreign/International link with special routing needs
+	WANLinkTypeEnumForeign WANLinkTypeEnum = "FOREIGN"
+)
+
+var AllWANLinkTypeEnum = []WANLinkTypeEnum{
+	WANLinkTypeEnumDomestic,
+	WANLinkTypeEnumForeign,
+}
+
+func (e WANLinkTypeEnum) IsValid() bool {
+	switch e {
+	case WANLinkTypeEnumDomestic, WANLinkTypeEnumForeign:
+		return true
+	}
+	return false
+}
+
+func (e WANLinkTypeEnum) String() string {
+	return string(e)
+}
+
+func (e *WANLinkTypeEnum) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WANLinkTypeEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WANLinkTypeEnum", str)
+	}
+	return nil
+}
+
+func (e WANLinkTypeEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WANLinkTypeEnum) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WANLinkTypeEnum) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // WAN connection status
 type WANStatus string
 
@@ -15629,6 +17432,76 @@ func (e *WebhookTemplate) UnmarshalJSON(b []byte) error {
 }
 
 func (e WebhookTemplate) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Wizard step in provisioning flow
+type WizardStep string
+
+const (
+	// Step 1: Choose provisioning mode and basic settings
+	WizardStepChoose WizardStep = "CHOOSE"
+	// Step 2: Configure WAN link
+	WizardStepWan WizardStep = "WAN"
+	// Step 3: Configure LAN networks
+	WizardStepLan WizardStep = "LAN"
+	// Step 4: Configure extra features (VPN, firewall, etc.)
+	WizardStepExtra WizardStep = "EXTRA"
+	// Step 5: Review all configurations
+	WizardStepReview WizardStep = "REVIEW"
+	// Step 6: Apply configurations
+	WizardStepApply WizardStep = "APPLY"
+)
+
+var AllWizardStep = []WizardStep{
+	WizardStepChoose,
+	WizardStepWan,
+	WizardStepLan,
+	WizardStepExtra,
+	WizardStepReview,
+	WizardStepApply,
+}
+
+func (e WizardStep) IsValid() bool {
+	switch e {
+	case WizardStepChoose, WizardStepWan, WizardStepLan, WizardStepExtra, WizardStepReview, WizardStepApply:
+		return true
+	}
+	return false
+}
+
+func (e WizardStep) String() string {
+	return string(e)
+}
+
+func (e *WizardStep) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WizardStep(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WizardStep", str)
+	}
+	return nil
+}
+
+func (e WizardStep) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WizardStep) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WizardStep) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

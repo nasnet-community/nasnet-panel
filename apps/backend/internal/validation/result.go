@@ -60,6 +60,9 @@ type Error struct {
 
 // Error implements the error interface.
 func (e *Error) Error() string {
+	if e == nil {
+		return "validation error is nil"
+	}
 	return fmt.Sprintf("[%s] %s: %s", e.StageName, e.Field, e.Message)
 }
 
@@ -89,6 +92,9 @@ func NewResult() *Result {
 
 // AddError adds a validation error to the result.
 func (r *Result) AddError(err *Error) {
+	if r == nil || err == nil {
+		return
+	}
 	r.Errors = append(r.Errors, err)
 	if err.Severity == SeverityError {
 		r.Valid = false
@@ -108,7 +114,7 @@ func (r *Result) AddError(err *Error) {
 
 // Merge combines another result into this one.
 func (r *Result) Merge(other *Result) {
-	if other == nil {
+	if r == nil || other == nil {
 		return
 	}
 	for _, err := range other.Errors {
@@ -118,14 +124,20 @@ func (r *Result) Merge(other *Result) {
 
 // HasErrors returns true if any blocking errors exist.
 func (r *Result) HasErrors() bool {
+	if r == nil {
+		return false
+	}
 	return !r.Valid
 }
 
 // ErrorCount returns the number of blocking errors.
 func (r *Result) ErrorCount() int {
+	if r == nil {
+		return 0
+	}
 	count := 0
 	for _, e := range r.Errors {
-		if e.Severity == SeverityError {
+		if e != nil && e.Severity == SeverityError {
 			count++
 		}
 	}
@@ -134,9 +146,12 @@ func (r *Result) ErrorCount() int {
 
 // WarningCount returns the number of warnings.
 func (r *Result) WarningCount() int {
+	if r == nil {
+		return 0
+	}
 	count := 0
 	for _, e := range r.Errors {
-		if e.Severity == SeverityWarning {
+		if e != nil && e.Severity == SeverityWarning {
 			count++
 		}
 	}
@@ -145,6 +160,10 @@ func (r *Result) WarningCount() int {
 
 // Summary returns a human-readable summary of the validation result.
 func (r *Result) Summary() string {
+	if r == nil {
+		return "Validation result is nil"
+	}
+
 	if r.Valid {
 		return fmt.Sprintf("Validation passed (%d stages, %d warnings)",
 			r.StagesRun, r.WarningCount())

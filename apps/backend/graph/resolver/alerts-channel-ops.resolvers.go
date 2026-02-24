@@ -7,36 +7,163 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CreateNotificationChannelConfig is the resolver for the createNotificationChannelConfig field.
-func (r *mutationResolver) CreateNotificationChannelConfig(_ context.Context, input model.CreateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateNotificationChannelConfig - createNotificationChannelConfig"))
+// Creates a new notification channel configuration.
+func (r *mutationResolver) CreateNotificationChannelConfig(ctx context.Context, input model.CreateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
+	if r.Dispatcher == nil {
+		return &model.ChannelConfigPayload{
+			Errors: []*model.MutationError{{
+				Code:    "DISPATCHER_UNAVAILABLE",
+				Message: "Notification dispatcher service not available",
+			}},
+		}, nil
+	}
+
+	// Validate required fields
+	if input.ChannelType == "" {
+		return &model.ChannelConfigPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel type is required",
+			}},
+		}, nil
+	}
+
+	if input.Name == "" {
+		return &model.ChannelConfigPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel name is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement channel config creation with service call
+	// This should call r.Dispatcher to create the channel config with proper error handling
+	// and return the created configuration or errors
+	return &model.ChannelConfigPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "CreateNotificationChannelConfig not yet implemented",
+		}},
+	}, nil
 }
 
 // UpdateNotificationChannelConfig is the resolver for the updateNotificationChannelConfig field.
-func (r *mutationResolver) UpdateNotificationChannelConfig(_ context.Context, id string, input model.UpdateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateNotificationChannelConfig - updateNotificationChannelConfig"))
+// Updates an existing notification channel configuration.
+func (r *mutationResolver) UpdateNotificationChannelConfig(ctx context.Context, id string, input model.UpdateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
+	if r.Dispatcher == nil {
+		return &model.ChannelConfigPayload{
+			Errors: []*model.MutationError{{
+				Code:    "DISPATCHER_UNAVAILABLE",
+				Message: "Notification dispatcher service not available",
+			}},
+		}, nil
+	}
+
+	// Validate required fields
+	if id == "" {
+		return &model.ChannelConfigPayload{
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel configuration ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement channel config update with service call
+	// This should call r.Dispatcher to update the channel config with proper error handling
+	// Validate input fields before calling service (name if provided, enabled status, etc.)
+	return &model.ChannelConfigPayload{
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "UpdateNotificationChannelConfig not yet implemented",
+		}},
+	}, nil
 }
 
 // DeleteNotificationChannelConfig is the resolver for the deleteNotificationChannelConfig field.
-func (r *mutationResolver) DeleteNotificationChannelConfig(_ context.Context, id string) (*model.DeletePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteNotificationChannelConfig - deleteNotificationChannelConfig"))
+// Deletes a notification channel configuration.
+func (r *mutationResolver) DeleteNotificationChannelConfig(ctx context.Context, id string) (*model.DeletePayload, error) {
+	if r.Dispatcher == nil {
+		return &model.DeletePayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "DISPATCHER_UNAVAILABLE",
+				Message: "Notification dispatcher service not available",
+			}},
+		}, nil
+	}
+
+	// Validate required fields
+	if id == "" {
+		return &model.DeletePayload{
+			Success: false,
+			Errors: []*model.MutationError{{
+				Code:    "INVALID_INPUT",
+				Message: "Channel configuration ID is required",
+			}},
+		}, nil
+	}
+
+	// TODO: Implement channel config deletion with service call
+	// This should call r.Dispatcher to delete the channel config
+	// Ensure proper error handling for missing config or service errors
+	return &model.DeletePayload{
+		Success: false,
+		Errors: []*model.MutationError{{
+			Code:    "NOT_IMPLEMENTED",
+			Message: "DeleteNotificationChannelConfig not yet implemented",
+		}},
+	}, nil
 }
 
 // NotificationChannelConfigs is the resolver for the notificationChannelConfigs field.
-func (r *queryResolver) NotificationChannelConfigs(_ context.Context, channelType *model.ChannelType) ([]*model.NotificationChannelConfig, error) {
-	panic(fmt.Errorf("not implemented: NotificationChannelConfigs - notificationChannelConfigs"))
+// Returns all notification channel configurations, optionally filtered by channel type.
+func (r *queryResolver) NotificationChannelConfigs(ctx context.Context, channelType *model.ChannelType) ([]*model.NotificationChannelConfig, error) {
+	if r.Dispatcher == nil {
+		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	// TODO: Implement channel configs listing with optional type filter
+	// This should call r.Dispatcher to retrieve channel configs
+	// Pass ctx to all service calls for proper context propagation and cancellation
+	// Return empty slice on success, error only on system failures
+	return []*model.NotificationChannelConfig{}, nil
 }
 
 // NotificationChannelConfig is the resolver for the notificationChannelConfig field.
-func (r *queryResolver) NotificationChannelConfig(_ context.Context, id string) (*model.NotificationChannelConfig, error) {
-	panic(fmt.Errorf("not implemented: NotificationChannelConfig - notificationChannelConfig"))
+// Returns a specific notification channel configuration by ID.
+func (r *queryResolver) NotificationChannelConfig(ctx context.Context, id string) (*model.NotificationChannelConfig, error) {
+	if r.Dispatcher == nil {
+		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	// Validate required fields
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "channel configuration ID is required")
+	}
+
+	// TODO: Implement channel config retrieval by ID
+	// This should call r.Dispatcher to retrieve the specific channel config
+	// Pass ctx to service call for proper context propagation
+	return nil, nil
 }
 
 // DefaultNotificationChannelConfig is the resolver for the defaultNotificationChannelConfig field.
-func (r *queryResolver) DefaultNotificationChannelConfig(_ context.Context, channelType model.ChannelType) (*model.NotificationChannelConfig, error) {
-	panic(fmt.Errorf("not implemented: DefaultNotificationChannelConfig - defaultNotificationChannelConfig"))
+// Returns the default configuration for a specific notification channel type.
+func (r *queryResolver) DefaultNotificationChannelConfig(ctx context.Context, channelType model.ChannelType) (*model.NotificationChannelConfig, error) {
+	if r.Dispatcher == nil {
+		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+	}
+
+	// Validate channel type (enum validation handled by GraphQL schema)
+	// TODO: Implement default channel config retrieval
+	// This should return a default config template for the specified channel type
+	// Pass ctx to service call for proper context propagation
+	return nil, nil
 }

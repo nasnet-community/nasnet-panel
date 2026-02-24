@@ -109,7 +109,7 @@ func TestSchema_Validate(t *testing.T) {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr && tt.errMsg != "" && err != nil {
-				if !stringContains(err.Error(), tt.errMsg) {
+				if !strings.Contains(err.Error(), tt.errMsg) {
 					t.Errorf("Validate() error message = %v, want to contain %v", err.Error(), tt.errMsg)
 				}
 			}
@@ -206,7 +206,7 @@ func TestSchema_ValidateConfig(t *testing.T) {
 				t.Errorf("ValidateConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr && tt.errMsg != "" && err != nil {
-				if !stringContains(err.Error(), tt.errMsg) {
+				if !strings.Contains(err.Error(), tt.errMsg) {
 					t.Errorf("ValidateConfig() error message = %v, want to contain %v", err.Error(), tt.errMsg)
 				}
 			}
@@ -282,9 +282,7 @@ func TestSchema_ToJSON_FromJSON(t *testing.T) {
 	}
 }
 
-// Helper function to create int pointer (for tests only)
+// testIntPtr creates an int pointer for tests.
 func testIntPtr(i int) *int {
 	return &i
 }
-
-func stringContains(s, substr string) bool { return strings.Contains(s, substr) }

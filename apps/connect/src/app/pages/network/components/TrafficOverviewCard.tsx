@@ -24,15 +24,15 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-xl p-4 animate-pulse" role="status" aria-label="Loading traffic overview">
+      <div className="bg-card rounded-card-sm p-4 animate-pulse" role="status" aria-label="Loading traffic overview">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-6 h-6 bg-muted rounded" />
           <div className="h-4 bg-muted rounded w-24" />
         </div>
-        <div className="h-20 bg-muted rounded-lg mb-3" />
+        <div className="h-20 bg-muted rounded-card-sm mb-3" />
         <div className="grid grid-cols-2 gap-3">
-          <div className="h-12 bg-muted rounded-lg" />
-          <div className="h-12 bg-muted rounded-lg" />
+          <div className="h-12 bg-muted rounded-card-sm" />
+          <div className="h-12 bg-muted rounded-card-sm" />
         </div>
         <span className="sr-only">Loading traffic overview...</span>
       </div>
@@ -43,7 +43,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
   const trafficBars = [40, 60, 45, 80, 55, 70, 90, 65, 75, 50, 85, 60];
 
   return (
-    <div className="bg-card rounded-xl p-4">
+    <div className="bg-card rounded-card-sm p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
       </div>
 
       {/* Traffic Graph */}
-      <div className="h-20 flex items-end gap-1 mb-4" role="img" aria-label="Traffic bar chart for the last hour">
+      <div className="h-20 flex items-end gap-1 mb-4 rounded-card-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="img" aria-label="Traffic bar chart for the last hour" tabIndex={-1}>
         {trafficBars.map((height, i) => (
           <div
             key={i}
@@ -70,7 +70,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
 
       {/* Download/Upload Stats */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-muted rounded-lg p-3">
+        <div className="bg-muted rounded-card-sm p-3">
           <div className="flex items-center gap-2 mb-1">
             <ArrowDown className="w-3.5 h-3.5 text-info" aria-hidden="true" />
             <span className="text-muted-foreground text-xs">{t('traffic.download')}</span>
@@ -81,7 +81,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
           </p>
         </div>
 
-        <div className="bg-muted rounded-lg p-3">
+        <div className="bg-muted rounded-card-sm p-3">
           <div className="flex items-center gap-2 mb-1">
             <ArrowUp className="w-3.5 h-3.5 text-secondary" aria-hidden="true" />
             <span className="text-muted-foreground text-xs">{t('traffic.upload')}</span>

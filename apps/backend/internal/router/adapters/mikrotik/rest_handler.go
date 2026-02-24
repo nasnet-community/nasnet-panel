@@ -3,7 +3,6 @@ package mikrotik
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,23 +12,29 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // MakeRouterRequest executes the HTTP request to RouterOS.
 //
 //nolint:gocyclo // handler routing complexity
-func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool) (*RouterProxyResponse, error) {
-	client := CreateRouterClient(useHTTPS)
+func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool, logger *zap.Logger) (*RouterProxyResponse, error) {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
+	client := CreateRouterClient(useHTTPS, logger)
 	url := BuildRouterURL(req.RouterIP, req.Endpoint, useHTTPS)
 
-	fmt.Printf("[CONTAINER] Container to router request: %s -> %s\n", req.RouterIP, url)
+	logger.Debug("container to router request", zap.String("routerIP", req.RouterIP), zap.String("url", url))
 
 	portStr := map[bool]string{true: "443", false: "80"}[useHTTPS]
 	if conn, err := net.DialTimeout("tcp", req.RouterIP+":"+portStr, 5*time.Second); err == nil {
 		conn.Close()
-		fmt.Printf("[CONTAINER] TCP connection to %s successful\n", req.RouterIP)
+		logger.Debug("TCP connection to router successful", zap.String("routerIP", req.RouterIP))
 	} else {
-		fmt.Printf("[CONTAINER] TCP connection to %s failed: %v\n", req.RouterIP, err)
+		logger.Debug("TCP connection to router failed", zap.String("routerIP", req.RouterIP), zap.Error(err))
 		return nil, fmt.Errorf("container network connectivity failed to %s: %w", req.RouterIP, err)
 	}
 
@@ -65,26 +70,20 @@ func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool) (*RouterProxyResp
 	if authHeader == "" {
 		return nil, fmt.Errorf("authentication required: no Authorization header provided")
 	}
-	truncated := authHeader
-	if len(authHeader) > 20 {
-		truncated = authHeader[:20] + "..."
-	}
-	fmt.Printf("[DEBUG] Authorization header present: %s\n", truncated)
-	if strings.HasPrefix(authHeader, "Basic ") {
-		encoded := strings.TrimPrefix(authHeader, "Basic ")
-		if decoded, decErr := base64.StdEncoding.DecodeString(encoded); decErr == nil {
-			fmt.Printf("[DEBUG] Decoded credentials: %s\n", string(decoded))
-		}
-	}
 
-	fmt.Printf("[DEBUG] Proxy request: %s %s\n", httpReq.Method, url)
+	logger.Debug("Authorization header present")
+
+	// Credentials are sensitive; do not log decoded credentials even if using Basic auth
+	_ = strings.HasPrefix(authHeader, "Basic ")
+
+	logger.Debug("proxy request", zap.String("method", httpReq.Method), zap.String("url", url))
 
 	start := time.Now()
 	resp, err := client.Do(httpReq)
 	elapsed := time.Since(start)
 
 	if err != nil { //nolint:nestif // error handling flow
-		fmt.Printf("[ERROR] HTTP request failed for %s (took %v): %v\n", url, elapsed, err)
+		logger.Error("HTTP request failed", zap.String("url", url), zap.Duration("elapsed", elapsed), zap.Error(err))
 		var netErr net.Error
 		if errors.As(err, &netErr) {
 			if netErr.Timeout() {
@@ -101,7 +100,7 @@ func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool) (*RouterProxyResp
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("[DEBUG] HTTP response received in %v: %d %s\n", elapsed, resp.StatusCode, resp.Status)
+	logger.Debug("HTTP response received", zap.Duration("elapsed", elapsed), zap.Int("statusCode", resp.StatusCode), zap.String("status", resp.Status))
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -136,44 +135,47 @@ func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool) (*RouterProxyResp
 }
 
 // HandleRouterProxy handles router proxy requests with HTTPS fallback.
-func HandleRouterProxy(w http.ResponseWriter, r *http.Request) {
+func HandleRouterProxy(w http.ResponseWriter, r *http.Request, logger *zap.Logger) {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if r.Method != http.MethodPost {
-		ErrorResponse(w, http.StatusMethodNotAllowed, "method_not_allowed", "Only POST method is allowed")
+		ErrorResponse(w, http.StatusMethodNotAllowed, "method_not_allowed", "Only POST method is allowed", logger)
 		return
 	}
 
 	var proxyReq RouterProxyRequest
 	if err := json.NewDecoder(r.Body).Decode(&proxyReq); err != nil {
-		ErrorResponse(w, http.StatusBadRequest, "invalid_json", "Failed to parse JSON request: "+err.Error())
+		ErrorResponse(w, http.StatusBadRequest, "invalid_json", "Failed to parse JSON request: "+err.Error(), logger)
 		return
 	}
 
 	if err := ValidateProxyRequest(&proxyReq); err != nil {
-		ErrorResponse(w, http.StatusBadRequest, "validation_error", err.Error())
+		ErrorResponse(w, http.StatusBadRequest, "validation_error", err.Error(), logger)
 		return
 	}
 
 	var response *RouterProxyResponse
 	var lastErr error
 
-	response, err := MakeRouterRequest(&proxyReq, false) //nolint:contextcheck // context passed via HTTP request
-	if err != nil {                                      //nolint:nestif // error handling flow
+	response, err := MakeRouterRequest(&proxyReq, false, logger)
+	if err != nil { //nolint:nestif // error handling flow
 		lastErr = err
 		if !strings.Contains(err.Error(), "container network") && !strings.Contains(err.Error(), "no route to host") {
-			response, err = MakeRouterRequest(&proxyReq, true) //nolint:contextcheck // context passed via HTTP request
+			response, err = MakeRouterRequest(&proxyReq, true, logger)
 			if err != nil {
 				errorMsg := fmt.Sprintf("Both HTTP and HTTPS failed. HTTP error: %v, HTTPS error: %v", lastErr, err)
-				ErrorResponse(w, http.StatusBadGateway, "connection_failed", errorMsg)
+				ErrorResponse(w, http.StatusBadGateway, "connection_failed", errorMsg, logger)
 				return
 			}
 		} else {
 			ErrorResponse(w, http.StatusBadGateway, "container_network_error",
-				"Container cannot reach router. Ensure container runs with --network=host mode. Error: "+err.Error())
+				"Container cannot reach router. Ensure container runs with --network=host mode. Error: "+err.Error(), logger)
 			return
 		}
 	}
@@ -184,7 +186,13 @@ func HandleRouterProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 // ErrorResponse sends a JSON error response.
-func ErrorResponse(w http.ResponseWriter, statusCode int, errCode, message string) {
+func ErrorResponse(w http.ResponseWriter, statusCode int, errCode, message string, logger *zap.Logger) {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
+	logger.Error("error response", zap.Int("statusCode", statusCode), zap.String("errorCode", errCode))
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")

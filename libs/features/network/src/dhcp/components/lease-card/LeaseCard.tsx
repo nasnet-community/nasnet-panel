@@ -145,14 +145,14 @@ export const LeaseCard = React.memo(function LeaseCard({
           <div
             className={cn(
               'absolute left-0 top-0 bottom-0 flex items-center justify-start px-4',
-              'bg-primary text-primary-foreground',
+              'bg-primary text-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
             )}
             style={{ width: Math.abs(swipeOffset) }}
             aria-hidden="true"
           >
-            <Icon icon={Pin} size="md" className="text-primary-foreground" />
+            <Icon icon={Pin} size="md" className="text-foreground" />
           </div>
         )}
 
@@ -161,14 +161,14 @@ export const LeaseCard = React.memo(function LeaseCard({
           <div
             className={cn(
               'absolute right-0 top-0 bottom-0 flex items-center justify-end px-4',
-              'bg-destructive/20 text-destructive-foreground',
+              'bg-error/20 text-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
             )}
             style={{ width: Math.abs(swipeOffset) }}
             aria-hidden="true"
           >
-            <Icon icon={Trash2} size="md" className="text-destructive-foreground" />
+            <Icon icon={Trash2} size="md" className="text-foreground" />
           </div>
         )}
 
@@ -217,7 +217,7 @@ export const LeaseCard = React.memo(function LeaseCard({
             <div className="flex-1 min-w-0">
               {/* Top row: IP + New badge */}
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-semibold text-base truncate">
+                <span className="font-mono font-semibold text-base truncate">
                   {lease.address}
                 </span>
                 {isNew && (

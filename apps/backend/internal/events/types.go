@@ -121,6 +121,7 @@ type Event interface {
 	GetPriority() Priority
 	GetTimestamp() time.Time
 	GetSource() string
+	GetCorrelationID() string // Distributed tracing correlation ID
 	Payload() ([]byte, error)
 }
 
@@ -149,6 +150,7 @@ func (e *BaseEvent) GetType() string          { return e.Type }
 func (e *BaseEvent) GetPriority() Priority    { return e.Priority }
 func (e *BaseEvent) GetTimestamp() time.Time  { return e.Timestamp }
 func (e *BaseEvent) GetSource() string        { return e.Source }
+func (e *BaseEvent) GetCorrelationID() string { return e.Metadata.CorrelationID }
 func (e *BaseEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
 func NewBaseEvent(eventType string, priority Priority, source string) BaseEvent {
@@ -167,6 +169,11 @@ func NewBaseEventWithMetadata(eventType string, priority Priority, source string
 		ID: ulid.Make(), Type: eventType, Priority: priority,
 		Timestamp: time.Now(), Source: source, Metadata: metadata,
 	}
+}
+
+// SetCorrelationID sets the correlation ID for distributed tracing.
+func (e *BaseEvent) SetCorrelationID(correlationID string) {
+	e.Metadata.CorrelationID = correlationID
 }
 
 // =============================================================================

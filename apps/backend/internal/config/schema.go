@@ -6,6 +6,16 @@ import (
 	"net"
 )
 
+// Field type constants
+const (
+	fieldTypeString = "string"
+	fieldTypeInt    = "int"
+	fieldTypeBool   = "bool"
+	fieldTypeIP     = "ip"
+	fieldTypePort   = "port"
+	fieldTypeEnum   = "enum"
+)
+
 // Field represents a single configuration field in a service config schema.
 type Field struct {
 	Name         string      `json:"name"`
@@ -29,6 +39,8 @@ type Schema struct {
 }
 
 // Validate validates the configuration schema.
+// Note: Circular dependencies are not possible in this schema structure
+// since Field only contains primitive types and string slices, not nested Field references.
 func (s *Schema) Validate() error {
 	if s.ServiceType == "" {
 		return fmt.Errorf("service_type is required")
@@ -43,48 +55,66 @@ func (s *Schema) Validate() error {
 	// Validate each field
 	fieldNames := make(map[string]bool)
 	for i, field := range s.Fields {
-		if field.Name == "" {
-			return fmt.Errorf("field at index %d: name is required", i)
-		}
-		if fieldNames[field.Name] {
-			return fmt.Errorf("duplicate field name: %s", field.Name)
+		if err := s.validateSchemaField(field, i, fieldNames); err != nil {
+			return err
 		}
 		fieldNames[field.Name] = true
-
-		if field.Type == "" {
-			return fmt.Errorf("field %s: type is required", field.Name)
-		}
-
-		validTypes := map[string]bool{
-			"string": true,
-			"int":    true,
-			"bool":   true,
-			"ip":     true,
-			"port":   true,
-			"enum":   true,
-		}
-		if !validTypes[field.Type] {
-			return fmt.Errorf("field %s: invalid type %s", field.Name, field.Type)
-		}
-
-		// Enum type must have enum_values
-		if field.Type == "enum" && len(field.EnumValues) == 0 {
-			return fmt.Errorf("field %s: enum type requires enum_values", field.Name)
-		}
-
-		// Validate default value type if provided
-		if field.Default != nil {
-			if err := validateFieldValue(field.Name, field.Type, field.Default, field.EnumValues); err != nil {
-				return fmt.Errorf("field %s: default value invalid: %w", field.Name, err)
-			}
-		}
 	}
 
 	return nil
 }
 
+// validateSchemaField validates a single field in the schema.
+func (s *Schema) validateSchemaField(field Field, index int, fieldNames map[string]bool) error {
+	if field.Name == "" {
+		return fmt.Errorf("field at index %d: name is required", index)
+	}
+	if fieldNames[field.Name] {
+		return fmt.Errorf("duplicate field name: %s", field.Name)
+	}
+
+	if field.Type == "" {
+		return fmt.Errorf("field %s: type is required", field.Name)
+	}
+
+	validTypes := map[string]bool{
+		fieldTypeString: true,
+		fieldTypeInt:    true,
+		fieldTypeBool:   true,
+		fieldTypeIP:     true,
+		fieldTypePort:   true,
+		fieldTypeEnum:   true,
+	}
+	if !validTypes[field.Type] {
+		return fmt.Errorf("field %s: invalid type %s", field.Name, field.Type)
+	}
+
+	// Enum type must have enum_values
+	if field.Type == fieldTypeEnum && len(field.EnumValues) == 0 {
+		return fmt.Errorf("field %s: enum type requires enum_values", field.Name)
+	}
+
+	// Validate default value type if provided
+	if field.Default != nil {
+		if err := validateFieldValue(field.Name, field.Type, field.Default, field.EnumValues); err != nil {
+			return fmt.Errorf("field %s: default value invalid: %w", field.Name, err)
+		}
+	}
+
+	// Validate min/max for numeric types
+	if field.Type == "int" || field.Type == "port" {
+		if field.Min != nil && field.Max != nil && *field.Min > *field.Max {
+			return fmt.Errorf("field %s: min (%d) cannot be greater than max (%d)", field.Name, *field.Min, *field.Max)
+		}
+	}
+	return nil
+}
+
 // ValidateConfig validates a user configuration against the schema.
 func (s *Schema) ValidateConfig(config map[string]interface{}) error {
+	if config == nil {
+		return fmt.Errorf("config cannot be nil")
+	}
 	if err := s.validateFieldValues(config); err != nil {
 		return err
 	}
@@ -116,7 +146,7 @@ func (s *Schema) validateFieldValues(config map[string]interface{}) error {
 
 // validateMinMax validates min/max constraints for int and port fields.
 func validateMinMax(field Field, value interface{}) error {
-	if (field.Type != "int" && field.Type != "port") || value == nil {
+	if (field.Type != fieldTypeInt && field.Type != fieldTypePort) || value == nil {
 		return nil
 	}
 
@@ -160,17 +190,17 @@ func validateFieldValue(fieldName, fieldType string, value interface{}, enumValu
 	}
 
 	switch fieldType {
-	case "string":
+	case fieldTypeString:
 		return validateStringField(fieldName, value)
-	case "int":
+	case fieldTypeInt:
 		return validateIntField(fieldName, value)
-	case "bool":
+	case fieldTypeBool:
 		return validateBoolField(fieldName, value)
-	case "ip":
+	case fieldTypeIP:
 		return validateIPField(fieldName, value)
-	case "port":
+	case fieldTypePort:
 		return validatePortField(fieldName, value)
-	case "enum":
+	case fieldTypeEnum:
 		return validateEnumField(fieldName, value, enumValues)
 	default:
 		return fmt.Errorf("field %s: unsupported type %s", fieldName, fieldType)
@@ -266,12 +296,16 @@ func (s *Schema) ToJSON() ([]byte, error) {
 
 // FromJSON deserializes a schema from JSON.
 func FromJSON(data []byte) (*Schema, error) {
+	if len(data) == 0 {
+		return nil, fmt.Errorf("schema JSON data is empty")
+	}
+
 	var schema Schema
 	if err := json.Unmarshal(data, &schema); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal schema: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal schema JSON: %w", err)
 	}
 	if err := schema.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
+		return nil, fmt.Errorf("schema validation failed: %w", err)
 	}
 	return &schema, nil
 }

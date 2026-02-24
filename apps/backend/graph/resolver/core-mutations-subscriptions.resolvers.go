@@ -8,88 +8,380 @@ package resolver
 import (
 	"backend/graph"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CreateRouter is the resolver for the createRouter field.
 func (r *mutationResolver) CreateRouter(ctx context.Context, input model.CreateRouterInput) (*model.CreateRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateRouter - createRouter"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if input.Name == "" {
+		return nil, errors.NewValidationError("name", input.Name, "required")
+	}
+	if input.Host == "" {
+		return nil, errors.NewValidationError("host", input.Host, "required")
+	}
+	if input.Username == "" {
+		return nil, errors.NewValidationError("username", input.Username, "required")
+	}
+	if input.Password == "" {
+		return nil, errors.NewValidationError("password", "[REDACTED]", "required")
+	}
+
+	// Service availability check
+	if r.Resolver.RouterService == nil {
+		return nil, errors.NewInternalError("router service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.RouterService with validated input
+	panic(errors.NewInternalError("not implemented: CreateRouter - createRouter", nil))
 }
 
 // UpdateRouter is the resolver for the updateRouter field.
 func (r *mutationResolver) UpdateRouter(ctx context.Context, id string, input model.UpdateRouterInput) (*model.UpdateRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateRouter - updateRouter"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.RouterService == nil {
+		return nil, errors.NewInternalError("router service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.RouterService with validated input
+	panic(errors.NewInternalError("not implemented: UpdateRouter - updateRouter", nil))
 }
 
 // DeleteRouter is the resolver for the deleteRouter field.
 func (r *mutationResolver) DeleteRouter(ctx context.Context, id string) (*model.DeleteRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteRouter - deleteRouter"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.RouterService == nil {
+		return nil, errors.NewInternalError("router service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.RouterService with validated input
+	panic(errors.NewInternalError("not implemented: DeleteRouter - deleteRouter", nil))
 }
 
 // TestRouterConnection is the resolver for the testRouterConnection field.
 func (r *mutationResolver) TestRouterConnection(ctx context.Context, id string) (*model.TestConnectionPayload, error) {
-	panic(fmt.Errorf("not implemented: TestRouterConnection - testRouterConnection"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.DiagnosticsService == nil {
+		return nil, errors.NewInternalError("diagnostics service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.DiagnosticsService with validated input
+	panic(errors.NewInternalError("not implemented: TestRouterConnection - testRouterConnection", nil))
 }
 
 // ConnectRouter is the resolver for the connectRouter field.
 func (r *mutationResolver) ConnectRouter(ctx context.Context, id string) (*model.ConnectRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: ConnectRouter - connectRouter"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.RouterService == nil {
+		return nil, errors.NewInternalError("router service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.RouterService with validated input
+	panic(errors.NewInternalError("not implemented: ConnectRouter - connectRouter", nil))
 }
 
 // DisconnectRouter is the resolver for the disconnectRouter field.
 func (r *mutationResolver) DisconnectRouter(ctx context.Context, id string) (*model.DisconnectRouterPayload, error) {
-	panic(fmt.Errorf("not implemented: DisconnectRouter - disconnectRouter"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.RouterService == nil {
+		return nil, errors.NewInternalError("router service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.RouterService with validated input
+	panic(errors.NewInternalError("not implemented: DisconnectRouter - disconnectRouter", nil))
 }
 
 // RefreshCapabilities is the resolver for the refreshCapabilities field.
 func (r *mutationResolver) RefreshCapabilities(ctx context.Context, routerID string) (*model.RefreshCapabilitiesPayload, error) {
-	panic(fmt.Errorf("not implemented: RefreshCapabilities - refreshCapabilities"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.CapabilityService == nil {
+		return nil, errors.NewInternalError("capability service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.CapabilityService with validated input
+	panic(errors.NewInternalError("not implemented: RefreshCapabilities - refreshCapabilities", nil))
 }
 
 // UpdateInterface is the resolver for the updateInterface field.
 func (r *mutationResolver) UpdateInterface(ctx context.Context, routerID string, interfaceID string, input model.UpdateInterfaceInput) (*model.UpdateInterfacePayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateInterface - updateInterface"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+	if interfaceID == "" {
+		return nil, errors.NewValidationError("interfaceID", interfaceID, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewInternalError("interface service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewInternalError("not implemented: UpdateInterface - updateInterface", nil))
 }
 
 // EnableInterface is the resolver for the enableInterface field.
 func (r *mutationResolver) EnableInterface(ctx context.Context, routerID string, interfaceID string) (*model.UpdateInterfacePayload, error) {
-	panic(fmt.Errorf("not implemented: EnableInterface - enableInterface"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+	if interfaceID == "" {
+		return nil, errors.NewValidationError("interfaceID", interfaceID, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewInternalError("interface service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewInternalError("not implemented: EnableInterface - enableInterface", nil))
 }
 
 // DisableInterface is the resolver for the disableInterface field.
 func (r *mutationResolver) DisableInterface(ctx context.Context, routerID string, interfaceID string) (*model.UpdateInterfacePayload, error) {
-	panic(fmt.Errorf("not implemented: DisableInterface - disableInterface"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+	if interfaceID == "" {
+		return nil, errors.NewValidationError("interfaceID", interfaceID, "required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewInternalError("interface service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewInternalError("not implemented: DisableInterface - disableInterface", nil))
 }
 
 // BatchInterfaceOperation is the resolver for the batchInterfaceOperation field.
 func (r *mutationResolver) BatchInterfaceOperation(ctx context.Context, routerID string, input model.BatchInterfaceInput) (*model.BatchInterfacePayload, error) {
-	panic(fmt.Errorf("not implemented: BatchInterfaceOperation - batchInterfaceOperation"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+	if len(input.InterfaceIds) == 0 {
+		return nil, errors.NewValidationError("interfaceIds", input.InterfaceIds, "at least one interface ID is required")
+	}
+
+	// Service availability check
+	if r.Resolver.InterfaceService == nil {
+		return nil, errors.NewInternalError("interface service not configured", nil)
+	}
+
+	// TODO: Call r.Resolver.InterfaceService with validated input
+	panic(errors.NewInternalError("not implemented: BatchInterfaceOperation - batchInterfaceOperation", nil))
 }
 
 // RouterStatusChanged is the resolver for the routerStatusChanged field.
 func (r *subscriptionResolver) RouterStatusChanged(ctx context.Context, routerID *string) (<-chan *model.RouterStatusEvent, error) {
-	panic(fmt.Errorf("not implemented: RouterStatusChanged - routerStatusChanged"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Service availability check
+	if r.Resolver.EventBus == nil {
+		return nil, errors.NewInternalError("event bus not configured", nil)
+	}
+
+	// Create channel for events
+	eventChan := make(chan *model.RouterStatusEvent, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(eventChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to router status events and send to eventChan
+	panic(errors.NewInternalError("not implemented: RouterStatusChanged - routerStatusChanged", nil))
 }
 
 // ResourceMetrics is the resolver for the resourceMetrics field.
 func (r *subscriptionResolver) ResourceMetrics(ctx context.Context, deviceID string) (<-chan *model.ResourceMetrics, error) {
-	panic(fmt.Errorf("not implemented: ResourceMetrics - resourceMetrics"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if deviceID == "" {
+		return nil, errors.NewValidationError("deviceID", deviceID, "required")
+	}
+
+	// Create channel for metrics
+	metricsChan := make(chan *model.ResourceMetrics, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(metricsChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to resource metrics and send to metricsChan
+	panic(errors.NewInternalError("not implemented: ResourceMetrics - resourceMetrics", nil))
 }
 
 // InterfaceTraffic is the resolver for the interfaceTraffic field.
 func (r *subscriptionResolver) InterfaceTraffic(ctx context.Context, routerID string, interfaceID *string) (<-chan *model.InterfaceTrafficEvent, error) {
-	panic(fmt.Errorf("not implemented: InterfaceTraffic - interfaceTraffic"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", routerID, "required")
+	}
+
+	// Create channel for traffic events
+	trafficChan := make(chan *model.InterfaceTrafficEvent, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(trafficChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to interface traffic events and send to trafficChan
+	panic(errors.NewInternalError("not implemented: InterfaceTraffic - interfaceTraffic", nil))
 }
 
 // ResourceUpdated is the resolver for the resourceUpdated field.
 func (r *subscriptionResolver) ResourceUpdated(ctx context.Context, resourceID *string) (<-chan *model.ResourceUpdatedEvent, error) {
-	panic(fmt.Errorf("not implemented: ResourceUpdated - resourceUpdated"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Create channel for resource updates
+	updateChan := make(chan *model.ResourceUpdatedEvent, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(updateChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to resource updates and send to updateChan
+	panic(errors.NewInternalError("not implemented: ResourceUpdated - resourceUpdated", nil))
 }
 
 // ConfigApplyProgress is the resolver for the configApplyProgress field.
 func (r *subscriptionResolver) ConfigApplyProgress(ctx context.Context, operationID string) (<-chan *model.ConfigProgress, error) {
-	panic(fmt.Errorf("not implemented: ConfigApplyProgress - configApplyProgress"))
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication required")
+	}
+
+	// Input validation
+	if operationID == "" {
+		return nil, errors.NewValidationError("operationID", operationID, "required")
+	}
+
+	// Create channel for progress updates
+	progressChan := make(chan *model.ConfigProgress, 10)
+
+	// Start goroutine to handle subscription
+	go func() {
+		defer close(progressChan)
+		<-ctx.Done()
+	}()
+
+	// TODO: Subscribe to config apply progress and send to progressChan
+	panic(errors.NewInternalError("not implemented: ConfigApplyProgress - configApplyProgress", nil))
 }
 
 // Mutation returns graph.MutationResolver implementation.

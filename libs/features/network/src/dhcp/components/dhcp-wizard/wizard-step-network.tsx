@@ -115,9 +115,9 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
         title="DNS Servers"
         description={`Configure DNS servers for DHCP clients (1-${MAX_DNS_SERVERS} servers)`}
       >
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-start">
+            <div key={field.id} className="flex gap-component-sm items-start">
               <div className="flex-1">
                 <Label htmlFor={`dns-${index}`}>
                   DNS Server {index + 1}

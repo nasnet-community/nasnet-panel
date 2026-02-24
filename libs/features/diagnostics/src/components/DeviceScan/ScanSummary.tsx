@@ -195,12 +195,12 @@ export const ScanSummary = memo(function ScanSummary({
   }, [devices, subnet, stats]);
 
   return (
-    <Card className={cn('p-6', className)}>
-      <h3 className="text-lg font-semibold mb-4">Scan Summary</h3>
+    <Card className={cn('p-component-lg', className)}>
+      <h3 className="text-lg font-semibold font-display mb-component-md">Scan Summary</h3>
       {/* Note: This component is memoized to prevent unnecessary re-renders */}
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-component-md mb-component-lg">
         <div>
           <p className="text-sm text-muted-foreground">Total Devices</p>
           <p className="text-2xl font-bold">{devices.length}</p>
@@ -222,18 +222,18 @@ export const ScanSummary = memo(function ScanSummary({
       </div>
 
       {/* Subnet Information */}
-      <div className="mb-6">
+      <div className="mb-component-lg">
         <p className="text-sm text-muted-foreground">Subnet Scanned</p>
         <p className="text-sm font-mono">{subnet}</p>
       </div>
 
       {/* Export Actions */}
-      <div className="flex gap-2">
+      <div className="flex gap-component-sm">
         <Button
           variant="outline"
           size="sm"
           onClick={handleExportCSV}
-          className="flex items-center gap-2"
+          className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Export scan results as CSV file"
         >
           <Download className="w-4 h-4" aria-hidden="true" />
@@ -243,7 +243,7 @@ export const ScanSummary = memo(function ScanSummary({
           variant="outline"
           size="sm"
           onClick={handleExportJSON}
-          className="flex items-center gap-2"
+          className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Export scan results as JSON file"
         >
           <Download className="w-4 h-4" aria-hidden="true" />

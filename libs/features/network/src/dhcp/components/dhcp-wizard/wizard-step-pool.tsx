@@ -91,7 +91,7 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
         title="Configure Address Pool"
         description="Define the range of IP addresses to assign to DHCP clients"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           <div>
             <Label htmlFor="pool-start">
               Pool Start IP
@@ -124,8 +124,8 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
           <CardHeader>
             <CardTitle className="text-base">Pool Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3 text-sm">
+          <CardContent className="space-y-component-sm">
+            <div className="grid grid-cols-2 gap-component-sm text-sm">
               <div>
                 <Label className="text-muted-foreground">Current Pool Size</Label>
                 <p className="font-medium font-mono">{currentPoolSize} addresses</p>
@@ -149,7 +149,7 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
             </div>
 
             {currentPoolSize > 0 && currentPoolSize !== (suggestion.size as number) && (
-              <div className="rounded-md bg-info/10 border border-info/20 p-3">
+              <div className="rounded-[var(--semantic-radius-button)] bg-info/10 border border-info/20 p-component-sm">
                 <p className="text-sm text-info-foreground">
                   Info: You've customized the pool size. Make sure it doesn't overlap with static IP assignments.
                 </p>

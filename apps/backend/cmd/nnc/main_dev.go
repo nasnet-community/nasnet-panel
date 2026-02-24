@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -37,10 +38,6 @@ import (
 func init() {
 	runtime.GOMAXPROCS(2)
 	scannerPool = NewScannerPool(4)
-
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Println("Development MikroTik server initialized")
-
 	ServerVersion = "development-v2.0"
 }
 
@@ -72,6 +69,7 @@ func run() {
 	if err != nil {
 		log.Fatalf("Failed to create event bus: %v", err)
 	}
+	defer eventBus.Close()
 
 	// Initialize Database Manager
 	dataDir := os.Getenv("NASNET_DATA_DIR")
@@ -85,7 +83,7 @@ func run() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	log.Printf("Database initialized: %s", dataDir)
+	defer dbManager.Close()
 	systemDB := dbManager.SystemDB()
 
 	// Initialize services
@@ -94,8 +92,13 @@ func run() {
 	var encryptionSvc *encryption.Service
 	encryptionSvc, err = encryption.NewServiceFromEnv()
 	if err != nil {
-		log.Printf("Warning: encryption service not configured: %v", err)
+		fmt.Fprintf(os.Stderr, "warning: encryption service not configured: %v\n", err)
 	}
+	defer func() {
+		if encryptionSvc != nil {
+			encryptionSvc.Close()
+		}
+	}()
 
 	routerSvc := services.NewRouterService(services.RouterServiceConfig{
 		ConnectionManager: nil,
@@ -122,8 +125,7 @@ func run() {
 	}
 	defer func() {
 		if syncErr := logger.Sync(); syncErr != nil {
-			// Ignore sync errors on stderr/stdout (common on Linux/Windows)
-			log.Printf("Warning: Failed to sync logger: %v\n", syncErr)
+			logger.Warn("failed to sync logger", zap.Error(syncErr))
 		}
 	}()
 	sugar := logger.Sugar()
@@ -140,7 +142,7 @@ func run() {
 		DB: systemDB, MaxRetries: 3, InitialBackoff: 1 * time.Second,
 	})
 	if subscribeErr := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); subscribeErr != nil {
-		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", subscribeErr)
+		sugar.Fatalw("failed to subscribe dispatcher to alert events", zap.Error(subscribeErr))
 	}
 
 	// Initialize alert system
@@ -154,14 +156,14 @@ func run() {
 		DB: systemDB, Dispatcher: dispatcher, EventBus: eventBus, Logger: sugar,
 	})
 	if err != nil {
-		log.Fatalf("Failed to initialize digest service: %v", err)
+		sugar.Fatalw("failed to initialize digest service", zap.Error(err))
 	}
 
 	digestScheduler := alerts.NewDigestScheduler(alerts.DigestSchedulerConfig{
 		DigestService: digestService, DB: systemDB, Logger: sugar,
 	})
 	if err := digestScheduler.Start(context.Background()); err != nil {
-		log.Printf("Warning: failed to start digest scheduler: %v", err)
+		sugar.Warnw("Failed to start digest scheduler", zap.Error(err))
 	}
 
 	alertService := services.NewAlertService(services.AlertServiceConfig{
@@ -174,7 +176,7 @@ func run() {
 		EscalationEngine: escalationEngine, DigestService: digestService, Logger: sugar,
 	})
 	if err := alertEngine.Start(context.Background()); err != nil {
-		log.Fatalf("Failed to start alert engine: %v", err)
+		sugar.Fatalw("failed to start alert engine", zap.Error(err))
 	}
 
 	// Create server
@@ -194,26 +196,19 @@ func run() {
 		dispatcher:      dispatcher,
 	})
 
-	log.Printf("=== NasNetConnect Development API Server v2.0 ===")
-	log.Printf("Server starting on 0.0.0.0:%s", cfg.Port)
-	log.Printf("Workers: 4, CORS: enabled for frontend communication")
-	log.Printf("Frontend: served separately by Vite")
-	log.Printf("Health check: http://localhost:%s/health", cfg.Port)
-	log.Printf("GraphQL Playground: http://localhost:%s/playground", cfg.Port)
-	log.Printf("GraphQL endpoint: http://localhost:%s/graphql", cfg.Port)
-	log.Printf("=================================================")
-
+	sugar.Infow("NasNetConnect Development API Server v2.0 starting",
+		"address", "0.0.0.0:"+cfg.Port,
+		"cors", "enabled",
+		"frontend", "served separately by Vite",
+		"health_check", "http://localhost:"+cfg.Port+"/health",
+		"graphql_playground", "http://localhost:"+cfg.Port+"/playground",
+		"graphql_endpoint", "http://localhost:"+cfg.Port+"/graphql",
+	)
 	srv.Start(func(ctx context.Context) {
 		if err := alertEngine.Stop(ctx); err != nil {
-			log.Printf("Warning: error stopping alert engine: %v", err)
+			sugar.Warnw("Error stopping alert engine", zap.Error(err))
 		}
 		digestScheduler.Stop()
-		if err := eventBus.Close(); err != nil {
-			log.Printf("Warning: error closing event bus: %v", err)
-		}
-		if err := dbManager.Close(); err != nil {
-			log.Printf("Warning: error closing database: %v", err)
-		}
 	})
 }
 

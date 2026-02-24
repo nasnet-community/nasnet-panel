@@ -111,17 +111,17 @@ export const NetworkScanner = memo(function NetworkScanner({
   }, [onRouterSelect]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {/* Scan Input */}
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <div>
           <label
             htmlFor="subnet"
-            className="block text-sm font-medium text-foreground mb-2"
+            className="block text-sm font-medium text-foreground mb-component-sm"
           >
             Network Subnet
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <input
               id="subnet"
               type="text"
@@ -129,19 +129,19 @@ export const NetworkScanner = memo(function NetworkScanner({
               onChange={(e) => setSubnet(e.target.value)}
               disabled={isScanning}
               placeholder="192.168.88.0/24"
-              className={cn('flex-1 px-3 py-2 border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
+              className={cn('flex-1 px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50', 'border-border')}
               aria-describedby="subnet-help"
             />
             <button
               onClick={handleStartScan}
               disabled={isScanning}
               aria-label={isScanning ? 'Scanning network' : 'Scan network'}
-              className={cn('min-h-[44px] px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn('min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               {isScanning ? 'Scanning...' : 'Scan Network'}
             </button>
           </div>
-          <p id="subnet-help" className="mt-1 text-sm text-muted-foreground">
+          <p id="subnet-help" className="mt-component-sm text-sm text-muted-foreground">
             Enter subnet in CIDR notation (e.g., 192.168.88.0/24)
           </p>
         </div>
@@ -154,13 +154,13 @@ export const NetworkScanner = memo(function NetworkScanner({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+            className="p-4 bg-error/10 border border-error/20 rounded-md"
             role="alert"
           >
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-destructive"
+                  className="h-5 w-5 text-error"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                   aria-hidden="true"
@@ -173,10 +173,10 @@ export const NetworkScanner = memo(function NetworkScanner({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-destructive">
+                <h3 className="text-sm font-medium text-error">
                   Scan Failed
                 </h3>
-                <p className="mt-1 text-sm text-destructive/80">
+                <p className="mt-1 text-sm text-error/80">
                   {error}
                 </p>
               </div>
@@ -192,16 +192,16 @@ export const NetworkScanner = memo(function NetworkScanner({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="p-6 bg-accent border border-border rounded-lg"
+            className="p-component-lg bg-muted border border-border rounded-[var(--semantic-radius-card)]"
             role="status"
             aria-label="Network scan in progress"
           >
-            <div className="space-y-4">
+            <div className="space-y-component-md">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-lg font-display font-semibold text-foreground">
                   Scanning Network...
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" aria-hidden="true" />
                   <span className="text-sm font-medium text-muted-foreground">
                     {scanProgress.scannedHosts} / {scanProgress.totalHosts}
@@ -223,7 +223,7 @@ export const NetworkScanner = memo(function NetworkScanner({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-component-md text-sm">
                 <div>
                   <span className="text-muted-foreground">
                     Current IP:
@@ -252,24 +252,24 @@ export const NetworkScanner = memo(function NetworkScanner({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-3"
+            className="space-y-component-md"
           >
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="text-lg font-display font-semibold text-foreground">
               Found {scanResults.length} Router{scanResults.length !== 1 ? 's' : ''}
             </h3>
-            <div className="grid gap-3" role="list" aria-label="Discovered routers">
+            <div className="grid gap-component-md" role="list" aria-label="Discovered routers">
               {scanResults.map((result) => (
                 <motion.button
                   key={result.ipAddress}
                   role="listitem"
                   onClick={() => handleSelectRouter(result)}
                   aria-label={`Select router ${result.ipAddress}${result.model ? `, model ${result.model}` : ''}`}
-                  className="min-h-[44px] p-4 bg-card border border-border rounded-lg hover:border-primary hover:shadow-md transition-all text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="min-h-[44px] p-component-md bg-card border border-border rounded-[var(--semantic-radius-card)] hover:border-primary hover:shadow-md transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="space-y-1">
+                    <div className="space-y-component-sm">
                       <p className="font-mono font-semibold text-foreground">
                         {result.ipAddress}
                       </p>
@@ -289,9 +289,9 @@ export const NetworkScanner = memo(function NetworkScanner({
                         </p>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-component-sm">
                       {result.isReachable && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                        <span className="inline-flex items-center px-component-sm py-component-sm rounded-full text-xs font-medium bg-success/10 text-success">
                           Online
                         </span>
                       )}

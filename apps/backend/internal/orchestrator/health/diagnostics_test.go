@@ -3,14 +3,13 @@ package health
 import (
 	"context"
 	"net"
-	"os"
 	"testing"
 	"time"
 
 	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/supervisor"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TestSOCKS5HandshakeValidation tests SOCKS5 proxy handshake validation
@@ -136,7 +135,7 @@ func TestSOCKS5ConnectionRefused(t *testing.T) {
 
 // TestHealthTest tests the process health check
 func TestHealthTest(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	// Create a mock ManagedProcess using the constructor
 	cfg := supervisor.ProcessConfig{
@@ -172,7 +171,7 @@ func TestHealthTest(t *testing.T) {
 // TestLogTest tests the log output diagnostic
 func TestLogTest(t *testing.T) {
 	tmpDir := t.TempDir()
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	// Create log capture
 	lc, err := resources.NewLogCapture(resources.LogCaptureConfig{
@@ -244,7 +243,7 @@ func TestLogTest(t *testing.T) {
 
 // TestDiagnosticRunner tests the diagnostic runner
 func TestDiagnosticRunner(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	runner := NewDiagnosticRunner(logger)
 
 	// Create a mock process

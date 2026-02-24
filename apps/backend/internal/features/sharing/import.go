@@ -3,7 +3,6 @@ package sharing
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"backend/generated/ent"
 )
@@ -99,7 +98,7 @@ func (s *Service) Import(ctx context.Context, pkg *ServiceExportPackage, options
 			result.Errors = append(result.Errors, ValidationError{
 				Stage:   "syntax",
 				Code:    "V400",
-				Message: fmt.Sprintf("Redacted fields require user input: %s", strings.Join(result.RedactedFields, ", ")),
+				Message: fmt.Sprintf("Redacted fields require user input: %d field(s)", len(result.RedactedFields)),
 			})
 		}
 	}

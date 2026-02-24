@@ -20,9 +20,9 @@ import (
 	"backend/internal/storage"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	// SQLite driver for in-memory testing
 	_ "github.com/mattn/go-sqlite3"
@@ -105,7 +105,10 @@ func setupIntegrationTest(t *testing.T) *IntegrationTestContext {
 	pathResolver := storage.NewDefaultPathResolver(pathResolverCfg)
 
 	// Create boot validator
-	logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
+	logger, err := zap.NewProduction()
+	require.NoError(t, err)
+	defer logger.Sync()
+
 	bootValidator, err := orchestrator.NewBootValidator(orchestrator.BootValidatorConfig{
 		DB:           client,
 		PathResolver: pathResolver,
@@ -160,13 +163,13 @@ func (ctx *IntegrationTestContext) createTestBinary(path string, content []byte)
 // simulateStorageDisconnect simulates external storage disconnection.
 func (ctx *IntegrationTestContext) simulateStorageDisconnect(path string) {
 	// Update PathResolver to mark external storage as unmounted
-	ctx.PathResolver.UpdateExternalStorage(true, path, false)
+	_ = ctx.PathResolver.UpdateExternalStorage(true, path, false)
 }
 
 // simulateStorageReconnect simulates external storage reconnection.
 func (ctx *IntegrationTestContext) simulateStorageReconnect(path string) {
 	// Update PathResolver to mark external storage as mounted
-	ctx.PathResolver.UpdateExternalStorage(true, path, true)
+	_ = ctx.PathResolver.UpdateExternalStorage(true, path, true)
 }
 
 // =============================================================================
@@ -180,7 +183,7 @@ func Test_DisconnectReconnectFlow(t *testing.T) {
 
 	// Step 1: Enable external storage
 	externalPath := filepath.Join(ctx.ExternalDir, "features")
-	ctx.PathResolver.UpdateExternalStorage(true, externalPath, true)
+	require.NoError(t, ctx.PathResolver.UpdateExternalStorage(true, externalPath, true))
 
 	// Step 2: Create binary on external storage
 	binaryPath := filepath.Join(externalPath, "bin", "tor")
@@ -256,7 +259,7 @@ func Test_SHA256VerificationAfterReconnect(t *testing.T) {
 
 	// Setup: Enable external storage
 	externalPath := filepath.Join(ctx.ExternalDir, "features")
-	ctx.PathResolver.UpdateExternalStorage(true, externalPath, true)
+	require.NoError(t, ctx.PathResolver.UpdateExternalStorage(true, externalPath, true))
 
 	// Create original binary
 	binaryPath := filepath.Join(externalPath, "bin", "sing-box")
@@ -323,7 +326,7 @@ func Test_BootValidationWithManifestSurvival(t *testing.T) {
 
 	// Setup: Binary on external storage, manifests on flash
 	externalPath := filepath.Join(ctx.ExternalDir, "features")
-	ctx.PathResolver.UpdateExternalStorage(true, externalPath, true)
+	require.NoError(t, ctx.PathResolver.UpdateExternalStorage(true, externalPath, true))
 
 	binaryPath := filepath.Join(externalPath, "bin", "xray-core")
 	manifestPath := filepath.Join(ctx.FlashDir, "features", "manifests", "xray-core.manifest")
@@ -405,7 +408,7 @@ func Test_MigrationFlowFlashToExternal(t *testing.T) {
 
 	// Enable external storage via configureExternalStorage
 	externalPath := filepath.Join(ctx.ExternalDir, "features")
-	ctx.PathResolver.UpdateExternalStorage(true, externalPath, true)
+	require.NoError(t, ctx.PathResolver.UpdateExternalStorage(true, externalPath, true))
 
 	// Simulate binary migration: copy binary to external path
 	externalBinaryPath := ctx.PathResolver.BinaryPath("adguard")

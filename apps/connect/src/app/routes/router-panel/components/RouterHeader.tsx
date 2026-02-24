@@ -48,7 +48,7 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
   const statusLabel = isConnected ? t('panel.connected') : t('panel.disconnected');
 
   return (
-    <div className="surface card-elevated p-4 md:p-6 mb-4 md:mb-6">
+    <div className="bg-card shadow-md rounded-card-sm p-4 md:p-6 mb-4 md:mb-6">
       <div className="flex items-start gap-3 md:gap-4">
         {/* Back Button */}
         <BackButton to={ROUTES.ROUTER_LIST} ariaLabel={t('panel.backButton')} />
@@ -70,7 +70,7 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
           </div>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-muted">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-muted-foreground">
             {/* Router ID */}
             <span className="font-mono">{t('panel.idLabel')}: {routerId}</span>
 

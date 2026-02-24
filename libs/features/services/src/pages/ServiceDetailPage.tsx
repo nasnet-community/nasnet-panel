@@ -115,7 +115,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]" role="status" aria-label={t('common.loading')}>
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-component-md">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">{t('services.detail.loading')}</p>
         </div>
@@ -126,17 +126,17 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Error state
   if (error) {
     return (
-      <div className="p-6">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
         <Card>
           <CardHeader>
-            <CardTitle className="text-destructive">{t('services.detail.errorLoadingTitle')}</CardTitle>
+            <CardTitle className="text-error">{t('services.detail.errorLoadingTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
-              className="mt-4"
+              className="mt-4 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => window.location.reload()}
               aria-label={t('common.retry')}
             >
@@ -151,7 +151,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Not found state
   if (!instance) {
     return (
-      <div className="p-6">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
         <Card>
           <CardHeader>
             <CardTitle>{t('services.detail.notFoundTitle')}</CardTitle>
@@ -187,13 +187,13 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
     (instance.status as string) !== 'INSTALLING';
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
       {/* Page header */}
       <div className="flex items-start justify-between">
-        <div className="space-y-3">
+        <div className="space-y-component-md">
           <div>
-            <h1 className="text-2xl font-bold">{instance.instanceName}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h1 className="text-2xl font-display text-foreground">{instance.instanceName}</h1>
+            <p className="text-sm text-muted-foreground mt-component-sm font-mono">
               {instance.featureID} service instance
             </p>
           </div>
@@ -234,6 +234,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             size="sm"
             onClick={() => setExportDialogOpen(true)}
             aria-label={t('services.sharing.export.button')}
+            className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Download className="w-4 h-4 mr-2" aria-hidden="true" />
             {t('services.sharing.export.button')}
@@ -242,7 +243,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
       </div>
 
       {instance && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-component-md">
           {/* Tab navigation */}
           <TabsList>
             <TabsTrigger value="overview">{t('services.detail.tabs.overview')}</TabsTrigger>
@@ -254,7 +255,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
           </TabsList>
 
           {/* Overview tab */}
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-component-md">
             {/* Service instance card */}
             <ServiceCard
               service={service as any}
@@ -320,7 +321,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
           </TabsContent>
 
           {/* Traffic tab */}
-          <TabsContent value="traffic" className="space-y-4">
+          <TabsContent value="traffic" className="space-y-component-md">
             {/* Traffic statistics panel */}
             <ServiceTrafficPanel
               routerID={routerId}

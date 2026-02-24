@@ -2,9 +2,10 @@ package troubleshoot
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/troubleshoot/diagnostics"
 
@@ -18,16 +19,19 @@ type Service struct {
 	circuitBreakerDiag *diagnostics.CircuitBreakerDiagnostics
 	dnsDiag            *diagnostics.DNSDiagnostics
 	routeLookupDiag    *diagnostics.RouteLookupDiagnostics
+	logger             *zap.Logger
 }
 
 // NewService creates a new troubleshooting service.
 func NewService(routerPort router.RouterPort) *Service {
+	logger := zap.L().Named("troubleshoot.Service")
 	return &Service{
 		sessionStore:       NewSessionStore(),
 		routerPort:         routerPort,
 		circuitBreakerDiag: diagnostics.NewCircuitBreakerDiagnostics(routerPort),
 		dnsDiag:            diagnostics.NewDNSDiagnostics(routerPort),
 		routeLookupDiag:    diagnostics.NewRouteLookupDiagnostics(routerPort),
+		logger:             logger,
 	}
 }
 
@@ -36,7 +40,8 @@ func (s *Service) StartTroubleshoot(ctx context.Context, routerID string) (*Sess
 	// Create session
 	session, err := s.sessionStore.Create(routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create session: %w", err)
+		s.logger.Error("failed to create troubleshoot session", zap.String("routerID", routerID), zap.Error(err))
+		return nil, err
 	}
 
 	// Update status to initializing
@@ -81,14 +86,15 @@ func (s *Service) RunTroubleshootStep(ctx context.Context, sessionID string, ste
 
 	// Find the step
 	var step *Step
-	for _, s := range session.Steps {
-		if s.ID == stepType {
-			step = s
+	for _, foundStep := range session.Steps {
+		if foundStep.ID == stepType {
+			step = foundStep
 			break
 		}
 	}
 	if step == nil {
-		return nil, fmt.Errorf("step not found: %s", stepType)
+		s.logger.Warn("diagnostic step not found", zap.String("sessionID", sessionID), zap.String("stepType", string(stepType)))
+		return nil, ErrStepNotFound
 	}
 
 	// Mark step as running
@@ -101,14 +107,23 @@ func (s *Service) RunTroubleshootStep(ctx context.Context, sessionID string, ste
 
 	// Execute the diagnostic check
 	result, diagErr := s.executeDiagnosticCheck(ctx, session.RouterID, stepType, session.WanInterface, session.Gateway)
-	if diagErr != nil {
+	switch {
+	case diagErr != nil:
+		s.logger.Error("diagnostic check failed", zap.String("sessionID", sessionID), zap.String("stepType", string(stepType)), zap.Error(diagErr))
 		step.Status = StepStatusFailed
 		step.Result = &StepResult{
 			Success:         false,
-			Message:         fmt.Sprintf("Diagnostic failed: %s", diagErr.Error()),
+			Message:         "Diagnostic failed",
 			ExecutionTimeMs: 0,
 		}
-	} else {
+	case result == nil:
+		step.Status = StepStatusFailed
+		step.Result = &StepResult{
+			Success:         false,
+			Message:         "Diagnostic check returned no result",
+			ExecutionTimeMs: 0,
+		}
+	default:
 		step.Result = result
 		if result.Success {
 			step.Status = StepStatusPassed
@@ -140,7 +155,8 @@ func (s *Service) ApplyTroubleshootFix(ctx context.Context, sessionID, issueCode
 	// Get fix suggestion
 	fix := GetFix(issueCode)
 	if fix == nil {
-		return false, "Fix not found", FixStatusFailed, fmt.Errorf("no fix available for issue: %s", issueCode)
+		s.logger.Warn("no fix available for issue", zap.String("sessionID", sessionID), zap.String("issueCode", issueCode))
+		return false, "Fix not found", FixStatusFailed, ErrFixNotFound
 	}
 
 	// Manual fixes cannot be applied
@@ -257,11 +273,17 @@ func (s *Service) executeDiagnosticCheck(ctx context.Context, _ string, stepType
 	case StepTypeNAT:
 		diagResult, err = s.circuitBreakerDiag.CheckNAT(ctx, wanInterface)
 	default:
-		return nil, fmt.Errorf("unknown step type: %s", stepType)
+		s.logger.Error("unknown diagnostic step type", zap.String("stepType", string(stepType)))
+		return nil, ErrUnknownStepType
 	}
 
 	if err != nil {
 		return nil, err
+	}
+
+	if diagResult == nil {
+		s.logger.Error("diagnostic check returned nil result", zap.String("stepType", string(stepType)))
+		return nil, ErrNilDiagnosticResult
 	}
 
 	// Convert diagnostics.StepResult to troubleshoot.StepResult
@@ -276,13 +298,14 @@ func (s *Service) executeDiagnosticCheck(ctx context.Context, _ string, stepType
 }
 
 // executeFixCommand executes a fix command on the router.
-func (s *Service) executeFixCommand(ctx context.Context, routerID, command string) (success bool, message string, err error) { //nolint:unparam // routerID kept for future use
+func (s *Service) executeFixCommand(ctx context.Context, routerID, command string) (success bool, message string, err error) {
 	// Parse command into Command struct (simplified)
 	cmd := parseRouterOSCommand(command)
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return false, fmt.Sprintf("Failed to execute command: %s", err.Error()), err
+		s.logger.Error("failed to execute fix command", zap.String("routerID", routerID), zap.Error(err))
+		return false, "Failed to execute command", err
 	}
 
 	if !result.Success {

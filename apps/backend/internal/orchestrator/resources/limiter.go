@@ -15,7 +15,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -48,7 +48,7 @@ type ResourceUsage struct {
 // ResourceLimiterConfig configures the ResourceLimiter
 type ResourceLimiterConfig struct {
 	EventBus events.EventBus
-	Logger   zerolog.Logger
+	Logger   *zap.SugaredLogger
 }
 
 // ResourceLimiter manages cgroups v2 memory limits for service instances
@@ -58,7 +58,7 @@ type ResourceLimiter struct {
 	cgroupsEnabled bool
 	mu             sync.RWMutex
 	monitors       map[int]context.CancelFunc // PID -> cancel function
-	logger         zerolog.Logger
+	logger         *zap.SugaredLogger
 }
 
 // NewResourceLimiter creates a new ResourceLimiter instance
@@ -67,10 +67,8 @@ func NewResourceLimiter(config ResourceLimiterConfig) (*ResourceLimiter, error) 
 		return nil, fmt.Errorf("EventBus is required")
 	}
 
-	// zerolog.Logger contains []byte and cannot be compared with ==
-	// Use Nop() as default if no logger output is configured
-	if config.Logger.GetLevel() == zerolog.Disabled {
-		config.Logger = zerolog.Nop()
+	if config.Logger == nil {
+		config.Logger = zap.NewNop().Sugar()
 	}
 
 	rl := &ResourceLimiter{
@@ -84,9 +82,9 @@ func NewResourceLimiter(config ResourceLimiterConfig) (*ResourceLimiter, error) 
 	rl.cgroupsEnabled = rl.checkCgroupsAvailability()
 
 	if !rl.cgroupsEnabled {
-		rl.logger.Warn().Msg("cgroups v2 not available - resource limits will not be enforced")
+		rl.logger.Warn("cgroups v2 not available - resource limits will not be enforced")
 	} else {
-		rl.logger.Info().Msg("cgroups v2 available - resource limits enabled")
+		rl.logger.Info("cgroups v2 available - resource limits enabled")
 	}
 
 	return rl, nil
@@ -129,11 +127,10 @@ func (rl *ResourceLimiter) ApplyMemoryLimit(ctx context.Context, pid int, memory
 	}
 
 	if !rl.cgroupsEnabled {
-		rl.logger.Debug().
-			Int("pid", pid).
-			Int("memoryMB", memoryMB).
-			Str("instance_id", instanceID).
-			Msg("cgroups not available - skipping memory limit enforcement")
+		rl.logger.Debugw("cgroups not available - skipping memory limit enforcement",
+			"pid", pid,
+			"memoryMB", memoryMB,
+			"instance_id", instanceID)
 		return nil
 	}
 
@@ -165,15 +162,14 @@ func (rl *ResourceLimiter) ApplyMemoryLimit(ctx context.Context, pid int, memory
 		return fmt.Errorf("failed to add process to cgroup: %w", err)
 	}
 
-	rl.logger.Info().
-		Int("pid", pid).
-		Int("memoryMB", memoryMB).
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Uint64("hardLimitBytes", hardLimitBytes).
-		Uint64("softLimitBytes", softLimitBytes).
-		Str("cgroup_path", cgroupPath).
-		Msg("applied memory limits via cgroups v2")
+	rl.logger.Infow("applied memory limits via cgroups v2",
+		"pid", pid,
+		"memoryMB", memoryMB,
+		"instance_id", instanceID,
+		"feature_id", featureID,
+		"hardLimitBytes", hardLimitBytes,
+		"softLimitBytes", softLimitBytes,
+		"cgroup_path", cgroupPath)
 
 	return nil
 }
@@ -235,12 +231,11 @@ func (rl *ResourceLimiter) StartMonitoring(ctx context.Context, pid int, instanc
 	// Start monitoring goroutine
 	go rl.monitorLoop(monitorCtx, pid, instanceID, featureID, memoryLimitMB)
 
-	rl.logger.Info().
-		Int("pid", pid).
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Int("memoryLimitMB", memoryLimitMB).
-		Msg("started resource monitoring")
+	rl.logger.Infow("started resource monitoring",
+		"pid", pid,
+		"instance_id", instanceID,
+		"feature_id", featureID,
+		"memoryLimitMB", memoryLimitMB)
 
 	return nil
 }
@@ -253,7 +248,7 @@ func (rl *ResourceLimiter) StopMonitoring(pid int) {
 	if cancel, exists := rl.monitors[pid]; exists {
 		cancel()
 		delete(rl.monitors, pid)
-		rl.logger.Info().Int("pid", pid).Msg("stopped resource monitoring")
+		rl.logger.Infow("stopped resource monitoring", "pid", pid)
 	}
 }
 
@@ -270,11 +265,7 @@ func (rl *ResourceLimiter) monitorLoop(ctx context.Context, pid int, instanceID,
 			usage, err := rl.GetResourceUsage(pid)
 			if err != nil {
 				// Process might have exited
-				rl.logger.Debug().
-					Int("pid", pid).
-					Str("instance_id", instanceID).
-					Err(err).
-					Msg("failed to get resource usage - process may have exited")
+				rl.logger.Debugw("failed to get resource usage - process may have exited", "pid", pid, "instance_id", instanceID, "error", err)
 				return
 			}
 
@@ -295,35 +286,33 @@ func (rl *ResourceLimiter) emitResourceWarning(ctx context.Context, instanceID, 
 	event := events.NewResourceWarningEvent(
 		instanceID,
 		featureID,
-		"",                                        // routerID
-		"memory",                                   // resourceType
+		"",       // routerID
+		"memory", // resourceType
 		fmt.Sprintf("%.0fMB", float64(usage.MemoryMB)), // currentUsage
-		fmt.Sprintf("%dMB", limitMB),               // limitValue
-		time.Now().UTC().Format(time.RFC3339),       // detectedAt
-		"consider reducing memory usage",            // recommendedAction
-		"",                                          // cgroupPath
-		"",                                          // trendDirection
-		"resource-limiter",                          // source
-		int(ResourceWarningThreshold*100),           // thresholdPercent
-		usagePercent,                                // usagePercent
+		fmt.Sprintf("%dMB", limitMB),                   // limitValue
+		time.Now().UTC().Format(time.RFC3339),          // detectedAt
+		"consider reducing memory usage",               // recommendedAction
+		"",                                             // cgroupPath
+		"",                                             // trendDirection
+		"resource-limiter",                             // source
+		int(ResourceWarningThreshold*100),              // thresholdPercent
+		usagePercent,                                   // usagePercent
 	)
 
 	if err := rl.publisher.Publish(ctx, event); err != nil {
-		rl.logger.Error().
-			Err(err).
-			Int("pid", pid).
-			Str("instance_id", instanceID).
-			Uint64("memoryMB", usage.MemoryMB).
-			Msg("failed to publish resource warning event")
+		rl.logger.Errorw("failed to publish resource warning event",
+			"error", err,
+			"pid", pid,
+			"instance_id", instanceID,
+			"memoryMB", usage.MemoryMB)
 	} else {
-		rl.logger.Warn().
-			Int("pid", pid).
-			Str("instance_id", instanceID).
-			Str("feature_id", featureID).
-			Uint64("memoryMB", usage.MemoryMB).
-			Int("limitMB", limitMB).
-			Float64("usagePercent", usagePercent).
-			Msg("resource warning: memory usage exceeds threshold")
+		rl.logger.Warnw("resource warning: memory usage exceeds threshold",
+			"pid", pid,
+			"instance_id", instanceID,
+			"feature_id", featureID,
+			"memoryMB", usage.MemoryMB,
+			"limitMB", limitMB,
+			"usagePercent", usagePercent)
 	}
 }
 
@@ -335,7 +324,7 @@ func (rl *ResourceLimiter) Close() error {
 	// Stop all monitors
 	for pid, cancel := range rl.monitors {
 		cancel()
-		rl.logger.Debug().Int("pid", pid).Msg("stopped monitoring during cleanup")
+		rl.logger.Debugw("stopped monitoring during cleanup", "pid", pid)
 	}
 	rl.monitors = make(map[int]context.CancelFunc)
 

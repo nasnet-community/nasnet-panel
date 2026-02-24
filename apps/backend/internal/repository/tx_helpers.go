@@ -192,6 +192,9 @@ type Savepoint struct {
 // CreateSavepoint creates a savepoint within a transaction.
 // Use this for operations that might fail and need partial rollback.
 //
+// Panic recovery: If the savepoint creation panics, the panic is re-thrown
+// (panic recovery is the responsibility of the calling WithTx or RunInTransaction).
+//
 // Usage:
 //
 //	sp, err := repository.CreateSavepoint(ctx, tx, "create_secret")
@@ -200,10 +203,10 @@ type Savepoint struct {
 //	}
 //
 //	if err := createSecret(ctx, tx); err != nil {
-//	    sp.Rollback() // Rollback to savepoint
+//	    sp.Rollback(ctx) // Rollback to savepoint (context required)
 //	    return err
 //	}
-//	sp.Release() // Release savepoint on success
+//	sp.Release(ctx) // Release savepoint on success (context required)
 func CreateSavepoint(ctx context.Context, tx *ent.Tx, name string) (*Savepoint, error) {
 	_, err := tx.ExecContext(ctx, "SAVEPOINT "+name)
 	if err != nil {

@@ -126,11 +126,11 @@ export const InterfaceToggle = React.memo(function InterfaceToggle({
           }
           className={cn(
             !iface.disabled &&
-              'data-[state=checked]:bg-emerald-600 data-[state=checked]:hover:bg-emerald-700'
+              'data-[state=checked]:bg-success data-[state=checked]:hover:bg-success/90'
           )}
         />
         {toggleMutation.isPending && (
-          <span className="text-xs text-slate-600 dark:text-slate-400">
+          <span className="text-xs text-muted-foreground">
             {pendingState ? 'Disabling...' : 'Enabling...'}
           </span>
         )}

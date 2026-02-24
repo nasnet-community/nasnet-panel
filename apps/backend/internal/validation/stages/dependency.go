@@ -18,6 +18,27 @@ func (s *DependencyStage) Name() string { return "dependency" }
 func (s *DependencyStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     5,
+			StageName: "dependency",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
+	// For create operations, check that required dependencies exist
+	if input.Operation == operationCreate {
+		switch input.ResourceType {
+		case resourceTypeVPNWireguardClient, resourceTypeVPNOpenVPNClient, resourceTypeVPNPPTPClient,
+			resourceTypeVPNL2TPClient, resourceTypeVPNSSTPClient, resourceTypeVPNIKEv2Client:
+			s.checkVPNClientDependencies(input, result)
+		}
+	}
+
 	// Only relevant for delete and certain update operations
 	if input.Operation != operationDelete {
 		return result
@@ -152,5 +173,21 @@ func (s *DependencyStage) checkVLANDependencies(input *validation.StageInput, re
 				Code:      "VLAN_HAS_IP",
 			})
 		}
+	}
+}
+
+// checkVPNClientDependencies warns if no WAN link is available when creating a VPN client.
+func (s *DependencyStage) checkVPNClientDependencies(input *validation.StageInput, result *validation.Result) {
+	wanLinks := input.RelatedResources["wan-link"]
+	if len(wanLinks) == 0 {
+		result.AddError(&validation.Error{
+			Stage:      5,
+			StageName:  "dependency",
+			Severity:   validation.SeverityWarning,
+			Field:      "wan-link",
+			Message:    "no WAN link found; VPN client may not have internet connectivity",
+			Code:       "VPN_CLIENT_NO_WAN",
+			Suggestion: "Configure a WAN link before creating a VPN client",
+		})
 	}
 }

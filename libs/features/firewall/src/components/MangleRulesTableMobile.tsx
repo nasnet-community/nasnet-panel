@@ -60,19 +60,19 @@ const ActionBadge = React.memo(function ActionBadgeComponent({ action }: { actio
   ActionBadge.displayName = 'ActionBadge';
 
   const ACTION_COLORS: Record<string, string> = {
-    'mark-connection': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    'mark-packet': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    'mark-routing': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    'change-dscp': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-    'change-ttl': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
-    'change-mss': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-    'accept': 'bg-success/10 text-success dark:bg-success/20',
-    'drop': 'bg-destructive/10 text-destructive dark:bg-destructive/20',
-    'jump': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-    'log': 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200',
+    'mark-connection': 'bg-info/10 text-info',
+    'mark-packet': 'bg-primary/10 text-primary',
+    'mark-routing': 'bg-success/10 text-success',
+    'change-dscp': 'bg-warning/10 text-warning',
+    'change-ttl': 'bg-info/10 text-info',
+    'change-mss': 'bg-primary/10 text-primary',
+    'accept': 'bg-success/10 text-success',
+    'drop': 'bg-error/10 text-error',
+    'jump': 'bg-primary/10 text-primary',
+    'log': 'bg-muted text-muted-foreground',
   };
 
-  const colorClass = ACTION_COLORS[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const colorClass = ACTION_COLORS[action] || 'bg-muted text-muted-foreground';
 
   return (
     <Badge variant="outline" className={cn(colorClass, 'text-xs')}>
@@ -150,7 +150,7 @@ const RuleCard = React.memo(function RuleCardComponent({
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          <div className="text-sm text-muted-foreground mb-3">
             {matchers.join(' ')}
           </div>
         )}
@@ -205,7 +205,7 @@ const RuleCard = React.memo(function RuleCardComponent({
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="min-h-[44px] px-3 text-destructive hover:text-destructive/90"
+            className="min-h-[44px] px-3 text-error hover:text-error/80"
             aria-label={`Delete rule ${rule.position}`}
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -312,7 +312,7 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
   // Error state
   if (error) {
     return (
-      <div className={cn('p-4 text-destructive', className)} role="alert">
+      <div className={cn('p-4 text-error', className)} role="alert">
         <p className="font-semibold mb-1">{t('mangle.notifications.error.load')}</p>
         <p className="text-sm">{error.message}</p>
       </div>
@@ -379,7 +379,7 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">{t('mangle.dialogs.deleteRule.warning')}</p>
-            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               {(t('mangle.dialogs.deleteRule.consequences', { returnObjects: true }) as string[]).map((consequence, i) => (
                 <li key={i}>{consequence}</li>
               ))}
@@ -395,7 +395,7 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
             </Button>
             <Button
               onClick={confirmDelete}
-              className="bg-destructive hover:bg-destructive/90 min-h-[44px]"
+              className="bg-error hover:bg-error/90 min-h-[44px]"
             >
               {t('button.delete', { ns: 'common' })}
             </Button>

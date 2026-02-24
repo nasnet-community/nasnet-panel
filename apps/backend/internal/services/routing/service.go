@@ -10,21 +10,21 @@ import (
 	"backend/internal/router"
 )
 
-// RouteService handles route management operations.
-type RouteService struct {
+// Service handles route management operations.
+type Service struct {
 	base.Service
 }
 
-// NewRouteService creates a new route service.
-func NewRouteService(port router.RouterPort) *RouteService {
-	return &RouteService{
+// NewService creates a new route service.
+func NewService(port router.RouterPort) *Service {
+	return &Service{
 		Service: base.NewService(port),
 	}
 }
 
 // CreateRoute creates a new route.
 // Maps to: /ip/route/add
-func (s *RouteService) CreateRoute(ctx context.Context, input model.RouteInput) (*model.Route, error) {
+func (s *Service) CreateRoute(ctx context.Context, input model.RouteInput) (*model.Route, error) {
 	builder := base.NewCommandArgsBuilder().
 		AddString("dst-address", string(input.Destination))
 
@@ -65,7 +65,7 @@ func (s *RouteService) CreateRoute(ctx context.Context, input model.RouteInput) 
 
 // UpdateRoute updates an existing route.
 // Maps to: /ip/route/set
-func (s *RouteService) UpdateRoute(ctx context.Context, id string, input model.RouteInput) (*model.Route, error) {
+func (s *Service) UpdateRoute(ctx context.Context, id string, input model.RouteInput) (*model.Route, error) {
 	builder := base.NewCommandArgsBuilder().AddID(id)
 
 	// Update fields that are provided
@@ -105,7 +105,7 @@ func (s *RouteService) UpdateRoute(ctx context.Context, id string, input model.R
 
 // DeleteRoute deletes a route.
 // Maps to: /ip/route/remove
-func (s *RouteService) DeleteRoute(ctx context.Context, id string) error {
+func (s *Service) DeleteRoute(ctx context.Context, id string) error {
 	cmd := router.Command{
 		Path:   "/ip/route",
 		Action: "remove",

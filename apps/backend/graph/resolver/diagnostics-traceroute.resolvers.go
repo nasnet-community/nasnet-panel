@@ -7,21 +7,40 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // RunTraceroute is the resolver for the runTraceroute field.
-func (r *mutationResolver) RunTraceroute(_ context.Context, deviceID string, input model.TracerouteInput) (*model.TracerouteJob, error) {
-	panic(fmt.Errorf("not implemented: RunTraceroute - runTraceroute"))
+func (r *mutationResolver) RunTraceroute(ctx context.Context, deviceID string, input model.TracerouteInput) (*model.TracerouteJob, error) {
+	// Validate required inputs
+	if deviceID == "" {
+		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+	}
+	if input.Target == "" {
+		panic(errors.NewValidationError("input", nil, "target address cannot be empty"))
+	}
+	// Context used for request timeout and potential cancellation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: RunTraceroute - runTraceroute"))
 }
 
 // CancelTraceroute is the resolver for the cancelTraceroute field.
-func (r *mutationResolver) CancelTraceroute(_ context.Context, jobID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: CancelTraceroute - cancelTraceroute"))
+func (r *mutationResolver) CancelTraceroute(ctx context.Context, jobID string) (bool, error) {
+	if jobID == "" {
+		panic(errors.NewValidationError("input", nil, "jobID cannot be empty"))
+	}
+	// Context used for request timeout handling
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: CancelTraceroute - cancelTraceroute"))
 }
 
 // TracerouteProgress is the resolver for the tracerouteProgress field.
-func (r *subscriptionResolver) TracerouteProgress(_ context.Context, jobID string) (<-chan *model.TracerouteProgressEvent, error) {
-	panic(fmt.Errorf("not implemented: TracerouteProgress - tracerouteProgress"))
+func (r *subscriptionResolver) TracerouteProgress(ctx context.Context, jobID string) (<-chan *model.TracerouteProgressEvent, error) {
+	if jobID == "" {
+		panic(errors.NewValidationError("input", nil, "jobID cannot be empty"))
+	}
+	// Context used for subscription timeout and cancellation
+	_ = ctx
+	panic(errors.NewValidationError("input", nil, "not implemented: TracerouteProgress - tracerouteProgress"))
 }

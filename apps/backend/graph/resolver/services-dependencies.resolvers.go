@@ -9,15 +9,36 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
 	"fmt"
 )
 
 // AddDependency is the resolver for the addDependency field.
+// Validates input and checks for circular dependencies before applying.
 func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDependencyInput) (*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, fmt.Errorf("dependency manager is not available")
+		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
+
+	// Validate input
+	if input.FromInstanceID == "" {
+		return nil, errors.NewValidationError("fromInstanceID", input.FromInstanceID, "required")
+	}
+	if input.ToInstanceID == "" {
+		return nil, errors.NewValidationError("toInstanceID", input.ToInstanceID, "required")
+	}
+	if input.FromInstanceID == input.ToInstanceID {
+		return nil, errors.NewValidationError("dependency", input.FromInstanceID, "cannot create self-dependency").WithCode(errors.CodeCircularDependency)
+	}
+
+	// Validate health timeout (must be non-negative)
+	if input.HealthTimeoutSeconds < 0 {
+		return nil, errors.NewValidationError("healthTimeoutSeconds", input.HealthTimeoutSeconds, "must be non-negative")
+	}
+
+	// TODO: Add circular dependency detection before applying
+	// This should check if adding this dependency would create a cycle in the graph
 
 	depID, err := r.DependencyMgr.AddDependency(
 		ctx,
@@ -28,13 +49,13 @@ func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDep
 		input.HealthTimeoutSeconds,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to add dependency: %w", err)
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to add dependency")
 	}
 
 	// Fetch the created dependency from DB to return full model
 	dep, err := r.db.ServiceDependency.Get(ctx, depID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch created dependency: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to fetch created dependency")
 	}
 
 	return entDependencyToModel(dep), nil
@@ -43,11 +64,11 @@ func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDep
 // RemoveDependency is the resolver for the removeDependency field.
 func (r *mutationResolver) RemoveDependency(ctx context.Context, input model.RemoveDependencyInput) (bool, error) {
 	if r.DependencyMgr == nil {
-		return false, fmt.Errorf("dependency manager is not available")
+		return false, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	if err := r.DependencyMgr.RemoveDependency(ctx, input.DependencyID); err != nil {
-		return false, fmt.Errorf("failed to remove dependency: %w", err)
+		return false, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to remove dependency")
 	}
 
 	return true, nil
@@ -56,11 +77,11 @@ func (r *mutationResolver) RemoveDependency(ctx context.Context, input model.Rem
 // TriggerBootSequence is the resolver for the triggerBootSequence field.
 func (r *mutationResolver) TriggerBootSequence(ctx context.Context) (bool, error) {
 	if r.BootSequenceMgr == nil {
-		return false, fmt.Errorf("boot sequence manager is not available")
+		return false, errors.NewResourceError(errors.CodeResourceNotFound, "boot sequence manager is not available", "manager", "boot_sequence")
 	}
 
 	if err := r.BootSequenceMgr.ExecuteBootSequence(ctx); err != nil {
-		return false, fmt.Errorf("boot sequence failed: %w", err)
+		return false, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "boot sequence failed")
 	}
 
 	return true, nil
@@ -185,12 +206,12 @@ func (r *mutationResolver) SetResourceLimits(ctx context.Context, input model.Se
 // ServiceDependencies is the resolver for the serviceDependencies field.
 func (r *queryResolver) ServiceDependencies(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, fmt.Errorf("dependency manager is not available")
+		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	deps, err := r.DependencyMgr.GetDependencies(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get dependencies: %w", err)
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependencies")
 	}
 
 	result := make([]*model.ServiceDependency, 0, len(deps))
@@ -203,12 +224,12 @@ func (r *queryResolver) ServiceDependencies(ctx context.Context, instanceID stri
 // ServiceDependents is the resolver for the serviceDependents field.
 func (r *queryResolver) ServiceDependents(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, fmt.Errorf("dependency manager is not available")
+		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	deps, err := r.DependencyMgr.GetDependents(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get dependents: %w", err)
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependents")
 	}
 
 	result := make([]*model.ServiceDependency, 0, len(deps))
@@ -221,17 +242,16 @@ func (r *queryResolver) ServiceDependents(ctx context.Context, instanceID string
 // DependencyGraph is the resolver for the dependencyGraph field.
 func (r *queryResolver) DependencyGraph(ctx context.Context, routerID string) (*model.DependencyGraph, error) {
 	if r.DependencyMgr == nil {
-		return nil, fmt.Errorf("dependency manager is not available")
+		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	graph, err := r.DependencyMgr.GetFullGraph(ctx, routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get dependency graph: %w", err)
+		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependency graph")
 	}
 
 	nodes := make([]*model.DependencyGraphNode, 0, len(graph.Nodes))
-	for _, n := range graph.Nodes {
-		node := n // capture range variable
+	for _, node := range graph.Nodes {
 		nodes = append(nodes, &model.DependencyGraphNode{
 			InstanceID:   node.InstanceID,
 			InstanceName: node.InstanceName,
@@ -241,8 +261,7 @@ func (r *queryResolver) DependencyGraph(ctx context.Context, routerID string) (*
 	}
 
 	edges := make([]*model.DependencyGraphEdge, 0, len(graph.Edges))
-	for _, e := range graph.Edges {
-		edge := e // capture range variable
+	for _, edge := range graph.Edges {
 		edges = append(edges, &model.DependencyGraphEdge{
 			FromInstanceID:       edge.FromInstanceID,
 			ToInstanceID:         edge.ToInstanceID,
@@ -272,7 +291,7 @@ func (r *queryResolver) BootSequenceProgress(ctx context.Context) (*model.BootSe
 	}, nil
 }
 
-// entDependencyToModel converts an ent ServiceDependency to the GraphQL model type.
+// entDependencyToModel converts an ent ServiceDependency to a GraphQL model.
 func entDependencyToModel(dep *ent.ServiceDependency) *model.ServiceDependency {
 	if dep == nil {
 		return nil
@@ -296,125 +315,3 @@ func entDependencyToModel(dep *ent.ServiceDependency) *model.ServiceDependency {
 
 	return result
 }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) SetResourceLimits(ctx context.Context, input model.SetResourceLimitsInput) (*model.ResourceLimitsPayload, error) {
-	r.log.Infow("SetResourceLimits mutation called",
-		"routerID", input.RouterID,
-		"instanceID", input.InstanceID,
-		"memoryMB", input.MemoryMb)
-
-	// Check if InstanceManager is available
-	if r.InstanceManager == nil {
-		return &model.ResourceLimitsPayload{
-			Success:        false,
-			ResourceLimits: nil,
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Instance manager service is not available",
-			}},
-		}, nil
-	}
-
-	// Check if ResourceLimiter is available
-	resourceLimiter := r.InstanceManager.ResourceLimiter()
-	if resourceLimiter == nil {
-		return &model.ResourceLimitsPayload{
-			Success:        false,
-			ResourceLimits: nil,
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Resource limiter service is not available",
-			}},
-		}, nil
-	}
-
-	// Load the service instance from database
-	instance, err := r.db.ServiceInstance.Query().
-		Where(serviceinstance.IDEQ(input.InstanceID)).
-		Where(serviceinstance.RouterIDEQ(input.RouterID)).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return &model.ResourceLimitsPayload{
-				Success:        false,
-				ResourceLimits: nil,
-				Errors: []*model.MutationError{{
-					Code:    "NOT_FOUND",
-					Message: fmt.Sprintf("Service instance not found: %s", input.InstanceID),
-				}},
-			}, nil
-		}
-		r.log.Errorw("failed to query service instance",
-			"error", err,
-			"instanceID", input.InstanceID)
-		return &model.ResourceLimitsPayload{
-			Success:        false,
-			ResourceLimits: nil,
-			Errors: []*model.MutationError{{
-				Code:    "DATABASE_ERROR",
-				Message: fmt.Sprintf("Failed to query service instance: %v", err),
-			}},
-		}, nil
-	}
-
-	// Check if instance is running (would need PID to apply limits)
-	// For MVP, we'll assume we can get the PID from the instance manager
-	// In production, this would be stored in the database or tracked by InstanceManager
-	pid := 0 // Placeholder - would come from instance manager's process tracker
-
-	// Validate memory limit (minimum 16MB)
-	if input.MemoryMb < 16 {
-		return &model.ResourceLimitsPayload{
-			Success:        false,
-			ResourceLimits: nil,
-			Errors: []*model.MutationError{{
-				Code:    "INVALID_INPUT",
-				Message: fmt.Sprintf("Memory limit %dMB is below minimum 16MB", input.MemoryMb),
-				Field:   ptrString("memoryMB"),
-			}},
-		}, nil
-	}
-
-	// Apply memory limit via ResourceLimiter
-	err = resourceLimiter.ApplyMemoryLimit(ctx, pid, input.MemoryMb, instance.ID, instance.FeatureID)
-	if err != nil {
-		r.log.Errorw("failed to apply memory limit",
-			"error", err,
-			"instanceID", input.InstanceID,
-			"memoryMB", input.MemoryMb)
-		return &model.ResourceLimitsPayload{
-			Success:        false,
-			ResourceLimits: nil,
-			Errors: []*model.MutationError{{
-				Code:    "LIMIT_APPLICATION_FAILED",
-				Message: fmt.Sprintf("Failed to apply memory limit: %v", err),
-			}},
-		}, nil
-	}
-
-	// Return success with updated resource limits
-	resourceLimits := &model.ResourceLimits{
-		MemoryMb:   input.MemoryMb,
-		CPUPercent: nil,
-		Applied:    resourceLimiter.IsCgroupsEnabled(),
-	}
-
-	r.log.Infow("resource limits applied successfully",
-		"instanceID", input.InstanceID,
-		"memoryMB", input.MemoryMb,
-		"cgroupsEnabled", resourceLimits.Applied)
-
-	return &model.ResourceLimitsPayload{
-		Success:        true,
-		ResourceLimits: resourceLimits,
-		Errors:         []*model.MutationError{},
-	}, nil
-}
-*/

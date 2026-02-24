@@ -84,17 +84,17 @@ function BridgePortDiagramComponent({
   );
 
   return (
-    <div className={`grid gap-6 md:grid-cols-2 ${className || ''}`}>
+    <div className={`grid gap-component-lg md:grid-cols-2 ${className || ''}`}>
       {/* Bridge Ports Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
+      <div className="space-y-component-md">
+        <div className="flex items-center gap-component-sm">
           <Icon icon={Network} className="h-5 w-5" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Bridge Ports</h3>
         </div>
 
         {/* Loading State */}
         {isLoadingPorts && (
-          <div className="space-y-3">
+          <div className="space-y-component-sm">
             {Array.from({ length: MIN_SKELETON_COUNT }).map((_, i) => (
               <Skeleton key={i} className="h-20 w-full" />
             ))}
@@ -115,7 +115,7 @@ function BridgePortDiagramComponent({
         {!isLoadingPorts && !hasPortsError && (
           <DndContext onDragEnd={handleDragEndCallback}>
             <BridgeDropZoneComponent bridgeId={bridgeId} portCount={ports?.length || 0}>
-              <div className="space-y-2" role="list" aria-label="Bridge ports">
+              <div className="space-y-component-sm" role="list" aria-label="Bridge ports">
                 {ports && ports.length > 0 ? (
                   ports.map((port: BridgePort) => (
                     <PortNode
@@ -127,9 +127,9 @@ function BridgePortDiagramComponent({
                     />
                   ))
                 ) : (
-                  <div className="rounded-lg border-2 border-dashed bg-muted/50 p-8 text-center">
-                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" aria-hidden="true" />
-                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                  <div className="rounded-lg border-2 border-dashed bg-muted p-component-lg text-center">
+                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-component-md text-muted-foreground opacity-50" aria-hidden="true" />
+                    <p className="text-sm font-medium text-muted-foreground mb-component-sm">
                       No ports assigned
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -151,7 +151,7 @@ function BridgePortDiagramComponent({
       </div>
 
       {/* Available Interfaces Section */}
-      <div className="space-y-4">
+      <div className="space-y-component-md">
         <h3 className="text-lg font-semibold">Available Interfaces</h3>
 
         {/* Error State */}
@@ -222,7 +222,7 @@ const BridgeDropZoneComponent = memo(function BridgeDropZone({ bridgeId, portCou
         : portCount === 0
         ? 'border-dashed'
         : 'border-border'
-    } p-4`,
+    } p-component-md`,
     [isOver, portCount]
   );
 

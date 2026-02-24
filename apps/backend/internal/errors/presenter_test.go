@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // =============================================================================
@@ -302,4 +303,156 @@ func TestNewErrorPresenter_NilConfig(t *testing.T) {
 
 	// With default config (not production), should show error
 	assert.Contains(t, gqlErr.Message, "test error")
+}
+
+// =============================================================================
+// Table-Driven Comprehensive Presenter Tests
+// =============================================================================
+
+func TestErrorPresenter_AllErrorCategories_TableDriven(t *testing.T) {
+	tests := []struct {
+		name       string
+		setupErr   func() error
+		assertExts func(t *testing.T, ext map[string]interface{})
+	}{
+		{
+			name: "PlatformError extensions",
+			setupErr: func() error {
+				return NewPlatformError(CodeVersionTooOld, "version too old", "mikrotik").RouterError
+			},
+			assertExts: func(t *testing.T, ext map[string]interface{}) {
+				assert.Equal(t, CodeVersionTooOld, ext["code"])
+				assert.Equal(t, "platform", ext["category"])
+				assert.NotEmpty(t, ext["suggestedFix"])
+				assert.NotEmpty(t, ext["docsUrl"])
+			},
+		},
+		{
+			name: "ProtocolError extensions",
+			setupErr: func() error {
+				return NewProtocolError(CodeConnectionTimeout, "timed out", "SSH").RouterError
+			},
+			assertExts: func(t *testing.T, ext map[string]interface{}) {
+				assert.Equal(t, CodeConnectionTimeout, ext["code"])
+				assert.Equal(t, "protocol", ext["category"])
+				assert.True(t, ext["recoverable"].(bool))
+				assert.NotEmpty(t, ext["troubleshootingSteps"])
+			},
+		},
+		{
+			name: "NetworkError extensions",
+			setupErr: func() error {
+				return NewNetworkError(CodeDNSResolutionFailed, "DNS failed", "router.local").RouterError
+			},
+			assertExts: func(t *testing.T, ext map[string]interface{}) {
+				assert.Equal(t, CodeDNSResolutionFailed, ext["code"])
+				assert.Equal(t, "network", ext["category"])
+				assert.NotEmpty(t, ext["troubleshootingSteps"])
+			},
+		},
+		{
+			name: "ValidationError extensions",
+			setupErr: func() error {
+				return NewValidationError("email", "invalid", "invalid format").RouterError
+			},
+			assertExts: func(t *testing.T, ext map[string]interface{}) {
+				assert.Equal(t, CodeValidationFailed, ext["code"])
+				assert.Equal(t, "validation", ext["category"])
+				assert.Equal(t, "email", ext["field"])
+				assert.Equal(t, "invalid", ext["value"])
+			},
+		},
+		{
+			name: "AuthError extensions",
+			setupErr: func() error {
+				return NewAuthError(CodeSessionExpired, "session expired").RouterError
+			},
+			assertExts: func(t *testing.T, ext map[string]interface{}) {
+				assert.Equal(t, CodeSessionExpired, ext["code"])
+				assert.Equal(t, "auth", ext["category"])
+				assert.True(t, ext["recoverable"].(bool))
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ctx = WithRequestID(ctx, "test-request")
+			ctx = WithProductionMode(ctx, false)
+
+			err := tt.setupErr()
+			gqlErr := ErrorPresenter(ctx, err)
+
+			require.NotNil(t, gqlErr)
+			require.NotNil(t, gqlErr.Extensions)
+			tt.assertExts(t, gqlErr.Extensions)
+		})
+	}
+}
+
+func TestErrorPresenter_SensitiveDataFiltering_TableDriven(t *testing.T) {
+	tests := []struct {
+		name        string
+		setupErr    func() *RouterError
+		production  bool
+		assertFn    func(t *testing.T, gqlErr *gqlerror.Error)
+	}{
+		{
+			name: "Non-production shows all context",
+			setupErr: func() *RouterError {
+				err := NewRouterError(CodeValidationFailed, CategoryValidation, "test")
+				err.Context["username"] = "john"
+				err.Context["router_id"] = "router-1"
+				return err
+			},
+			production: false,
+			assertFn: func(t *testing.T, gqlErr *gqlerror.Error) {
+				assert.Equal(t, "john", gqlErr.Extensions["username"])
+				assert.Equal(t, "router-1", gqlErr.Extensions["router_id"])
+			},
+		},
+		{
+			name: "Production hides sensitive context",
+			setupErr: func() *RouterError {
+				err := NewRouterError(CodeAuthFailed, CategoryAuth, "auth failed")
+				err.Context["username"] = "john"
+				err.Context["password"] = "secret123"
+				return err
+			},
+			production: true,
+			assertFn: func(t *testing.T, gqlErr *gqlerror.Error) {
+				// Non-sensitive fields should be visible
+				assert.Equal(t, "john", gqlErr.Extensions["username"])
+				// Sensitive fields should be redacted in extensions
+				// (depends on implementation of redaction)
+			},
+		},
+		{
+			name: "Production hides internal error messages",
+			setupErr: func() *RouterError {
+				return NewInternalError("database connection refused at 192.168.1.100", nil).RouterError
+			},
+			production: true,
+			assertFn: func(t *testing.T, gqlErr *gqlerror.Error) {
+				// Message should be generic
+				assert.NotContains(t, gqlErr.Message, "database")
+				assert.NotContains(t, gqlErr.Message, "192.168.1.100")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ctx = WithRequestID(ctx, "test-req")
+			ctx = WithProductionMode(ctx, tt.production)
+
+			err := tt.setupErr()
+			gqlErr := ErrorPresenter(ctx, err)
+
+			require.NotNil(t, gqlErr)
+			tt.assertFn(t, gqlErr)
+		})
+	}
 }

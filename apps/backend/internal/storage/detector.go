@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 )
@@ -68,7 +68,7 @@ type StorageDetector struct { //nolint:revive // used across packages
 	ctx    context.Context
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // StorageDetectorConfig holds configuration for the StorageDetector.
@@ -77,11 +77,11 @@ type StorageDetectorConfig struct { //nolint:revive // used across packages
 	Thresholds   SpaceThreshold
 	MountPaths   []string
 	Publisher    publisherPort
-	Logger       zerolog.Logger
+	Logger       *zap.Logger
 }
 
 // DefaultStorageDetectorConfig returns sensible defaults for storage detection.
-func DefaultStorageDetectorConfig(publisher *events.Publisher, logger zerolog.Logger) StorageDetectorConfig {
+func DefaultStorageDetectorConfig(publisher *events.Publisher, logger *zap.Logger) StorageDetectorConfig {
 	return StorageDetectorConfig{
 		PollInterval: 60 * time.Second, // Poll every 60 seconds
 		Thresholds:   DefaultSpaceThreshold(),
@@ -100,6 +100,11 @@ func DefaultStorageDetectorConfig(publisher *events.Publisher, logger zerolog.Lo
 func NewStorageDetector(cfg StorageDetectorConfig) *StorageDetector {
 	ctx, cancel := context.WithCancel(context.Background())
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &StorageDetector{
 		pollInterval: cfg.PollInterval,
 		thresholds:   cfg.Thresholds,
@@ -107,7 +112,7 @@ func NewStorageDetector(cfg StorageDetectorConfig) *StorageDetector {
 		publisher:    cfg.Publisher,
 		ctx:          ctx,
 		cancel:       cancel,
-		logger:       cfg.Logger.With().Str("component", "storage-detector").Logger(),
+		logger:       logger.With(zap.String("component", "storage-detector")),
 		currentState: &StorageState{
 			MountPoints: make(map[string]*MountPoint),
 		},
@@ -119,17 +124,17 @@ func NewStorageDetector(cfg StorageDetectorConfig) *StorageDetector {
 
 // Start begins monitoring storage devices.
 func (d *StorageDetector) Start() {
-	d.logger.Info().Msg("starting storage detector")
+	d.logger.Info("starting storage detector")
 	d.wg.Add(1)
 	go d.watchMounts()
 }
 
 // Stop gracefully stops the storage detector.
 func (d *StorageDetector) Stop() {
-	d.logger.Info().Msg("stopping storage detector")
+	d.logger.Info("stopping storage detector")
 	d.cancel()
 	d.wg.Wait()
-	d.logger.Info().Msg("storage detector stopped")
+	d.logger.Info("storage detector stopped")
 }
 
 // GetCurrentState returns a snapshot of the current storage state.
@@ -192,7 +197,7 @@ func (d *StorageDetector) pollMountPoints() {
 	for _, path := range d.mountPaths {
 		mp, err := d.probeMountPoint(path)
 		if err != nil {
-			d.logger.Debug().Err(err).Str("path", path).Msg("failed to probe mount point")
+			d.logger.Debug("failed to probe mount point", zap.Error(err), zap.String("path", path))
 			// Still add to state, but mark as unmounted
 			mp = &MountPoint{
 				Path:      path,
@@ -265,13 +270,13 @@ func (d *StorageDetector) getThresholdLevel(usedPct float64) string {
 
 // emitMountedEvent emits a storage.mounted event.
 func (d *StorageDetector) emitMountedEvent(mp *MountPoint) {
-	d.logger.Info().
-		Str("path", mp.Path).
-		Uint64("total_mb", mp.TotalMB).
-		Uint64("free_mb", mp.FreeMB).
-		Float64("used_pct", mp.UsedPct).
-		Str("fs_type", mp.FSType).
-		Msg("storage device mounted")
+	d.logger.Info("storage device mounted",
+		zap.String("path", mp.Path),
+		zap.Uint64("total_mb", mp.TotalMB),
+		zap.Uint64("free_mb", mp.FreeMB),
+		zap.Float64("used_pct", mp.UsedPct),
+		zap.String("fs_type", mp.FSType),
+	)
 
 	event := events.NewStorageMountedEvent(
 		mp.Path,
@@ -284,15 +289,15 @@ func (d *StorageDetector) emitMountedEvent(mp *MountPoint) {
 	)
 
 	if err := d.publisher.Publish(d.ctx, event); err != nil {
-		d.logger.Error().Err(err).Str("path", mp.Path).Msg("failed to publish storage mounted event")
+		d.logger.Error("failed to publish storage mounted event", zap.Error(err), zap.String("path", mp.Path))
 	}
 }
 
 // emitUnmountedEvent emits a storage.unmounted event.
 func (d *StorageDetector) emitUnmountedEvent(mp *MountPoint) {
-	d.logger.Info().
-		Str("path", mp.Path).
-		Msg("storage device unmounted")
+	d.logger.Info("storage device unmounted",
+		zap.String("path", mp.Path),
+	)
 
 	event := events.NewStorageUnmountedEvent(
 		mp.Path,
@@ -300,17 +305,17 @@ func (d *StorageDetector) emitUnmountedEvent(mp *MountPoint) {
 	)
 
 	if err := d.publisher.Publish(d.ctx, event); err != nil {
-		d.logger.Error().Err(err).Str("path", mp.Path).Msg("failed to publish storage unmounted event")
+		d.logger.Error("failed to publish storage unmounted event", zap.Error(err), zap.String("path", mp.Path))
 	}
 }
 
 // emitSpaceThresholdEvent emits a storage.space.threshold event.
 func (d *StorageDetector) emitSpaceThresholdEvent(mp *MountPoint, level string) {
-	d.logger.Warn().
-		Str("path", mp.Path).
-		Float64("used_pct", mp.UsedPct).
-		Str("level", level).
-		Msg("storage space threshold crossed")
+	d.logger.Warn("storage space threshold crossed",
+		zap.String("path", mp.Path),
+		zap.Float64("used_pct", mp.UsedPct),
+		zap.String("level", level),
+	)
 
 	event := events.NewStorageSpaceThresholdEvent(
 		mp.Path,
@@ -323,7 +328,7 @@ func (d *StorageDetector) emitSpaceThresholdEvent(mp *MountPoint, level string) 
 	)
 
 	if err := d.publisher.Publish(d.ctx, event); err != nil {
-		d.logger.Error().Err(err).Str("path", mp.Path).Msg("failed to publish storage space threshold event")
+		d.logger.Error("failed to publish storage space threshold event", zap.Error(err), zap.String("path", mp.Path))
 	}
 }
 
@@ -364,7 +369,14 @@ func (d *StorageDetector) ValidateMountPoint(path string, requiredSpaceMB uint64
 	return nil
 }
 
-// probeMountPoint is platform-specific and implemented in detector_linux.go and detector_dev.go.
-// It probes a mount point and returns filesystem statistics.
-// Implementation note: This function signature is defined here, but the actual implementation
-// is in the build-tag-specific files (detector_linux.go and detector_dev.go).
+// probeMountPoint probes a mount point and returns filesystem statistics.
+// It is platform-specific and implemented in detector_linux.go (production) and detector_dev.go (testing).
+//
+// Platform-specific implementations:
+// - detector_linux.go (linux build tag): Uses unix.Statfs to get filesystem statistics on RouterOS
+// - detector_dev.go (non-linux build tag): Returns mock data for development/testing
+//
+// Returns:
+// - *MountPoint with filesystem statistics if the path is mounted
+// - error if the path doesn't exist or filesystem stats cannot be retrieved
+// Implementation provided by build-tagged files: detector_linux.go or detector_dev.go

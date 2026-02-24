@@ -3,9 +3,10 @@ package batch
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/router/adapters/mikrotik"
 	"backend/internal/router/adapters/mikrotik/parser"
@@ -52,6 +53,7 @@ type Job struct {
 	commands      []*parser.CLICommand
 	rollbackStack []*parser.RollbackCommand
 	cancelFunc    context.CancelFunc
+	logger        *zap.Logger
 	mu            sync.RWMutex
 }
 
@@ -102,7 +104,9 @@ func (job *Job) Execute() {
 	job.StartedAt = &now
 	job.mu.Unlock()
 
-	log.Printf("[BATCH] Starting job %s execution", job.ID)
+	if job.logger != nil {
+		job.logger.Info("Starting batch job execution", zap.String("job_id", job.ID))
+	}
 	go job.executeCommands(ctx)
 }
 

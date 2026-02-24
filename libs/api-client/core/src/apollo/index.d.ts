@@ -11,6 +11,7 @@ export { errorLink } from './apollo-error-link';
 export { retryLink } from './apollo-retry-link';
 export { wsClient } from './apollo-ws-client';
 export { ApolloProvider } from './apollo-provider';
+export { MockApolloProvider } from './apollo-mock-provider';
 export { initializeCachePersistence, clearPersistedCache, getPersistedCacheSize, } from './apollo-cache-persist';
 export type { CachePersistConfig } from './apollo-cache-persist';
 export { setupOfflineDetector, useOfflineDetector, isOffline, isDegraded, } from './offline-detector';

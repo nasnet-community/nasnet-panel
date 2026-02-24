@@ -38,7 +38,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
         {[1, 2].map((i) => (
           <div
             key={i}
-            className="bg-card rounded-xl border border-border p-4 animate-pulse"
+            className="bg-card rounded-card-sm border border-border p-4 animate-pulse"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-muted rounded-lg" />
@@ -55,7 +55,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
 
   if (servers.length === 0) {
     return (
-      <div className={`bg-muted rounded-xl border border-border p-8 text-center ${className}`}>
+      <div className={`bg-muted rounded-card-sm border border-border p-8 text-center ${className}`}>
         <Server className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
         <p className="text-muted-foreground text-sm">
           {t('dhcp.noServers')}
@@ -73,7 +73,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
         return (
           <div
             key={server.id}
-            className={`bg-card rounded-xl border border-border p-4 transition-all ${
+            className={`bg-card rounded-card-sm border border-border p-4 transition-all ${
               !isActive ? 'opacity-60' : ''
             }`}
           >

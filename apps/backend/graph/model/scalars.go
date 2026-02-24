@@ -102,12 +102,15 @@ func (m *MAC) UnmarshalGQL(v interface{}) error {
 		return errors.New("MAC must be a string")
 	}
 
-	// Validate MAC format
-	if !macPattern.MatchString(str) {
+	// Normalize to uppercase first for consistent validation
+	normalized := strings.ToUpper(str)
+
+	// Validate MAC format after normalization
+	if !macPattern.MatchString(normalized) {
 		return fmt.Errorf("invalid MAC address: %s", str)
 	}
 
-	*m = MAC(strings.ToUpper(str))
+	*m = MAC(normalized)
 	return nil
 }
 
@@ -226,9 +229,11 @@ func (pr *PortRange) UnmarshalGQL(v interface{}) error {
 // -----------------------------------------------------------------------------
 
 // Duration represents a RouterOS duration string (e.g., "1d2h3m4s").
+// Valid formats include single units (e.g., "30s", "2h") or combined units in descending order (e.g., "1d2h3m4s").
+// Empty string is normalized to "0s".
 type Duration string
 
-// durationPattern validates RouterOS duration format.
+// durationPattern validates RouterOS duration format (must contain at least one unit).
 var durationPattern = regexp.MustCompile(`^(\d+w)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?(\d+ms)?$`)
 
 // MarshalGQL implements graphql.Marshaler interface.
@@ -250,6 +255,12 @@ func (d *Duration) UnmarshalGQL(v interface{}) error {
 
 	if !durationPattern.MatchString(str) {
 		return fmt.Errorf("invalid duration format: %s (expected format like '1d2h3m4s')", str)
+	}
+
+	// Ensure at least one unit is present (durationPattern allows all-empty match)
+	// Valid pattern requires at least one digit followed by a unit letter
+	if !regexp.MustCompile(`\d+[wdhms]`).MatchString(str) {
+		return fmt.Errorf("invalid duration format: %s (must contain at least one time unit)", str)
 	}
 
 	*d = Duration(str)

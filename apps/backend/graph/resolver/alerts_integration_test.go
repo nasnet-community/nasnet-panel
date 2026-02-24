@@ -105,8 +105,13 @@ func TestTestNotificationChannelMutation(t *testing.T) {
 	// Here we test the resolver logic and config parsing
 
 	ctx := context.Background()
+	testClient := setupTestDB(t)
+	defer testClient.Close()
+
 	r := &mutationResolver{
-		Resolver: &Resolver{},
+		Resolver: &Resolver{
+			db: testClient,
+		},
 	}
 
 	// Test with valid email config
@@ -136,8 +141,13 @@ func TestTestNotificationChannelMutation(t *testing.T) {
 // TestTestNotificationChannelMutation_InvalidConfig tests error handling with invalid config.
 func TestTestNotificationChannelMutation_InvalidConfig(t *testing.T) {
 	ctx := context.Background()
+	testClient := setupTestDB(t)
+	defer testClient.Close()
+
 	r := &mutationResolver{
-		Resolver: &Resolver{},
+		Resolver: &Resolver{
+			db: testClient,
+		},
 	}
 
 	testCases := []struct {
@@ -224,7 +234,7 @@ func TestConfigureEmailMutation(t *testing.T) {
 	// Create resolver with client
 	r := &mutationResolver{
 		Resolver: &Resolver{
-			client: client,
+			db: client,
 		},
 	}
 
@@ -257,6 +267,7 @@ func TestConfigureEmailMutation(t *testing.T) {
 		})).
 		First(ctx)
 	require.NoError(t, err, "Settings should be saved in database")
+	require.NotNil(t, settings, "Settings should not be nil")
 
 	// Verify config
 	assert.Equal(t, "smtp.example.com", settings.Config["smtp_host"])

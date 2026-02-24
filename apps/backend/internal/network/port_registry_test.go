@@ -105,11 +105,12 @@ type portAllocEntityWrapper struct {
 	raw *ent.PortAllocation
 }
 
-func (w *portAllocEntityWrapper) GetID() string       { return w.raw.ID }
-func (w *portAllocEntityWrapper) GetRouterID() string { return w.raw.RouterID }
-func (w *portAllocEntityWrapper) GetPort() int        { return w.raw.Port }
-func (w *portAllocEntityWrapper) GetProtocol() string { return string(w.raw.Protocol) }
+func (w *portAllocEntityWrapper) GetID() string        { return w.raw.ID }
+func (w *portAllocEntityWrapper) GetRouterID() string  { return w.raw.RouterID }
+func (w *portAllocEntityWrapper) GetPort() int         { return w.raw.Port }
+func (w *portAllocEntityWrapper) GetProtocol() string  { return string(w.raw.Protocol) }
 func (w *portAllocEntityWrapper) GetInstanceID() string { return w.raw.InstanceID }
+func (w *portAllocEntityWrapper) GetServiceType() string { return w.raw.ServiceType }
 
 func (q *entPortAllocationQuery) Exist(ctx context.Context) (bool, error) {
 	return q.q.Exist(ctx)
@@ -810,6 +811,13 @@ func TestPortRegistry_IsPortAvailable(t *testing.T) {
 		available := registry.IsPortAvailable(ctx, routerID, 9050, "UDP")
 		assert.True(t, available)
 	})
+
+	t.Run("invalid port numbers return false", func(t *testing.T) {
+		assert.False(t, registry.IsPortAvailable(ctx, routerID, 0, "TCP"))     // Too low
+		assert.False(t, registry.IsPortAvailable(ctx, routerID, -1, "TCP"))    // Negative
+		assert.False(t, registry.IsPortAvailable(ctx, routerID, 65536, "TCP")) // Too high
+		assert.False(t, registry.IsPortAvailable(ctx, routerID, 99999, "TCP")) // Way too high
+	})
 }
 
 // TestPortRegistry_ReleasePort tests port release functionality.
@@ -1033,6 +1041,66 @@ func TestPortRegistry_CleanupOrphans(t *testing.T) {
 	// Verify ports are now available
 	assert.True(t, registry.IsPortAvailable(ctx, routerID, resp1.Port, "TCP"))
 	assert.True(t, registry.IsPortAvailable(ctx, routerID, resp2.Port, "UDP"))
+}
+
+// TestPortRegistry_PortExhaustion tests behavior when available ports are exhausted.
+func TestPortRegistry_PortExhaustion(t *testing.T) {
+	ctx := context.Background()
+
+	client := openTestClient(t)
+	defer client.Close()
+
+	err := client.Schema.Create(ctx)
+	require.NoError(t, err)
+
+	routerID, _ := setupTestData(t, ctx, client)
+
+	// Custom registry with very small port range for testing
+	customReserved := make([]int, 0)
+	for i := 1; i < 1024; i++ {
+		customReserved = append(customReserved, i)
+	}
+	// Only allow ports 10000-10005 (6 ports)
+	registry, err := NewPortRegistry(PortRegistryConfig{
+		Store:         &entStoreAdapter{client: client},
+		ReservedPorts: customReserved,
+	})
+	require.NoError(t, err)
+
+	// Create 7 service instances for allocation
+	var instanceIDs []string
+	for i := 0; i < 7; i++ {
+		instanceID := ulid.NewString()
+		_, err := client.ServiceInstance.Create().
+			SetID(instanceID).
+			SetFeatureID("tor").
+			SetInstanceName(fmt.Sprintf("tor-instance-%d", i)).
+			SetRouterID(routerID).
+			SetStatus(serviceinstance.StatusInstalled).
+			Save(ctx)
+		require.NoError(t, err)
+		instanceIDs = append(instanceIDs, instanceID)
+	}
+
+	// Allocate ports until exhaustion
+	allocCount := 0
+	for i := 0; i < 7; i++ {
+		resp, err := registry.AllocatePort(ctx, AllocatePortRequest{
+			RouterID:    routerID,
+			InstanceID:  instanceIDs[i],
+			ServiceType: "tor",
+			Protocol:    "TCP",
+		})
+
+		if err == nil {
+			allocCount++
+			assert.True(t, resp.Port >= 10000 && resp.Port <= 65535, "port %d out of expected range", resp.Port)
+		}
+	}
+
+	// Should have allocated some ports before exhaustion
+	assert.Greater(t, allocCount, 0, "should allocate at least one port")
+	assert.Less(t, allocCount, 7, "should eventually exhaust available ports")
 }
 
 // TestPortRegistry_ConcurrentAllocations tests thread safety with concurrent allocations.

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 
 	"backend/internal/events"
@@ -148,7 +150,7 @@ func TestExport_SecretRedactionOn(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Test redaction logic
 	config := map[string]interface{}{
@@ -191,7 +193,7 @@ func TestExport_RoutingRulesOn(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Mock router query response
 	mockRouter.On("QueryState", mock.Anything, mock.Anything).Return(&router.StateResult{
@@ -245,7 +247,7 @@ func TestExport_SensitivePatterns(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit, zap.NewNop())
 
 	// Test all 8 sensitive patterns
 	testCases := []struct {

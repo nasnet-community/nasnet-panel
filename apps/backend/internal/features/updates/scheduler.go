@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 
 	"backend/internal/events"
-
-	"github.com/rs/zerolog"
 )
 
 // parseQuietHoursTime parses an "HH:MM" string and returns (hour, minute, error).
@@ -34,7 +34,7 @@ type UpdateSchedulerConfig struct {
 	UpdateEngine    *UpdateEngine
 	Store           *ent.Client
 	EventBus        events.EventBus
-	Logger          zerolog.Logger
+	Logger          *zap.Logger
 	CheckInterval   time.Duration // Default: 6 hours
 	QuietHoursStart string        // HH:MM format, e.g., "02:00"
 	QuietHoursEnd   string        // HH:MM format, e.g., "06:00"
@@ -44,7 +44,7 @@ type UpdateSchedulerConfig struct {
 // UpdateScheduler coordinates periodic update checks with smart timing
 type UpdateScheduler struct {
 	config    UpdateSchedulerConfig
-	logger    zerolog.Logger
+	logger    *zap.Logger
 	publisher *events.Publisher
 	ticker    *time.Ticker
 	ctx       context.Context
@@ -86,7 +86,7 @@ func NewUpdateScheduler(config UpdateSchedulerConfig) (*UpdateScheduler, error) 
 
 	return &UpdateScheduler{
 		config:    config,
-		logger:    config.Logger.With().Str("component", "update_scheduler").Logger(),
+		logger:    config.Logger.With(zap.String("component", "update_scheduler")),
 		publisher: publisher,
 		ctx:       ctx,
 		cancel:    cancel,
@@ -102,10 +102,9 @@ func (s *UpdateScheduler) Start() error {
 		return fmt.Errorf("scheduler is already running")
 	}
 
-	s.logger.Info().
-		Dur("check_interval", s.config.CheckInterval).
-		Str("quiet_hours", fmt.Sprintf("%s-%s %s", s.config.QuietHoursStart, s.config.QuietHoursEnd, s.config.Timezone)).
-		Msg("Starting update scheduler")
+	s.logger.Info("Starting update scheduler",
+		zap.Duration("check_interval", s.config.CheckInterval),
+		zap.String("quiet_hours", fmt.Sprintf("%s-%s %s", s.config.QuietHoursStart, s.config.QuietHoursEnd, s.config.Timezone)))
 
 	s.ticker = time.NewTicker(s.config.CheckInterval)
 	s.running = true
@@ -130,7 +129,7 @@ func (s *UpdateScheduler) Stop() error {
 	}
 	s.mu.Unlock()
 
-	s.logger.Info().Msg("Stopping update scheduler")
+	s.logger.Info("Stopping update scheduler")
 	s.cancel()
 
 	if s.ticker != nil {
@@ -143,7 +142,7 @@ func (s *UpdateScheduler) Stop() error {
 	s.running = false
 	s.mu.Unlock()
 
-	s.logger.Info().Msg("Update scheduler stopped")
+	s.logger.Info("Update scheduler stopped")
 	return nil
 }
 
@@ -165,22 +164,22 @@ func (s *UpdateScheduler) schedulerLoop() {
 func (s *UpdateScheduler) checkForUpdates() {
 	// Check if we're in quiet hours
 	if s.isQuietHours() {
-		s.logger.Debug().Msg("Skipping update check (quiet hours)")
+		s.logger.Debug("Skipping update check (quiet hours)")
 		return
 	}
 
 	// Check if network is metered (e.g., LTE connection)
 	if s.isMeteredNetwork() {
-		s.logger.Debug().Msg("Skipping update check (metered network)")
+		s.logger.Debug("Skipping update check (metered network)")
 		return
 	}
 
-	s.logger.Info().Msg("Checking for updates")
+	s.logger.Info("Checking for updates")
 
 	// Get all service instances
 	instances, err := s.config.Store.ServiceInstance.Query().All(s.ctx)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Failed to query service instances")
+		s.logger.Error("Failed to query service instances", zap.Error(err))
 		return
 	}
 
@@ -188,7 +187,7 @@ func (s *UpdateScheduler) checkForUpdates() {
 		s.checkInstanceForUpdate(instance)
 	}
 
-	s.logger.Info().Int("instances_checked", len(instances)).Msg("Update check completed")
+	s.logger.Info("Update check completed", zap.Int("instances_checked", len(instances)))
 }
 
 // checkInstanceForUpdate checks a single instance for updates
@@ -207,29 +206,26 @@ func (s *UpdateScheduler) checkInstanceForUpdate(instance *ent.ServiceInstance) 
 		instance.BinaryVersion,
 	)
 	if err != nil {
-		s.logger.Error().
-			Err(err).
-			Str("instance_id", instance.ID).
-			Str("feature_id", instance.FeatureID).
-			Msg("Failed to check for update")
+		s.logger.Error("Failed to check for update",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID),
+			zap.String("feature_id", instance.FeatureID))
 		return
 	}
 
 	if !available {
-		s.logger.Debug().
-			Str("instance_id", instance.ID).
-			Str("feature_id", instance.FeatureID).
-			Msg("No update available")
+		s.logger.Debug("No update available",
+			zap.String("instance_id", instance.ID),
+			zap.String("feature_id", instance.FeatureID))
 		return
 	}
 
-	s.logger.Info().
-		Str("instance_id", instance.ID).
-		Str("feature_id", instance.FeatureID).
-		Str("current_version", instance.BinaryVersion).
-		Str("available_version", updateInfo.AvailableVersion).
-		Str("severity", string(updateInfo.Severity)).
-		Msg("Update available")
+	s.logger.Info("Update available",
+		zap.String("instance_id", instance.ID),
+		zap.String("feature_id", instance.FeatureID),
+		zap.String("current_version", instance.BinaryVersion),
+		zap.String("available_version", updateInfo.AvailableVersion),
+		zap.String("severity", string(updateInfo.Severity)))
 
 	// Emit update available event
 	s.emitUpdateAvailableEvent(instance, updateInfo)
@@ -238,10 +234,9 @@ func (s *UpdateScheduler) checkInstanceForUpdate(instance *ent.ServiceInstance) 
 	shouldAutoApply := s.shouldAutoApply(instance, updateInfo)
 
 	if shouldAutoApply {
-		s.logger.Info().
-			Str("instance_id", instance.ID).
-			Str("severity", string(updateInfo.Severity)).
-			Msg("Auto-applying update")
+		s.logger.Info("Auto-applying update",
+			zap.String("instance_id", instance.ID),
+			zap.String("severity", string(updateInfo.Severity)))
 
 		// Apply update in background
 		go s.applyUpdate(instance, updateInfo)
@@ -259,10 +254,9 @@ func (s *UpdateScheduler) shouldAutoApply(_ *ent.ServiceInstance, updateInfo *Up
 func (s *UpdateScheduler) applyUpdate(instance *ent.ServiceInstance, updateInfo *UpdateInfo) {
 	ctx := context.Background()
 
-	s.logger.Info().
-		Str("instance_id", instance.ID).
-		Str("version", updateInfo.AvailableVersion).
-		Msg("Applying update")
+	s.logger.Info("Applying update",
+		zap.String("instance_id", instance.ID),
+		zap.String("version", updateInfo.AvailableVersion))
 
 	// Emit update started event
 	s.emitUpdateStartedEvent(instance, updateInfo)
@@ -279,20 +273,18 @@ func (s *UpdateScheduler) applyUpdate(instance *ent.ServiceInstance, updateInfo 
 	)
 
 	if err != nil {
-		s.logger.Error().
-			Err(err).
-			Str("instance_id", instance.ID).
-			Msg("Update failed")
+		s.logger.Error("Update failed",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID))
 
 		// Emit update failed event
 		s.emitUpdateFailedEvent(instance, updateInfo, err)
 		return
 	}
 
-	s.logger.Info().
-		Str("instance_id", instance.ID).
-		Str("version", updateInfo.AvailableVersion).
-		Msg("Update completed successfully")
+	s.logger.Info("Update completed successfully",
+		zap.String("instance_id", instance.ID),
+		zap.String("version", updateInfo.AvailableVersion))
 
 	// Emit update completed event
 	s.emitUpdateCompletedEvent(instance, updateInfo)
@@ -324,19 +316,25 @@ func (s *UpdateScheduler) isMeteredNetwork() bool {
 func (s *UpdateScheduler) isQuietHours() bool {
 	loc, err := time.LoadLocation(s.config.Timezone)
 	if err != nil {
-		s.logger.Warn().Err(err).Str("timezone", s.config.Timezone).Msg("Failed to load timezone, falling back to UTC")
+		s.logger.Warn("Failed to load timezone, falling back to UTC",
+			zap.Error(err),
+			zap.String("timezone", s.config.Timezone))
 		loc = time.UTC
 	}
 
 	startHour, startMin, err := parseQuietHoursTime(s.config.QuietHoursStart)
 	if err != nil {
-		s.logger.Warn().Err(err).Str("quiet_hours_start", s.config.QuietHoursStart).Msg("Failed to parse quiet hours start, using default 02:00")
+		s.logger.Warn("Failed to parse quiet hours start, using default 02:00",
+			zap.Error(err),
+			zap.String("quiet_hours_start", s.config.QuietHoursStart))
 		startHour, startMin = 2, 0
 	}
 
 	endHour, endMin, err := parseQuietHoursTime(s.config.QuietHoursEnd)
 	if err != nil {
-		s.logger.Warn().Err(err).Str("quiet_hours_end", s.config.QuietHoursEnd).Msg("Failed to parse quiet hours end, using default 06:00")
+		s.logger.Warn("Failed to parse quiet hours end, using default 06:00",
+			zap.Error(err),
+			zap.String("quiet_hours_end", s.config.QuietHoursEnd))
 		endHour, endMin = 6, 0
 	}
 
@@ -371,9 +369,9 @@ func (s *UpdateScheduler) emitUpdateAvailableEvent(instance *ent.ServiceInstance
 		},
 	)
 	if err := s.publisher.Publish(ctx, event); err != nil {
-		s.logger.Error().Err(err).
-			Str("instance_id", instance.ID).
-			Msg("Failed to emit update available event")
+		s.logger.Error("Failed to emit update available event",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID))
 	}
 }
 
@@ -392,9 +390,9 @@ func (s *UpdateScheduler) emitUpdateStartedEvent(instance *ent.ServiceInstance, 
 		},
 	)
 	if err := s.publisher.Publish(ctx, event); err != nil {
-		s.logger.Error().Err(err).
-			Str("instance_id", instance.ID).
-			Msg("Failed to emit update started event")
+		s.logger.Error("Failed to emit update started event",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID))
 	}
 }
 
@@ -413,9 +411,9 @@ func (s *UpdateScheduler) emitUpdateCompletedEvent(instance *ent.ServiceInstance
 		},
 	)
 	if err := s.publisher.Publish(ctx, event); err != nil {
-		s.logger.Error().Err(err).
-			Str("instance_id", instance.ID).
-			Msg("Failed to emit update completed event")
+		s.logger.Error("Failed to emit update completed event",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID))
 	}
 }
 
@@ -435,8 +433,8 @@ func (s *UpdateScheduler) emitUpdateFailedEvent(instance *ent.ServiceInstance, u
 		},
 	)
 	if err := s.publisher.Publish(ctx, event); err != nil {
-		s.logger.Error().Err(err).
-			Str("instance_id", instance.ID).
-			Msg("Failed to emit update failed event")
+		s.logger.Error("Failed to emit update failed event",
+			zap.Error(err),
+			zap.String("instance_id", instance.ID))
 	}
 }

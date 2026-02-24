@@ -86,8 +86,8 @@ const STATUS_CONFIG: Record<
   },
   failed: {
     icon: XCircle,
-    color: 'text-destructive',
-    bgColor: 'bg-destructive/10',
+    color: 'text-error',
+    bgColor: 'bg-error/10',
     label: 'Configuration failed',
   },
   cancelled: {
@@ -160,8 +160,8 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   if (error && !job) {
     return (
       <div className="flex flex-col items-center justify-center py-8" role="alert">
-        <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-          <XCircle className="w-6 h-6 text-destructive" aria-hidden="true" />
+        <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
+          <XCircle className="w-6 h-6 text-error" aria-hidden="true" />
         </div>
         <p className="text-foreground font-medium mb-1">
           Failed to track job
@@ -231,7 +231,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className={`h-full rounded-full ${
               job.status === 'failed' || job.status === 'rolled_back'
-                ? 'bg-destructive'
+                ? 'bg-error'
                 : job.status === 'completed'
                 ? 'bg-success'
                 : 'bg-primary'
@@ -245,7 +245,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
               {job.progress.succeeded} succeeded
             </span>
             {job.progress.failed > 0 && (
-              <span className="text-destructive">{job.progress.failed} failed</span>
+              <span className="text-error">{job.progress.failed} failed</span>
             )}
             {job.progress.skipped > 0 && (
               <span className="text-muted-foreground">{job.progress.skipped} skipped</span>
@@ -265,16 +265,16 @@ export const ExecutionProgress = memo(function ExecutionProgress({
             role="alert"
           >
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-destructive" aria-hidden="true" />
-              <h4 className="text-sm font-medium text-destructive">
+              <AlertTriangle className="w-4 h-4 text-error" aria-hidden="true" />
+              <h4 className="text-sm font-medium text-error">
                 {job.errors.length} error{job.errors.length > 1 ? 's' : ''}
               </h4>
             </div>
-            <div className="max-h-32 overflow-y-auto space-y-1 p-3 bg-destructive/10 rounded-lg border border-destructive/20">
+            <div className="max-h-32 overflow-y-auto space-y-1 p-3 bg-error/10 rounded-lg border border-error/20">
               {job.errors.map((err, index) => (
                 <div
                   key={index}
-                  className="text-xs font-mono text-destructive"
+                  className="text-xs font-mono text-error"
                 >
                   <span className="text-muted-foreground">Line {err.lineNumber}:</span>{' '}
                   {err.error}

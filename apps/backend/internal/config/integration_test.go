@@ -221,3 +221,117 @@ func TestAllGenerators_ConfigFormat(t *testing.T) {
 		})
 	}
 }
+
+// TestAllGenerators_EmptyConfig tests that all generators handle empty configs gracefully.
+func TestAllGenerators_EmptyConfig(t *testing.T) {
+	generators := []config.Generator{
+		services.NewTorGenerator(),
+		services.NewSingboxGenerator(),
+		services.NewXrayGenerator(),
+		services.NewMTProxyGenerator(),
+		services.NewAdguardGenerator(),
+		services.NewPsiphonGenerator(),
+	}
+
+	for _, gen := range generators {
+		t.Run(gen.GetServiceType()+"_empty_config", func(t *testing.T) {
+			emptyConfig := map[string]interface{}{}
+
+			// Validate empty config should fail (missing required fields)
+			err := gen.Validate(emptyConfig, "192.168.1.100")
+			if err == nil {
+				t.Errorf("%s: Validate() should reject empty config", gen.GetServiceType())
+			}
+
+			// Generate with empty config should also fail
+			_, err = gen.Generate("test-id", emptyConfig, "192.168.1.100")
+			if err == nil {
+				t.Errorf("%s: Generate() should reject empty config", gen.GetServiceType())
+			}
+		})
+	}
+}
+
+// TestAllGenerators_InvalidIPFormat tests that all generators validate IP format strictly.
+func TestAllGenerators_InvalidIPFormat(t *testing.T) {
+	generators := []config.Generator{
+		services.NewTorGenerator(),
+		services.NewSingboxGenerator(),
+		services.NewXrayGenerator(),
+		services.NewMTProxyGenerator(),
+		services.NewAdguardGenerator(),
+		services.NewPsiphonGenerator(),
+	}
+
+	invalidIPs := []string{
+		"256.256.256.256",    // Out of range
+		"192.168.1",          // Incomplete
+		"192.168.1.1.1",      // Too many octets
+		"not-an-ip",          // Not an IP
+		"192.168.1.a",        // Non-numeric
+	}
+
+	for _, gen := range generators {
+		for _, invalidIP := range invalidIPs {
+			t.Run(gen.GetServiceType()+"_invalid_ip_"+invalidIP, func(t *testing.T) {
+				config := map[string]interface{}{}
+
+				// Validation should reject invalid IPs
+				err := gen.Validate(config, invalidIP)
+				if err == nil {
+					t.Errorf("%s: Validate() should reject invalid IP %s", gen.GetServiceType(), invalidIP)
+				}
+
+				// Generation should also reject invalid IPs
+				_, err = gen.Generate("test-id", config, invalidIP)
+				if err == nil {
+					t.Errorf("%s: Generate() should reject invalid IP %s", gen.GetServiceType(), invalidIP)
+				}
+			})
+		}
+	}
+}
+
+// TestAllGenerators_SchemaConsistency tests that schema is properly defined for each generator.
+func TestAllGenerators_SchemaConsistency(t *testing.T) {
+	generators := []config.Generator{
+		services.NewTorGenerator(),
+		services.NewSingboxGenerator(),
+		services.NewXrayGenerator(),
+		services.NewMTProxyGenerator(),
+		services.NewAdguardGenerator(),
+		services.NewPsiphonGenerator(),
+	}
+
+	for _, gen := range generators {
+		t.Run(gen.GetServiceType()+"_schema_consistency", func(t *testing.T) {
+			schema := gen.GetSchema()
+
+			// Schema should not be nil
+			if schema == nil {
+				t.Errorf("%s: GetSchema() returned nil", gen.GetServiceType())
+				return
+			}
+
+			// Schema service type should match generator service type
+			if schema.ServiceType != gen.GetServiceType() {
+				t.Errorf("%s: Schema.ServiceType = %v, want %v", gen.GetServiceType(), schema.ServiceType, gen.GetServiceType())
+			}
+
+			// Schema version should be present
+			if schema.Version == "" {
+				t.Errorf("%s: Schema.Version is empty", gen.GetServiceType())
+			}
+
+			// Schema should have fields
+			if len(schema.Fields) == 0 {
+				t.Errorf("%s: Schema.Fields is empty", gen.GetServiceType())
+			}
+
+			// Validate schema structure
+			if err := schema.Validate(); err != nil {
+				t.Errorf("%s: Schema validation failed: %v", gen.GetServiceType(), err)
+			}
+		})
+	}
+}

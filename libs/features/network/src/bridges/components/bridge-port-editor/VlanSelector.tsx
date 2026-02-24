@@ -77,17 +77,17 @@ export const VlanSelector = memo(function VlanSelector({
   const sortedVlans = useMemo(() => [...value].sort((a, b) => a - b), [value]);
 
   return (
-    <div className={className || 'space-y-2'}>
+    <div className={className || 'space-y-component-sm'}>
       {/* Label */}
       <div>
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </label>
-        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
+        {description && <p className="text-xs text-muted-foreground mt-component-xs">{description}</p>}
       </div>
 
       {/* Input with Add Button */}
-      <div className="flex gap-2">
+      <div className="flex gap-component-sm">
         <Input
           type="number"
           min={1}
@@ -125,7 +125,7 @@ export const VlanSelector = memo(function VlanSelector({
 
       {/* Selected VLANs (Chips) */}
       {sortedVlans.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 p-2 rounded-md border bg-muted/50">
+        <div className="flex flex-wrap gap-component-sm p-component-sm rounded-[var(--semantic-radius-button)] border bg-muted/50">
           {sortedVlans.map((vlanId) => (
             <Badge key={vlanId} variant="secondary" className="gap-1 pr-1">
               <span className="font-mono">{vlanId}</span>

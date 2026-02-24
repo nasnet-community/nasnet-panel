@@ -157,12 +157,12 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             role="status"
             aria-live="polite"
             aria-label={`Rollback countdown: ${formatTime(secondsRemaining)} remaining`}
-            className={`rounded-lg px-4 py-2 shadow-lg transition-colors ${
+            className={`rounded-[var(--semantic-radius-card)] px-component-md py-component-sm shadow-lg transition-colors ${
               urgencyLevel === 'critical'
-                ? 'bg-destructive text-destructive-foreground'
+                ? 'bg-error text-error-foreground'
                 : urgencyLevel === 'warning'
                   ? 'bg-warning text-warning-foreground'
-                  : 'bg-card border'
+                  : 'bg-card border border-border'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -175,7 +175,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               value={progressValue}
               className={`mt-1 h-1 ${
                 urgencyLevel === 'critical'
-                  ? 'bg-destructive-foreground/20'
+                  ? 'bg-error-foreground/20'
                   : urgencyLevel === 'warning'
                     ? 'bg-warning-foreground/20'
                     : 'bg-muted'
@@ -187,7 +187,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
           <Button
             size="lg"
             variant={urgencyLevel === 'critical' ? 'destructive' : 'default'}
-            className={`min-h-[${MIN_TOUCH_TARGET}px] h-14 shadow-lg`}
+            className="min-h-[44px] h-14 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={handleOpenConfirmDialog}
             disabled={isRollingBack}
             aria-label={isRollingBack ? 'Rolling back changes in progress' : 'Undo recent template changes'}
@@ -213,7 +213,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
 
           <div className="space-y-4">
             {/* Template Info */}
-            <div className="rounded-lg border p-4">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-md">
               <h4 className="mb-2 text-sm font-medium">Template Applied</h4>
               <p className="text-sm text-muted-foreground">{templateName}</p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -235,7 +235,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             </Alert>
 
             {/* Time Remaining */}
-            <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+            <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] bg-muted p-component-sm">
               <span className="text-sm font-medium">Time remaining</span>
               <span className="font-mono text-lg font-bold">
                 {formatTime(secondsRemaining)}
@@ -249,7 +249,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               onClick={handleCloseConfirmDialog}
               disabled={isRollingBack}
               aria-label="Keep changes and dismiss rollback confirmation"
-              className={`min-h-[${MIN_TOUCH_TARGET}px]`}
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Keep Changes
             </Button>
@@ -258,7 +258,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               onClick={handleRollback}
               disabled={isRollingBack}
               aria-label="Confirm rollback of all template changes"
-              className={`min-h-[${MIN_TOUCH_TARGET}px]`}
+              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {isRollingBack ? (
                 <>

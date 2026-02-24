@@ -347,8 +347,25 @@ func TestService_Logout(t *testing.T) {
 
 	t.Run("logout with invalid session", func(t *testing.T) {
 		err := authService.Logout(context.Background(), "nonexistent-session", "192.168.1.1", "TestBrowser/1.0")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrSessionNotFound)
+	})
+
+	t.Run("logout with revoked session should error", func(t *testing.T) {
+		// Create another user and session for cleanup test
+		_, err := authService.Login(context.Background(), LoginInput{
+			Username:  "testuser",
+			Password:  "securePass123",
+			IP:        "192.168.1.3",
+			UserAgent: "TestBrowser/3.0",
+		})
+		require.NoError(t, err)
+
+		// Manually revoke the first session before trying logout
+		sessionRepo.Revoke(context.Background(), result.Session.ID, "manual-revoke")
+
+		err = authService.Logout(context.Background(), result.Session.ID, "192.168.1.1", "TestBrowser/1.0")
+		require.Error(t, err)
 	})
 }
 
@@ -538,21 +555,30 @@ func TestService_GetUserSessions(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, sessions, 3)
 	})
+
+	t.Run("get sessions for nonexistent user", func(t *testing.T) {
+		sessions, err := authService.GetUserSessions(context.Background(), "nonexistent-user")
+		require.NoError(t, err)
+		assert.Empty(t, sessions)
+	})
 }
 
 func TestNewService_Validation(t *testing.T) {
-	privateKey, publicKey, _ := GenerateKeyPair()
-	jwtService, _ := NewJWTService(JWTConfig{
+	privateKey, publicKey, err := GenerateKeyPair()
+	require.NoError(t, err)
+
+	jwtService, err := NewJWTService(JWTConfig{
 		PrivateKey: privateKey,
 		PublicKey:  publicKey,
 	})
+	require.NoError(t, err)
 
 	t.Run("requires JWT service", func(t *testing.T) {
 		_, err := NewService(Config{
 			UserRepository:    newMockUserRepository(),
 			SessionRepository: newMockSessionRepository(),
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("requires user repository", func(t *testing.T) {
@@ -560,7 +586,7 @@ func TestNewService_Validation(t *testing.T) {
 			JWTService:        jwtService,
 			SessionRepository: newMockSessionRepository(),
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("requires session repository", func(t *testing.T) {
@@ -568,7 +594,7 @@ func TestNewService_Validation(t *testing.T) {
 			JWTService:     jwtService,
 			UserRepository: newMockUserRepository(),
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("creates default password service if not provided", func(t *testing.T) {

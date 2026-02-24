@@ -38,7 +38,7 @@ export declare function useServiceHealthBadge(health?: ServiceInstanceHealth | n
 } | {
     healthState: import("@nasnet/core/types").RuntimeHealth;
     showWarning: boolean;
-    latencyColor: "error" | "success" | "warning";
+    latencyColor: "success" | "error" | "warning";
     formattedUptime: string;
     formattedLastHealthy: string;
     hasFailures: boolean;

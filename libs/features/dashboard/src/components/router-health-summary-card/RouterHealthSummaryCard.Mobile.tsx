@@ -198,8 +198,8 @@ RouterHealthSummaryCardMobileSkeleton.displayName = 'RouterHealthSummaryCardMobi
  * @description Returns semantic color class based on CPU usage threshold
  */
 function getCpuColorClass(usage: number): string {
-  if (usage >= 90) return 'text-semantic-error';
-  if (usage >= 70) return 'text-semantic-warning';
+  if (usage >= 90) return 'text-error';
+  if (usage >= 70) return 'text-warning';
   return 'text-foreground';
 }
 
@@ -208,8 +208,8 @@ function getCpuColorClass(usage: number): string {
  * @description Returns semantic color class based on memory usage threshold
  */
 function getMemoryColorClass(usage: number): string {
-  if (usage >= 95) return 'text-semantic-error';
-  if (usage >= 80) return 'text-semantic-warning';
+  if (usage >= 95) return 'text-error';
+  if (usage >= 80) return 'text-warning';
   return 'text-foreground';
 }
 

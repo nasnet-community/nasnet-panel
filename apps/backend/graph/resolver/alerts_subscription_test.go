@@ -302,7 +302,7 @@ func TestAlertEventsSubscription_WithNilEventBus(t *testing.T) {
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "event bus is not available")
-	assert.NotNil(t, eventChan)
+	require.NotNil(t, eventChan)
 
 	// Channel should be closed
 	_, ok := <-eventChan
@@ -321,6 +321,12 @@ func TestAlertEventsSubscription_ChannelFullSkipsEvent(t *testing.T) {
 	subResolver := resolver.Subscription()
 	eventChan, err := subResolver.AlertEvents(ctx, nil)
 	require.NoError(t, err)
+	require.NotNil(t, eventChan)
+	defer func() {
+		// Drain remaining events to prevent goroutine leak
+		for range eventChan {
+		}
+	}()
 
 	// Fill the channel buffer (capacity 10)
 	for i := 0; i < 10; i++ {
@@ -373,9 +379,11 @@ func TestAlertEventsSubscription_ContextCancellation(t *testing.T) {
 	subResolver := resolver.Subscription()
 	eventChan, err := subResolver.AlertEvents(ctx, nil)
 	require.NoError(t, err)
+	require.NotNil(t, eventChan)
 
 	// Cancel context immediately
 	cancel()
+	defer cancel() // Ensure cancel is called even if it's already cancelled
 
 	// Channel should be closed after cancellation
 	timeout := time.After(2 * time.Second)

@@ -89,12 +89,12 @@ export function ResourceListSkeleton({
       )}
 
       {/* Table */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-card-sm border border-border bg-card">
         <SkeletonTable
           rows={rows}
           columns={columns}
           showHeader
-          className="p-4"
+          className="p-component-md"
         />
       </div>
 

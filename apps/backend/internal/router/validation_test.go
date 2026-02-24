@@ -280,28 +280,6 @@ func TestValidationErrors_Error(t *testing.T) {
 	})
 }
 
-func TestIntToString(t *testing.T) {
-	tests := []struct {
-		input    int
-		expected string
-	}{
-		{0, "0"},
-		{1, "1"},
-		{42, "42"},
-		{8728, "8728"},
-		{65535, "65535"},
-		{-1, "-1"},
-		{-42, "-42"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.expected, func(t *testing.T) {
-			result := intToString(tt.input)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
 func TestTruncateValue(t *testing.T) {
 	tests := []struct {
 		input    string

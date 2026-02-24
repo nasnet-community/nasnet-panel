@@ -55,7 +55,7 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
         aria-live="polite"
       >
         <table className="w-full border-collapse text-sm">
-          <caption className="mb-2 text-left text-lg font-semibold">
+          <caption className="mb-2 text-left text-lg font-display font-semibold">
             Bandwidth Data Table - {timeRange} time range
             {displayedPoints.length < dataPoints.length && (
               <span className="text-muted-foreground">
@@ -66,34 +66,34 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
             )}
           </caption>
           <thead>
-            <tr className="border-b">
+            <tr className="border-border">
               <th
                 scope="col"
-                className="px-4 py-2 text-left font-medium"
+                className="px-component-md py-component-sm text-left font-medium"
               >
                 Timestamp
               </th>
               <th
                 scope="col"
-                className="px-4 py-2 text-right font-medium"
+                className="px-component-md py-component-sm text-right font-medium"
               >
                 TX Rate (bps)
               </th>
               <th
                 scope="col"
-                className="px-4 py-2 text-right font-medium"
+                className="px-component-md py-component-sm text-right font-medium"
               >
                 RX Rate (bps)
               </th>
               <th
                 scope="col"
-                className="px-4 py-2 text-right font-medium"
+                className="px-component-md py-component-sm text-right font-medium"
               >
                 TX Total (bytes)
               </th>
               <th
                 scope="col"
-                className="px-4 py-2 text-right font-medium"
+                className="px-component-md py-component-sm text-right font-medium"
               >
                 RX Total (bytes)
               </th>
@@ -105,9 +105,9 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
               return (
                 <tr
                   key={`${point.timestamp}-${index}`}
-                  className="border-b last:border-0 hover:bg-muted/50"
+                  className="border-border last:border-0 hover:bg-muted/50"
                 >
-                  <td className="px-4 py-2">
+                  <td className="px-component-md py-component-sm font-mono">
                     {timestamp.toLocaleString([], {
                       month: 'short',
                       day: 'numeric',
@@ -116,16 +116,16 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
                       second: '2-digit',
                     })}
                   </td>
-                  <td className="px-4 py-2 text-right font-mono">
+                  <td className="px-component-md py-component-sm text-right font-mono">
                     {formatBitrate(point.txRate)}
                   </td>
-                  <td className="px-4 py-2 text-right font-mono">
+                  <td className="px-component-md py-component-sm text-right font-mono">
                     {formatBitrate(point.rxRate)}
                   </td>
-                  <td className="px-4 py-2 text-right font-mono">
+                  <td className="px-component-md py-component-sm text-right font-mono">
                     {formatBytes(point.txBytes)}
                   </td>
-                  <td className="px-4 py-2 text-right font-mono">
+                  <td className="px-component-md py-component-sm text-right font-mono">
                     {formatBytes(point.rxBytes)}
                   </td>
                 </tr>

@@ -12,12 +12,14 @@ import (
 type ConditionOperator string
 
 const (
-	OperatorEquals      ConditionOperator = "EQUALS"
-	OperatorNotEquals   ConditionOperator = "NOT_EQUALS"
-	OperatorGreaterThan ConditionOperator = "GREATER_THAN"
-	OperatorLessThan    ConditionOperator = "LESS_THAN"
-	OperatorContains    ConditionOperator = "CONTAINS"
-	OperatorRegex       ConditionOperator = "REGEX"
+	OperatorEquals         ConditionOperator = "EQUALS"
+	OperatorNotEquals      ConditionOperator = "NOT_EQUALS"
+	OperatorGreaterThan    ConditionOperator = "GREATER_THAN"
+	OperatorGreaterOrEqual ConditionOperator = "GREATER_OR_EQUAL"
+	OperatorLessThan       ConditionOperator = "LESS_THAN"
+	OperatorLessOrEqual    ConditionOperator = "LESS_OR_EQUAL"
+	OperatorContains       ConditionOperator = "CONTAINS"
+	OperatorRegex          ConditionOperator = "REGEX"
 )
 
 // Condition represents a single alert rule condition.
@@ -70,8 +72,14 @@ func evaluateCondition(cond Condition, eventData map[string]interface{}) bool {
 	case OperatorGreaterThan:
 		return compareNumeric(fieldStr, targetValue, func(a, b float64) bool { return a > b })
 
+	case OperatorGreaterOrEqual:
+		return compareNumeric(fieldStr, targetValue, func(a, b float64) bool { return a >= b })
+
 	case OperatorLessThan:
 		return compareNumeric(fieldStr, targetValue, func(a, b float64) bool { return a < b })
+
+	case OperatorLessOrEqual:
+		return compareNumeric(fieldStr, targetValue, func(a, b float64) bool { return a <= b })
 
 	case OperatorContains:
 		return strings.Contains(strings.ToLower(fieldStr), strings.ToLower(targetValue))
@@ -157,9 +165,17 @@ func compareNumeric(a, b string, compare func(float64, float64) bool) bool {
 
 // ParseConditions converts a JSON array of condition maps to typed Condition structs.
 func ParseConditions(conditionsJSON []map[string]interface{}) ([]Condition, error) {
+	if conditionsJSON == nil {
+		return []Condition{}, nil
+	}
+
 	conditions := make([]Condition, 0, len(conditionsJSON))
 
 	for i, condMap := range conditionsJSON {
+		if condMap == nil {
+			return nil, fmt.Errorf("condition %d: cannot be nil", i)
+		}
+
 		field, ok := condMap["field"].(string)
 		if !ok || field == "" {
 			return nil, fmt.Errorf("condition %d: field is required", i)

@@ -33,6 +33,7 @@ type VLANAllocatorConfig struct {
 	VlanService VlanServicePort
 
 	// EventBus is used for emitting VLAN pool warning events.
+	// Optional: if nil, warning events are silently skipped (allocator still works).
 	EventBus events.EventBus
 
 	// Logger for structured logging.

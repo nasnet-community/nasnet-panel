@@ -7,6 +7,51 @@ import (
 	"time"
 )
 
+// mockRouterPort implements RouterPort for testing (cache test helpers).
+type mockRouterPort struct {
+	responses map[string]*StateResult
+	errors    map[string]error
+}
+
+func newMockRouterPort() *mockRouterPort {
+	return &mockRouterPort{
+		responses: make(map[string]*StateResult),
+		errors:    make(map[string]error),
+	}
+}
+
+func (m *mockRouterPort) setError(path string, err error) {
+	m.errors[path] = err
+}
+
+func (m *mockRouterPort) setResponse(path string, resources []map[string]string) {
+	m.responses[path] = &StateResult{
+		Resources: resources,
+		Count:     len(resources),
+	}
+}
+
+func (m *mockRouterPort) QueryState(ctx context.Context, query StateQuery) (*StateResult, error) {
+	if err, ok := m.errors[query.Path]; ok {
+		return nil, err
+	}
+	if result, ok := m.responses[query.Path]; ok {
+		return result, nil
+	}
+	return &StateResult{}, nil
+}
+
+// mockDetectorImpl is a mock implementation of Detector.
+type mockDetectorImpl struct {
+	detectFunc  func(ctx context.Context, port RouterPort) (*Capabilities, error)
+	detectCount int
+}
+
+func (m *mockDetectorImpl) Detect(ctx context.Context, port RouterPort) (*Capabilities, error) {
+	m.detectCount++
+	return m.detectFunc(ctx, port)
+}
+
 // TestMemoryCache_GetSet tests basic get/set operations.
 func TestMemoryCache_GetSet(t *testing.T) {
 	cache := NewMemoryCache()
@@ -319,15 +364,4 @@ func TestCapabilities_IsStale(t *testing.T) {
 	if !stale.IsStale() {
 		t.Error("expected stale capabilities")
 	}
-}
-
-// mockDetectorImpl is a mock implementation of Detector.
-type mockDetectorImpl struct {
-	detectFunc  func(ctx context.Context, port RouterPort) (*Capabilities, error)
-	detectCount int
-}
-
-func (m *mockDetectorImpl) Detect(ctx context.Context, port RouterPort) (*Capabilities, error) {
-	m.detectCount++
-	return m.detectFunc(ctx, port)
 }

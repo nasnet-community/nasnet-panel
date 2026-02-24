@@ -72,6 +72,10 @@ func ErrorPresenter(ctx context.Context, err error) *gqlerror.Error {
 
 // presentRouterError converts a RouterError to a GraphQL error with extensions.
 func presentRouterError(ctx context.Context, err *RouterError, requestID string, isProduction bool) *gqlerror.Error {
+	if err == nil {
+		err = NewInternalError("unknown error", nil).RouterError
+	}
+
 	// In production, redact sensitive data and strip internal details
 	if isProduction {
 		err = RedactErrorForProduction(err, requestID)

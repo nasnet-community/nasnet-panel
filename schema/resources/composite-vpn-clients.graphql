@@ -1,0 +1,557 @@
+# =============================================================================
+# Composite Resources: VPN Clients
+# =============================================================================
+# VPN client resource types implementing the 8-layer model.
+# Includes OpenVPN, PPTP, L2TP, SSTP, and IKEv2 clients.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# OpenVPN Client
+# -----
+
+"""
+OpenVPN VPN Client resource implementing 8-layer model
+"""
+type OpenVPNClient implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  # Generic configuration (interface requirement)
+  configuration: JSON
+
+  # Other layers
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  config: OpenVPNClientConfig!
+  ovpnDeployment: OpenVPNDeployment
+  ovpnRuntime: OpenVPNRuntime
+}
+
+"""
+OpenVPN client configuration
+"""
+type OpenVPNClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "VPN server address"
+  server: String!
+
+  "VPN server port"
+  port: Port!
+
+  "Connection mode: tcp or udp"
+  protocol: String!
+
+  "Authentication mode: user/pass, certificate, or both"
+  authType: String!
+
+  "Username (if using user/pass auth)"
+  username: String @sensitive
+
+  "Password (if using user/pass auth)"
+  password: String @sensitive
+
+  "CA certificate PEM"
+  caCert: String! @sensitive
+
+  "Client certificate PEM"
+  clientCert: String! @sensitive
+
+  "Client key PEM"
+  clientKey: String! @sensitive
+
+  "Encryption cipher"
+  cipher: String
+
+  "TLS version (e.g., 1.2, 1.3)"
+  tlsVersion: String
+
+  "Verify server certificate"
+  verifyServerCert: Boolean
+
+  "Route all traffic through VPN (kill switch)"
+  routeAllTraffic: Boolean
+
+  "Do not pull default route from server"
+  routeNoPull: Boolean
+
+  "Custom DNS servers"
+  dnsServers: [IPv4!]
+
+  "WAN interface to use"
+  wanInterface: ID
+}
+
+"""
+OpenVPN deployment state (router-generated)
+"""
+type OpenVPNDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # OpenVPN-specific generated fields
+  "Assigned interface name"
+  interfaceName: String
+
+  "Generated client profile"
+  profilePath: String
+}
+
+"""
+OpenVPN runtime state
+"""
+type OpenVPNRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # OpenVPN-specific runtime
+  "Whether connected to VPN server"
+  isConnected: Boolean!
+
+  "Time of last successful connection"
+  lastConnectTime: DateTime
+
+  "Connection uptime"
+  connectionUptime: Duration
+
+  "Current tunnel IP"
+  tunnelAddress: IPv4
+
+  "Server endpoint currently connected to"
+  connectedEndpoint: String
+
+  "Bytes transferred in"
+  bytesIn: Size!
+
+  "Bytes transferred out"
+  bytesOut: Size!
+}
+
+# -----
+# PPTP Client
+# -----
+
+"""
+PPTP VPN Client resource implementing 8-layer model
+"""
+type PPTPClient implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: PPTPClientConfig!
+  pptpDeployment: PPTPDeployment
+  pptpRuntime: PPTPRuntime
+}
+
+"""
+PPTP client configuration
+"""
+type PPTPClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "VPN server address"
+  connectTo: String!
+
+  "VPN server port"
+  port: Port
+
+  "Username"
+  username: String! @sensitive
+
+  "Password"
+  password: String! @sensitive
+
+  "Authentication method (pap, chap, mschap, mschap2)"
+  authMethod: String!
+
+  "Keep alive timeout"
+  keepaliveTimeout: Duration
+
+  "Enable on-demand dialing"
+  dialOnDemand: Boolean
+
+  "WAN interface to use"
+  wanInterface: ID
+}
+
+"""
+PPTP deployment state
+"""
+type PPTPDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+PPTP runtime state
+"""
+type PPTPRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether connected to VPN"
+  isConnected: Boolean!
+
+  "Connection uptime"
+  connectionUptime: Duration
+
+  "Tunnel IP address"
+  tunnelAddress: IPv4
+
+  "Bytes in"
+  bytesIn: Size!
+
+  "Bytes out"
+  bytesOut: Size!
+}
+
+# -----
+# L2TP Client
+# -----
+
+"""
+L2TP VPN Client resource implementing 8-layer model
+"""
+type L2TPClient implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: L2TPClientConfig!
+  l2tpDeployment: L2TPDeployment
+  l2tpRuntime: L2TPRuntime
+}
+
+"""
+L2TP client configuration
+"""
+type L2TPClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "VPN server address"
+  server: String!
+
+  "VPN server port"
+  port: Port
+
+  "Username"
+  username: String! @sensitive
+
+  "Password"
+  password: String! @sensitive
+
+  "Use IPSec encryption"
+  useIpsec: Boolean
+
+  "IPSec shared secret"
+  ipsecSecret: String @sensitive
+
+  "Authentication method"
+  authMethod: String!
+
+  "L2TP protocol version"
+  protoVersion: String
+
+  "WAN interface to use"
+  wanInterface: ID
+}
+
+"""
+L2TP deployment state
+"""
+type L2TPDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+L2TP runtime state
+"""
+type L2TPRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether connected to VPN"
+  isConnected: Boolean!
+
+  "Connection uptime"
+  connectionUptime: Duration
+
+  "Tunnel IP address"
+  tunnelAddress: IPv4
+
+  "Bytes in"
+  bytesIn: Size!
+
+  "Bytes out"
+  bytesOut: Size!
+}
+
+# -----
+# SSTP Client
+# -----
+
+"""
+SSTP VPN Client resource implementing 8-layer model
+"""
+type SSTPClient implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: SSTPClientConfig!
+  sstpDeployment: SSTPDeployment
+  sstpRuntime: SSTPRuntime
+}
+
+"""
+SSTP client configuration
+"""
+type SSTPClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "VPN server address"
+  server: String!
+
+  "VPN server port"
+  port: Port
+
+  "Username"
+  username: String! @sensitive
+
+  "Password"
+  password: String! @sensitive
+
+  "Authentication method"
+  authMethod: String!
+
+  "TLS version"
+  tlsVersion: String
+
+  "Verify server certificate"
+  verifyServerCert: Boolean
+
+  "Server Name Indication (SNI)"
+  sni: String
+
+  "WAN interface to use"
+  wanInterface: ID
+}
+
+"""
+SSTP deployment state
+"""
+type SSTPDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+SSTP runtime state
+"""
+type SSTPRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether connected to VPN"
+  isConnected: Boolean!
+
+  "Connection uptime"
+  connectionUptime: Duration
+
+  "Tunnel IP address"
+  tunnelAddress: IPv4
+
+  "Bytes in"
+  bytesIn: Size!
+
+  "Bytes out"
+  bytesOut: Size!
+}
+
+# -----
+# IKEv2 Client
+# -----
+
+"""
+IKEv2 VPN Client resource implementing 8-layer model
+"""
+type IKEv2Client implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  config: IKEv2ClientConfig!
+  ikev2Deployment: IKEv2Deployment
+  ikev2Runtime: IKEv2Runtime
+}
+
+"""
+IKEv2 client configuration
+"""
+type IKEv2ClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "VPN server address"
+  server: String!
+
+  "VPN server port"
+  port: Port
+
+  "Username"
+  username: String! @sensitive
+
+  "Password"
+  password: String! @sensitive
+
+  "Authentication method"
+  authMethod: String!
+
+  "Local identity"
+  localIdentity: String!
+
+  "Remote identity (gateway)"
+  remoteIdentity: String!
+
+  "Encryption algorithm (aes128, aes192, aes256, etc.)"
+  encAlgorithm: String!
+
+  "Integrity algorithm (sha1, sha256, sha384, sha512)"
+  intAlgorithm: String!
+
+  "DH Group (group2, group14, group15, etc.)"
+  dhGroup: String!
+
+  "WAN interface to use"
+  wanInterface: ID
+}
+
+"""
+IKEv2 deployment state
+"""
+type IKEv2Deployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+IKEv2 runtime state
+"""
+type IKEv2Runtime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  "Whether connected to VPN"
+  isConnected: Boolean!
+
+  "Connection uptime"
+  connectionUptime: Duration
+
+  "Tunnel IP address"
+  tunnelAddress: IPv4
+
+  "Bytes in"
+  bytesIn: Size!
+
+  "Bytes out"
+  bytesOut: Size!
+}

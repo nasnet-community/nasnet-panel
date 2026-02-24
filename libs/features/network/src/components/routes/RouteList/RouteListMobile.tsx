@@ -93,7 +93,7 @@ function RouteListMobileComponent({
   }, [routes, filters]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Routes</h2>
@@ -112,7 +112,7 @@ function RouteListMobileComponent({
       </div>
 
       {/* Filters - Vertical Stack */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <Input
           placeholder="Search destination, gateway..."
           value={filters.searchText || ''}
@@ -180,7 +180,7 @@ function RouteListMobileComponent({
 
       {/* Error message */}
       {error && (
-        <div role="alert" className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div role="alert" className="flex items-center gap-component-sm rounded-lg border border-error/50 bg-error/10 p-component-sm text-sm text-error">
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <p>{error}</p>
         </div>
@@ -204,7 +204,7 @@ function RouteListMobileComponent({
 
       {/* Route Cards */}
       {!loading && filteredRoutes.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           {filteredRoutes.map((route) => (
             <RouteCard
               key={route.id}
@@ -251,13 +251,13 @@ function RouteCard({
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
+      <CardHeader className="pb-component-sm">
+        <div className="flex items-start justify-between gap-component-sm">
           <div className="flex-1">
             <code className="text-base font-mono font-semibold">
               {route.destination}
             </code>
-            <div className="mt-1 flex flex-wrap gap-2">
+            <div className="mt-1 flex flex-wrap gap-component-sm">
               <Badge variant={variant} className="text-xs">
                 {text}
               </Badge>
@@ -273,7 +273,7 @@ function RouteCard({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <StatusDot className={route.active ? 'bg-success' : 'bg-muted'} />
             <span className="text-xs text-muted-foreground">
               {route.disabled ? 'Disabled' : route.active ? 'Active' : 'Inactive'}
@@ -281,12 +281,12 @@ function RouteCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-component-sm">
         {/* Gateway */}
         {route.gateway && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Gateway:</span>
-            <code className="text-sm">{route.gateway}</code>
+            <code className="text-sm font-mono">{route.gateway}</code>
           </div>
         )}
 
@@ -329,7 +329,7 @@ function RouteCard({
         )}
 
         {/* Actions - Full width buttons with 44px height */}
-        <div className="pt-2 space-y-2">
+        <div className="pt-component-sm space-y-component-sm">
           <Button
             variant="outline"
             className="w-full min-h-[44px]"
@@ -340,7 +340,7 @@ function RouteCard({
             <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
             Edit
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button
               variant="outline"
               className="flex-1 min-h-[44px]"

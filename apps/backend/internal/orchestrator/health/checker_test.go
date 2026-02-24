@@ -11,7 +11,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // mockProbe is a test probe that can be configured to succeed or fail
@@ -64,8 +64,8 @@ func testRestartChan() chan RestartRequest {
 }
 
 // testLogger creates a no-op logger for tests
-func testLogger() zerolog.Logger {
-	return zerolog.Nop()
+func testLogger() *zap.Logger {
+	return zap.NewNop()
 }
 
 // testPublisher creates a mock event publisher

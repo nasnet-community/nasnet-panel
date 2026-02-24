@@ -7,6 +7,7 @@
 
 import { memo, useMemo, useCallback } from 'react';
 import { Shield, ShieldCheck, ShieldAlert, FileText, Clock, RefreshCw } from 'lucide-react';
+import { cn } from '@nasnet/ui/utils';
 import { useFilterRules, useNATRules } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 
@@ -139,11 +140,11 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
 
   if (isLoading) {
     return (
-      <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${className || ''}`} role="status" aria-label="Loading firewall status">
+      <div className={cn('grid grid-cols-2 md:grid-cols-4 gap-component-sm', className)} role="status" aria-label="Loading firewall status">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-card rounded-xl border border-border p-4 animate-pulse"
+            className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md animate-pulse"
           >
             <div className="h-4 bg-muted rounded w-16 mb-2" />
             <div className="h-7 bg-muted rounded w-12 mb-1" />
@@ -158,10 +159,10 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
   const StatusIcon = currentStatus.icon;
 
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${className || ''}`} role="region" aria-label="Firewall status overview">
+    <div className={cn('grid grid-cols-2 md:grid-cols-4 gap-component-sm', className)} role="region" aria-label="Firewall status overview">
       {/* Protection Status */}
       <div
-        className={`rounded-xl border p-4 ${currentStatus.bgColor} ${currentStatus.borderColor}`}
+        className={cn('rounded-[var(--semantic-radius-card)] border p-component-md', currentStatus.bgColor, currentStatus.borderColor)}
       >
         <div className="flex items-center gap-2 mb-1">
           <StatusIcon className={`w-4 h-4 ${currentStatus.iconColor}`} aria-hidden="true" />
@@ -178,8 +179,8 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       </div>
 
       {/* Total Rules */}
-      <div className="bg-card rounded-xl border border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
+        <div className="flex items-center gap-component-sm mb-1">
           <FileText className="w-4 h-4 text-secondary" aria-hidden="true" />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Total Rules
@@ -194,8 +195,8 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       </div>
 
       {/* Active Rules */}
-      <div className="bg-card rounded-xl border border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
+        <div className="flex items-center gap-component-sm mb-1">
           <Shield className="w-4 h-4 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Active
@@ -215,9 +216,9 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       </div>
 
       {/* Last Updated */}
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
         <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               Updated
@@ -226,7 +227,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
           <button
             onClick={handleRefresh}
             disabled={isFetching}
-            className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="p-1 rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={isFetching ? 'Refreshing firewall data' : 'Refresh firewall data'}
           >
             <RefreshCw

@@ -8,7 +8,7 @@ import (
 
 	"backend/internal/orchestrator/supervisor"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // DiagnosticStatus represents the result status of a diagnostic test
@@ -54,11 +54,14 @@ type DiagnosticSuite struct {
 type DiagnosticRunner struct {
 	suites map[string]*DiagnosticSuite
 	mu     sync.RWMutex
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // NewDiagnosticRunner creates a new diagnostic runner
-func NewDiagnosticRunner(logger zerolog.Logger) *DiagnosticRunner {
+func NewDiagnosticRunner(logger *zap.Logger) *DiagnosticRunner {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	return &DiagnosticRunner{
 		suites: make(map[string]*DiagnosticSuite),
 		logger: logger,
@@ -71,10 +74,7 @@ func (dr *DiagnosticRunner) RegisterSuite(serviceName string, suite *DiagnosticS
 	defer dr.mu.Unlock()
 
 	dr.suites[serviceName] = suite
-	dr.logger.Info().
-		Str("service", serviceName).
-		Int("test_count", len(suite.Tests)).
-		Msg("registered diagnostic suite")
+	dr.logger.Info("registered diagnostic suite", zap.String("service", serviceName), zap.Int("test_count", len(suite.Tests)))
 }
 
 // RunDiagnostics executes all tests for a service and returns results
@@ -95,22 +95,12 @@ func (dr *DiagnosticRunner) RunDiagnostics(ctx context.Context, serviceName, ins
 	results := make([]DiagnosticResult, 0, len(suite.Tests))
 
 	for _, test := range suite.Tests {
-		dr.logger.Debug().
-			Str("service", serviceName).
-			Str("instance_id", instanceID).
-			Str("test", test.Name()).
-			Msg("running diagnostic test")
+		dr.logger.Debug("running diagnostic test", zap.String("service", serviceName), zap.String("instance_id", instanceID), zap.String("test", test.Name()))
 
 		result := test.Run(ctx)
 		results = append(results, result)
 
-		dr.logger.Info().
-			Str("service", serviceName).
-			Str("instance_id", instanceID).
-			Str("test", test.Name()).
-			Str("status", string(result.Status)).
-			Dur("duration", result.Duration).
-			Msg("diagnostic test completed")
+		dr.logger.Info("diagnostic test completed", zap.String("service", serviceName), zap.String("instance_id", instanceID), zap.String("test", test.Name()), zap.String("status", string(result.Status)), zap.Duration("duration", result.Duration))
 	}
 
 	return results

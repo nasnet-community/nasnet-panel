@@ -1,11 +1,12 @@
 package health
 
 import (
-	"backend/internal/orchestrator/supervisor"
 	"context"
 	"fmt"
 	"net"
 	"time"
+
+	"backend/internal/orchestrator/supervisor"
 )
 
 // MTProxyPortTest tests MTProxy port connectivity
@@ -42,7 +43,6 @@ func (t *MTProxyPortTest) Run(ctx context.Context) DiagnosticResult {
 	defer cancel()
 
 	// MTProxy typically listens on 0.0.0.0, test on localhost
-	const defaultLocalhost = "127.0.0.1"
 	testHost := defaultLocalhost
 	addr := fmt.Sprintf("%s:%d", testHost, t.Port)
 

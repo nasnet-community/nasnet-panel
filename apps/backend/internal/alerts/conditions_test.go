@@ -3,6 +3,8 @@ package alerts
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestEvaluateConditions tests condition evaluation logic.
@@ -153,9 +155,7 @@ func TestEvaluateConditions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := EvaluateConditions(tt.conditions, tt.eventData)
-			if got != tt.want {
-				t.Errorf("EvaluateConditions() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, got, "EvaluateConditions() should match expected result")
 		})
 	}
 }
@@ -202,13 +202,12 @@ func TestParseConditions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseConditions(tt.input)
-			if (err != nil) != tt.wantError {
-				t.Errorf("ParseConditions() error = %v, wantError %v", err, tt.wantError)
-				return
+			if tt.wantError {
+				assert.Error(t, err, "ParseConditions() should return error")
+			} else {
+				assert.NoError(t, err, "ParseConditions() should not return error")
 			}
-			if len(got) != tt.wantLen {
-				t.Errorf("ParseConditions() returned %d conditions, want %d", len(got), tt.wantLen)
-			}
+			assert.Equal(t, tt.wantLen, len(got), "ParseConditions() should return correct number of conditions")
 		})
 	}
 }
@@ -276,11 +275,9 @@ func TestGetFieldValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotValue, gotFound := getFieldValue(tt.field, tt.data)
-			if gotFound != tt.wantFound {
-				t.Errorf("getFieldValue() found = %v, want %v", gotFound, tt.wantFound)
-			}
-			if gotFound && gotValue != tt.wantValue {
-				t.Errorf("getFieldValue() value = %v, want %v", gotValue, tt.wantValue)
+			assert.Equal(t, tt.wantFound, gotFound, "getFieldValue() should return correct found status")
+			if gotFound {
+				assert.Equal(t, tt.wantValue, gotValue, "getFieldValue() should return correct value")
 			}
 		})
 	}

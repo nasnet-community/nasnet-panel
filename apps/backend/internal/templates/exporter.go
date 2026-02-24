@@ -9,19 +9,19 @@ import (
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TemplateExporter exports running service instances as reusable templates
 type TemplateExporter struct {
 	store  *ent.Client
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // TemplateExporterConfig holds configuration for the template exporter
 type TemplateExporterConfig struct {
 	Store  *ent.Client
-	Logger zerolog.Logger
+	Logger *zap.Logger
 }
 
 // ExportTemplateRequest contains parameters for exporting a template
@@ -41,16 +41,24 @@ func NewTemplateExporter(cfg TemplateExporterConfig) (*TemplateExporter, error) 
 		return nil, fmt.Errorf("ent store is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	return &TemplateExporter{
 		store:  cfg.Store,
-		logger: cfg.Logger,
+		logger: logger,
 	}, nil
 }
 
 // ExportAsTemplate exports running instance(s) as a reusable template
 // For single instance: creates a single-scope template
 // For multiple instances: creates a multi-scope template with dependencies
-func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemplateRequest) (*ServiceTemplate, error) { //nolint:gocyclo // template export logic
+func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemplateRequest) (*ServiceTemplate, error) { //nolint:gocyclo,maintidx // template export logic
+	if te == nil {
+		return nil, fmt.Errorf("template exporter is nil")
+	}
 	if len(req.InstanceIDs) == 0 {
 		return nil, fmt.Errorf("at least one instance ID is required")
 	}
@@ -179,7 +187,7 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 			All(ctx)
 
 		if err != nil {
-			te.logger.Warn().Err(err).Msg("failed to query dependencies for template export")
+			te.logger.Warn("failed to query dependencies for template export", zap.Error(err))
 		} else {
 			// Convert dependencies to suggested routing rules
 			instanceNameMap := make(map[string]string)
@@ -253,13 +261,13 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 		Examples:           te.generateExamples(instances),
 	}
 
-	te.logger.Info().
-		Str("template_id", template.ID).
-		Str("template_name", template.Name).
-		Int("services", len(services)).
-		Int("variables", len(configVariables)).
-		Str("scope", string(scope)).
-		Msg("template exported successfully")
+	te.logger.Info("template exported successfully",
+		zap.String("template_id", template.ID),
+		zap.String("template_name", template.Name),
+		zap.Int("services", len(services)),
+		zap.Int("variables", len(configVariables)),
+		zap.String("scope", string(scope)),
+	)
 
 	return template, nil
 }
@@ -275,11 +283,17 @@ func (te *TemplateExporter) generateVariableName(_ string, configKey string) str
 }
 
 func (te *TemplateExporter) humanizeKey(key string) string {
+	if key == "" {
+		return ""
+	}
+
 	// Convert snake_case to Title Case
 	// Example: "bind_port" -> "Bind Port"
 	words := strings.Split(key, "_")
 	for i, word := range words {
-		words[i] = strings.ToUpper(string(strings.ToLower(word)[0])) + strings.ToLower(word)[1:]
+		if word != "" {
+			words[i] = strings.ToUpper(string(strings.ToLower(word)[0])) + strings.ToLower(word)[1:]
+		}
 	}
 	return strings.Join(words, " ")
 }
@@ -320,6 +334,10 @@ func (te *TemplateExporter) requiresBridge(featureID string) bool {
 }
 
 func (te *TemplateExporter) extractPortMappings(instance *ent.ServiceInstance) []Port {
+	if instance == nil {
+		return []Port{}
+	}
+
 	mappings := make([]Port, 0, len(instance.Ports))
 
 	for i, portNum := range instance.Ports {
@@ -335,6 +353,10 @@ func (te *TemplateExporter) extractPortMappings(instance *ent.ServiceInstance) [
 }
 
 func (te *TemplateExporter) generatePrerequisites(_ []*ent.ServiceInstance, resources ResourceEstimate) []string {
+	if resources.TotalMemoryMB < 0 {
+		return []string{"Invalid resource estimate"}
+	}
+
 	prereqs := []string{
 		fmt.Sprintf("At least %dMB free memory", resources.TotalMemoryMB),
 	}
@@ -351,11 +373,17 @@ func (te *TemplateExporter) generatePrerequisites(_ []*ent.ServiceInstance, reso
 }
 
 func (te *TemplateExporter) generateDocumentation(instances []*ent.ServiceInstance, scope TemplateScope) string {
+	if len(instances) == 0 {
+		return "No service instances provided for documentation"
+	}
+
 	var doc strings.Builder
 	doc.WriteString("This template was exported from running service instances.\n\n")
 
 	if scope == ScopeSingle {
-		fmt.Fprintf(&doc, "**Service:** %s\n\n", instances[0].FeatureID)
+		if len(instances) > 0 {
+			fmt.Fprintf(&doc, "**Service:** %s\n\n", instances[0].FeatureID)
+		}
 	} else {
 		doc.WriteString("**Services:**\n")
 		for _, inst := range instances {
@@ -373,10 +401,16 @@ func (te *TemplateExporter) generateDocumentation(instances []*ent.ServiceInstan
 }
 
 func (te *TemplateExporter) generateExamples(instances []*ent.ServiceInstance) []string {
+	if len(instances) == 0 {
+		return []string{}
+	}
+
 	examples := make([]string, 0, len(instances))
 
 	for _, inst := range instances {
-		examples = append(examples, fmt.Sprintf("Deploy %s for %s", inst.FeatureID, inst.InstanceName))
+		if inst != nil {
+			examples = append(examples, fmt.Sprintf("Deploy %s for %s", inst.FeatureID, inst.InstanceName))
+		}
 	}
 
 	return examples

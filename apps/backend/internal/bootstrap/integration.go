@@ -1,9 +1,8 @@
 package bootstrap
 
 import (
-	"log"
+	"errors"
 
-	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -22,7 +21,7 @@ import (
 
 // IntegrationComponents holds all initialized integration service components.
 type IntegrationComponents struct {
-	WebhookService    *integration.WebhookService
+	WebhookService    *integration.Service
 	SharingService    *sharing.Service
 	ConfigService     *config.Service
 	CredentialService *credentials.Service
@@ -44,25 +43,30 @@ func InitializeIntegrationServices(
 	pathResolver storage.PathResolverPort,
 	portRegistry *network.PortRegistry,
 	vlanAllocator *network.VLANAllocator,
-	logger zerolog.Logger,
+	logger *zap.Logger,
 	zapLogger *zap.SugaredLogger,
 ) (*IntegrationComponents, error) {
+
+	if zapLogger == nil {
+		return nil, errors.New("zapLogger cannot be nil")
+	}
+
 	// 1. Webhook Service - webhook CRUD with encryption
-	webhookService := integration.NewWebhookService(integration.WebhookServiceConfig{
+	webhookService := integration.NewService(integration.Config{
 		DB:         systemDB,
 		Encryption: encryptionService,
 		Dispatcher: dispatcher,
 		EventBus:   eventBus,
 		Logger:     zapLogger,
 	})
-	log.Printf("Webhook service initialized (AES-256-GCM encryption + SSRF protection)")
+	zapLogger.Infow("Webhook service initialized (AES-256-GCM encryption + SSRF protection)")
 
 	// 2. Sharing Service - service configuration export/import
 	// Note: AuditService is optional (nil for now)
 	// Adapt features.FeatureRegistry to sharing.FeatureRegistry using the adapter function
 	sharingRegistry := sharing.NewFeatureRegistryFromFunc(featureRegistry.GetManifest)
-	sharingService := sharing.NewService(systemDB, routerPort, eventBus, sharingRegistry, nil)
-	log.Printf("Sharing service initialized (export/import with FeatureRegistry adapter)")
+	sharingService := sharing.NewService(systemDB, routerPort, eventBus, sharingRegistry, nil, logger)
+	zapLogger.Infow("Sharing service initialized (export/import with FeatureRegistry adapter)")
 
 	// 3. Config Service - configuration generation and management
 	configService, err := config.NewService(config.Config{
@@ -77,14 +81,14 @@ func InitializeIntegrationServices(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Config service initialized (validate → generate → write → publish)")
+	zapLogger.Infow("Config service initialized (validate → generate → write → publish)")
 
 	// 4. Credential Service - initialize here since we have encryption service
 	credentialService, err := credentials.NewService(encryptionService)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Credential service initialized (encrypted storage)")
+	zapLogger.Infow("Credential service initialized (encrypted storage)")
 
 	return &IntegrationComponents{
 		WebhookService:    webhookService,

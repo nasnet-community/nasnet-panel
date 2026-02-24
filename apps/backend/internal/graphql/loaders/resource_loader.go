@@ -1,11 +1,10 @@
-//nolint:dupl // similar loader pattern, distinct types
 package loaders
 
 import (
 	"context"
-	"log"
 
 	"github.com/graph-gophers/dataloader/v7"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/generated/ent/resource"
@@ -17,14 +16,16 @@ type ResourceLoader struct {
 }
 
 // NewResourceLoader creates a new ResourceLoader.
-func NewResourceLoader(db *ent.Client, stats *LoaderStats, devMode bool) *ResourceLoader {
+func NewResourceLoader(db *ent.Client, stats *LoaderStats, devMode bool, logger *zap.Logger) *ResourceLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[*ent.Resource] {
 		// Track statistics
 		stats.IncrementBatchCalls()
 		stats.IncrementTotalKeys(len(keys))
 
-		if devMode {
-			log.Printf("[DataLoader] ResourceLoader batch: loading %d resources", len(keys))
+		if devMode && logger != nil {
+			logger.Debug("ResourceLoader batch started",
+				zap.Int("resource_count", len(keys)),
+			)
 		}
 
 		// Single batched query for all keys
@@ -32,8 +33,10 @@ func NewResourceLoader(db *ent.Client, stats *LoaderStats, devMode bool) *Resour
 			Where(resource.IDIn(keys...)).
 			All(ctx)
 
-		if devMode && err != nil {
-			log.Printf("[DataLoader] ResourceLoader batch error: %v", err)
+		if devMode && logger != nil && err != nil {
+			logger.Error("ResourceLoader batch failed",
+				zap.Error(err),
+			)
 		}
 
 		// Map results back to original key order

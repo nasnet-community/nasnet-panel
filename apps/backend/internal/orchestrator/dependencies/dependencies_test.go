@@ -3,7 +3,6 @@ package dependencies
 import (
 	"context"
 	"database/sql"
-	"os"
 	"testing"
 
 	"backend/generated/ent"
@@ -16,9 +15,9 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	_ "modernc.org/sqlite"
 )
 
@@ -97,7 +96,7 @@ func TestNewDependencyManager(t *testing.T) {
 		eventBus := events.NewInMemoryEventBus()
 		defer eventBus.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 
 		dm, err := NewDependencyManager(DependencyManagerConfig{
 			Store:    client,
@@ -116,7 +115,7 @@ func TestNewDependencyManager(t *testing.T) {
 		eventBus := events.NewInMemoryEventBus()
 		defer eventBus.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 
 		dm, err := NewDependencyManager(DependencyManagerConfig{
 			EventBus: eventBus,
@@ -132,7 +131,7 @@ func TestNewDependencyManager(t *testing.T) {
 		client := openTestClient(t)
 		defer client.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 
 		dm, err := NewDependencyManager(DependencyManagerConfig{
 			Store:  client,
@@ -157,7 +156,7 @@ func TestAddDependency_Success(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -199,7 +198,7 @@ func TestAddDependency_CycleDetected(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -254,7 +253,7 @@ func TestAddDependency_SelfDependency(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -287,7 +286,7 @@ func TestAddDependency_DuplicateDependency(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -324,7 +323,7 @@ func TestAddDependency_NonexistentInstance(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -365,7 +364,7 @@ func TestRemoveDependency(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -413,7 +412,7 @@ func TestGetDependencies(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -459,7 +458,7 @@ func TestGetDependents(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -505,7 +504,7 @@ func TestCleanupForInstance(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,
@@ -556,7 +555,7 @@ func TestGetFullGraph(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := NewDependencyManager(DependencyManagerConfig{
 		Store:    client,

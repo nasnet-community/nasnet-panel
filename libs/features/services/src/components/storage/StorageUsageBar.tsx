@@ -120,7 +120,7 @@ function StorageUsageBarComponent({
   const clampedPercent = Math.max(0, Math.min(100, usagePercent));
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-component-sm', className)}>
       {/* Usage Summary: Used amount and percentage (technical data in monospace) */}
       <div className="flex justify-between items-center text-sm">
         <span className="text-muted-foreground">

@@ -134,7 +134,7 @@ export const StatsCounter = memo(function StatsCounter({
   const formattedValue = getFormattedValue();
 
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
+    <div className={cn('flex flex-col gap-component-sm', className)}>
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <span
         className={cn(

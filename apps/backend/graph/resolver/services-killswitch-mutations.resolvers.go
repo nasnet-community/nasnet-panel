@@ -6,17 +6,70 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"backend/internal/vif/isolation"
 	"context"
-	"fmt"
 )
+
+// validateKillSwitchInput validates the SetKillSwitch input fields.
+func validateKillSwitchInput(input model.SetKillSwitchInput) error {
+	if input.RouterID == "" {
+		return errors.NewValidationError("routerID", "", "required")
+	}
+	if input.DeviceID == "" {
+		return errors.NewValidationError("deviceID", "", "required")
+	}
+	if input.Enabled {
+		if input.Mode == model.KillSwitchModeFallbackService {
+			if !input.FallbackInterfaceID.IsSet() || input.FallbackInterfaceID.Value() == nil {
+				return errors.NewValidationError(
+					"fallbackInterfaceID",
+					nil,
+					"required for fallback service mode",
+				)
+			}
+		}
+	}
+	return nil
+}
+
+// mapKillSwitchMode converts GraphQL mode to isolation mode and extracts fallback ID.
+func mapKillSwitchMode(
+	input model.SetKillSwitchInput,
+) (mode isolation.KillSwitchMode, fallbackID string) {
+
+	killSwitchMode := isolation.KillSwitchModeBlockAll
+	switch input.Mode {
+	case model.KillSwitchModeBlockAll:
+		killSwitchMode = isolation.KillSwitchModeBlockAll
+	case model.KillSwitchModeFallbackService:
+		killSwitchMode = isolation.KillSwitchModeFallbackService
+	case model.KillSwitchModeAllowDirect:
+		killSwitchMode = isolation.KillSwitchModeAllowDirect
+	}
+
+	fallbackInterfaceID := ""
+	if input.FallbackInterfaceID.IsSet() && input.FallbackInterfaceID.Value() != nil {
+		fallbackInterfaceID = *input.FallbackInterfaceID.Value()
+	}
+	return killSwitchMode, fallbackInterfaceID
+}
 
 // SetKillSwitch resolves the setKillSwitch mutation.
 func (r *mutationResolver) SetKillSwitch(ctx context.Context, input model.SetKillSwitchInput) (*model.DeviceRouting, error) {
-	// Get router port for this router
-	routerPort, err := r.getRouterPortTyped(ctx, input.RouterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get router port: %w", err)
+	// Validate inputs
+	if validationErr := validateKillSwitchInput(input); validationErr != nil {
+		return nil, validationErr
+	}
+
+	// Verify kill switch manager is configured
+	if r.Resolver.KillSwitchManager == nil {
+		return nil, errors.NewResourceError(
+			errors.CodeDependencyNotReady,
+			"kill switch manager not configured",
+			"KillSwitchManager",
+			"",
+		)
 	}
 
 	// Query the existing device routing
@@ -26,47 +79,64 @@ func (r *mutationResolver) SetKillSwitch(ctx context.Context, input model.SetKil
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("device routing not found for device %s", input.DeviceID)
+			return nil, errors.NewResourceError(
+				errors.CodeResourceNotFound,
+				"device routing not found",
+				"DeviceRouting",
+				input.DeviceID,
+			)
 		}
-		return nil, fmt.Errorf("failed to query device routing: %w", err)
+		return nil, errors.Wrap(
+			err,
+			errors.CodeResourceNotFound,
+			errors.CategoryResource,
+			"failed to query device routing",
+		)
 	}
 
-	// Create KillSwitchManager
-	killSwitchManager := isolation.NewKillSwitchManager(routerPort, r.db, r.EventBus, r.EventPublisher)
+	// Verify device routing is not nil
+	if dr == nil {
+		return nil, errors.NewResourceError(
+			errors.CodeResourceNotFound,
+			"device routing is nil after query",
+			"DeviceRouting",
+			input.DeviceID,
+		)
+	}
 
-	//nolint:nestif // nested structure needed for enable/disable logic
+	// Apply kill switch configuration
 	if input.Enabled {
-		// Map kill switch mode from GraphQL to isolation mode
-		killSwitchModeInner := isolation.KillSwitchModeBlockAll
-		switch input.Mode {
-		case model.KillSwitchModeBlockAll:
-			killSwitchModeInner = isolation.KillSwitchModeBlockAll
-		case model.KillSwitchModeFallbackService:
-			killSwitchModeInner = isolation.KillSwitchModeFallbackService
-		case model.KillSwitchModeAllowDirect:
-			killSwitchModeInner = isolation.KillSwitchModeAllowDirect
-		}
-
-		fallbackInterfaceID := ""
-		if input.FallbackInterfaceID.IsSet() && input.FallbackInterfaceID.Value() != nil {
-			fallbackInterfaceID = *input.FallbackInterfaceID.Value()
-		}
-
-		enableErr := killSwitchManager.Enable(ctx, dr.ID, killSwitchModeInner, fallbackInterfaceID)
+		killSwitchMode, fallbackInterfaceID := mapKillSwitchMode(input)
+		enableErr := r.Resolver.KillSwitchManager.Enable(ctx, dr.ID, killSwitchMode, fallbackInterfaceID)
 		if enableErr != nil {
-			return nil, fmt.Errorf("failed to enable kill switch: %w", enableErr)
+			return nil, errors.Wrap(
+				enableErr,
+				errors.CodeCommandFailed,
+				errors.CategoryProtocol,
+				"failed to enable kill switch",
+			)
 		}
 	} else {
-		disableErr := killSwitchManager.Disable(ctx, dr.ID)
+		disableErr := r.Resolver.KillSwitchManager.Disable(ctx, dr.ID)
 		if disableErr != nil {
-			return nil, fmt.Errorf("failed to disable kill switch: %w", disableErr)
+			return nil, errors.Wrap(
+				disableErr,
+				errors.CodeCommandFailed,
+				errors.CategoryProtocol,
+				"failed to disable kill switch",
+			)
 		}
 	}
 
 	// Query the updated routing from DB
 	updatedRouting, queryErr := r.db.DeviceRouting.Get(ctx, dr.ID)
 	if queryErr != nil {
-		return nil, fmt.Errorf("failed to query updated routing: %w", queryErr)
+		return nil, errors.Wrap(
+			queryErr,
+			errors.CodeResourceNotFound,
+			errors.CategoryResource,
+			"failed to query updated routing",
+		)
 	}
 
 	return convertDeviceRouting(updatedRouting), nil

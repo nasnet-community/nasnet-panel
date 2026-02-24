@@ -35,12 +35,12 @@ function LeaseCardSkeletonComponent({ className }: LeaseCardSkeletonProps) {
       aria-busy="true"
       aria-label="Loading lease information"
     >
-      <div className="px-4 py-3 flex items-start gap-3 min-h-[44px]">
+      <div className="px-component-md py-component-sm flex items-start gap-component-sm min-h-[44px]">
         {/* Avatar skeleton */}
         <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
 
         {/* Content skeleton */}
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex-1 min-w-0 space-y-component-xs">
           {/* IP address line */}
           <Skeleton className="h-5 w-32" />
 
@@ -48,7 +48,7 @@ function LeaseCardSkeletonComponent({ className }: LeaseCardSkeletonProps) {
           <Skeleton className="h-4 w-24" />
 
           {/* MAC + Status line */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Skeleton className="h-3 w-40" />
             <Skeleton className="h-5 w-16 rounded-full" />
           </div>

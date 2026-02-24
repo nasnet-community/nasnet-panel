@@ -7,7 +7,7 @@ import (
 )
 
 // GetThrottleStatus returns the throttle status for alert rules.
-func (s *AlertService) GetThrottleStatus(ctx context.Context, ruleID *string) ([]ThrottleStatus, error) {
+func (s *Service) GetThrottleStatus(ctx context.Context, ruleID *string) ([]ThrottleStatus, error) {
 	if s.engine == nil {
 		return nil, fmt.Errorf("engine not configured")
 	}
@@ -37,7 +37,7 @@ func (s *AlertService) GetThrottleStatus(ctx context.Context, ruleID *string) ([
 }
 
 // GetStormStatus returns the current storm detection status.
-func (s *AlertService) GetStormStatus(ctx context.Context) (*StormStatus, error) {
+func (s *Service) GetStormStatus(ctx context.Context) (*StormStatus, error) {
 	if s.engine == nil {
 		return nil, fmt.Errorf("engine not configured")
 	}

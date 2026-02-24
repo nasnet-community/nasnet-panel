@@ -5,16 +5,16 @@ package resolver
 import (
 	"backend/generated/ent/serviceinstance"
 	graphql1 "backend/graph/model"
+	"backend/internal/errors"
 	"backend/internal/events"
 	"backend/internal/orchestrator/lifecycle"
 	"context"
-	"fmt"
 )
 
 // InstallProgress is the resolver for the installProgress subscription field.
 func (r *subscriptionResolver) InstallProgress(ctx context.Context, routerID string) (<-chan *graphql1.InstallProgress, error) {
 	if r.EventBus == nil {
-		return nil, fmt.Errorf("event bus not initialized")
+		return nil, errors.NewProtocolError("EVENT_BUS_NOT_INIT", "event bus not initialized", "graphql")
 	}
 
 	ch := make(chan *graphql1.InstallProgress, 16)
@@ -69,16 +69,22 @@ func (r *subscriptionResolver) InstallProgress(ctx context.Context, routerID str
 
 	if err := r.EventBus.Subscribe(events.EventTypeServiceInstalled, handler); err != nil {
 		close(ch)
-		return nil, fmt.Errorf("failed to subscribe to install events: %w", err)
+		return nil, errors.Wrap(err, "SUBSCRIBE_FAILED", errors.CategoryInternal, "failed to subscribe to install events")
 	}
 	if err := r.EventBus.Subscribe(events.EventTypeServiceStateChanged, handler); err != nil {
 		close(ch)
-		return nil, fmt.Errorf("failed to subscribe to state change events: %w", err)
+		return nil, errors.Wrap(err, "SUBSCRIBE_FAILED", errors.CategoryInternal, "failed to subscribe to state change events")
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic but don't crash service
+				_ = r
+			}
+			close(ch)
+		}()
 		<-ctx.Done()
-		close(ch)
 	}()
 
 	return ch, nil
@@ -87,7 +93,7 @@ func (r *subscriptionResolver) InstallProgress(ctx context.Context, routerID str
 // InstanceStatusChanged is the resolver for the instanceStatusChanged subscription field.
 func (r *subscriptionResolver) InstanceStatusChanged(ctx context.Context, routerID string) (<-chan *graphql1.InstanceStatusChanged, error) {
 	if r.EventBus == nil {
-		return nil, fmt.Errorf("event bus not initialized")
+		return nil, errors.NewProtocolError("EVENT_BUS_NOT_INIT", "event bus not initialized", "graphql")
 	}
 
 	ch := make(chan *graphql1.InstanceStatusChanged, 16)
@@ -118,12 +124,18 @@ func (r *subscriptionResolver) InstanceStatusChanged(ctx context.Context, router
 
 	if err := r.EventBus.Subscribe(events.EventTypeServiceStateChanged, handler); err != nil {
 		close(ch)
-		return nil, fmt.Errorf("failed to subscribe to status change events: %w", err)
+		return nil, errors.Wrap(err, "SUBSCRIBE_FAILED", errors.CategoryInternal, "failed to subscribe to status change events")
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic but don't crash service
+				_ = r
+			}
+			close(ch)
+		}()
 		<-ctx.Done()
-		close(ch)
 	}()
 
 	return ch, nil
@@ -132,7 +144,7 @@ func (r *subscriptionResolver) InstanceStatusChanged(ctx context.Context, router
 // VerificationEvents is the resolver for the verificationEvents subscription field.
 func (r *subscriptionResolver) VerificationEvents(ctx context.Context, routerID string) (<-chan *graphql1.VerificationEvent, error) {
 	if r.EventBus == nil {
-		return nil, fmt.Errorf("event bus not initialized")
+		return nil, errors.NewProtocolError("EVENT_BUS_NOT_INIT", "event bus not initialized", "graphql")
 	}
 
 	ch := make(chan *graphql1.VerificationEvent, 16)
@@ -204,20 +216,28 @@ func (r *subscriptionResolver) VerificationEvents(ctx context.Context, routerID 
 		return nil
 	}
 
-	for _, topic := range []string{
+	topics := []string{
 		events.EventTypeBinaryVerified,
 		events.EventTypeBinaryVerificationFailed,
 		events.EventTypeBinaryIntegrityFailed,
-	} {
+	}
+
+	for _, topic := range topics {
 		if err := r.EventBus.Subscribe(topic, handler); err != nil {
 			close(ch)
-			return nil, fmt.Errorf("failed to subscribe to %s: %w", topic, err)
+			return nil, errors.Wrap(err, "SUBSCRIBE_FAILED", errors.CategoryInternal, "failed to subscribe to "+topic)
 		}
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic but don't crash service
+				_ = r
+			}
+			close(ch)
+		}()
 		<-ctx.Done()
-		close(ch)
 	}()
 
 	return ch, nil
@@ -226,7 +246,7 @@ func (r *subscriptionResolver) VerificationEvents(ctx context.Context, routerID 
 // BootSequenceEvents is the resolver for the bootSequenceEvents subscription field.
 func (r *subscriptionResolver) BootSequenceEvents(ctx context.Context) (<-chan *graphql1.BootSequenceEvent, error) {
 	if r.EventBus == nil {
-		return nil, fmt.Errorf("event bus not initialized")
+		return nil, errors.NewProtocolError("EVENT_BUS_NOT_INIT", "event bus not initialized", "graphql")
 	}
 
 	ch := make(chan *graphql1.BootSequenceEvent, 16)
@@ -301,21 +321,29 @@ func (r *subscriptionResolver) BootSequenceEvents(ctx context.Context) (<-chan *
 		return nil
 	}
 
-	for _, topic := range []string{
+	bootTopics := []string{
 		events.EventTypeBootSequenceStarted,
 		events.EventTypeBootSequenceLayerComplete,
 		events.EventTypeBootSequenceComplete,
 		events.EventTypeBootSequenceFailed,
-	} {
+	}
+
+	for _, topic := range bootTopics {
 		if err := r.EventBus.Subscribe(topic, handler); err != nil {
 			close(ch)
-			return nil, fmt.Errorf("failed to subscribe to %s: %w", topic, err)
+			return nil, errors.Wrap(err, "SUBSCRIBE_FAILED", errors.CategoryInternal, "failed to subscribe to "+topic)
 		}
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic but don't crash service
+				_ = r
+			}
+			close(ch)
+		}()
 		<-ctx.Done()
-		close(ch)
 	}()
 
 	return ch, nil

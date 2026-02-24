@@ -7,41 +7,133 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
+	"net"
 )
 
 // CreateAddressListEntry is the resolver for the createAddressListEntry field.
 func (r *mutationResolver) CreateAddressListEntry(ctx context.Context, routerID string, input model.CreateAddressListEntryInput) (*model.AddressListEntry, error) {
-	panic(fmt.Errorf("not implemented: CreateAddressListEntry - createAddressListEntry"))
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if input.List == "" {
+		return nil, errors.NewValidationError("input", nil, "list is required")
+	}
+	if input.Address == "" {
+		return nil, errors.NewValidationError("input", nil, "address is required")
+	}
+
+	// Validation: IP/CIDR format
+	if _, _, err := net.ParseCIDR(input.Address); err != nil {
+		if net.ParseIP(input.Address) == nil {
+			return nil, errors.Wrap(errors.NewValidationError("input", nil, "address must be a valid IP or CIDR"), errors.CodeValidationFailed, errors.CategoryValidation, "CreateAddressListEntry")
+		}
+	}
+
+	// TODO: Implement CreateAddressListEntry - add entry to address list
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateAddressListEntry - createAddressListEntry", "graphql"))
 }
 
 // DeleteAddressListEntry is the resolver for the deleteAddressListEntry field.
 func (r *mutationResolver) DeleteAddressListEntry(ctx context.Context, routerID string, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteAddressListEntry - deleteAddressListEntry"))
+	// Validation: required fields
+	if routerID == "" {
+		return false, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if id == "" {
+		return false, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement DeleteAddressListEntry - remove entry from address list
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteAddressListEntry - deleteAddressListEntry", "graphql"))
 }
 
 // BulkCreateAddressListEntries is the resolver for the bulkCreateAddressListEntries field.
 func (r *mutationResolver) BulkCreateAddressListEntries(ctx context.Context, routerID string, listName string, entries []*model.BulkAddressInput) (*model.BulkCreateResult, error) {
-	panic(fmt.Errorf("not implemented: BulkCreateAddressListEntries - bulkCreateAddressListEntries"))
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if listName == "" {
+		return nil, errors.NewValidationError("listName", listName, "required")
+	}
+	if len(entries) == 0 {
+		return nil, errors.NewValidationError("input", nil, "at least one entry is required")
+	}
+
+	// Validation: each entry address format
+	for _, entry := range entries {
+		if entry == nil {
+			return nil, errors.NewValidationError("input", nil, "entry is nil")
+		}
+		if entry.Address == "" {
+			return nil, errors.NewValidationError("input", nil, "entry address is required")
+		}
+		if _, _, err := net.ParseCIDR(entry.Address); err != nil {
+			if net.ParseIP(entry.Address) == nil {
+				return nil, errors.Wrap(errors.NewValidationError("input", nil, "entry has invalid address format"), errors.CodeValidationFailed, errors.CategoryValidation, "BulkCreateAddressListEntries")
+			}
+		}
+	}
+
+	// TODO: Implement BulkCreateAddressListEntries - add multiple entries atomically
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: BulkCreateAddressListEntries - bulkCreateAddressListEntries", "graphql"))
 }
 
 // ApplyFirewallTemplate is the resolver for the applyFirewallTemplate field.
 func (r *mutationResolver) ApplyFirewallTemplate(ctx context.Context, routerID string, templateID string, variables map[string]any) (*model.FirewallTemplateResult, error) {
-	panic(fmt.Errorf("not implemented: ApplyFirewallTemplate - applyFirewallTemplate"))
+	// Validation: required fields
+	if routerID == "" {
+		return nil, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if templateID == "" {
+		return nil, errors.NewValidationError("input", nil, "templateID is required")
+	}
+
+	// TODO: Implement ApplyFirewallTemplate - apply template with conflict checking
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ApplyFirewallTemplate - applyFirewallTemplate", "graphql"))
 }
 
 // RollbackFirewallTemplate is the resolver for the rollbackFirewallTemplate field.
 func (r *mutationResolver) RollbackFirewallTemplate(ctx context.Context, routerID string, rollbackID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: RollbackFirewallTemplate - rollbackFirewallTemplate"))
+	// Validation: required fields
+	if routerID == "" {
+		return false, errors.NewValidationError("input", nil, "routerID is required")
+	}
+	if rollbackID == "" {
+		return false, errors.NewValidationError("input", nil, "rollbackID is required")
+	}
+
+	// TODO: Implement RollbackFirewallTemplate - revert applied template
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: RollbackFirewallTemplate - rollbackFirewallTemplate", "graphql"))
 }
 
 // SaveFirewallTemplate is the resolver for the saveFirewallTemplate field.
 func (r *mutationResolver) SaveFirewallTemplate(ctx context.Context, input model.SaveTemplateInput) (*model.FirewallTemplate, error) {
-	panic(fmt.Errorf("not implemented: SaveFirewallTemplate - saveFirewallTemplate"))
+	// Validation: required fields
+	if input.Name == "" {
+		return nil, errors.NewValidationError("input", nil, "name is required")
+	}
+	if input.Description == "" {
+		return nil, errors.NewValidationError("input", nil, "description is required")
+	}
+	if input.Rules == nil || len(input.Rules) == 0 {
+		return nil, errors.NewValidationError("input", nil, "at least one rule is required")
+	}
+
+	// TODO: Implement SaveFirewallTemplate - save new template with conflict checking
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: SaveFirewallTemplate - saveFirewallTemplate", "graphql"))
 }
 
 // DeleteFirewallTemplate is the resolver for the deleteFirewallTemplate field.
 func (r *mutationResolver) DeleteFirewallTemplate(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteFirewallTemplate - deleteFirewallTemplate"))
+	// Validation: required fields
+	if id == "" {
+		return false, errors.NewValidationError("input", nil, "id is required")
+	}
+
+	// TODO: Implement DeleteFirewallTemplate - remove template and verify no active applications
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteFirewallTemplate - deleteFirewallTemplate", "graphql"))
 }

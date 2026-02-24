@@ -39,8 +39,10 @@ func setupTestResolver(t *testing.T) (*Resolver, *ent.Client, func()) {
 	})
 
 	resolver := NewResolverWithConfig(Config{
+		DB:           client,
 		EventBus:     eventBus,
 		AlertService: alertService,
+		Logger:       logger,
 	})
 
 	cleanup := func() {
@@ -244,6 +246,10 @@ func TestToggleAlertRule(t *testing.T) {
 	result2, err := resolver.Mutation().ToggleAlertRule(ctx, rule.ID)
 	if err != nil {
 		t.Fatalf("Second ToggleAlertRule failed: %v", err)
+	}
+
+	if result2.AlertRule == nil {
+		t.Fatal("Expected alertRule in result2")
 	}
 
 	if !result2.AlertRule.Enabled {

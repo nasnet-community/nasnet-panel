@@ -152,10 +152,10 @@ export function PppoeConfirmStep({
 
       {/* Warning for default route */}
       {optionsData?.addDefaultRoute && (
-        <div className="rounded-lg border border-warning/20 bg-warning/5 p-4">
+        <div className="rounded-lg border border-border bg-card/50 p-4">
           <div className="flex gap-3">
             <AlertCircle
-              className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+              className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
               aria-hidden="true"
             />
             <div className="space-y-1">

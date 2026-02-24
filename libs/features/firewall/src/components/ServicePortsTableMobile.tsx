@@ -96,7 +96,7 @@ TypeBadge.displayName = 'TypeBadge';
 
 const LoadingState = React.memo(function LoadingState() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {[...Array(5)].map((_, i) => (
         <Skeleton key={i} className="h-32 w-full" />
       ))}
@@ -178,7 +178,7 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
               <DropdownMenuItem
                 onClick={handleDeleteClick}
                 disabled={service.isBuiltIn}
-                className="text-destructive"
+                className="text-error"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 {t('servicePorts.deleteService')}
@@ -298,9 +298,9 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Search and Filters */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -311,7 +311,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
           />
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-component-sm">
           <Select value={protocolFilter} onValueChange={setProtocolFilter}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder={t('servicePorts.fields.protocol')} />
@@ -357,7 +357,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-component-sm">
           {filteredServices.map((service) => (
             <ServiceCard
               key={`${service.port}-${service.protocol}`}

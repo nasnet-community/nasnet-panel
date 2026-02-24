@@ -3,25 +3,31 @@ package troubleshoot
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
+	"errors"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // SessionStore manages troubleshooting sessions in memory.
 // Thread-safe for concurrent access.
 type SessionStore struct {
-	mu       sync.RWMutex
-	sessions map[string]*Session
-	// TTL for completed sessions before cleanup
-	sessionTTL time.Duration
+	mu         sync.RWMutex
+	sessions   map[string]*Session
+	sessionTTL time.Duration // TTL for completed sessions before cleanup
+	stopChan   chan struct{} // Signal to stop the cleanup goroutine
+	logger     *zap.Logger
 }
 
 // NewSessionStore creates a new session store.
 func NewSessionStore() *SessionStore {
+	logger := zap.L().Named("troubleshoot.SessionStore")
 	store := &SessionStore{
 		sessions:   make(map[string]*Session),
 		sessionTTL: 1 * time.Hour, // Keep completed sessions for 1 hour
+		stopChan:   make(chan struct{}),
+		logger:     logger,
 	}
 
 	// Start background cleanup goroutine
@@ -34,7 +40,8 @@ func NewSessionStore() *SessionStore {
 func (s *SessionStore) Create(routerID string) (*Session, error) {
 	sessionID, err := generateSessionID()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate session ID: %w", err)
+		s.logger.Error("failed to generate session ID", zap.String("routerID", routerID), zap.Error(err))
+		return nil, err
 	}
 
 	session := &Session{
@@ -61,7 +68,8 @@ func (s *SessionStore) Get(sessionID string) (*Session, error) {
 
 	session, exists := s.sessions[sessionID]
 	if !exists {
-		return nil, fmt.Errorf("session not found: %s", sessionID)
+		s.logger.Debug("session not found", zap.String("sessionID", sessionID))
+		return nil, errors.New("session not found")
 	}
 
 	return session, nil
@@ -73,7 +81,8 @@ func (s *SessionStore) Update(session *Session) error {
 	defer s.mu.Unlock()
 
 	if _, exists := s.sessions[session.ID]; !exists {
-		return fmt.Errorf("session not found: %s", session.ID)
+		s.logger.Debug("attempted to update non-existent session", zap.String("sessionID", session.ID))
+		return errors.New("session not found")
 	}
 
 	s.sessions[session.ID] = session
@@ -81,13 +90,10 @@ func (s *SessionStore) Update(session *Session) error {
 }
 
 // Delete removes a session from the store.
+// Returns no error if session doesn't exist (idempotent operation).
 func (s *SessionStore) Delete(sessionID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	if _, exists := s.sessions[sessionID]; !exists {
-		return fmt.Errorf("session not found: %s", sessionID)
-	}
 
 	delete(s.sessions, sessionID)
 	return nil
@@ -109,13 +115,25 @@ func (s *SessionStore) GetByRouterID(routerID string) []*Session {
 }
 
 // cleanupLoop periodically removes expired completed sessions.
+// Stops when stopChan is closed.
 func (s *SessionStore) cleanupLoop() {
 	ticker := time.NewTicker(15 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		s.cleanup()
+	for {
+		select {
+		case <-ticker.C:
+			s.cleanup()
+		case <-s.stopChan:
+			return
+		}
 	}
+}
+
+// Close stops the cleanup goroutine and releases resources.
+func (s *SessionStore) Close() error {
+	close(s.stopChan)
+	return nil
 }
 
 // cleanup removes sessions that have been completed/canceled for longer than TTL.

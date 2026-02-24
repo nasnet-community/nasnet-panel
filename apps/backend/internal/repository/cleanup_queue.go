@@ -2,9 +2,10 @@ package repository
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/database"
 )
@@ -48,6 +49,9 @@ type CleanupQueueConfig struct {
 
 	// ProcessInterval is how often the queue is processed.
 	ProcessInterval time.Duration
+
+	// Logger is the structured logger instance.
+	Logger *zap.Logger
 }
 
 // CleanupQueue manages eventual consistency cleanup operations.
@@ -69,20 +73,27 @@ type CleanupQueue struct {
 	ticker        *time.Ticker
 	done          chan struct{}
 	wg            sync.WaitGroup
+	logger        *zap.Logger
 }
 
 // DefaultCleanupQueueConfig returns default configuration for the cleanup queue.
 func DefaultCleanupQueueConfig(dbManager *database.Manager) CleanupQueueConfig {
+	logger, _ := zap.NewProduction() //nolint:errcheck // fallback logger creation
 	return CleanupQueueConfig{
 		DBManager:       dbManager,
 		MaxRetries:      5,
 		RetryInterval:   30 * time.Second,
 		ProcessInterval: 10 * time.Second,
+		Logger:          logger,
 	}
 }
 
 // NewCleanupQueue creates a new cleanup queue.
 func NewCleanupQueue(cfg CleanupQueueConfig) *CleanupQueue {
+	logger := cfg.Logger
+	if logger == nil {
+		logger, _ = zap.NewProduction() //nolint:errcheck // fallback logger creation
+	}
 	return &CleanupQueue{
 		tasks:         make([]CleanupTask, 0),
 		dbManager:     cfg.DBManager,
@@ -90,6 +101,7 @@ func NewCleanupQueue(cfg CleanupQueueConfig) *CleanupQueue {
 		retryInterval: cfg.RetryInterval,
 		ticker:        time.NewTicker(cfg.ProcessInterval),
 		done:          make(chan struct{}),
+		logger:        logger,
 	}
 }
 
@@ -109,7 +121,7 @@ func (q *CleanupQueue) Start(ctx context.Context) {
 			}
 		}
 	}()
-	log.Printf("[cleanup-queue] Started background processor")
+	q.logger.Info("Started background processor")
 }
 
 // Stop stops background processing and waits for completion.
@@ -117,7 +129,7 @@ func (q *CleanupQueue) Stop() {
 	close(q.done)
 	q.ticker.Stop()
 	q.wg.Wait()
-	log.Printf("[cleanup-queue] Stopped")
+	q.logger.Info("Stopped")
 }
 
 // Enqueue adds a cleanup task to the queue.
@@ -126,7 +138,7 @@ func (q *CleanupQueue) Enqueue(task CleanupTask) {
 	defer q.mu.Unlock()
 
 	q.tasks = append(q.tasks, task)
-	log.Printf("[cleanup-queue] Enqueued %s cleanup for router %s", task.Type, task.RouterID)
+	q.logger.Info("Enqueued cleanup task", zap.String("type", string(task.Type)), zap.String("router_id", task.RouterID))
 }
 
 // PendingCount returns the number of pending cleanup tasks.
@@ -148,7 +160,7 @@ func (q *CleanupQueue) processTasks(ctx context.Context) {
 		return
 	}
 
-	log.Printf("[cleanup-queue] Processing %d cleanup tasks", len(tasks))
+	q.logger.Info("Processing cleanup tasks", zap.Int("count", len(tasks)))
 
 	var retryTasks []CleanupTask
 
@@ -161,15 +173,24 @@ func (q *CleanupQueue) processTasks(ctx context.Context) {
 			if task.RetryCount < q.maxRetries {
 				// Schedule for retry
 				retryTasks = append(retryTasks, task)
-				log.Printf("[cleanup-queue] Task %s for router %s failed (attempt %d/%d): %v",
-					task.Type, task.RouterID, task.RetryCount, q.maxRetries, err)
+				q.logger.Warn("Cleanup task failed, scheduling retry",
+					zap.String("type", string(task.Type)),
+					zap.String("router_id", task.RouterID),
+					zap.Int("attempt", task.RetryCount),
+					zap.Int("max_retries", q.maxRetries),
+					zap.Error(err))
 			} else {
 				// Max retries exceeded, log and discard
-				log.Printf("[cleanup-queue] FAILED: Task %s for router %s exceeded max retries (%d): %v",
-					task.Type, task.RouterID, q.maxRetries, err)
+				q.logger.Error("Cleanup task exceeded max retries",
+					zap.String("type", string(task.Type)),
+					zap.String("router_id", task.RouterID),
+					zap.Int("max_retries", q.maxRetries),
+					zap.Error(err))
 			}
 		} else {
-			log.Printf("[cleanup-queue] Completed %s cleanup for router %s", task.Type, task.RouterID)
+			q.logger.Info("Completed cleanup task",
+				zap.String("type", string(task.Type)),
+				zap.String("router_id", task.RouterID))
 		}
 	}
 
@@ -187,7 +208,7 @@ func (q *CleanupQueue) executeTask(_ctx context.Context, task CleanupTask) error
 	case CleanupRouterDB:
 		return q.cleanupRouterDB(task.RouterID)
 	default:
-		log.Printf("[cleanup-queue] Unknown cleanup type: %s", task.Type)
+		q.logger.Warn("Unknown cleanup type", zap.String("type", string(task.Type)))
 		return nil // Don't retry unknown types
 	}
 }
@@ -195,7 +216,7 @@ func (q *CleanupQueue) executeTask(_ctx context.Context, task CleanupTask) error
 // cleanupRouterDB deletes a router-{id}.db file.
 func (q *CleanupQueue) cleanupRouterDB(routerID string) error {
 	if q.dbManager == nil {
-		log.Printf("[cleanup-queue] No database manager, skipping router DB cleanup for %s", routerID)
+		q.logger.Warn("No database manager, skipping router DB cleanup", zap.String("router_id", routerID))
 		return nil
 	}
 

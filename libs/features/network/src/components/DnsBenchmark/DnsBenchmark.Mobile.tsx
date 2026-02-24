@@ -84,13 +84,13 @@ function DnsBenchmarkMobileComponent({
   return (
     <Card className={cn('', className)}>
       <CardHeader>
-        <CardTitle className="text-lg">DNS Server Benchmark</CardTitle>
-        <CardDescription className="text-sm">
+        <CardTitle>DNS Server Benchmark</CardTitle>
+        <CardDescription>
           Test response times of all configured DNS servers
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-col gap-3">
+      <CardContent className="space-y-component-md">
+        <div className="flex flex-col gap-component-sm">
           <Button
             onClick={handleRunBenchmark}
             disabled={isLoading}
@@ -115,7 +115,7 @@ function DnsBenchmarkMobileComponent({
         </div>
 
         {isLoading && (
-          <div className="space-y-3" role="status" aria-live="polite">
+          <div className="space-y-component-sm" role="status" aria-live="polite">
             <Progress
               value={progress}
               className="w-full h-2"
@@ -133,15 +133,15 @@ function DnsBenchmarkMobileComponent({
         )}
 
         {isSuccess && result && (
-          <div className="space-y-4">
-            <div className="text-xs text-muted-foreground text-center p-2 bg-muted rounded">
+          <div className="space-y-component-md">
+            <div className="text-xs text-muted-foreground text-center p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
               Tested with:{' '}
               <span className="font-mono font-medium">{result.testHostname}</span>
               <br />
               Total time: <span className="font-mono">{result.totalTimeMs}ms</span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               {result.serverResults.map((server, index) => {
                 const borderColor =
                   index === 0 && server.success
@@ -158,9 +158,9 @@ function DnsBenchmarkMobileComponent({
                     className="border-l-4"
                     style={{ borderLeftColor: borderColor }}
                   >
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
+                    <CardContent className="p-component-md space-y-component-sm">
+                      <div className="flex items-start justify-between gap-component-sm">
+                        <div className="flex items-center gap-component-sm">
                           <Server
                             className="h-4 w-4 text-muted-foreground flex-shrink-0"
                             aria-hidden
@@ -190,7 +190,7 @@ function DnsBenchmarkMobileComponent({
                       </div>
 
                       {server.error && (
-                        <div className="text-xs text-error bg-error/10 p-2 rounded">
+                        <div className="text-xs text-error bg-error/10 p-component-sm rounded-[var(--semantic-radius-button)]">
                           {server.error}
                         </div>
                       )}

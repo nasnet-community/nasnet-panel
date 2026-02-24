@@ -184,7 +184,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
             <p className="font-mono text-lg">
               <span className="text-muted-foreground">v{currentVersion}</span>
               <span className="mx-3 text-muted-foreground">→</span>
-              <span className="font-semibold text-foreground">v{newVersion}</span>
+              <span className="font-mono font-semibold text-foreground">v{newVersion}</span>
             </p>
           </div>
 
@@ -192,7 +192,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           {(securityFixes || breakingChanges) && (
             <div className="space-y-2">
               {securityFixes && (
-                <div className="flex items-start gap-3 rounded-md border border-error/20 bg-error/5 p-3">
+                <div className="flex items-start gap-3 rounded-md border border-error/20 bg-error/10 p-3">
                   <ShieldAlert
                     className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
                     aria-hidden="true"
@@ -209,7 +209,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
                 </div>
               )}
               {breakingChanges && (
-                <div className="flex items-start gap-3 rounded-md border border-warning/20 bg-warning/5 p-3">
+                <div className="flex items-start gap-3 rounded-md border border-warning/20 bg-warning/10 p-3">
                   <AlertCircle
                     className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
                     aria-hidden="true"

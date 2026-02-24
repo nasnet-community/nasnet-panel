@@ -2,7 +2,6 @@ package bootstrap
 
 import (
 	"context"
-	"log"
 
 	"go.uber.org/zap"
 
@@ -32,25 +31,25 @@ func InitializeTrafficManagement(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
 	routerPort *router.MockAdapter,
-	logger *zap.SugaredLogger,
+	logger *zap.Logger,
 ) (*TrafficComponents, error) {
 	// 1. Service Traffic Poller - polls traffic stats for service instances
 	serviceTrafficPoller := pollers.NewServiceTrafficPoller(routerPort, eventBus)
-	log.Printf("Service traffic poller initialized (rate limiting: 10s-300s)")
+	logger.Info("Service traffic poller initialized", zap.String("rateLimiting", "10s-300s"))
 
 	// 2. Traffic Aggregator - write-behind buffering for high-frequency data
 	trafficAggregator := traffic.NewTrafficAggregator(systemDB)
 	trafficAggregator.Start(ctx)
-	log.Printf("Traffic aggregator started (flush: 5min, retention: 30 days)")
+	logger.Info("Traffic aggregator started", zap.String("flush", "5min"), zap.String("retention", "30 days"))
 
 	// 3. Device Traffic Tracker - per-device traffic breakdown
 	deviceTrafficTracker := traffic.NewDeviceTrafficTracker(routerPort)
-	log.Printf("Device traffic tracker initialized (mangle counter correlation)")
+	logger.Info("Device traffic tracker initialized", zap.String("mechanism", "mangle counter correlation"))
 
 	// 4. Quota Enforcer - traffic quota enforcement with event warnings
 	// Pass routerPort so THROTTLE action can create queue-tree entries on the router.
 	quotaEnforcer := traffic.NewQuotaEnforcer(systemDB, eventBus, routerPort)
-	log.Printf("Quota enforcer initialized (80%%, 90%%, 100%% thresholds)")
+	logger.Info("Quota enforcer initialized", zap.String("thresholds", "80%, 90%, 100%"))
 
 	return &TrafficComponents{
 		ServiceTrafficPoller: serviceTrafficPoller,

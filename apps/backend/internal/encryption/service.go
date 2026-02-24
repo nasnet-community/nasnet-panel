@@ -12,6 +12,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
 	"errors"
@@ -19,6 +20,8 @@ import (
 	"io"
 	"os"
 	"sync"
+
+	"golang.org/x/crypto/pbkdf2"
 )
 
 // Key size constants
@@ -217,6 +220,7 @@ func (s *Service) KeyVersion() int {
 // RotateKey rotates the encryption key to a new key.
 // This should be called when re-encrypting data with a new key.
 // Note: This does NOT re-encrypt existing data; that must be done separately.
+// The old key is securely zeroed from memory.
 func (s *Service) RotateKey(newKey []byte, newVersion int) error {
 	if len(newKey) != KeySize {
 		return fmt.Errorf("%w: got %d bytes, want %d bytes", ErrInvalidKeySize, len(newKey), KeySize)
@@ -225,7 +229,10 @@ func (s *Service) RotateKey(newKey []byte, newVersion int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Make a copy
+	// Securely zero the old key before replacing
+	ZeroBytes(s.key)
+
+	// Make a copy of the new key
 	keyCopy := make([]byte, KeySize)
 	copy(keyCopy, newKey)
 
@@ -272,4 +279,45 @@ func GenerateKeyBase64() (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(key), nil
+}
+
+// DeriveKeyFromPassword derives a 32-byte encryption key from a password using PBKDF2-SHA256.
+// This function is useful for password-based key derivation in migration scenarios.
+// Parameters:
+// - password: the user's password (any length)
+// - salt: a random 16-byte salt (should be generated with crypto/rand for security)
+// - iterations: number of PBKDF2 iterations (recommended: 100000+)
+//
+// Returns the derived 32-byte key.
+// Important: The password and salt should be securely handled and cleared from memory
+// by the caller using ZeroBytes().
+func DeriveKeyFromPassword(password string, salt []byte, iterations int) ([]byte, error) {
+	if password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+
+	if len(salt) != 16 {
+		return nil, fmt.Errorf("salt must be 16 bytes, got %d", len(salt))
+	}
+
+	if iterations < 100000 {
+		return nil, errors.New("iterations must be at least 100000 for security")
+	}
+
+	// PBKDF2 with SHA256
+	key := pbkdf2.Key([]byte(password), salt, iterations, KeySize, sha256.New)
+	if len(key) != KeySize {
+		return nil, fmt.Errorf("derived key has invalid size: %d", len(key))
+	}
+
+	return key, nil
+}
+
+// GenerateSalt generates a cryptographically secure 16-byte salt for use with DeriveKeyFromPassword.
+func GenerateSalt() ([]byte, error) {
+	salt := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+		return nil, fmt.Errorf("failed to generate salt: %w", err)
+	}
+	return salt, nil
 }

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"backend/internal/events"
 
 	"github.com/skip2/go-qrcode"
@@ -75,7 +77,7 @@ func (s *Service) GenerateQR(ctx context.Context, pkg *ServiceExportPackage, opt
 	)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
 		// Log but don't fail - event publishing is non-critical
-		fmt.Printf("Warning: failed to publish QRCodeGeneratedEvent: %v\n", err)
+		s.logger.Warn("failed to publish QRCodeGeneratedEvent", zap.Error(err))
 	}
 
 	return pngData, nil

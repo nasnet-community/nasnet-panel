@@ -15,6 +15,9 @@ import (
 	"testing"
 	"time"
 
+	"backend/internal/orchestrator/health"
+	"backend/internal/orchestrator/resources"
+	"backend/internal/orchestrator/supervisor"
 	"github.com/rs/zerolog"
 )
 
@@ -28,7 +31,7 @@ func TestLogCaptureFromMockChildProcess(t *testing.T) {
 	logger := zerolog.New(os.Stdout)
 
 	// Create log capture
-	lc, err := NewLogCapture(LogCaptureConfig{
+	lc, err := resources.NewLogCapture(resources.LogCaptureConfig{
 		InstanceID:  "integration-test",
 		ServiceName: "mock-process",
 		LogDir:      tmpDir,
@@ -78,10 +81,10 @@ echo {"level":"info","msg":"Process completed"}
 	// Copy logs in goroutines
 	errChan := make(chan error, 2)
 	go func() {
-		errChan <- CopyLogs(lc, stdout, "")
+		errChan <- resources.CopyLogs(lc, stdout, "")
 	}()
 	go func() {
-		errChan <- CopyLogs(lc, stderr, "[stderr] ")
+		errChan <- resources.CopyLogs(lc, stderr, "[stderr] ")
 	}()
 
 	// Wait for process to complete
@@ -117,11 +120,11 @@ echo {"level":"info","msg":"Process completed"}
 
 	for _, log := range logs {
 		switch log.Level {
-		case LogLevelInfo:
+		case resources.LogLevelInfo:
 			hasInfo = true
-		case LogLevelWarn:
+		case resources.LogLevelWarn:
 			hasWarn = true
-		case LogLevelError:
+		case resources.LogLevelError:
 			hasError = true
 		}
 		if strings.Contains(log.RawLine, "[stderr]") {
@@ -158,7 +161,7 @@ func TestLogRotationWithActualFileIO(t *testing.T) {
 	logger := zerolog.New(os.Stdout)
 
 	// Create log capture with 2MB threshold for faster testing
-	lc, err := NewLogCapture(LogCaptureConfig{
+	lc, err := resources.NewLogCapture(resources.LogCaptureConfig{
 		InstanceID:  "rotation-test",
 		ServiceName: "rotation-service",
 		LogDir:      tmpDir,
@@ -293,19 +296,17 @@ func TestRunDiagnosticsWithMockSOCKS5Server(t *testing.T) {
 	}()
 
 	// Create a diagnostic runner
-	runner := NewDiagnosticRunner(logger)
+	runner := health.NewDiagnosticRunner(logger)
 
 	// Create mock managed process
-	mp := &ManagedProcess{
+	mp := supervisor.NewManagedProcess(supervisor.ProcessConfig{
 		ID:     "test-tor",
 		Name:   "tor",
-		state:  ProcessStateRunning,
-		pid:    99999,
-		logger: logger,
-	}
+		Logger: logger,
+	})
 
 	// Register Tor diagnostic suite with our mock server port
-	suite := NewTorDiagnosticSuite(mp, port, port+1)
+	suite := health.NewTorDiagnosticSuite(mp, port, port+1)
 	runner.RegisterSuite("tor", suite)
 
 	// Run diagnostics
@@ -337,9 +338,9 @@ func TestRunDiagnosticsWithMockSOCKS5Server(t *testing.T) {
 		}
 
 		switch result.Status {
-		case DiagnosticStatusPass:
+		case health.DiagnosticStatusPass:
 			passCount++
-		case DiagnosticStatusFail:
+		case health.DiagnosticStatusFail:
 			failCount++
 		}
 	}
@@ -362,7 +363,7 @@ func TestStartupDiagnosticsOnFailedProcess(t *testing.T) {
 	logger := zerolog.New(os.Stdout)
 
 	// Create log capture for the failed process
-	lc, err := NewLogCapture(LogCaptureConfig{
+	lc, err := resources.NewLogCapture(resources.LogCaptureConfig{
 		InstanceID:  "failed-process",
 		ServiceName: "failed-service",
 		LogDir:      tmpDir,
@@ -379,24 +380,22 @@ func TestStartupDiagnosticsOnFailedProcess(t *testing.T) {
 	lc.WriteLine(`[stderr] Connection refused`)
 
 	// Create a failed/stopped process
-	mp := &ManagedProcess{
-		ID:         "failed-process",
-		Name:       "failed-service",
-		state:      ProcessStateStopped,
-		pid:        0,
-		logCapture: lc,
-		logger:     logger,
-	}
+	mp := supervisor.NewManagedProcess(supervisor.ProcessConfig{
+		ID:     "failed-process",
+		Name:   "failed-service",
+		LogDir: tmpDir,
+		Logger: logger,
+	})
 
 	// Create diagnostic runner
-	runner := NewDiagnosticRunner(logger)
+	runner := health.NewDiagnosticRunner(logger)
 
 	// Register diagnostic suite for the failed process
-	suite := &DiagnosticSuite{
+	suite := &health.DiagnosticSuite{
 		ServiceName: "failed-service",
-		Tests: []DiagnosticTest{
-			NewHealthTest(mp),
-			NewLogTest(mp, 1),
+		Tests: []health.DiagnosticTest{
+			health.NewHealthTest(mp),
+			health.NewLogTest(mp, 1),
 		},
 	}
 	runner.RegisterSuite("failed-service", suite)
@@ -426,7 +425,7 @@ func TestStartupDiagnosticsOnFailedProcess(t *testing.T) {
 
 		if result.TestName == "process_health" {
 			hasHealthTest = true
-			if result.Status == DiagnosticStatusFail {
+			if result.Status == health.DiagnosticStatusFail {
 				healthTestFailed = true
 			}
 		}
@@ -460,7 +459,7 @@ func TestStartupDiagnosticsOnFailedProcess(t *testing.T) {
 
 	errorCount := 0
 	for _, log := range logs {
-		if log.Level == LogLevelError {
+		if log.Level == resources.LogLevelError {
 			errorCount++
 		}
 	}

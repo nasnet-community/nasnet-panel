@@ -15,6 +15,7 @@ import (
 	"backend/internal/router"
 
 	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
 )
 
 // ChainRouter manages multi-hop routing chains that route device traffic
@@ -24,6 +25,7 @@ type ChainRouter struct {
 	store     *ent.Client
 	eventBus  events.EventBus
 	publisher *events.Publisher
+	logger    *zap.Logger
 	mu        sync.RWMutex
 }
 
@@ -65,6 +67,7 @@ func NewChainRouter(cfg ChainRouterConfig) (*ChainRouter, error) {
 		router:   cfg.RouterPort,
 		store:    cfg.Store,
 		eventBus: cfg.EventBus,
+		logger:   zap.L().Named("chain-router"),
 	}
 
 	if cfg.EventBus != nil {

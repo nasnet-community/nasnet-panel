@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // TestLogRotationAt10MB tests that log files rotate when reaching 10MB
@@ -15,7 +15,7 @@ func TestLogRotationAt10MB(t *testing.T) {
 	// Create temporary directory for test logs
 	tmpDir := t.TempDir()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	// Create log capture with small max size for testing (1MB instead of 10MB)
 	lc, err := NewLogCapture(LogCaptureConfig{
@@ -189,7 +189,7 @@ func TestPlainTextLogParsing(t *testing.T) {
 // TestStderrErrorLevel tests that stderr logs are marked with error level prefix
 func TestStderrErrorLevel(t *testing.T) {
 	tmpDir := t.TempDir()
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	lc, err := NewLogCapture(LogCaptureConfig{
 		InstanceID:  "test-instance",
@@ -236,7 +236,7 @@ func TestStderrErrorLevel(t *testing.T) {
 // TestSubscriberBroadcast tests non-blocking broadcast to multiple subscribers
 func TestSubscriberBroadcast(t *testing.T) {
 	tmpDir := t.TempDir()
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	lc, err := NewLogCapture(LogCaptureConfig{
 		InstanceID:  "test-instance",
@@ -350,7 +350,7 @@ func TestSubscriberBroadcast(t *testing.T) {
 // TestConcurrentWrites tests thread-safety of concurrent log writes
 func TestConcurrentWrites(t *testing.T) {
 	tmpDir := t.TempDir()
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	lc, err := NewLogCapture(LogCaptureConfig{
 		InstanceID:  "test-instance",

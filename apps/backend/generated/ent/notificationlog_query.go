@@ -3,15 +3,14 @@
 package ent
 
 import (
-	"context"
-	"fmt"
-	"math"
-
 	"backend/generated/ent/alert"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/notificationlog"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/webhook"
+	"context"
+	"fmt"
+	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

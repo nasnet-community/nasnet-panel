@@ -223,7 +223,7 @@ function IPAddressListDesktopComponent({
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="mb-4 flex gap-4">
+        <div className="mb-component-md flex gap-component-md">
           <Input
             placeholder="Search address or comment..."
             value={filters.searchText || ''}
@@ -236,7 +236,7 @@ function IPAddressListDesktopComponent({
 
         {/* Error message */}
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="mb-component-md flex items-center gap-component-sm rounded-md border border-destructive/50 bg-error/10 p-component-sm text-sm text-error">
             <AlertCircle className="h-4 w-4" />
             <p>{error}</p>
           </div>
@@ -252,7 +252,7 @@ function IPAddressListDesktopComponent({
         />
 
         {/* Footer info */}
-        <div className="mt-4 text-sm text-muted-foreground">
+        <div className="mt-component-md text-sm text-muted-foreground">
           Showing {filteredIpAddresses.length} of {ipAddresses.length} IP
           address{ipAddresses.length !== 1 ? 'es' : ''}
         </div>

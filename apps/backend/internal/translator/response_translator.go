@@ -27,9 +27,17 @@ func NewResponseTranslator(registry *FieldMappingRegistry) *ResponseTranslator {
 }
 
 // TranslateResponse converts a canonical response to GraphQL-compatible format.
+// It propagates the context for potential cancellation during translation.
 func (rt *ResponseTranslator) TranslateResponse(ctx context.Context, path string, response *CanonicalResponse) (*CanonicalResponse, error) {
 	if response == nil {
 		return nil, fmt.Errorf("nil response")
+	}
+
+	// Check context cancellation
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("translation canceled: %w", ctx.Err())
+	default:
 	}
 
 	// Error responses pass through unchanged
@@ -67,7 +75,12 @@ func (rt *ResponseTranslator) TranslateResponse(ctx context.Context, path string
 }
 
 // translateRecord converts a single MikroTik record to GraphQL format.
+// Handles nil records gracefully by returning empty map.
 func (rt *ResponseTranslator) translateRecord(path string, record map[string]interface{}) map[string]interface{} {
+	if record == nil {
+		return make(map[string]interface{})
+	}
+
 	result := make(map[string]interface{}, len(record))
 
 	for mikrotikField, value := range record {
@@ -91,7 +104,12 @@ func (rt *ResponseTranslator) translateFieldName(path, mikrotikField string) str
 }
 
 // translateValue converts a MikroTik value to the appropriate Go/GraphQL type.
+// Handles nil values gracefully by returning nil.
 func (rt *ResponseTranslator) translateValue(path, mikrotikField string, value interface{}) interface{} {
+	if value == nil {
+		return nil
+	}
+
 	// Get field mapping to determine type
 	graphqlField := rt.translateFieldName(path, mikrotikField)
 	mapping, hasMapping := rt.registry.GetMapping(path, graphqlField)
@@ -123,7 +141,7 @@ func (rt *ResponseTranslator) translateValue(path, mikrotikField string, value i
 	}
 
 	// Auto-detect common patterns
-	return rt.autoConvert(mikrotikField, strVal)
+	return rt.autoConvert(mikrotikField, value)
 }
 
 // convertByType converts a string value based on the known field type.
@@ -172,20 +190,26 @@ func (rt *ResponseTranslator) convertByType(value string, fieldType FieldType) i
 }
 
 // autoConvert attempts to detect and convert common value patterns.
-func (rt *ResponseTranslator) autoConvert(field, value string) interface{} {
+func (rt *ResponseTranslator) autoConvert(field string, value interface{}) interface{} {
+	// If already not a string, return as-is
+	strVal, isString := value.(string)
+	if !isString {
+		return value
+	}
+
 	// Handle MikroTik boolean values
-	lower := strings.ToLower(value)
+	lower := strings.ToLower(strVal)
 	if lower == "yes" || lower == "no" || lower == "true" || lower == "false" {
-		return ParseMikroTikBool(value)
+		return ParseMikroTikBool(strVal)
 	}
 
 	// Handle disabled/enabled pattern
 	if field == fieldDisabled {
-		return ParseMikroTikBool(value)
+		return ParseMikroTikBool(strVal)
 	}
 
 	// Handle numeric values
-	if i, err := strconv.ParseInt(value, 10, 64); err == nil {
+	if i, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 		// Keep small numbers as int, large as int64
 		if i >= -2147483648 && i <= 2147483647 {
 			return int(i)
@@ -194,12 +218,17 @@ func (rt *ResponseTranslator) autoConvert(field, value string) interface{} {
 	}
 
 	// Keep as string
-	return value
+	return strVal
 }
 
 // TransformDisabledToEnabled converts the "disabled" field to "enabled" with inverted value.
 // This is useful for GraphQL schemas that use "enabled" instead of "disabled".
+// Handles nil records gracefully.
 func (rt *ResponseTranslator) TransformDisabledToEnabled(record map[string]interface{}) map[string]interface{} {
+	if record == nil {
+		return nil
+	}
+
 	if disabled, ok := record[fieldDisabled]; ok {
 		delete(record, fieldDisabled)
 		// Invert the boolean value
@@ -208,6 +237,8 @@ func (rt *ResponseTranslator) TransformDisabledToEnabled(record map[string]inter
 			record[fieldEnabled] = !v
 		case string:
 			record[fieldEnabled] = !ParseMikroTikBool(v)
+		default:
+			// Unknown type, skip inversion
 		}
 	}
 	return record
@@ -215,7 +246,12 @@ func (rt *ResponseTranslator) TransformDisabledToEnabled(record map[string]inter
 
 // TransformIDField converts ".id" field to "id".
 // Note: KebabToCamel already handles this, but this is explicit for clarity.
+// Handles nil records gracefully.
 func (rt *ResponseTranslator) TransformIDField(record map[string]interface{}) map[string]interface{} {
+	if record == nil {
+		return nil
+	}
+
 	if id, ok := record[".id"]; ok {
 		delete(record, ".id")
 		record["id"] = id
@@ -243,9 +279,17 @@ func NewBatchTranslator(registry *FieldMappingRegistry) *BatchTranslator {
 }
 
 // TranslateBatch translates a slice of responses from batch command execution.
+// Returns error if path/response count mismatch or context is canceled.
 func (bt *BatchTranslator) TranslateBatch(ctx context.Context, paths []string, responses []*CanonicalResponse) ([]*CanonicalResponse, error) {
 	if len(paths) != len(responses) {
 		return nil, fmt.Errorf("path count (%d) does not match response count (%d)", len(paths), len(responses))
+	}
+
+	// Check context cancellation upfront
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("batch translation canceled: %w", ctx.Err())
+	default:
 	}
 
 	result := make([]*CanonicalResponse, len(responses))
@@ -275,11 +319,16 @@ func NewStreamingResponseTranslator(path string, registry *FieldMappingRegistry)
 }
 
 // Translate converts a single streaming response event.
+// Returns error if response is nil or context is canceled.
 func (srt *StreamingResponseTranslator) Translate(ctx context.Context, response *CanonicalResponse) (*CanonicalResponse, error) {
+	if response == nil {
+		return nil, fmt.Errorf("cannot translate nil streaming response")
+	}
 	return srt.rt.TranslateResponse(ctx, srt.path, response)
 }
 
 // TranslateChannel creates a channel that receives translated responses.
+// Respects context cancellation and gracefully handles nil responses.
 func (srt *StreamingResponseTranslator) TranslateChannel(ctx context.Context, input <-chan *CanonicalResponse) <-chan *CanonicalResponse {
 	output := make(chan *CanonicalResponse)
 
@@ -292,6 +341,18 @@ func (srt *StreamingResponseTranslator) TranslateChannel(ctx context.Context, in
 			case response, ok := <-input:
 				if !ok {
 					return
+				}
+				// Skip nil responses (shouldn't happen but handle gracefully)
+				if response == nil {
+					output <- &CanonicalResponse{
+						Success: false,
+						Error: &CommandError{
+							Code:     "TRANSLATION_ERROR",
+							Message:  "received nil streaming response",
+							Category: ErrorCategoryInternal,
+						},
+					}
+					continue
 				}
 				translated, err := srt.Translate(ctx, response)
 				if err != nil {

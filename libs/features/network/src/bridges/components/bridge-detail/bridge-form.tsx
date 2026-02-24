@@ -96,7 +96,7 @@ export const BridgeForm = memo(function BridgeForm({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit as never)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleFormSubmit as never)} className="space-y-component-lg">
           {/* Name */}
           <FormField
             control={form.control}
@@ -279,7 +279,7 @@ export const BridgeForm = memo(function BridgeForm({
           />
 
           {/* Actions */}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-component-sm">
             <Button
               type="button"
               variant="outline"

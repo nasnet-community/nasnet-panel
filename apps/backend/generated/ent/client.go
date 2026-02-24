@@ -28,6 +28,7 @@ import (
 	"backend/generated/ent/notificationsettings"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
+	"backend/generated/ent/provisioningsession"
 	"backend/generated/ent/resource"
 	"backend/generated/ent/resourceevent"
 	"backend/generated/ent/router"
@@ -35,13 +36,14 @@ import (
 	"backend/generated/ent/routersecret"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/routingschedule"
-	"backend/generated/ent/schemaversion"
 	"backend/generated/ent/servicedependency"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/servicetraffichourly"
 	"backend/generated/ent/session"
+	"backend/generated/ent/subnetallocation"
 	"backend/generated/ent/user"
+	"backend/generated/ent/version"
 	"backend/generated/ent/virtualinterface"
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
@@ -52,9 +54,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 
-	stdsql "database/sql"
-
 	"backend/generated/ent/internal"
+	stdsql "database/sql"
 )
 
 // Client is the client that holds all ent builders.
@@ -96,6 +97,8 @@ type Client struct {
 	PortAllocation *PortAllocationClient
 	// PortKnockSequence is the client for interacting with the PortKnockSequence builders.
 	PortKnockSequence *PortKnockSequenceClient
+	// ProvisioningSession is the client for interacting with the ProvisioningSession builders.
+	ProvisioningSession *ProvisioningSessionClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// ResourceEvent is the client for interacting with the ResourceEvent builders.
@@ -110,8 +113,6 @@ type Client struct {
 	RoutingChain *RoutingChainClient
 	// RoutingSchedule is the client for interacting with the RoutingSchedule builders.
 	RoutingSchedule *RoutingScheduleClient
-	// SchemaVersion is the client for interacting with the SchemaVersion builders.
-	SchemaVersion *SchemaVersionClient
 	// ServiceDependency is the client for interacting with the ServiceDependency builders.
 	ServiceDependency *ServiceDependencyClient
 	// ServiceInstance is the client for interacting with the ServiceInstance builders.
@@ -122,10 +123,14 @@ type Client struct {
 	ServiceTrafficHourly *ServiceTrafficHourlyClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
+	// SubnetAllocation is the client for interacting with the SubnetAllocation builders.
+	SubnetAllocation *SubnetAllocationClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// VLANAllocation is the client for interacting with the VLANAllocation builders.
 	VLANAllocation *VLANAllocationClient
+	// Version is the client for interacting with the Version builders.
+	Version *VersionClient
 	// VirtualInterface is the client for interacting with the VirtualInterface builders.
 	VirtualInterface *VirtualInterfaceClient
 	// Webhook is the client for interacting with the Webhook builders.
@@ -158,6 +163,7 @@ func (c *Client) init() {
 	c.NotificationSettings = NewNotificationSettingsClient(c.config)
 	c.PortAllocation = NewPortAllocationClient(c.config)
 	c.PortKnockSequence = NewPortKnockSequenceClient(c.config)
+	c.ProvisioningSession = NewProvisioningSessionClient(c.config)
 	c.Resource = NewResourceClient(c.config)
 	c.ResourceEvent = NewResourceEventClient(c.config)
 	c.Router = NewRouterClient(c.config)
@@ -165,14 +171,15 @@ func (c *Client) init() {
 	c.RouterSecret = NewRouterSecretClient(c.config)
 	c.RoutingChain = NewRoutingChainClient(c.config)
 	c.RoutingSchedule = NewRoutingScheduleClient(c.config)
-	c.SchemaVersion = NewSchemaVersionClient(c.config)
 	c.ServiceDependency = NewServiceDependencyClient(c.config)
 	c.ServiceInstance = NewServiceInstanceClient(c.config)
 	c.ServiceTemplate = NewServiceTemplateClient(c.config)
 	c.ServiceTrafficHourly = NewServiceTrafficHourlyClient(c.config)
 	c.Session = NewSessionClient(c.config)
+	c.SubnetAllocation = NewSubnetAllocationClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.VLANAllocation = NewVLANAllocationClient(c.config)
+	c.Version = NewVersionClient(c.config)
 	c.VirtualInterface = NewVirtualInterfaceClient(c.config)
 	c.Webhook = NewWebhookClient(c.config)
 }
@@ -286,6 +293,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		NotificationSettings:      NewNotificationSettingsClient(cfg),
 		PortAllocation:            NewPortAllocationClient(cfg),
 		PortKnockSequence:         NewPortKnockSequenceClient(cfg),
+		ProvisioningSession:       NewProvisioningSessionClient(cfg),
 		Resource:                  NewResourceClient(cfg),
 		ResourceEvent:             NewResourceEventClient(cfg),
 		Router:                    NewRouterClient(cfg),
@@ -293,14 +301,15 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		RouterSecret:              NewRouterSecretClient(cfg),
 		RoutingChain:              NewRoutingChainClient(cfg),
 		RoutingSchedule:           NewRoutingScheduleClient(cfg),
-		SchemaVersion:             NewSchemaVersionClient(cfg),
 		ServiceDependency:         NewServiceDependencyClient(cfg),
 		ServiceInstance:           NewServiceInstanceClient(cfg),
 		ServiceTemplate:           NewServiceTemplateClient(cfg),
 		ServiceTrafficHourly:      NewServiceTrafficHourlyClient(cfg),
 		Session:                   NewSessionClient(cfg),
+		SubnetAllocation:          NewSubnetAllocationClient(cfg),
 		User:                      NewUserClient(cfg),
 		VLANAllocation:            NewVLANAllocationClient(cfg),
+		Version:                   NewVersionClient(cfg),
 		VirtualInterface:          NewVirtualInterfaceClient(cfg),
 		Webhook:                   NewWebhookClient(cfg),
 	}, nil
@@ -339,6 +348,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		NotificationSettings:      NewNotificationSettingsClient(cfg),
 		PortAllocation:            NewPortAllocationClient(cfg),
 		PortKnockSequence:         NewPortKnockSequenceClient(cfg),
+		ProvisioningSession:       NewProvisioningSessionClient(cfg),
 		Resource:                  NewResourceClient(cfg),
 		ResourceEvent:             NewResourceEventClient(cfg),
 		Router:                    NewRouterClient(cfg),
@@ -346,14 +356,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		RouterSecret:              NewRouterSecretClient(cfg),
 		RoutingChain:              NewRoutingChainClient(cfg),
 		RoutingSchedule:           NewRoutingScheduleClient(cfg),
-		SchemaVersion:             NewSchemaVersionClient(cfg),
 		ServiceDependency:         NewServiceDependencyClient(cfg),
 		ServiceInstance:           NewServiceInstanceClient(cfg),
 		ServiceTemplate:           NewServiceTemplateClient(cfg),
 		ServiceTrafficHourly:      NewServiceTrafficHourlyClient(cfg),
 		Session:                   NewSessionClient(cfg),
+		SubnetAllocation:          NewSubnetAllocationClient(cfg),
 		User:                      NewUserClient(cfg),
 		VLANAllocation:            NewVLANAllocationClient(cfg),
+		Version:                   NewVersionClient(cfg),
 		VirtualInterface:          NewVirtualInterfaceClient(cfg),
 		Webhook:                   NewWebhookClient(cfg),
 	}, nil
@@ -389,11 +400,11 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AlertRuleTemplate, c.AlertTemplate, c.ChainHop, c.ConfigSnapshot,
 		c.DeviceRouting, c.DiagnosticResult, c.GlobalSettings,
 		c.NotificationChannelConfig, c.NotificationLog, c.NotificationSettings,
-		c.PortAllocation, c.PortKnockSequence, c.Resource, c.ResourceEvent, c.Router,
-		c.RouterCapability, c.RouterSecret, c.RoutingChain, c.RoutingSchedule,
-		c.SchemaVersion, c.ServiceDependency, c.ServiceInstance, c.ServiceTemplate,
-		c.ServiceTrafficHourly, c.Session, c.User, c.VLANAllocation,
-		c.VirtualInterface, c.Webhook,
+		c.PortAllocation, c.PortKnockSequence, c.ProvisioningSession, c.Resource,
+		c.ResourceEvent, c.Router, c.RouterCapability, c.RouterSecret, c.RoutingChain,
+		c.RoutingSchedule, c.ServiceDependency, c.ServiceInstance, c.ServiceTemplate,
+		c.ServiceTrafficHourly, c.Session, c.SubnetAllocation, c.User,
+		c.VLANAllocation, c.Version, c.VirtualInterface, c.Webhook,
 	} {
 		n.Use(hooks...)
 	}
@@ -407,11 +418,11 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AlertRuleTemplate, c.AlertTemplate, c.ChainHop, c.ConfigSnapshot,
 		c.DeviceRouting, c.DiagnosticResult, c.GlobalSettings,
 		c.NotificationChannelConfig, c.NotificationLog, c.NotificationSettings,
-		c.PortAllocation, c.PortKnockSequence, c.Resource, c.ResourceEvent, c.Router,
-		c.RouterCapability, c.RouterSecret, c.RoutingChain, c.RoutingSchedule,
-		c.SchemaVersion, c.ServiceDependency, c.ServiceInstance, c.ServiceTemplate,
-		c.ServiceTrafficHourly, c.Session, c.User, c.VLANAllocation,
-		c.VirtualInterface, c.Webhook,
+		c.PortAllocation, c.PortKnockSequence, c.ProvisioningSession, c.Resource,
+		c.ResourceEvent, c.Router, c.RouterCapability, c.RouterSecret, c.RoutingChain,
+		c.RoutingSchedule, c.ServiceDependency, c.ServiceInstance, c.ServiceTemplate,
+		c.ServiceTrafficHourly, c.Session, c.SubnetAllocation, c.User,
+		c.VLANAllocation, c.Version, c.VirtualInterface, c.Webhook,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -454,6 +465,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.PortAllocation.mutate(ctx, m)
 	case *PortKnockSequenceMutation:
 		return c.PortKnockSequence.mutate(ctx, m)
+	case *ProvisioningSessionMutation:
+		return c.ProvisioningSession.mutate(ctx, m)
 	case *ResourceMutation:
 		return c.Resource.mutate(ctx, m)
 	case *ResourceEventMutation:
@@ -468,8 +481,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.RoutingChain.mutate(ctx, m)
 	case *RoutingScheduleMutation:
 		return c.RoutingSchedule.mutate(ctx, m)
-	case *SchemaVersionMutation:
-		return c.SchemaVersion.mutate(ctx, m)
 	case *ServiceDependencyMutation:
 		return c.ServiceDependency.mutate(ctx, m)
 	case *ServiceInstanceMutation:
@@ -480,10 +491,14 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ServiceTrafficHourly.mutate(ctx, m)
 	case *SessionMutation:
 		return c.Session.mutate(ctx, m)
+	case *SubnetAllocationMutation:
+		return c.SubnetAllocation.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *VLANAllocationMutation:
 		return c.VLANAllocation.mutate(ctx, m)
+	case *VersionMutation:
+		return c.Version.mutate(ctx, m)
 	case *VirtualInterfaceMutation:
 		return c.VirtualInterface.mutate(ctx, m)
 	case *WebhookMutation:
@@ -3134,6 +3149,158 @@ func (c *PortKnockSequenceClient) mutate(ctx context.Context, m *PortKnockSequen
 	}
 }
 
+// ProvisioningSessionClient is a client for the ProvisioningSession schema.
+type ProvisioningSessionClient struct {
+	config
+}
+
+// NewProvisioningSessionClient returns a client for the ProvisioningSession from the given config.
+func NewProvisioningSessionClient(c config) *ProvisioningSessionClient {
+	return &ProvisioningSessionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `provisioningsession.Hooks(f(g(h())))`.
+func (c *ProvisioningSessionClient) Use(hooks ...Hook) {
+	c.hooks.ProvisioningSession = append(c.hooks.ProvisioningSession, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `provisioningsession.Intercept(f(g(h())))`.
+func (c *ProvisioningSessionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProvisioningSession = append(c.inters.ProvisioningSession, interceptors...)
+}
+
+// Create returns a builder for creating a ProvisioningSession entity.
+func (c *ProvisioningSessionClient) Create() *ProvisioningSessionCreate {
+	mutation := newProvisioningSessionMutation(c.config, OpCreate)
+	return &ProvisioningSessionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProvisioningSession entities.
+func (c *ProvisioningSessionClient) CreateBulk(builders ...*ProvisioningSessionCreate) *ProvisioningSessionCreateBulk {
+	return &ProvisioningSessionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProvisioningSessionClient) MapCreateBulk(slice any, setFunc func(*ProvisioningSessionCreate, int)) *ProvisioningSessionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProvisioningSessionCreateBulk{err: fmt.Errorf("calling to ProvisioningSessionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProvisioningSessionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProvisioningSessionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProvisioningSession.
+func (c *ProvisioningSessionClient) Update() *ProvisioningSessionUpdate {
+	mutation := newProvisioningSessionMutation(c.config, OpUpdate)
+	return &ProvisioningSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProvisioningSessionClient) UpdateOne(_m *ProvisioningSession) *ProvisioningSessionUpdateOne {
+	mutation := newProvisioningSessionMutation(c.config, OpUpdateOne, withProvisioningSession(_m))
+	return &ProvisioningSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProvisioningSessionClient) UpdateOneID(id string) *ProvisioningSessionUpdateOne {
+	mutation := newProvisioningSessionMutation(c.config, OpUpdateOne, withProvisioningSessionID(id))
+	return &ProvisioningSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProvisioningSession.
+func (c *ProvisioningSessionClient) Delete() *ProvisioningSessionDelete {
+	mutation := newProvisioningSessionMutation(c.config, OpDelete)
+	return &ProvisioningSessionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProvisioningSessionClient) DeleteOne(_m *ProvisioningSession) *ProvisioningSessionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProvisioningSessionClient) DeleteOneID(id string) *ProvisioningSessionDeleteOne {
+	builder := c.Delete().Where(provisioningsession.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProvisioningSessionDeleteOne{builder}
+}
+
+// Query returns a query builder for ProvisioningSession.
+func (c *ProvisioningSessionClient) Query() *ProvisioningSessionQuery {
+	return &ProvisioningSessionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProvisioningSession},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProvisioningSession entity by its id.
+func (c *ProvisioningSessionClient) Get(ctx context.Context, id string) (*ProvisioningSession, error) {
+	return c.Query().Where(provisioningsession.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProvisioningSessionClient) GetX(ctx context.Context, id string) *ProvisioningSession {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRouter queries the router edge of a ProvisioningSession.
+func (c *ProvisioningSessionClient) QueryRouter(_m *ProvisioningSession) *RouterQuery {
+	query := (&RouterClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(provisioningsession.Table, provisioningsession.FieldID, id),
+			sqlgraph.To(router.Table, router.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, provisioningsession.RouterTable, provisioningsession.RouterColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.Router
+		step.Edge.Schema = schemaConfig.ProvisioningSession
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProvisioningSessionClient) Hooks() []Hook {
+	return c.hooks.ProvisioningSession
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProvisioningSessionClient) Interceptors() []Interceptor {
+	return c.inters.ProvisioningSession
+}
+
+func (c *ProvisioningSessionClient) mutate(ctx context.Context, m *ProvisioningSessionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProvisioningSessionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProvisioningSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProvisioningSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProvisioningSessionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProvisioningSession mutation op: %q", m.Op())
+	}
+}
+
 // ResourceClient is a client for the Resource schema.
 type ResourceClient struct {
 	config
@@ -3692,6 +3859,44 @@ func (c *RouterClient) QueryServiceTemplates(_m *Router) *ServiceTemplateQuery {
 		schemaConfig := _m.schemaConfig
 		step.To.Schema = schemaConfig.ServiceTemplate
 		step.Edge.Schema = schemaConfig.ServiceTemplate
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProvisioningSessions queries the provisioning_sessions edge of a Router.
+func (c *RouterClient) QueryProvisioningSessions(_m *Router) *ProvisioningSessionQuery {
+	query := (&ProvisioningSessionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, id),
+			sqlgraph.To(provisioningsession.Table, provisioningsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.ProvisioningSessionsTable, router.ProvisioningSessionsColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.ProvisioningSession
+		step.Edge.Schema = schemaConfig.ProvisioningSession
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubnetAllocations queries the subnet_allocations edge of a Router.
+func (c *RouterClient) QuerySubnetAllocations(_m *Router) *SubnetAllocationQuery {
+	query := (&SubnetAllocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, id),
+			sqlgraph.To(subnetallocation.Table, subnetallocation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.SubnetAllocationsTable, router.SubnetAllocationsColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.SubnetAllocation
+		step.Edge.Schema = schemaConfig.SubnetAllocation
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -4328,139 +4533,6 @@ func (c *RoutingScheduleClient) mutate(ctx context.Context, m *RoutingScheduleMu
 		return (&RoutingScheduleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown RoutingSchedule mutation op: %q", m.Op())
-	}
-}
-
-// SchemaVersionClient is a client for the SchemaVersion schema.
-type SchemaVersionClient struct {
-	config
-}
-
-// NewSchemaVersionClient returns a client for the SchemaVersion from the given config.
-func NewSchemaVersionClient(c config) *SchemaVersionClient {
-	return &SchemaVersionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `schemaversion.Hooks(f(g(h())))`.
-func (c *SchemaVersionClient) Use(hooks ...Hook) {
-	c.hooks.SchemaVersion = append(c.hooks.SchemaVersion, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `schemaversion.Intercept(f(g(h())))`.
-func (c *SchemaVersionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.SchemaVersion = append(c.inters.SchemaVersion, interceptors...)
-}
-
-// Create returns a builder for creating a SchemaVersion entity.
-func (c *SchemaVersionClient) Create() *SchemaVersionCreate {
-	mutation := newSchemaVersionMutation(c.config, OpCreate)
-	return &SchemaVersionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of SchemaVersion entities.
-func (c *SchemaVersionClient) CreateBulk(builders ...*SchemaVersionCreate) *SchemaVersionCreateBulk {
-	return &SchemaVersionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *SchemaVersionClient) MapCreateBulk(slice any, setFunc func(*SchemaVersionCreate, int)) *SchemaVersionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &SchemaVersionCreateBulk{err: fmt.Errorf("calling to SchemaVersionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*SchemaVersionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &SchemaVersionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for SchemaVersion.
-func (c *SchemaVersionClient) Update() *SchemaVersionUpdate {
-	mutation := newSchemaVersionMutation(c.config, OpUpdate)
-	return &SchemaVersionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *SchemaVersionClient) UpdateOne(_m *SchemaVersion) *SchemaVersionUpdateOne {
-	mutation := newSchemaVersionMutation(c.config, OpUpdateOne, withSchemaVersion(_m))
-	return &SchemaVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *SchemaVersionClient) UpdateOneID(id string) *SchemaVersionUpdateOne {
-	mutation := newSchemaVersionMutation(c.config, OpUpdateOne, withSchemaVersionID(id))
-	return &SchemaVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for SchemaVersion.
-func (c *SchemaVersionClient) Delete() *SchemaVersionDelete {
-	mutation := newSchemaVersionMutation(c.config, OpDelete)
-	return &SchemaVersionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *SchemaVersionClient) DeleteOne(_m *SchemaVersion) *SchemaVersionDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SchemaVersionClient) DeleteOneID(id string) *SchemaVersionDeleteOne {
-	builder := c.Delete().Where(schemaversion.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &SchemaVersionDeleteOne{builder}
-}
-
-// Query returns a query builder for SchemaVersion.
-func (c *SchemaVersionClient) Query() *SchemaVersionQuery {
-	return &SchemaVersionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeSchemaVersion},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a SchemaVersion entity by its id.
-func (c *SchemaVersionClient) Get(ctx context.Context, id string) (*SchemaVersion, error) {
-	return c.Query().Where(schemaversion.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *SchemaVersionClient) GetX(ctx context.Context, id string) *SchemaVersion {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *SchemaVersionClient) Hooks() []Hook {
-	return c.hooks.SchemaVersion
-}
-
-// Interceptors returns the client interceptors.
-func (c *SchemaVersionClient) Interceptors() []Interceptor {
-	return c.inters.SchemaVersion
-}
-
-func (c *SchemaVersionClient) mutate(ctx context.Context, m *SchemaVersionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&SchemaVersionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&SchemaVersionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&SchemaVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&SchemaVersionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown SchemaVersion mutation op: %q", m.Op())
 	}
 }
 
@@ -5395,6 +5467,158 @@ func (c *SessionClient) mutate(ctx context.Context, m *SessionMutation) (Value, 
 	}
 }
 
+// SubnetAllocationClient is a client for the SubnetAllocation schema.
+type SubnetAllocationClient struct {
+	config
+}
+
+// NewSubnetAllocationClient returns a client for the SubnetAllocation from the given config.
+func NewSubnetAllocationClient(c config) *SubnetAllocationClient {
+	return &SubnetAllocationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `subnetallocation.Hooks(f(g(h())))`.
+func (c *SubnetAllocationClient) Use(hooks ...Hook) {
+	c.hooks.SubnetAllocation = append(c.hooks.SubnetAllocation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `subnetallocation.Intercept(f(g(h())))`.
+func (c *SubnetAllocationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SubnetAllocation = append(c.inters.SubnetAllocation, interceptors...)
+}
+
+// Create returns a builder for creating a SubnetAllocation entity.
+func (c *SubnetAllocationClient) Create() *SubnetAllocationCreate {
+	mutation := newSubnetAllocationMutation(c.config, OpCreate)
+	return &SubnetAllocationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SubnetAllocation entities.
+func (c *SubnetAllocationClient) CreateBulk(builders ...*SubnetAllocationCreate) *SubnetAllocationCreateBulk {
+	return &SubnetAllocationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SubnetAllocationClient) MapCreateBulk(slice any, setFunc func(*SubnetAllocationCreate, int)) *SubnetAllocationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SubnetAllocationCreateBulk{err: fmt.Errorf("calling to SubnetAllocationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SubnetAllocationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SubnetAllocationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SubnetAllocation.
+func (c *SubnetAllocationClient) Update() *SubnetAllocationUpdate {
+	mutation := newSubnetAllocationMutation(c.config, OpUpdate)
+	return &SubnetAllocationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SubnetAllocationClient) UpdateOne(_m *SubnetAllocation) *SubnetAllocationUpdateOne {
+	mutation := newSubnetAllocationMutation(c.config, OpUpdateOne, withSubnetAllocation(_m))
+	return &SubnetAllocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SubnetAllocationClient) UpdateOneID(id string) *SubnetAllocationUpdateOne {
+	mutation := newSubnetAllocationMutation(c.config, OpUpdateOne, withSubnetAllocationID(id))
+	return &SubnetAllocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SubnetAllocation.
+func (c *SubnetAllocationClient) Delete() *SubnetAllocationDelete {
+	mutation := newSubnetAllocationMutation(c.config, OpDelete)
+	return &SubnetAllocationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SubnetAllocationClient) DeleteOne(_m *SubnetAllocation) *SubnetAllocationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SubnetAllocationClient) DeleteOneID(id string) *SubnetAllocationDeleteOne {
+	builder := c.Delete().Where(subnetallocation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SubnetAllocationDeleteOne{builder}
+}
+
+// Query returns a query builder for SubnetAllocation.
+func (c *SubnetAllocationClient) Query() *SubnetAllocationQuery {
+	return &SubnetAllocationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSubnetAllocation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SubnetAllocation entity by its id.
+func (c *SubnetAllocationClient) Get(ctx context.Context, id string) (*SubnetAllocation, error) {
+	return c.Query().Where(subnetallocation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SubnetAllocationClient) GetX(ctx context.Context, id string) *SubnetAllocation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRouter queries the router edge of a SubnetAllocation.
+func (c *SubnetAllocationClient) QueryRouter(_m *SubnetAllocation) *RouterQuery {
+	query := (&RouterClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(subnetallocation.Table, subnetallocation.FieldID, id),
+			sqlgraph.To(router.Table, router.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, subnetallocation.RouterTable, subnetallocation.RouterColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.Router
+		step.Edge.Schema = schemaConfig.SubnetAllocation
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SubnetAllocationClient) Hooks() []Hook {
+	return c.hooks.SubnetAllocation
+}
+
+// Interceptors returns the client interceptors.
+func (c *SubnetAllocationClient) Interceptors() []Interceptor {
+	return c.inters.SubnetAllocation
+}
+
+func (c *SubnetAllocationClient) mutate(ctx context.Context, m *SubnetAllocationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SubnetAllocationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SubnetAllocationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SubnetAllocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SubnetAllocationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SubnetAllocation mutation op: %q", m.Op())
+	}
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -5737,6 +5961,139 @@ func (c *VLANAllocationClient) mutate(ctx context.Context, m *VLANAllocationMuta
 	}
 }
 
+// VersionClient is a client for the Version schema.
+type VersionClient struct {
+	config
+}
+
+// NewVersionClient returns a client for the Version from the given config.
+func NewVersionClient(c config) *VersionClient {
+	return &VersionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `version.Hooks(f(g(h())))`.
+func (c *VersionClient) Use(hooks ...Hook) {
+	c.hooks.Version = append(c.hooks.Version, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `version.Intercept(f(g(h())))`.
+func (c *VersionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Version = append(c.inters.Version, interceptors...)
+}
+
+// Create returns a builder for creating a Version entity.
+func (c *VersionClient) Create() *VersionCreate {
+	mutation := newVersionMutation(c.config, OpCreate)
+	return &VersionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Version entities.
+func (c *VersionClient) CreateBulk(builders ...*VersionCreate) *VersionCreateBulk {
+	return &VersionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *VersionClient) MapCreateBulk(slice any, setFunc func(*VersionCreate, int)) *VersionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &VersionCreateBulk{err: fmt.Errorf("calling to VersionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*VersionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &VersionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Version.
+func (c *VersionClient) Update() *VersionUpdate {
+	mutation := newVersionMutation(c.config, OpUpdate)
+	return &VersionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *VersionClient) UpdateOne(_m *Version) *VersionUpdateOne {
+	mutation := newVersionMutation(c.config, OpUpdateOne, withVersion(_m))
+	return &VersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *VersionClient) UpdateOneID(id string) *VersionUpdateOne {
+	mutation := newVersionMutation(c.config, OpUpdateOne, withVersionID(id))
+	return &VersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Version.
+func (c *VersionClient) Delete() *VersionDelete {
+	mutation := newVersionMutation(c.config, OpDelete)
+	return &VersionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *VersionClient) DeleteOne(_m *Version) *VersionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *VersionClient) DeleteOneID(id string) *VersionDeleteOne {
+	builder := c.Delete().Where(version.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &VersionDeleteOne{builder}
+}
+
+// Query returns a query builder for Version.
+func (c *VersionClient) Query() *VersionQuery {
+	return &VersionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeVersion},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Version entity by its id.
+func (c *VersionClient) Get(ctx context.Context, id string) (*Version, error) {
+	return c.Query().Where(version.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *VersionClient) GetX(ctx context.Context, id string) *Version {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *VersionClient) Hooks() []Hook {
+	return c.hooks.Version
+}
+
+// Interceptors returns the client interceptors.
+func (c *VersionClient) Interceptors() []Interceptor {
+	return c.inters.Version
+}
+
+func (c *VersionClient) mutate(ctx context.Context, m *VersionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&VersionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&VersionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&VersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&VersionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Version mutation op: %q", m.Op())
+	}
+}
+
 // VirtualInterfaceClient is a client for the VirtualInterface schema.
 type VirtualInterfaceClient struct {
 	config
@@ -6066,20 +6423,20 @@ type (
 		APIKey, Alert, AlertDigestEntry, AlertEscalation, AlertRule, AlertRuleTemplate,
 		AlertTemplate, ChainHop, ConfigSnapshot, DeviceRouting, DiagnosticResult,
 		GlobalSettings, NotificationChannelConfig, NotificationLog,
-		NotificationSettings, PortAllocation, PortKnockSequence, Resource,
-		ResourceEvent, Router, RouterCapability, RouterSecret, RoutingChain,
-		RoutingSchedule, SchemaVersion, ServiceDependency, ServiceInstance,
-		ServiceTemplate, ServiceTrafficHourly, Session, User, VLANAllocation,
+		NotificationSettings, PortAllocation, PortKnockSequence, ProvisioningSession,
+		Resource, ResourceEvent, Router, RouterCapability, RouterSecret, RoutingChain,
+		RoutingSchedule, ServiceDependency, ServiceInstance, ServiceTemplate,
+		ServiceTrafficHourly, Session, SubnetAllocation, User, VLANAllocation, Version,
 		VirtualInterface, Webhook []ent.Hook
 	}
 	inters struct {
 		APIKey, Alert, AlertDigestEntry, AlertEscalation, AlertRule, AlertRuleTemplate,
 		AlertTemplate, ChainHop, ConfigSnapshot, DeviceRouting, DiagnosticResult,
 		GlobalSettings, NotificationChannelConfig, NotificationLog,
-		NotificationSettings, PortAllocation, PortKnockSequence, Resource,
-		ResourceEvent, Router, RouterCapability, RouterSecret, RoutingChain,
-		RoutingSchedule, SchemaVersion, ServiceDependency, ServiceInstance,
-		ServiceTemplate, ServiceTrafficHourly, Session, User, VLANAllocation,
+		NotificationSettings, PortAllocation, PortKnockSequence, ProvisioningSession,
+		Resource, ResourceEvent, Router, RouterCapability, RouterSecret, RoutingChain,
+		RoutingSchedule, ServiceDependency, ServiceInstance, ServiceTemplate,
+		ServiceTrafficHourly, Session, SubnetAllocation, User, VLANAllocation, Version,
 		VirtualInterface, Webhook []ent.Interceptor
 	}
 )

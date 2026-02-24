@@ -359,7 +359,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                     <ProtocolBadge protocol={service.protocol} />
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm tabular-nums">{service.port}</span>
+                    <span className="font-mono text-sm tabular-nums text-foreground">{service.port}</span>
                   </TableCell>
                   <TableCell>
                     <TypeBadge isBuiltIn={service.isBuiltIn} />
@@ -374,7 +374,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                                 variant="ghost"
                                 size="icon"
                                 disabled
-                                className="opacity-50"
+                                className="opacity-50 cursor-not-allowed"
                                 aria-label={t('servicePorts.editService')}
                               >
                                 <Pencil className="h-4 w-4" />
@@ -383,7 +383,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                                 variant="ghost"
                                 size="icon"
                                 disabled
-                                className="opacity-50"
+                                className="opacity-50 cursor-not-allowed"
                                 aria-label={t('servicePorts.deleteService')}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -410,7 +410,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                             onClick={() => handleDeleteClick(service)}
                             aria-label={t('servicePorts.deleteService')}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-error" />
                           </Button>
                         </>
                       )}

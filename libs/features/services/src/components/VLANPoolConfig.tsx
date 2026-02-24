@@ -145,7 +145,7 @@ export function VLANPoolConfig({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md">
           {/* Pool Start */}
           <RHFFormField
             control={form.control as any}
@@ -185,8 +185,8 @@ export function VLANPoolConfig({
           />
 
           {/* Pool Size Preview */}
-          <div className="p-3 bg-muted rounded-md">
-            <div className="text-sm font-medium mb-1">Pool Size Preview</div>
+          <div className="p-component-md bg-muted rounded-card-sm">
+            <div className="text-sm font-display font-medium mb-1">Pool Size Preview</div>
             <div className="text-xs text-muted-foreground">
               Current: {currentSize} VLANs (
               {/* VLAN IDs are technical data - use monospace */}
@@ -201,8 +201,8 @@ export function VLANPoolConfig({
           </div>
 
           {/* Subnet Template Preview */}
-          <div className="p-3 bg-muted rounded-md">
-            <div className="text-sm font-medium mb-1">Subnet Template</div>
+          <div className="p-component-md bg-muted rounded-card-sm">
+            <div className="text-sm font-display font-medium mb-1">Subnet Template</div>
             <div className="text-xs text-muted-foreground">
               Each VLAN will be assigned a subnet:
               <br />
@@ -243,7 +243,7 @@ export function VLANPoolConfig({
           )}
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button
               type="submit"
               disabled={loading || !form.formState.isDirty}

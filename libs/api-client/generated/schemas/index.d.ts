@@ -52,15 +52,15 @@ export declare const dhcpServerConfigSchema: z.ZodObject<{
     name: string;
     disabled: boolean;
     interface: string;
-    addressPool: string;
     gateway: string;
+    addressPool: string;
     leaseTime: string;
     dnsServers?: string[] | undefined;
 }, {
     name: string;
     interface: string;
-    addressPool: string;
     gateway: string;
+    addressPool: string;
     leaseTime: string;
     disabled?: boolean | undefined;
     dnsServers?: string[] | undefined;
@@ -104,25 +104,25 @@ export declare const firewallRuleInputSchema: z.ZodObject<{
     comment: z.ZodOptional<z.ZodString>;
     disabled: z.ZodDefault<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    action: "log" | "accept" | "drop" | "reject" | "jump";
+    chain: "input" | "forward" | "output";
+    action: "accept" | "drop" | "jump" | "log" | "reject";
     disabled: boolean;
-    chain: "input" | "output" | "forward";
-    protocol?: "all" | "tcp" | "udp" | "icmp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: number | undefined;
     dstPort?: number | undefined;
     comment?: string | undefined;
 }, {
-    action: "log" | "accept" | "drop" | "reject" | "jump";
-    chain: "input" | "output" | "forward";
-    disabled?: boolean | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | undefined;
+    chain: "input" | "forward" | "output";
+    action: "accept" | "drop" | "jump" | "log" | "reject";
+    protocol?: "tcp" | "udp" | "icmp" | "all" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: number | undefined;
     dstPort?: number | undefined;
     comment?: string | undefined;
+    disabled?: boolean | undefined;
 }>;
 export type FirewallRuleInput = z.infer<typeof firewallRuleInputSchema>;
 /**

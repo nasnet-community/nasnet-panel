@@ -169,11 +169,11 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Routes</h1>
+          <h1 className="text-2xl font-bold font-display">Routes</h1>
           <p className="text-muted-foreground mt-1">
             Manage static routes to direct traffic to specific networks
           </p>
@@ -194,7 +194,7 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
       {/* Form Dialog/Sheet */}
       {platform === 'mobile' ? (
         <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+          <SheetContent side="bottom" className="h-[90vh] overflow-y-auto p-component-md">
             <RouteForm
               mode={formMode}
               routerId={routerId}

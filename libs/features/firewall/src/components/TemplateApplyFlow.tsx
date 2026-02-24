@@ -186,9 +186,9 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   // PREVIEWING STATE
   if (state.matches('previewing')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Generating template preview" aria-live="polite">
+      <div className="flex flex-col items-center justify-center gap-component-md py-12" role="status" aria-label="Generating template preview" aria-live="polite">
         <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
-        <p className="text-lg font-medium">Generating preview...</p>
+        <p className="text-lg font-display font-medium">Generating preview...</p>
         <p className="text-sm text-muted-foreground">
           Analyzing template and detecting conflicts
         </p>
@@ -201,14 +201,14 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
     const previewResult = state.context.previewResult;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-component-lg">
         {/* Preview Results */}
         {previewResult && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Impact Analysis */}
-            <div className="rounded-lg border p-4">
-              <h3 className="mb-3 text-lg font-semibold">Impact Analysis</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+              <h3 className="mb-component-md text-lg font-display font-semibold">Impact Analysis</h3>
+              <div className="grid gap-component-md sm:grid-cols-2">
                 <div>
                   <p className="text-sm text-muted-foreground">New Rules</p>
                   <p className="text-2xl font-bold">{previewResult.impactAnalysis.newRulesCount}</p>
@@ -220,7 +220,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                   </p>
                 </div>
               </div>
-              <div className="mt-4">
+              <div className="mt-component-md">
                 <p className="text-sm text-muted-foreground">Estimated Apply Time</p>
                 <p className="text-lg font-medium">
                   {previewResult.impactAnalysis.estimatedApplyTime}s
@@ -234,7 +234,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                 <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 <AlertTitle>Conflicts Detected</AlertTitle>
                 <AlertDescription>
-                  <ul className="mt-2 list-inside list-disc space-y-1">
+                  <ul className="mt-component-sm list-inside list-disc space-y-component-sm">
                     {previewResult.conflicts.map((conflict: { message: string }, i: number) => (
                       <li key={i} className="text-sm">
                         {conflict.message}
@@ -251,7 +251,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                 <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
                 <AlertTitle>Warnings</AlertTitle>
                 <AlertDescription>
-                  <ul className="mt-2 list-inside list-disc space-y-1">
+                  <ul className="mt-component-sm list-inside list-disc space-y-component-sm">
                     {(previewResult.impactAnalysis.warnings as string[]).map((warning: string, i: number) => (
                       <li key={i} className="text-sm">
                         {warning}
@@ -265,7 +265,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-component-md">
           <Button variant="outline" onClick={handleCancel} aria-label="Cancel template application">
             Cancel
           </Button>
@@ -300,14 +300,14 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-96">
-            <div className="space-y-4">
+          <ScrollArea className="max-h-96 pr-component-md">
+            <div className="space-y-component-md">
               {/* Risk Indicators */}
-              <div className="rounded-lg border-2 border-warning bg-warning/10 p-4">
-                <h4 className="mb-3 font-semibold">Risk Factors</h4>
-                <div className="space-y-2">
+              <div className="rounded-[var(--semantic-radius-card)] border-2 border-warning bg-warning/10 p-component-md">
+                <h4 className="mb-component-md font-semibold">Risk Factors</h4>
+                <div className="space-y-component-sm">
                   {(previewResult?.impactAnalysis.newRulesCount ?? 0) > 10 && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-component-sm">
                       <Badge variant="error">High Rule Count</Badge>
                       <span className="text-sm">
                         {previewResult?.impactAnalysis.newRulesCount} rules will be created
@@ -315,7 +315,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                     </div>
                   )}
                   {(previewResult?.impactAnalysis.affectedChains.length ?? 0) > 3 && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-component-sm">
                       <Badge variant="error">Multiple Chains</Badge>
                       <span className="text-sm">
                         {previewResult?.impactAnalysis.affectedChains.length} chains affected
@@ -323,7 +323,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                     </div>
                   )}
                   {(previewResult?.conflicts.length ?? 0) > 0 && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-component-sm">
                       <Badge variant="error">Conflicts</Badge>
                       <span className="text-sm">
                         {previewResult?.conflicts.length} conflicts detected
@@ -338,7 +338,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
                 <Alert variant="default">
                   <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription>
-                    <ul className="list-inside list-disc space-y-1 text-sm">
+                    <ul className="list-inside list-disc space-y-component-sm text-sm">
                       {(previewResult?.impactAnalysis.warnings as string[])?.map((warning: string, i: number) => (
                         <li key={i}>{warning}</li>
                       ))}
@@ -348,14 +348,14 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
               )}
 
               {/* Acknowledgment Checkbox */}
-              <div className="flex items-start space-x-3 rounded-lg border bg-muted p-4">
+              <div className="flex items-start space-x-3 rounded-[var(--semantic-radius-card)] border border-border bg-muted p-component-md">
                 <Checkbox
                   id="acknowledge-risks"
                   checked={isAcknowledged}
                   onCheckedChange={(checked) => setIsAcknowledged(checked as boolean)}
                   aria-describedby="acknowledge-help"
                 />
-                <div className="space-y-1">
+                <div className="space-y-component-sm">
                   <Label
                     htmlFor="acknowledge-risks"
                     className="cursor-pointer text-base font-medium leading-none"
@@ -392,9 +392,9 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   // APPLYING STATE
   if (state.matches('applying')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Applying template" aria-live="assertive">
+      <div className="flex flex-col items-center justify-center gap-component-md py-12" role="status" aria-label="Applying template" aria-live="assertive">
         <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
-        <p className="text-lg font-medium">Applying template...</p>
+        <p className="text-lg font-display font-medium">Applying template...</p>
         <p className="text-sm text-muted-foreground">
           Creating {state.context.previewResult?.impactAnalysis.newRulesCount} firewall rules
         </p>
@@ -407,10 +407,10 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
     const applyResult = state.context.applyResult;
 
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col items-center justify-center gap-4 py-8">
+      <div className="space-y-component-lg">
+        <div className="flex flex-col items-center justify-center gap-component-md py-8">
           <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
-          <h2 className="text-2xl font-bold">Template Applied Successfully!</h2>
+          <h2 className="text-2xl font-display font-bold">Template Applied Successfully!</h2>
           <p className="text-muted-foreground">
             {applyResult?.appliedRulesCount} firewall rules have been created
           </p>
@@ -438,9 +438,9 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   // ROLLING_BACK STATE
   if (state.matches('rollingBack')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Rolling back changes" aria-live="assertive">
+      <div className="flex flex-col items-center justify-center gap-component-md py-12" role="status" aria-label="Rolling back changes" aria-live="assertive">
         <Loader2 className="h-12 w-12 animate-spin text-warning" aria-hidden="true" />
-        <p className="text-lg font-medium">Rolling back changes...</p>
+        <p className="text-lg font-display font-medium">Rolling back changes...</p>
         <p className="text-sm text-muted-foreground">
           Restoring firewall configuration to previous state
         </p>
@@ -451,10 +451,10 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   // ROLLED_BACK STATE
   if (state.matches('rolledBack')) {
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col items-center justify-center gap-4 py-8">
+      <div className="space-y-component-lg">
+        <div className="flex flex-col items-center justify-center gap-component-md py-8">
           <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
-          <h2 className="text-2xl font-bold">Changes Rolled Back</h2>
+          <h2 className="text-2xl font-display font-bold">Changes Rolled Back</h2>
           <p className="text-muted-foreground">
             Firewall configuration restored to previous state
           </p>
@@ -470,7 +470,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
   // ERROR STATE
   if (state.matches('error')) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-component-lg">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <AlertTitle>Error</AlertTitle>
@@ -479,7 +479,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
           </AlertDescription>
         </Alert>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-component-md">
           <Button variant="outline" onClick={handleReset} aria-label="Cancel and reset">
             Cancel
           </Button>

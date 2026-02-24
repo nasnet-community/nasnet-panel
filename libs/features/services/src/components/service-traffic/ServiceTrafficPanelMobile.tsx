@@ -120,7 +120,7 @@ function ServiceTrafficPanelMobileComponent({
   // Loading state
   if (loading && !stats) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-component-md', className)}>
         <Card>
           <CardHeader>
             <CardTitle>{instanceName}</CardTitle>
@@ -137,7 +137,7 @@ function ServiceTrafficPanelMobileComponent({
   // Error state
   if (error && !stats) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-component-md', className)}>
         <Alert variant="destructive">
           <Icon icon={AlertCircle} className="h-4 w-4" />
           <AlertDescription>{error.message}</AlertDescription>
@@ -151,11 +151,11 @@ function ServiceTrafficPanelMobileComponent({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Icon icon={Activity} className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle className="text-lg">{instanceName}</CardTitle>
           </div>
@@ -187,10 +187,10 @@ function ServiceTrafficPanelMobileComponent({
           <CardHeader>
             <CardTitle className="text-base">Current Rates</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-component-sm">
             {uploadRate !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between rounded-lg bg-muted p-component-md">
+                <div className="flex items-center gap-component-sm">
                   <Icon icon={TrendingUp} className="h-5 w-5 text-info" aria-hidden="true" />
                   <span className="text-sm font-medium">Upload</span>
                 </div>
@@ -200,8 +200,8 @@ function ServiceTrafficPanelMobileComponent({
               </div>
             )}
             {downloadRate !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between rounded-lg bg-muted p-component-md">
+                <div className="flex items-center gap-component-sm">
                   <Icon icon={TrendingDown} className="h-5 w-5 text-success" aria-hidden="true" />
                   <span className="text-sm font-medium">Download</span>
                 </div>
@@ -219,14 +219,14 @@ function ServiceTrafficPanelMobileComponent({
         <CardHeader>
           <CardTitle className="text-base">Total Traffic</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between rounded-lg bg-muted p-4">
+        <CardContent className="space-y-component-sm">
+          <div className="flex justify-between rounded-lg bg-muted p-component-md">
             <span className="text-sm font-medium">Total Upload</span>
             <span className="text-sm font-mono font-semibold">
               {formatBytesBigInt(BigInt(stats.totalUploadBytes))}
             </span>
           </div>
-          <div className="flex justify-between rounded-lg bg-muted p-4">
+          <div className="flex justify-between rounded-lg bg-muted p-component-md">
             <span className="text-sm font-medium">Total Download</span>
             <span className="text-sm font-mono font-semibold">
               {formatBytesBigInt(BigInt(stats.totalDownloadBytes))}
@@ -246,8 +246,8 @@ function ServiceTrafficPanelMobileComponent({
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
+          <CardContent className="space-y-component-sm">
+            <div className="space-y-component-sm">
               <div className="flex justify-between text-sm">
                 <span>Used</span>
                 <span className="font-mono font-semibold">
@@ -267,7 +267,7 @@ function ServiceTrafficPanelMobileComponent({
                 <span>{quotaUsagePercent.toFixed(1)}%</span>
               </div>
             </div>
-            <div className="flex justify-between rounded-lg bg-muted p-3 text-sm">
+            <div className="flex justify-between rounded-lg bg-muted p-component-sm text-sm">
               <span className="text-muted-foreground">Action</span>
               <span className="font-medium">{stats.quota.action.replace('_', ' ')}</span>
             </div>
@@ -283,11 +283,11 @@ function ServiceTrafficPanelMobileComponent({
               Top Devices ({stats.deviceBreakdown.length})
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-component-sm">
             {stats.deviceBreakdown.slice(0, 3).map((device) => (
               <div
                 key={device.deviceID}
-                className="rounded-lg border bg-card p-3"
+                className="rounded-lg border bg-card p-component-sm"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">

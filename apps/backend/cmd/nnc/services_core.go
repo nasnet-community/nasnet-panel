@@ -34,7 +34,7 @@ func initCoreAndDiagnostics(
 	}
 
 	// Initialize Diagnostics Services (diagnostics, traceroute, DNS)
-	diagnostics, err := bootstrap.InitializeDiagnostics(routerPort)
+	diagnostics, err := bootstrap.InitializeDiagnostics(routerPort, sugar)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -36,7 +36,8 @@ func TestEndToEndAlertFlow(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create mock notification channel to track deliveries
 	mockChannel := &TrackingChannel{
@@ -50,7 +51,7 @@ func TestEndToEndAlertFlow(t *testing.T) {
 	// Initialize dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels:       channels,
-		Logger:         logger,
+		Logger:         unsugaredLogger,
 		MaxRetries:     3,
 		InitialBackoff: 10 * time.Millisecond,
 	})
@@ -219,7 +220,8 @@ func TestEndToEndWithMultipleChannels(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create multiple mock channels
 	emailChannel := &TrackingChannel{notifications: make([]notifications.Notification, 0)}
@@ -235,7 +237,7 @@ func TestEndToEndWithMultipleChannels(t *testing.T) {
 	// Initialize dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels:       channels,
-		Logger:         logger,
+		Logger:         unsugaredLogger,
 		MaxRetries:     3,
 		InitialBackoff: 10 * time.Millisecond,
 	})
@@ -342,13 +344,14 @@ func TestEndToEndWithDisabledRule(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	mockChannel := &TrackingChannel{notifications: make([]notifications.Notification, 0)}
 
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: map[string]notifications.Channel{"email": mockChannel},
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	err = eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated)

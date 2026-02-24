@@ -143,12 +143,12 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
   const handleAdvancedToggle = useCallback((open: boolean) => setShowAdvanced(open), [setShowAdvanced]);
 
   return (
-    <div className={cn('flex flex-col gap-6 p-6', className)}>
+    <div className={cn('flex flex-col gap-component-lg p-component-lg', className)}>
       {/* Disconnect Warning Banner */}
       {isStorageDisconnected && <StorageDisconnectBanner />}
 
       {/* Two-Column Layout: Configuration (left) + Usage (right) */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-component-lg">
         {/* Left Column: Configuration */}
         <Card>
           <CardHeader>
@@ -177,10 +177,10 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               Offload service binaries to USB/disk to save flash memory
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-component-md">
             {/* Detection Warning: Alert when no external storage devices found */}
             {!isStorageDetected && (
-              <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
+              <div className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
                 <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
                 <p className="text-sm text-muted-foreground">
                   No external storage detected. Connect a USB drive or disk.
@@ -190,7 +190,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Enable Toggle: Switch to enable/disable external storage */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 <Label htmlFor="storage-enabled-desktop">
                   Enable External Storage
                 </Label>
@@ -212,7 +212,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Mount Point Selector: Choose which storage device to use */}
             {isStorageDetected && (
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="mount-select-desktop">Storage Location</Label>
                 <Select
                   value={selectedMount}
@@ -259,10 +259,10 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
               Current storage consumption across flash and external
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-component-md">
             {/* External Storage Usage */}
             {isStorageConfigured && config?.storageInfo && (
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label>External Storage ({config.path})</Label>
                 <StorageUsageBar
                   usagePercent={usagePercent}
@@ -275,7 +275,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Flash Storage Usage */}
             {flashStorage && (
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label>Flash Memory ({flashStorage.path})</Label>
                 <StorageUsageBar
                   usagePercent={flashUsagePercent}
@@ -288,7 +288,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Total Summary: Aggregate capacity across all storage */}
             {usage && (
-              <div className="pt-4 border-t border-border space-y-2">
+              <div className="pt-component-sm border-t border-border space-y-component-sm">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Capacity:</span>
                   <span className="font-medium font-mono">
@@ -325,9 +325,9 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             )}
           </Button>
         </Collapsible.Trigger>
-        <Collapsible.Content className="mt-4">
+        <Collapsible.Content className="mt-component-md">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-component-lg">
               {usage?.features && usage.features.length > 0 ? (
                 <Table>
                   <TableHeader>
@@ -401,9 +401,9 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             )}
           </Button>
         </Collapsible.Trigger>
-        <Collapsible.Content className="mt-4">
+        <Collapsible.Content className="mt-component-md">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-component-lg">
               <Table>
                 <TableHeader>
                   <TableRow>

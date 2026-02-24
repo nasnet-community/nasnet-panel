@@ -150,7 +150,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
   };
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-component-md">
       {/* Toolbar */}
       <DataTableToolbar>
         <div className="flex flex-1 items-center gap-2">

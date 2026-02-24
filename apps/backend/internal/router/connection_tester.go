@@ -97,6 +97,10 @@ func (ct *ConnectionTester) TestConnection(ctx context.Context, opts ConnectionO
 	// Step 1: Resolve hostname if needed
 	host := opts.Host
 	if !network.IsValidIP(host) {
+		if ct.dnsResolver == nil {
+			result.Error = NewDNSError(host, fmt.Errorf("DNS resolver not configured"))
+			return result
+		}
 		dnsResult, err := ct.dnsResolver.Resolve(ctx, host)
 		if err != nil {
 			result.Error = NewDNSError(host, err)
@@ -213,7 +217,7 @@ func (ct *ConnectionTester) createAdapter(proto Protocol, cfg AdapterConfig) (Ro
 
 // getProtocolChain returns the list of protocols to try in order.
 func (ct *ConnectionTester) getProtocolChain(preference *Protocol) []Protocol {
-	if preference != nil && *preference != ProtocolREST {
+	if preference != nil {
 		// User specified a specific protocol
 		return []Protocol{*preference}
 	}
@@ -273,6 +277,10 @@ func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions
 	// Step 1: Resolve hostname if needed
 	host := opts.Host
 	if !network.IsValidIP(host) {
+		if s.dnsResolver == nil {
+			result.Error = NewDNSError(host, fmt.Errorf("DNS resolver not configured"))
+			return result
+		}
 		dnsResult, err := s.dnsResolver.Resolve(ctx, host)
 		if err != nil {
 			result.Error = NewDNSError(host, err)
@@ -283,7 +291,7 @@ func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions
 	result.ResolvedIP = host
 
 	// Step 2: Determine protocol chain
-	protocols := getProtocolChain(opts.ProtocolPreference)
+	protocols := s.getProtocolChain(opts.ProtocolPreference)
 
 	// Step 3: Try each protocol
 	startTime := time.Now()
@@ -355,7 +363,7 @@ func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions
 }
 
 // getProtocolChain returns the protocol fallback chain.
-func getProtocolChain(preference *Protocol) []Protocol {
+func (s *TestConnectionService) getProtocolChain(preference *Protocol) []Protocol {
 	if preference != nil {
 		return []Protocol{*preference}
 	}

@@ -187,8 +187,8 @@ function AddToAddressListContextMenuInner({
             <DialogTitle>Create New Address List</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-component-md">
+            <div className="space-y-component-sm">
               <Label htmlFor="new-list-name">List Name</Label>
               <Input
                 id="new-list-name"
@@ -211,14 +211,14 @@ function AddToAddressListContextMenuInner({
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="ip-display">IP Address</Label>
-              <div className="px-3 py-2 bg-muted rounded-md">
+              <div className="px-component-sm py-component-xs bg-muted rounded-md">
                 <code id="ip-display" className="text-sm font-mono">{ipAddress}</code>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-component-sm">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -232,7 +232,6 @@ function AddToAddressListContextMenuInner({
               <Button
                 onClick={handleCreateNewList}
                 disabled={!newListName.trim() || isCreating}
-                className="bg-category-firewall hover:bg-category-firewall/90"
               >
                 {isCreating ? 'Creating...' : 'Create List'}
               </Button>

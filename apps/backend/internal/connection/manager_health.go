@@ -42,6 +42,26 @@ func (m *Manager) healthCheckLoop(ctx context.Context, conn *Connection) {
 
 			client := conn.GetClient()
 			if client == nil {
+				// Client became nil, record as failure
+				consecutiveFailures++
+				conn.Status.RecordHealthCheck(false)
+				m.logger.Warn("health check failed: client is nil",
+					zap.String("routerID", routerID),
+					zap.Int("consecutiveFailures", consecutiveFailures),
+				)
+				if consecutiveFailures >= m.healthConfig.FailureThreshold {
+					m.logger.Error("health check threshold exceeded, initiating reconnection",
+						zap.String("routerID", routerID),
+						zap.Int("failures", consecutiveFailures),
+					)
+					prevState := conn.Status.State
+					conn.UpdateStatus(func(status *Status) {
+						_ = status.SetReconnecting(0, time.Now()) //nolint:errcheck // status transition is best-effort during health check recovery
+					})
+					m.publishStatusChange(ctx, routerID, prevState, StateReconnecting, "client_nil")
+					m.startReconnection(ctx, conn)
+					return
+				}
 				continue
 			}
 
@@ -70,7 +90,7 @@ func (m *Manager) healthCheckLoop(ctx context.Context, conn *Connection) {
 					// Trigger reconnection
 					prevState := conn.Status.State
 					conn.UpdateStatus(func(status *Status) {
-						_ = status.SetReconnecting(0, time.Now()) //nolint:errcheck // state transition failure is non-fatal, reconnection proceeds regardless
+						_ = status.SetReconnecting(0, time.Now()) //nolint:errcheck // status transition is best-effort during health check recovery
 					})
 					m.publishStatusChange(ctx, routerID, prevState, StateReconnecting, "health_check_failed")
 

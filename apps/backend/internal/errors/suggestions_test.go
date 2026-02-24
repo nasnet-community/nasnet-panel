@@ -374,11 +374,11 @@ func TestTroubleshootingSteps_ProtocolError(t *testing.T) {
 	err := NewProtocolError(CodeConnectionFailed, "connection failed", "SSH")
 	steps := TroubleshootingSteps(err.RouterError)
 
-	assert.NotEmpty(t, steps)
-	// Should include common troubleshooting steps
+	assert.NotEmpty(t, steps, "Should return troubleshooting steps for protocol error")
+	// Should include common troubleshooting steps (case-insensitive)
 	hasRelevantStep := false
 	for _, step := range steps {
-		if containsAny(step, "router", "firewall", "API", "SSH") {
+		if containsAnyCase(step, "router", "firewall", "api", "ssh") {
 			hasRelevantStep = true
 			break
 		}
@@ -390,11 +390,11 @@ func TestTroubleshootingSteps_NetworkError(t *testing.T) {
 	err := NewNetworkError(CodeHostUnreachable, "host unreachable", "192.168.1.1")
 	steps := TroubleshootingSteps(err.RouterError)
 
-	assert.NotEmpty(t, steps)
-	// Should mention network/connectivity
+	assert.NotEmpty(t, steps, "Should return troubleshooting steps for network error")
+	// Should mention network/connectivity (case-insensitive)
 	hasNetworkStep := false
 	for _, step := range steps {
-		if containsAny(step, "network", "connectivity", "ping", "firewall") {
+		if containsAnyCase(step, "network", "connectivity", "ping", "firewall") {
 			hasNetworkStep = true
 			break
 		}
@@ -453,7 +453,7 @@ func TestTroubleshootingSteps_UnknownError(t *testing.T) {
 	assert.NotEmpty(t, steps)
 }
 
-// Helper function
+// Helper functions
 func containsAny(s string, substrs ...string) bool {
 	for _, substr := range substrs {
 		if strings.Contains(s, substr) {
@@ -461,4 +461,144 @@ func containsAny(s string, substrs ...string) bool {
 		}
 	}
 	return false
+}
+
+func containsAnyCase(s string, substrs ...string) bool {
+	sLower := strings.ToLower(s)
+	for _, substr := range substrs {
+		if strings.Contains(sLower, strings.ToLower(substr)) {
+			return true
+		}
+	}
+	return false
+}
+
+// =============================================================================
+// Table-Driven Comprehensive Suggestion Tests
+// =============================================================================
+
+func TestSuggestedFix_AllCategories_TableDriven(t *testing.T) {
+	tests := []struct {
+		name      string
+		setupErr  func() error
+		assertFn  func(t *testing.T, fix string)
+	}{
+		{
+			name: "Validation error suggests field checking",
+			setupErr: func() error {
+				return NewValidationError("port", 70000, "min 1, max 65535")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, fix, "port", "Should mention the field")
+				assert.Contains(t, strings.ToLower(fix), "range", "Should mention range")
+			},
+		},
+		{
+			name: "Protocol connection error suggests verification",
+			setupErr: func() error {
+				return NewProtocolError(CodeConnectionFailed, "connection refused", "SSH")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, fix, "SSH", "Should mention the protocol")
+				assert.Contains(t, strings.ToLower(fix), "online", "Should suggest checking online status")
+			},
+		},
+		{
+			name: "Auth error suggests credentials check",
+			setupErr: func() error {
+				return NewAuthError(CodeInvalidCredentials, "invalid credentials")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, strings.ToLower(fix), "username", "Should mention username")
+				assert.Contains(t, strings.ToLower(fix), "password", "Should mention password")
+			},
+		},
+		{
+			name: "Network error suggests connectivity check",
+			setupErr: func() error {
+				return NewNetworkError(CodeHostUnreachable, "unreachable", "192.168.1.1")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, fix, "192.168.1.1", "Should mention the host")
+				assert.Contains(t, strings.ToLower(fix), "powered on", "Should suggest checking if powered on")
+			},
+		},
+		{
+			name: "Platform error suggests upgrade if needed",
+			setupErr: func() error {
+				return NewPlatformError(CodeVersionTooOld, "too old", "mikrotik")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, strings.ToLower(fix), "upgrade", "Should suggest upgrading")
+			},
+		},
+		{
+			name: "Resource error mentions resource type",
+			setupErr: func() error {
+				return NewResourceError(CodeResourceNotFound, "not found", "interface", "eth0")
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, fix, "interface", "Should mention resource type")
+				assert.Contains(t, fix, "eth0", "Should mention resource ID")
+			},
+		},
+		{
+			name: "Internal error suggests contacting support",
+			setupErr: func() error {
+				return NewInternalError("database error", nil)
+			},
+			assertFn: func(t *testing.T, fix string) {
+				assert.Contains(t, strings.ToLower(fix), "contact support", "Should suggest contacting support")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.setupErr()
+			fix := SuggestedFix(err)
+			assert.NotEmpty(t, fix, "Suggested fix should not be empty")
+			tt.assertFn(t, fix)
+		})
+	}
+}
+
+func TestDocsURL_AllErrorCodes_TableDriven(t *testing.T) {
+	tests := []struct {
+		code     string
+		expected string
+		category string
+	}{
+		{"P100", "https://docs.nasnet.io/errors/platform#p100", "platform"},
+		{"P101", "https://docs.nasnet.io/errors/platform#p101", "platform"},
+		{"P102", "https://docs.nasnet.io/errors/platform#p102", "platform"},
+		{"P103", "https://docs.nasnet.io/errors/platform#p103", "platform"},
+		{"R200", "https://docs.nasnet.io/errors/protocol#r200", "protocol"},
+		{"R201", "https://docs.nasnet.io/errors/protocol#r201", "protocol"},
+		{"R202", "https://docs.nasnet.io/errors/protocol#r202", "protocol"},
+		{"R203", "https://docs.nasnet.io/errors/protocol#r203", "protocol"},
+		{"R204", "https://docs.nasnet.io/errors/protocol#r204", "protocol"},
+		{"R205", "https://docs.nasnet.io/errors/protocol#r205", "protocol"},
+		{"N300", "https://docs.nasnet.io/errors/network#n300", "network"},
+		{"N301", "https://docs.nasnet.io/errors/network#n301", "network"},
+		{"N302", "https://docs.nasnet.io/errors/network#n302", "network"},
+		{"N303", "https://docs.nasnet.io/errors/network#n303", "network"},
+		{"V400", "https://docs.nasnet.io/errors/validation#v400", "validation"},
+		{"V401", "https://docs.nasnet.io/errors/validation#v401", "validation"},
+		{"V405", "https://docs.nasnet.io/errors/validation#v405", "validation"},
+		{"A500", "https://docs.nasnet.io/errors/auth#a500", "auth"},
+		{"A501", "https://docs.nasnet.io/errors/auth#a501", "auth"},
+		{"A502", "https://docs.nasnet.io/errors/auth#a502", "auth"},
+		{"S600", "https://docs.nasnet.io/errors/resource#s600", "resource"},
+		{"S601", "https://docs.nasnet.io/errors/resource#s601", "resource"},
+		{"S602", "https://docs.nasnet.io/errors/resource#s602", "resource"},
+		{"I500", "https://docs.nasnet.io/errors/internal#i500", "internal"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.code, func(t *testing.T) {
+			url := DocsURL(tt.code)
+			assert.Equal(t, tt.expected, url, "DocsURL for %s (%s) should match", tt.code, tt.category)
+		})
+	}
 }

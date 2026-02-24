@@ -3,6 +3,8 @@ package mikrotik
 import (
 	"fmt"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 // SSHClientPool manages a pool of SSH connections.
@@ -37,7 +39,7 @@ func (p *SSHClientPool) Get(cfg SSHClientConfig) (*SSHClient, error) {
 		p.mu.RUnlock()
 	}
 
-	client, err := NewSSHClient(cfg)
+	client, err := NewSSHClient(cfg, zap.NewNop())
 	if err != nil {
 		return nil, err
 	}

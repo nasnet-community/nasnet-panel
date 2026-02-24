@@ -92,7 +92,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
 
   if (ipAddresses.length === 0) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-component-md">
         <SectionHeader
           title={t('ipConfig.title')}
           count={0}
@@ -112,7 +112,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
   }
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('space-y-component-md', className)}>
       <SectionHeader
         title={t('ipConfig.title')}
         count={ipAddresses.length}
@@ -122,7 +122,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
       />
 
       {!isCollapsed && (
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           {interfaceNames.map((interfaceName) => {
             const ips = groupedIPs[interfaceName];
             const isExpanded = expandedInterfaces.has(interfaceName);
@@ -130,14 +130,14 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
             return (
               <div
                 key={interfaceName}
-                className="bg-card border-border overflow-hidden rounded-xl border"
+                className="bg-card border-border overflow-hidden rounded-card-sm border"
               >
                 {/* Interface Header */}
                 <button
                   onClick={() => toggleInterface(interfaceName)}
-                  className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors md:p-4"
+                  className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors md:p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-component-md">
                     {isExpanded ?
                       <ChevronDown className="text-muted-foreground h-4 w-4" />
                     : <ChevronRight className="text-muted-foreground h-4 w-4" />}
@@ -166,7 +166,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                           key={ip.id}
                           className="border-border border-b p-3 last:border-b-0 md:p-4"
                         >
-                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-component-sm">
                             <span className="text-foreground font-mono text-sm font-medium">
                               {ip.address}
                             </span>
@@ -174,7 +174,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                           </div>
 
                           {networkInfo && (
-                            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                            <div className="mt-3 grid grid-cols-1 gap-component-sm sm:grid-cols-3">
                               <div className="bg-muted rounded-lg p-2">
                                 <p className="text-muted-foreground mb-0.5 text-xs">
                                   {t('ipConfig.network')}

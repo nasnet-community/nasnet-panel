@@ -56,13 +56,12 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     bytes: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    disabled: boolean;
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
+    disabled: boolean;
     id?: string | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -74,17 +73,16 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     id?: string | undefined;
     log?: boolean | undefined;
-    disabled?: boolean | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -94,19 +92,20 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
     comment?: string | undefined;
+    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }>, {
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    disabled: boolean;
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
+    disabled: boolean;
     id?: string | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -118,17 +117,16 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     id?: string | undefined;
     log?: boolean | undefined;
-    disabled?: boolean | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -138,19 +136,20 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
     comment?: string | undefined;
+    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }>, {
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    disabled: boolean;
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
+    disabled: boolean;
     id?: string | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -162,17 +161,16 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     chain: "srcnat" | "dstnat";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
     id?: string | undefined;
     log?: boolean | undefined;
-    disabled?: boolean | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -182,8 +180,10 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
     comment?: string | undefined;
+    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
 }>;
@@ -203,7 +203,7 @@ export declare const PortForwardSchema: z.ZodObject<{
     wanInterface: z.ZodOptional<z.ZodString>;
     comment: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    protocol: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp";
+    protocol: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp";
     externalPort: number;
     internalIP: string;
     name?: string | undefined;
@@ -214,7 +214,7 @@ export declare const PortForwardSchema: z.ZodObject<{
     externalPort: number;
     internalIP: string;
     name?: string | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "all" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
     comment?: string | undefined;
     internalPort?: number | undefined;
     wanInterface?: string | undefined;

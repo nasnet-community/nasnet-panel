@@ -5,8 +5,8 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // RoutingSchedule returns a specific routing schedule by ID.
@@ -15,9 +15,14 @@ func (r *queryResolver) RoutingSchedule(ctx context.Context, routerID string, sc
 		"routerID", routerID,
 		"scheduleID", scheduleID)
 
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewInternalError("authentication service not available", nil)
+	}
+
 	// Check if ScheduleService is available
 	if r.ScheduleService == nil {
-		return nil, fmt.Errorf("schedule service not available")
+		return nil, errors.NewInternalError("schedule service not available", nil)
 	}
 
 	// Get schedule from service
@@ -26,7 +31,7 @@ func (r *queryResolver) RoutingSchedule(ctx context.Context, routerID string, sc
 		r.log.Errorw("failed to get schedule",
 			"error", err,
 			"scheduleID", scheduleID)
-		return nil, fmt.Errorf("failed to get schedule: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to get schedule")
 	}
 
 	// Convert to GraphQL model
@@ -45,9 +50,14 @@ func (r *queryResolver) RoutingSchedules(ctx context.Context, routerID string, r
 		"routerID", routerID,
 		"routingID", routingID)
 
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewInternalError("authentication service not available", nil)
+	}
+
 	// Check if ScheduleService is available
 	if r.ScheduleService == nil {
-		return nil, fmt.Errorf("schedule service not available")
+		return nil, errors.NewInternalError("schedule service not available", nil)
 	}
 
 	// Get schedules from service
@@ -56,7 +66,7 @@ func (r *queryResolver) RoutingSchedules(ctx context.Context, routerID string, r
 		r.log.Errorw("failed to get schedules",
 			"error", err,
 			"routingID", routingID)
-		return nil, fmt.Errorf("failed to get schedules: %w", err)
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to get schedules")
 	}
 
 	// Convert to GraphQL model

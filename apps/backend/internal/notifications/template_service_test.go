@@ -27,6 +27,13 @@ func TestTemplateService_RenderAlert(t *testing.T) {
 		Logger: logger,
 	})
 
+	t.Run("handles nil alert", func(t *testing.T) {
+		// RenderAlert should return error for nil alert
+		_, _, err := service.RenderAlert(context.Background(), nil, "email")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "nil")
+	})
+
 	t.Run("renders with embedded default template", func(t *testing.T) {
 		// Create a test alert
 		testAlert := db.Alert.Create().
@@ -454,6 +461,15 @@ func TestBuildTemplateData(t *testing.T) {
 		assert.Equal(t, "", data.DeviceIP)
 		assert.Empty(t, data.SuggestedActions)
 	})
+
+	t.Run("handles nil alert", func(t *testing.T) {
+		data := BuildTemplateData(nil)
+
+		assert.Equal(t, "", data.EventType)
+		assert.Equal(t, "", data.Severity)
+		assert.NotNil(t, data.EventData)
+		assert.Empty(t, data.EventData)
+	})
 }
 
 func TestBuildSampleTemplateData(t *testing.T) {
@@ -475,5 +491,68 @@ func TestBuildSampleTemplateData(t *testing.T) {
 		assert.Equal(t, "unknown.event", data.EventType)
 		assert.Equal(t, "WARNING", data.Severity)
 		assert.NotEmpty(t, data.Title)
+	})
+}
+
+func TestHTMLEscapingInEmail(t *testing.T) {
+	db := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1")
+	defer db.Close()
+
+	logger := zaptest.NewLogger(t).Sugar()
+	service := NewTemplateService(TemplateServiceConfig{
+		DB:     db,
+		Logger: logger,
+	})
+
+	t.Run("escapes HTML entities in email templates", func(t *testing.T) {
+		// Create alert with HTML-like content in device name
+		testAlert := db.Alert.Create().
+			SetID("01HN8HTMLTEST0000001").
+			SetRuleID("01HN8RULE00000000000").
+			SetEventType("router.offline").
+			SetSeverity(alert.SeverityCRITICAL).
+			SetTitle("Router <script>alert('xss')</script> Offline").
+			SetMessage("Device: <img src=x onerror='alert(1)'> offline").
+			SetData(map[string]interface{}{
+				"device_name": "<b>router-01</b>",
+				"device_ip":   "192.168.<script>alert(1)</script>1.1",
+			}).
+			SetTriggeredAt(time.Now()).
+			SaveX(context.Background())
+
+		// Render for email channel (should escape HTML)
+		subject, body, err := service.RenderAlert(context.Background(), testAlert, "email")
+
+		require.NoError(t, err)
+		// HTML entities should be escaped
+		assert.NotContains(t, subject, "<script>")
+		assert.NotContains(t, body, "<script>")
+		assert.NotContains(t, body, "<img")
+		assert.NotContains(t, body, "onerror=")
+		// But escaped versions should be present
+		assert.Contains(t, subject, "&lt;script&gt;")
+		assert.Contains(t, body, "&lt;img")
+	})
+
+	t.Run("does not escape HTML in telegram", func(t *testing.T) {
+		// For non-email channels, we might not escape (depends on use case)
+		testAlert := db.Alert.Create().
+			SetID("01HN8HTMLTEST0000002").
+			SetRuleID("01HN8RULE00000000000").
+			SetEventType("interface.down").
+			SetSeverity(alert.SeverityWARNING).
+			SetTitle("Interface Down").
+			SetMessage("Plain text message").
+			SetData(map[string]interface{}{
+				"device_name": "router-01",
+			}).
+			SetTriggeredAt(time.Now()).
+			SaveX(context.Background())
+
+		// Render for telegram (no HTML escaping needed for plain text)
+		_, body, err := service.RenderAlert(context.Background(), testAlert, "telegram")
+
+		require.NoError(t, err)
+		assert.NotEmpty(t, body)
 	})
 }

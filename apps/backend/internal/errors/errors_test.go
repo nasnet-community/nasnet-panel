@@ -13,7 +13,7 @@ import (
 // =============================================================================
 
 func TestErrorCategories_AllDefined(t *testing.T) {
-	// AC: All 6 error categories must be defined
+	// AC: All 7 error categories must be defined
 	categories := []ErrorCategory{
 		CategoryPlatform,
 		CategoryProtocol,
@@ -34,9 +34,9 @@ func TestErrorCategories_AllDefined(t *testing.T) {
 		"internal",
 	}
 
-	require.Equal(t, len(expectedValues), len(categories))
+	require.Equal(t, len(expectedValues), len(categories), "Number of categories should match expected values")
 	for i, cat := range categories {
-		assert.Equal(t, expectedValues[i], string(cat))
+		assert.Equal(t, expectedValues[i], string(cat), "Category %d should have correct string value", i)
 	}
 }
 
@@ -297,10 +297,12 @@ func TestInternalError_Creation(t *testing.T) {
 	cause := errors.New("database error")
 	err := NewInternalError("internal error", cause)
 
-	assert.Equal(t, "I500", err.Code)
-	assert.Equal(t, CategoryInternal, err.Category)
-	assert.False(t, err.Recoverable)
-	assert.Equal(t, cause, err.Cause)
+	assert.Equal(t, "I500", err.Code, "Internal error code should be I500")
+	assert.Equal(t, CategoryInternal, err.Category, "Category should be CategoryInternal")
+	assert.False(t, err.Recoverable, "Internal errors should not be recoverable")
+	assert.Equal(t, cause, err.Cause, "Underlying cause should be preserved")
+	// Verify that InternalError embeds RouterError
+	assert.Equal(t, cause, err.RouterError.Cause, "Cause should be accessible via embedded RouterError")
 }
 
 func TestInternalError_WithComponent(t *testing.T) {
@@ -401,4 +403,135 @@ func TestProtocolError_ErrorChain(t *testing.T) {
 
 	// Access Protocol through the error
 	assert.Equal(t, "SSH", protoErr.Protocol)
+}
+
+// =============================================================================
+// Table-Driven Tests for Comprehensive Coverage
+// =============================================================================
+
+func TestAllErrorCodes_TableDriven(t *testing.T) {
+	tests := []struct {
+		code     string
+		category ErrorCategory
+	}{
+		// Platform errors (P1xx)
+		{CodePlatformNotSupported, CategoryPlatform},
+		{CodeCapabilityNotAvailable, CategoryPlatform},
+		{CodeVersionTooOld, CategoryPlatform},
+		{CodePackageMissing, CategoryPlatform},
+
+		// Protocol errors (R2xx)
+		{CodeConnectionFailed, CategoryProtocol},
+		{CodeConnectionTimeout, CategoryProtocol},
+		{CodeProtocolError, CategoryProtocol},
+		{CodeAllProtocolsFailed, CategoryProtocol},
+		{CodeAuthenticationFailed, CategoryProtocol},
+		{CodeCommandFailed, CategoryProtocol},
+
+		// Network errors (N3xx)
+		{CodeHostUnreachable, CategoryNetwork},
+		{CodeDNSResolutionFailed, CategoryNetwork},
+		{CodeNetworkTimeout, CategoryNetwork},
+		{CodePortClosed, CategoryNetwork},
+
+		// Validation errors (V4xx)
+		{CodeValidationFailed, CategoryValidation},
+		{CodeSchemaValidationFailed, CategoryValidation},
+		{CodeReferenceNotFound, CategoryValidation},
+		{CodeCircularDependency, CategoryValidation},
+		{CodeConflictDetected, CategoryValidation},
+		{CodeInvalidFormat, CategoryValidation},
+		{CodeOutOfRange, CategoryValidation},
+
+		// Auth errors (A5xx)
+		{CodeAuthFailed, CategoryAuth},
+		{CodeInsufficientPermissions, CategoryAuth},
+		{CodeSessionExpired, CategoryAuth},
+		{CodeInvalidCredentials, CategoryAuth},
+		{CodeAccessDenied, CategoryAuth},
+
+		// Resource errors (S6xx)
+		{CodeResourceNotFound, CategoryResource},
+		{CodeResourceLocked, CategoryResource},
+		{CodeInvalidStateTransition, CategoryResource},
+		{CodeDependencyNotReady, CategoryResource},
+		{CodeResourceBusy, CategoryResource},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.code, func(t *testing.T) {
+			err := NewRouterError(tt.code, tt.category, "test message")
+			assert.Equal(t, tt.code, err.Code, "Code should match")
+			assert.Equal(t, tt.category, err.Category, "Category should match")
+		})
+	}
+}
+
+func TestErrorContextPreservation_TableDriven(t *testing.T) {
+	// Verify all error types properly initialize and preserve context
+	tests := []struct {
+		name     string
+		setupErr func() error
+		assertFn func(t *testing.T, err error)
+	}{
+		{
+			name: "PlatformError preserves platform field",
+			setupErr: func() error {
+				return NewPlatformError(CodeVersionTooOld, "too old", "mikrotik")
+			},
+			assertFn: func(t *testing.T, err error) {
+				platformErr := err.(*PlatformError)
+				assert.Equal(t, "mikrotik", platformErr.Platform)
+			},
+		},
+		{
+			name: "ProtocolError preserves protocol field",
+			setupErr: func() error {
+				return NewProtocolError(CodeConnectionFailed, "failed", "SSH")
+			},
+			assertFn: func(t *testing.T, err error) {
+				protoErr := err.(*ProtocolError)
+				assert.Equal(t, "SSH", protoErr.Protocol)
+			},
+		},
+		{
+			name: "ValidationError preserves field and value",
+			setupErr: func() error {
+				return NewValidationError("port", 70000, "out of range")
+			},
+			assertFn: func(t *testing.T, err error) {
+				valErr := err.(*ValidationError)
+				assert.Equal(t, "port", valErr.Field)
+				assert.Equal(t, 70000, valErr.Value)
+			},
+		},
+		{
+			name: "NetworkError preserves host field",
+			setupErr: func() error {
+				return NewNetworkError(CodeHostUnreachable, "unreachable", "192.168.1.1")
+			},
+			assertFn: func(t *testing.T, err error) {
+				netErr := err.(*NetworkError)
+				assert.Equal(t, "192.168.1.1", netErr.Host)
+			},
+		},
+		{
+			name: "ResourceError preserves resource type and ID",
+			setupErr: func() error {
+				return NewResourceError(CodeResourceNotFound, "not found", "interface", "eth0")
+			},
+			assertFn: func(t *testing.T, err error) {
+				resErr := err.(*ResourceError)
+				assert.Equal(t, "interface", resErr.ResourceType)
+				assert.Equal(t, "eth0", resErr.ResourceID)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.setupErr()
+			tt.assertFn(t, err)
+		})
+	}
 }

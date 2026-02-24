@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"log"
+	"errors"
 
 	"go.uber.org/zap"
 
@@ -39,28 +39,33 @@ func InitializeCoreServices(
 	logger *zap.SugaredLogger,
 	encryptionService *encryption.Service,
 ) (*CoreComponents, error) {
+
+	if logger == nil {
+		return nil, errors.New("logger cannot be nil")
+	}
+
 	// 1. Scanner Service - network discovery for router scanning
-	scannerService := scanner.NewServiceWithDefaults(eventBus)
-	log.Printf("Scanner service initialized with default config")
+	scannerService := scanner.NewServiceWithDefaults(eventBus, logger.Desugar())
+	logger.Infow("Scanner service initialized with default config")
 
 	// 2. Capability Service - router capability detection with 24h caching
 	capabilityDetector := capability.NewDetector()
 	capabilityCache := capability.NewMemoryCache()
 	capabilityService := capability.NewService(capabilityDetector, capabilityCache)
-	log.Printf("Capability service initialized (L1 memory cache + L2 SQLite)")
+	logger.Infow("Capability service initialized (L1 memory cache + L2 SQLite)")
 
 	// 3. Credential Service - secure router credential management
 	var credentialService *credentials.Service
 	if encryptionService != nil {
 		credSvc, err := credentials.NewService(encryptionService)
 		if err != nil {
-			log.Printf("Warning: Credential service initialization failed: %v", err)
+			logger.Warnw("Credential service initialization failed", "error", err)
 		} else {
 			credentialService = credSvc
-			log.Printf("Credential service initialized")
+			logger.Infow("Credential service initialized")
 		}
 	} else {
-		log.Printf("Credential service: skipped (no encryption service)")
+		logger.Infow("Credential service: skipped (no encryption service)")
 	}
 
 	// 4. Router Service - router connection/disconnection operations
@@ -71,15 +76,15 @@ func InitializeCoreServices(
 			EncryptionService: encryptionService,
 			DB:                systemDB,
 		})
-		log.Printf("Router service initialized")
+		logger.Infow("Router service initialized")
 	} else {
-		log.Printf("Router service: skipped (no encryption service)")
+		logger.Infow("Router service: skipped (no encryption service)")
 	}
 
 	// 5. Auth Service - user authentication (optional, may be nil in production)
 	// Auth service is initialized separately in main if authentication is enabled
 	var authService *auth.Service
-	log.Printf("Auth service: disabled (production mode)")
+	logger.Infow("Auth service: disabled (production mode)")
 
 	return &CoreComponents{
 		AuthService:       authService,

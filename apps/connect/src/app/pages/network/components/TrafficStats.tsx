@@ -37,7 +37,7 @@ export const TrafficStats = memo(function TrafficStats({
           <ArrowDown className="w-3 h-3" />
           {formatBytes(stats.rxBytes)}
         </span>
-        <span className="flex items-center gap-1.5 text-category-monitoring">
+        <span className="flex items-center gap-1.5 text-secondary">
           <ArrowUp className="w-3 h-3" />
           {formatBytes(stats.txBytes)}
         </span>
@@ -69,7 +69,7 @@ export const TrafficStats = memo(function TrafficStats({
           <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>{t('traffic.packets', { count: stats.rxPackets })}</span>
             {stats.rxErrors > 0 && (
-              <span className="text-destructive">{t('traffic.errors', { count: stats.rxErrors })}</span>
+              <span className="text-error">{t('traffic.errors', { count: stats.rxErrors })}</span>
             )}
           </div>
         </div>
@@ -78,7 +78,7 @@ export const TrafficStats = memo(function TrafficStats({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2 text-sm">
-              <ArrowUp className="w-4 h-4 text-category-monitoring" />
+              <ArrowUp className="w-4 h-4 text-secondary" />
               <span className="text-foreground">{t('traffic.upload')}</span>
             </div>
             <span className="text-sm font-mono text-foreground">
@@ -86,12 +86,12 @@ export const TrafficStats = memo(function TrafficStats({
             </span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-category-monitoring/70 to-category-monitoring rounded-full w-full" />
+            <div className="h-full bg-gradient-to-r from-secondary/70 to-secondary rounded-full w-full" />
           </div>
           <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>{t('traffic.packets', { count: stats.txPackets })}</span>
             {stats.txErrors > 0 && (
-              <span className="text-destructive">{t('traffic.errors', { count: stats.txErrors })}</span>
+              <span className="text-error">{t('traffic.errors', { count: stats.txErrors })}</span>
             )}
           </div>
         </div>
@@ -99,7 +99,7 @@ export const TrafficStats = memo(function TrafficStats({
 
       {/* Issues Alert */}
       {hasIssues && (
-        <div className="flex items-start gap-2 p-3 bg-warning/10 border border-warning/30 rounded-lg" role="alert">
+        <div className="flex items-start gap-2 p-3 bg-warning/10 border border-warning/30 rounded-card-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="alert" tabIndex={-1}>
           <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-xs">
             <p className="font-medium text-warning">
@@ -117,32 +117,32 @@ export const TrafficStats = memo(function TrafficStats({
       {/* Detailed Stats Grid */}
       {variant === 'detailed' && (
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
-          <div className="bg-muted rounded-lg p-3">
+          <div className="bg-muted rounded-card-sm p-3">
             <p className="text-xs text-muted-foreground mb-1">{t('traffic.rxPackets')}</p>
             <p className="text-sm font-mono text-foreground">
               {formatNumber(stats.rxPackets)}
             </p>
           </div>
-          <div className="bg-muted rounded-lg p-3">
+          <div className="bg-muted rounded-card-sm p-3">
             <p className="text-xs text-muted-foreground mb-1">{t('traffic.txPackets')}</p>
             <p className="text-sm font-mono text-foreground">
               {formatNumber(stats.txPackets)}
             </p>
           </div>
-          <div className="bg-muted rounded-lg p-3">
+          <div className="bg-muted rounded-card-sm p-3">
             <p className="text-xs text-muted-foreground mb-1">{t('traffic.rxDrops')}</p>
             <p className={cn(
               'text-sm font-mono',
-              stats.rxDrops > 0 ? 'text-destructive' : 'text-foreground'
+              stats.rxDrops > 0 ? 'text-error' : 'text-foreground'
             )}>
               {formatNumber(stats.rxDrops)}
             </p>
           </div>
-          <div className="bg-muted rounded-lg p-3">
+          <div className="bg-muted rounded-card-sm p-3">
             <p className="text-xs text-muted-foreground mb-1">{t('traffic.txDrops')}</p>
             <p className={cn(
               'text-sm font-mono',
-              stats.txDrops > 0 ? 'text-destructive' : 'text-foreground'
+              stats.txDrops > 0 ? 'text-error' : 'text-foreground'
             )}>
               {formatNumber(stats.txDrops)}
             </p>

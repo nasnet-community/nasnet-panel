@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 // resolveServiceConfig resolves variable references in service configuration
@@ -50,33 +52,33 @@ func (ti *TemplateInstaller) resolveString(input string, variables map[string]in
 	// Template variable pattern uses double-brace syntax
 	pattern := regexp.MustCompile(`\{\{([A-Z_][A-Z0-9_.]*)\}\}`)
 
-	// Check if the entire string is a single variable reference
-	if pattern.MatchString(input) && strings.TrimSpace(input) == pattern.FindString(input) {
-		// Return the actual value (preserving type)
-		varName := pattern.FindStringSubmatch(input)[1]
+	// Check if the entire input string is ONLY a single variable reference
+	matches := pattern.FindStringSubmatch(input)
+	if len(matches) > 0 && strings.TrimSpace(input) == matches[0] {
+		// Return the actual value (preserving type) for standalone variables
+		varName := matches[1]
 		if value, ok := variables[varName]; ok {
 			return value, nil
 		}
+		// Missing variable in standalone reference is an error
 		return nil, fmt.Errorf("variable {{%s}} not found", varName)
 	}
 
-	// Otherwise, perform string substitution
-	// Create variable matcher outside the replacement function
-	matcherPattern := regexp.MustCompile(`\{\{([A-Z_][A-Z0-9_.]*)\}\}`)
-	resolved := matcherPattern.ReplaceAllStringFunc(input, func(match string) string {
+	// Otherwise, perform string substitution for embedded variables
+	resolved := pattern.ReplaceAllStringFunc(input, func(match string) string {
 		// Extract variable name from {{VARIABLE_NAME}}
-		matches := matcherPattern.FindStringSubmatch(match)
-		if len(matches) < 2 {
-			return match
+		subMatches := pattern.FindStringSubmatch(match)
+		if len(subMatches) < 2 {
+			return match // Should not happen, but defensive
 		}
-		varName := matches[1]
+		varName := subMatches[1]
 
 		if value, ok := variables[varName]; ok {
 			return fmt.Sprintf("%v", value)
 		}
 
-		// Variable not found - return placeholder
-		ti.logger.Warn().Str("variable", varName).Msg("variable not found during resolution")
+		// Variable not found in string substitution - log and return as-is
+		ti.logger.Warn("variable not found during resolution - using placeholder", zap.String("variable", varName))
 		return match
 	})
 

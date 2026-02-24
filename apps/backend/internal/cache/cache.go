@@ -25,6 +25,10 @@ type Cache[K comparable, V any] interface {
 
 	// Has checks if a key exists in the cache (even if expired).
 	Has(key K) bool
+
+	// Close stops the cleanup goroutine and releases resources.
+	// Must be called before the cache is discarded to prevent goroutine leaks.
+	Close()
 }
 
 // Entry represents a cached entry with expiration.

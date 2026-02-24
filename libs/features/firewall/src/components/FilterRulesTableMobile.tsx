@@ -16,6 +16,7 @@
 import { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
+import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
 import {
   useFilterRules,
@@ -123,7 +124,11 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
   return (
     <Card
       ref={isHighlighted ? highlightRef as React.RefObject<HTMLDivElement> : undefined}
-      className={`${rule.disabled ? 'opacity-50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
+      className={cn(
+        rule.disabled && 'opacity-50',
+        isUnused && 'bg-muted/50 opacity-60',
+        isHighlighted && 'animate-highlight bg-warning/20'
+      )}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -154,7 +159,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
 
         {/* Counters - Replaced with CounterCell */}
         <div
-          className="mb-3 cursor-pointer hover:bg-muted p-2 -mx-2 rounded"
+          className="mb-3 cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded transition-colors"
           onClick={() => onShowStats(rule)}
           role="button"
           tabIndex={0}
@@ -343,8 +348,8 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 space-y-4 ${className || ''}`} role="status" aria-label="Loading filter rules">
-        <div className="animate-pulse space-y-4">
+      <div className={cn('p-component-md space-y-component-md', className)} role="status" aria-label="Loading filter rules">
+        <div className="animate-pulse space-y-component-md">
           <div className="h-32 bg-muted rounded" />
           <div className="h-32 bg-muted rounded" />
           <div className="h-32 bg-muted rounded" />
@@ -356,8 +361,9 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-destructive ${className || ''}`} role="alert" aria-live="assertive">
-        Error loading filter rules: {error.message}
+      <div className={cn('p-component-md rounded-[var(--semantic-radius-card)] bg-error/10 border border-error/20', className)} role="alert" aria-live="assertive">
+        <h3 className="font-semibold text-error mb-2">Error loading filter rules</h3>
+        <p className="text-sm text-error/80">{error.message}</p>
       </div>
     );
   }
@@ -365,15 +371,22 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-muted-foreground ${className || ''}`} role="status">
-        {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
+      <div className={cn('p-component-lg text-center text-muted-foreground', className)} role="status">
+        <p className="font-medium">
+          {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
+        </p>
+        <p className="text-sm mt-2">
+          {chain
+            ? `Add the first rule to the ${chain} chain to get started.`
+            : 'Create filter rules to manage traffic on your router.'}
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      <div className={`space-y-3 ${className || ''}`} role="list" aria-label="Filter rules">
+      <div className={cn('space-y-component-sm', className)} role="list" aria-label="Filter rules">
         {sortedRules.map((rule) => (
           <RuleCard
             key={rule.id}

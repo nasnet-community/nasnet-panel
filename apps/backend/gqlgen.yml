@@ -21,6 +21,7 @@ schema:
   - "../../schema/resources/*.graphql"
   - "../../schema/changeset/*.graphql"
   - "../../schema/storage/*.graphql"
+  - "../../schema/provisioning/*.graphql"
 
 # Generated server code
 exec:

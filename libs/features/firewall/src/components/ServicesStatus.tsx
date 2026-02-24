@@ -86,14 +86,14 @@ const ServiceCard = memo(function ServiceCard({
             className={cn(
               'text-xs',
               isEnabled
-                ? 'text-slate-700 dark:text-slate-300'
-                : 'text-slate-400'
+                ? 'text-foreground'
+                : 'text-muted-foreground'
             )}
           >
             {getServiceDescription(service.name)}
           </span>
         </div>
-        <span className="text-xs font-mono text-slate-500">{service.port}</span>
+        <span className="text-xs font-mono text-muted-foreground">{service.port}</span>
       </div>
     );
   }
@@ -101,10 +101,10 @@ const ServiceCard = memo(function ServiceCard({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border p-4 transition-all',
+        'relative overflow-hidden rounded-[var(--semantic-radius-card)] border p-component-md transition-all',
         isEnabled
-          ? 'border-success/20 bg-success/5 dark:border-success/30 dark:bg-success/10'
-          : 'border-border bg-muted/30 dark:border-border dark:bg-muted/10'
+          ? 'border-success/20 bg-success/5'
+          : 'border-border bg-muted/30'
       )}
     >
       {/* Status indicator dot */}

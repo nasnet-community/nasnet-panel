@@ -26,7 +26,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
   const isLoadingHero = isLoadingServers || isLoadingPools || isLoadingLeases || isLoadingClients;
 
   return (
-    <div className="px-4 py-4 md:px-6 md:py-6 space-y-6 max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet space-y-6 max-w-7xl mx-auto">
       {/* DHCP Status Hero - Stats Grid */}
       <DHCPStatusHero
         servers={servers || []}
@@ -37,7 +37,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       />
 
       {/* Address Pools Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-foreground">{t('dhcp.pools')}</h2>
@@ -49,18 +49,18 @@ export const DHCPTab = React.memo(function DHCPTab() {
         </div>
 
         {isLoadingPools ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-card rounded-xl border border-border p-4 animate-pulse">
-                <div className="flex items-center gap-3 mb-3">
+              <div key={i} className="bg-card rounded-card-sm border border-border p-component-md animate-pulse">
+                <div className="flex items-center gap-component-sm mb-component-sm">
                   <div className="w-8 h-8 bg-muted rounded-lg" />
                   <div className="flex-1">
-                    <div className="h-4 bg-muted rounded w-24 mb-1" />
+                    <div className="h-4 bg-muted rounded w-24 mb-component-xs" />
                     <div className="h-3 bg-muted rounded w-16" />
                   </div>
                 </div>
-                <div className="h-2 bg-muted rounded-full mb-3" />
-                <div className="grid grid-cols-3 gap-2">
+                <div className="h-2 bg-muted rounded-full mb-component-sm" />
+                <div className="grid grid-cols-3 gap-component-xs">
                   {[1, 2, 3].map((j) => (
                     <div key={j} className="h-12 bg-muted rounded-lg" />
                   ))}
@@ -69,19 +69,19 @@ export const DHCPTab = React.memo(function DHCPTab() {
             ))}
           </div>
         ) : poolsError ? (
-          <div className="bg-error/10 border border-error/30 rounded-xl p-4">
+          <div className="bg-error/10 border border-error rounded-card-sm p-component-md">
             <p className="text-sm text-error">
               {t('dhcp.poolsLoadError')}: {poolsError.message}
             </p>
           </div>
         ) : pools && pools.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md">
             {pools.map((pool) => (
               <DHCPPoolCard key={pool.id} pool={pool} leases={leases || []} />
             ))}
           </div>
         ) : (
-          <div className="bg-muted rounded-xl border border-border p-8 text-center">
+          <div className="bg-muted rounded-card-sm border border-border p-component-lg text-center">
             <p className="text-muted-foreground text-sm">
               {t('dhcp.noPools')}
             </p>
@@ -90,7 +90,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       </div>
 
       {/* DHCP Servers Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{t('dhcp.servers')}</h2>
           <p className="text-sm text-muted-foreground">
@@ -100,7 +100,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
         </div>
 
         {serversError ? (
-          <div className="bg-error/10 border border-error/30 rounded-xl p-4">
+          <div className="bg-error/10 border border-error rounded-card-sm p-component-md">
             <p className="text-sm text-error">
               {t('dhcp.serversLoadError')}: {serversError.message}
             </p>
@@ -115,7 +115,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       </div>
 
       {/* Active Leases Section */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{t('dhcp.leases')}</h2>
           <p className="text-sm text-muted-foreground">
@@ -125,15 +125,15 @@ export const DHCPTab = React.memo(function DHCPTab() {
         </div>
 
         {isLoadingLeases ? (
-          <div className="bg-card rounded-xl border border-border p-8 animate-pulse">
-            <div className="space-y-3">
+          <div className="bg-card rounded-card-sm border border-border p-component-lg animate-pulse">
+            <div className="space-y-component-sm">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-8 bg-muted rounded" />
               ))}
             </div>
           </div>
         ) : leasesError ? (
-          <div className="bg-error/10 border border-error/30 rounded-xl p-4">
+          <div className="bg-error/10 border border-error rounded-card-sm p-component-md">
             <p className="text-sm text-error">
               {t('dhcp.leasesLoadError')}: {leasesError.message}
             </p>
@@ -144,7 +144,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       </div>
 
       {/* DHCP Clients Section (WAN) */}
-      <div className="space-y-3">
+      <div className="space-y-component-sm">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{t('dhcp.wanClients')}</h2>
           <p className="text-sm text-muted-foreground">
@@ -154,31 +154,31 @@ export const DHCPTab = React.memo(function DHCPTab() {
         </div>
 
         {isLoadingClients ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-card rounded-xl border border-border p-4 animate-pulse">
-              <div className="flex items-center gap-3 mb-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+            <div className="bg-card rounded-card-sm border border-border p-component-md animate-pulse">
+              <div className="flex items-center gap-component-sm mb-component-sm">
                 <div className="w-10 h-10 bg-muted rounded-lg" />
                 <div className="flex-1">
-                  <div className="h-4 bg-muted rounded w-32 mb-2" />
+                  <div className="h-4 bg-muted rounded w-32 mb-component-xs" />
                   <div className="h-3 bg-muted rounded w-24" />
                 </div>
               </div>
             </div>
           </div>
         ) : clientsError ? (
-          <div className="bg-error/10 border border-error/30 rounded-xl p-4">
+          <div className="bg-error/10 border border-error rounded-card-sm p-component-md">
             <p className="text-sm text-error">
               {t('dhcp.clientsLoadError')}: {clientsError.message}
             </p>
           </div>
         ) : clients && clients.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
             {clients.map((client) => (
               <DHCPClientCard key={client.id} client={client} />
             ))}
           </div>
         ) : (
-          <div className="bg-muted rounded-xl border border-border p-8 text-center">
+          <div className="bg-muted rounded-card-sm border border-border p-component-lg text-center">
             <p className="text-muted-foreground text-sm">
               {t('dhcp.noClients')}
             </p>

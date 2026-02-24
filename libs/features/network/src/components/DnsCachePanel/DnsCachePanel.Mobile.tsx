@@ -80,14 +80,14 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
           <CardTitle className="text-lg">DNS Cache</CardTitle>
           <CardDescription className="text-sm">Monitor and manage DNS cache</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-md">
           {/* Statistics Cards */}
-          <div className="space-y-3">
+          <div className="space-y-component-md">
             {/* Total Entries */}
             <Card className="bg-muted/50">
-              <CardContent className="p-4">
+              <CardContent className="p-component-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-component-sm">
                     <Icon icon={Database} className="h-5 w-5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Total Entries</span>
                   </div>
@@ -100,7 +100,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
             {/* Cache Usage */}
             <Card className="bg-muted/50">
-              <CardContent className="p-4 space-y-2">
+              <CardContent className="p-component-md space-y-component-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Cache Usage</span>
                   <Badge variant="secondary" className="text-xs font-mono">
@@ -117,9 +117,9 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
             {/* Hit Rate */}
             <Card className="bg-muted/50">
-              <CardContent className="p-4">
+              <CardContent className="p-component-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-component-sm">
                     <Icon icon={TrendingUp} className="h-5 w-5 text-success" />
                     <span className="text-sm text-muted-foreground">Hit Rate</span>
                   </div>
@@ -131,15 +131,15 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
           {/* Top Domains */}
           {cacheStats?.topDomains && cacheStats.topDomains.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-component-md">
               <h3 className="text-sm font-medium">Most Queried (Top 10)</h3>
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 {cacheStats.topDomains.slice(0, 10).map((domain, index) => (
                   <div
                     key={domain.domain}
-                    className="flex items-start justify-between p-3 bg-muted rounded-md gap-2"
+                    className="flex items-start justify-between p-component-md bg-muted rounded-[var(--semantic-radius-button)] gap-component-sm"
                   >
-                    <div className="flex items-start gap-2 min-w-0">
+                    <div className="flex items-start gap-component-sm min-w-0">
                       <Badge variant="outline" className="font-mono text-xs flex-shrink-0">
                         #{index + 1}
                       </Badge>
@@ -180,9 +180,9 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
           {/* Before/After Stats Preview */}
           {cacheStats && !flushResult && (
-            <div className="space-y-2 p-3 bg-muted rounded-md">
+            <div className="space-y-component-sm p-component-md bg-muted rounded-[var(--semantic-radius-button)]">
               <div className="text-sm font-medium">Current Cache:</div>
-              <div className="space-y-1 text-sm font-mono">
+              <div className="space-y-component-xs text-sm font-mono">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Entries:</span>
                   <span>{cacheStats.totalEntries}</span>
@@ -209,7 +209,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             </Alert>
           )}
 
-          <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <DialogFooter className="flex-col gap-component-sm sm:flex-row">
             <Button
               variant="outline"
               disabled={isFlushing}

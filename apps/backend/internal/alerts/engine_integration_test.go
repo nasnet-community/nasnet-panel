@@ -30,12 +30,13 @@ func TestEngineStart(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create engine
@@ -77,12 +78,13 @@ func TestEventTriggersAlert(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create alert rule
@@ -160,12 +162,13 @@ func TestMultipleRulesMatch(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create multiple alert rules for the same event type
@@ -255,12 +258,13 @@ func TestThrottlingIntegration(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create alert rule with throttling (max 2 alerts per 10 seconds)
@@ -338,12 +342,13 @@ func TestRuleCacheRefresh(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create and start engine (with no rules initially)
@@ -409,12 +414,13 @@ func TestPerformance(t *testing.T) {
 	}
 	defer eventBus.Close()
 
-	logger := zaptest.NewLogger(t).Sugar()
+	unsugaredLogger := zaptest.NewLogger(t)
+	logger := unsugaredLogger.Sugar()
 
 	// Create dispatcher
 	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
 		Channels: make(map[string]notifications.Channel),
-		Logger:   logger,
+		Logger:   unsugaredLogger,
 	})
 
 	// Create 50+ rules with different event types

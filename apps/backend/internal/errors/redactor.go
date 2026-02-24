@@ -40,6 +40,8 @@ var sensitiveValuePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`^[A-Za-z0-9]{32,64}$`),       // Generic long alphanumeric
 	regexp.MustCompile(`^[A-Fa-f0-9]{64}$`),          // SHA256 hash
 	regexp.MustCompile(`^[A-Za-z0-9+/]{40,}={0,2}$`), // Base64 encoded
+	// IP addresses (IPv4 and IPv6 - device/network identifying info)
+	regexp.MustCompile(`^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$`), // IPv4 (simple pattern matches IP-like format)
 }
 
 // IsSensitiveKey checks if a key name indicates sensitive data.

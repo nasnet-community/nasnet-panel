@@ -13,7 +13,7 @@ import { Skeleton, Card } from '@nasnet/ui/primitives';
 const TroubleshootWizardSkeletonDesktopComponent = memo(
   function TroubleshootWizardSkeletonDesktop() {
     return (
-      <div className="space-y-6 animate-pulse">
+      <div className="space-y-component-lg animate-pulse">
         {/* Header skeleton */}
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-64" />
@@ -23,7 +23,7 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
         {/* Horizontal stepper skeleton */}
         <div className="flex justify-between items-center px-8">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
+            <div key={i} className="flex flex-col items-center gap-component-sm">
               <Skeleton className="h-12 w-12 rounded-full" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -31,17 +31,17 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
         </div>
 
         {/* Content skeleton */}
-        <Card className="p-6">
-          <div className="space-y-4">
+        <Card className="p-component-lg">
+          <div className="space-y-component-md">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
             {/* Fix suggestion skeleton */}
-            <div className="mt-6 p-4 border rounded-lg space-y-3">
+            <div className="mt-component-lg p-component-md border rounded-[var(--semantic-radius-button)] space-y-component-sm">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-component-md mt-component-md">
                 <Skeleton className="h-10 w-24" />
                 <Skeleton className="h-10 w-32" />
               </div>
@@ -70,16 +70,16 @@ export const TroubleshootWizardSkeletonDesktop =
 const TroubleshootWizardSkeletonMobileComponent = memo(
   function TroubleshootWizardSkeletonMobile() {
     return (
-      <div className="space-y-4 animate-pulse p-4">
+      <div className="space-y-component-md animate-pulse p-component-md">
         {/* Progress bar skeleton */}
         <Skeleton className="h-2 w-full rounded-full" />
         <Skeleton className="h-4 w-20" />
         {/* Step cards skeleton */}
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="p-4">
-            <div className="flex items-center gap-3">
+          <Card key={i} className="p-component-md">
+            <div className="flex items-center gap-component-md">
               <Skeleton className="h-8 w-8 rounded-full" />
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 space-y-component-sm">
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="h-3 w-24" />
               </div>
@@ -88,8 +88,8 @@ const TroubleshootWizardSkeletonMobileComponent = memo(
         ))}
 
         {/* Action buttons skeleton */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-          <div className="flex gap-3">
+        <div className="fixed bottom-0 left-0 right-0 p-component-md bg-background border-t">
+          <div className="flex gap-component-md">
             <Skeleton className="h-12 flex-1" />
             <Skeleton className="h-12 flex-1" />
           </div>

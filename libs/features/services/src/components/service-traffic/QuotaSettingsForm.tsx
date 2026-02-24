@@ -226,16 +226,16 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
   return (
     <Card className={cn('', className)}>
       <CardHeader>
-        <CardTitle>Traffic Quota Settings</CardTitle>
+        <CardTitle className="font-display">Traffic Quota Settings</CardTitle>
         <CardDescription>
           Configure bandwidth limits with automated warnings and enforcement
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" noValidate>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md" noValidate>
           {/* Success Message */}
           {successMessage && (
-            <Alert className="border-green-500 bg-green-50 text-green-900">
+            <Alert className="border-success bg-success/10 text-success">
               <AlertDescription>{successMessage}</AlertDescription>
             </Alert>
           )}
@@ -251,7 +251,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
           )}
 
           {/* Period Selection */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="period">Quota Period</Label>
             <Select
               value={form.watch('period')}
@@ -259,7 +259,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('period', value as QuotaSettingsFormData['period'])
               }
             >
-              <SelectTrigger id="period">
+              <SelectTrigger id="period" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
@@ -269,14 +269,14 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               </SelectContent>
             </Select>
             {form.formState.errors.period && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.period.message}
               </p>
             )}
           </div>
 
           {/* Limit (GB) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="limitGB">Quota Limit (GB)</Label>
             <Input
               id="limitGB"
@@ -287,11 +287,12 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               placeholder="100"
               {...form.register('limitGB', { valueAsNumber: true })}
               className={cn(
-                form.formState.errors.limitGB && 'border-destructive'
+                'min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                form.formState.errors.limitGB && 'border-error'
               )}
             />
             {form.formState.errors.limitGB && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.limitGB.message}
               </p>
             )}
@@ -301,7 +302,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
           </div>
 
           {/* Warning Threshold */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="warningThreshold">Warning Threshold (%)</Label>
             <Input
               id="warningThreshold"
@@ -311,11 +312,12 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               placeholder="80"
               {...form.register('warningThreshold', { valueAsNumber: true })}
               className={cn(
-                form.formState.errors.warningThreshold && 'border-destructive'
+                'min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                form.formState.errors.warningThreshold && 'border-error'
               )}
             />
             {form.formState.errors.warningThreshold && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.warningThreshold.message}
               </p>
             )}
@@ -325,7 +327,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
           </div>
 
           {/* Action Selection */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="action">Action When Quota Exceeded</Label>
             <Select
               value={form.watch('action')}
@@ -333,7 +335,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('action', value as QuotaSettingsFormData['action'])
               }
             >
-              <SelectTrigger id="action">
+              <SelectTrigger id="action" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <SelectValue placeholder="Select action" />
               </SelectTrigger>
               <SelectContent>
@@ -352,15 +354,15 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               </SelectContent>
             </Select>
             {form.formState.errors.action && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 {form.formState.errors.action.message}
               </p>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={loading} className="flex-1">
+          <div className="flex gap-component-sm pt-component-sm">
+            <Button type="submit" disabled={loading} className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               {settingQuota && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               {currentQuota ? 'Update Quota' : 'Set Quota'}
@@ -371,6 +373,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 variant="destructive"
                 onClick={handleRemoveQuota}
                 disabled={loading}
+                className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {resettingQuota && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 <Trash2 className="mr-2 h-4 w-4" />

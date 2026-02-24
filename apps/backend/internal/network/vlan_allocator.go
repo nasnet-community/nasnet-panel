@@ -60,6 +60,9 @@ func NewVLANAllocator(cfg VLANAllocatorConfig) (*VLANAllocator, error) {
 		return nil, fmt.Errorf("failed to load pool config: %w", err)
 	}
 
+	// IEEE 802.1Q VLAN ID range: 0-4095, but 0 and 4095 are reserved.
+	// Valid range for user VLANs: 1-4094
+	// The allocator explicitly skips VLAN IDs 1 and 4094 in findNextAvailableVLANUnsafe
 	if poolStart < 1 || poolEnd > 4094 || poolStart > poolEnd {
 		return nil, fmt.Errorf("invalid pool range: %d-%d (must be 1-4094 and start <= end)", poolStart, poolEnd)
 	}
@@ -242,6 +245,11 @@ func (va *VLANAllocator) findNextAvailableVLANUnsafe(ctx context.Context, router
 			continue // Already allocated in database
 		}
 
+		// Skip reserved VLAN IDs 1 and 4094 per IEEE 802.1Q standard
+		if vlanID == 1 || vlanID == 4094 {
+			continue // Reserved VLAN ID
+		}
+
 		// Check router for conflicts using VlanService
 		// Note: We check all interfaces since we don't know which interface will be used yet
 		// (that's determined later in Story 8.2 Interface Factory)
@@ -274,6 +282,9 @@ func (va *VLANAllocator) isVLANConflictOnRouter(ctx context.Context, routerID st
 
 	// Check if any router VLAN matches this VLAN ID
 	for _, vlan := range vlans {
+		if vlan == nil {
+			continue // Skip nil entries
+		}
 		if vlan.VlanID == vlanID {
 			va.logger.Debug("vlan conflict detected on router",
 				"router_id", routerID,

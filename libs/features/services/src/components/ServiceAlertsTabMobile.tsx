@@ -175,10 +175,10 @@ function AlertCardComponent({
           transform: `translateX(${swipeOffset}px)`,
         }}
       >
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-component-md space-y-component-sm">
           {/* Header row */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-component-sm">
+            <div className="flex items-center gap-component-sm flex-1 min-w-0">
               <Icon icon={getIconComponent(styles.iconName) as LucideIcon} className="h-5 w-5 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-base truncate">{alert.title}</h4>
@@ -200,7 +200,7 @@ function AlertCardComponent({
           </p>
 
           {/* Metadata */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-component-sm text-xs text-muted-foreground">
             <span className="truncate">{alert.eventType}</span>
             {alert.rule && (
               <>
@@ -232,7 +232,7 @@ function AlertCardComponent({
               )}
             </Button>
           ) : (
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
+            <div className="text-xs text-muted-foreground flex items-center gap-component-sm">
               <Icon icon={CheckCircle2} className="h-4 w-4 text-success" aria-hidden="true" />
               <span>
                 Acknowledged {formatDistanceToNow(new Date(alert.acknowledgedAt), { addSuffix: true })}
@@ -313,8 +313,8 @@ function ServiceAlertsTabMobileComponent({
   // Loading state
   if (loading && filteredAlerts.length === 0) {
     return (
-      <div className={cn('p-4', className)}>
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <div className={cn('p-component-md', className)}>
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-component-md">
           <Icon icon={Loader2} className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">Loading alerts...</p>
         </div>
@@ -325,11 +325,11 @@ function ServiceAlertsTabMobileComponent({
   // Error state
   if (error) {
     return (
-      <div className={cn('p-4', className)}>
-        <Card className="border-destructive">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center gap-3">
-              <Icon icon={AlertTriangle} className="h-8 w-8 text-destructive" aria-hidden="true" />
+      <div className={cn('p-component-md', className)}>
+        <Card className="border-error">
+          <CardContent className="p-component-lg">
+            <div className="flex flex-col items-center gap-component-sm">
+              <Icon icon={AlertTriangle} className="h-8 w-8 text-error" aria-hidden="true" />
               <h3 className="font-semibold text-lg">Error Loading Alerts</h3>
               <p className="text-sm text-muted-foreground text-center">
                 {error.message}
@@ -344,10 +344,10 @@ function ServiceAlertsTabMobileComponent({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header with stats */}
-      <div className="p-4 border-b bg-background sticky top-0 z-10">
-        <div className="space-y-3">
+      <div className="p-component-md border-b bg-background sticky top-0 z-10">
+        <div className="space-y-component-sm">
           {/* Stats badges */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center gap-component-sm overflow-x-auto pb-1">
             <Badge variant="outline" className="shrink-0">
               Total: {stats.total}
             </Badge>
@@ -396,7 +396,7 @@ function ServiceAlertsTabMobileComponent({
           </div>
 
           {/* Severity filter chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center gap-component-sm overflow-x-auto pb-1">
             {SEVERITY_FILTERS.map((filter) => {
               const isActive =
                 filter.value === 'ALL'
@@ -427,11 +427,11 @@ function ServiceAlertsTabMobileComponent({
 
       {/* Alert list */}
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-3">
+        <div className="p-component-md space-y-component-sm">
           {filteredAlerts.length === 0 ? (
             <Card>
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center gap-3 text-center">
+              <CardContent className="p-component-lg">
+                <div className="flex flex-col items-center gap-component-sm text-center">
                   <Icon icon={Info} className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
                   <h3 className="font-semibold text-lg">No Alerts</h3>
                   <p className="text-sm text-muted-foreground">

@@ -206,7 +206,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
+      <div className={`p-4 text-error ${className || ''}`} role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -329,7 +329,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDelete(rule.id)}
-                        className="text-destructive"
+                        className="text-error"
                       >
                         <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                         Delete

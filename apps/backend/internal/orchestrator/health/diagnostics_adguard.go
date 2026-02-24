@@ -10,8 +10,10 @@ import (
 	"backend/internal/orchestrator/supervisor"
 )
 
-// Default localhost address for AdGuard Home diagnostics.
-const defaultLocalhost = "127.0.0.1"
+const (
+	// defaultLocalhost is the default localhost address for diagnostics.
+	defaultLocalhost = "127.0.0.1"
+)
 
 // AdGuardDNSTest tests DNS resolution through AdGuard Home
 type AdGuardDNSTest struct {

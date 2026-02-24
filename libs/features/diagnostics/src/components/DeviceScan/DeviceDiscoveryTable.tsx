@@ -173,13 +173,13 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
     onRowClick: handleRowClick,
     getRowClassName: (device: DiscoveredDevice) =>
       cn(
-        'cursor-pointer transition-colors hover:bg-muted/50',
+        'cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
         selectedDevice?.ip === device.ip && 'bg-muted'
       ),
   }), [devices, columns, handleRowClick, selectedDevice?.ip]);
 
   return (
-    <div className={cn('rounded-md border', className)}>
+    <div className={cn('rounded-[var(--semantic-radius-card)] border border-border', className)}>
       {useVirtualization ? (
         <VirtualizedTable
           {...tableProps as any}
@@ -190,7 +190,7 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
       )}
 
       {/* Device count footer */}
-      <div className="border-t px-4 py-2 text-sm text-muted-foreground">
+      <div className="border-t border-border px-component-md py-component-sm text-sm text-muted-foreground">
         {devices.length} {devices.length === 1 ? 'device' : 'devices'} found
         {useVirtualization && ' (virtualized for performance)'}
       </div>

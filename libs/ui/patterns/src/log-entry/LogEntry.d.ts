@@ -10,7 +10,7 @@ import type { LogEntry as LogEntryType } from '@nasnet/core/types';
  * Maps LogTopic to color classes
  */
 declare const topicBadgeVariants: (props?: ({
-    topic?: "error" | "script" | "warning" | "info" | "vpn" | "firewall" | "system" | "dhcp" | "interface" | "critical" | "wireless" | "dns" | "ppp" | "route" | null | undefined;
+    topic?: "error" | "system" | "warning" | "info" | "critical" | "firewall" | "wireless" | "dhcp" | "dns" | "ppp" | "vpn" | "interface" | "route" | "script" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 export interface LogEntryProps extends React.HTMLAttributes<HTMLDivElement> {
     /**

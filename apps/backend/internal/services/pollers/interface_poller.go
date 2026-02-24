@@ -180,10 +180,10 @@ func (p *StatsPoller) fetchAndBroadcast(ctx context.Context, session *pollingSes
 		}
 	}
 
-	// Publish event to event bus for persistence
-	if p.eventBus != nil {
-		_ = stats
-	}
+	// TODO: Publish event to event bus for persistence
+	// if p.eventBus != nil {
+	//	eventBus.Publish(ctx, event)
+	// }
 }
 
 // unsubscribe removes a subscriber channel from a session

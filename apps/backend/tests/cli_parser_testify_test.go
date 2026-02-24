@@ -7,12 +7,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"backend/internal/router/adapters/mikrotik/parser"
 )
 
 // TestParseSimpleCommandsWithTestify demonstrates Testify assertions pattern
 // This file shows how to migrate from standard testing to Testify
 func TestParseSimpleCommandsWithTestify(t *testing.T) {
-	parser := NewCLIParser()
+	p := parser.NewCLIParser()
 
 	tests := []struct {
 		name       string
@@ -39,7 +41,7 @@ func TestParseSimpleCommandsWithTestify(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmd := parser.ParseCommand(tt.input, 1)
+			cmd := p.ParseCommand(tt.input, 1)
 
 			// Use require for fatal assertions (stops test on failure)
 			require.NotNil(t, cmd, "ParseCommand should return a command")
@@ -59,13 +61,13 @@ func TestParseSimpleCommandsWithTestify(t *testing.T) {
 
 // TestCLIParserCreation tests parser initialization using Testify
 func TestCLIParserCreation(t *testing.T) {
-	parser := NewCLIParser()
-	require.NotNil(t, parser, "NewCLIParser should return a parser")
+	p := parser.NewCLIParser()
+	require.NotNil(t, p, "NewCLIParser should return a parser")
 }
 
 // TestToAPICommandWithTestify demonstrates testing API command conversion
 func TestToAPICommandWithTestify(t *testing.T) {
-	parser := NewCLIParser()
+	p := parser.NewCLIParser()
 
 	tests := []struct {
 		name        string
@@ -83,7 +85,10 @@ func TestToAPICommandWithTestify(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmd := parser.ParseCommand(tt.input, 1)
+			cmd := p.ParseCommand(tt.input, 1)
+			require.NotNil(t, cmd, "ParseCommand should return a command")
+			require.Empty(t, cmd.ParseError, "ParseCommand should not have parse errors")
+
 			apiCmd, err := cmd.ToAPICommand()
 
 			require.NoError(t, err, "ToAPICommand should not error")

@@ -245,7 +245,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
     <div className={cn('flex flex-col h-full gap-3', className)}>
       {/* Offline Banner */}
       {isOffline && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-semantic-warning-bg border border-semantic-warning-border rounded-card-sm text-sm text-semantic-warning">
+        <div className="flex items-center gap-2 px-3 py-2 bg-warning/10 border border-warning/30 rounded-card-sm text-sm text-warning">
           <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           <span>You're offline. Showing cached logs.</span>
         </div>
@@ -273,7 +273,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
           />
 
           {/* View mode toggle */}
-          <div className="hidden sm:flex items-center border rounded-button">
+          <div className="hidden sm:flex items-center border rounded-md">
             <Button
               variant={viewMode === 'flat' ? 'default' : 'ghost'}
               size="sm"
@@ -446,9 +446,9 @@ interface LogViewerErrorProps {
 
 const LogViewerError = React.memo(function LogViewerError({ error, onRetry }: LogViewerErrorProps) {
   return (
-    <Card className="border-semantic-error-border bg-semantic-error-bg">
+    <Card className="border-error/30 bg-error/10">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-semantic-error text-base">
+        <CardTitle className="flex items-center gap-2 text-error text-base">
           <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           Failed to load logs
         </CardTitle>

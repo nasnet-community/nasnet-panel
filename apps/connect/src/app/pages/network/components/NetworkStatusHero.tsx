@@ -55,7 +55,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
     <div className="grid grid-cols-3 gap-2 md:gap-3">
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Activity className="w-3.5 h-3.5 text-category-wifi" aria-hidden="true" />
+          <Activity className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('status.active')}
           </p>
@@ -68,7 +68,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
         </p>
         <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
-            className="bg-category-wifi h-1.5 rounded-full transition-all duration-300"
+            className="bg-info h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activePercent}%` }}
           />
         </div>
@@ -93,7 +93,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
 
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <ArrowUp className="w-3.5 h-3.5 text-category-monitoring" aria-hidden="true" />
+          <ArrowUp className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('traffic.upload')}
           </p>
@@ -102,7 +102,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
           {totalTraffic ? formatBytes(totalTraffic.txBytes) : '0 B'}
         </p>
         {totalTraffic?.txRate !== undefined && (
-          <p className="text-xs text-category-monitoring mt-1">
+          <p className="text-xs text-warning mt-1">
             {formatBytes(totalTraffic.txRate)}/s
           </p>
         )}

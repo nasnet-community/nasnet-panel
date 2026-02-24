@@ -3,10 +3,9 @@
 package hook
 
 import (
+	"backend/generated/ent"
 	"context"
 	"fmt"
-
-	"backend/generated/ent"
 )
 
 // The APIKeyFunc type is an adapter to allow the use of ordinary
@@ -213,6 +212,18 @@ func (f PortKnockSequenceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PortKnockSequenceMutation", m)
 }
 
+// The ProvisioningSessionFunc type is an adapter to allow the use of ordinary
+// function as ProvisioningSession mutator.
+type ProvisioningSessionFunc func(context.Context, *ent.ProvisioningSessionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProvisioningSessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProvisioningSessionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProvisioningSessionMutation", m)
+}
+
 // The ResourceFunc type is an adapter to allow the use of ordinary
 // function as Resource mutator.
 type ResourceFunc func(context.Context, *ent.ResourceMutation) (ent.Value, error)
@@ -297,18 +308,6 @@ func (f RoutingScheduleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoutingScheduleMutation", m)
 }
 
-// The SchemaVersionFunc type is an adapter to allow the use of ordinary
-// function as SchemaVersion mutator.
-type SchemaVersionFunc func(context.Context, *ent.SchemaVersionMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f SchemaVersionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.SchemaVersionMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SchemaVersionMutation", m)
-}
-
 // The ServiceDependencyFunc type is an adapter to allow the use of ordinary
 // function as ServiceDependency mutator.
 type ServiceDependencyFunc func(context.Context, *ent.ServiceDependencyMutation) (ent.Value, error)
@@ -369,6 +368,18 @@ func (f SessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SessionMutation", m)
 }
 
+// The SubnetAllocationFunc type is an adapter to allow the use of ordinary
+// function as SubnetAllocation mutator.
+type SubnetAllocationFunc func(context.Context, *ent.SubnetAllocationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubnetAllocationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubnetAllocationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubnetAllocationMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
@@ -391,6 +402,18 @@ func (f VLANAllocationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.VLANAllocationMutation", m)
+}
+
+// The VersionFunc type is an adapter to allow the use of ordinary
+// function as Version mutator.
+type VersionFunc func(context.Context, *ent.VersionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VersionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.VersionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.VersionMutation", m)
 }
 
 // The VirtualInterfaceFunc type is an adapter to allow the use of ordinary

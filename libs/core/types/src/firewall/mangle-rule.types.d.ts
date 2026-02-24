@@ -75,15 +75,13 @@ export declare const MangleRuleSchema: z.ZodObject<{
     packets: z.ZodOptional<z.ZodNumber>;
     bytes: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "jump";
-    disabled: boolean;
     passthrough: boolean;
-    chain: "input" | "output" | "prerouting" | "forward" | "postrouting";
+    log: boolean;
+    chain: "prerouting" | "input" | "forward" | "output" | "postrouting";
+    action: "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "accept" | "drop" | "jump" | "log";
+    disabled: boolean;
     id?: string | undefined;
-    content?: string | undefined;
     position?: number | undefined;
-    bytes?: number | undefined;
     protocol?: string | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
@@ -102,6 +100,7 @@ export declare const MangleRuleSchema: z.ZodObject<{
     routingMark?: string | undefined;
     packetSize?: string | undefined;
     layer7Protocol?: string | undefined;
+    content?: string | undefined;
     tcpFlags?: string | undefined;
     newConnectionMark?: string | undefined;
     newPacketMark?: string | undefined;
@@ -113,16 +112,14 @@ export declare const MangleRuleSchema: z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
 }, {
-    action: "log" | "accept" | "passthrough" | "drop" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "jump";
-    chain: "input" | "output" | "prerouting" | "forward" | "postrouting";
+    chain: "prerouting" | "input" | "forward" | "output" | "postrouting";
+    action: "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "accept" | "drop" | "jump" | "log";
     id?: string | undefined;
-    log?: boolean | undefined;
-    disabled?: boolean | undefined;
-    content?: string | undefined;
-    position?: number | undefined;
-    bytes?: number | undefined;
     passthrough?: boolean | undefined;
+    log?: boolean | undefined;
+    position?: number | undefined;
     protocol?: string | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
@@ -141,6 +138,7 @@ export declare const MangleRuleSchema: z.ZodObject<{
     routingMark?: string | undefined;
     packetSize?: string | undefined;
     layer7Protocol?: string | undefined;
+    content?: string | undefined;
     tcpFlags?: string | undefined;
     newConnectionMark?: string | undefined;
     newPacketMark?: string | undefined;
@@ -150,8 +148,10 @@ export declare const MangleRuleSchema: z.ZodObject<{
     newMss?: number | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
+    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
 }>;
 export type MangleRule = z.infer<typeof MangleRuleSchema>;
 export type MangleRuleInput = z.input<typeof MangleRuleSchema>;

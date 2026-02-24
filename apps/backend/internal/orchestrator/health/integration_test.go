@@ -2,14 +2,13 @@ package health
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
 	"entgo.io/ent/dialect"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	"backend/generated/ent/enttest"
 	"backend/generated/ent/serviceinstance"
@@ -66,7 +65,7 @@ func TestHealthMonitoringLifecycle(t *testing.T) {
 	}
 
 	// Create logger
-	logger := zerolog.New(os.Stdout).With().Str("test", "health").Logger()
+	logger := zap.NewNop()
 
 	restartChan := make(chan RestartRequest, 10)
 	checker := NewHealthChecker(logger, publisher, restartChan)
@@ -156,7 +155,7 @@ func TestAutoRestartOnFailure(t *testing.T) {
 	}
 
 	// Create logger
-	logger := zerolog.New(os.Stdout).With().Str("test", "health-failure").Logger()
+	logger := zap.NewNop()
 
 	restartChan := make(chan RestartRequest, 10)
 	checker := NewHealthChecker(logger, publisher, restartChan)
@@ -249,7 +248,7 @@ func TestEventPublishing(t *testing.T) {
 	}
 
 	// Create logger
-	logger := zerolog.New(os.Stdout).With().Str("test", "health-events").Logger()
+	logger := zap.NewNop()
 
 	restartChan := make(chan RestartRequest, 10)
 	checker := NewHealthChecker(logger, publisher, restartChan)
@@ -336,7 +335,7 @@ func TestHealthPersistence(t *testing.T) {
 	}
 
 	// Create logger
-	logger := zerolog.New(os.Stdout).With().Str("test", "health-persistence").Logger()
+	logger := zap.NewNop()
 
 	restartChan := make(chan RestartRequest, 10)
 	checker := NewHealthChecker(logger, publisher, restartChan)

@@ -3,13 +3,12 @@
 package ent
 
 import (
+	"backend/generated/ent/diagnosticresult"
+	"backend/generated/ent/serviceinstance"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/diagnosticresult"
-	"backend/generated/ent/serviceinstance"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

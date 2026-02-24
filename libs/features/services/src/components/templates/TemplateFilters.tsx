@@ -102,9 +102,9 @@ function TemplateFiltersComponent({
     [onFiltersChange]
   );
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Search */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="template-search">Search Templates</Label>
         <div className="relative">
           <Search
@@ -117,14 +117,14 @@ function TemplateFiltersComponent({
             placeholder="Search by name, description, or tags..."
             value={filters.searchQuery}
             onChange={handleSearchChange}
-            className="pl-9"
+            className="pl-9 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-describedby="search-help"
           />
           {filters.searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -134,7 +134,7 @@ function TemplateFiltersComponent({
       </div>
 
       {/* Category Filter */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="template-category">Category</Label>
         <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
           <SelectTrigger id="template-category">
@@ -153,10 +153,10 @@ function TemplateFiltersComponent({
       </div>
 
       {/* Scope Filter */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="template-scope">Scope</Label>
         <Select value={filters.scope || 'all'} onValueChange={handleScopeChange}>
-          <SelectTrigger id="template-scope">
+          <SelectTrigger id="template-scope" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <SelectValue placeholder="All scopes" />
           </SelectTrigger>
           <SelectContent>
@@ -169,10 +169,10 @@ function TemplateFiltersComponent({
       </div>
 
       {/* Sort By */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor="template-sort">Sort By</Label>
         <Select value={filters.sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger id="template-sort">
+          <SelectTrigger id="template-sort" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -185,7 +185,7 @@ function TemplateFiltersComponent({
       </div>
 
       {/* Template Type Toggles */}
-      <div className="space-y-3 pt-2">
+      <div className="space-y-component-sm pt-component-sm">
         <div className="flex items-center justify-between">
           <Label htmlFor="show-builtin" className="cursor-pointer">
             Show Built-in
@@ -194,6 +194,7 @@ function TemplateFiltersComponent({
             id="show-builtin"
             checked={filters.showBuiltIn}
             onCheckedChange={handleBuiltInChange}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Show built-in templates"
           />
         </div>
@@ -205,6 +206,7 @@ function TemplateFiltersComponent({
             id="show-custom"
             checked={filters.showCustom}
             onCheckedChange={handleCustomChange}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Show custom templates"
           />
         </div>
@@ -216,7 +218,7 @@ function TemplateFiltersComponent({
           variant="outline"
           size="sm"
           onClick={onReset}
-          className="w-full"
+          className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Reset all filters to defaults"
         >
           <Filter className="mr-2 h-4 w-4" aria-hidden="true" />

@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -17,7 +18,7 @@ import (
 // ScannerPool manages concurrent scan tasks.
 type ScannerPool struct {
 	maxWorkers  int
-	tasks       chan ScanTask
+	tasks       chan *ScanTask
 	mu          sync.RWMutex
 	activeTasks map[string]*ScanTask
 }
@@ -31,13 +32,14 @@ type ScanTask struct {
 	Progress  int
 	Results   []Device
 	Cancel    context.CancelFunc
+	mu        sync.RWMutex // protects Progress, Status, and Results
 }
 
 // NewScannerPool creates a new scanner pool with the given worker count.
 func NewScannerPool(maxWorkers int) *ScannerPool {
 	pool := &ScannerPool{
 		maxWorkers:  maxWorkers,
-		tasks:       make(chan ScanTask, maxWorkers*2),
+		tasks:       make(chan *ScanTask, maxWorkers*2),
 		activeTasks: make(map[string]*ScanTask),
 	}
 	for i := 0; i < maxWorkers; i++ {
@@ -49,7 +51,7 @@ func NewScannerPool(maxWorkers int) *ScannerPool {
 func (p *ScannerPool) worker() {
 	for task := range p.tasks {
 		ctx := context.Background()
-		processScanTask(ctx, &task)
+		processScanTask(ctx, task)
 	}
 }
 
@@ -165,7 +167,11 @@ func writeJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		log.Printf("ERROR: Failed to encode JSON response: %v", err)
+		fmt.Fprintf(os.Stderr, "ERROR: Failed to encode JSON response: %v\n", err)
+		// Attempt to write error indicator if possible (best effort)
+		if _, err := w.Write([]byte(`{"error":"response_encoding_failed"}`)); err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: Failed to write error response: %v\n", err)
+		}
 	}
 }
 

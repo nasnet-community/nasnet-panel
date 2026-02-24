@@ -463,3 +463,28 @@ func TestConcurrentRegistryAccess(t *testing.T) {
 		<-done
 	}
 }
+
+func TestRegistryNoDuplicateIDs(t *testing.T) {
+	// The embedded manifests should not have duplicate IDs
+	// This test verifies that registry properly prevents duplicate loading
+	registry, err := NewFeatureRegistry()
+	if err != nil {
+		t.Fatalf("Failed to create registry: %v", err)
+	}
+
+	// Collect all IDs and check for duplicates
+	ids := make(map[string]bool)
+	allManifests := registry.ListManifests("", "")
+
+	for _, manifest := range allManifests {
+		if ids[manifest.ID] {
+			t.Errorf("Duplicate manifest ID found: %s", manifest.ID)
+		}
+		ids[manifest.ID] = true
+	}
+
+	// Verify no ID maps to multiple manifests
+	if len(ids) != len(allManifests) {
+		t.Errorf("ID count mismatch: expected %d unique IDs, got %d", len(allManifests), len(ids))
+	}
+}

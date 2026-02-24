@@ -2,7 +2,10 @@ package stages
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"net"
+	"strings"
 
 	"backend/internal/validation"
 )
@@ -19,7 +22,19 @@ func (s *SemanticStage) Name() string { return "semantic" }
 func (s *SemanticStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
-	if input.Operation == "delete" {
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
+	if input.Operation == operationDelete {
 		return result
 	}
 
@@ -34,6 +49,15 @@ func (s *SemanticStage) Validate(_ context.Context, input *validation.StageInput
 		s.validateFirewallRule(input, result)
 	case "ip-address":
 		s.validateIPAddress(input, result)
+	case resourceTypeVPNWireguardClient:
+		s.validateVPNWireguardClient(input, result)
+	case resourceTypeVPNOpenVPNClient, resourceTypeVPNPPTPClient, resourceTypeVPNL2TPClient,
+		resourceTypeVPNSSTPClient, resourceTypeVPNIKEv2Client:
+		s.validateVPNClient(input, result)
+	case resourceTypeWANLinkDomestic, resourceTypeWANLinkForeign:
+		s.validateWANLink(input, result)
+	case resourceTypeTunnelIPIP, resourceTypeTunnelEoIP, resourceTypeTunnelGRE, resourceTypeTunnelVXLAN:
+		s.validateTunnel(input, result)
 	}
 
 	return result
@@ -95,7 +119,7 @@ func (s *SemanticStage) validateRoute(input *validation.StageInput, result *vali
 
 	if !hasGateway && !hasIface {
 		// Only warn for create; update may modify only other fields
-		if input.Operation == "create" {
+		if input.Operation == operationCreate {
 			result.AddError(&validation.Error{
 				Stage:      3,
 				StageName:  "semantic",
@@ -165,5 +189,153 @@ func (s *SemanticStage) validateIPAddress(input *validation.StageInput, result *
 				Suggestion: "Consider using a different subnet",
 			})
 		}
+	}
+}
+
+func (s *SemanticStage) validateVPNWireguardClient(input *validation.StageInput, result *validation.Result) {
+	name, _ := input.Fields["name"].(string) //nolint:errcheck // type assertion
+	if name == "" {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "name",
+			Message:   "WireGuard client name is required",
+			Code:      "WG_CLIENT_NAME_REQUIRED",
+		})
+	}
+
+	privateKey, _ := input.Fields["privateKey"].(string) //nolint:errcheck // type assertion
+	if privateKey != "" {
+		decoded, err := base64.StdEncoding.DecodeString(privateKey)
+		if err != nil || len(decoded) != 32 {
+			result.AddError(&validation.Error{
+				Stage:      3,
+				StageName:  "semantic",
+				Severity:   validation.SeverityError,
+				Field:      "privateKey",
+				Message:    "privateKey must be a valid 44-character base64-encoded WireGuard key",
+				Code:       "WG_INVALID_PRIVATE_KEY",
+				Suggestion: "Generate a valid key using 'wg genkey'",
+			})
+		}
+	}
+
+	peerPublicKey, _ := input.Fields["peerPublicKey"].(string) //nolint:errcheck // type assertion
+	if peerPublicKey == "" {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "peerPublicKey",
+			Message:   "peer public key is required",
+			Code:      "WG_PEER_PUBLIC_KEY_REQUIRED",
+		})
+	}
+
+	peerEndpoint, _ := input.Fields["peerEndpoint"].(string) //nolint:errcheck // type assertion
+	if peerEndpoint != "" && !strings.Contains(peerEndpoint, ":") {
+		result.AddError(&validation.Error{
+			Stage:      3,
+			StageName:  "semantic",
+			Severity:   validation.SeverityError,
+			Field:      "peerEndpoint",
+			Message:    "peerEndpoint must be in host:port format",
+			Code:       "WG_INVALID_ENDPOINT",
+			Suggestion: fmt.Sprintf("Use format like '%s:51820'", peerEndpoint),
+		})
+	}
+
+	allowedAddress, _ := input.Fields["allowedAddress"].(string) //nolint:errcheck // type assertion
+	if allowedAddress != "" {
+		if _, _, err := net.ParseCIDR(allowedAddress); err != nil {
+			result.AddError(&validation.Error{
+				Stage:      3,
+				StageName:  "semantic",
+				Severity:   validation.SeverityError,
+				Field:      "allowedAddress",
+				Message:    fmt.Sprintf("allowedAddress '%s' is not a valid CIDR", allowedAddress),
+				Code:       "WG_INVALID_ALLOWED_ADDRESS",
+				Suggestion: "Use CIDR notation, e.g. 10.0.0.0/24",
+			})
+		}
+	}
+}
+
+func (s *SemanticStage) validateVPNClient(input *validation.StageInput, result *validation.Result) {
+	name, _ := input.Fields["name"].(string) //nolint:errcheck // type assertion
+	if name == "" {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "name",
+			Message:   "VPN client name is required",
+			Code:      "VPN_CLIENT_NAME_REQUIRED",
+		})
+	}
+}
+
+func (s *SemanticStage) validateWANLink(input *validation.StageInput, result *validation.Result) {
+	name, _ := input.Fields["name"].(string) //nolint:errcheck // type assertion
+	if name == "" {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "name",
+			Message:   "WAN link name is required",
+			Code:      "WAN_LINK_NAME_REQUIRED",
+		})
+	}
+
+	interfaceName, _ := input.Fields["interfaceName"].(string) //nolint:errcheck // type assertion
+	if interfaceName == "" {
+		result.AddError(&validation.Error{
+			Stage:      3,
+			StageName:  "semantic",
+			Severity:   validation.SeverityError,
+			Field:      "interfaceName",
+			Message:    "WAN link interface name is required",
+			Code:       "WAN_LINK_INTERFACE_REQUIRED",
+			Suggestion: "Select the physical interface for this WAN link",
+		})
+	}
+}
+
+func (s *SemanticStage) validateTunnel(input *validation.StageInput, result *validation.Result) {
+	localAddress, _ := input.Fields["localAddress"].(string) //nolint:errcheck // type assertion
+	if localAddress != "" && net.ParseIP(localAddress) == nil {
+		result.AddError(&validation.Error{
+			Stage:      3,
+			StageName:  "semantic",
+			Severity:   validation.SeverityError,
+			Field:      "localAddress",
+			Message:    fmt.Sprintf("localAddress '%s' is not a valid IP address", localAddress),
+			Code:       "TUNNEL_INVALID_LOCAL_ADDRESS",
+			Suggestion: "Provide a valid IPv4 address",
+		})
+	}
+
+	remoteAddress, _ := input.Fields["remoteAddress"].(string) //nolint:errcheck // type assertion
+	if remoteAddress == "" {
+		result.AddError(&validation.Error{
+			Stage:     3,
+			StageName: "semantic",
+			Severity:  validation.SeverityError,
+			Field:     "remoteAddress",
+			Message:   "tunnel remote address is required",
+			Code:      "TUNNEL_REMOTE_ADDRESS_REQUIRED",
+		})
+	} else if net.ParseIP(remoteAddress) == nil {
+		result.AddError(&validation.Error{
+			Stage:      3,
+			StageName:  "semantic",
+			Severity:   validation.SeverityError,
+			Field:      "remoteAddress",
+			Message:    fmt.Sprintf("remoteAddress '%s' is not a valid IP address", remoteAddress),
+			Code:       "TUNNEL_INVALID_REMOTE_ADDRESS",
+			Suggestion: "Provide a valid IPv4 address",
+		})
 	}
 }

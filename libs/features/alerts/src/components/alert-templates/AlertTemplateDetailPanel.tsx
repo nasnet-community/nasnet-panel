@@ -111,9 +111,9 @@ const DetailContent = React.memo(function DetailContent({
   const [activeTab, setActiveTab] = React.useState<'details' | 'configure'>('details');
 
   const severityColors = React.useMemo(() => ({
-    CRITICAL: 'bg-semantic-error/10 text-semantic-error',
-    WARNING: 'bg-semantic-warning/10 text-semantic-warning',
-    INFO: 'bg-semantic-info/10 text-semantic-info',
+    CRITICAL: 'bg-error/10 text-error',
+    WARNING: 'bg-warning/10 text-warning',
+    INFO: 'bg-info/10 text-info',
   }), []);
 
   const operatorLabels = React.useMemo(() => ({
@@ -139,9 +139,9 @@ const DetailContent = React.memo(function DetailContent({
   const hasVariables = template.variables.length > 0;
 
   const detailsContent = (
-    <div className="space-y-6">
+    <div className="space-y-component-lg">
       {/* Header badges */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-component-sm">
         <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
           {categoryMeta.label}
         </Badge>
@@ -160,7 +160,7 @@ const DetailContent = React.memo(function DetailContent({
 
       {/* Description */}
       <div>
-        <h4 className="text-sm font-medium mb-2">Description</h4>
+        <h4 className="text-sm font-medium mb-component-sm">Description</h4>
         <p className="text-sm text-muted-foreground">{template.description}</p>
       </div>
 
@@ -168,27 +168,27 @@ const DetailContent = React.memo(function DetailContent({
 
       {/* Event type */}
       <div>
-        <h4 className="text-sm font-medium mb-2">Event Type</h4>
-        <code className="text-xs bg-muted px-2 py-1 rounded">{template.eventType}</code>
+        <h4 className="text-sm font-medium mb-component-sm">Event Type</h4>
+        <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">{template.eventType}</code>
       </div>
 
       <Separator />
 
       {/* Conditions */}
       <div>
-        <h4 className="text-sm font-medium mb-3">
+        <h4 className="text-sm font-medium mb-component-sm">
           Conditions ({template.conditions.length})
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           {template.conditions.map((condition, index) => (
             <Card key={index} className="bg-muted/50">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 text-sm">
+              <CardContent className="p-component-sm">
+                <div className="flex items-center gap-component-sm text-sm">
                   <code className="font-mono text-xs">{condition.field}</code>
                   <Badge variant="outline" className="text-xs">
                     {operatorLabels[condition.operator] || condition.operator}
                   </Badge>
-                  <code className="font-mono text-xs bg-background px-2 py-1 rounded">
+                  <code className="font-mono text-xs bg-background px-2 py-1 rounded-[var(--semantic-radius-button)]">
                     {condition.value}
                   </code>
                 </div>
@@ -202,10 +202,10 @@ const DetailContent = React.memo(function DetailContent({
 
       {/* Channels */}
       <div>
-        <h4 className="text-sm font-medium mb-3">
+        <h4 className="text-sm font-medium mb-component-sm">
           Notification Channels ({template.channels.length})
         </h4>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-component-sm">
           {template.channels.map((channel) => (
             <Badge key={channel} variant="secondary" className="text-xs capitalize">
               {channel}
@@ -219,16 +219,16 @@ const DetailContent = React.memo(function DetailContent({
         <>
           <Separator />
           <div>
-            <h4 className="text-sm font-medium mb-3">
+            <h4 className="text-sm font-medium mb-component-sm">
               Variables ({template.variables.length})
             </h4>
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               {template.variables.map((variable) => (
                 <Card key={variable.name} className="bg-muted/50">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="pb-component-sm">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm">{variable.label}</CardTitle>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-component-sm">
                         <Badge variant="outline" className="text-xs">
                           {variable.type}
                         </Badge>
@@ -243,11 +243,11 @@ const DetailContent = React.memo(function DetailContent({
                       Variable: <code className="font-mono text-xs">{`{{${variable.name}}}`}</code>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pb-3">
+                  <CardContent className="pb-component-sm">
                     {variable.description && (
-                      <p className="text-xs text-muted-foreground mb-2">{variable.description}</p>
+                      <p className="text-xs text-muted-foreground mb-component-sm">{variable.description}</p>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-component-md text-xs text-muted-foreground">
                       {variable.defaultValue && (
                         <div>
                           Default: <code className="font-mono text-xs">{variable.defaultValue}</code>
@@ -270,10 +270,10 @@ const DetailContent = React.memo(function DetailContent({
         <>
           <Separator />
           <div>
-            <h4 className="text-sm font-medium mb-3">Throttle Configuration</h4>
+            <h4 className="text-sm font-medium mb-component-sm">Throttle Configuration</h4>
             <Card className="bg-muted/50">
-              <CardContent className="p-3">
-                <div className="space-y-2 text-sm">
+              <CardContent className="p-component-sm">
+                <div className="space-y-component-sm text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Max Alerts:</span>
                     <span className="font-medium">{template.throttle.maxAlerts}</span>
@@ -299,7 +299,7 @@ const DetailContent = React.memo(function DetailContent({
       {!hasVariables && (
         <>
           <Separator />
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-component-sm">
             {onApply && (
               <Button
                 variant="default"
@@ -312,7 +312,7 @@ const DetailContent = React.memo(function DetailContent({
                 {isSubmitting ? 'Applying...' : 'Apply Template'}
               </Button>
             )}
-            <div className="flex gap-2">
+            <div className="flex gap-component-sm">
               {onExport && (
                 <Button
                   variant="outline"
@@ -352,7 +352,7 @@ const DetailContent = React.memo(function DetailContent({
   // With variables, show tabs
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} aria-label="Template detail tabs">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-2 min-h-[44px]">
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="configure">
           Configure
@@ -364,9 +364,9 @@ const DetailContent = React.memo(function DetailContent({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="details" className="mt-6">
+      <TabsContent value="details" className="mt-component-lg">
         {detailsContent}
-        <div className="flex gap-2 mt-6">
+        <div className="flex gap-component-sm mt-component-lg">
           {onExport && (
             <Button
               variant="outline"
@@ -394,7 +394,7 @@ const DetailContent = React.memo(function DetailContent({
         </div>
       </TabsContent>
 
-      <TabsContent value="configure" className="mt-6">
+      <TabsContent value="configure" className="mt-component-lg">
         <AlertTemplateVariableInputForm
           template={template}
           onSubmit={handleVariableSubmit}

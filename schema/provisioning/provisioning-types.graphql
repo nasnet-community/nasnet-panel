@@ -1,0 +1,227 @@
+# =============================================================================
+# Provisioning Types and Enums
+# =============================================================================
+# Core types for provisioning system that manages router initial setup,
+# configuration, and resource provisioning.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# Enums
+# -----
+
+"""
+Provisioning mode - determines the setup workflow complexity
+"""
+enum ProvisioningMode {
+  """
+  EASY: Guided wizard for basic setup (WAN, LAN, optional extra features)
+  """
+  EASY
+
+  """
+  ADVANCE: Full control over all provisioning parameters and resource config
+  """
+  ADVANCE
+}
+
+"""
+Target firmware for provisioning
+"""
+enum ProvisioningFirmware {
+  """
+  MikroTik RouterOS
+  """
+  MIKROTIK
+
+  """
+  OpenWRT
+  """
+  OPENWRT
+}
+
+"""
+Router operational mode for provisioning
+"""
+enum ProvisioningRouterMode {
+  """
+  Access Point mode - router provides WiFi, acts as network hub
+  """
+  AP_MODE
+
+  """
+  Trunk/Core mode - high-performance router backbone
+  """
+  TRUNK_MODE
+}
+
+"""
+WAN link type for provisioning context
+"""
+enum ProvisioningWANLinkType {
+  """
+  Domestic ISP link (residential, small business)
+  """
+  DOMESTIC
+
+  """
+  Foreign/International link with special routing needs
+  """
+  FOREIGN
+
+  """
+  Supports both domestic and foreign link configurations
+  """
+  BOTH
+}
+
+"""
+Status of provisioning session apply operation
+"""
+enum ProvisioningApplyStatus {
+  """
+  Session in draft state - not ready for application
+  """
+  DRAFT
+
+  """
+  Validating all resources and configurations
+  """
+  VALIDATING
+
+  """
+  All validations passed - ready to apply
+  """
+  VALIDATED
+
+  """
+  Applying configuration changes to router
+  """
+  APPLYING
+
+  """
+  Configuration successfully applied to router
+  """
+  APPLIED
+
+  """
+  Application failed - rollback may have occurred
+  """
+  FAILED
+}
+
+"""
+Wizard step in provisioning flow
+"""
+enum WizardStep {
+  """Step 1: Choose provisioning mode and basic settings"""
+  CHOOSE
+
+  """Step 2: Configure WAN link"""
+  WAN
+
+  """Step 3: Configure LAN networks"""
+  LAN
+
+  """Step 4: Configure extra features (VPN, firewall, etc.)"""
+  EXTRA
+
+  """Step 5: Review all configurations"""
+  REVIEW
+
+  """Step 6: Apply configurations"""
+  APPLY
+}
+
+# -----
+# Main Type
+# -----
+
+"""
+Provisioning session encapsulates the entire setup workflow for a router.
+Manages state transitions from initial setup through resource configuration
+to final apply on the router.
+"""
+type ProvisioningSession {
+  """
+  Unique session identifier
+  """
+  id: ID!
+
+  """
+  Router being provisioned
+  """
+  routerId: ID!
+
+  """
+  Provisioning mode (EASY or ADVANCE)
+  """
+  mode: ProvisioningMode!
+
+  """
+  Target firmware
+  """
+  firmware: ProvisioningFirmware!
+
+  """
+  Router operational mode
+  """
+  routerMode: ProvisioningRouterMode!
+
+  """
+  WAN link type for this provisioning
+  """
+  wanLinkType: ProvisioningWANLinkType!
+
+  """
+  List of resource IDs included in this session
+  (VPN clients, tunnels, extra features, etc.)
+  """
+  resourceIds: [ID!]!
+
+  """
+  Networks configuration JSON (LAN, guest networks, etc.)
+  """
+  networksConfig: JSON!
+
+  """
+  Current step in the wizard workflow
+  """
+  currentStep: WizardStep!
+
+  """
+  Current status of session apply operation
+  """
+  applyStatus: ProvisioningApplyStatus!
+
+  """
+  Associated changeset ID (created when moving to APPLY)
+  """
+  changesetId: ID
+
+  """
+  Error message if apply failed
+  """
+  errorMessage: String
+
+  """
+  User who created this session
+  """
+  createdBy: String!
+
+  """
+  Session creation time
+  """
+  createdAt: DateTime!
+
+  """
+  Last update time
+  """
+  updatedAt: DateTime!
+
+  """
+  Session expiration time (for cleanup of abandoned sessions)
+  """
+  expiresAt: DateTime!
+}

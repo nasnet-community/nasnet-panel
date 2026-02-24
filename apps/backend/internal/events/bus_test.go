@@ -241,6 +241,77 @@ func TestEventBus_ConcurrentPublish(t *testing.T) {
 	assert.Equal(t, expected, received.Load())
 }
 
+func TestEventBus_PanicRecoveryInHandlers(t *testing.T) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer bus.Close()
+
+	var survived atomic.Int32
+	var panicked atomic.Int32
+
+	// Handler that panics
+	err = bus.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		panicked.Add(1)
+		panic("intentional panic in handler")
+	})
+	require.NoError(t, err)
+
+	// Handler that should survive despite the panic above
+	err = bus.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		survived.Add(1)
+		return nil
+	})
+	require.NoError(t, err)
+
+	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "test")
+	event.Priority = PriorityImmediate
+
+	err = bus.Publish(context.Background(), event)
+	require.NoError(t, err)
+
+	time.Sleep(100 * time.Millisecond)
+
+	// Both handlers should have executed even though one panicked
+	assert.Equal(t, int32(1), panicked.Load(), "panicking handler should execute")
+	assert.Equal(t, int32(1), survived.Load(), "surviving handler should execute despite panic")
+}
+
+func TestEventBus_PanicRecoveryInAllHandlers(t *testing.T) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer bus.Close()
+
+	var count atomic.Int32
+
+	// Handler that panics
+	err = bus.SubscribeAll(func(ctx context.Context, event Event) error {
+		count.Add(1)
+		if count.Load() == 1 {
+			panic("panic in all-handler")
+		}
+		return nil
+	})
+	require.NoError(t, err)
+
+	// Another all-handler that should survive
+	err = bus.SubscribeAll(func(ctx context.Context, event Event) error {
+		count.Add(1)
+		return nil
+	})
+	require.NoError(t, err)
+
+	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "test")
+	event.Priority = PriorityImmediate
+
+	err = bus.Publish(context.Background(), event)
+	require.NoError(t, err)
+
+	time.Sleep(100 * time.Millisecond)
+
+	// Both all-handlers should have executed
+	assert.GreaterOrEqual(t, count.Load(), int32(2), "all handlers should execute despite panic")
+}
+
 func TestParseEvent(t *testing.T) {
 	tests := []struct {
 		name      string

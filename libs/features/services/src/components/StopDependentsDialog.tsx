@@ -108,7 +108,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               <Icon icon={AlertTriangleIcon} className="h-5 w-5 text-warning" aria-hidden="true" />
             </div>
             <div className="flex-1">
@@ -158,7 +158,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
                     className={cn(
                       'text-xs px-2 py-0.5 rounded-full',
                       dep.dependencyType === 'REQUIRES'
-                        ? 'bg-destructive/10 text-destructive'
+                        ? 'bg-error/10 text-error'
                         : 'bg-warning/10 text-warning'
                     )}
                   >
@@ -179,10 +179,10 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
                   htmlFor="stop-dependents-first"
                   className={cn(
                     'flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors',
-                    'hover:bg-accent',
-                    'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+                    'hover:bg-muted',
+                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
                     stopMode === 'stop-dependents-first'
-                      ? 'border-primary bg-primary/5'
+                      ? 'border-primary bg-primary/10'
                       : 'border-border'
                   )}
                 >
@@ -190,7 +190,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">Stop dependents first</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-success/10 text-success">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-success/10 text-success font-medium">
                         Recommended
                       </span>
                     </div>
@@ -206,16 +206,16 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
                   htmlFor="force-stop"
                   className={cn(
                     'flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors',
-                    'hover:bg-accent',
-                    'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-                    stopMode === 'force-stop' ? 'border-destructive bg-destructive/5' : 'border-border'
+                    'hover:bg-muted',
+                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+                    stopMode === 'force-stop' ? 'border-error bg-error/10' : 'border-border'
                   )}
                 >
                   <RadioGroupItem value="force-stop" id="force-stop" className="mt-1" />
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">Force stop</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-error/10 text-error font-medium">
                         Danger
                       </span>
                     </div>
@@ -240,7 +240,7 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
             aria-label={isLoading ? 'Stopping service' : `Stop service with ${stopMode === 'force-stop' ? 'force' : 'graceful'} mode`}
             className={cn(
               'min-w-[100px] min-h-[44px]',
-              stopMode === 'force-stop' && 'focus-visible:ring-destructive'
+              stopMode === 'force-stop' && 'focus-visible:ring-error'
             )}
           >
             {isLoading ? 'Stopping...' : 'Stop Service'}

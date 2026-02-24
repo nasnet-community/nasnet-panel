@@ -6,22 +6,33 @@ package resolver
 import (
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 	"time"
 )
 
 // AvailableUpdates returns list of available updates for router's service instances.
 func (r *queryResolver) AvailableUpdates(ctx context.Context, routerID string) ([]*model.UpdateInfo, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", "", "required")
+	}
+
+	// Service availability check
 	if r.UpdateService == nil {
-		return nil, fmt.Errorf("update service not initialized")
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "update service not initialized", "graphql")
 	}
 
 	instances, err := r.db.ServiceInstance.Query().
 		Where(serviceinstance.RouterIDEQ(routerID)).
 		All(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query service instances: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instances")
 	}
 
 	var updates []*model.UpdateInfo
@@ -43,7 +54,15 @@ func (r *queryResolver) AvailableUpdates(ctx context.Context, routerID string) (
 			continue
 		}
 
-		publishedAt, _ := time.Parse(time.RFC3339, updateInfo.PublishedAt)
+		publishedAt, err := time.Parse(time.RFC3339, updateInfo.PublishedAt)
+		if err != nil {
+			r.log.Errorw("failed to parse publish date",
+				"instance_id", instance.ID,
+				"published_at", updateInfo.PublishedAt,
+				"error", err)
+			// Use zero time if parsing fails
+			publishedAt = time.Time{}
+		}
 
 		updates = append(updates, &model.UpdateInfo{
 			InstanceID:       instance.ID,
@@ -65,13 +84,27 @@ func (r *queryResolver) AvailableUpdates(ctx context.Context, routerID string) (
 
 // InstanceUpdateInfo returns update information for a specific service instance.
 func (r *queryResolver) InstanceUpdateInfo(ctx context.Context, routerID string, instanceID string) (*model.UpdateInfo, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return nil, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return nil, errors.NewValidationError("routerID", "", "required")
+	}
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", "", "required")
+	}
+
+	// Service availability check
 	if r.UpdateService == nil {
-		return nil, fmt.Errorf("update service not initialized")
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "update service not initialized", "graphql")
 	}
 
 	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query service instance: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instance")
 	}
 
 	updateInfo, available, err := r.UpdateService.CheckForUpdate(
@@ -80,14 +113,22 @@ func (r *queryResolver) InstanceUpdateInfo(ctx context.Context, routerID string,
 		instance.BinaryVersion,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to check for update: %w", err)
+		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to check for update")
 	}
 
 	if !available {
 		return nil, nil
 	}
 
-	publishedAt, _ := time.Parse(time.RFC3339, updateInfo.PublishedAt)
+	publishedAt, err := time.Parse(time.RFC3339, updateInfo.PublishedAt)
+	if err != nil {
+		r.log.Errorw("failed to parse publish date",
+			"instance_id", instance.ID,
+			"published_at", updateInfo.PublishedAt,
+			"error", err)
+		// Use zero time if parsing fails
+		publishedAt = time.Time{}
+	}
 
 	return &model.UpdateInfo{
 		InstanceID:       instance.ID,

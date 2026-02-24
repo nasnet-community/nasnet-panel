@@ -1,0 +1,1 @@
+{"version":3,"file":"apollo-mock-provider.d.ts","sourceRoot":"","sources":["apollo-mock-provider.tsx"],"names":[],"mappings":"AAAA;;;;;;;;;;GAUG;AAGH,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,OAAO,CAAC;AA0BvC,UAAU,uBAAuB;IAC/B,QAAQ,EAAE,SAAS,CAAC;CACrB;AAED;;;;;;;;;GASG;AACH,wBAAgB,kBAAkB,CAAC,EAAE,QAAQ,EAAE,EAAE,uBAAuB,2CAMvE"}

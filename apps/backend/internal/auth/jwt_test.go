@@ -102,11 +102,11 @@ func TestJWTService_GenerateAndValidateToken(t *testing.T) {
 
 	t.Run("rejects token signed with different key", func(t *testing.T) {
 		// Generate different keys
-		otherPrivate, _ := generateTestKeys(t)
+		otherPrivate, otherPublic := generateTestKeys(t)
 
 		otherConfig := JWTConfig{
 			PrivateKey:    otherPrivate,
-			PublicKey:     publicKey, // Using original public key
+			PublicKey:     otherPublic,
 			TokenDuration: 1 * time.Hour,
 		}
 		otherService, err := NewJWTService(otherConfig)
@@ -119,9 +119,22 @@ func TestJWTService_GenerateAndValidateToken(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// Validate with original service (different public key expectation)
+		// Validate with original service (different public key)
 		_, err = jwtService.ValidateToken(token)
-		assert.Error(t, err)
+		require.Error(t, err)
+		// Signature verification should fail
+		assert.NotErrorIs(t, err, ErrTokenExpired)
+	})
+
+	t.Run("rejects malformed token string", func(t *testing.T) {
+		_, err := jwtService.ValidateToken("not.even.a.token")
+		require.Error(t, err)
+
+		_, err = jwtService.ValidateToken("onlyonepart")
+		require.Error(t, err)
+
+		_, err = jwtService.ValidateToken("")
+		require.Error(t, err)
 	})
 }
 
@@ -263,6 +276,7 @@ func TestNewJWTService_RequiresKeys(t *testing.T) {
 		_, err := NewJWTService(JWTConfig{
 			PublicKey: publicKey,
 		})
+		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrMissingPrivateKey)
 	})
 
@@ -270,6 +284,7 @@ func TestNewJWTService_RequiresKeys(t *testing.T) {
 		_, err := NewJWTService(JWTConfig{
 			PrivateKey: privateKey,
 		})
+		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrMissingPublicKey)
 	})
 
@@ -278,7 +293,7 @@ func TestNewJWTService_RequiresKeys(t *testing.T) {
 			PrivateKey: privateKey,
 			PublicKey:  publicKey,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, service)
 	})
 }

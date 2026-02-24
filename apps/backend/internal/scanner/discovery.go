@@ -57,10 +57,15 @@ func (s *ScannerService) scanIP(ctx context.Context, ip string) *DiscoveredDevic
 		close(portChan)
 	}()
 
-	// Collect open ports
+	// Collect open ports with context cancellation check
 	for port := range portChan {
-		openPorts = append(openPorts, port)
-		services = append(services, GetServiceName(port))
+		select {
+		case <-ctx.Done():
+			return nil // Context canceled, stop processing
+		default:
+			openPorts = append(openPorts, port)
+			services = append(services, GetServiceName(port))
+		}
 	}
 
 	if len(openPorts) == 0 {
@@ -156,6 +161,13 @@ func (s *ScannerService) scanGatewayIP(ctx context.Context, ip string) *Discover
 				}
 			}
 		}
+	}
+
+	// Check context cancellation before continuing with enrichment
+	select {
+	case <-ctx.Done():
+		return nil // Context canceled, stop processing
+	default:
 	}
 
 	// Only return verified RouterOS devices

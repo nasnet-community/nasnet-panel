@@ -170,20 +170,20 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
     <Dialog open={open} onOpenChange={handleCloseDialog}>
       <DialogContent className={`max-h-[90vh] overflow-y-auto sm:max-w-2xl ${className || ''}`}>
         <DialogHeader>
-          <DialogTitle className="font-mono text-base">Configure Port: {port.interface.name}</DialogTitle>
+          <DialogTitle className="font-display text-base">Configure Port: {port.interface.name}</DialogTitle>
           <DialogDescription>
             Configure VLAN settings and spanning tree parameters for this bridge port
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 mt-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg mt-component-md">
             {/* PVID Warning */}
             {pvidNotInUntagged && (
               <Alert variant="warning">
                 <Icon icon={AlertTriangle} className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
-                  PVID <span className="font-mono">{pvid}</span> is not in the untagged VLANs list. This is a common
+                  PVID <span className="font-mono text-xs">{pvid}</span> is not in the untagged VLANs list. This is a common
                   misconfiguration. Consider adding it to untagged VLANs.
                 </AlertDescription>
               </Alert>
@@ -255,8 +255,8 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
               control={form.control}
               name="ingressFiltering"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
+                  <div className="space-y-component-xs">
                     <FormLabel className="text-base">Ingress Filtering</FormLabel>
                     <FormDescription>
                       Drop frames with VLAN IDs not in the allowed list
@@ -310,16 +310,16 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
             />
 
             {/* STP Settings Section */}
-            <div className="border-t pt-6">
-              <h4 className="text-sm font-medium mb-4">Spanning Tree Settings</h4>
+            <div className="border-t pt-component-lg">
+              <h4 className="text-sm font-display font-medium mb-component-md">Spanning Tree Settings</h4>
 
               {/* Edge Port */}
               <FormField
                 control={form.control}
                 name="edge"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mb-4">
-                    <div className="space-y-0.5">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md mb-component-md">
+                    <div className="space-y-component-xs">
                       <FormLabel className="text-base">Edge Port</FormLabel>
                       <FormDescription>
                         Mark as edge port (connects to end devices, not switches)
@@ -365,7 +365,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-4 border-t">
+            <div className="flex justify-end gap-component-sm pt-component-md border-t">
               <Button
                 type="button"
                 variant="outline"

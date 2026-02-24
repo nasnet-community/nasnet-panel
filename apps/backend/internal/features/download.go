@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -118,12 +119,25 @@ func (dm *DownloadManager) Download(ctx context.Context, featureID, url, expecte
 	return nil
 }
 
-// downloadToFile downloads content from URL to a file with progress tracking
+// downloadToFile downloads content from URL to a file with progress tracking and resumable support
 func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, featureID string, progress *DownloadProgress) error {
-	// Create HTTP request
+	// Check if file already exists and is resumable
+	var startByte int64
+	fileInfo, err := os.Stat(filePath)
+	if err == nil && fileInfo.Size() > 0 {
+		// Try to resume download
+		startByte = fileInfo.Size()
+	}
+
+	// Create HTTP request with resume support
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set Range header if resuming
+	if startByte > 0 {
+		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", startByte))
 	}
 
 	// Execute request
@@ -133,37 +147,53 @@ func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, fe
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	// Check status code - 206 for partial content (resume), 200 for full download
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
 		return fmt.Errorf("download failed with status: %d %s", resp.StatusCode, resp.Status)
 	}
 
-	// Create output file
-	out, err := os.Create(filePath)
+	// Open file for appending if resuming, creating if new
+	var fileFlags int
+	if startByte > 0 {
+		fileFlags = os.O_WRONLY | os.O_APPEND
+	} else {
+		fileFlags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	}
+
+	out, err := os.OpenFile(filePath, fileFlags, 0o644)
 	if err != nil {
-		return fmt.Errorf("failed to create output file: %w", err)
+		return fmt.Errorf("failed to open output file: %w", err)
 	}
 	defer out.Close()
 
-	// Get total size
+	// Get total size from Content-Length or Content-Range header
 	totalBytes := resp.ContentLength
-	progress.TotalBytes = totalBytes
+	if totalBytes == -1 {
+		// If Content-Length is not set, try to parse from Content-Range header
+		if resp.StatusCode == http.StatusPartialContent && resp.Header.Get("Content-Range") != "" {
+			// Content-Range format: "bytes start-end/total"
+			rangeParts := strings.Split(resp.Header.Get("Content-Range"), "/")
+			if len(rangeParts) == 2 {
+				//nolint:errcheck // Parse total size (error is non-critical)
+				_, _ = fmt.Sscanf(rangeParts[1], "%d", &totalBytes)
+			}
+		}
+	}
 
-	// Create progress reader
+	// Update progress with total size
+	dm.mu.Lock()
+	progress.TotalBytes = totalBytes
+	dm.mu.Unlock()
+
+	// Create progress reader with timeout per chunk
 	reader := &progressReader{
 		reader: resp.Body,
 		total:  totalBytes,
-		onProgress: func(bytesRead int64) {
-			dm.mu.Lock()
-			progress.BytesDownloaded = bytesRead
-			if totalBytes > 0 {
-				progress.Percent = float64(bytesRead) / float64(totalBytes) * 100
-			}
-			dm.mu.Unlock()
-
-			// Emit progress event (throttled to avoid flooding)
-			dm.emitProgressEvent(ctx, featureID, bytesRead, totalBytes, progress.Percent, "downloading", nil)
-		},
-		lastUpdate: time.Now(),
+		read:   startByte, // Start from where we resumed
+		//nolint:contextcheck // callback intentionally uses own context
+		onProgress:   createProgressCallback(dm, featureID, totalBytes),
+		lastUpdate:   time.Now(),
+		chunkTimeout: 10 * time.Second, // Timeout for individual read operations
 	}
 
 	// Copy with progress tracking
@@ -172,6 +202,19 @@ func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, fe
 	}
 
 	return nil
+}
+
+// createProgressCallback creates a progress callback function that's safe to use with the download context.
+func createProgressCallback(dm *DownloadManager, featureID string, totalBytes int64) func(int64) {
+	return func(bytesRead int64) {
+		dm.mu.Lock()
+		defer dm.mu.Unlock()
+
+		if totalBytes > 0 {
+			percent := float64(bytesRead) / float64(totalBytes) * 100
+			dm.emitProgressEvent(context.Background(), featureID, bytesRead, totalBytes, percent, "downloading", nil)
+		}
+	}
 }
 
 // emitProgressEvent emits a progress event to the event bus
@@ -207,18 +250,32 @@ func (dm *DownloadManager) GetProgress(featureID string) (*DownloadProgress, boo
 	}, true
 }
 
-// progressReader wraps an io.Reader to track progress
+// progressReader wraps an io.Reader to track progress with timeout support
 type progressReader struct {
-	reader     io.Reader
-	total      int64
-	read       int64
-	onProgress func(int64)
-	lastUpdate time.Time
+	reader        io.Reader
+	total         int64
+	read          int64
+	onProgress    func(int64)
+	lastUpdate    time.Time
+	chunkTimeout  time.Duration
+	lastChunkTime time.Time
 }
 
 func (pr *progressReader) Read(p []byte) (int, error) {
+	// Check for chunk timeout on subsequent reads
+	if pr.chunkTimeout > 0 && !pr.lastChunkTime.IsZero() {
+		if time.Since(pr.lastChunkTime) > pr.chunkTimeout {
+			return 0, fmt.Errorf("chunk read timeout: no data received for %v", pr.chunkTimeout)
+		}
+	}
+
 	n, err := pr.reader.Read(p)
 	pr.read += int64(n)
+
+	// Update chunk timestamp on successful read
+	if n > 0 {
+		pr.lastChunkTime = time.Now()
+	}
 
 	// Throttle progress updates to max once per 100ms
 	now := time.Now()

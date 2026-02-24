@@ -1,9 +1,7 @@
 package bootstrap
 
 import (
-	"log"
-
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/internal/events"
@@ -28,7 +26,7 @@ func InitializeScheduling(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
 	killSwitchCoord orchestrator.KillSwitchCoordinator,
-	logger zerolog.Logger,
+	logger *zap.SugaredLogger,
 ) (*SchedulingComponents, error) {
 	// 1. Schedule Evaluator - monitors and evaluates routing schedules
 	// Creates evaluator first since ScheduleService depends on it
@@ -36,7 +34,7 @@ func InitializeScheduling(
 		EntClient:           systemDB,
 		EventBus:            eventBus,
 		KillSwitchCoord:     killSwitchCoord,
-		Logger:              logger,
+		Logger:              logger.Desugar(),
 		NowFunc:             nil, // Use time.Now
 		RouterClockProvider: nil, // Optional for now
 	}
@@ -45,19 +43,19 @@ func InitializeScheduling(
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Schedule evaluator initialized (60s evaluation interval)")
+	logger.Infow("Schedule evaluator initialized", "evaluation_interval", "60s")
 
 	// 2. Schedule Service - routing schedule CRUD operations
 	scheduleService, err := scheduling.NewScheduleService(scheduling.ScheduleServiceConfig{
 		Store:     systemDB,
 		Scheduler: scheduleEvaluator,
 		EventBus:  eventBus,
-		Logger:    logger,
+		Logger:    logger.Desugar(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Schedule service initialized")
+	logger.Infow("Schedule service initialized")
 
 	return &SchedulingComponents{
 		ScheduleService:   scheduleService,

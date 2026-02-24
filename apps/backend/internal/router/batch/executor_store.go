@@ -2,12 +2,14 @@ package batch
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/internal/router/adapters/mikrotik/parser"
+	"backend/internal/utils"
 )
 
 // JobStore manages batch jobs.
@@ -16,6 +18,7 @@ type JobStore struct {
 	mu         sync.RWMutex
 	maxJobs    int
 	jobTimeout time.Duration
+	logger     *zap.Logger
 }
 
 // DefaultJobStore is the global job store.
@@ -27,6 +30,7 @@ func NewJobStore(maxJobs int, timeout time.Duration) *JobStore {
 		jobs:       make(map[string]*Job),
 		maxJobs:    maxJobs,
 		jobTimeout: timeout,
+		logger:     zap.NewNop(), // Initialize with no-op logger; can be set via SetLogger
 	}
 	go store.cleanupLoop()
 	return store
@@ -49,7 +53,7 @@ func (s *JobStore) cleanup() {
 	for id, job := range s.jobs {
 		if job.CompletedAt != nil && job.CompletedAt.Before(cutoff) {
 			delete(s.jobs, id)
-			log.Printf("[BATCH] Cleaned up old job: %s", id)
+			s.logger.Debug("Cleaned up old job", zap.String("job_id", id))
 		}
 	}
 }
@@ -69,7 +73,7 @@ func (s *JobStore) Create(req *JobRequest) (*Job, error) {
 		return nil, fmt.Errorf("maximum concurrent jobs reached (%d)", s.maxJobs)
 	}
 
-	jobID := fmt.Sprintf("batch_%d", time.Now().UnixNano())
+	jobID := "batch_" + utils.GenerateID()
 
 	p := parser.NewCLIParser()
 	var script string
@@ -100,6 +104,7 @@ func (s *JobStore) Create(req *JobRequest) (*Job, error) {
 		CreatedAt:       time.Now(),
 		commands:        parseResult.Commands,
 		rollbackStack:   make([]*parser.RollbackCommand, 0),
+		logger:          s.logger,
 		Progress: JobProgress{
 			Total: parseResult.ParsedCount,
 		},
@@ -115,7 +120,7 @@ func (s *JobStore) Create(req *JobRequest) (*Job, error) {
 	}
 
 	s.jobs[jobID] = job
-	log.Printf("[BATCH] Created job %s with %d commands", jobID, len(job.commands))
+	s.logger.Info("Created batch job", zap.String("job_id", jobID), zap.Int("total_commands", len(job.commands)))
 
 	return job, nil
 }

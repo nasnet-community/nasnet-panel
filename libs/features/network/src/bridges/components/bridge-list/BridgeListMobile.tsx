@@ -47,7 +47,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex h-full flex-col gap-component-md p-component-md">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Bridges</h2>
@@ -88,9 +88,9 @@ export const BridgeListMobile = memo(function BridgeListMobile({
 
       {/* Error State */}
       {hasError && (
-        <Card className="border-destructive">
+        <Card className="border-error">
           <CardContent className="pt-6">
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-error">
               Failed to load bridges: {hasError.message}
             </p>
           </CardContent>
@@ -226,7 +226,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
                         e.stopPropagation();
                         handleDeleteClick(bridge);
                       }}
-                      className="text-destructive"
+                      className="text-error"
                     >
                       Delete
                     </DropdownMenuItem>

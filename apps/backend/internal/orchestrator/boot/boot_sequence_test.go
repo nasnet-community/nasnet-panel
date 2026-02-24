@@ -4,12 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -101,7 +100,7 @@ func TestNewBootSequenceManager(t *testing.T) {
 		eventBus := events.NewInMemoryEventBus()
 		defer eventBus.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 
 		dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 			Store:    client,
@@ -135,7 +134,7 @@ func TestNewBootSequenceManager(t *testing.T) {
 		eventBus := events.NewInMemoryEventBus()
 		defer eventBus.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 		mockIM := newMockInstanceManager()
 
 		bsm, err := NewBootSequenceManager(BootSequenceManagerConfig{
@@ -157,7 +156,7 @@ func TestNewBootSequenceManager(t *testing.T) {
 		eventBus := events.NewInMemoryEventBus()
 		defer eventBus.Close()
 
-		logger := zerolog.New(os.Stdout)
+		logger := zap.NewNop()
 
 		dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 			Store:    client,
@@ -191,7 +190,7 @@ func TestBootSequence_NoInstances(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -231,7 +230,7 @@ func TestBootSequence_ParallelStart(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -295,7 +294,7 @@ func TestBootSequence_LayeredStart(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -361,7 +360,7 @@ func TestBootSequence_MixedLayersParallel(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -439,7 +438,7 @@ func TestBootSequence_FailureHandling(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -498,7 +497,7 @@ func TestBootSequence_LayerFailure(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -578,7 +577,7 @@ func TestBootSequence_EventPublication(t *testing.T) {
 	// })
 	// require.NoError(t, err)
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,
@@ -656,7 +655,7 @@ func TestBootSequence_EmptyAutoStartSet(t *testing.T) {
 	eventBus := events.NewInMemoryEventBus()
 	defer eventBus.Close()
 
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	dm, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    client,

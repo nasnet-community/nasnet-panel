@@ -23,32 +23,32 @@ type Channel interface {
 // Notification represents a notification to be delivered.
 type Notification struct {
 	// Title is the notification title/subject.
-	Title string
+	Title string `json:"title"`
 
 	// Message is the notification body/content.
-	Message string
+	Message string `json:"message"`
 
 	// Severity indicates the alert severity (CRITICAL, WARNING, INFO).
-	Severity string
+	Severity string `json:"severity"`
 
 	// Data contains additional context data.
-	Data map[string]interface{}
+	Data map[string]interface{} `json:"data"`
 
 	// DeviceID is the optional device that triggered the alert.
-	DeviceID *string
+	DeviceID *string `json:"deviceId,omitempty"`
 }
 
 // DeliveryResult represents the result of a notification delivery attempt.
 type DeliveryResult struct {
 	// Channel is the channel name.
-	Channel string
+	Channel string `json:"channel"`
 
 	// Success indicates if delivery succeeded.
-	Success bool
+	Success bool `json:"success"`
 
 	// Error contains the error message if delivery failed.
-	Error string
+	Error string `json:"error"`
 
 	// Retryable indicates if the failure is transient and can be retried.
-	Retryable bool
+	Retryable bool `json:"retryable"`
 }

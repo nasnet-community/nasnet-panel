@@ -3,14 +3,13 @@
 package ent
 
 import (
+	"backend/generated/ent/chainhop"
+	"backend/generated/ent/routingchain"
+	"backend/generated/ent/virtualinterface"
 	"context"
 	"errors"
 	"fmt"
 	"time"
-
-	"backend/generated/ent/chainhop"
-	"backend/generated/ent/routingchain"
-	"backend/generated/ent/virtualinterface"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

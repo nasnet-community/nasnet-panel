@@ -117,20 +117,20 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
         </CardTitle>
 
         {/* Search bar */}
-        <div className="relative mt-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+        <div className="relative mt-component-md">
+          <Search className="absolute left-component-sm top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <Input
             type="text"
             placeholder="Search logs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10 h-11"
+            className="pl-component-lg pr-component-lg min-h-[44px]"
             aria-label="Search logs"
           />
           {hasSearch && (
             <button
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+              className="absolute right-component-sm top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
               aria-label="Clear search"
             >
               <X className="h-5 w-5" aria-hidden="true" />
@@ -139,7 +139,7 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
         </div>
 
         {/* Filter and Actions buttons */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-component-sm mt-component-md">
           {/* Filter button */}
           <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
             <SheetTrigger asChild>
@@ -152,7 +152,7 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
               <SheetHeader>
                 <SheetTitle>Filter by Level</SheetTitle>
               </SheetHeader>
-              <div className="space-y-2 mt-4">
+              <div className="space-y-component-sm mt-component-md">
                 <Button
                   variant={!levelFilter ? 'default' : 'outline'}
                   className="w-full h-11 justify-between"
@@ -188,7 +188,7 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
               <SheetHeader>
                 <SheetTitle>Log Actions</SheetTitle>
               </SheetHeader>
-              <div className="space-y-4 mt-4">
+              <div className="space-y-component-md mt-component-md">
                 {/* Auto-scroll toggle */}
                 <div className="flex items-center justify-between">
                   <Label htmlFor="auto-scroll-mobile" className="text-base">
@@ -242,19 +242,19 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
       <CardContent className="p-0">
         {/* Error state */}
         {error && (
-          <div className="p-4 text-sm text-destructive">
+          <div className="p-component-md text-sm text-error">
             Error loading logs: {error.message}
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground" role="status">Loading logs...</div>
+          <div className="p-component-md text-sm text-muted-foreground" role="status">Loading logs...</div>
         )}
 
         {/* Empty state */}
         {!isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             {hasSearch || levelFilter
               ? 'No logs match your filters'
               : 'No logs available yet'}
@@ -272,11 +272,12 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
                 <div
                   key={`${entry.timestamp}-${index}`}
                   className={cn(
-                    'p-3 border-b border-border',
+                    'p-component-sm border-b border-border',
                     'font-mono text-xs',
                     'active:bg-accent',
                     'min-h-[44px]',
-                    bgColor
+                    bgColor,
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                   )}
                   onClick={() => handleEntryClick(entry)}
                   role="button"
@@ -284,8 +285,8 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
                   aria-label={`Log entry: ${entry.level} - ${entry.message}`}
                 >
                   {/* Timestamp and level */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-muted-foreground">
+                  <div className="flex items-center justify-between gap-component-sm mb-component-sm">
+                    <span className="text-muted-foreground font-mono">
                       {formatLogTimestamp(entry.timestamp)}
                     </span>
                     <span className={`font-bold ${textColor}`}>
@@ -294,7 +295,7 @@ function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
                   </div>
 
                   {/* Source */}
-                  <div className="text-muted-foreground mb-1 truncate">
+                  <div className="text-muted-foreground mb-component-sm truncate font-mono">
                     {entry.source}
                   </div>
 

@@ -110,7 +110,7 @@ function TimezoneSelectorComponent({
   }, []);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-component-xs', className)}>
       <Label htmlFor="timezone" className="flex items-center gap-2">
         <Globe className="h-4 w-4" aria-hidden="true" />
         {t('quietHours.timezone')}
@@ -119,7 +119,7 @@ function TimezoneSelectorComponent({
       <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
           id="timezone"
-          className="h-[44px]" // WCAG AAA touch target
+          className="h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // WCAG AAA touch target
           aria-label={t('quietHours.timezone')}
         >
           <SelectValue placeholder={t('quietHours.selectTimezone')} />
@@ -127,14 +127,14 @@ function TimezoneSelectorComponent({
 
         <SelectContent className="max-h-[300px]">
           {/* Search input */}
-          <div className="px-2 py-2 border-b">
+          <div className="p-component-xs border-b border-border">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder={t('quietHours.searchTimezone')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-8 h-8"
+                className="pl-8 h-8 border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ function TimezoneSelectorComponent({
 
           {/* No results */}
           {filteredTimezones.length === 0 && (
-            <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+            <div className="p-component-lg text-center text-sm text-muted-foreground">
               {t('quietHours.noTimezones')}
             </div>
           )}

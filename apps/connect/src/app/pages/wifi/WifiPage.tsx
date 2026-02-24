@@ -56,7 +56,7 @@ export const WifiPage = React.memo(function WifiPage() {
 
   if (isLoading) {
     return (
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop max-w-7xl mx-auto">
         <LoadingSkeleton />
       </div>
     );
@@ -64,12 +64,12 @@ export const WifiPage = React.memo(function WifiPage() {
 
   if (interfacesError) {
     return (
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
-        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center" role="alert">
-          <h3 className="text-lg font-semibold text-destructive mb-2">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop max-w-7xl mx-auto">
+        <div className="bg-error/10 border border-error/30 rounded-[var(--semantic-radius-card)] p-component-lg text-center" role="alert">
+          <h3 className="text-lg font-semibold text-error mb-2">
             {t('status.failedToLoad')}
           </h3>
-          <p className="text-sm text-destructive/80 mb-4">
+          <p className="text-sm text-error/80 mb-4">
             {interfacesError.message}
           </p>
           <Button
@@ -86,9 +86,9 @@ export const WifiPage = React.memo(function WifiPage() {
   }
 
   return (
-    <div className="px-4 py-4 md:px-6 md:py-6 space-y-6 max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg max-w-7xl mx-auto">
       {/* Page Header with Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-component-md">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
             {t('title')}

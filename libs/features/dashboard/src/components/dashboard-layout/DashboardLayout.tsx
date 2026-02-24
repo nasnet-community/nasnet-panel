@@ -68,7 +68,7 @@ export const DashboardLayout = memo(function DashboardLayout({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Page Header */}
-      <header className="flex items-center justify-between p-4 sm:p-6 border-b border-semantic-border">
+      <header className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">

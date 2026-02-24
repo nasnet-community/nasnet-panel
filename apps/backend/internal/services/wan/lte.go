@@ -3,8 +3,9 @@ package wan
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -14,7 +15,9 @@ import (
 //
 //nolint:gocyclo,nestif,maintidx // LTE configuration complexity
 func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input LteModemInput) (*WANInterfaceData, error) {
-	log.Printf("[WANService] Configuring LTE modem on router %s, interface %s", routerID, input.Interface)
+	s.logger.Infow("configuring LTE modem",
+		zap.String("routerID", routerID),
+		zap.String("interface", input.Interface))
 
 	// Step 1: Configure LTE interface settings
 	setArgs := map[string]string{
@@ -78,7 +81,8 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 		return nil, fmt.Errorf("LTE modem configuration failed: %w", setResult.Error)
 	}
 
-	log.Printf("[WANService] LTE modem configured successfully: %s", input.Interface)
+	s.logger.Infow("LTE modem configured successfully",
+		zap.String("interface", input.Interface))
 
 	// Step 2: Enable/disable interface
 	enableCmd := router.Command{
@@ -91,7 +95,7 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 	}
 
 	if _, enableErr := s.routerPort.ExecuteCommand(ctx, enableCmd); enableErr != nil {
-		log.Printf("[WANService] Warning: Failed to enable/disable LTE interface: %v", enableErr)
+		s.logger.Warnw("failed to enable/disable LTE interface", zap.Error(enableErr))
 	}
 
 	// Step 3: Configure default route if requested
@@ -108,7 +112,7 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 		}
 
 		if _, routeErr := s.routerPort.ExecuteCommand(ctx, addRouteCmd); routeErr != nil {
-			log.Printf("[WANService] Warning: Failed to add default route: %v", routeErr)
+			s.logger.Warnw("failed to add default route", zap.Error(routeErr))
 		}
 	}
 
@@ -127,7 +131,7 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 
 	statusResult, err := s.routerPort.ExecuteCommand(ctx, statusCmd)
 	if err != nil {
-		log.Printf("[WANService] Warning: Failed to fetch LTE status: %v", err)
+		s.logger.Warnw("failed to fetch LTE status", zap.Error(err))
 	}
 
 	wanData := &WANInterfaceData{
@@ -193,15 +197,15 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 	}
 	s.history.Add(routerID, historyEvent)
 
-	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "LTE", input.IsDefaultRoute)
+	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "LTE", "wan-service", input.IsDefaultRoute)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WAN configured event: %v", err)
+		s.logger.Warnw("failed to publish WAN configured event", zap.Error(err))
 	}
 
-	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "LTE")
+	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "LTE", "wan-service")
 	statusEvent.PublicIP = wanData.PublicIP
 	if err := s.eventBus.Publish(ctx, statusEvent); err != nil {
-		log.Printf("[WANService] Failed to publish WAN status changed event: %v", err)
+		s.logger.Warnw("failed to publish WAN status changed event", zap.Error(err))
 	}
 
 	return wanData, nil

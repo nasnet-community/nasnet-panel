@@ -255,6 +255,7 @@ func (m *WANHealthMonitor) checkHealth(ctx context.Context, routerID, wanID stri
 			string(newStatus),
 			string(currentStatus),
 			"",
+			"wan-health-monitor",
 		)
 		event.ConsecutiveSuccesses = reachableCount
 		event.LastCheckTime = time.Now()

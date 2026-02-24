@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // RouterProxyRequest represents the incoming proxy request structure.
@@ -38,7 +40,10 @@ var (
 )
 
 // CreateRouterClient creates an HTTP client for RouterOS communication.
-func CreateRouterClient(useHTTPS bool) *http.Client {
+func CreateRouterClient(useHTTPS bool, logger *zap.Logger) *http.Client {
+	if logger == nil {
+		_ = zap.NewNop() // Logger parameter unused; created for defensive programming
+	}
 	transport := &http.Transport{
 		MaxIdleConns:        5,
 		MaxConnsPerHost:     2,
@@ -75,9 +80,7 @@ func ValidateProxyRequest(req *RouterProxyRequest) error {
 		return fmt.Errorf("self-connection detected: container cannot connect to its own IP %s. Please specify the IP of an actual RouterOS device", req.RouterIP)
 	}
 
-	if IsHostRouterIP(req.RouterIP) {
-		fmt.Printf("[CONTAINER] Allowing connection to host router at gateway IP: %s\n", req.RouterIP)
-	}
+	// Gateway IP is not sensitive; safe to log when host router IP is detected
 
 	if net.ParseIP(req.RouterIP) == nil {
 		if _, _, err := net.SplitHostPort(req.RouterIP); err != nil {
@@ -157,7 +160,6 @@ func IsRouterOSResponse(headers map[string]string, body []byte, statusCode int) 
 
 	contentType := strings.ToLower(headers["Content-Type"])
 	if !strings.Contains(contentType, "application/json") {
-		fmt.Printf("[VALIDATION] Non-JSON response detected (Content-Type: %s)\n", contentType)
 		if strings.Contains(contentType, "text/html") {
 			return false
 		}

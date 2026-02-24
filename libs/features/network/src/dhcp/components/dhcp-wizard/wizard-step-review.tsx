@@ -61,14 +61,14 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
         title="Review Configuration"
         description="Review your DHCP server settings before creation"
       >
-        <div className="grid gap-4">
+        <div className="grid gap-component-md">
           {/* Interface Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Interface</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="grid grid-cols-2 gap-2 text-sm">
+            <CardContent className="space-y-component-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Selected Interface:</span>
                   <span className="ml-2 font-mono">{interfaceData?.interface || 'N/A'}</span>
@@ -86,8 +86,8 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
             <CardHeader>
               <CardTitle className="text-base">Address Pool</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="grid grid-cols-2 gap-2 text-sm">
+            <CardContent className="space-y-component-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Pool Start:</span>
                   <span className="ml-2 font-mono">{poolData?.poolStart || 'N/A'}</span>
@@ -109,8 +109,8 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
             <CardHeader>
               <CardTitle className="text-base">Network Settings</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="grid grid-cols-2 gap-3 text-sm">
+            <CardContent className="space-y-component-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Gateway:</span>
                   <span className="ml-2 font-mono">{networkData?.gateway || 'N/A'}</span>

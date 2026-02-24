@@ -22,9 +22,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// WebhookService provides webhook CRUD operations and testing.
+// Service provides webhook CRUD operations and testing.
 // Per NAS-18.4: Implements webhook management with encryption, SSRF protection, and template builders.
-type WebhookService struct {
+type Service struct {
 	db         *ent.Client
 	encryption *encryption.Service
 	dispatcher *notifications.Dispatcher
@@ -32,8 +32,8 @@ type WebhookService struct {
 	log        *zap.SugaredLogger
 }
 
-// WebhookServiceConfig holds configuration for WebhookService.
-type WebhookServiceConfig struct {
+// Config holds configuration for Service.
+type Config struct {
 	DB         *ent.Client
 	Encryption *encryption.Service
 	Dispatcher *notifications.Dispatcher
@@ -81,9 +81,9 @@ type TestWebhookResult struct {
 	ErrorMessage string
 }
 
-// NewWebhookService creates a new WebhookService with the given configuration.
-func NewWebhookService(cfg WebhookServiceConfig) *WebhookService {
-	return &WebhookService{
+// NewService creates a new Service with the given configuration.
+func NewService(cfg Config) *Service {
+	return &Service{
 		db:         cfg.DB,
 		encryption: cfg.Encryption,
 		dispatcher: cfg.Dispatcher,
@@ -96,7 +96,7 @@ func NewWebhookService(cfg WebhookServiceConfig) *WebhookService {
 // Per AC: Encrypt credentials with AES-256-GCM, generate signing secret (32 bytes, base64),
 // validate URL with SSRF protection, save to database, publish event.
 // Returns WebhookCreateResult with webhook + plaintext signing secret (ONE TIME ONLY).
-func (s *WebhookService) CreateWebhook(ctx context.Context, input CreateWebhookInput) (*WebhookCreateResult, error) {
+func (s *Service) CreateWebhook(ctx context.Context, input CreateWebhookInput) (*WebhookCreateResult, error) {
 	// Validate URL with SSRF protection
 	if err := validateWebhookURL(input.URL); err != nil {
 		s.log.Errorw("webhook URL validation failed", "url", input.URL, "error", err)
@@ -192,7 +192,7 @@ func (s *WebhookService) CreateWebhook(ctx context.Context, input CreateWebhookI
 
 // GetWebhook retrieves a webhook by ID.
 // Per AC: Decrypt credentials for internal use, mask signing secret (****...last4 format) for GraphQL responses.
-func (s *WebhookService) GetWebhook(ctx context.Context, webhookID string) (*ent.Webhook, error) {
+func (s *Service) GetWebhook(ctx context.Context, webhookID string) (*ent.Webhook, error) {
 	wh, err := s.db.Webhook.Get(ctx, webhookID)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -206,7 +206,7 @@ func (s *WebhookService) GetWebhook(ctx context.Context, webhookID string) (*ent
 
 // GetWebhookDecrypted retrieves a webhook with decrypted credentials (for internal use only).
 // This should NEVER be exposed directly to GraphQL resolvers.
-func (s *WebhookService) GetWebhookDecrypted(ctx context.Context, webhookID string) (*ent.Webhook, map[string]string, error) {
+func (s *Service) GetWebhookDecrypted(ctx context.Context, webhookID string) (*ent.Webhook, map[string]string, error) {
 	wh, err := s.GetWebhook(ctx, webhookID)
 	if err != nil {
 		return nil, nil, err
@@ -233,7 +233,7 @@ func (s *WebhookService) GetWebhookDecrypted(ctx context.Context, webhookID stri
 // NEVER return signing secret on update.
 //
 //nolint:gocyclo // webhook update requires checking multiple conditions
-func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookID string, input UpdateWebhookInput) (*ent.Webhook, error) {
+func (s *Service) UpdateWebhook(ctx context.Context, webhookID string, input UpdateWebhookInput) (*ent.Webhook, error) {
 	// Find existing webhook
 	wh, err := s.db.Webhook.Get(ctx, webhookID)
 	if err != nil {
@@ -325,7 +325,7 @@ func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookID string, in
 
 // DeleteWebhook deletes a webhook by ID.
 // Per AC: Delete from database, publish event.
-func (s *WebhookService) DeleteWebhook(ctx context.Context, webhookID string) error {
+func (s *Service) DeleteWebhook(ctx context.Context, webhookID string) error {
 	// Check if webhook exists
 	_, err := s.db.Webhook.Get(ctx, webhookID)
 	if err != nil {
@@ -354,7 +354,7 @@ func (s *WebhookService) DeleteWebhook(ctx context.Context, webhookID string) er
 }
 
 // ListWebhooks queries all webhooks with optional filters.
-func (s *WebhookService) ListWebhooks(ctx context.Context, enabled *bool) ([]*ent.Webhook, error) {
+func (s *Service) ListWebhooks(ctx context.Context, enabled *bool) ([]*ent.Webhook, error) {
 	query := s.db.Webhook.Query()
 
 	// Apply filters

@@ -3,7 +3,8 @@ package batch
 import (
 	"context"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"backend/internal/router/adapters/mikrotik"
 	"backend/internal/router/adapters/mikrotik/parser"
@@ -70,7 +71,9 @@ func (job *Job) fetchOriginalValues(client *mikrotik.ROSClient, cmd *parser.CLIC
 
 	reply, err := client.Run(queryPath, queryArg)
 	if err != nil {
-		log.Printf("[BATCH] Failed to fetch original values: %v", err)
+		if job.logger != nil {
+			job.logger.Warn("Failed to fetch original values for rollback", zap.String("job_id", job.ID), zap.Error(err))
+		}
 		return
 	}
 
@@ -90,7 +93,9 @@ func (job *Job) performRollback(client *mikrotik.ROSClient) {
 	copy(rollbackStack, job.rollbackStack)
 	job.mu.Unlock()
 
-	log.Printf("[BATCH] Starting rollback for job %s (%d commands)", job.ID, len(rollbackStack))
+	if job.logger != nil {
+		job.logger.Info("Starting rollback", zap.String("job_id", job.ID), zap.Int("commands", len(rollbackStack)))
+	}
 
 	for i := len(rollbackStack) - 1; i >= 0; i-- {
 		rb := rollbackStack[i]
@@ -98,7 +103,9 @@ func (job *Job) performRollback(client *mikrotik.ROSClient) {
 			continue
 		}
 
-		log.Printf("[BATCH] Rolling back: %s", rb.UndoCommand.Command)
+		if job.logger != nil {
+			job.logger.Debug("Executing rollback command", zap.String("command", rb.UndoCommand.Command))
+		}
 
 		if client == nil {
 			continue
@@ -106,7 +113,9 @@ func (job *Job) performRollback(client *mikrotik.ROSClient) {
 
 		_, err := client.Run(rb.UndoCommand.Command, rb.UndoCommand.Args...)
 		if err != nil {
-			log.Printf("[BATCH] Rollback command failed: %v", err)
+			if job.logger != nil {
+				job.logger.Error("Rollback command failed", zap.String("command", rb.UndoCommand.Command), zap.Error(err))
+			}
 		}
 	}
 

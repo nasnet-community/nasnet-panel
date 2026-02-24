@@ -56,16 +56,16 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-2xl border border-border p-4 animate-pulse">
+      <div className="bg-card rounded-card-lg border border-border p-component-md animate-pulse">
         <div className="flex items-center justify-between mb-4">
           <div className="space-y-2">
             <div className="h-6 bg-muted rounded w-32" />
             <div className="h-4 bg-muted rounded w-24" />
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-component-md">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-muted rounded-xl p-3">
+            <div key={i} className="bg-muted rounded-card-lg p-component-sm">
               <div className="h-4 bg-muted rounded w-12 mb-2" />
               <div className="h-6 bg-muted rounded w-16" />
             </div>
@@ -76,7 +76,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4">
+    <div className="bg-card rounded-card-lg border border-border p-component-md">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={cn(
@@ -88,7 +88,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
             <span className={cn('w-3 h-3 rounded-full', status.dotClass, status.pulseClass)} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">
+            <h1 className="text-lg font-bold font-display text-foreground">
               {routerInfo?.identity || 'Router'}
             </h1>
             <div className="flex items-center gap-2">
@@ -111,13 +111,13 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-        <div className="bg-muted rounded-xl p-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md">
+        <div className="bg-muted rounded-card-lg p-component-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Cpu className="w-3.5 h-3.5 text-info" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.cpu')}</p>
           </div>
-          <p className="text-xl font-bold text-foreground">{resourceData?.cpuLoad ?? '--'}%</p>
+          <p className="text-xl font-bold font-mono text-foreground">{resourceData?.cpuLoad ?? '--'}%</p>
           {resourceData?.cpuLoad !== undefined && (
             <div className="w-full bg-muted rounded-full h-1.5 mt-2">
               <div
@@ -131,12 +131,12 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
           )}
         </div>
 
-        <div className="bg-muted rounded-xl p-3">
+        <div className="bg-muted rounded-card-lg p-component-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <HardDrive className="w-3.5 h-3.5 text-warning" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.memory')}</p>
           </div>
-          <p className="text-xl font-bold text-foreground">{memoryPercentage}%</p>
+          <p className="text-xl font-bold font-mono text-foreground">{memoryPercentage}%</p>
           {resourceData && (
             <>
               <div className="w-full bg-muted rounded-full h-1.5 mt-2">
@@ -155,20 +155,20 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
           )}
         </div>
 
-        <div className="bg-muted rounded-xl p-3">
+        <div className="bg-muted rounded-card-lg p-component-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-success" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.uptime')}</p>
           </div>
-          <p className="text-xl font-bold text-foreground">{uptimeFormatted}</p>
+          <p className="text-xl font-bold font-mono text-foreground">{uptimeFormatted}</p>
         </div>
 
-        <div className="bg-muted rounded-xl p-3">
+        <div className="bg-muted rounded-card-lg p-component-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Wifi className="w-3.5 h-3.5 text-primary" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.interfaces')}</p>
           </div>
-          <p className="text-xl font-bold text-foreground">
+          <p className="text-xl font-bold font-mono text-foreground">
             {activeCount}<span className="text-sm font-normal text-muted-foreground">/{totalCount}</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">{t('quickStats.active')}</p>

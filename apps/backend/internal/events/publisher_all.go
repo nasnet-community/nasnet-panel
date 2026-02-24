@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -15,11 +16,17 @@ type Publisher struct {
 
 // NewPublisher creates a new Publisher with the given source identifier.
 func NewPublisher(bus EventBus, source string) *Publisher {
+	if bus == nil {
+		panic("bus must not be nil")
+	}
 	return &Publisher{bus: bus, source: source}
 }
 
 // Publish is a generic method to publish any Event.
 func (p *Publisher) Publish(ctx context.Context, event Event) error {
+	if event == nil {
+		return fmt.Errorf("event cannot be nil")
+	}
 	return p.bus.Publish(ctx, event)
 }
 

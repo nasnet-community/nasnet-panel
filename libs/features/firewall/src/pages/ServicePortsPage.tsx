@@ -62,7 +62,7 @@ function EmptyState({ type, onAction }: EmptyStateProps) {
         <CardDescription>{t('servicePorts.emptyStates.noGroupsDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
-        <Button onClick={onAction}>
+        <Button onClick={onAction} className="min-h-[44px]">
           <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('servicePorts.createGroup')}
         </Button>
@@ -117,17 +117,17 @@ export function ServicePortsPage() {
   // ============================================================================
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="h-full flex flex-col px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-md space-y-component-md">
       {/* Page Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{t('servicePorts.title')}</h1>
-        <p className="text-muted-foreground">{t('servicePorts.description')}</p>
+      <div className="space-y-component-sm">
+        <h1 className="text-3xl font-bold tracking-tight font-display">{t('servicePorts.title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('servicePorts.description')}</p>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 overflow-hidden flex flex-col">
         {/* Tab Header with Action Button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between gap-component-sm border-b border-border pb-component-md">
           <TabsList>
             <TabsTrigger value="services">{t('servicePorts.tabs.services')}</TabsTrigger>
             <TabsTrigger value="groups">{t('servicePorts.tabs.groups')}</TabsTrigger>
@@ -135,12 +135,12 @@ export function ServicePortsPage() {
 
           {/* Action Button - changes based on active tab */}
           {activeTab === 'services' ? (
-            <Button onClick={handleAddService}>
+            <Button onClick={handleAddService} className="min-h-[44px]">
               <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('servicePorts.addService')}
             </Button>
           ) : (
-            <Button onClick={handleCreateGroup}>
+            <Button onClick={handleCreateGroup} className="min-h-[44px]">
               <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('servicePorts.createGroup')}
             </Button>
@@ -148,24 +148,24 @@ export function ServicePortsPage() {
         </div>
 
         {/* Services Tab */}
-        <TabsContent value="services" className="space-y-4">
+        <TabsContent value="services" className="flex-1 overflow-y-auto p-component-md m-0">
           <ServicePortsTable />
         </TabsContent>
 
         {/* Groups Tab */}
-        <TabsContent value="groups" className="space-y-4">
+        <TabsContent value="groups" className="flex-1 overflow-y-auto p-component-md m-0">
           {serviceGroups.length === 0 ? (
             <EmptyState type="groups" onAction={handleCreateGroup} />
           ) : (
-            <Card className="border-dashed">
-              <CardContent className="pt-6">
-                <div className="text-center py-12 space-y-2">
-                  <p className="text-muted-foreground">
+            <Card>
+              <CardContent className="py-component-lg">
+                <div className="text-center space-y-component-sm">
+                  <p className="text-sm text-muted-foreground">
                     {t('servicePorts.groupsTableComingSoon', {
                       defaultValue: 'Service Groups table coming soon (not in current scope)',
                     })}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {t('servicePorts.groupsCount', {
                       defaultValue: '{{count}} group defined',
                       count: serviceGroups.length,

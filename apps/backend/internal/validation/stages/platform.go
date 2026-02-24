@@ -27,6 +27,18 @@ func (s *PlatformStage) Name() string { return "platform" }
 func (s *PlatformStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
+	if input == nil {
+		result.AddError(&validation.Error{
+			Stage:     6,
+			StageName: "platform",
+			Severity:  validation.SeverityError,
+			Field:     "",
+			Message:   "validation input is nil",
+			Code:      "NIL_INPUT",
+		})
+		return result
+	}
+
 	if s.routerPort == nil {
 		return result // Skip if no router connection available
 	}
@@ -40,6 +52,10 @@ func (s *PlatformStage) Validate(_ context.Context, input *validation.StageInput
 		s.validateVLANCaps(input, caps, result)
 	case "wireguard":
 		s.validateWireGuardCaps(caps, result)
+	case resourceTypeVPNWireguardClient, resourceTypeVPNWireguardServer:
+		s.validateWireGuardCaps(caps, result)
+	case resourceTypeTunnelVXLAN:
+		s.validateVXLANCaps(caps, result)
 	}
 
 	return result
@@ -103,4 +119,23 @@ func (s *PlatformStage) validateWireGuardCaps(
 			Suggestion: "Upgrade to RouterOS 7.x or use an alternative VPN",
 		})
 	}
+}
+
+func (s *PlatformStage) validateVXLANCaps(
+	caps router.PlatformCapabilities,
+	result *validation.Result,
+) {
+	// VXLAN requires RouterOS 7.2+; SupportsVXLAN will be populated by the
+	// capability detector once the field is added. For now, gate on WireGuard
+	// support as a proxy for RouterOS 7.x presence.
+	_ = caps // reserved for future MinVersion / SupportsVXLAN capability check
+	result.AddError(&validation.Error{
+		Stage:      6,
+		StageName:  "platform",
+		Severity:   validation.SeverityWarning,
+		Field:      "vxlan",
+		Message:    "VXLAN tunnel support requires RouterOS 7.2 or later",
+		Code:       "VXLAN_VERSION_REQUIRED",
+		Suggestion: "Verify that your router is running RouterOS 7.2+",
+	})
 }

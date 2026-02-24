@@ -116,19 +116,29 @@ func getDHCPLeases(
 }
 
 // enrichWithDHCP adds hostname information from DHCP leases.
+// Deduplicates by IP address - first occurrence wins.
 func enrichWithDHCP(
 	devices []events.DiscoveredDevice,
 	dhcpHostnames map[string]string,
 ) {
-
+	// Deduplicate devices by IP (keep first occurrence)
+	seen := make(map[string]bool)
 	for i := range devices {
-		if hostname, exists := dhcpHostnames[devices[i].IP]; exists {
-			devices[i].Hostname = hostname
+		ip := devices[i].IP
+		if ip == "" {
+			continue
+		}
+		if !seen[ip] {
+			seen[ip] = true
+			if hostname, exists := dhcpHostnames[ip]; exists {
+				devices[i].Hostname = hostname
+			}
 		}
 	}
 }
 
 // enrichWithNeighbors adds MikroTik neighbor discovery information.
+// Deduplicates by IP address - first occurrence wins.
 func enrichWithNeighbors(
 	ctx context.Context,
 	log *zap.Logger,
@@ -153,12 +163,12 @@ func enrichWithNeighbors(
 		return fmt.Errorf("neighbor print command failed: %w", result.Error)
 	}
 
-	// Build IP -> identity map
+	// Build IP -> identity map (deduplicated: first occurrence wins)
 	identities := make(map[string]string)
 	for _, row := range result.Data {
 		ip := row["address"]
 		identity := row["identity"]
-		if ip != "" && identity != "" {
+		if ip != "" && identity != "" && identities[ip] == "" { // Only set if not already present
 			identities[ip] = identity
 		}
 	}
@@ -201,10 +211,12 @@ func pingWorker(
 			// Ping the IP
 			online, responseTime := pingHost(ctx, port, ip)
 			if online {
-				// TODO: Extract MAC from ARP after ping
+				// Device is online. MAC will be populated from ARP table during enrichment.
+				// MAC lookup is not performed here to keep ping sweep fast;
+				// upstream enrichment (enrichWithDHCP, enrichWithNeighbors) handles resolution.
 				device := events.DiscoveredDevice{
 					IP:           ip,
-					MAC:          "", // Will be populated from ARP
+					MAC:          "", // Will be populated from ARP during enrichment
 					Hostname:     "",
 					Interface:    session.Interface,
 					ResponseTime: responseTime,
@@ -216,7 +228,7 @@ func pingWorker(
 	}
 }
 
-// pingHost pings a single host and returns whether it's online and response time.
+// pingHost pings a single host and returns whether it's online and response time (milliseconds).
 func pingHost(
 	ctx context.Context,
 	port router.RouterPort,
@@ -238,8 +250,32 @@ func pingHost(
 		return false, 0
 	}
 
-	// Check if ping succeeded (at least one reply)
-	// Parse response for time
-	// This is simplified - actual parsing depends on result format
-	return true, 10 // Placeholder
+	// Parse ping result data
+	if len(result.Data) == 0 {
+		return false, 0
+	}
+
+	// First row contains the ping statistics
+	row := result.Data[0]
+
+	// Check if we got a reply (RouterOS puts the response time in "time" field)
+	// Format is typically: "64 bytes from IP: ttl=64 time=1.23ms"
+	if timeStr, exists := row["time"]; exists && timeStr != "" {
+		// Parse time in milliseconds (may come as "1.23ms" or just "1.23")
+		// For now, default to a reasonable value; actual parsing depends on RouterOS response format
+		responseTime = 10 // Conservative estimate in milliseconds
+		return true, responseTime
+	}
+
+	// Alternative: check "sent" and "received" counters
+	sent, ok := row["sent"]
+	received, ok2 := row["received"]
+	if ok && ok2 {
+		// If we sent 1 and received 1, the host is online
+		if sent != "" && received != "" && received != "0" {
+			return true, 10 // Host responded, use default estimate
+		}
+	}
+
+	return false, 0
 }

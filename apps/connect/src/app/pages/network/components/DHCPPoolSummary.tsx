@@ -104,24 +104,24 @@ export const DHCPPoolSummary = React.memo(function DHCPPoolSummary({ servers, le
         <span className={cn('text-lg font-bold', getUtilizationColor(stats.utilizationPercent))}>{stats.utilizationPercent}%</span>
       </div>
       <div className="w-full bg-muted rounded-full h-2 mb-4">
-        <div className={cn('h-2 rounded-full transition-all duration-300', getUtilizationBarColor(stats.utilizationPercent))} style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` }} />
+        <div className={cn('h-2 rounded-full transition-all duration-300', getUtilizationBarColor(stats.utilizationPercent))} style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` } as React.CSSProperties} />
       </div>
       <div className="grid grid-cols-4 gap-2">
-        <div className="text-center p-2 bg-muted rounded-lg">
+        <div className="text-center p-2 bg-muted rounded-card-sm">
           <Users className="w-3 h-3 text-info mx-auto mb-1" />
           <p className="text-lg font-bold text-foreground">{stats.activeLeases}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.active')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-lg">
+        <div className="text-center p-2 bg-muted rounded-card-sm">
           <PieChart className="w-3 h-3 text-success mx-auto mb-1" />
           <p className="text-lg font-bold text-foreground">{stats.availableIPs}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.available')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-lg">
+        <div className="text-center p-2 bg-muted rounded-card-sm">
           <p className="text-lg font-bold text-foreground">{stats.totalPoolSize}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.total')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-lg">
+        <div className="text-center p-2 bg-muted rounded-card-sm">
           <p className="text-lg font-bold text-foreground">{pools.length}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.pools')}</p>
         </div>

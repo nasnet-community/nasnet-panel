@@ -21,7 +21,7 @@ import type { FilterRule, FilterChain } from '@nasnet/core/types';
  */
 export declare const firewallKeys: {
     all: (routerId: string) => readonly ["firewall", string];
-    filter: (routerId: string, chain?: FilterChain) => readonly ["firewall", string, "filter", "input" | "output" | "forward" | undefined];
+    filter: (routerId: string, chain?: FilterChain) => readonly ["firewall", string, "filter", "input" | "forward" | "output" | undefined];
     nat: (routerId: string) => readonly ["firewall", string, "nat"];
     counters: (routerId: string) => readonly ["firewall", string, "counters"];
 };
@@ -54,13 +54,11 @@ export declare function useFilterRules(routerId: string, options?: UseFilterRule
  */
 export declare function useCreateFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, Partial<{
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "reject" | "jump" | "tarpit";
+    chain: "input" | "forward" | "output";
+    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "reject" | "tarpit";
     disabled: boolean;
-    chain: "input" | "output" | "forward";
     id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
+    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -76,6 +74,8 @@ export declare function useCreateFilterRule(routerId: string): import("@tanstack
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
+    bytes?: number | undefined;
+    order?: number | undefined;
 }>, unknown>;
 /**
  * Update an existing filter rule

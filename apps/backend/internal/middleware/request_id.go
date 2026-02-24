@@ -5,6 +5,7 @@ import (
 	"context"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -19,14 +20,19 @@ const (
 	RequestIDLogKey = "request_id"
 )
 
-// entropy is a thread-safe entropy source for ULID generation.
+// entropy and entropyMu provide thread-safe ULID generation.
 //
 //nolint:gosec // request ID does not need cryptographically random entropy
-var entropy = ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0)
+var (
+	entropyMu sync.Mutex
+	entropy   = ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0)
+)
 
 // GenerateRequestID creates a new ULID-based request ID.
 // ULIDs are time-sortable and globally unique.
 func GenerateRequestID() string {
+	entropyMu.Lock()
+	defer entropyMu.Unlock()
 	return ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String()
 }
 
@@ -34,6 +40,16 @@ func GenerateRequestID() string {
 // It extracts an existing request ID from the X-Request-ID header or generates a new one.
 func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Recover from panics to prevent crashes
+		defer func() {
+			if rec := recover(); rec != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusInternalServerError)
+				// Log panic but don't expose details
+				_ = rec
+			}
+		}()
+
 		// Check for existing request ID in header
 		requestID := r.Header.Get(RequestIDHeader)
 		if requestID == "" {
@@ -66,6 +82,15 @@ func WithRequestID(ctx context.Context, requestID string) context.Context {
 func ProductionModeMiddleware(production bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Recover from panics to prevent crashes
+			defer func() {
+				if rec := recover(); rec != nil {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusInternalServerError)
+					_ = rec
+				}
+			}()
+
 			ctx := internalerrors.WithProductionMode(r.Context(), production)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

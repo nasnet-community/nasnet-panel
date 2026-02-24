@@ -86,7 +86,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
   if (wizard.isCompleted) {
 
     return (
-      <div className="p-4">
+      <div className="p-component-md">
         <WizardSummary
           summary={{
             totalSteps: wizard.steps.length,
@@ -121,7 +121,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b bg-background sticky top-0 z-10">
+      <div className="flex items-center gap-component-md p-component-md border-b bg-background sticky top-0 z-10">
         {onClose && (
           <Button
             variant="ghost"
@@ -138,7 +138,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
       {/* Progress Bar */}
       {!wizard.isIdle && (
-        <div className="p-4 border-b bg-background" role="progressbar" aria-valuenow={Math.round(wizard.progress.percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}>
+        <div className="p-component-md border-b bg-background" role="progressbar" aria-valuenow={Math.round(wizard.progress.percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}>
           <div className="flex justify-between items-center mb-2 text-sm">
             <span className="text-muted-foreground">
               Step {wizard.progress.current} of {wizard.progress.total}
@@ -150,16 +150,16 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-component-md space-y-component-md">
         {wizard.isIdle && (
-          <Card className="p-6 text-center">
+          <Card className="p-component-lg text-center">
             <h2 className="text-lg font-semibold text-foreground mb-3">
               Ready to troubleshoot?
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
               We'll run automated tests to find and fix internet issues.
             </p>
-            <Button onClick={wizard.start} className="w-full min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Start diagnostic troubleshooting">
+            <Button onClick={wizard.start} className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Start diagnostic troubleshooting">
               Start Diagnostic
             </Button>
           </Card>
@@ -182,14 +182,14 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
             {/* Current Step Details */}
             {wizard.currentStep.status === 'running' && (
-              <Card className="p-4">
+              <Card className="p-component-md">
                 <p className="text-sm text-muted-foreground">{wizard.messages.runningMessage}</p>
               </Card>
             )}
 
             {/* Verifying Message */}
             {wizard.isVerifying && (
-              <Card className="p-4 bg-primary/10">
+              <Card className="p-component-md bg-primary/10">
                 <p className="text-sm text-foreground text-center">
                   Verifying fix... Please wait.
                 </p>
@@ -201,12 +201,12 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
       {/* Fix Action Buttons (Fixed Bottom) */}
       {wizard.isAwaitingFixDecision && wizard.currentStep.fix && !showFixSheet && (
-        <div className="p-4 border-t bg-background sticky bottom-0 z-20">
-          <div className="flex gap-3">
+        <div className="p-component-md border-t bg-background sticky bottom-0 z-20">
+          <div className="flex gap-component-md">
             <Button
               variant="outline"
               onClick={wizard.skipFix}
-              className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label="Skip this fix"
             >
               Skip
@@ -215,7 +215,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
               <Button
                 onClick={handleOpenFixSheet}
                 variant="secondary"
-                className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="View manual fix steps"
               >
                 View Steps
@@ -223,7 +223,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             ) : (
               <Button
                 onClick={handleOpenFixSheet}
-                className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="View automatic fix details"
               >
                 View Fix

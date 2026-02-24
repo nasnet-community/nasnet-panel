@@ -5,21 +5,32 @@ package resolver
 
 import (
 	"backend/generated/ent/serviceinstance"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // CheckForUpdates manually triggers update check for router's service instances.
 func (r *mutationResolver) CheckForUpdates(ctx context.Context, routerID string) (int, error) {
+	// Authorization check
+	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
+		return 0, errors.NewValidationError("userID", "", "authentication required")
+	}
+
+	// Input validation
+	if routerID == "" {
+		return 0, errors.NewValidationError("routerID", "", "required")
+	}
+
+	// Service availability check
 	if r.UpdateService == nil {
-		return 0, fmt.Errorf("update service not initialized")
+		return 0, errors.NewProtocolError(errors.CodeCommandFailed, "update service not initialized", "graphql")
 	}
 
 	instances, err := r.db.ServiceInstance.Query().
 		Where(serviceinstance.RouterIDEQ(routerID)).
 		All(ctx)
 	if err != nil {
-		return 0, fmt.Errorf("failed to query service instances: %w", err)
+		return 0, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to query service instances")
 	}
 
 	updatesFound := 0

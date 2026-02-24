@@ -3,8 +3,9 @@ package wan
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -14,7 +15,10 @@ import (
 //
 //nolint:gocyclo // static IP configuration complexity
 func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, input StaticIPInput) (*WANInterfaceData, error) {
-	log.Printf("[WANService] Configuring static IP on router %s, interface %s, address %s", routerID, input.Interface, input.Address)
+	s.logger.Infow("configuring static IP",
+		zap.String("routerID", routerID),
+		zap.String("interface", input.Interface),
+		zap.String("address", input.Address))
 
 	// Step 1: Remove existing IP addresses on this interface
 	checkIPCmd := router.Command{
@@ -29,7 +33,9 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 	}
 
 	if checkIPResult.Success && len(checkIPResult.Data) > 0 {
-		log.Printf("[WANService] Removing %d existing IP address(es) from interface %s", len(checkIPResult.Data), input.Interface)
+		s.logger.Infow("removing existing IP addresses from interface",
+			zap.Int("count", len(checkIPResult.Data)),
+			zap.String("interface", input.Interface))
 		for _, item := range checkIPResult.Data {
 			if id, ok := item[".id"]; ok {
 				removeIPCmd := router.Command{
@@ -67,7 +73,9 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 		return nil, fmt.Errorf("IP address configuration failed: %w", addIPResult.Error)
 	}
 
-	log.Printf("[WANService] IP address %s added to interface %s", input.Address, input.Interface)
+	s.logger.Infow("IP address added to interface",
+		zap.String("address", input.Address),
+		zap.String("interface", input.Interface))
 
 	// Step 3: Remove existing default routes
 	s.removeDefaultRoutes(ctx)
@@ -90,7 +98,7 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 		return nil, fmt.Errorf("default route configuration failed: %w", addRouteResult.Error)
 	}
 
-	log.Printf("[WANService] Default route added via gateway %s", input.Gateway)
+	s.logger.Infow("default route added via gateway", zap.String("gateway", input.Gateway))
 
 	// Step 5: Configure DNS servers
 	if input.PrimaryDNS != "" {
@@ -108,11 +116,11 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 		dnsResult, dnsErr := s.routerPort.ExecuteCommand(ctx, setDNSCmd)
 		switch {
 		case dnsErr != nil:
-			log.Printf("[WANService] Warning: Failed to set DNS servers: %v", dnsErr)
+			s.logger.Warnw("failed to set DNS servers", zap.Error(dnsErr))
 		case !dnsResult.Success:
-			log.Printf("[WANService] Warning: DNS configuration failed: %s", dnsResult.Error)
+			s.logger.Warnw("DNS configuration failed", zap.Error(dnsResult.Error))
 		default:
-			log.Printf("[WANService] DNS servers configured: %s", dnsServers)
+			s.logger.Infow("DNS servers configured", zap.String("servers", dnsServers))
 		}
 	}
 
@@ -154,16 +162,16 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 	}
 	s.history.Add(routerID, historyEvent)
 
-	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "STATIC", true)
+	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Interface, "STATIC", "wan-service", true)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WAN configured event: %v", err)
+		s.logger.Warnw("failed to publish WAN configured event", zap.Error(err))
 	}
 
-	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "STATIC")
+	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Interface, wanData.Status, "NONE", "STATIC", "wan-service")
 	statusEvent.PublicIP = wanData.PublicIP
 	statusEvent.Gateway = wanData.Gateway
 	if err := s.eventBus.Publish(ctx, statusEvent); err != nil {
-		log.Printf("[WANService] Failed to publish WAN status changed event: %v", err)
+		s.logger.Warnw("failed to publish WAN status changed event", zap.Error(err))
 	}
 
 	return wanData, nil
@@ -179,12 +187,12 @@ func (s *WANService) removeDefaultRoutes(ctx context.Context) {
 
 	checkRouteResult, err := s.routerPort.ExecuteCommand(ctx, checkRouteCmd)
 	if err != nil {
-		log.Printf("[WANService] Warning: Failed to check existing routes: %v", err)
+		s.logger.Warnw("failed to check existing routes", zap.Error(err))
 		return
 	}
 
 	if checkRouteResult != nil && checkRouteResult.Success && len(checkRouteResult.Data) > 0 {
-		log.Printf("[WANService] Removing %d existing default route(s)", len(checkRouteResult.Data))
+		s.logger.Infow("removing existing default routes", zap.Int("count", len(checkRouteResult.Data)))
 		for _, item := range checkRouteResult.Data {
 			if id, ok := item[".id"]; ok {
 				removeRouteCmd := router.Command{
@@ -193,7 +201,7 @@ func (s *WANService) removeDefaultRoutes(ctx context.Context) {
 					Args:   map[string]string{".id": id},
 				}
 				if _, err := s.routerPort.ExecuteCommand(ctx, removeRouteCmd); err != nil {
-					log.Printf("[WANService] Warning: Failed to remove existing route: %v", err)
+					s.logger.Warnw("failed to remove existing route", zap.Error(err))
 				}
 			}
 		}

@@ -79,22 +79,22 @@ const ToastViewport = React.memo(
 ToastViewport.displayName = 'ToastViewport';
 
 const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center justify-between space-x-3 overflow-hidden rounded-2xl border p-4 pr-8 shadow-xl transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[state=open]:slide-in-from-top-2',
+  'group pointer-events-auto relative flex w-full items-center justify-between gap-component-md overflow-hidden rounded-[var(--semantic-radius-card)] border p-component-md pr-12 shadow-xl transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[state=open]:slide-in-from-top-2',
   {
     variants: {
       variant: {
         default:
-          'border-border bg-popover text-popover-foreground shadow-lg',
+          'border-border bg-card text-foreground shadow-lg',
         success:
-          'border-success/50 bg-success-light text-success-dark',
+          'border-success/50 bg-success/10 text-success-dark',
         warning:
-          'border-warning/50 bg-warning-light text-warning-dark',
+          'border-warning/50 bg-warning/10 text-warning-dark',
         error:
-          'border-error/50 bg-error-light text-error-dark',
+          'border-error/50 bg-error/10 text-error-dark',
         info:
-          'border-info/50 bg-info-light text-info-dark',
+          'border-info/50 bg-info/10 text-info-dark',
         destructive:
-          'border-error/50 bg-error-light text-error-dark',
+          'border-error/50 bg-error/10 text-error-dark',
       },
     },
     defaultVariants: {
@@ -144,7 +144,7 @@ const ToastAction = React.memo(
     <ToastPrimitives.Action
       ref={ref}
       className={cn(
-        'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive',
+        'inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-[var(--semantic-radius-button)] border-border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-error/50 group-[.destructive]:hover:border-error/30 group-[.destructive]:hover:bg-error group-[.destructive]:hover:text-error-foreground group-[.destructive]:focus-visible:ring-error',
         className
       )}
       {...props}
@@ -170,7 +170,7 @@ const ToastClose = React.memo(
     <ToastPrimitives.Close
       ref={ref}
       className={cn(
-        'absolute right-2 top-2 rounded-lg p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-accent focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100',
+        'absolute right-2 top-2 min-h-[44px] min-w-[44px] rounded-[var(--semantic-radius-button)] p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-muted focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group-hover:opacity-100',
         className
       )}
       aria-label="Close notification"

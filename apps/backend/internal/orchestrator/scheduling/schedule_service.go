@@ -14,7 +14,7 @@ import (
 	"backend/internal/events"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // ScheduleServiceConfig holds configuration for the schedule service
@@ -22,7 +22,7 @@ type ScheduleServiceConfig struct {
 	Store     *ent.Client
 	Scheduler *ScheduleEvaluator
 	EventBus  events.EventBus
-	Logger    zerolog.Logger
+	Logger    *zap.Logger
 }
 
 // ScheduleService manages CRUD operations for routing schedules
@@ -32,7 +32,7 @@ type ScheduleService struct {
 	scheduler *ScheduleEvaluator
 	eventBus  events.EventBus
 	publisher *events.Publisher
-	logger    zerolog.Logger
+	logger    *zap.Logger
 }
 
 // ScheduleInput represents validated input for creating/updating schedules
@@ -60,11 +60,16 @@ func NewScheduleService(cfg ScheduleServiceConfig) (*ScheduleService, error) {
 		return nil, fmt.Errorf("event bus is required")
 	}
 
+	logger := cfg.Logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	svc := &ScheduleService{
 		store:     cfg.Store,
 		scheduler: cfg.Scheduler,
 		eventBus:  cfg.EventBus,
-		logger:    cfg.Logger,
+		logger:    logger,
 	}
 
 	// Create event publisher
@@ -109,13 +114,7 @@ func (s *ScheduleService) CreateSchedule(ctx context.Context, input ScheduleInpu
 		return nil, fmt.Errorf("failed to create schedule: %w", err)
 	}
 
-	s.logger.Info().
-		Str("schedule_id", schedule.ID).
-		Str("routing_id", input.RoutingID).
-		Str("start_time", input.StartTime).
-		Str("end_time", input.EndTime).
-		Str("timezone", input.Timezone).
-		Msg("Created routing schedule")
+	s.logger.Info("Created routing schedule", zap.String("schedule_id", schedule.ID), zap.String("routing_id", input.RoutingID), zap.String("start_time", input.StartTime), zap.String("end_time", input.EndTime), zap.String("timezone", input.Timezone))
 
 	// Publish event
 	if s.publisher != nil {
@@ -130,14 +129,14 @@ func (s *ScheduleService) CreateSchedule(ctx context.Context, input ScheduleInpu
 			"schedule-service",
 		)
 		if err := s.publisher.Publish(ctx, scheduleEvent); err != nil {
-			s.logger.Error().Err(err).Str("schedule_id", schedule.ID).Msg("Failed to publish schedule created event")
+			s.logger.Error("Failed to publish schedule created event", zap.Error(err), zap.String("schedule_id", schedule.ID))
 		}
 	}
 
 	// Trigger immediate evaluation if enabled
 	if input.Enabled {
 		if err := s.scheduler.Evaluate(ctx); err != nil {
-			s.logger.Error().Err(err).Msg("Failed to trigger schedule evaluation after create")
+			s.logger.Error("Failed to trigger schedule evaluation after create", zap.Error(err))
 		}
 	}
 
@@ -189,14 +188,7 @@ func (s *ScheduleService) UpdateSchedule(ctx context.Context, scheduleID string,
 		return nil, fmt.Errorf("failed to update schedule: %w", err)
 	}
 
-	s.logger.Info().
-		Str("schedule_id", scheduleID).
-		Str("routing_id", input.RoutingID).
-		Str("start_time", input.StartTime).
-		Str("end_time", input.EndTime).
-		Str("timezone", input.Timezone).
-		Bool("enabled", input.Enabled).
-		Msg("Updated routing schedule")
+	s.logger.Info("Updated routing schedule", zap.String("schedule_id", scheduleID), zap.String("routing_id", input.RoutingID), zap.String("start_time", input.StartTime), zap.String("end_time", input.EndTime), zap.String("timezone", input.Timezone), zap.Bool("enabled", input.Enabled))
 
 	// Publish event
 	if s.publisher != nil {
@@ -211,13 +203,13 @@ func (s *ScheduleService) UpdateSchedule(ctx context.Context, scheduleID string,
 			"schedule-service",
 		)
 		if err := s.publisher.Publish(ctx, scheduleEvent); err != nil {
-			s.logger.Error().Err(err).Str("schedule_id", schedule.ID).Msg("Failed to publish schedule updated event")
+			s.logger.Error("Failed to publish schedule updated event", zap.Error(err), zap.String("schedule_id", schedule.ID))
 		}
 	}
 
 	// Trigger immediate evaluation
 	if err := s.scheduler.Evaluate(ctx); err != nil {
-		s.logger.Error().Err(err).Msg("Failed to trigger schedule evaluation after update")
+		s.logger.Error("Failed to trigger schedule evaluation after update", zap.Error(err))
 	}
 
 	return schedule, nil
@@ -242,10 +234,7 @@ func (s *ScheduleService) DeleteSchedule(ctx context.Context, scheduleID string)
 		return fmt.Errorf("failed to delete schedule: %w", err)
 	}
 
-	s.logger.Info().
-		Str("schedule_id", scheduleID).
-		Str("routing_id", schedule.RoutingID).
-		Msg("Deleted routing schedule")
+	s.logger.Info("Deleted routing schedule", zap.String("schedule_id", scheduleID), zap.String("routing_id", schedule.RoutingID))
 
 	// Publish event
 	if s.publisher != nil {
@@ -255,13 +244,13 @@ func (s *ScheduleService) DeleteSchedule(ctx context.Context, scheduleID string)
 			"schedule-service",
 		)
 		if err := s.publisher.Publish(ctx, scheduleEvent); err != nil {
-			s.logger.Error().Err(err).Str("schedule_id", scheduleID).Msg("Failed to publish schedule deleted event")
+			s.logger.Error("Failed to publish schedule deleted event", zap.Error(err), zap.String("schedule_id", scheduleID))
 		}
 	}
 
 	// Trigger immediate evaluation to ensure routing state is correct
 	if err := s.scheduler.Evaluate(ctx); err != nil {
-		s.logger.Error().Err(err).Msg("Failed to trigger schedule evaluation after delete")
+		s.logger.Error("Failed to trigger schedule evaluation after delete", zap.Error(err))
 	}
 
 	return nil

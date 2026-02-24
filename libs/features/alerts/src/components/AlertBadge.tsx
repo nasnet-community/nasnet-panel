@@ -52,13 +52,15 @@ const AlertBadge = ({ deviceId, className }: AlertBadgeProps) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full',
-        'bg-destructive text-destructive-foreground',
+        'inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-[var(--semantic-radius-badge)]',
+        'bg-error/10 text-error',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className
       )}
       aria-label={`${count} unacknowledged alerts`}
       aria-live="polite"
       role="status"
+      tabIndex={0}
     >
       {displayCount}
     </span>

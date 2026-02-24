@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +20,7 @@ func TestBackoffConfig(t *testing.T) {
 }
 
 func TestNewManagedProcess(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	mp := NewManagedProcess(ProcessConfig{
 		ID:          "test-1",
 		Name:        "test-process",
@@ -40,7 +40,7 @@ func TestNewManagedProcess(t *testing.T) {
 }
 
 func TestManagedProcessStartStop(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	// Use a cross-platform command
 	var cmd string
@@ -86,7 +86,7 @@ func TestManagedProcessStartStop(t *testing.T) {
 }
 
 func TestManagedProcessAutoRestart(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	// Custom backoff config for faster testing
 	backoffCfg := BackoffConfig{
@@ -125,7 +125,7 @@ func TestManagedProcessAutoRestart(t *testing.T) {
 }
 
 func TestManagedProcessBackoffTiming(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	backoffCfg := BackoffConfig{
 		InitialInterval: 100 * time.Millisecond,
@@ -171,7 +171,7 @@ func TestManagedProcessBackoffTiming(t *testing.T) {
 }
 
 func TestManagedProcessNoAutoRestart(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	mp := NewManagedProcess(ProcessConfig{
 		ID:          "test-no-restart",
 		Name:        "test-exit",
@@ -194,7 +194,7 @@ func TestManagedProcessNoAutoRestart(t *testing.T) {
 }
 
 func TestManagedProcessStableUptime(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 
 	backoffCfg := BackoffConfig{
 		InitialInterval: 100 * time.Millisecond,
@@ -241,7 +241,7 @@ func TestManagedProcessStableUptime(t *testing.T) {
 }
 
 func TestProcessSupervisor(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	supervisor := NewProcessSupervisor(ProcessSupervisorConfig{
 		Logger: logger,
 	})
@@ -297,7 +297,7 @@ func TestProcessSupervisor(t *testing.T) {
 }
 
 func TestProcessSupervisorStartStop(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	supervisor := NewProcessSupervisor(ProcessSupervisorConfig{
 		Logger: logger,
 	})
@@ -341,7 +341,7 @@ func TestProcessSupervisorStartStop(t *testing.T) {
 }
 
 func TestProcessSupervisorStopAll(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	supervisor := NewProcessSupervisor(ProcessSupervisorConfig{Logger: logger})
 
 	var cmd string
@@ -398,7 +398,7 @@ func TestProcessSupervisorStopAll(t *testing.T) {
 }
 
 func TestProcessSupervisorRemove(t *testing.T) {
-	logger := zerolog.New(os.Stdout)
+	logger := zap.NewNop()
 	supervisor := NewProcessSupervisor(ProcessSupervisorConfig{Logger: logger})
 
 	var cmd string

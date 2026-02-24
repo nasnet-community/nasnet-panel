@@ -105,7 +105,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
 }) {
   if (rssi === undefined) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground">
+      <div className="flex items-center gap-component-sm text-muted-foreground">
         <SignalZero className="h-5 w-5" />
         <span className="text-sm">No signal data</span>
       </div>
@@ -125,18 +125,18 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
       : SignalZero;
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
-      <div className="flex items-center gap-3">
-        <SignalIcon className={`h-5 w-5 text-${strength.color}`} />
+    <div className="flex items-center justify-between p-component-md rounded-card-sm border bg-muted/50">
+      <div className="flex items-center gap-component-lg">
+        <SignalIcon className="h-5 w-5" style={{ color: `var(--semantic-${strength.color})` }} />
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <span className="font-medium">{strength.label}</span>
-            <Badge variant="outline" className={`text-${strength.color}`}>
+            <Badge variant="outline" style={{ color: `var(--semantic-${strength.color})` }}>
               {rssi} dBm
             </Badge>
           </div>
           {quality !== undefined && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-2">
               Signal Quality: {quality}%
             </p>
           )}
@@ -144,7 +144,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
       </div>
 
       {/* Visual signal bars */}
-      <div className="flex items-end gap-1 h-8" aria-hidden="true">
+      <div className="flex items-end gap-component-xs h-8" aria-hidden="true">
         {[1, 2, 3, 4, 5].map((bar) => {
           const SIGNAL_THRESHOLD_BASE = -120;
           const SIGNAL_THRESHOLD_STEP = 10;
@@ -153,8 +153,11 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
           return (
             <div
               key={bar}
-              className={cn('w-2 rounded-sm transition-colors', isActive ? `bg-${strength.color}` : 'bg-muted')}
-              style={{ height: `${bar * 20}%` }}
+              className={cn('w-2 rounded-md transition-colors', isActive ? 'bg-muted' : 'bg-muted')}
+              style={{
+                height: `${bar * 20}%`,
+                backgroundColor: isActive ? `var(--semantic-${strength.color})` : undefined
+              }}
             />
           );
         })}
@@ -254,7 +257,7 @@ export const LteModemForm = memo(function LteModemForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('space-y-6', className)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('space-y-component-lg', className)}>
         {/* Signal Strength Display */}
         {signalStrength !== undefined && (
           <FormSection
@@ -298,7 +301,7 @@ export const LteModemForm = memo(function LteModemForm({
           description="Access Point Name configuration from your carrier"
         >
           {/* Preset Selector */}
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <div>
               <label htmlFor="carrier-preset" className="text-sm font-medium mb-2 block">
                 Carrier Preset
@@ -376,7 +379,7 @@ export const LteModemForm = memo(function LteModemForm({
           collapsible
           defaultOpen={watchAuthProtocol !== 'none'}
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Auth Protocol */}
             <FormField
               control={form.control as any}
@@ -526,7 +529,7 @@ export const LteModemForm = memo(function LteModemForm({
           collapsible
           defaultOpen={false}
         >
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* MTU */}
             <FormField
               control={form.control as any}
@@ -557,7 +560,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="isDefaultRoute"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Default Route</FormLabel>
                     <FormDescription>
@@ -580,7 +583,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="enabled"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Enable Interface</FormLabel>
                     <FormDescription>
@@ -609,7 +612,7 @@ export const LteModemForm = memo(function LteModemForm({
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-6 border-t">
+        <div className="flex justify-end gap-component-md pt-component-lg border-t">
           {onCancel && (
             <Button
               type="button"

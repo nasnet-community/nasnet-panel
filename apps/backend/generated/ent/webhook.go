@@ -3,12 +3,11 @@
 package ent
 
 import (
+	"backend/generated/ent/webhook"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/webhook"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -198,3 +198,73 @@ func TestCredentialServiceContext(t *testing.T) {
 	// Error is expected since there's no database client
 	assert.Error(t, err)
 }
+
+// TestErrorMessagesDoNotLeakCredentials verifies that error messages don't expose plaintext credentials.
+func TestErrorMessagesDoNotLeakCredentials(t *testing.T) {
+	testKey := make([]byte, 32)
+	for i := range testKey {
+		testKey[i] = byte(i)
+	}
+
+	encService, err := encryption.NewService(encryption.Config{Key: testKey})
+	require.NoError(t, err)
+
+	credService, err := NewService(encService)
+	require.NoError(t, err)
+
+	// Test error when credentials not found
+	ctx := context.Background()
+	_, err = credService.Get(ctx, nil, "non-existent-router")
+	require.Error(t, err)
+	// Error message should not contain plaintext password
+	assert.NotContains(t, err.Error(), "password")
+	assert.NotContains(t, err.Error(), "secret")
+
+	// Test invalid credentials error
+	_, err = credService.Create(ctx, nil, "", UpdateInput{
+		Username: "",
+		Password: "",
+	})
+	require.Error(t, err)
+	// Error should not expose the invalid values
+	assert.Equal(t, ErrInvalidCredentials, err)
+}
+
+// TestCredentialMemoryCleaning verifies that ZeroCredentials properly clears sensitive data.
+func TestCredentialMemoryCleaning(t *testing.T) {
+	testKey := make([]byte, 32)
+	for i := range testKey {
+		testKey[i] = byte(i)
+	}
+
+	encService, err := encryption.NewService(encryption.Config{Key: testKey})
+	require.NoError(t, err)
+
+	_, err = NewService(encService)
+	require.NoError(t, err)
+
+	// Create credentials with sensitive data
+	sensitivePassword := "VerySecretPassword123!@#$%"
+	creds := &Credentials{
+		Username:   "admin",
+		Password:   sensitivePassword,
+		KeyVersion: 1,
+	}
+
+	// Verify data exists before zeroing
+	assert.Equal(t, "admin", creds.Username)
+	assert.Equal(t, sensitivePassword, creds.Password)
+
+	// Zero the credentials
+	ZeroCredentials(creds)
+
+	// Verify data is cleared
+	assert.Empty(t, creds.Username)
+	assert.Empty(t, creds.Password)
+	assert.Equal(t, 1, creds.KeyVersion) // KeyVersion unchanged
+
+	// Try to use after zeroing - should be empty
+	sanitized := SanitizeForLog(creds)
+	assert.Empty(t, sanitized["username"])
+	assert.Equal(t, "[REDACTED]", sanitized["password"])
+}

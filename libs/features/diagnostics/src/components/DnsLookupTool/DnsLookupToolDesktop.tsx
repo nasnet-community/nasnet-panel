@@ -86,19 +86,19 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
   };
 
   return (
-    <div className={cn('grid grid-cols-2 gap-6', className)}>
+    <div className={cn('grid grid-cols-2 gap-component-lg', className)}>
       {/* Left Panel: Form */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold">DNS Lookup</h2>
+          <h2 className="text-lg font-semibold font-display">DNS Lookup</h2>
           <p className="text-sm text-muted-foreground">
             Query DNS records from the router
           </p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
             {/* Hostname Input */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="dns-hostname">Hostname</Label>
               <Input
                 id="dns-hostname"
@@ -118,7 +118,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
             </div>
 
             {/* Record Type Select */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="record-type">Record Type</Label>
               <Select
                 value={recordType}
@@ -142,7 +142,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
             </div>
 
             {/* DNS Server Select */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="dns-server">DNS Server</Label>
               <Select
                 value={server || 'default'}
@@ -172,8 +172,8 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button type="submit" disabled={!isValid || isLoading} className="flex-1" aria-label="Run DNS lookup">
+            <div className="flex gap-component-sm">
+              <Button type="submit" disabled={!isValid || isLoading} className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Run DNS lookup">
                 {isLoading ? 'Looking up...' : 'Lookup'}
               </Button>
               {(isSuccess || isError) && (
@@ -189,7 +189,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
       {/* Right Panel: Results */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold">Results</h2>
+          <h2 className="text-lg font-semibold font-display">Results</h2>
         </CardHeader>
         <CardContent role="status" aria-label="DNS lookup results">
           {!result && !isLoading && (

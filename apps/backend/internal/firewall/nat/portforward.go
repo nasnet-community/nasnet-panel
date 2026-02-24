@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/oklog/ulid/v2"
-
 	"backend/graph/model"
 	"backend/internal/router"
+	"backend/internal/utils"
 )
 
 // GetPortForwards queries all port forward rules (rules with "portforward:" comment prefix).
@@ -34,9 +33,9 @@ func (s *Service) GetPortForwards(ctx context.Context) ([]*model.PortForward, er
 // CreatePortForward creates a port forward configuration atomically.
 // Creates both dst-nat rule and filter accept rule with rollback on failure.
 func (s *Service) CreatePortForward(ctx context.Context, input model.PortForwardInput) (*model.PortForward, error) {
-	// Generate ULID for linking rules
-	ruleULID := ulid.Make().String()
-	comment := fmt.Sprintf("portforward:%s", ruleULID)
+	// Generate ID for linking rules
+	ruleID := utils.GenerateID()
+	comment := fmt.Sprintf("portforward:%s", ruleID)
 
 	// Determine internal port (default to external if not specified)
 	internalPort := input.ExternalPort
@@ -49,7 +48,7 @@ func (s *Service) CreatePortForward(ctx context.Context, input model.PortForward
 	// Add optional name to comment
 	if input.Name.IsSet() {
 		if val := input.Name.Value(); val != nil {
-			comment = fmt.Sprintf("portforward:%s %s", ruleULID, *val)
+			comment = fmt.Sprintf("portforward:%s %s", ruleID, *val)
 		}
 	}
 
@@ -70,7 +69,7 @@ func (s *Service) CreatePortForward(ctx context.Context, input model.PortForward
 
 	// Build and return PortForward object
 	pf := &model.PortForward{
-		ID:           ruleULID,
+		ID:           ruleID,
 		Protocol:     input.Protocol,
 		ExternalPort: input.ExternalPort,
 		InternalIP:   input.InternalIP,
@@ -176,18 +175,19 @@ func (s *Service) createFilterAcceptRule(ctx context.Context, input model.PortFo
 
 // buildPortForwardFromNatRule builds a PortForward object from a NAT rule.
 func (s *Service) buildPortForwardFromNatRule(natRule *model.NatRule) *model.PortForward {
-	// Parse ULID from comment
-	ulid := ""
+	// Parse ID from comment
+	ruleID := ""
 	name := ""
 	if natRule.Comment != nil { //nolint:nestif // NAT rule comment parsing
 		comment := *natRule.Comment
 		if len(comment) > 12 && comment[:12] == "portforward:" {
-			// Extract ULID (26 chars after "portforward:")
-			if len(comment) >= 38 {
-				ulid = comment[12:38]
-				// Extract optional name (after ULID + space)
-				if len(comment) > 39 {
-					name = comment[39:]
+			// Extract ID (after "portforward:" prefix)
+			// IDs from utils.GenerateID() have format "id-" + 24 hex chars = 27 chars total
+			if len(comment) >= 39 {
+				ruleID = comment[12:39]
+				// Extract optional name (after ID + space)
+				if len(comment) > 40 {
+					name = comment[40:]
 				}
 			}
 		}
@@ -210,7 +210,7 @@ func (s *Service) buildPortForwardFromNatRule(natRule *model.NatRule) *model.Por
 	}
 
 	pf := &model.PortForward{
-		ID:           ulid,
+		ID:           ruleID,
 		Protocol:     *natRule.Protocol,
 		ExternalPort: externalPort,
 		InternalIP:   *natRule.ToAddresses,

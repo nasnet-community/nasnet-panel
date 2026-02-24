@@ -24,6 +24,7 @@ import (
 	"backend/internal/orchestrator/scheduling"
 	"backend/internal/scanner"
 	"backend/internal/services"
+	provsvc "backend/internal/services/provisioning"
 	"backend/internal/storage"
 	"backend/internal/templates"
 	"backend/internal/traceroute"
@@ -205,6 +206,9 @@ type Resolver struct {
 	// ChainLatencyMeasurer measures latency for routing chains by probing each hop (NAS-8.22).
 	ChainLatencyMeasurer *routing.ChainLatencyMeasurer
 
+	// ProvisioningService coordinates all provisioning sub-services for router setup.
+	ProvisioningService *provsvc.Service
+
 	// log is the logger instance for resolver operations.
 	log interface {
 		Errorw(msg string, keysAndValues ...interface{})
@@ -269,6 +273,7 @@ type Config struct {
 	KillSwitchManager        *isolation.KillSwitchManager
 	ResourceLimiter          *resources.ResourceLimiter
 	ChainLatencyMeasurer     *routing.ChainLatencyMeasurer
+	ProvisioningService      *provsvc.Service
 	Logger                   interface {
 		Errorw(msg string, keysAndValues ...interface{})
 		Infow(msg string, keysAndValues ...interface{})
@@ -276,6 +281,8 @@ type Config struct {
 }
 
 // NewResolver creates a new Resolver with the given dependencies.
+// Note: This creates an empty resolver with no services initialized.
+// Use NewResolverWithConfig for production use.
 func NewResolver() *Resolver {
 	return &Resolver{}
 }
@@ -338,6 +345,7 @@ func NewResolverWithConfig(cfg Config) *Resolver {
 		KillSwitchManager:        cfg.KillSwitchManager,
 		ResourceLimiter:          cfg.ResourceLimiter,
 		ChainLatencyMeasurer:     cfg.ChainLatencyMeasurer,
+		ProvisioningService:      cfg.ProvisioningService,
 		log:                      cfg.Logger,
 	}
 

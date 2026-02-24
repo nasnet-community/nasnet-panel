@@ -3,8 +3,9 @@ package wan
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
+
+	"go.uber.org/zap"
 
 	"backend/internal/events"
 	"backend/internal/router"
@@ -14,7 +15,10 @@ import (
 //
 //nolint:gocyclo // PPPoE configuration complexity
 func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, input PppoeClientInput) (*WANInterfaceData, error) {
-	log.Printf("[WANService] Configuring PPPoE client on router %s, name=%s, interface %s", routerID, input.Name, input.Interface)
+	s.logger.Infow("configuring PPPoE client",
+		zap.String("routerID", routerID),
+		zap.String("name", input.Name),
+		zap.String("interface", input.Interface))
 
 	checkCmd := router.Command{
 		Path:   "/interface/pppoe-client/print",
@@ -28,7 +32,7 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 	}
 
 	if checkResult.Success && len(checkResult.Data) > 0 {
-		log.Printf("[WANService] Removing existing PPPoE client with name %s", input.Name)
+		s.logger.Infow("removing existing PPPoE client", zap.String("name", input.Name))
 		for _, item := range checkResult.Data {
 			if id, ok := item[".id"]; ok {
 				removeCmd := router.Command{
@@ -80,7 +84,7 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 		return nil, fmt.Errorf("PPPoE client configuration failed: %w", addResult.Error)
 	}
 
-	log.Printf("[WANService] PPPoE client configured successfully: %s", input.Name)
+	s.logger.Infow("PPPoE client configured successfully", zap.String("name", input.Name))
 	time.Sleep(2 * time.Second)
 
 	statusCmd := router.Command{
@@ -91,7 +95,7 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 
 	statusResult, err := s.routerPort.ExecuteCommand(ctx, statusCmd)
 	if err != nil {
-		log.Printf("[WANService] Warning: Failed to fetch PPPoE status: %v", err)
+		s.logger.Warnw("failed to fetch PPPoE status", zap.Error(err))
 	}
 
 	wanData := &WANInterfaceData{
@@ -143,14 +147,14 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 	}
 	s.history.Add(routerID, historyEvent)
 
-	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Name, "PPPOE", input.AddDefaultRoute)
+	event := events.NewWANConfiguredEvent(routerID, wanData.ID, input.Name, "PPPOE", "wan-service", input.AddDefaultRoute)
 	if err := s.eventBus.Publish(ctx, event); err != nil {
-		log.Printf("[WANService] Failed to publish WAN configured event: %v", err)
+		s.logger.Warnw("failed to publish WAN configured event", zap.Error(err))
 	}
 
-	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Name, wanData.Status, "NONE", "PPPOE")
+	statusEvent := events.NewWANStatusChangedEvent(routerID, wanData.ID, input.Name, wanData.Status, "NONE", "PPPOE", "wan-service")
 	if err := s.eventBus.Publish(ctx, statusEvent); err != nil {
-		log.Printf("[WANService] Failed to publish WAN status changed event: %v", err)
+		s.logger.Warnw("failed to publish WAN status changed event", zap.Error(err))
 	}
 
 	return wanData, nil

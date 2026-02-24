@@ -14,7 +14,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -80,14 +80,14 @@ type ResourceSuggestion struct {
 // ResourceManagerConfig configures the ResourceManager
 type ResourceManagerConfig struct {
 	Store  *ent.Client
-	Logger zerolog.Logger
+	Logger *zap.Logger
 }
 
 // ResourceManager manages system resource detection and pre-flight checks
 type ResourceManager struct {
 	mu     sync.RWMutex
 	store  *ent.Client
-	logger zerolog.Logger
+	logger *zap.Logger
 }
 
 // NewResourceManager creates a new ResourceManager instance
@@ -99,6 +99,10 @@ func NewResourceManager(config ResourceManagerConfig) (*ResourceManager, error) 
 	rm := &ResourceManager{
 		store:  config.Store,
 		logger: config.Logger,
+	}
+
+	if rm.logger == nil {
+		rm.logger = zap.NewNop()
 	}
 
 	return rm, nil
@@ -113,11 +117,10 @@ func (rm *ResourceManager) GetSystemResources(ctx context.Context) (*SystemResou
 	// Try to read from /proc/meminfo
 	totalMB, availableMB, err := rm.readMemInfo()
 	if err != nil {
-		rm.logger.Warn().
-			Err(err).
-			Int("fallback_total_mb", DefaultSystemMemoryMB).
-			Int("fallback_available_mb", DefaultAvailableMemoryMB).
-			Msg("Failed to read /proc/meminfo, using fallback values")
+		rm.logger.Warn("Failed to read /proc/meminfo, using fallback values",
+			zap.Error(err),
+			zap.Int("fallback_total_mb", DefaultSystemMemoryMB),
+			zap.Int("fallback_available_mb", DefaultAvailableMemoryMB))
 
 		return &SystemResources{
 			TotalMemoryMB:     DefaultSystemMemoryMB,

@@ -104,17 +104,17 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
       open={performanceSectionExpanded}
       onOpenChange={setPerformanceSectionExpanded}
     >
-      <Card className="mt-4">
+      <Card className="mt-component-md">
         <CardHeader className="pb-3">
           <CollapsibleTrigger asChild>
             <button
-              className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity rounded focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity rounded-[var(--semantic-radius-button)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label={t('raw.performance.title', 'Why use RAW table?')}
               aria-expanded={performanceSectionExpanded}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 <Zap className="h-5 w-5 text-warning" aria-hidden="true" />
-                <CardTitle className="text-lg">
+                <CardTitle className="text-lg font-display">
                   {t('raw.performance.title', 'Why use RAW table?')}
                 </CardTitle>
               </div>
@@ -129,9 +129,9 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
           </CardDescription>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-component-md">
             {/* Main Explanation */}
-            <div className="bg-muted border border-border rounded-lg p-4">
+            <div className="bg-muted border border-border rounded-[var(--semantic-radius-card)] p-component-md">
               <p className="text-sm">
                 {t('raw.performance.explanation',
                   'The RAW table processes packets BEFORE connection tracking. This is critical for performance because connection tracking is expensive (CPU and memory). By dropping unwanted traffic in RAW, you prevent connection tracking overhead.'
@@ -141,12 +141,12 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
 
             {/* Benefits */}
             <div>
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-sm mb-2 flex items-center gap-component-sm font-display">
                 <Info className="h-4 w-4 text-success" aria-hidden="true" />
                 {t('raw.performance.benefits.title', 'Key Benefits')}
               </h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex gap-2">
+              <ul className="space-y-component-sm text-sm text-muted-foreground">
+                <li className="flex gap-component-sm">
                   <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.tips.tip_drop',
@@ -183,10 +183,10 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
 
             {/* Use Cases */}
             <div>
-              <h4 className="font-semibold text-sm mb-2">
+              <h4 className="font-semibold text-sm mb-2 font-display">
                 {t('raw.performance.useCases.title', 'Common Use Cases')}
               </h4>
-              <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+              <ul className="space-y-component-sm text-sm text-muted-foreground list-disc list-inside">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <li key={i}>
                     {t(`raw.performance.useCases.items.${i}`, `Use case ${i + 1}`)}
@@ -196,12 +196,12 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
             </div>
 
             {/* Warnings */}
-            <div className="bg-warning/10 border border-warning/30 rounded-lg p-4" role="alert">
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-warning-foreground">
+            <div className="bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)] p-component-md" role="alert">
+              <h4 className="font-semibold text-sm mb-2 flex items-center gap-component-sm text-warning font-display">
                 <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 {t('raw.performance.warnings.title', 'Important Warnings')}
               </h4>
-              <ul className="space-y-1 text-sm text-warning-foreground list-disc list-inside">
+              <ul className="space-y-component-sm text-sm text-warning list-disc list-inside">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <li key={i}>
                     {t(`raw.performance.warnings.items.${i}`, `Warning ${i + 1}`)}
@@ -270,17 +270,17 @@ export function RawPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-4">
+      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-component-md gap-component-md">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight font-display">
               {t('raw.title', 'RAW Firewall Rules')}
             </h1>
             <p className="text-sm text-muted-foreground">
               {t('raw.subtitle', 'Pre-connection tracking packet processing')}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-component-sm">
             <Button variant="outline" onClick={handleBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
               <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('raw.buttons.bogonFilter', 'Bogon Filter')}
@@ -294,7 +294,7 @@ export function RawPage() {
       </div>
 
       {/* Notice Banner */}
-      <div className="p-4 pb-0">
+      <div className="p-component-md pb-0">
         <Alert>
           <Info className="h-4 w-4" aria-hidden="true" />
           <AlertTitle>{t('raw.performance.title', 'Why use RAW table?')}</AlertTitle>
@@ -313,7 +313,7 @@ export function RawPage() {
           onValueChange={handleTabChange}
           className="h-full flex flex-col"
         >
-          <div className="border-b px-4">
+          <div className="border-b border-border px-component-md">
             <TabsList className={isMobile ? 'w-full justify-start' : ''}>
               {chains.map((chain) => (
                 <TabsTrigger key={chain} value={chain} className="capitalize">
@@ -326,7 +326,7 @@ export function RawPage() {
           <div className="flex-1 overflow-y-auto">
             {/* Individual Chain Tabs */}
             {chains.map((chain) => (
-              <TabsContent key={chain} value={chain} className="p-4 m-0 space-y-4">
+              <TabsContent key={chain} value={chain} className="p-component-md m-0 space-y-component-md">
                 {isLoading ? (
                   <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">

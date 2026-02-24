@@ -148,11 +148,6 @@ func (m *MockAdapter) GetRouterID() string {
 	return m.routerID
 }
 
-// Close is a no-op for mock adapter since there's no real connection.
-func (m *MockAdapter) Close() error {
-	return nil
-}
-
 // Connect is a no-op for mock adapter (always connected).
 func (m *MockAdapter) Connect(ctx context.Context) error {
 	return nil
@@ -246,11 +241,6 @@ func (m *MockAdapterWithErrors) ExecuteCommand(ctx context.Context, cmd Command)
 // GetRouterID returns the router ID.
 func (m *MockAdapterWithErrors) GetRouterID() string {
 	return m.routerID
-}
-
-// Close is a no-op.
-func (m *MockAdapterWithErrors) Close() error {
-	return nil
 }
 
 // Protocol returns simulated protocol.
@@ -357,4 +347,34 @@ func (m *MockAdapter) checkProgrammedResponse(cmd Command) *CommandResult {
 	}
 
 	return nil
+}
+
+// ClearMockResponses clears all programmed responses for a router.
+// Useful for test cleanup to prevent cross-test contamination.
+func (m *MockAdapter) ClearMockResponses() {
+	mockResponsesMu.Lock()
+	defer mockResponsesMu.Unlock()
+
+	mockResponseFnsMu.Lock()
+	defer mockResponseFnsMu.Unlock()
+
+	delete(mockResponses, m.routerID)
+	delete(mockResponseFns, m.routerID)
+}
+
+// ClearAllMockResponses clears all mock responses globally.
+// WARNING: Only use in test cleanup (not safe during concurrent tests).
+func ClearAllMockResponses() {
+	mockResponsesMu.Lock()
+	defer mockResponsesMu.Unlock()
+
+	mockResponseFnsMu.Lock()
+	defer mockResponseFnsMu.Unlock()
+
+	for routerID := range mockResponses {
+		delete(mockResponses, routerID)
+	}
+	for routerID := range mockResponseFns {
+		delete(mockResponseFns, routerID)
+	}
 }

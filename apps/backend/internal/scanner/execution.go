@@ -2,10 +2,11 @@ package scanner
 
 import (
 	"context"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // =============================================================================
@@ -30,23 +31,26 @@ func (s *ScannerService) executeScan(ctx context.Context, task *ScanTask, ips []
 	jobs := make(chan string, workers)
 	results := make(chan DiscoveredDevice, workers)
 
-	// Worker pool
+	// Worker pool with per-IP timeout
 	var wg sync.WaitGroup
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
-		go func() {
+		go func(_ int) {
 			defer wg.Done()
 			for ip := range jobs {
 				select {
 				case <-ctx.Done():
 					return
 				default:
-					if device := s.scanIP(ctx, ip); device != nil {
+					// Create context with timeout for this specific IP
+					ipCtx, cancel := context.WithTimeout(ctx, s.config.HTTPTimeout*time.Duration(len(TargetPorts)))
+					if device := s.scanIP(ipCtx, ip); device != nil {
 						results <- *device
 					}
+					cancel()
 				}
 			}
-		}()
+		}(i)
 	}
 
 	// Close results when workers complete
@@ -65,7 +69,7 @@ func (s *ScannerService) executeScan(ctx context.Context, task *ScanTask, ips []
 		defer close(resultsDone)
 		for device := range results {
 			task.AddResult(device)
-			s.publishDeviceDiscovered(task, device)
+			s.publishDeviceDiscovered(task, device, s.logger)
 		}
 	}()
 
@@ -85,7 +89,7 @@ func (s *ScannerService) executeScan(ctx context.Context, task *ScanTask, ips []
 
 				// Publish progress event (every 5% or every 2 seconds)
 				if progress%5 == 0 || time.Since(lastProgressUpdate) > 2*time.Second {
-					s.publishProgress(task, ip)
+					s.publishProgress(task, ip, s.logger)
 					lastProgressUpdate = time.Now()
 				}
 			}
@@ -105,7 +109,7 @@ func (s *ScannerService) executeScan(ctx context.Context, task *ScanTask, ips []
 	}
 
 	task.SetProgress(100, len(ips))
-	s.publishScanCompleted(task)
+	s.publishScanCompleted(task, s.logger)
 }
 
 // executeGatewayScan performs gateway-specific scanning.
@@ -122,24 +126,27 @@ func (s *ScannerService) executeGatewayScan(ctx context.Context, task *ScanTask,
 	jobs := make(chan string, workers)
 	results := make(chan DiscoveredDevice, workers)
 
-	// Worker pool
+	// Worker pool with per-IP timeout
 	var wg sync.WaitGroup
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
-		go func() {
+		go func(_ int) {
 			defer wg.Done()
 			for ip := range jobs {
 				select {
 				case <-ctx.Done():
 					return
 				default:
-					// For gateway scan, only check HTTP API ports
-					if device := s.scanGatewayIP(ctx, ip); device != nil {
+					// Create context with timeout for this specific IP
+					// Gateway scan checks fewer ports (HTTP API only)
+					ipCtx, cancel := context.WithTimeout(ctx, s.config.HTTPTimeout*time.Duration(len(HTTPAPIPorts)))
+					if device := s.scanGatewayIP(ipCtx, ip); device != nil {
 						results <- *device
 					}
+					cancel()
 				}
 			}
-		}()
+		}(i)
 	}
 
 	// Close results when workers complete
@@ -158,7 +165,7 @@ func (s *ScannerService) executeGatewayScan(ctx context.Context, task *ScanTask,
 		defer close(resultsDone)
 		for device := range results {
 			task.AddResult(device)
-			s.publishDeviceDiscovered(task, device)
+			s.publishDeviceDiscovered(task, device, s.logger)
 		}
 	}()
 
@@ -176,7 +183,7 @@ func (s *ScannerService) executeGatewayScan(ctx context.Context, task *ScanTask,
 				task.SetProgress(progress, int(scanned))
 
 				if progress%5 == 0 || time.Since(lastProgressUpdate) > 2*time.Second {
-					s.publishProgress(task, ip)
+					s.publishProgress(task, ip, s.logger)
 					lastProgressUpdate = time.Now()
 				}
 			}
@@ -194,37 +201,37 @@ func (s *ScannerService) executeGatewayScan(ctx context.Context, task *ScanTask,
 	}
 
 	task.SetProgress(100, len(ips))
-	s.publishScanCompleted(task)
+	s.publishScanCompleted(task, s.logger)
 }
 
 // Event publishing helpers
 
-func (s *ScannerService) publishScanStarted(task *ScanTask) {
+func (s *ScannerService) publishScanStarted(task *ScanTask, logger *zap.Logger) {
 	if s.eventBus == nil {
 		return
 	}
-	log.Printf("[Scanner] Scan started: %s (%s)", task.ID, task.Subnet)
+	logger.Info("scan started", zap.String("taskID", task.ID), zap.String("subnet", task.Subnet))
 }
 
-func (s *ScannerService) publishProgress(task *ScanTask, currentIP string) {
+func (s *ScannerService) publishProgress(task *ScanTask, currentIP string, logger *zap.Logger) {
 	if s.eventBus == nil {
 		return
 	}
-	progress, _ := task.GetProgress()
-	log.Printf("[Scanner] Progress: %s - %d%% (scanning %s)", task.ID, progress, currentIP)
+	progress, scannedCount := task.GetProgress()
+	logger.Info("scan progress", zap.String("taskID", task.ID), zap.Int("progress", progress), zap.Int("scannedCount", scannedCount), zap.String("currentIP", currentIP))
 }
 
-func (s *ScannerService) publishDeviceDiscovered(task *ScanTask, device DiscoveredDevice) {
+func (s *ScannerService) publishDeviceDiscovered(task *ScanTask, device DiscoveredDevice, logger *zap.Logger) {
 	if s.eventBus == nil {
 		return
 	}
-	log.Printf("[Scanner] Device found: %s on %s (confidence: %d)", device.IP, task.ID, device.Confidence)
+	logger.Info("device discovered", zap.String("ip", device.IP), zap.String("taskID", task.ID), zap.Int("confidence", device.Confidence))
 }
 
-func (s *ScannerService) publishScanCompleted(task *ScanTask) {
+func (s *ScannerService) publishScanCompleted(task *ScanTask, logger *zap.Logger) {
 	if s.eventBus == nil {
 		return
 	}
 	results := task.GetResults()
-	log.Printf("[Scanner] Scan completed: %s - found %d devices", task.ID, len(results))
+	logger.Info("scan completed", zap.String("taskID", task.ID), zap.Int("devicesFound", len(results)))
 }

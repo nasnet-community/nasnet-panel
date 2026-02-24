@@ -3,12 +3,11 @@
 package ent
 
 import (
+	"backend/generated/ent/alertruletemplate"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"backend/generated/ent/alertruletemplate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

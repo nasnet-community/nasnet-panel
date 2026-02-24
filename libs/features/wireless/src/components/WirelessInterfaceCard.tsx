@@ -45,11 +45,11 @@ function WirelessInterfaceCardComponent(
   // Determine band badge color using semantic tokens
   const bandColor = React.useMemo(() => {
     return iface.band === '2.4GHz'
-      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
+      ? 'bg-info/10 text-info'
       : iface.band === '5GHz'
-        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300'
+        ? 'bg-secondary/10 text-secondary'
         : iface.band === '6GHz'
-          ? 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300'
+          ? 'bg-primary/10 text-primary'
           : 'bg-muted text-muted-foreground';
   }, [iface.band]);
 
@@ -81,24 +81,24 @@ function WirelessInterfaceCardComponent(
       tabIndex={0}
       aria-label={`Wireless interface ${iface.name}${iface.ssid ? `, SSID ${iface.ssid}` : ''}`}
       className={cn(
-        'rounded-2xl md:rounded-3xl cursor-pointer hover:shadow-lg transition-shadow focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'rounded-card-lg cursor-pointer hover:shadow-lg transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className
       )}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           {/* Interface name and icon */}
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-muted">
+          <div className="flex items-center gap-component-sm">
+            <div className="p-component-sm rounded-lg bg-muted">
               <Icon icon={Wifi} className="text-muted-foreground" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-semibold font-display text-foreground">
                 {iface.name}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-mono">
                 {iface.ssid || 'Not configured'}
               </p>
             </div>
@@ -112,19 +112,19 @@ function WirelessInterfaceCardComponent(
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-component-md">
         {/* Frequency band and client count */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-component-md">
           {/* Band badge */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-component-xs">
             <Icon icon={Radio} size="sm" className="text-muted-foreground" aria-hidden="true" />
-            <span className={cn('px-2 py-0.5 rounded-md text-xs font-medium', bandColor)}>
+            <span className={cn('px-component-sm py-component-xs rounded-md text-xs font-medium', bandColor)}>
               {iface.band}
             </span>
           </div>
 
           {/* Client count */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-component-xs">
             <Icon icon={Signal} size="sm" className="text-muted-foreground" aria-hidden="true" />
             <span className="text-sm text-muted-foreground">
               {iface.connectedClients} {iface.connectedClients === 1 ? 'client' : 'clients'}
@@ -133,7 +133,7 @@ function WirelessInterfaceCardComponent(
         </div>
 
         {/* Additional info (channel, mode) - optional, hidden on mobile */}
-        <div className="hidden md:flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="hidden md:flex items-center gap-component-md text-xs text-muted-foreground font-mono">
           <span>Channel: {iface.channel || 'Auto'}</span>
           <span>•</span>
           <span>Mode: {iface.mode}</span>

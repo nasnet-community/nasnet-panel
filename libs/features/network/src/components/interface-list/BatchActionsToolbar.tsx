@@ -95,7 +95,7 @@ export const BatchActionsToolbar = memo(function BatchActionsToolbar({
   }, [confirmDialog, handleBatchAction]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-component-sm">
       <span className="text-sm text-muted-foreground">
         {selectedIds.size} selected
       </span>

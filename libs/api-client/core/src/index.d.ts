@@ -12,7 +12,7 @@ export type { RouterOSRequestOptions, RouterOSResponse, } from './router-proxy';
 export type { ApiResponse, ApiErrorResponse, StoredCredentials, RetryConfig, } from './types';
 export { ApiError } from './types';
 export { authInterceptor, storeCredentials, clearCredentials, errorInterceptor, retryInterceptor, } from './interceptors';
-export { apolloClient, apolloCache, ApolloProvider, authLink, errorLink, retryLink, wsClient, initializeCachePersistence, clearPersistedCache, getPersistedCacheSize, setupOfflineDetector, useOfflineDetector, isOffline, isDegraded, OfflineMutationQueue, offlineQueue, setupAutoReplay, } from './apollo';
+export { apolloClient, apolloCache, ApolloProvider, MockApolloProvider, authLink, errorLink, retryLink, wsClient, initializeCachePersistence, clearPersistedCache, getPersistedCacheSize, setupOfflineDetector, useOfflineDetector, isOffline, isDegraded, OfflineMutationQueue, offlineQueue, setupAutoReplay, } from './apollo';
 export type { CachePersistConfig, OfflineDetectorConfig, QueuedMutation, OfflineQueueConfig, } from './apollo';
 export { getErrorMessage, getErrorInfo, getErrorCategory, getErrorSeverity, getErrorAction, isRecoverableError, isAuthError, isNetworkError, isValidationError, } from './utils';
 export type { ErrorCategory, ErrorSeverity, ErrorInfo } from './utils';

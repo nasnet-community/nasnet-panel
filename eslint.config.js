@@ -27,6 +27,7 @@ export default [
       'ConnectSetupOldRepo/**',
       '**/generated/**',
       '**/*.generated.*',
+      '**/*.d.ts',
     ],
   },
   js.configs.recommended,

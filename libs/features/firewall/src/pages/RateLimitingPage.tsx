@@ -159,10 +159,10 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-4">
+      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between p-component-md">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight font-display">
               {t('rateLimiting.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -171,7 +171,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
           </div>
 
           {/* Header Actions - Dynamic based on selected tab */}
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             {selectedTab === 'rate-limits' && (
               <Button onClick={handleAddRule} aria-label="Add new rate limit rule" className="min-h-[44px]">
                 <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -216,7 +216,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
           onValueChange={handleTabChange}
           className="h-full flex flex-col"
         >
-          <div className="border-b px-4">
+          <div className="border-b border-border px-component-md">
             <TabsList className={isMobile ? 'w-full justify-start overflow-x-auto' : ''}>
               <TabsTrigger value="rate-limits">
                 {t('rateLimiting.tabs.rateLimits')}
@@ -232,7 +232,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
 
           <div className="flex-1 overflow-y-auto">
             {/* Rate Limits Tab */}
-            <TabsContent value="rate-limits" className="p-4 m-0">
+            <TabsContent value="rate-limits" className="p-component-md m-0">
               {!hasRules ? (
                 <EmptyState tab="rate-limits" onAddRule={handleAddRule} />
               ) : (
@@ -241,7 +241,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
             </TabsContent>
 
             {/* SYN Flood Protection Tab */}
-            <TabsContent value="syn-flood" className="p-4 m-0 space-y-4">
+            <TabsContent value="syn-flood" className="p-component-md m-0 space-y-component-md">
               {/* Info Alert */}
               <Alert>
                 <Info className="h-4 w-4" aria-hidden="true" />
@@ -263,7 +263,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
             </TabsContent>
 
             {/* Statistics Tab */}
-            <TabsContent value="statistics" className="p-4 m-0 space-y-6">
+            <TabsContent value="statistics" className="p-component-md m-0 space-y-component-lg">
               {/* Stats Overview */}
               <RateLimitStatsOverview routerId={routerIp} />
 
@@ -272,8 +272,8 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
                 <EmptyState tab="statistics" onAddRule={handleAddRule} />
               ) : (
                 <div>
-                  <div className="mb-4">
-                    <h2 className="text-lg font-semibold">
+                  <div className="mb-component-md">
+                    <h2 className="text-lg font-semibold font-display">
                       {t('rateLimiting.statistics.blockedIPsTable')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -306,7 +306,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
                 : t('rateLimiting.dialogs.addRule.description')}
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="mt-component-lg">
             <RateLimitRuleEditor
               routerId={routerIp}
               initialRule={editingRule || undefined}

@@ -29,14 +29,14 @@ export function DnsServerListDesktop({
   isLoading = false,
 }: DnsServerListProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-md">
       {/* DNS Servers List with Drag-and-Drop */}
       {servers.length > 0 ? (
         <SortableListWithActions
           items={servers.map((s: DnsServer) => ({ ...s, disabled: s.isDynamic || isLoading }))}
           onReorder={({ items }: any) => onReorder(items)}
           renderItem={(server: DnsServer) => (
-            <div className="flex items-center gap-3 p-3 bg-card rounded-input border border-input">
+            <div className="flex items-center gap-component-sm p-component-sm bg-card rounded-[var(--semantic-radius-button)] border border-input">
               {/* Icon */}
               <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
 
@@ -66,10 +66,10 @@ export function DnsServerListDesktop({
         />
       ) : (
         // Empty state
-        <div className="p-6 text-center text-muted-foreground border border-dashed rounded-input">
-          <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <div className="p-component-lg text-center text-muted-foreground border border-dashed rounded-[var(--semantic-radius-button)]">
+          <Globe className="h-8 w-8 mx-auto mb-component-sm opacity-50" />
           <p className="text-sm">No DNS servers configured</p>
-          <p className="text-xs mt-1">
+          <p className="text-xs mt-component-sm">
             Add a static DNS server or configure DHCP to receive dynamic servers
           </p>
         </div>
@@ -79,16 +79,16 @@ export function DnsServerListDesktop({
       <Button
         onClick={onAdd}
         variant="outline"
-        className="w-full"
+        className="w-full min-h-[44px]"
         disabled={isLoading}
         aria-label="Add a new DNS server"
       >
-        <Plus className="h-4 w-4 mr-2" />
+        <Plus className="h-4 w-4 mr-component-sm" />
         Add DNS Server
       </Button>
 
       {/* Help Text */}
-      <div className="text-xs text-muted-foreground space-y-1">
+      <div className="text-xs text-muted-foreground space-y-component-sm">
         <p>
           <strong>Static servers</strong> are manually configured and take
           priority over dynamic servers.

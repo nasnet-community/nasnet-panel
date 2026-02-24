@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 	"backend/generated/ent/router"
 	"backend/internal/connection"
@@ -26,6 +28,7 @@ type RouterService struct {
 	eventPublisher *events.Publisher
 	encryptionSvc  *encryption.Service
 	db             *ent.Client
+	logger         *zap.Logger
 
 	// Active router tracking per session
 	// In production, this would be backed by session storage
@@ -64,6 +67,7 @@ func NewRouterService(cfg RouterServiceConfig) *RouterService {
 		eventBus:      cfg.EventBus,
 		encryptionSvc: cfg.EncryptionService,
 		db:            cfg.DB,
+		logger:        zap.NewNop(), // Use nop logger by default; can be replaced with actual logger
 		activeRouters: make(map[string]string),
 	}
 
@@ -136,7 +140,7 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 				Save(ctx)
 			if updateErr != nil {
 				// Log but don't fail the response
-				fmt.Printf("[RouterService] Warning: failed to update router status: %v\n", updateErr)
+				s.logger.Warn("Failed to update router status after connection failure", zap.Error(updateErr))
 			}
 
 			return &ConnectResult{
@@ -171,7 +175,7 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 		if s.eventPublisher != nil {
 			if pubErr := s.eventPublisher.PublishRouterConnected(ctx, routerID, protocol, version); pubErr != nil {
 				// Log but don't fail
-				fmt.Printf("[RouterService] Warning: failed to publish connected event: %v\n", pubErr)
+				s.logger.Warn("Failed to publish router connected event", zap.Error(pubErr))
 			}
 		}
 
@@ -223,7 +227,7 @@ func (s *RouterService) Disconnect(ctx context.Context, routerID string) (*Disco
 	if s.connManager != nil {
 		if discErr := s.connManager.Disconnect(routerID, connection.DisconnectReasonManual); discErr != nil {
 			// Connection might not exist, which is fine
-			fmt.Printf("[RouterService] Note: disconnect returned: %v\n", discErr)
+			s.logger.Debug("Disconnect operation returned", zap.Error(discErr))
 		}
 	}
 
@@ -238,7 +242,7 @@ func (s *RouterService) Disconnect(ctx context.Context, routerID string) (*Disco
 	// 4. Publish RouterDisconnectedEvent
 	if s.eventPublisher != nil {
 		if pubErr := s.eventPublisher.PublishRouterDisconnected(ctx, routerID, "manual"); pubErr != nil {
-			fmt.Printf("[RouterService] Warning: failed to publish disconnected event: %v\n", pubErr)
+			s.logger.Warn("Failed to publish router disconnected event", zap.Error(pubErr))
 		}
 	}
 

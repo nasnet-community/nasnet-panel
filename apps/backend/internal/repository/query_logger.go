@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // QueryCounter tracks the number of database queries executed.
@@ -100,16 +101,19 @@ func GetQueryCounter(ctx context.Context) *QueryCounter {
 type QueryLogger struct {
 	enabled bool
 	prefix  string
+	logger  *zap.Logger
 }
 
 // NewQueryLogger creates a new QueryLogger.
 func NewQueryLogger(enabled bool, prefix string) *QueryLogger {
 	if prefix == "" {
-		prefix = "[query]"
+		prefix = "query"
 	}
+	logger, _ := zap.NewProduction() //nolint:errcheck // fallback logger creation
 	return &QueryLogger{
 		enabled: enabled,
 		prefix:  prefix,
+		logger:  logger,
 	}
 }
 
@@ -118,15 +122,25 @@ func (ql *QueryLogger) Log(operation, table string, duration time.Duration) {
 	if !ql.enabled {
 		return
 	}
-	log.Printf("%s %s on %s took %v", ql.prefix, operation, table, duration)
+	ql.logger.Debug("Query executed",
+		zap.String("operation", operation),
+		zap.String("table", table),
+		zap.Duration("duration", duration))
 }
 
 // LogQuery logs a raw query if logging is enabled.
+// NOTE: Query arguments are NEVER logged to prevent exposing sensitive data
+// (passwords, credentials, API keys, etc.). Only the query structure is logged.
 func (ql *QueryLogger) LogQuery(query string, args []interface{}, duration time.Duration) {
 	if !ql.enabled {
 		return
 	}
-	log.Printf("%s Query: %s (args: %v) took %v", ql.prefix, query, args, duration)
+	// Only log query structure and arg count, never the actual argument values
+	argCount := len(args)
+	ql.logger.Debug("Raw query executed",
+		zap.String("query", query),
+		zap.Int("arg_count", argCount),
+		zap.Duration("duration", duration))
 }
 
 // =============================================================================
@@ -172,8 +186,8 @@ var QueryBaselines = struct {
 	RouterGetWithRelations:     1, // Single query with eager loading (WithSecrets)
 	RouterListWithCapabilities: 1, // Single query with eager loading
 	RouterCreateWithSecrets:    2, // INSERT router + INSERT secret (within transaction)
-	RouterUpdateStatus:         2, // SELECT router (for previous status) + UPDATE
-	RouterDelete:               2, // DELETE secrets + DELETE router (within transaction)
+	RouterUpdateStatus:         2, // SELECT (get previous status for event) + UPDATE (set new status)
+	RouterDelete:               2, // DELETE secrets (foreign key) + DELETE router (within transaction)
 	RouterGetByHost:            1, // Single query
 
 	// UserRepository baselines

@@ -2,11 +2,13 @@ package throttle
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // StatusData represents throttle status for a rule (for GraphQL).
@@ -95,14 +97,14 @@ func (tm *Manager) getStatusForRule(ruleID string, state *throttleState) StatusD
 }
 
 // StartSummaryWorker runs a background worker that delivers throttle summaries.
-func (tm *Manager) StartSummaryWorker(ctx context.Context, summaryInterval time.Duration) {
+func (tm *Manager) StartSummaryWorker(ctx context.Context, summaryInterval time.Duration, logger *zap.Logger) {
 	ticker := time.NewTicker(summaryInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			tm.deliverSummaries(ctx)
+			tm.deliverSummaries(ctx, logger)
 		case <-tm.stopCh:
 			return
 		case <-ctx.Done():
@@ -111,7 +113,7 @@ func (tm *Manager) StartSummaryWorker(ctx context.Context, summaryInterval time.
 	}
 }
 
-func (tm *Manager) deliverSummaries(ctx context.Context) {
+func (tm *Manager) deliverSummaries(ctx context.Context, logger *zap.Logger) {
 	if tm.eventBus == nil {
 		return
 	}
@@ -149,7 +151,7 @@ func (tm *Manager) deliverSummaries(ctx context.Context) {
 		}
 
 		if err := tm.eventBus.Publish(ctx, event); err != nil {
-			fmt.Printf("failed to publish throttle summary for rule %s: %v\n", ruleID, err)
+			logger.Error("failed to publish throttle summary", zap.String("rule_id", ruleID), zap.Error(err))
 		}
 
 		tm.resetSuppressionCounts(ruleID)
@@ -188,7 +190,7 @@ func ParseConfig(configJSON map[string]interface{}) (Config, error) {
 	case int:
 		config.MaxAlerts = maxAlerts
 	default:
-		return config, fmt.Errorf("maxAlerts is required and must be a number")
+		return config, errors.New("maxAlerts is required and must be a number")
 	}
 
 	switch periodSeconds := configJSON["periodSeconds"].(type) {
@@ -197,7 +199,7 @@ func ParseConfig(configJSON map[string]interface{}) (Config, error) {
 	case int:
 		config.PeriodSeconds = periodSeconds
 	default:
-		return config, fmt.Errorf("periodSeconds is required and must be a number")
+		return config, errors.New("periodSeconds is required and must be a number")
 	}
 
 	if groupByField, ok := configJSON["groupByField"].(string); ok {
@@ -245,7 +247,8 @@ func ToString(value interface{}) string {
 	case bool:
 		return strconv.FormatBool(v)
 	default:
-		return fmt.Sprintf("%v", v)
+		// For unsupported types, return empty string instead of formatting
+		return ""
 	}
 }
 
@@ -275,6 +278,7 @@ type StormStatus struct {
 	StormStartTime    time.Time
 	SuppressedCount   int
 	CurrentRate       float64
+	ThresholdRate     float64
 	CooldownRemaining time.Duration
 }
 
@@ -353,12 +357,14 @@ func (sd *StormDetector) GetStatus() StormStatus {
 	}
 
 	currentRate := float64(alertCount) / (float64(sd.config.WindowSeconds) / 60.0)
+	thresholdRate := float64(sd.config.Threshold) / (float64(sd.config.WindowSeconds) / 60.0)
 
 	status := StormStatus{
 		InStorm:         sd.inStorm,
 		StormStartTime:  sd.stormStartTime,
 		SuppressedCount: sd.suppressedCount,
 		CurrentRate:     currentRate,
+		ThresholdRate:   thresholdRate,
 	}
 
 	if sd.inStorm {

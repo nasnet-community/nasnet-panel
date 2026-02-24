@@ -11,11 +11,12 @@ import (
 	"backend/internal/events"
 	"backend/internal/router"
 
-	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
 )
 
 // InterfaceFactory creates and manages VLAN interfaces on MikroTik routers.
 type InterfaceFactory struct {
+	logger      *zap.Logger
 	router      router.RouterPort
 	store       *ent.Client
 	eventBus    events.EventBus
@@ -25,6 +26,7 @@ type InterfaceFactory struct {
 
 // InterfaceFactoryConfig holds configuration for InterfaceFactory.
 type InterfaceFactoryConfig struct {
+	Logger      *zap.Logger
 	RouterPort  router.RouterPort
 	Store       *ent.Client
 	EventBus    events.EventBus
@@ -34,6 +36,7 @@ type InterfaceFactoryConfig struct {
 // NewInterfaceFactory creates a new interface factory.
 func NewInterfaceFactory(cfg InterfaceFactoryConfig) *InterfaceFactory {
 	f := &InterfaceFactory{
+		logger:      cfg.Logger,
 		router:      cfg.RouterPort,
 		store:       cfg.Store,
 		eventBus:    cfg.EventBus,
@@ -66,11 +69,11 @@ func (f *InterfaceFactory) CreateInterface(
 	routingMark := fmt.Sprintf("%s-%s", featureID, instanceName)
 	routingTableName := routingMark
 
-	log.Info().
-		Str("interface", interfaceName).
-		Int("vlan_id", vlanID).
-		Str("ip", ipAddress).
-		Msg("Creating virtual interface")
+	f.logger.Info("Creating virtual interface",
+		zap.String("interface", interfaceName),
+		zap.Int("vlan_id", vlanID),
+		zap.String("ip", ipAddress),
+	)
 
 	// Create database record first with CREATING status
 	vif, err := f.store.VirtualInterface.
@@ -93,10 +96,10 @@ func (f *InterfaceFactory) CreateInterface(
 	defer func() {
 		if len(cleanups) > 0 {
 			// Rollback in reverse order
-			log.Warn().Msg("Rolling back interface creation")
+			f.logger.Warn("Rolling back interface creation")
 			for i := len(cleanups) - 1; i >= 0; i-- {
 				if cleanupErr := cleanups[i](); cleanupErr != nil {
-					log.Error().Err(cleanupErr).Msg("Cleanup failed")
+					f.logger.Error("Cleanup failed", zap.Error(cleanupErr))
 				}
 			}
 		}
@@ -226,14 +229,14 @@ func (f *InterfaceFactory) CreateInterface(
 			"ip_address":     ipAddress,
 		})
 		if err := f.publisher.Publish(ctx, event); err != nil {
-			log.Warn().Err(err).Msg("Failed to publish InterfaceCreated event")
+			f.logger.Warn("Failed to publish InterfaceCreated event", zap.Error(err))
 		}
 	}
 
-	log.Info().
-		Str("interface", interfaceName).
-		Str("vif_id", vif.ID).
-		Msg("Virtual interface created successfully")
+	f.logger.Info("Virtual interface created successfully",
+		zap.String("interface", interfaceName),
+		zap.String("vif_id", vif.ID),
+	)
 
 	return vif, nil
 }
@@ -250,16 +253,16 @@ func (f *InterfaceFactory) RemoveInterface(
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			log.Warn().Str("instance_id", instanceID).Msg("VirtualInterface not found")
+			f.logger.Warn("VirtualInterface not found", zap.String("instance_id", instanceID))
 			return nil
 		}
 		return fmt.Errorf("failed to load VirtualInterface: %w", err)
 	}
 
-	log.Info().
-		Str("interface", vif.InterfaceName).
-		Str("vif_id", vif.ID).
-		Msg("Removing virtual interface")
+	f.logger.Info("Removing virtual interface",
+		zap.String("interface", vif.InterfaceName),
+		zap.String("vif_id", vif.ID),
+	)
 
 	// Update status to REMOVING
 	vif.Update().SetStatus(virtualinterface.StatusRemoving).SaveX(ctx)
@@ -277,7 +280,7 @@ func (f *InterfaceFactory) RemoveInterface(
 		},
 	}
 	if _, err := f.router.ExecuteCommand(ctx, removeRouteCmd); err != nil {
-		log.Warn().Err(err).Msg("Failed to remove route (may not exist)")
+		f.logger.Warn("Failed to remove route (may not exist)", zap.Error(err))
 	}
 
 	// Step 2: Remove routing table
@@ -289,7 +292,7 @@ func (f *InterfaceFactory) RemoveInterface(
 		},
 	}
 	if _, err := f.router.ExecuteCommand(ctx, removeTableCmd); err != nil {
-		log.Warn().Err(err).Msg("Failed to remove routing table (may not exist)")
+		f.logger.Warn("Failed to remove routing table (may not exist)", zap.Error(err))
 	}
 
 	// Step 3: Remove IP address
@@ -301,7 +304,7 @@ func (f *InterfaceFactory) RemoveInterface(
 		},
 	}
 	if _, err := f.router.ExecuteCommand(ctx, removeIpCmd); err != nil {
-		log.Warn().Err(err).Msg("Failed to remove IP address (may not exist)")
+		f.logger.Warn("Failed to remove IP address (may not exist)", zap.Error(err))
 	}
 
 	// Step 4: Remove VLAN interface
@@ -313,7 +316,7 @@ func (f *InterfaceFactory) RemoveInterface(
 		},
 	}
 	if _, err := f.router.ExecuteCommand(ctx, removeVlanCmd); err != nil {
-		log.Warn().Err(err).Msg("Failed to remove VLAN interface (may not exist)")
+		f.logger.Warn("Failed to remove VLAN interface (may not exist)", zap.Error(err))
 	}
 
 	// Delete VirtualInterface record
@@ -330,13 +333,13 @@ func (f *InterfaceFactory) RemoveInterface(
 			"vlan_id":        vif.VlanID,
 		})
 		if err := f.publisher.Publish(ctx, event); err != nil {
-			log.Warn().Err(err).Msg("Failed to publish InterfaceRemoved event")
+			f.logger.Warn("Failed to publish InterfaceRemoved event", zap.Error(err))
 		}
 	}
 
-	log.Info().
-		Str("interface", vif.InterfaceName).
-		Msg("Virtual interface removed successfully")
+	f.logger.Info("Virtual interface removed successfully",
+		zap.String("interface", vif.InterfaceName),
+	)
 
 	return nil
 }

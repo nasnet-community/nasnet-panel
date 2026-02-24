@@ -24,6 +24,14 @@ type HealthMonitor struct {
 
 // NewHealthMonitor creates a new health monitor.
 func NewHealthMonitor(manager *Manager, eventBus events.EventBus, logger *zap.Logger) *HealthMonitor {
+	// Validate required parameters
+	if manager == nil {
+		panic("manager cannot be nil")
+	}
+	if logger == nil {
+		panic("logger cannot be nil")
+	}
+
 	return &HealthMonitor{
 		manager:    manager,
 		logger:     logger.Named("health-monitor"),
@@ -122,6 +130,13 @@ func (h *HealthMonitor) performHealthCheck(ctx context.Context, routerID string)
 	defer cancel()
 
 	// Create a temporary client for probing
+	if h.manager.clientFactory == nil {
+		h.logger.Debug("background health check: client factory is nil",
+			zap.String("routerID", routerID),
+		)
+		return
+	}
+
 	client, err := h.manager.clientFactory.CreateClient(checkCtx, config)
 	if err != nil {
 		h.logger.Debug("background health check: client creation failed",
@@ -244,6 +259,11 @@ func (h *HealthMonitor) CheckHealth(ctx context.Context, routerID string) (*Heal
 
 // IsHealthy returns true if the connection to a router is healthy.
 func (h *HealthMonitor) IsHealthy(routerID string) bool {
+	// Validate manager and pool
+	if h.manager == nil {
+		return false
+	}
+
 	conn := h.manager.pool.Get(routerID)
 	if conn == nil {
 		return false

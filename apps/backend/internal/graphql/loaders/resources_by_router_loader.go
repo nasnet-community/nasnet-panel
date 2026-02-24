@@ -2,9 +2,9 @@ package loaders
 
 import (
 	"context"
-	"log"
 
 	"github.com/graph-gophers/dataloader/v7"
+	"go.uber.org/zap"
 
 	"backend/generated/ent"
 	"backend/generated/ent/resource"
@@ -28,14 +28,16 @@ type ResourcesByRouterLoader struct {
 // only the resources for their requested router.
 //
 //nolint:dupl // similar loader pattern, distinct types
-func NewResourcesByRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool) *ResourcesByRouterLoader {
+func NewResourcesByRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool, logger *zap.Logger) *ResourcesByRouterLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[[]*ent.Resource] {
 		// Track statistics
 		stats.IncrementBatchCalls()
 		stats.IncrementTotalKeys(len(keys))
 
-		if devMode {
-			log.Printf("[DataLoader] ResourcesByRouterLoader batch: loading resources for %d routers", len(keys))
+		if devMode && logger != nil {
+			logger.Debug("ResourcesByRouterLoader batch started",
+				zap.Int("router_count", len(keys)),
+			)
 		}
 
 		// Query all resources for the requested routers
@@ -45,11 +47,15 @@ func NewResourcesByRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool
 			Where(resource.CategoryIn(keys...)).
 			All(ctx)
 
-		if devMode {
+		if devMode && logger != nil {
 			if err != nil {
-				log.Printf("[DataLoader] ResourcesByRouterLoader batch error: %v", err)
+				logger.Error("ResourcesByRouterLoader batch failed",
+					zap.Error(err),
+				)
 			} else {
-				log.Printf("[DataLoader] ResourcesByRouterLoader batch: loaded %d total resources", len(resources))
+				logger.Debug("ResourcesByRouterLoader batch completed",
+					zap.Int("resource_count", len(resources)),
+				)
 			}
 		}
 
@@ -98,14 +104,16 @@ type ResourcesByTypeLoader struct {
 // NewResourcesByTypeLoader creates a new ResourcesByTypeLoader.
 //
 //nolint:dupl // similar loader pattern, distinct types
-func NewResourcesByTypeLoader(db *ent.Client, stats *LoaderStats, devMode bool) *ResourcesByTypeLoader {
+func NewResourcesByTypeLoader(db *ent.Client, stats *LoaderStats, devMode bool, logger *zap.Logger) *ResourcesByTypeLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[[]*ent.Resource] {
 		// Track statistics
 		stats.IncrementBatchCalls()
 		stats.IncrementTotalKeys(len(keys))
 
-		if devMode {
-			log.Printf("[DataLoader] ResourcesByTypeLoader batch: loading resources for %d types", len(keys))
+		if devMode && logger != nil {
+			logger.Debug("ResourcesByTypeLoader batch started",
+				zap.Int("type_count", len(keys)),
+			)
 		}
 
 		// Single batched query for all resource types
@@ -113,11 +121,15 @@ func NewResourcesByTypeLoader(db *ent.Client, stats *LoaderStats, devMode bool) 
 			Where(resource.TypeIn(keys...)).
 			All(ctx)
 
-		if devMode {
+		if devMode && logger != nil {
 			if err != nil {
-				log.Printf("[DataLoader] ResourcesByTypeLoader batch error: %v", err)
+				logger.Error("ResourcesByTypeLoader batch failed",
+					zap.Error(err),
+				)
 			} else {
-				log.Printf("[DataLoader] ResourcesByTypeLoader batch: loaded %d total resources", len(resources))
+				logger.Debug("ResourcesByTypeLoader batch completed",
+					zap.Int("resource_count", len(resources)),
+				)
 			}
 		}
 

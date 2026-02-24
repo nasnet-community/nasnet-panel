@@ -112,6 +112,24 @@
       "system": "System"
     }
   },
+  "nav": {
+    "dashboard": "Dashboard",
+    "routers": "Routers",
+    "traffic": "Traffic",
+    "network": "Network",
+    "wifi": "WiFi",
+    "security": "Security",
+    "services": "Services",
+    "settings": "Settings",
+    "diagnostics": "Diagnostics",
+    "internet": "Internet",
+    "sections": {
+      "overview": "Overview",
+      "monitoring": "Monitoring",
+      "configuration": "Configuration",
+      "advanced": "Advanced"
+    }
+  },
   "accessibility": {
     "skipToContent": "Skip to main content",
     "openMenu": "Open menu",

@@ -11,9 +11,9 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
@@ -102,7 +102,7 @@ func TestTemplateInstaller_InstallTemplate_SingleService(t *testing.T) {
 	t.Skip("TODO: TemplateServiceConfig doesn't have Store field - needs refactoring to use correct config fields")
 
 	// Setup
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 	instanceMgr := &mockInstanceManager{}
 
@@ -160,7 +160,7 @@ func TestTemplateInstaller_InstallTemplate_SingleService(t *testing.T) {
 
 func TestTemplateInstaller_InstallTemplate_MultiService(t *testing.T) {
 	// Setup
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 	instanceMgr := &mockInstanceManager{}
 	depMgr := &mockDependencyManager{}
@@ -221,7 +221,7 @@ func TestTemplateInstaller_InstallTemplate_MultiService(t *testing.T) {
 func TestTemplateInstaller_InstallTemplate_Rollback(t *testing.T) {
 	t.Skip("TODO: Template infrastructure incomplete - customTemplates field doesn't exist")
 	// Setup
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 	instanceMgr := &mockInstanceManager{
 		createError: nil, // First creation succeeds
@@ -267,6 +267,7 @@ func TestTemplateInstaller_InstallTemplate_Rollback(t *testing.T) {
 		},
 		ConfigVariables: []TemplateVariable{},
 	}
+	_ = customTemplate // TODO: wire up once template service API allows direct template injection
 
 	// Force error on second instance creation
 	// callCount := 0
@@ -285,8 +286,7 @@ func TestTemplateInstaller_InstallTemplate_Rollback(t *testing.T) {
 	// templateSvc.customTemplates = map[string]*ServiceTemplate{
 	// 	"test-rollback": customTemplate,
 	// }
-	_ = templateSvc    // Silence unused variable (TODO: customTemplates field access removed)
-	_ = customTemplate // Silence unused variable
+	// TODO: Refactor to use proper template service API instead of direct field access
 
 	// Test installation - should fail and rollback
 	ctx := context.Background()
@@ -309,7 +309,7 @@ func TestTemplateInstaller_InstallTemplate_Rollback(t *testing.T) {
 }
 
 func TestTemplateInstaller_VariableResolution(t *testing.T) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -363,7 +363,7 @@ func TestTemplateInstaller_VariableResolution(t *testing.T) {
 }
 
 func TestTemplateInstaller_ValidateTemplate(t *testing.T) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -413,7 +413,7 @@ func TestTemplateInstaller_ValidateTemplate(t *testing.T) {
 }
 
 func TestTemplateInstaller_EventEmission(t *testing.T) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 	// instanceMgr := &mockInstanceManager{} // TODO: type mismatch with lifecycle.InstanceManager
 
@@ -463,7 +463,7 @@ func TestTemplateInstaller_EventEmission(t *testing.T) {
 // Benchmark tests
 
 func BenchmarkTemplateInstaller_InstallSingleService(b *testing.B) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 	instanceMgr := &mockInstanceManager{}
 
@@ -474,7 +474,6 @@ func BenchmarkTemplateInstaller_InstallSingleService(b *testing.B) {
 		// Store:  client, // TODO: TemplateServiceConfig doesn't have Store field
 		Logger: logger,
 	})
-	_ = client // Silence unused variable
 
 	installer, _ := NewTemplateInstaller(TemplateInstallerConfig{
 		TemplateService: templateSvc,
@@ -511,7 +510,7 @@ func BenchmarkTemplateInstaller_InstallSingleService(b *testing.B) {
 }
 
 func BenchmarkTemplateInstaller_VariableResolution(b *testing.B) {
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 	eventBus := &mockEventBus{}
 
 	client := enttest.Open(b, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -521,7 +520,6 @@ func BenchmarkTemplateInstaller_VariableResolution(b *testing.B) {
 		// Store:  client, // TODO: TemplateServiceConfig doesn't have Store field
 		Logger: logger,
 	})
-	_ = client // Silence unused variable
 
 	installer, _ := NewTemplateInstaller(TemplateInstallerConfig{
 		TemplateService: templateSvc,

@@ -358,7 +358,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Hops ({traceroute.hops.length})</CardTitle>
-              <div className="flex gap-2">
+              <div className="flex gap-component-sm">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -391,7 +391,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       {/* Empty state */}
       {!traceroute.isRunning && traceroute.hops.length === 0 && !traceroute.error && (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <CardContent className="flex flex-col items-center justify-center p-component-lg text-center">
             <div className="text-muted-foreground">
               <p className="text-base font-medium mb-2">No results yet</p>
               <p className="text-sm">Enter a target to begin</p>

@@ -5,40 +5,6 @@ import (
 	"testing"
 )
 
-// mockRouterPort implements RouterPort for testing.
-type mockRouterPort struct {
-	responses map[string]*StateResult
-	errors    map[string]error
-}
-
-func newMockRouterPort() *mockRouterPort {
-	return &mockRouterPort{
-		responses: make(map[string]*StateResult),
-		errors:    make(map[string]error),
-	}
-}
-
-func (m *mockRouterPort) setResponse(path string, resources []map[string]string) {
-	m.responses[path] = &StateResult{
-		Resources: resources,
-		Count:     len(resources),
-	}
-}
-
-func (m *mockRouterPort) setError(path string, err error) {
-	m.errors[path] = err
-}
-
-func (m *mockRouterPort) QueryState(ctx context.Context, query StateQuery) (*StateResult, error) {
-	if err, ok := m.errors[query.Path]; ok {
-		return nil, err
-	}
-	if result, ok := m.responses[query.Path]; ok {
-		return result, nil
-	}
-	return &StateResult{}, nil
-}
-
 // TestDetector_DetectSystemResource tests system resource detection.
 func TestDetector_DetectSystemResource(t *testing.T) {
 	tests := []struct {

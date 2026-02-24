@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -34,9 +35,11 @@ type GitHubAsset struct {
 
 // GitHubClient wraps an HTTP client with ETag caching for the GitHub Releases API.
 type GitHubClient struct {
-	httpClient *http.Client
-	etags      map[string]string
-	userAgent  string
+	httpClient  *http.Client
+	etags       map[string]string
+	etagsMu     sync.RWMutex // protects etags map
+	userAgent   string
+	maxRespSize int64 // max response size in bytes (10MB default)
 }
 
 // GitHubClientOption configures a GitHubClient.
@@ -52,12 +55,18 @@ func WithHTTPClient(c *http.Client) GitHubClientOption {
 	return func(gc *GitHubClient) { gc.httpClient = c }
 }
 
+// WithMaxResponseSize sets the maximum allowed response size in bytes.
+func WithMaxResponseSize(bytes int64) GitHubClientOption {
+	return func(gc *GitHubClient) { gc.maxRespSize = bytes }
+}
+
 // NewGitHubClient creates a new GitHub API client.
 func NewGitHubClient(opts ...GitHubClientOption) *GitHubClient {
 	gc := &GitHubClient{
-		httpClient: &http.Client{Timeout: 30 * time.Second},
-		etags:      make(map[string]string),
-		userAgent:  "NasNetConnect-UpdateManager/1.0",
+		httpClient:  &http.Client{Timeout: 30 * time.Second},
+		etags:       make(map[string]string),
+		userAgent:   "NasNetConnect-UpdateManager/1.0",
+		maxRespSize: 10 * 1024 * 1024, // 10MB default
 	}
 	for _, opt := range opts {
 		opt(gc)
@@ -79,7 +88,11 @@ func (gc *GitHubClient) FetchLatestRelease(ctx context.Context, owner, repo stri
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	req.Header.Set("User-Agent", gc.userAgent)
 
-	if etag, ok := gc.etags[url]; ok {
+	gc.etagsMu.RLock()
+	etag, ok := gc.etags[url]
+	gc.etagsMu.RUnlock()
+
+	if ok {
 		req.Header.Set("If-None-Match", etag)
 	}
 
@@ -94,7 +107,9 @@ func (gc *GitHubClient) FetchLatestRelease(ctx context.Context, owner, repo stri
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
+		// Limit response body read to prevent memory exhaustion
+		limited := io.LimitReader(resp.Body, 1*1024*1024) // 1MB limit for error responses
+		body, err := io.ReadAll(limited)
 		if err != nil {
 			return nil, false, fmt.Errorf("GitHub API returned %d: failed to read body: %w", resp.StatusCode, err)
 		}
@@ -102,11 +117,15 @@ func (gc *GitHubClient) FetchLatestRelease(ctx context.Context, owner, repo stri
 	}
 
 	if etag := resp.Header.Get("ETag"); etag != "" {
+		gc.etagsMu.Lock()
 		gc.etags[url] = etag
+		gc.etagsMu.Unlock()
 	}
 
+	// Limit response body to prevent memory exhaustion
+	limitedBody := io.LimitReader(resp.Body, gc.maxRespSize)
 	var release GitHubRelease
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+	if err := json.NewDecoder(limitedBody).Decode(&release); err != nil {
 		return nil, false, fmt.Errorf("failed to decode release: %w", err)
 	}
 
@@ -132,15 +151,19 @@ func (gc *GitHubClient) FetchAllReleases(ctx context.Context, owner, repo string
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
+		// Limit response body read to prevent memory exhaustion
+		limited := io.LimitReader(resp.Body, 1*1024*1024) // 1MB limit for error responses
+		body, err := io.ReadAll(limited)
 		if err != nil {
 			return nil, fmt.Errorf("GitHub API returned %d: failed to read body: %w", resp.StatusCode, err)
 		}
 		return nil, fmt.Errorf("GitHub API returned %d: %s", resp.StatusCode, string(body))
 	}
 
+	// Limit response body to prevent memory exhaustion
+	limitedBody := io.LimitReader(resp.Body, gc.maxRespSize)
 	var releases []GitHubRelease
-	if err := json.NewDecoder(resp.Body).Decode(&releases); err != nil {
+	if err := json.NewDecoder(limitedBody).Decode(&releases); err != nil {
 		return nil, fmt.Errorf("failed to decode releases: %w", err)
 	}
 

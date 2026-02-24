@@ -57,6 +57,9 @@ type PortAllocation func(*sql.Selector)
 // PortKnockSequence is the predicate function for portknocksequence builders.
 type PortKnockSequence func(*sql.Selector)
 
+// ProvisioningSession is the predicate function for provisioningsession builders.
+type ProvisioningSession func(*sql.Selector)
+
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)
 
@@ -78,9 +81,6 @@ type RoutingChain func(*sql.Selector)
 // RoutingSchedule is the predicate function for routingschedule builders.
 type RoutingSchedule func(*sql.Selector)
 
-// SchemaVersion is the predicate function for schemaversion builders.
-type SchemaVersion func(*sql.Selector)
-
 // ServiceDependency is the predicate function for servicedependency builders.
 type ServiceDependency func(*sql.Selector)
 
@@ -96,11 +96,17 @@ type ServiceTrafficHourly func(*sql.Selector)
 // Session is the predicate function for session builders.
 type Session func(*sql.Selector)
 
+// SubnetAllocation is the predicate function for subnetallocation builders.
+type SubnetAllocation func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
 // VLANAllocation is the predicate function for vlanallocation builders.
 type VLANAllocation func(*sql.Selector)
+
+// Version is the predicate function for version builders.
+type Version func(*sql.Selector)
 
 // VirtualInterface is the predicate function for virtualinterface builders.
 type VirtualInterface func(*sql.Selector)

@@ -9,10 +9,10 @@ import (
 
 // ApplyProdMiddleware configures production middleware (minimal, no CORS).
 func ApplyProdMiddleware(e *echo.Echo) {
-	e.Use(middleware.Recover())
+	// Compression middleware first (before other middleware)
+	e.Use(middleware.Gzip())
 
-	// No CORS in production (same-origin)
-	// No logger middleware by default (can be enabled via env)
+	// Logger middleware (optional, enabled via env)
 	if os.Getenv("ENABLE_LOGGING") == "true" {
 		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 			LogStatus:  true,
@@ -22,18 +22,17 @@ func ApplyProdMiddleware(e *echo.Echo) {
 			LogLatency: true,
 		}))
 	}
+
+	// Recovery middleware last (catches panics from all middleware/handlers)
+	e.Use(middleware.Recover())
+
+	// No CORS in production (same-origin)
 }
 
 // ApplyDevMiddleware configures development middleware (logging, CORS, recovery).
 func ApplyDevMiddleware(e *echo.Echo) {
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus:  true,
-		LogMethod:  true,
-		LogURI:     true,
-		LogError:   true,
-		LogLatency: true,
-	}))
-	e.Use(middleware.Recover())
+	// Compression middleware first
+	e.Use(middleware.Gzip())
 
 	// CORS middleware for development (allow all origins)
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -43,4 +42,16 @@ func ApplyDevMiddleware(e *echo.Echo) {
 		AllowCredentials: false,
 		MaxAge:           3600,
 	}))
+
+	// Request logging middleware
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus:  true,
+		LogMethod:  true,
+		LogURI:     true,
+		LogError:   true,
+		LogLatency: true,
+	}))
+
+	// Recovery middleware last (catches panics from all middleware/handlers)
+	e.Use(middleware.Recover())
 }

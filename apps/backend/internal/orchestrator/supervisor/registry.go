@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"sync"
 
+	"go.uber.org/zap"
+
 	"backend/internal/orchestrator/resources"
 
 	"backend/internal/network"
-
-	"github.com/rs/zerolog"
 )
 
 // ProcessSupervisorConfig holds configuration for the process supervisor
 type ProcessSupervisorConfig struct {
-	Logger        zerolog.Logger
+	Logger        *zap.Logger
 	PortRegistry  *network.PortRegistry    // Optional: enables pre-start port validation
 	CgroupManager *resources.CgroupManager // Optional: enables cgroups v2 resource limiting
 }
@@ -26,7 +26,7 @@ type ProcessSupervisor struct {
 	processes     map[string]*ManagedProcess
 	portRegistry  *network.PortRegistry
 	cgroupManager *resources.CgroupManager
-	logger        zerolog.Logger
+	logger        *zap.Logger
 }
 
 // NewProcessSupervisor creates a new process supervisor with optional config
@@ -41,7 +41,7 @@ func NewProcessSupervisor(cfg ProcessSupervisorConfig) *ProcessSupervisor {
 
 // NewProcessSupervisorSimple creates a new process supervisor without port validation
 // Deprecated: Use NewProcessSupervisor with ProcessSupervisorConfig instead
-func NewProcessSupervisorSimple(logger zerolog.Logger) *ProcessSupervisor {
+func NewProcessSupervisorSimple(logger *zap.Logger) *ProcessSupervisor {
 	return &ProcessSupervisor{
 		processes: make(map[string]*ManagedProcess),
 		logger:    logger,
@@ -77,11 +77,10 @@ func (ps *ProcessSupervisor) Start(ctx context.Context, id string) error {
 
 	// Pre-start port validation (if PortRegistry is configured)
 	if ps.portRegistry != nil && mp.RouterID != "" && len(mp.Ports) > 0 {
-		ps.logger.Debug().
-			Str("process_id", mp.ID).
-			Str("router_id", mp.RouterID).
-			Interface("ports", mp.Ports).
-			Msg("validating port availability before start")
+		ps.logger.Debug("validating port availability before start",
+			zap.String("process_id", mp.ID),
+			zap.String("router_id", mp.RouterID),
+			zap.Any("ports", mp.Ports))
 
 		for _, port := range mp.Ports {
 			if !ps.portRegistry.IsPortAvailable(ctx, mp.RouterID, port, "TCP") {
@@ -89,19 +88,17 @@ func (ps *ProcessSupervisor) Start(ctx context.Context, id string) error {
 			}
 
 			if !ps.portRegistry.IsPortAvailable(ctx, mp.RouterID, port, "UDP") {
-				ps.logger.Warn().
-					Str("process_id", mp.ID).
-					Str("router_id", mp.RouterID).
-					Int("port", port).
-					Msg("port unavailable on UDP (but TCP is available)")
+				ps.logger.Warn("port unavailable on UDP (but TCP is available)",
+					zap.String("process_id", mp.ID),
+					zap.String("router_id", mp.RouterID),
+					zap.Int("port", port))
 			}
 		}
 
-		ps.logger.Info().
-			Str("process_id", mp.ID).
-			Str("router_id", mp.RouterID).
-			Interface("ports", mp.Ports).
-			Msg("all ports validated successfully")
+		ps.logger.Info("all ports validated successfully",
+			zap.String("process_id", mp.ID),
+			zap.String("router_id", mp.RouterID),
+			zap.Any("ports", mp.Ports))
 	}
 
 	return mp.Start(ctx)
@@ -193,10 +190,9 @@ func (ps *ProcessSupervisor) Remove(id string) error {
 
 	if mp.logCapture != nil {
 		if err := mp.logCapture.Close(); err != nil {
-			ps.logger.Warn().
-				Err(err).
-				Str("process_id", id).
-				Msg("failed to close log capture")
+			ps.logger.Warn("failed to close log capture",
+				zap.Error(err),
+				zap.String("process_id", id))
 		}
 	}
 

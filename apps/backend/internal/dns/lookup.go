@@ -56,6 +56,14 @@ func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]
 
 // lookupViaGoResolver uses Go's net package for non-A/AAAA record types
 func (s *Service) lookupViaGoResolver(ctx context.Context, input *LookupInput, server string) ([]Record, error) {
+	// Validate inputs
+	if input == nil {
+		return nil, fmt.Errorf("lookup input cannot be nil")
+	}
+	if server == "" {
+		return nil, fmt.Errorf("DNS server address is required")
+	}
+
 	// Create custom resolver pointing to the specified DNS server
 	resolver := &net.Resolver{
 		PreferGo: true,

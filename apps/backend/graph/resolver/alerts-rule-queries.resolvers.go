@@ -10,14 +10,20 @@ import (
 	"backend/generated/ent/alert"
 	"backend/graph/model"
 	"backend/internal/alerts"
+	"backend/internal/errors"
 	"context"
 	"fmt"
 )
 
 // AlertRuleTemplates is the resolver for the alertRuleTemplates field.
 func (r *queryResolver) AlertRuleTemplates(ctx context.Context, category *model.AlertRuleTemplateCategory) ([]*model.AlertRuleTemplate, error) {
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+	}
+
 	if r.AlertRuleTemplateService == nil {
-		return nil, fmt.Errorf("alert rule template service not available")
+		return nil, errors.NewValidationError("alertRuleTemplateService", nil, "service not available")
 	}
 
 	// Convert GraphQL category to service category
@@ -30,8 +36,10 @@ func (r *queryResolver) AlertRuleTemplates(ctx context.Context, category *model.
 	// Get templates from service
 	templates, err := r.AlertRuleTemplateService.GetTemplates(ctx, serviceCategory)
 	if err != nil {
-		r.log.Errorw("failed to get alert rule templates", "error", err)
-		return nil, fmt.Errorf("failed to get templates: %w", err)
+		if r.log != nil {
+			r.log.Errorw("failed to get alert rule templates", "error", err)
+		}
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "failed to get templates", "graphql").WithCause(err)
 	}
 
 	// Convert service templates to GraphQL model
@@ -45,14 +53,26 @@ func (r *queryResolver) AlertRuleTemplates(ctx context.Context, category *model.
 
 // AlertRuleTemplate is the resolver for the alertRuleTemplate field.
 func (r *queryResolver) AlertRuleTemplate(ctx context.Context, id string) (*model.AlertRuleTemplate, error) {
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+	}
+
 	if r.AlertRuleTemplateService == nil {
-		return nil, fmt.Errorf("alert rule template service not available")
+		return nil, errors.NewValidationError("alertRuleTemplateService", nil, "service not available")
+	}
+
+	// Validate input: id must not be empty
+	if id == "" {
+		return nil, errors.NewValidationError("id", id, "template id cannot be empty")
 	}
 
 	template, err := r.AlertRuleTemplateService.GetTemplateByID(ctx, id)
 	if err != nil {
-		r.log.Errorw("failed to get alert rule template", "id", id, "error", err)
-		return nil, fmt.Errorf("template not found: %w", err)
+		if r.log != nil {
+			r.log.Errorw("failed to get alert rule template", "id", id, "error", err)
+		}
+		return nil, errors.NewValidationError("id", id, "template not found").WithCause(err)
 	}
 
 	return convertAlertRuleTemplateToModel(template), nil
@@ -60,14 +80,26 @@ func (r *queryResolver) AlertRuleTemplate(ctx context.Context, id string) (*mode
 
 // PreviewAlertRuleTemplate is the resolver for the previewAlertRuleTemplate field.
 func (r *queryResolver) PreviewAlertRuleTemplate(ctx context.Context, templateID string, variables map[string]any) (*model.AlertRuleTemplatePreview, error) {
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+	}
+
 	if r.AlertRuleTemplateService == nil {
-		return nil, fmt.Errorf("alert rule template service not available")
+		return nil, errors.NewValidationError("alertRuleTemplateService", nil, "service not available")
+	}
+
+	// Validate input: templateID must not be empty
+	if templateID == "" {
+		return nil, errors.NewValidationError("templateID", templateID, "template id cannot be empty")
 	}
 
 	preview, err := r.AlertRuleTemplateService.PreviewTemplate(ctx, templateID, variables)
 	if err != nil {
-		r.log.Errorw("failed to preview alert rule template", "templateId", templateID, "error", err)
-		return nil, fmt.Errorf("preview failed: %w", err)
+		if r.log != nil {
+			r.log.Errorw("failed to preview alert rule template", "templateId", templateID, "error", err)
+		}
+		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "preview failed", "graphql").WithCause(err)
 	}
 
 	// Convert to GraphQL model
@@ -86,7 +118,7 @@ func (r *queryResolver) PreviewAlertRuleTemplate(ctx context.Context, templateID
 		result.ResolvedConditions[i] = &model.AlertCondition{
 			Field:    cond.Field,
 			Operator: model.ConditionOperator(cond.Operator),
-			Value:    fmt.Sprintf("%v", cond.Value),
+			Value:    stringifyValue(cond.Value),
 		}
 	}
 
@@ -94,54 +126,78 @@ func (r *queryResolver) PreviewAlertRuleTemplate(ctx context.Context, templateID
 }
 
 // AlertTemplates is the resolver for the alertTemplates field.
-func (r *queryResolver) AlertTemplates(_ context.Context, eventType *string, channel *model.NotificationChannel) ([]*model.AlertTemplate, error) {
-	panic(fmt.Errorf("not implemented: AlertTemplates - alertTemplates"))
+func (r *queryResolver) AlertTemplates(ctx context.Context, eventType *string, channel *model.NotificationChannel) ([]*model.AlertTemplate, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AlertTemplates - alertTemplates", "graphql"))
 }
 
 // AlertTemplate is the resolver for the alertTemplate field.
-func (r *queryResolver) AlertTemplate(_ context.Context, id string) (*model.AlertTemplate, error) {
-	panic(fmt.Errorf("not implemented: AlertTemplate - alertTemplate"))
+func (r *queryResolver) AlertTemplate(ctx context.Context, id string) (*model.AlertTemplate, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AlertTemplate - alertTemplate", "graphql"))
 }
 
 // CommonEventTypes is the resolver for the commonEventTypes field.
-func (r *queryResolver) CommonEventTypes(_ context.Context) ([]string, error) {
-	panic(fmt.Errorf("not implemented: CommonEventTypes - commonEventTypes"))
+func (r *queryResolver) CommonEventTypes(ctx context.Context) ([]string, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CommonEventTypes - commonEventTypes", "graphql"))
 }
 
 // SearchAlertTemplates is the resolver for the searchAlertTemplates field.
-func (r *queryResolver) SearchAlertTemplates(_ context.Context, query string) ([]*model.AlertTemplate, error) {
-	panic(fmt.Errorf("not implemented: SearchAlertTemplates - searchAlertTemplates"))
+func (r *queryResolver) SearchAlertTemplates(ctx context.Context, query string) ([]*model.AlertTemplate, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: SearchAlertTemplates - searchAlertTemplates", "graphql"))
 }
 
 // PreviewAlertTemplate is the resolver for the previewAlertTemplate field.
-func (r *queryResolver) PreviewAlertTemplate(_ context.Context, templateID string, variables map[string]any) (*model.TemplatePreviewPayload, error) {
-	panic(fmt.Errorf("not implemented: PreviewAlertTemplate - previewAlertTemplate"))
+func (r *queryResolver) PreviewAlertTemplate(ctx context.Context, templateID string, variables map[string]any) (*model.TemplatePreviewPayload, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PreviewAlertTemplate - previewAlertTemplate", "graphql"))
 }
 
 // AlertRules is the resolver for the alertRules field.
-func (r *queryResolver) AlertRules(_ context.Context, deviceID *string) ([]*model.AlertRule, error) {
-	panic(fmt.Errorf("not implemented: AlertRules - alertRules"))
+func (r *queryResolver) AlertRules(ctx context.Context, deviceID *string) ([]*model.AlertRule, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AlertRules - alertRules", "graphql"))
 }
 
 // AlertRule is the resolver for the alertRule field.
-func (r *queryResolver) AlertRule(_ context.Context, id string) (*model.AlertRule, error) {
-	panic(fmt.Errorf("not implemented: AlertRule - alertRule"))
+func (r *queryResolver) AlertRule(ctx context.Context, id string) (*model.AlertRule, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: AlertRule - alertRule", "graphql"))
 }
 
 // Alerts is the resolver for the alerts field.
-func (r *queryResolver) Alerts(_ context.Context, deviceID *string, severity *model.AlertSeverity, acknowledged *bool, limit *int, offset *int) (*model.AlertConnection, error) {
-	panic(fmt.Errorf("not implemented: Alerts - alerts"))
+func (r *queryResolver) Alerts(ctx context.Context, deviceID *string, severity *model.AlertSeverity, acknowledged *bool, limit *int, offset *int) (*model.AlertConnection, error) {
+	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: Alerts - alerts", "graphql"))
 }
 
 // ServiceAlerts is the resolver for the serviceAlerts field.
 func (r *queryResolver) ServiceAlerts(ctx context.Context, instanceID string, severity *model.AlertSeverity, acknowledged *bool, limit *int, offset *int) (*model.AlertConnection, error) {
-	// Set default pagination values
+	// Check authorization: user must be authenticated
+	if r.authService == nil {
+		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+	}
+
+	// Validate database client availability
+	if r.db == nil {
+		if r.log != nil {
+			r.log.Errorw("database client not available")
+		}
+		return nil, errors.NewProtocolError(errors.CodeResourceNotFound, "database client not available", "graphql")
+	}
+
+	// Validate input: instanceID must not be empty
+	if instanceID == "" {
+		return nil, errors.NewValidationError("instanceID", instanceID, "instance id cannot be empty")
+	}
+
+	// Set default pagination values and validate
 	pageLimit := 50
 	if limit != nil {
+		if *limit < 1 {
+			return nil, errors.NewValidationError("limit", *limit, "limit must be greater than 0")
+		}
 		pageLimit = *limit
 	}
 	pageOffset := 0
 	if offset != nil {
+		if *offset < 0 {
+			return nil, errors.NewValidationError("offset", *offset, "offset cannot be negative")
+		}
 		pageOffset = *offset
 	}
 
@@ -168,8 +224,10 @@ func (r *queryResolver) ServiceAlerts(ctx context.Context, instanceID string, se
 	// Get total count for pagination
 	totalCount, err := query.Clone().Count(ctx)
 	if err != nil {
-		r.log.Errorw("failed to count service alerts", "instanceId", instanceID, "error", err)
-		return nil, fmt.Errorf("failed to count alerts: %w", err)
+		if r.log != nil {
+			r.log.Errorw("failed to count service alerts", "instanceId", instanceID, "error", err)
+		}
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to count alerts")
 	}
 
 	// Query with pagination, order by most recent first
@@ -180,8 +238,10 @@ func (r *queryResolver) ServiceAlerts(ctx context.Context, instanceID string, se
 		All(ctx)
 
 	if err != nil {
-		r.log.Errorw("failed to query service alerts", "instanceId", instanceID, "error", err)
-		return nil, fmt.Errorf("failed to query alerts: %w", err)
+		if r.log != nil {
+			r.log.Errorw("failed to query service alerts", "instanceId", instanceID, "error", err)
+		}
+		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to query alerts")
 	}
 
 	// Convert to GraphQL model
@@ -201,4 +261,19 @@ func (r *queryResolver) ServiceAlerts(ctx context.Context, instanceID string, se
 		},
 		TotalCount: totalCount,
 	}, nil
+}
+
+func stringifyValue(v interface{}) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	if v == nil {
+		return ""
+	}
+	// Use the type's String() method if available
+	if stringer, ok := v.(interface{ String() string }); ok {
+		return stringer.String()
+	}
+	// Fall back to %v formatting
+	return fmt.Sprintf("%v", v)
 }

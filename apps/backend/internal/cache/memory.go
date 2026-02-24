@@ -12,21 +12,36 @@ import (
 // Usage:
 //
 //	cache := cache.NewMemoryCache[string, *Model](30 * time.Second)
+//	defer cache.Close()  // Important: prevent goroutine leaks
 //	cache.Set("key", model)
 //	if value, ok := cache.Get("key"); ok {
 //	    // Use value
 //	}
 type MemoryCache[K comparable, V any] struct {
-	entries map[K]Entry[V]
-	mu      sync.RWMutex
-	ttl     time.Duration
+	entries   map[K]Entry[V]
+	mu        sync.RWMutex
+	ttl       time.Duration
+	stopChan  chan struct{}
+	cleanupTk *time.Ticker
 }
 
 // NewMemoryCache creates a new in-memory cache with the specified default TTL.
+// The caller must call Close() to stop the cleanup goroutine and prevent resource leaks.
 func NewMemoryCache[K comparable, V any](ttl time.Duration) *MemoryCache[K, V] {
+	// Use a reasonable cleanup interval: 10% of TTL or minimum 1 second
+	cleanupInterval := ttl / 10
+	if cleanupInterval < time.Second {
+		cleanupInterval = time.Second
+	}
+	if cleanupInterval > 5*time.Minute {
+		cleanupInterval = 5 * time.Minute
+	}
+
 	cache := &MemoryCache[K, V]{
-		entries: make(map[K]Entry[V]),
-		ttl:     ttl,
+		entries:   make(map[K]Entry[V]),
+		ttl:       ttl,
+		stopChan:  make(chan struct{}),
+		cleanupTk: time.NewTicker(cleanupInterval),
 	}
 
 	// Start cleanup goroutine to remove expired entries
@@ -96,20 +111,30 @@ func (c *MemoryCache[K, V]) Has(key K) bool {
 }
 
 // cleanup runs periodically to remove expired entries.
+// It stops when a signal is received on stopChan.
 func (c *MemoryCache[K, V]) cleanup() {
-	ticker := time.NewTicker(c.ttl)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		c.mu.Lock()
-		now := time.Now()
-		for key, entry := range c.entries {
-			if now.After(entry.ExpiresAt) {
-				delete(c.entries, key)
+	for {
+		select {
+		case <-c.stopChan:
+			return
+		case <-c.cleanupTk.C:
+			c.mu.Lock()
+			now := time.Now()
+			for key, entry := range c.entries {
+				if now.After(entry.ExpiresAt) {
+					delete(c.entries, key)
+				}
 			}
+			c.mu.Unlock()
 		}
-		c.mu.Unlock()
 	}
+}
+
+// Close stops the cleanup goroutine and releases resources.
+// Must be called before the cache is discarded to prevent goroutine leaks.
+func (c *MemoryCache[K, V]) Close() {
+	c.cleanupTk.Stop()
+	close(c.stopChan)
 }
 
 // Size returns the number of entries in the cache (including expired).

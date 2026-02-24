@@ -18,18 +18,18 @@ import { Icon } from '@nasnet/ui/primitives';
  */
 const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonComponent() {
   return (
-    <div className="rounded-2xl md:rounded-3xl border border-border p-4 space-y-3 animate-pulse" role="status" aria-label="Loading wireless interface">
+    <div className="rounded-card-lg border border-border p-component-md space-y-component-md animate-pulse" role="status" aria-label="Loading wireless interface">
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <div className="h-9 w-9 rounded-lg bg-muted" />
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <div className="h-5 w-24 bg-muted rounded" />
             <div className="h-4 w-32 bg-muted rounded" />
           </div>
         </div>
-        <div className="h-6 w-16 bg-muted rounded-full" />
+        <div className="h-6 w-16 bg-muted rounded-pill" />
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-component-md">
         <div className="h-5 w-16 bg-muted rounded-md" />
         <div className="h-5 w-20 bg-muted rounded-md" />
       </div>
@@ -44,10 +44,10 @@ const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonC
 const WirelessInterfacesEmpty = React.memo(function WirelessInterfacesEmptyComponent() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="status">
-      <div className="p-6 rounded-full bg-muted mb-4">
+      <div className="p-component-lg rounded-full bg-muted mb-component-md">
         <Icon icon={Wifi} size="lg" className="text-muted-foreground" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+      <h3 className="text-lg font-semibold font-display text-foreground mb-component-sm">
         No wireless interfaces found
       </h3>
       <p className="text-sm text-muted-foreground max-w-md">
@@ -68,10 +68,10 @@ const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorCompo
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="alert">
-      <div className="p-6 rounded-full bg-destructive/10 mb-4">
-        <Icon icon={Wifi} size="lg" className="text-destructive" aria-hidden="true" />
+      <div className="p-component-lg rounded-full bg-error/10 mb-4">
+        <Icon icon={Wifi} size="lg" className="text-error" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+      <h3 className="text-lg font-semibold font-display text-foreground mb-2">
         Failed to load wireless interfaces
       </h3>
       <p className="text-sm text-muted-foreground max-w-md mb-4">
@@ -80,7 +80,7 @@ const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorCompo
       <button
         onClick={handleRetry}
         type="button"
-        className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="min-h-[44px] px-component-md py-component-sm bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)] text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Retry
       </button>
@@ -124,7 +124,7 @@ function WirelessInterfaceListComponent({ routerId }: WirelessInterfaceListProps
   // Loading state: show skeleton cards
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
         <WirelessInterfaceSkeleton />
         <WirelessInterfaceSkeleton />
         <WirelessInterfaceSkeleton />
@@ -144,7 +144,7 @@ function WirelessInterfaceListComponent({ routerId }: WirelessInterfaceListProps
 
   // Success state: display interface cards in responsive grid
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
       {interfaces.map((iface) => (
         <WirelessInterfaceCard
           key={iface.id}

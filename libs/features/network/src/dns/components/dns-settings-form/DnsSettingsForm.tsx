@@ -131,10 +131,10 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg">
         {/* Remote Requests Toggle */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-component-md">
+          <div className="flex items-center gap-component-xs">
             <Label htmlFor="allowRemoteRequests">
               Allow Remote Requests
             </Label>
@@ -150,8 +150,8 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
         </div>
 
         {/* Cache Size Configuration */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
+        <div className="space-y-component-xs">
+          <div className="flex items-center gap-component-xs">
             <Label htmlFor="cacheSize">Cache Size (KB)</Label>
             <FieldHelp field="cacheSize" />
           </div>
@@ -183,16 +183,16 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
         </div>
 
         {/* Cache Usage Display */}
-        <div className="space-y-2">
+        <div className="space-y-component-xs">
           <Label>Cache Usage</Label>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-component-xs">
+            <div className="flex items-center gap-component-xs">
               <Progress
                 value={cacheUsedPercent}
                 className={`flex-1 ${getCacheUsageColor()}`}
                 aria-label={`Cache usage: ${cacheUsedPercent}%`}
               />
-              <span className="text-sm font-medium text-muted-foreground min-w-[3rem] text-right">
+              <span className="text-sm font-mono text-muted-foreground min-w-[3rem] text-right">
                 {cacheUsedPercent}%
               </span>
             </div>
@@ -200,7 +200,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
               {cacheUsed} KB / {form.watch('cacheSize')} KB used
             </p>
             {cacheUsedPercent >= 90 && (
-              <p className="text-sm text-error flex items-center gap-2">
+              <p className="text-sm text-error flex items-center gap-component-xs">
                 <AlertTriangle className="h-4 w-4" />
                 Cache nearly full - consider increasing cache size
               </p>
@@ -212,7 +212,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
         <Button
           type="submit"
           disabled={loading || !form.formState.isDirty}
-          className="w-full"
+          className="w-full min-h-[44px]"
         >
           {loading ? 'Saving...' : 'Save DNS Settings'}
         </Button>
@@ -225,11 +225,11 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-component-xs">
               <AlertTriangle className="h-5 w-5 text-warning" />
               Security Warning
             </DialogTitle>
-            <DialogDescription className="space-y-3">
+            <DialogDescription className="space-y-component-md">
               <p>
                 Enabling remote requests allows <strong>ANY device</strong> on{' '}
                 <strong>ANY network</strong> to use this router as a DNS
@@ -252,7 +252,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
             </Button>
             <Button
               onClick={handleConfirmSecurityWarning}
-              className="bg-warning hover:bg-warning/90"
+              className="bg-warning hover:bg-warning/90 min-h-[44px]"
               aria-label="Confirm enabling remote DNS requests"
             >
               I Understand, Enable

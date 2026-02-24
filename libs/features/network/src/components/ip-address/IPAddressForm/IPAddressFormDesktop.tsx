@@ -72,7 +72,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="font-display text-2xl">
           {mode === 'create' ? 'Add IP Address' : 'Edit IP Address'}
         </CardTitle>
         <CardDescription>
@@ -81,7 +81,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-component-lg">
             {/* IP Address Input with CIDR */}
             <FormField
               control={form.control as any}
@@ -138,7 +138,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                     Subnet Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                <CardContent className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <div className="text-muted-foreground text-xs">Network:</div>
                     <code className="text-sm font-mono">{subnetCalculations.networkAddress}</code>
@@ -234,7 +234,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
               control={form.control as any}
               name="disabled"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border p-component-sm">
                   <div className="space-y-0.5">
                     <FormLabel>Disabled</FormLabel>
                     <FormDescription>

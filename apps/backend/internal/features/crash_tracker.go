@@ -8,7 +8,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // CrashRecord tracks a single crash event
@@ -32,26 +32,26 @@ type InstanceCrashHistory struct {
 	IsolatedAt   time.Time
 }
 
-// FeatureCrashTrackerConfig holds configuration for the crash tracker
-type FeatureCrashTrackerConfig struct {
+// Config holds configuration for the crash tracker
+type Config struct {
 	EventBus         events.EventBus
-	Logger           zerolog.Logger
+	Logger           *zap.Logger
 	CrashThreshold   int           // Default: 5 crashes
 	TimeWindow       time.Duration // Default: 1 hour
 	IsolationEnabled bool          // Default: true
 }
 
-// FeatureCrashTracker monitors service crashes and isolates problematic instances
-type FeatureCrashTracker struct {
-	config   FeatureCrashTrackerConfig
-	logger   zerolog.Logger
+// Tracker monitors service crashes and isolates problematic instances
+type Tracker struct {
+	config   Config
+	logger   *zap.Logger
 	mu       sync.RWMutex
 	history  map[string]*InstanceCrashHistory // instanceID -> history
 	isolated map[string]bool                  // instanceID -> is isolated
 }
 
-// NewFeatureCrashTracker creates a new crash tracker
-func NewFeatureCrashTracker(config FeatureCrashTrackerConfig) (*FeatureCrashTracker, error) {
+// NewTracker creates a new crash tracker
+func NewTracker(config Config) (*Tracker, error) {
 	if config.EventBus == nil {
 		return nil, fmt.Errorf("event bus is required")
 	}
@@ -65,9 +65,9 @@ func NewFeatureCrashTracker(config FeatureCrashTrackerConfig) (*FeatureCrashTrac
 		config.IsolationEnabled = true
 	}
 
-	tracker := &FeatureCrashTracker{
+	tracker := &Tracker{
 		config:   config,
-		logger:   config.Logger.With().Str("component", "crash_tracker").Logger(),
+		logger:   config.Logger.Named("crash_tracker"),
 		history:  make(map[string]*InstanceCrashHistory),
 		isolated: make(map[string]bool),
 	}
@@ -81,7 +81,7 @@ func NewFeatureCrashTracker(config FeatureCrashTrackerConfig) (*FeatureCrashTrac
 }
 
 // RecordCrash records a crash for an instance
-func (t *FeatureCrashTracker) RecordCrash(instanceID, featureID string, exitCode int, errorMsg string) error {
+func (t *Tracker) RecordCrash(instanceID, featureID string, exitCode int, errorMsg string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -117,13 +117,13 @@ func (t *FeatureCrashTracker) RecordCrash(instanceID, featureID string, exitCode
 	// Check if threshold is exceeded
 	recentCrashes := t.countRecentCrashes(history)
 
-	t.logger.Info().
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Int("exit_code", exitCode).
-		Int("recent_crashes", recentCrashes).
-		Int("threshold", t.config.CrashThreshold).
-		Msg("Crash recorded")
+	t.logger.Info("crash recorded",
+		zap.String("instance_id", instanceID),
+		zap.String("feature_id", featureID),
+		zap.Int("exit_code", exitCode),
+		zap.Int("recent_crashes", recentCrashes),
+		zap.Int("threshold", t.config.CrashThreshold),
+	)
 
 	if recentCrashes >= t.config.CrashThreshold && !history.Isolated {
 		return t.isolateInstance(instanceID, featureID, recentCrashes)
@@ -133,7 +133,7 @@ func (t *FeatureCrashTracker) RecordCrash(instanceID, featureID string, exitCode
 }
 
 // cleanupOldCrashes removes crash records outside the time window
-func (t *FeatureCrashTracker) cleanupOldCrashes(history *InstanceCrashHistory) {
+func (t *Tracker) cleanupOldCrashes(history *InstanceCrashHistory) {
 	cutoff := time.Now().Add(-t.config.TimeWindow)
 	filtered := make([]CrashRecord, 0)
 
@@ -147,7 +147,7 @@ func (t *FeatureCrashTracker) cleanupOldCrashes(history *InstanceCrashHistory) {
 }
 
 // countRecentCrashes counts crashes within the time window
-func (t *FeatureCrashTracker) countRecentCrashes(history *InstanceCrashHistory) int {
+func (t *Tracker) countRecentCrashes(history *InstanceCrashHistory) int {
 	cutoff := time.Now().Add(-t.config.TimeWindow)
 	count := 0
 
@@ -161,35 +161,35 @@ func (t *FeatureCrashTracker) countRecentCrashes(history *InstanceCrashHistory) 
 }
 
 // isolateInstance marks an instance as isolated due to excessive crashes
-func (t *FeatureCrashTracker) isolateInstance(instanceID, featureID string, crashCount int) error { //nolint:unparam // error return is always nil for now, kept for future event emission
+func (t *Tracker) isolateInstance(instanceID, featureID string, crashCount int) error {
 	if !t.config.IsolationEnabled {
-		t.logger.Warn().
-			Str("instance_id", instanceID).
-			Msg("Crash threshold exceeded but isolation is disabled")
+		t.logger.Warn("crash threshold exceeded but isolation is disabled",
+			zap.String("instance_id", instanceID),
+		)
 		return nil
 	}
 
-	history := t.history[instanceID]
+	history, exists := t.history[instanceID]
+	if !exists {
+		return fmt.Errorf("no history found for instance %s", instanceID)
+	}
+
 	history.Isolated = true
 	history.IsolatedAt = time.Now()
 	t.isolated[instanceID] = true
 
-	t.logger.Warn().
-		Str("instance_id", instanceID).
-		Str("feature_id", featureID).
-		Int("crash_count", crashCount).
-		Msg("Instance isolated due to excessive crashes")
+	t.logger.Warn("instance isolated due to excessive crashes",
+		zap.String("instance_id", instanceID),
+		zap.String("feature_id", featureID),
+		zap.Int("crash_count", crashCount),
+	)
 
-	// Emit crash isolation event
 	// TODO: Emit proper event via EventBus
-	ctx := context.Background()
-	_ = ctx // avoid unused variable
-
 	return nil
 }
 
 // IsIsolated checks if an instance is isolated
-func (t *FeatureCrashTracker) IsIsolated(instanceID string) bool {
+func (t *Tracker) IsIsolated(instanceID string) bool {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
@@ -197,7 +197,7 @@ func (t *FeatureCrashTracker) IsIsolated(instanceID string) bool {
 }
 
 // GetHistory returns crash history for an instance
-func (t *FeatureCrashTracker) GetHistory(instanceID string) (*InstanceCrashHistory, bool) {
+func (t *Tracker) GetHistory(instanceID string) (*InstanceCrashHistory, bool) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
@@ -223,20 +223,20 @@ func (t *FeatureCrashTracker) GetHistory(instanceID string) (*InstanceCrashHisto
 }
 
 // ResetHistory clears crash history for an instance
-func (t *FeatureCrashTracker) ResetHistory(instanceID string) {
+func (t *Tracker) ResetHistory(instanceID string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
 	delete(t.history, instanceID)
 	delete(t.isolated, instanceID)
 
-	t.logger.Info().
-		Str("instance_id", instanceID).
-		Msg("Crash history reset")
+	t.logger.Info("crash history reset",
+		zap.String("instance_id", instanceID),
+	)
 }
 
 // UndoIsolation removes isolation from an instance
-func (t *FeatureCrashTracker) UndoIsolation(instanceID string) error {
+func (t *Tracker) UndoIsolation(instanceID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -248,15 +248,15 @@ func (t *FeatureCrashTracker) UndoIsolation(instanceID string) error {
 	history.Isolated = false
 	delete(t.isolated, instanceID)
 
-	t.logger.Info().
-		Str("instance_id", instanceID).
-		Msg("Isolation removed")
+	t.logger.Info("isolation removed",
+		zap.String("instance_id", instanceID),
+	)
 
 	return nil
 }
 
 // GetIsolatedInstances returns all isolated instance IDs
-func (t *FeatureCrashTracker) GetIsolatedInstances() []string {
+func (t *Tracker) GetIsolatedInstances() []string {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
@@ -269,18 +269,18 @@ func (t *FeatureCrashTracker) GetIsolatedInstances() []string {
 }
 
 // handleCrashEvent handles feature crashed events from the event bus
-func (t *FeatureCrashTracker) handleCrashEvent(ctx context.Context, event events.Event) error {
+func (t *Tracker) handleCrashEvent(ctx context.Context, event events.Event) error {
 	// Type assert to FeatureCrashedEvent
 	// TODO: Implement proper event type assertion
-	t.logger.Debug().
-		Str("event_id", event.GetID().String()).
-		Msg("Received feature crashed event")
+	t.logger.Debug("received feature crashed event",
+		zap.String("event_id", event.GetID().String()),
+	)
 
 	return nil
 }
 
 // GetStats returns tracker statistics
-func (t *FeatureCrashTracker) GetStats() map[string]interface{} {
+func (t *Tracker) GetStats() map[string]interface{} {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 

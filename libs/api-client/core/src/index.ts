@@ -52,6 +52,7 @@ export {
   apolloClient,
   apolloCache,
   ApolloProvider,
+  MockApolloProvider,
   // Links for testing/customization
   authLink,
   errorLink,

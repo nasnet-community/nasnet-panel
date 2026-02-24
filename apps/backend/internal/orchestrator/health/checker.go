@@ -9,7 +9,7 @@ import (
 
 	"backend/internal/events"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 const (
@@ -98,7 +98,7 @@ type HealthChecker struct {
 	ctx            context.Context
 	cancel         context.CancelFunc
 	wg             sync.WaitGroup
-	logger         zerolog.Logger
+	logger         *zap.Logger
 	eventPublisher *events.Publisher
 	restartChan    chan<- RestartRequest
 
@@ -107,13 +107,16 @@ type HealthChecker struct {
 }
 
 // NewHealthChecker creates a new health checker service
-func NewHealthChecker(logger zerolog.Logger, eventPublisher *events.Publisher, restartChan chan<- RestartRequest) *HealthChecker {
+func NewHealthChecker(logger *zap.Logger, eventPublisher *events.Publisher, restartChan chan<- RestartRequest) *HealthChecker {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	return &HealthChecker{
 		instances:      make(map[string]*InstanceHealthState),
 		ctx:            ctx,
 		cancel:         cancel,
-		logger:         logger.With().Str("component", "health_checker").Logger(),
+		logger:         logger.With(zap.String("component", "health_checker")),
 		eventPublisher: eventPublisher,
 		restartChan:    restartChan,
 		probeSemaphore: make(chan struct{}, maxConcurrentProbes),
@@ -122,7 +125,7 @@ func NewHealthChecker(logger zerolog.Logger, eventPublisher *events.Publisher, r
 
 // Start begins the health check scheduler
 func (hc *HealthChecker) Start() {
-	hc.logger.Info().Msg("Starting health checker service")
+	hc.logger.Info("Starting health checker service")
 	hc.ticker = time.NewTicker(healthCheckTickInterval)
 
 	hc.wg.Add(1)
@@ -131,7 +134,7 @@ func (hc *HealthChecker) Start() {
 
 // Stop stops the health checker and waits for all probes to complete
 func (hc *HealthChecker) Stop() {
-	hc.logger.Info().Msg("Stopping health checker service")
+	hc.logger.Info("Stopping health checker service")
 	hc.cancel()
 
 	if hc.ticker != nil {
@@ -139,7 +142,7 @@ func (hc *HealthChecker) Stop() {
 	}
 
 	hc.wg.Wait()
-	hc.logger.Info().Msg("Health checker service stopped")
+	hc.logger.Info("Health checker service stopped")
 }
 
 // schedulerLoop is the main scheduling loop that runs every 1s
@@ -180,9 +183,7 @@ func (hc *HealthChecker) processDueChecks(now time.Time) {
 			hc.wg.Add(1)
 			go hc.performHealthCheck(state)
 		default:
-			hc.logger.Warn().
-				Str("instance_id", state.InstanceID).
-				Msg("Skipped health check - max concurrent probes reached")
+			hc.logger.Warn("Skipped health check - max concurrent probes reached", zap.String("instance_id", state.InstanceID))
 		}
 	}
 }
@@ -233,13 +234,7 @@ func (hc *HealthChecker) performHealthCheck(state *InstanceHealthState) {
 			state.CurrentState = previousState
 		}
 
-		hc.logger.Warn().
-			Str("instance_id", state.InstanceID).
-			Str("feature_id", state.FeatureID).
-			Int("consecutive_fails", state.ConsecutiveFails).
-			Int("threshold", state.FailureThreshold).
-			Err(result.Error).
-			Msg("Health check failed")
+		hc.logger.Warn("Health check failed", zap.String("instance_id", state.InstanceID), zap.String("feature_id", state.FeatureID), zap.Int("consecutive_fails", state.ConsecutiveFails), zap.Int("threshold", state.FailureThreshold), zap.Error(result.Error))
 	}
 
 	// Schedule next check

@@ -79,17 +79,17 @@ function LeaseDetailPanelComponent({
   }, [lease.macAddress]);
 
   return (
-    <Card className={cn('p-4', className)}>
-      <div className="space-y-4">
+    <Card className={cn('p-component-md', className)}>
+      <div className="space-y-component-md">
         {/* Device Information Section */}
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
             <Icon icon={Globe} className="h-4 w-4" aria-hidden="true" />
             Device Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
             <dt className="text-muted-foreground">MAC Address:</dt>
-            <dd className="flex items-center gap-2 font-mono">
+            <dd className="flex items-center gap-2 font-mono" title={formatMACAddress(lease.macAddress)}>
               {formatMACAddress(lease.macAddress)}
               <Button
                 variant="ghost"
@@ -123,9 +123,9 @@ function LeaseDetailPanelComponent({
             <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
             Assignment Details
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
             <dt className="text-muted-foreground">IP Address:</dt>
-            <dd className="font-mono font-medium">{lease.address}</dd>
+            <dd className="font-mono font-medium" title={lease.address}>{lease.address}</dd>
 
             <dt className="text-muted-foreground">Server:</dt>
             <dd>{lease.server}</dd>
@@ -151,7 +151,7 @@ function LeaseDetailPanelComponent({
             <Icon icon={Clock} className="h-4 w-4" aria-hidden="true" />
             Timing Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
             <dt className="text-muted-foreground">Expires:</dt>
             <dd>{formatExpirationTime(lease.expiresAfter)}</dd>
 
@@ -163,11 +163,11 @@ function LeaseDetailPanelComponent({
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-2 border-t pt-4">
+        <div className="flex items-center gap-component-sm border-t pt-component-md">
           <span className="text-sm font-medium text-muted-foreground">
             Quick Actions:
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             {lease.dynamic && onMakeStatic && (
               <Button
                 variant="outline"

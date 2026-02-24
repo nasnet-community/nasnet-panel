@@ -7,26 +7,26 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // UpdateRouterCredentials is the resolver for the updateRouterCredentials field.
 func (r *mutationResolver) UpdateRouterCredentials(ctx context.Context, routerID string, input model.CredentialsInput) (*model.CredentialUpdatePayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateRouterCredentials - updateRouterCredentials"))
+	panic(errors.NewInternalError("not implemented: UpdateRouterCredentials - updateRouterCredentials", nil))
 }
 
 // TestAllCredentials is the resolver for the testAllCredentials field.
 func (r *mutationResolver) TestAllCredentials(ctx context.Context) (*model.TestAllCredentialsPayload, error) {
-	panic(fmt.Errorf("not implemented: TestAllCredentials - testAllCredentials"))
+	panic(errors.NewInternalError("not implemented: TestAllCredentials - testAllCredentials", nil))
 }
 
 // ExportRouterConfig is the resolver for the exportRouterConfig field.
 func (r *mutationResolver) ExportRouterConfig(ctx context.Context, input model.ExportConfigInput) (*model.ExportConfigPayload, error) {
-	panic(fmt.Errorf("not implemented: ExportRouterConfig - exportRouterConfig"))
+	panic(errors.NewInternalError("not implemented: ExportRouterConfig - exportRouterConfig", nil))
 }
 
 // RouterCredentials is the resolver for the routerCredentials field.
 func (r *queryResolver) RouterCredentials(ctx context.Context, routerID string) (*model.RouterCredentials, error) {
-	panic(fmt.Errorf("not implemented: RouterCredentials - routerCredentials"))
+	panic(errors.NewInternalError("not implemented: RouterCredentials - routerCredentials", nil))
 }

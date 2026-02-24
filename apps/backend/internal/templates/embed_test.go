@@ -10,8 +10,16 @@ func TestEmbedFS(t *testing.T) {
 		t.Fatalf("Failed to read embedded dir: %v", err)
 	}
 
+	if entries == nil {
+		t.Fatalf("Failed to read entries: entries is nil")
+	}
+
 	t.Logf("Found %d entries in built_in/", len(entries))
 	for _, entry := range entries {
+		if entry == nil {
+			t.Logf("- <nil entry>")
+			continue
+		}
 		t.Logf("- %s (IsDir: %v)", entry.Name(), entry.IsDir())
 	}
 

@@ -267,10 +267,10 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
           <div className="space-y-4">
             {/* Drop Zone */}
             <div
-              className={`relative flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 transition-colors ${
+              className={`relative flex flex-col items-center justify-center gap-component-md rounded-[var(--semantic-radius-card)] border-2 border-dashed p-component-lg transition-colors ${
                 isDragging
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-muted-foreground/50'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-border'
               }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -278,12 +278,12 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
               role="region"
               aria-label="File drop zone"
             >
-              <div className="flex gap-4">
+              <div className="flex gap-component-md">
                 <FileJson className="h-12 w-12 text-muted-foreground" />
                 <FileCode className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="text-center">
-                <p className="text-lg font-medium">
+                <p className="text-lg font-display font-medium">
                   Drop a template file here
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -303,9 +303,9 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
             </div>
 
             {/* Supported Formats */}
-            <div className="rounded-lg bg-muted p-4">
-              <p className="mb-2 text-sm font-medium">Supported Formats</p>
-              <div className="flex gap-2">
+            <div className="rounded-[var(--semantic-radius-card)] bg-muted p-component-md">
+              <p className="mb-component-sm text-sm font-medium">Supported Formats</p>
+              <div className="flex gap-component-sm">
                 <Badge variant="secondary">JSON (.json)</Badge>
                 <Badge variant="secondary">YAML (.yaml, .yml)</Badge>
               </div>
@@ -323,24 +323,24 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Validating Step */}
         {step === 'validating' && (
-          <div className="flex flex-col items-center justify-center gap-4 py-12">
+          <div className="flex flex-col items-center justify-center gap-component-md py-12">
             <div
               className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
               role="status"
               aria-label="Validating template"
             />
-            <p className="text-lg font-medium">Validating template...</p>
+            <p className="text-lg font-display font-medium">Validating template...</p>
           </div>
         )}
 
         {/* Preview Step */}
         {step === 'preview' && parsedData && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Template Info */}
-            <div className="space-y-3">
+            <div className="space-y-component-sm">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-semibold">
+                <div className="space-y-component-sm">
+                  <h3 className="text-lg font-display font-semibold">
                     {parsedData.template.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -352,7 +352,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
                 </Badge>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-component-sm">
                 <Badge variant="secondary">
                   {parsedData.template.category}
                 </Badge>
@@ -371,7 +371,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
             <Separator />
 
             {/* Validation Results */}
-            <ScrollArea className="max-h-60">
+            <ScrollArea className="max-h-60 pr-component-md">
               {parsedData.validation.success ? (
                 <Alert>
                   <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
@@ -383,8 +383,8 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
                 <Alert variant="destructive" role="alert">
                   <AlertCircle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription>
-                    <p className="font-medium mb-2">Validation Errors:</p>
-                    <ul className="list-disc list-inside space-y-1">
+                    <p className="font-medium mb-component-sm">Validation Errors:</p>
+                    <ul className="list-disc list-inside space-y-component-sm">
                       {parsedData.validation.errors.map((err, i) => (
                         <li key={i} className="text-sm">
                           {err.field ? `${err.field}: ` : ''}{err.message}
@@ -397,11 +397,11 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
               {/* Warnings */}
               {parsedData.validation.warnings.length > 0 && (
-                <Alert variant="default" className="mt-3" role="status">
+                <Alert variant="default" className="mt-component-md" role="status">
                   <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
                   <AlertDescription>
-                    <p className="font-medium mb-2">Warnings:</p>
-                    <ul className="list-disc list-inside space-y-1">
+                    <p className="font-medium mb-component-sm">Warnings:</p>
+                    <ul className="list-disc list-inside space-y-component-sm">
                       {parsedData.validation.warnings.map((warning, i) => (
                         <li key={i} className="text-sm">{warning}</li>
                       ))}
@@ -413,11 +413,11 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
             {/* Variables */}
             {parsedData.template.variables.length > 0 && (
-              <div className="rounded-lg border p-4">
-                <p className="mb-2 text-sm font-medium">
+              <div className="rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+                <p className="mb-component-sm text-sm font-medium">
                   Template Variables ({parsedData.template.variables.length})
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   {parsedData.template.variables.slice(0, 5).map((variable, i) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <span className="font-mono">{variable.name}</span>
@@ -447,21 +447,21 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Importing Step */}
         {step === 'importing' && (
-          <div className="flex flex-col items-center justify-center gap-4 py-12">
+          <div className="flex flex-col items-center justify-center gap-component-md py-12">
             <div
               className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
               role="status"
               aria-label="Importing template"
             />
-            <p className="text-lg font-medium">Importing template...</p>
+            <p className="text-lg font-display font-medium">Importing template...</p>
           </div>
         )}
 
         {/* Complete Step */}
         {step === 'complete' && (
-          <div className="flex flex-col items-center justify-center gap-4 py-12" role="status">
+          <div className="flex flex-col items-center justify-center gap-component-md py-12" role="status">
             <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
-            <p className="text-lg font-medium">Template imported successfully!</p>
+            <p className="text-lg font-display font-medium">Template imported successfully!</p>
           </div>
         )}
 

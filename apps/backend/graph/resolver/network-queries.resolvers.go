@@ -7,71 +7,71 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/errors"
 	"context"
-	"fmt"
 )
 
 // IPAddresses is the resolver for the ipAddresses field.
 func (r *queryResolver) IPAddresses(ctx context.Context, routerID string, interfaceID *string) ([]*model.IPAddress, error) {
-	panic(fmt.Errorf("not implemented: IPAddresses - ipAddresses"))
+	panic(errors.NewInternalError("not implemented: IPAddresses - ipAddresses", nil))
 }
 
 // IPAddress is the resolver for the ipAddress field.
 func (r *queryResolver) IPAddress(ctx context.Context, routerID string, id string) (*model.IPAddress, error) {
-	panic(fmt.Errorf("not implemented: IPAddress - ipAddress"))
+	panic(errors.NewInternalError("not implemented: IPAddress - ipAddress", nil))
 }
 
 // CheckIPConflict is the resolver for the checkIpConflict field.
 func (r *queryResolver) CheckIPConflict(ctx context.Context, routerID string, address string, interfaceID *string, excludeID *string) (*model.IPConflictResult, error) {
-	panic(fmt.Errorf("not implemented: CheckIPConflict - checkIpConflict"))
+	panic(errors.NewInternalError("not implemented: CheckIPConflict - checkIpConflict", nil))
 }
 
 // IPAddressDependencies is the resolver for the ipAddressDependencies field.
 func (r *queryResolver) IPAddressDependencies(ctx context.Context, routerID string, id string) (*model.IPAddressDependencies, error) {
-	panic(fmt.Errorf("not implemented: IPAddressDependencies - ipAddressDependencies"))
+	panic(errors.NewInternalError("not implemented: IPAddressDependencies - ipAddressDependencies", nil))
 }
 
 // Vlans is the resolver for the vlans field.
 func (r *queryResolver) Vlans(ctx context.Context, routerID string, filter *model.VlanFilter) ([]*model.Vlan, error) {
-	panic(fmt.Errorf("not implemented: Vlans - vlans"))
+	panic(errors.NewInternalError("not implemented: Vlans - vlans", nil))
 }
 
 // Vlan is the resolver for the vlan field.
 func (r *queryResolver) Vlan(ctx context.Context, id string) (*model.Vlan, error) {
-	panic(fmt.Errorf("not implemented: Vlan - vlan"))
+	panic(errors.NewInternalError("not implemented: Vlan - vlan", nil))
 }
 
 // CheckVlanIDAvailable is the resolver for the checkVlanIdAvailable field.
 func (r *queryResolver) CheckVlanIDAvailable(ctx context.Context, routerID string, parentInterface string, vlanID int) (bool, error) {
-	panic(fmt.Errorf("not implemented: CheckVlanIDAvailable - checkVlanIdAvailable"))
+	panic(errors.NewInternalError("not implemented: CheckVlanIDAvailable - checkVlanIdAvailable", nil))
 }
 
 // VlanDependencies is the resolver for the vlanDependencies field.
 func (r *queryResolver) VlanDependencies(ctx context.Context, id string) (*model.VlanDependencies, error) {
-	panic(fmt.Errorf("not implemented: VlanDependencies - vlanDependencies"))
+	panic(errors.NewInternalError("not implemented: VlanDependencies - vlanDependencies", nil))
 }
 
 // VlanTopology is the resolver for the vlanTopology field.
 func (r *queryResolver) VlanTopology(ctx context.Context, routerID string, bridgeID string) (*model.VlanTopology, error) {
-	panic(fmt.Errorf("not implemented: VlanTopology - vlanTopology"))
+	panic(errors.NewInternalError("not implemented: VlanTopology - vlanTopology", nil))
 }
 
 // Routes is the resolver for the routes field.
 func (r *queryResolver) Routes(ctx context.Context, routerID string, table *string, typeArg *model.RouteType) ([]*model.Route, error) {
-	panic(fmt.Errorf("not implemented: Routes - routes"))
+	panic(errors.NewInternalError("not implemented: Routes - routes", nil))
 }
 
 // Route is the resolver for the route field.
 func (r *queryResolver) Route(ctx context.Context, routerID string, id string) (*model.Route, error) {
-	panic(fmt.Errorf("not implemented: Route - route"))
+	panic(errors.NewInternalError("not implemented: Route - route", nil))
 }
 
 // CheckGatewayReachability is the resolver for the checkGatewayReachability field.
 func (r *queryResolver) CheckGatewayReachability(ctx context.Context, routerID string, gateway model.IPv4) (*model.GatewayReachabilityResult, error) {
-	panic(fmt.Errorf("not implemented: CheckGatewayReachability - checkGatewayReachability"))
+	panic(errors.NewInternalError("not implemented: CheckGatewayReachability - checkGatewayReachability", nil))
 }
 
 // InterfaceStatsHistory is the resolver for the interfaceStatsHistory field.
 func (r *queryResolver) InterfaceStatsHistory(ctx context.Context, routerID string, interfaceID string, timeRange model.StatsTimeRangeInput, interval *model.Duration) (*model.InterfaceStatsHistory, error) {
-	panic(fmt.Errorf("not implemented: InterfaceStatsHistory - interfaceStatsHistory"))
+	panic(errors.NewInternalError("not implemented: InterfaceStatsHistory - interfaceStatsHistory", nil))
 }

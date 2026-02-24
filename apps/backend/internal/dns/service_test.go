@@ -74,7 +74,7 @@ func (m *mockRouterPort) Protocol() router.Protocol {
 	return router.ProtocolREST
 }
 
-// TestService_PerformLookup_ARecord tests A record lookup
+// TestService_PerformLookup_ARecord tests A record lookup success case
 func TestService_PerformLookup_ARecord(t *testing.T) {
 	port := newMockRouterPort()
 	port.setResponse("/tool/dns-lookup", "name: google.com address: 142.250.185.46")
@@ -104,6 +104,72 @@ func TestService_PerformLookup_ARecord(t *testing.T) {
 
 	if len(result.Records) > 0 && result.Records[0].Data != "142.250.185.46" {
 		t.Errorf("expected address 142.250.185.46, got %s", result.Records[0].Data)
+	}
+
+	if result.Authoritative {
+		t.Error("expected non-authoritative for standard lookup")
+	}
+}
+
+// TestService_PerformLookup_ARecord_Authoritative tests A record lookup from static DNS
+func TestService_PerformLookup_ARecord_Authoritative(t *testing.T) {
+	port := newMockRouterPort()
+	port.setResponse("/tool/dns-lookup", "name: local.domain address: 192.168.1.1 type: static")
+	port.setResponse("/ip/dns", "servers: 8.8.8.8")
+
+	svc := NewService(port)
+
+	input := &LookupInput{
+		DeviceId:   "test-device",
+		Hostname:   "local.domain",
+		RecordType: "A",
+	}
+
+	result, err := svc.PerformLookup(context.Background(), input)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Status != "SUCCESS" {
+		t.Errorf("expected SUCCESS, got %s", result.Status)
+	}
+
+	if !result.Authoritative {
+		t.Error("expected authoritative for static DNS entry")
+	}
+}
+
+// TestService_PerformLookup_NoResults tests lookup with no records found
+func TestService_PerformLookup_NoResults(t *testing.T) {
+	port := newMockRouterPort()
+	port.setResponse("/tool/dns-lookup", "")
+	port.setResponse("/ip/dns", "servers: 8.8.8.8")
+
+	svc := NewService(port)
+
+	input := &LookupInput{
+		DeviceId:   "test-device",
+		Hostname:   "nonexistent.invalid",
+		RecordType: "A",
+	}
+
+	result, err := svc.PerformLookup(context.Background(), input)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Status != "NXDOMAIN" {
+		t.Errorf("expected NXDOMAIN, got %s", result.Status)
+	}
+
+	if len(result.Records) != 0 {
+		t.Errorf("expected zero records, got %d", len(result.Records))
+	}
+
+	if result.Error == nil {
+		t.Error("expected error message to be set")
 	}
 }
 
@@ -175,6 +241,8 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 		recordType string
 		wantCount  int
 		wantError  bool
+		checkData  bool
+		expectedData string
 	}{
 		{
 			name:       "Single A record",
@@ -182,6 +250,8 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 			recordType: "A",
 			wantCount:  1,
 			wantError:  false,
+			checkData:  true,
+			expectedData: "142.250.185.46",
 		},
 		{
 			name:       "Multiple A records",
@@ -189,6 +259,7 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 			recordType: "A",
 			wantCount:  2,
 			wantError:  false,
+			checkData:  false,
 		},
 		{
 			name:       "No records found",
@@ -196,6 +267,24 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 			recordType: "A",
 			wantCount:  0,
 			wantError:  true,
+			checkData:  false,
+		},
+		{
+			name:       "Whitespace handling",
+			response:   "name: example.com    address:    10.0.0.1",
+			recordType: "A",
+			wantCount:  1,
+			wantError:  false,
+			checkData:  true,
+			expectedData: "10.0.0.1",
+		},
+		{
+			name:       "Multiple lines with empty lines",
+			response:   "name: test.com address: 1.2.3.4\n\nname: test.com address: 5.6.7.8\n",
+			recordType: "A",
+			wantCount:  2,
+			wantError:  false,
+			checkData:  false,
 		},
 	}
 
@@ -216,6 +305,17 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 
 			if len(records) != tt.wantCount {
 				t.Errorf("expected %d records, got %d", tt.wantCount, len(records))
+			}
+
+			if tt.checkData && len(records) > 0 && records[0].Data != tt.expectedData {
+				t.Errorf("expected data %s, got %s", tt.expectedData, records[0].Data)
+			}
+
+			// Verify all records have the correct type
+			for i, rec := range records {
+				if rec.Type != tt.recordType {
+					t.Errorf("record %d: expected type %s, got %s", i, tt.recordType, rec.Type)
+				}
 			}
 		})
 	}
@@ -251,6 +351,20 @@ func TestParseRouterOSServers(t *testing.T) {
 			wantSecondary: nil,
 			wantCount:     0,
 		},
+		{
+			name:          "Three servers",
+			response:      "servers: 8.8.8.8,1.1.1.1,9.9.9.9",
+			wantPrimary:   "8.8.8.8",
+			wantSecondary: stringPtr("1.1.1.1"),
+			wantCount:     3,
+		},
+		{
+			name:          "Servers with whitespace",
+			response:      "servers: 8.8.8.8 , 1.1.1.1 , 9.9.9.9",
+			wantPrimary:   "8.8.8.8",
+			wantSecondary: stringPtr("1.1.1.1"),
+			wantCount:     3,
+		},
 	}
 
 	for _, tt := range tests {
@@ -273,6 +387,19 @@ func TestParseRouterOSServers(t *testing.T) {
 
 			if len(result.Servers) != tt.wantCount {
 				t.Errorf("expected %d servers, got %d", tt.wantCount, len(result.Servers))
+			}
+
+			// Verify server flags
+			for i, srv := range result.Servers {
+				if i == 0 && !srv.IsPrimary {
+					t.Errorf("server %d should be marked as primary", i)
+				}
+				if i == 1 && !srv.IsSecondary {
+					t.Errorf("server %d should be marked as secondary", i)
+				}
+				if i > 1 && (srv.IsPrimary || srv.IsSecondary) {
+					t.Errorf("server %d should not be marked as primary or secondary", i)
+				}
 			}
 		})
 	}

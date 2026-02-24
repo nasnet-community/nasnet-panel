@@ -1,0 +1,121 @@
+# =============================================================================
+# Provisioning Input Types
+# =============================================================================
+# Input types for provisioning mutations and operations.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----
+# Session Initialization
+# -----
+
+"""
+Input for starting a new provisioning session
+"""
+input StartProvisioningSessionInput {
+  """
+  Provisioning mode (EASY or ADVANCE)
+  """
+  mode: ProvisioningMode!
+
+  """
+  Target firmware
+  """
+  firmware: ProvisioningFirmware!
+
+  """
+  Router operational mode
+  """
+  routerMode: ProvisioningRouterMode!
+
+  """
+  WAN link type
+  """
+  wanLinkType: ProvisioningWANLinkType!
+
+  """
+  Initial networks configuration (LAN, DHCP, etc.)
+  JSON structure varies by router mode and firmware
+  """
+  networks: JSON!
+}
+
+# -----
+# Resource Management
+# -----
+
+"""
+Input for adding a provisioning resource to a session
+"""
+input AddProvisioningResourceInput {
+  """
+  Resource type identifier (e.g., "wireguard-client", "ovpn-client", "tunnel-ipip")
+  """
+  resourceType: String!
+
+  """
+  Resource-specific configuration
+  Structure depends on resourceType
+  """
+  configuration: JSON!
+
+  """
+  Resource relationships to other resources or networks
+  """
+  relationships: ProvisioningRelationshipsInput
+}
+
+"""
+Resource relationships for provisioning context
+"""
+input ProvisioningRelationshipsInput {
+  """
+  IDs of resources this resource depends on
+  """
+  dependsOn: [ID!]
+
+  """
+  IDs of resources that depend on this resource
+  """
+  dependents: [ID!]
+
+  """
+  Associated network interfaces (LAN, WAN, etc.)
+  """
+  networks: [ID!]
+
+  """
+  Associated firewall rules or policies
+  """
+  firewallRules: [ID!]
+
+  """
+  Associated routing rules
+  """
+  routingRules: [ID!]
+}
+
+# -----
+# Import/Export
+# -----
+
+"""
+Input for importing STAR (Setup Template Archive) state
+"""
+input ImportStarStateInput {
+  """
+  STAR state JSON - complete router configuration
+  """
+  starState: JSON!
+
+  """
+  Whether to override existing resources
+  """
+  overrideExisting: Boolean
+
+  """
+  Whether to validate before importing
+  """
+  validateFirst: Boolean
+}

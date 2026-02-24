@@ -198,8 +198,8 @@ export const TabNavigation = React.memo(function TabNavigation() {
   return (
     <>
       {/* Desktop Navigation - Top Tabs */}
-      <nav 
-        className="hidden md:block border-b border-default bg-transparent"
+      <nav
+        className="hidden md:block border-b border-border bg-transparent"
         role="navigation"
         aria-label="Router panel sections"
       >
@@ -237,7 +237,7 @@ export const TabNavigation = React.memo(function TabNavigation() {
 
       {/* Mobile Navigation - Bottom Bar */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 surface-secondary border-t border-default shadow-lg safe-bottom"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-muted border-t border-border shadow-lg safe-bottom"
         role="navigation"
         aria-label="Router panel sections"
       >

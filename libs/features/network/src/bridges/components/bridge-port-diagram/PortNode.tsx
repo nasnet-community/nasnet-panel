@@ -71,7 +71,7 @@ export const PortNode = memo(function PortNode({
       aria-label={`Port ${port.interface.name}`}
     >
       {/* Port Icon/Connector */}
-      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+      <div className="flex h-10 w-10 items-center justify-center rounded-[var(--semantic-radius-button)] bg-primary/10 text-primary">
         <svg
           width="24"
           height="24"

@@ -41,9 +41,9 @@ export const WifiSecuritySummary = React.memo(function WifiSecuritySummary({ int
     return (
       <section>
         <SectionHeader title={t('security.title')} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-pulse">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-muted rounded-xl p-4 h-24" />
+            <div key={i} className="bg-muted rounded-card-sm p-component-md h-24" />
           ))}
         </div>
       </section>
@@ -55,22 +55,22 @@ export const WifiSecuritySummary = React.memo(function WifiSecuritySummary({ int
   return (
     <section>
       <SectionHeader title={t('security.title')} />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md">
         {interfaces.map((iface) => {
           const security = getSecurityInfo(iface.securityProfile);
           const Icon = security.icon;
           return (
-            <div key={iface.id} className={`rounded-xl p-4 border ${security.bgColor} ${security.borderColor}`}>
+            <div key={iface.id} className={`rounded-card-sm p-component-md border ${security.bgColor} ${security.borderColor}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-foreground">{iface.name}</p>
-                  <p className="text-sm text-muted-foreground">{iface.ssid || t('status.notConfigured')}</p>
+                  <p className="font-medium font-display text-foreground">{iface.name}</p>
+                  <p className="text-sm text-muted-foreground font-mono">{iface.ssid || t('status.notConfigured')}</p>
                 </div>
                 <Icon className={`w-5 h-5 ${security.color}`} />
               </div>
-              <div className="mt-3 flex items-center gap-2">
-                <span className={`px-2 py-0.5 text-xs font-medium rounded ${security.color} ${security.bgColor}`}>{security.label}</span>
-                <span className="text-xs text-muted-foreground">{iface.securityProfile || t('status.noProfile')}</span>
+              <div className="mt-component-md flex items-center gap-component-sm">
+                <span className={`px-component-sm py-component-sm text-xs font-medium rounded-md ${security.color} ${security.bgColor}`}>{security.label}</span>
+                <span className="text-xs text-muted-foreground font-mono">{iface.securityProfile || t('status.noProfile')}</span>
               </div>
             </div>
           );

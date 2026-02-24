@@ -70,11 +70,11 @@ export const VlanManagementPage = React.memo(function VlanManagementPage({ route
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6 space-y-6 mx-auto">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold font-display tracking-tight">
             {t('vlan.title')}
           </h1>
           <p className="text-muted-foreground mt-2">

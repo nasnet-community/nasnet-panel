@@ -50,7 +50,7 @@ export const WiFiTab = React.memo(function WiFiTab() {
 
   if (isLoading) {
     return (
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 max-w-7xl mx-auto">
         <LoadingSkeleton />
       </div>
     );
@@ -58,17 +58,17 @@ export const WiFiTab = React.memo(function WiFiTab() {
 
   if (interfacesError) {
     return (
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
-        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
-          <h3 className="text-lg font-semibold text-destructive mb-2">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 max-w-7xl mx-auto">
+        <div className="bg-error/10 border border-error/30 rounded-card-sm p-6 text-center">
+          <h3 className="text-lg font-semibold text-error mb-2">
             {t('errors.loadFailed')}
           </h3>
-          <p className="text-sm text-destructive/80 mb-4">
+          <p className="text-sm text-error/80 mb-4">
             {interfacesError.message}
           </p>
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 bg-destructive/20 text-destructive rounded-lg text-sm font-medium hover:bg-destructive/30 transition-colors"
+            className="px-4 py-2 bg-error/10 text-error rounded-md text-sm font-medium hover:bg-error/20 transition-colors"
           >
             {t('buttons.tryAgain')}
           </button>
@@ -78,7 +78,7 @@ export const WiFiTab = React.memo(function WiFiTab() {
   }
 
   return (
-    <div className="px-4 py-4 md:px-6 md:py-6 space-y-6 max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 space-y-6 max-w-7xl mx-auto">
       {/* Page Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

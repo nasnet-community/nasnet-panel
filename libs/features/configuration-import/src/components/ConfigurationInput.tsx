@@ -281,7 +281,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                     : 'border-border hover:border-primary/60 hover:bg-muted/50'
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-                ${error ? 'border-destructive' : ''}
+                ${error ? 'border-error' : ''}
               `}
             >
               <div className="flex flex-col items-center text-center">
@@ -365,7 +365,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                   border rounded-xl resize-none
                   placeholder:text-muted-foreground
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-                  ${error ? 'border-destructive' : 'border-border'}
+                  ${error ? 'border-error' : 'border-border'}
                   ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
               />
@@ -395,8 +395,8 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 
       {/* Error message */}
       {error && (
-        <p className="text-sm text-destructive flex items-center gap-1.5" role="alert">
-          <span className="w-1 h-1 rounded-full bg-destructive" aria-hidden="true" />
+        <p className="text-sm text-error flex items-center gap-1.5" role="alert">
+          <span className="w-1 h-1 rounded-full bg-error" aria-hidden="true" />
           {error}
         </p>
       )}

@@ -3,10 +3,9 @@
 package router
 
 import (
-	"time"
-
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -821,6 +820,64 @@ func HasServiceTemplatesWith(preds ...predicate.ServiceTemplate) predicate.Route
 		schemaConfig := internal.SchemaConfigFromContext(s.Context())
 		step.To.Schema = schemaConfig.ServiceTemplate
 		step.Edge.Schema = schemaConfig.ServiceTemplate
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProvisioningSessions applies the HasEdge predicate on the "provisioning_sessions" edge.
+func HasProvisioningSessions() predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProvisioningSessionsTable, ProvisioningSessionsColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.ProvisioningSession
+		step.Edge.Schema = schemaConfig.ProvisioningSession
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProvisioningSessionsWith applies the HasEdge predicate on the "provisioning_sessions" edge with a given conditions (other predicates).
+func HasProvisioningSessionsWith(preds ...predicate.ProvisioningSession) predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := newProvisioningSessionsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.ProvisioningSession
+		step.Edge.Schema = schemaConfig.ProvisioningSession
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSubnetAllocations applies the HasEdge predicate on the "subnet_allocations" edge.
+func HasSubnetAllocations() predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubnetAllocationsTable, SubnetAllocationsColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.SubnetAllocation
+		step.Edge.Schema = schemaConfig.SubnetAllocation
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubnetAllocationsWith applies the HasEdge predicate on the "subnet_allocations" edge with a given conditions (other predicates).
+func HasSubnetAllocationsWith(preds ...predicate.SubnetAllocation) predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := newSubnetAllocationsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.SubnetAllocation
+		step.Edge.Schema = schemaConfig.SubnetAllocation
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

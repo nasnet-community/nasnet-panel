@@ -22,6 +22,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@nasnet/ui/utils';
 import {
   Button,
   Input,
@@ -142,13 +143,12 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4 pb-24">
+      <form onSubmit={handleSubmit} className="space-y-component-md pb-24">
         {/* Basic Configuration Section */}
-        <div className="bg-surface rounded-lg border">
+        <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-4 text-left"
-            style={{ minHeight: '44px' }}
+            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
             onClick={() => toggleSection('basic')}
           >
             <div className="flex items-center gap-3">
@@ -161,9 +161,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           </button>
 
           {expandedSections.basic && (
-            <div className="p-4 space-y-4 border-t">
+            <div className="p-component-md space-y-component-md border-t">
               {/* Name */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="name-mobile">
                   Webhook Name <span className="text-error">*</span>
                 </Label>
@@ -176,8 +176,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         {...field}
                         id="name-mobile"
                         placeholder="Production Alerts"
-                        style={{ minHeight: '44px' }}
-                        className={fieldState.error ? 'border-error' : ''}
+                        className={cn('min-h-11', fieldState.error ? 'border-error' : '')}
                       />
                       {fieldState.error && (
                         <p className="text-sm text-error mt-1">{fieldState.error.message}</p>
@@ -188,7 +187,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               </div>
 
               {/* URL */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="url-mobile">
                   Webhook URL <span className="text-error">*</span>
                 </Label>
@@ -202,8 +201,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         id="url-mobile"
                         type="url"
                         placeholder="https://api.example.com/webhook"
-                        style={{ minHeight: '44px' }}
-                        className={fieldState.error ? 'border-error' : ''}
+                        className={cn('min-h-11', fieldState.error ? 'border-error' : '')}
                       />
                       {fieldState.error && (
                         <p className="text-sm text-error mt-1">{fieldState.error.message}</p>
@@ -214,7 +212,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               </div>
 
               {/* Description */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="description-mobile">Description</Label>
                 <Controller
                   control={control}
@@ -225,7 +223,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                       id="description-mobile"
                       placeholder="Optional description"
                       rows={3}
-                      style={{ minHeight: '44px' }}
+                      className="min-h-11"
                     />
                   )}
                 />
@@ -235,11 +233,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Authentication Section */}
-        <div className="bg-surface rounded-lg border">
+        <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-4 text-left"
-            style={{ minHeight: '44px' }}
+            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
             onClick={() => toggleSection('auth')}
           >
             <div className="flex items-center gap-3">
@@ -252,16 +249,16 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           </button>
 
           {expandedSections.auth && (
-            <div className="p-4 space-y-4 border-t">
+            <div className="p-component-md space-y-component-md border-t">
               {/* Auth Type */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="authType-mobile">Authentication Type</Label>
                 <Controller
                   control={control}
                   name="authType"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="authType-mobile" style={{ minHeight: '44px' }}>
+                      <SelectTrigger id="authType-mobile" className="min-h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -269,11 +266,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           <SelectItem
                             key={option.value}
                             value={option.value}
-                            style={{ minHeight: '44px' }}
                           >
                             <div className="py-1">
                               <div className="font-medium">{option.label}</div>
-                              <div className="text-xs text-muted">{option.description}</div>
+                              <div className="text-xs text-muted-foreground">{option.description}</div>
                             </div>
                           </SelectItem>
                         ))}
@@ -286,7 +282,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               {/* Conditional Auth Fields */}
               {authType === 'BASIC' && (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="username-mobile">Username</Label>
                     <Controller
                       control={control}
@@ -295,12 +291,12 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         <Input
                           {...field}
                           id="username-mobile"
-                          style={{ minHeight: '44px' }}
+                          className="min-h-11"
                         />
                       )}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="password-mobile">Password</Label>
                     <Controller
                       control={control}
@@ -310,7 +306,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           {...field}
                           id="password-mobile"
                           type="password"
-                          style={{ minHeight: '44px' }}
+                          className="min-h-11"
                         />
                       )}
                     />
@@ -319,7 +315,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               )}
 
               {authType === 'BEARER' && (
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="bearerToken-mobile">Bearer Token</Label>
                   <Controller
                     control={control}
@@ -329,7 +325,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         {...field}
                         id="bearerToken-mobile"
                         type="password"
-                        style={{ minHeight: '44px' }}
+                        className="min-h-11"
                       />
                     )}
                   />
@@ -340,11 +336,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Template Configuration Section */}
-        <div className="bg-surface rounded-lg border">
+        <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-4 text-left"
-            style={{ minHeight: '44px' }}
+            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
             onClick={() => toggleSection('template')}
           >
             <div className="flex items-center gap-3">
@@ -357,16 +352,16 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           </button>
 
           {expandedSections.template && (
-            <div className="p-4 space-y-4 border-t">
+            <div className="p-component-md space-y-component-md border-t">
               {/* Template Type */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="template-mobile">Template Type</Label>
                 <Controller
                   control={control}
                   name="template"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="template-mobile" style={{ minHeight: '44px' }}>
+                      <SelectTrigger id="template-mobile" className="min-h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -374,11 +369,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           <SelectItem
                             key={preset.value}
                             value={preset.value}
-                            style={{ minHeight: '44px' }}
                           >
                             <div className="py-1">
                               <div className="font-medium">{preset.label}</div>
-                              <div className="text-xs text-muted">{preset.description}</div>
+                              <div className="text-xs text-muted-foreground">{preset.description}</div>
                             </div>
                           </SelectItem>
                         ))}
@@ -390,7 +384,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
 
               {/* Custom Template */}
               {template === 'CUSTOM' && (
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="customTemplate-mobile">
                     Custom Template JSON <span className="text-error">*</span>
                   </Label>
@@ -419,11 +413,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Custom Headers Section */}
-        <div className="bg-surface rounded-lg border">
+        <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-4 text-left"
-            style={{ minHeight: '44px' }}
+            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
             onClick={() => toggleSection('headers')}
           >
             <div className="flex items-center gap-3">
@@ -438,12 +431,12 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           </button>
 
           {expandedSections.headers && (
-            <div className="p-4 space-y-4 border-t">
+            <div className="p-component-md space-y-component-md border-t">
               {/* Existing Headers */}
               {Object.keys(headers).length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   {Object.entries(headers).map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-2 p-3 bg-muted rounded">
+                    <div key={key} className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">{key}</div>
                         <div className="text-xs text-muted truncate">{value}</div>
@@ -453,7 +446,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         variant="ghost"
                         size="sm"
                         onClick={() => removeHeader(key)}
-                        style={{ minHeight: '44px', minWidth: '44px' }}
+                        className="h-11 w-11"
                       >
                         <X className="w-5 h-5" />
                       </Button>
@@ -463,26 +456,25 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               )}
 
               {/* Add New Header */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Input
                   placeholder="Header name"
                   value={newHeaderKey}
                   onChange={(e) => setNewHeaderKey(e.target.value)}
-                  style={{ minHeight: '44px' }}
+                  className="min-h-11"
                 />
                 <Input
                   placeholder="Header value"
                   value={newHeaderValue}
                   onChange={(e) => setNewHeaderValue(e.target.value)}
-                  style={{ minHeight: '44px' }}
+                  className="min-h-11"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleAddHeader}
                   disabled={!newHeaderKey || !newHeaderValue}
-                  className="w-full"
-                  style={{ minHeight: '44px' }}
+                  className="w-full min-h-11"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Add Header
@@ -493,11 +485,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Advanced Settings Section */}
-        <div className="bg-surface rounded-lg border">
+        <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-4 text-left"
-            style={{ minHeight: '44px' }}
+            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
             onClick={() => toggleSection('advanced')}
           >
             <div className="flex items-center gap-3">
@@ -510,8 +501,8 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           </button>
 
           {expandedSections.advanced && (
-            <div className="p-4 space-y-4 border-t">
-              <div className="space-y-2">
+            <div className="p-component-md space-y-component-md border-t">
+              <div className="space-y-component-sm">
                 <Label htmlFor="timeoutSeconds-mobile">Timeout (seconds)</Label>
                 <Controller
                   control={control}
@@ -523,14 +514,14 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                       type="number"
                       min={1}
                       max={60}
-                      style={{ minHeight: '44px' }}
+                      className="min-h-11"
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   )}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="maxRetries-mobile">Max Retries</Label>
                 <Controller
                   control={control}
@@ -542,14 +533,14 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                       type="number"
                       min={0}
                       max={5}
-                      style={{ minHeight: '44px' }}
+                      className="min-h-11"
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   )}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="signingSecret-mobile">Signing Secret (optional)</Label>
                 <Controller
                   control={control}
@@ -559,20 +550,19 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                       {...field}
                       id="signingSecret-mobile"
                       type="password"
-                      style={{ minHeight: '44px' }}
+                      className="min-h-11"
                     />
                   )}
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-component-md">
                 <Controller
                   control={control}
                   name="retryEnabled"
                   render={({ field }) => (
                     <div
-                      className="flex items-center gap-3 p-3 bg-muted rounded cursor-pointer"
-                      style={{ minHeight: '44px' }}
+                      className="flex items-center gap-component-md p-component-sm bg-muted rounded-[var(--semantic-radius-button)] cursor-pointer min-h-11"
                       onClick={() => field.onChange(!field.value)}
                     >
                       <Checkbox
@@ -592,8 +582,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   name="enabled"
                   render={({ field }) => (
                     <div
-                      className="flex items-center gap-3 p-3 bg-muted rounded cursor-pointer"
-                      style={{ minHeight: '44px' }}
+                      className="flex items-center gap-component-md p-component-sm bg-muted rounded-[var(--semantic-radius-button)] cursor-pointer min-h-11"
                       onClick={() => field.onChange(!field.value)}
                     >
                       <Checkbox
@@ -613,12 +602,11 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Form Actions - Fixed Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-surface border-t space-y-2">
+        <div className="fixed bottom-0 left-0 right-0 p-component-md bg-card border-t space-y-component-sm">
           <Button
             type="submit"
             disabled={!isValid || isSubmitting}
-            className="w-full"
-            style={{ minHeight: '44px' }}
+            className="w-full min-h-11"
           >
             {isSubmitting ? 'Saving...' : isEditMode ? 'Update Webhook' : 'Create Webhook'}
           </Button>
@@ -629,8 +617,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               variant="outline"
               onClick={handleTest}
               disabled={isTesting}
-              className="w-full"
-              style={{ minHeight: '44px' }}
+              className="w-full min-h-11"
             >
               {isTesting ? 'Testing...' : 'Test Webhook'}
             </Button>
@@ -652,13 +639,13 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             <Alert variant={testResult?.success ? 'default' : 'destructive'}>
               <AlertDescription>{testResult?.message}</AlertDescription>
             </Alert>
 
             {testResult?.responseTimeMs && (
-              <div className="text-sm text-muted">
+              <div className="text-sm text-muted-foreground">
                 Response time: {testResult.responseTimeMs}ms
               </div>
             )}
@@ -670,8 +657,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                 setShowTestSheet(false);
                 clearTestResult();
               }}
-              className="w-full"
-              style={{ minHeight: '44px' }}
+              className="w-full min-h-11"
             >
               Close
             </Button>
@@ -689,15 +675,14 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="p-4 bg-muted rounded-lg">
-              <code className="text-sm break-all">{signingSecret}</code>
+          <div className="space-y-component-md">
+            <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)]">
+              <code className="text-sm break-all font-mono">{signingSecret}</code>
             </div>
 
             <Button
               onClick={handleCopySecret}
-              className="w-full"
-              style={{ minHeight: '44px' }}
+              className="w-full min-h-11"
             >
               <Copy className="w-4 h-4 mr-2" />
               {copied ? 'Copied!' : 'Copy to Clipboard'}
@@ -714,8 +699,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           <DialogFooter>
             <Button
               onClick={handleCloseSecretDialog}
-              className="w-full"
-              style={{ minHeight: '44px' }}
+              className="w-full min-h-11"
             >
               I've Saved the Secret
             </Button>

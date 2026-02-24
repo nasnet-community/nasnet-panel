@@ -31,7 +31,7 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 
 	// Update state to reconnecting
 	conn.UpdateStatus(func(status *Status) {
-		_ = status.SetReconnecting(0, time.Now()) //nolint:errcheck // state transition failure is non-fatal, reconnection proceeds regardless
+		_ = status.SetReconnecting(0, time.Now()) //nolint:errcheck // status transition is best-effort during reconnection attempt
 	})
 	m.publishStatusChange(ctx, routerID, prevState, StateReconnecting, "")
 
@@ -45,7 +45,10 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 		}
 
 		// Check if circuit breaker is open
-		if conn.CircuitBreaker != nil && conn.CircuitBreaker.IsOpen() {
+		if conn.CircuitBreaker == nil {
+			return backoff.Permanent(fmt.Errorf("circuit breaker not initialized"))
+		}
+		if conn.CircuitBreaker.IsOpen() {
 			return backoff.Permanent(fmt.Errorf("circuit breaker open"))
 		}
 
@@ -81,9 +84,12 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 		}
 
 		// Success
+		if cbResult == nil {
+			return fmt.Errorf("circuit breaker returned nil result")
+		}
 		client, ok := cbResult.(RouterClient)
 		if !ok {
-			return fmt.Errorf("unexpected result type from circuit breaker")
+			return fmt.Errorf("unexpected result type from circuit breaker: got %T", cbResult)
 		}
 		conn.SetClient(client)
 		return nil
@@ -95,12 +101,12 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 		// Reconnection failed permanently
 		if conn.IsManuallyDisconnected() {
 			conn.UpdateStatus(func(status *Status) {
-				_ = status.SetDisconnected(DisconnectReasonManual) //nolint:errcheck // state transition failure is non-fatal after permanent reconnection failure
+				_ = status.SetDisconnected(DisconnectReasonManual) //nolint:errcheck // status transition is best-effort after permanent reconnection failure
 			})
 			m.publishStatusChange(ctx, routerID, StateReconnecting, StateDisconnected, "manual")
 		} else {
 			conn.UpdateStatus(func(status *Status) {
-				_ = status.SetError(err.Error()) //nolint:errcheck // state transition failure is non-fatal after permanent reconnection failure
+				_ = status.SetError(err.Error()) //nolint:errcheck // status transition is best-effort after permanent reconnection failure
 			})
 			m.publishStatusChange(ctx, routerID, StateReconnecting, StateError, err.Error())
 		}
@@ -109,8 +115,20 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 
 	// Reconnection successful
 	client := conn.GetClient()
+	if client == nil {
+		// Should not happen since we just set it, but be defensive
+		m.logger.Error("client is nil after successful reconnection",
+			zap.String("routerID", routerID),
+		)
+		conn.UpdateStatus(func(status *Status) {
+			_ = status.SetError("client is nil after successful reconnection") //nolint:errcheck // status transition is best-effort on defensive check
+		})
+		m.publishStatusChange(ctx, routerID, StateReconnecting, StateError, "client is nil")
+		return
+	}
+
 	conn.UpdateStatus(func(status *Status) {
-		_ = status.SetConnected(string(client.Protocol()), client.Version()) //nolint:errcheck // state transition failure is non-fatal, client is already reconnected
+		_ = status.SetConnected(string(client.Protocol()), client.Version()) //nolint:errcheck // status transition is best-effort, client is already reconnected
 	})
 	m.publishStatusChange(ctx, routerID, StateReconnecting, StateConnected, "")
 

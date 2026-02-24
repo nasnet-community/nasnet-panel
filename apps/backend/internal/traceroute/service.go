@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	"backend/internal/utils"
 )
 
 // Service manages traceroute jobs and progress events.
@@ -37,7 +37,7 @@ func NewService(routerPort RouterPort) *Service {
 // Returns the job ID for subscription tracking.
 func (s *Service) Run(ctx context.Context, deviceID string, input Input) (string, error) {
 	// Generate job ID
-	jobID := uuid.New().String()
+	jobID := utils.GenerateID()
 
 	// Validate input
 	if err := s.validateInput(input); err != nil {
@@ -134,7 +134,11 @@ func (s *Service) Unsubscribe(jobID string, ch <-chan ProgressEvent) {
 	s.subMu.Lock()
 	defer s.subMu.Unlock()
 
-	subs := s.subscriptions[jobID]
+	subs, exists := s.subscriptions[jobID]
+	if !exists || len(subs) == 0 {
+		return
+	}
+
 	for i, sub := range subs {
 		if sub == ch {
 			s.subscriptions[jobID] = append(subs[:i], subs[i+1:]...)
@@ -163,11 +167,23 @@ func (s *Service) GetJob(jobID string) (*Job, error) {
 }
 
 // runTraceroute executes the traceroute and publishes progress events.
-func (s *Service) runTraceroute(_ context.Context, job *Job) {
+func (s *Service) runTraceroute(ctx context.Context, job *Job) {
+	// Create a context with timeout for the entire operation
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(job.Input.Timeout+5000)*time.Millisecond)
+	defer cancel()
+
 	startTime := time.Now()
 
 	// Build MikroTik command
 	cmd := BuildMikroTikCommand(job.Input)
+
+	// Check if job has been canceled before starting execution
+	select {
+	case <-ctx.Done():
+		s.handleError(job, "traceroute canceled before execution")
+		return
+	default:
+	}
 
 	// Execute command
 	output, err := s.routerPort.ExecuteCommand(job.DeviceID, cmd)
@@ -177,7 +193,7 @@ func (s *Service) runTraceroute(_ context.Context, job *Job) {
 	}
 
 	// Parse output
-	result, err := s.parser.ParseMikroTikOutput(output, job.Input.Target, job.Input.Protocol)
+	result, err := s.parser.ParseMikroTikOutput(output, job.Input.Target, job.Input.Protocol, job.Input.MaxHops)
 	if err != nil {
 		s.handleError(job, fmt.Sprintf("failed to parse traceroute output: %v", err))
 		return
@@ -196,6 +212,14 @@ func (s *Service) runTraceroute(_ context.Context, job *Job) {
 
 	// Publish hop discovered events
 	for _, hop := range result.Hops {
+		// Check if job was canceled during publishing
+		select {
+		case <-ctx.Done():
+			s.handleError(job, "traceroute canceled during publishing")
+			return
+		default:
+		}
+
 		hopCopy := hop
 		s.publishEvent(job.JobID, ProgressEvent{
 			JobID:     job.JobID,

@@ -16,7 +16,7 @@ import (
 	"backend/internal/events"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 // mockPathResolver is a mock implementation of storage.PathResolverPort for testing.
@@ -75,7 +75,10 @@ func (m *mockEventBus) Close() error {
 }
 
 // setupTestService creates a test Service with in-memory database and temp storage.
-func setupTestService(t *testing.T) (*config.Service, *ent.Client, string, func()) {
+// It automatically registers t.Cleanup() to ensure proper resource cleanup.
+func setupTestService(t *testing.T) (*config.Service, *ent.Client, string) {
+	t.Helper()
+
 	// Create temp directory for config files
 	tempDir, err := os.MkdirTemp("", "config_gen_test_*")
 	if err != nil {
@@ -94,7 +97,7 @@ func setupTestService(t *testing.T) (*config.Service, *ent.Client, string, func(
 	// Create mock dependencies
 	pathResolver := &mockPathResolver{configDir: tempDir}
 	eventBus := &mockEventBus{}
-	logger := zerolog.Nop()
+	logger := zap.NewNop()
 
 	// Create ConfigService
 	service, err := config.NewService(config.Config{
@@ -108,17 +111,17 @@ func setupTestService(t *testing.T) (*config.Service, *ent.Client, string, func(
 		t.Fatalf("Failed to create Service: %v", err)
 	}
 
-	cleanup := func() {
+	// Register cleanup to run after test completes
+	t.Cleanup(func() {
 		client.Close()
 		os.RemoveAll(tempDir)
-	}
+	})
 
-	return service, client, tempDir, cleanup
+	return service, client, tempDir
 }
 
 func TestService_ValidateConfig(t *testing.T) {
-	service, client, _, cleanup := setupTestService(t)
-	defer cleanup()
+	service, client, _ := setupTestService(t)
 
 	ctx := context.Background()
 
@@ -198,8 +201,7 @@ func TestService_ValidateConfig(t *testing.T) {
 }
 
 func TestService_GetSchema(t *testing.T) {
-	service, _, _, cleanup := setupTestService(t)
-	defer cleanup()
+	service, _, _ := setupTestService(t)
 
 	ctx := context.Background()
 
@@ -218,8 +220,7 @@ func TestService_GetSchema(t *testing.T) {
 }
 
 func TestService_ApplyConfig(t *testing.T) {
-	service, client, tempDir, cleanup := setupTestService(t)
-	defer cleanup()
+	service, client, tempDir := setupTestService(t)
 
 	ctx := context.Background()
 
@@ -297,8 +298,7 @@ func TestService_ApplyConfig(t *testing.T) {
 }
 
 func TestService_AtomicWrite(t *testing.T) {
-	service, client, tempDir, cleanup := setupTestService(t)
-	defer cleanup()
+	service, client, tempDir := setupTestService(t)
 
 	ctx := context.Background()
 
@@ -379,8 +379,7 @@ func TestService_AtomicWrite(t *testing.T) {
 }
 
 func TestService_GetConfig(t *testing.T) {
-	service, client, _, cleanup := setupTestService(t)
-	defer cleanup()
+	service, client, _ := setupTestService(t)
 
 	ctx := context.Background()
 

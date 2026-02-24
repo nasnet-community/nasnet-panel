@@ -6,11 +6,12 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
-	"backend/internal/vif/routing"
-
 	"backend/internal/events"
+	"backend/internal/vif/routing"
 )
 
 // EventHandler handles device routing events and cascade cleanup.
@@ -18,14 +19,19 @@ type EventHandler struct {
 	pbrEngine *routing.PBREngine
 	client    *ent.Client
 	publisher *events.Publisher
+	logger    *zap.Logger
 }
 
 // NewEventHandler creates a new event handler for device routing.
-func NewEventHandler(pbrEngine *routing.PBREngine, client *ent.Client, publisher *events.Publisher) *EventHandler {
+func NewEventHandler(pbrEngine *routing.PBREngine, client *ent.Client, publisher *events.Publisher, logger *zap.Logger) *EventHandler {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	return &EventHandler{
 		pbrEngine: pbrEngine,
 		client:    client,
 		publisher: publisher,
+		logger:    logger.Named("vif-event-handler"),
 	}
 }
 
@@ -75,16 +81,18 @@ func (h *EventHandler) HandleVirtualInterfaceDeleted(ctx context.Context, event 
 		if err != nil {
 			// Log error but continue with other routings
 			failureCount++
-			// TODO: Use proper logger
-			fmt.Printf("Failed to remove device routing %s: %v\n", r.ID, err)
+			h.logger.Error("failed to remove device routing", zap.Error(err), zap.String("device_id", r.DeviceID))
 		} else {
 			successCount++
 		}
 	}
 
 	// Log cleanup summary
-	fmt.Printf("VirtualInterface %s deleted: cleaned up %d device routings (%d succeeded, %d failed)\n",
-		interfaceID, len(routings), successCount, failureCount)
+	h.logger.Info("virtual interface deleted: cascade cleanup complete",
+		zap.String("interface_id", interfaceID),
+		zap.Int("total_routings", len(routings)),
+		zap.Int("succeeded", successCount),
+		zap.Int("failed", failureCount))
 
 	// Emit cleanup completion event
 	if h.publisher != nil {
@@ -131,15 +139,18 @@ func (h *EventHandler) HandleServiceInstanceDeleted(ctx context.Context, event e
 		err := h.pbrEngine.RemoveDeviceRouting(ctx, r.DeviceID)
 		if err != nil {
 			failureCount++
-			fmt.Printf("Failed to remove device routing %s: %v\n", r.ID, err)
+			h.logger.Error("failed to remove device routing", zap.Error(err), zap.String("device_id", r.DeviceID))
 		} else {
 			successCount++
 		}
 	}
 
 	// Log cleanup summary
-	fmt.Printf("ServiceInstance %s deleted: cleaned up %d device routings (%d succeeded, %d failed)\n",
-		instanceID, len(routings), successCount, failureCount)
+	h.logger.Info("service instance deleted: cascade cleanup complete",
+		zap.String("instance_id", instanceID),
+		zap.Int("total_routings", len(routings)),
+		zap.Int("succeeded", successCount),
+		zap.Int("failed", failureCount))
 
 	return nil
 }

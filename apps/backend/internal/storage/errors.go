@@ -18,6 +18,8 @@ const (
 	ErrCodeInvalidConfig    ErrorCode = "INVALID_CONFIG"
 	ErrCodeFlashNotAllowed  ErrorCode = "FLASH_NOT_ALLOWED"
 	ErrCodeExternalRequired ErrorCode = "EXTERNAL_REQUIRED"
+	ErrCodePathTraversal    ErrorCode = "PATH_TRAVERSAL_ATTEMPT"
+	ErrCodeInvalidServiceID ErrorCode = "INVALID_SERVICE_ID"
 
 	// Boot validation errors
 	ErrCodeChecksumMismatch ErrorCode = "CHECKSUM_MISMATCH"
